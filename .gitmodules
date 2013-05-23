@@ -1,0 +1,9 @@
+[submodule "extensions/filetransfer"]
+	path = extensions/filetransfer
+	url = git@bitbucket.org:trueaction/filetransfer
+[submodule "extensions/mage_log"]
+	path = extensions/mage_log
+	url = git@bitbucket.org:trueaction/mage_log
+[submodule "extensions/dom"]
+	path = extensions/dom
+	url = git@bitbucket.org:trueaction/dom.git

@@ -1,0 +1,8 @@
+<config>
+    <modules>
+        <TrueAction_Taxes>
+            <active>true</active>
+            <codePool>community</codePool>
+        </TrueAction_Taxes>
+    </modules>
+</config>

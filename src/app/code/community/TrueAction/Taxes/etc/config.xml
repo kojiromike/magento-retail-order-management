@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Module configuration
+ *
+ * @author TrueAction
+ */
+-->
+<config>
+	<modules>
+		<TrueAction_Taxes>
+			<version>0.1.0</version>
+		</TrueAction_Taxes>
+	</modules>
+	<global>
+		<models>
+			<taxes>
+				<class>TrueAction_Taxes_Model</class>
+			</taxes>
+		</models>
+		<helpers>
+			<taxes>
+				<class>TrueAction_Taxes_Helper</class>
+			</taxes>
+			<tax>
+				<rewrite>
+					<data>TrueAction_Taxes_Helper_Data</data>
+				</rewrite>
+			</tax>
+		</helpers>
+	</global>
+	<default>
+		<taxes>
+			<config>
+			</config>
+		</taxes>
+	</default>
+	<phpunit>
+		<suite>
+			<modules>
+				<TrueAction_Taxes />
+			</modules>
+		</suite>
+	</phpunit>
+</config>

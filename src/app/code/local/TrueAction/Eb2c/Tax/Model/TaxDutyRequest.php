@@ -40,5 +40,20 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest
 			->getNode('Shipping/ShipGroups');
 		$this->_xml = $xml;
 	}
+
+	public function getShipGroups()
+	{
+		$shippingAddresses = $this->getShippingAddress()->getQuote()
+			->getAllShippingAddresses();
+		$shipGroups = new Varien_Simplexml_Element();
+		foreach ($shippingAddresses as $address) {
+			$groupedRates = $address->getGroupedAllShippingRates();
+			$shipGroup = new Varien_Simplexml_Element();
+			$shipGroup->setNode('ShipGroup')
+				->getNode('ShipGroup')
+				->addAttribute('ref', $address->getId());
+			$shipGroups->appendChild($shipGroup);
+		}
+
 	}
 }

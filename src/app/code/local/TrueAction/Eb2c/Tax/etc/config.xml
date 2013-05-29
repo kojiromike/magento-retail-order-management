@@ -8,20 +8,20 @@
 -->
 <config>
 	<modules>
-		<TrueAction_Taxes>
+		<TrueAction_Eb2c_Tax>
 			<version>0.1.0</version>
-		</TrueAction_Taxes>
+		</TrueAction_Eb2c_Tax>
 	</modules>
 	<global>
 		<models>
-			<taxes>
-				<class>TrueAction_Taxes_Model</class>
-			</taxes>
+			<eb2ctax>
+				<class>TrueAction_Eb2c_Tax_Model</class>
+			</eb2ctax>
 		</models>
 		<helpers>
-			<taxes>
-				<class>TrueAction_Taxes_Helper</class>
-			</taxes>
+			<eb2ctax>
+				<class>TrueAction_Eb2c_Tax_Helper</class>
+			</eb2ctax>
 			<tax>
 				<rewrite>
 					<data>TrueAction_Taxes_Helper_Data</data>
@@ -30,15 +30,15 @@
 		</helpers>
 	</global>
 	<default>
-		<taxes>
+		<eb2ctax>
 			<config>
 			</config>
-		</taxes>
+		</eb2ctax>
 	</default>
 	<phpunit>
 		<suite>
 			<modules>
-				<TrueAction_Taxes />
+				<TrueAction_Eb2c_Tax />
 			</modules>
 		</suite>
 	</phpunit>

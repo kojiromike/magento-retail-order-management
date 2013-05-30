@@ -4,6 +4,19 @@
  */
 class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Test_Case
 {
+	/**
+	 * @var Mage_Sales_Model_Quote (mock)
+	 */
+	public $quote = null;
+	/**
+	 * @var Mage_Sales_Model_Quote_Address (mock)
+	 */
+	public $shipAddress=null;
+	/**
+	 * @var Mage_Sales_Model_Quote_Address (mock)
+	 */
+	public $billAddress=null;
+
 	public function setUp()
 	{
 		$this->quote       = $this->getModelMock('sales/quote', array('getCurrencyCode'))
@@ -30,7 +43,6 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 	 * */
 	public function testGetRateRequest()
 	{
-		print 'this test is being run';
 		$calc = new TrueAction_Eb2c_Tax_Model_Calculation();
 		$request = $calc->getRateRequest(
 			$this->shipAddress,

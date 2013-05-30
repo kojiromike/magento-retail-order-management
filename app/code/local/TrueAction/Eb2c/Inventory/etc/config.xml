@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * @category    TrueAction
+ * @package     TrueAction_Eb2c
+ * @copyright   Copyright (c) 2013 True Action (http://www.trueaction.com)
+ */
+-->
+<config>
+	<modules>
+		<TrueAction_Eb2c_Inventory>
+			<version>1.0.0</version>
+		</TrueAction_Eb2c_Inventory>
+	</modules>
+	<global>
+		<models>
+			<eb2c_inventory>
+				<class>TrueAction_Eb2c_Inventory_Model</class>
+		    </eb2c_inventory>
+		</models>
+		<helpers>
+			<eb2c_inventory>
+				<class>TrueAction_Eb2c_Inventory_Helper</class>
+			</eb2c_inventory>
+		</helpers>
+	</global>
+	<frontend>
+        <events>
+            <checkout_cart_add_product_complete>
+                <observers>
+                    <trueaction_eb2c_inventory_observer>
+                        <type>singleton</type>
+                        <class>TrueAction_Eb2c_Inventory_Model_Observer</class>
+                        <method>checkEb2cInventoryQuantity</method>
+                    </trueaction_eb2c_inventory_observer>
+                </observers>
+            </checkout_cart_add_product_complete>
+        </events>
+    </frontend>
+	<phpunit>
+		<suite>
+			<modules>
+				<TrueAction_Eb2c_Inventory />
+			</modules>
+		</suite>
+	</phpunit>
+</config>

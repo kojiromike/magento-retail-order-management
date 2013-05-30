@@ -17,7 +17,7 @@
 		<models>
 			<eb2c_inventory>
 				<class>TrueAction_Eb2c_Inventory_Model</class>
-		    </eb2c_inventory>
+			</eb2c_inventory>
 		</models>
 		<helpers>
 			<eb2c_inventory>
@@ -26,18 +26,27 @@
 		</helpers>
 	</global>
 	<frontend>
-        <events>
-            <checkout_cart_add_product_complete>
-                <observers>
-                    <trueaction_eb2c_inventory_observer>
-                        <type>singleton</type>
-                        <class>TrueAction_Eb2c_Inventory_Model_Observer</class>
-                        <method>checkEb2cInventoryQuantity</method>
-                    </trueaction_eb2c_inventory_observer>
-                </observers>
-            </checkout_cart_add_product_complete>
-        </events>
-    </frontend>
+		<events>
+			<checkout_cart_add_product_complete>
+				<observers>
+					<trueaction_eb2c_inventory_observer>
+						<type>singleton</type>
+						<class>TrueAction_Eb2c_Inventory_Model_Observer</class>
+						<method>checkEb2cInventoryQuantity</method>
+					</trueaction_eb2c_inventory_observer>
+				</observers>
+			</checkout_cart_add_product_complete>
+			<sales_quote_add_item>
+				<observers>
+					<trueaction_eb2c_inventory_observer>
+						<type>singleton</type>
+						<class>TrueAction_Eb2c_Inventory_Model_Observer</class>
+						<method>checkEb2cInventoryQtyAddNew</method>
+					</trueaction_eb2c_inventory_observer>
+				</observers>
+			</sales_quote_add_item>
+		</events>
+	</frontend>
 	<phpunit>
 		<suite>
 			<modules>

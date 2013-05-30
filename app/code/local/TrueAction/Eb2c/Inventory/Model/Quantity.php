@@ -33,8 +33,8 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	 */
 	public function requestQuantity($qty=0)
 	{
-		$isReserved = false;
-		if($qty > 0){
+		$isReserved = 0;
+		if ($qty > 0) {
 			// connect to eb2c
 			// check if request $qty is less than what's in eb2c
 			// if request $qty is less, then proceed to reserve it

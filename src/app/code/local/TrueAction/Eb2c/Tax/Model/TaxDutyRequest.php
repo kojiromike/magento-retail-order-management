@@ -14,6 +14,24 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest
 
 	protected function _construct()
 	{
+		$doc = new TrueAction_Eb2c_Core_Model_Dom_Document('1.0', 'UTF-8');
+		$tdRequest = $doc->appendChild(
+			$doc->createNode('TaxDutyRequest')
+		);
+		$tdRequest->createChild(
+			'Currency',
+			$this->getShippingAddress()->getQuote()->getCurrencyCode()
+		);
+		$tdRequest->createChild(
+			'BillingInformation',
+			null,
+			array('ref'=>$this->getBillingAddress()->getId())
+		)->setIdAttribute('ref', true);
+		$shipping = $tdRequest->createChild('Shipping');
+		$this->_shipGroups   = $shipping->createChild('ShipGroups');
+		$this->_destinations = $shipping->createChild('Destinations');
+		$this->_doc = $doc;
+	}
 		$this->setApiUrl(sprintf(
 			self::$_apiUrlFormat,
 			$this->_env,

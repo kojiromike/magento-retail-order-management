@@ -1,7 +1,7 @@
 <?php
 class TrueAction_Eb2c_Tax_Model_TaxDutyRequest
 {
-	protected static $_apiUrlFormat = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s%s.%s';
+	protected static $_apiUrlFormat = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s.%s';
 	protected $_env                 = 'developer';
 	protected $_region              = 'na';
 	protected $_version             = 'v1.10';

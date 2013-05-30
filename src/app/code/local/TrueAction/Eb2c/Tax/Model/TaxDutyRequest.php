@@ -14,7 +14,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 
 	protected function _construct()
 	{
-		$doc = new TrueAction_Eb2c_Core_Model_Dom_Document('1.0', 'UTF-8');
+		$doc = new TrueAction_Dom_Model_Document('1.0', 'UTF-8');
 		$tdRequest = $doc->appendChild(
 			$doc->createElement('TaxDutyRequest')
 		);
@@ -32,6 +32,9 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$this->_destinations = $shipping->createChild('Destinations');
 		$this->_doc = $doc;
 	}
+
+	protected function _createApiUrl()
+	{
 		$this->setApiUrl(sprintf(
 			self::$_apiUrlFormat,
 			$this->_env,
@@ -42,35 +45,18 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 			$this->_operation,
 			$this->_responseFormat
 		));
-		$address = $this->getShippingAddress();
-		$xml = new Varien_Simplexml_Element('<TaxDutyQuoteRequest/>');
-		$xml->setNode(
-			'Currency',
-			$this->getShippingAddress()->getQuote()->getCurrencyCode()
-		)
-		$xml->setNode('BillingInformation',	'');
-			->getNode('BillingInformation')
-			->addAttribute(
-				'ref',
-				$this->getBillingAddress()->getId()
-			);
-		$this->_shipGroups = $xml->setNode('Shipping/ShipGroups', '')
-			->getNode('Shipping/ShipGroups');
-		$this->_xml = $xml;
 	}
 
-	public function getShipGroups()
+	protected function _getShipGroups()
 	{
 		$shippingAddresses = $this->getShippingAddress()->getQuote()
 			->getAllShippingAddresses();
-		$shipGroups = new Varien_Simplexml_Element();
+		$shipGroups = $this->_shipGroups;
 		foreach ($shippingAddresses as $address) {
 			$groupedRates = $address->getGroupedAllShippingRates();
-			$shipGroup = new Varien_Simplexml_Element();
-			$shipGroup->setNode('ShipGroup')
-				->getNode('ShipGroup')
-				->addAttribute('ref', $address->getId());
-			$shipGroups->appendChild($shipGroup);
+			$shipGroup = $shipGroups->createChild('ShipGroup');
+			$shipGroup->setAttribute('ref', $address->getId());
+			$shipGroup->setIdAttribute('ref', true);
 		}
 
 	}
@@ -79,14 +65,13 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	{
 		$shippingAddresses = $this->getShippingAddress()->getQuote()
 			->getAllShippingAddresses();
-		$shipGroups = $this->_shipGroups;
+		$destinations = $this->_destinations;
 		foreach ($shippingAddresses as $address) {
 			$groupedRates = $address->getGroupedAllShippingRates();
-			$shipGroup = new TrueAction_Eb2c_Core_Model_Simplexml_Element();
+			$shipGroup = $destinations->createChild('ShipGroup');
 			$shipGroup->setNode('ShipGroup')
 				->getNode('ShipGroup')
 				->addAttribute('ref', $address->getId());
-			$shipGroups->appendChild($shipGroup);
 		}
 	}
 }

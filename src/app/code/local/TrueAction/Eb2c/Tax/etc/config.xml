@@ -24,7 +24,7 @@
 			</eb2ctax>
 			<tax>
 				<rewrite>
-					<data>TrueAction_Taxes_Helper_Data</data>
+					<data>TrueAction_Eb2c_Tax_Helper_Data</data>
 				</rewrite>
 			</tax>
 		</helpers>

@@ -74,4 +74,19 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest
 		}
 
 	}
+
+	protected function _getDestinations()
+	{
+		$shippingAddresses = $this->getShippingAddress()->getQuote()
+			->getAllShippingAddresses();
+		$shipGroups = $this->_shipGroups;
+		foreach ($shippingAddresses as $address) {
+			$groupedRates = $address->getGroupedAllShippingRates();
+			$shipGroup = new TrueAction_Eb2c_Core_Model_Simplexml_Element();
+			$shipGroup->setNode('ShipGroup')
+				->getNode('ShipGroup')
+				->addAttribute('ref', $address->getId());
+			$shipGroups->appendChild($shipGroup);
+		}
+	}
 }

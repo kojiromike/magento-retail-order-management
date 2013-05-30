@@ -16,7 +16,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest
 	{
 		$doc = new TrueAction_Eb2c_Core_Model_Dom_Document('1.0', 'UTF-8');
 		$tdRequest = $doc->appendChild(
-			$doc->createNode('TaxDutyRequest')
+			$doc->createElement('TaxDutyRequest')
 		);
 		$tdRequest->createChild(
 			'Currency',

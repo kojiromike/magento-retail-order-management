@@ -1,5 +1,5 @@
 <?php
-class TrueAction_Eb2c_Tax_Model_TaxDutyRequest
+class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 {
 	protected static $_apiUrlFormat = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s.%s';
 	protected $_env                 = 'developer';

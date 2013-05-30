@@ -1,4 +1,7 @@
 <?php
+/**
+ * tests the tax calculation class.
+ */
 class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Test_Case
 {
 	public function setUp()
@@ -15,7 +18,9 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 			->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(1));
-		$this->cls = ReflectionClass('TrueAction_Eb2c_Tax_Model_TaxDutyRequest');
+		$this->cls = new ReflectionClass(
+			'TrueAction_Eb2c_Tax_Model_TaxDutyRequest'
+		);
 		$this->xml = $this->cls->getProperty('_xml');
 		$this->xml->setAccessible(true);
 	}

@@ -72,7 +72,14 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 
 			$groupedRates = $address->getGroupedAllShippingRates();
 			$shipGroup = $shipGroups->createChild('ShipGroup');
-			$shipGroup->addIdAttribute('id', $this->_getShipGroupId());
+			$shipGroup->addIdAttribute('id', 'shipGroup_' . $this->_getShipGroupId());
+			$shipGroup->createChild('DestinationTarget')
+				->setAttribute('ref', 'dest_' . ++$this->_destinationId);
+			// TODO: REMOVE ME
+			Mage::log('DestinationTarget ref =' . 'dest_' . ++$this->_destinationId);
+		}
+	}
+
 	/**
 	 * assumes $parent is the MailingAddress node and populates it with the necessary
 	 * child nodes/data for the Address node.

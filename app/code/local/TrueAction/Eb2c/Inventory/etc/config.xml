@@ -27,7 +27,7 @@
 	</global>
 	<frontend>
 		<events>
-			<checkout_cart_add_product_complete>
+			<sales_quote_item_qty_set_after>
 				<observers>
 					<trueaction_eb2c_inventory_observer>
 						<type>singleton</type>
@@ -35,7 +35,7 @@
 						<method>checkEb2cInventoryQuantity</method>
 					</trueaction_eb2c_inventory_observer>
 				</observers>
-			</checkout_cart_add_product_complete>
+			</sales_quote_item_qty_set_after>
 			<sales_quote_add_item>
 				<observers>
 					<trueaction_eb2c_inventory_observer>

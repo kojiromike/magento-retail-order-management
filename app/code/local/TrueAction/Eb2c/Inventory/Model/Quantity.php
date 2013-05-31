@@ -31,7 +31,7 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	 *
 	 * @return boolean true/false
 	 */
-	public function requestQuantity($qty=0)
+	public function requestQuantity($qty=0, $product, $sku)
 	{
 		$isReserved = 0;
 		if ($qty > 0) {

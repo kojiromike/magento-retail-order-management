@@ -1,3 +1,6 @@
+[submodule "extensions/dom"]
+	path = extensions/dom
+	url = git@bitbucket.org:trueaction/dom.git
 [submodule "extensions/filetransfer"]
 	path = extensions/filetransfer
 	url = git@bitbucket.org:trueaction/filetransfer

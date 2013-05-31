@@ -18,6 +18,9 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	protected $_shipGroups          = null;
 	protected $_shipGroupIdCounter  = 0;
 
+	protected $_destinationId       = 0;
+	protected $_billingAddressId    = 0;
+
 	protected function _construct()
 	{
 		$doc = new TrueAction_Dom_Model_Document('1.0', 'UTF-8');

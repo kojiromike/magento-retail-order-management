@@ -55,11 +55,12 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		));
 	}
 
-	protected function _getShipGroups()
+	protected function _processAddresses($destinationId)
 	{
 		$shippingAddresses = $this->getShippingAddress()->getQuote()
 			->getAllShippingAddresses();
-		$shipGroups = $this->_shipGroups;
+		$shipGroups   = $this->_shipGroups;
+		$destinations = $this->_destinations;
 		foreach ($shippingAddresses as $address) {
 			$groupedRates = $address->getGroupedAllShippingRates();
 			$shipGroup = $shipGroups->createChild('ShipGroup');

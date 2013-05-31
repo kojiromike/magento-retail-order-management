@@ -11,6 +11,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 
 	protected $_xml                 = null;
 	protected $_shipGroups          = null;
+	protected $_shipGroupIdCounter  = 0;
 
 	protected function _construct()
 	{
@@ -55,7 +56,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		foreach ($shippingAddresses as $address) {
 			$groupedRates = $address->getGroupedAllShippingRates();
 			$shipGroup = $shipGroups->createChild('ShipGroup');
-			$shipGroup->addIdAttribute('id', $address->getId());
+			$shipGroup->addIdAttribute('id', $this->_getShipGroupId());
 		}
 
 	}
@@ -72,5 +73,10 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 				->getNode('ShipGroup')
 				->addAttribute('ref', $address->getId());
 		}
+	}
+
+	protected function _getShipGroupId()
+	{
+		return $this->_shipGroupIdCounter++;
 	}
 }

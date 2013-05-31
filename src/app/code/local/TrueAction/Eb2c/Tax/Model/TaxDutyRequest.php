@@ -1,6 +1,11 @@
 <?php
+/**
+ * generates the xml for an EB2C taxdutyrequest.
+ * @author mphang
+ */
 class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 {
+	// TODO: PUT THESE IN THE XML AND LOAD USING A HELPER
 	protected static $_apiUrlFormat = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s.%s';
 	protected $_env                 = 'developer';
 	protected $_region              = 'na';
@@ -16,18 +21,20 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	protected function _construct()
 	{
 		$doc = new TrueAction_Dom_Model_Document('1.0', 'UTF-8');
-		$tdRequest = $doc->appendChild(
-			$doc->createElement('TaxDutyRequest')
-		);
+		$tdRequest = $doc->appendChild($doc->createElement('TaxDutyRequest'));
 		$tdRequest->createChild(
 			'Currency',
 			$this->getShippingAddress()->getQuote()->getCurrencyCode()
 		);
+		// TODO: REMOVE ME
+		Mage::log('Currency Code =' . $this->getShippingAddress()->getQuote()->getCurrencyCode());
 		$tdRequest->createChild(
 			'BillingInformation',
 			null,
 			array('ref'=>$this->getBillingAddress()->getId())
-		)->setIdAttribute('ref', true);
+		);
+		// TODO: REMOVE ME
+		Mage::log('BillingINformation ref =' . $this->getBillingAddress()->getId());
 		$shipping = $tdRequest->createChild('Shipping');
 		$this->_shipGroups   = $shipping->createChild('ShipGroups');
 		$this->_destinations = $shipping->createChild('Destinations');

@@ -55,8 +55,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		foreach ($shippingAddresses as $address) {
 			$groupedRates = $address->getGroupedAllShippingRates();
 			$shipGroup = $shipGroups->createChild('ShipGroup');
-			$shipGroup->setAttribute('ref', $address->getId());
-			$shipGroup->setIdAttribute('ref', true);
+			$shipGroup->addIdAttribute('id', $address->getId());
 		}
 
 	}

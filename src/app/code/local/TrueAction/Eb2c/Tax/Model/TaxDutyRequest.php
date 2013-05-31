@@ -120,6 +120,17 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		}
 	}
 
+	protected function _getQuote()
+	{
+		$quote = null;
+		if ($this->getShippingAddress()) {
+			$quote =  $this->getShippingAddress()->getQuote();
+		} elseif ($this->getBillingAddress()) {
+			$quote = $this->getBillingAddress()->getQuote();
+		}
+		return $quote;
+	}
+
 	protected function _getShipGroupId()
 	{
 		return $this->_shipGroupIdCounter++;

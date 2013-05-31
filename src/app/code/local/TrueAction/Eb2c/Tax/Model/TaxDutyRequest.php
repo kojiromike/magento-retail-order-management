@@ -62,11 +62,48 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$shipGroups   = $this->_shipGroups;
 		$destinations = $this->_destinations;
 		foreach ($shippingAddresses as $address) {
+			$mailingAddress = $destinations->createChild('MailingAddress')
+				->addAttribute('id', 'dest_' . ++$this->_destinationId, true);
+			$this->_createPersonName($mailingAddress, $address);
+			$this->_createAddressNode($mailingAddress, $address);
+
 			$groupedRates = $address->getGroupedAllShippingRates();
 			$shipGroup = $shipGroups->createChild('ShipGroup');
 			$shipGroup->addIdAttribute('id', $this->_getShipGroupId());
+	/**
+	 * assumes $parent is the MailingAddress node and populates it with the necessary
+	 * child nodes/data for the Address node.
+	 * @param TrueAction_Dom_Document $parent
+	 * @param Mage_Sales_Model_Quote_Address $address
+	 */
+	protected function _createAddressNode($parent, $address)
+	{
+		$node = $parent->createChild('Address');
+		// loop through to get all of the street lines.
+		$street = $address->getStreet1();
+		$i = 1;
+		while ((bool)$street) {
+			$node->createChild('Line' . $i, $street);
+			++$i;
+			$street = $address->getStreet($i);
 		}
+		$node->createChild('City', $address->getCity())
+		$node->createChild('MainDivision', $address->getRegion()->getRegionCode());
+		$node->createChild('CountryCode', $address->getCountryCode());
+		$node->createChild('PostalCode', $address->getPostalCode());
+	}
 
+	/**
+	 * assumes $parent is the MailingAddress node and populates it with the necessary
+	 * child nodes/data for the PersonName node.
+	 * @param TrueAction_Dom_Document $parent
+	 * @param Mage_Sales_Model_Quote_Address $address
+	 */
+	protected function _createPersonName($parent, $address)
+	{
+		$node = $mailingAddress->createChild('PersonName');
+		$node->createChild('LastName', $address->getLastName());
+		$node->createChild('FirstName', $address->getFirstName());
 	}
 
 	protected function _getDestinations()

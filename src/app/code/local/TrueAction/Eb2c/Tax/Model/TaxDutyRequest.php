@@ -70,15 +70,15 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 			$personName = $mailingAddress->createChild('PersonName');
 			$this->_createPersonName($personName, $address);
 			$addressNode = $parent->createChild('Address');
-			$this->_createAddressNode($addressNode, $address);
+			$this->_buildAddressNode($addressNode, $address);
 
 			$groupedRates = $address->getGroupedAllShippingRates();
 			$shipGroup = $shipGroups->createChild('ShipGroup');
 			$shipGroup->addIdAttribute('id', 'shipGroup_' . $this->_getShipGroupId());
 			$shipGroup->createChild('DestinationTarget')
-				->setAttribute('ref', 'dest_' . ++$this->_destinationId);
+				->setAttribute('ref', $mailingAddress->getAttribute('id'));
 			// TODO: REMOVE ME
-			Mage::log('DestinationTarget ref =' . 'dest_' . ++$this->_destinationId);
+			Mage::log('DestinationTarget ref = ' . $mailingAddress->getAttribute('id'));
 		}
 	}
 

@@ -67,8 +67,10 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		foreach ($shippingAddresses as $address) {
 			$mailingAddress = $destinations->createChild('MailingAddress')
 				->addAttribute('id', 'dest_' . ++$this->_destinationId, true);
-			$this->_createPersonName($mailingAddress, $address);
-			$this->_createAddressNode($mailingAddress, $address);
+			$personName = $mailingAddress->createChild('PersonName');
+			$this->_createPersonName($personName, $address);
+			$addressNode = $parent->createChild('Address');
+			$this->_createAddressNode($addressNode, $address);
 
 			$groupedRates = $address->getGroupedAllShippingRates();
 			$shipGroup = $shipGroups->createChild('ShipGroup');
@@ -81,39 +83,37 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * assumes $parent is the MailingAddress node and populates it with the necessary
-	 * child nodes/data for the Address node.
+	 * assumes $parent is an Address node and populates it with the necessary
+	 * child nodes/data from the address.
 	 * @param TrueAction_Dom_Document $parent
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
-	protected function _createAddressNode($parent, $address)
+	protected function _buildAddressNode($parent, $address)
 	{
-		$node = $parent->createChild('Address');
 		// loop through to get all of the street lines.
 		$street = $address->getStreet1();
 		$i = 1;
 		while ((bool)$street) {
-			$node->createChild('Line' . $i, $street);
+			$parent->createChild('Line' . $i, $street);
 			++$i;
 			$street = $address->getStreet($i);
 		}
-		$node->createChild('City', $address->getCity())
-		$node->createChild('MainDivision', $address->getRegion()->getRegionCode());
-		$node->createChild('CountryCode', $address->getCountryCode());
-		$node->createChild('PostalCode', $address->getPostalCode());
+		$parent->createChild('City', $address->getCity())
+		$parent->createChild('MainDivision', $address->getRegion()->getRegionCode());
+		$parent->createChild('CountryCode', $address->getCountryCode());
+		$parent->createChild('PostalCode', $address->getPostalCode());
 	}
 
 	/**
-	 * assumes $parent is the MailingAddress node and populates it with the necessary
-	 * child nodes/data for the PersonName node.
+	 * populates $parent with the necessary nodes for a person's last name first name
+	 * using the specified address.
 	 * @param TrueAction_Dom_Document $parent
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
-	protected function _createPersonName($parent, $address)
+	protected function _buildPersonName($parent, $address)
 	{
-		$node = $mailingAddress->createChild('PersonName');
-		$node->createChild('LastName', $address->getLastName());
-		$node->createChild('FirstName', $address->getFirstName());
+		$parent->createChild('LastName', $address->getLastName());
+		$parent->createChild('FirstName', $address->getFirstName());
 	}
 
 	protected function _getDestinations()

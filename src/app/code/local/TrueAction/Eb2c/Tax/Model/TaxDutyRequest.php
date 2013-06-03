@@ -29,15 +29,11 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 			'Currency',
 			$this->getShippingAddress()->getQuote()->getCurrencyCode()
 		);
-		// TODO: REMOVE ME
-		Mage::log('Currency Code =' . $this->getShippingAddress()->getQuote()->getCurrencyCode());
 		$tdRequest->createChild(
 			'BillingInformation',
 			null,
 			array('ref'=>$this->getBillingAddress()->getId())
 		);
-		// TODO: REMOVE ME
-		Mage::log('BillingINformation ref =' . $this->getBillingAddress()->getId());
 		$shipping = $tdRequest->createChild('Shipping');
 		$this->_shipGroups   = $shipping->createChild('ShipGroups');
 		$this->_destinations = $shipping->createChild('Destinations');
@@ -64,7 +60,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 			->getAllShippingAddresses();
 		$shipGroups   = $this->_shipGroups;
 		$destinations = $this->_destinations;
-		foreach ($shippingAddresses as $address) {
+		foreach ($shippingAddresses as $addressKey => $address) {
 			$mailingAddress = $destinations->createChild('MailingAddress')
 				->addAttribute('id', 'dest_' . ++$this->_destinationId, true);
 			$personName = $mailingAddress->createChild('PersonName');
@@ -73,12 +69,14 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 			$this->_buildAddressNode($addressNode, $address);
 
 			$groupedRates = $address->getGroupedAllShippingRates();
-			$shipGroup = $shipGroups->createChild('ShipGroup');
-			$shipGroup->addIdAttribute('id', 'shipGroup_' . $this->_getShipGroupId());
-			$shipGroup->createChild('DestinationTarget')
-				->setAttribute('ref', $mailingAddress->getAttribute('id'));
-			// TODO: REMOVE ME
-			Mage::log('DestinationTarget ref = ' . $mailingAddress->getAttribute('id'));
+			foreach ($groupedRates as $rateKey => $shippingRate) {
+				$shipGroup = $shipGroups->createChild('ShipGroup');
+				$shipGroup->addIdAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true);
+				$shipGroup->createChild('DestinationTarget')
+					->setAttribute('ref', $mailingAddress->getAttribute('id'));
+				// TODO: REMOVE ME
+				Mage::log('DestinationTarget ref = ' . $mailingAddress->getAttribute('id'));
+			}
 		}
 	}
 

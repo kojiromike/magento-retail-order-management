@@ -17,6 +17,11 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 	 */
 	public $billAddress=null;
 
+	/**
+	 * @var ReflecitonProperty(TrueAction_Eb2c_Tax_Model_TaxDutyRequest::_xml)
+	 */
+	public $doc = null;
+
 	public function setUp()
 	{
 		$this->quote = $this->getModelMock('sales/quote', array('getCurrencyCode'));
@@ -34,13 +39,13 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 		$this->cls = new ReflectionClass(
 			'TrueAction_Eb2c_Tax_Model_TaxDutyRequest'
 		);
-		$this->xml = $this->cls->getProperty('_xml');
-		$this->xml->setAccessible(true);
+		$this->doc = $this->cls->getProperty('_doc');
+		$this->doc->setAccessible(true);
 	}
 
 	/**
 	 * @test
-	 * */
+	 */
 	public function testGetRateRequest()
 	{
 		$calc = new TrueAction_Eb2c_Tax_Model_Calculation();
@@ -50,9 +55,12 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 			'someclass',
 			null
 		);
-		$xml = $this->xml->getValue($request);
-		$this->assertTrue(isset($xml->BillingInformation));
-		$this->assertTrue(isset($xml->Shipping));
-		$this->assertTrue(isset($xml->Shipping->ShipGroups));
+		$doc = $this->doc->getValue($request);
+		$xpath = new DOMXPath($doc);
+		$this->assertSame('TaxDutyRequest', $doc->firstChild->nodeName);
+		$tdRequest = $doc->firstChild;
+		$this->assertSame(3, $tdRequest->childNodes->length);
+		$this->assertSame('Currency', $tdRequest->firstChild->nodeName);
+		$this->assertSame('USD', $tdRequest->firstChild->textContent);
 	}
 }

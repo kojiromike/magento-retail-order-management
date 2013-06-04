@@ -76,7 +76,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 					'Sorry for the inconvenience, however, this product is out of stock.'
 				);
 				// throwing an error to prevent the successful add to cart message
-				throw new Exception('Cannot add the item to shopping cart.');
+				Mage::throwException('Cannot add the item to shopping cart.');
 			}
 		}
 	}
@@ -126,7 +126,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 					'Sorry for the inconvenience, however, this product is out of stock.'
 				);
 				// throwing an error to prevent the successful add to cart message
-				throw new Exception('Cannot add the item to shopping cart.');
+				Mage::throwException('Cannot add the item to shopping cart.');
 			}
 		}
 	}

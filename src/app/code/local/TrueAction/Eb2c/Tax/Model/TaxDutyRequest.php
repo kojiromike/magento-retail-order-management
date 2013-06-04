@@ -67,7 +67,8 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 			$groupedRates = $address->getGroupedAllShippingRates();
 			foreach ($groupedRates as $rateKey => $shippingRate) {
 				$shipGroup = $shipGroups->createChild('ShipGroup');
-				$shipGroup->addIdAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true);
+				$shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)
+					->addAttribute('chargeType', strtoupper($shippingRate->getMethod()));
 				$shipGroup->createChild('DestinationTarget')
 					->setAttribute('ref', $mailingAddress->getAttribute('id'));
 				// TODO: REMOVE ME

@@ -23,5 +23,10 @@
 			</rewrite>
 		</sales_quote_address>
 	</models>
+	<helpers>
+		<eb2ccore>
+			<class>TrueAction_Eb2c_Core_Helper</class>
+		</eb2ccore>
+	</helpers>
 </global>
 </config>

@@ -7,6 +7,7 @@
 class TrueAction_Eb2c_Inventory_Model_Observer
 {
 	protected $_quantity;
+	protected $_details;
 
 	/**
 	 * Get Quantity instantiated object.
@@ -19,6 +20,19 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 			$this->_quantity = Mage::getModel('eb2c_inventory/quantity');
 		}
 		return $this->_quantity;
+	}
+
+	/**
+	 * Get Details instantiated object.
+	 *
+	 * @return TrueAction_Eb2c_Inventory_Model_Details
+	 */
+	protected function _getDetails()
+	{
+		if (!$this->_details) {
+			$this->_details = Mage::getModel('eb2c_inventory/details');
+		}
+		return $this->_details;
 	}
 
 	/**
@@ -130,5 +144,17 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				Mage::throwException('Cannot add the item to shopping cart.');
 			}
 		}
+	}
+
+	/**
+	 * Check e2bc inventoryDetails, triggering checkout_controller_onepage_save_shipping_method event will run this method.
+	 *
+	 * @param Varien_Event_Observer $observer
+	 * @return void
+	 */
+	public function processInventoryDetails($observer)
+	{
+		$quote = $observer->getEvent()->getQuote();
+		// More to do
 	}
 }

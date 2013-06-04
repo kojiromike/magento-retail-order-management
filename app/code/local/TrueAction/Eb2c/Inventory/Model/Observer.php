@@ -90,9 +90,10 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	public function checkEb2cInventoryQtyAddNew($observer)
 	{
 		$quoteItem = $observer->getEvent()->getQuoteItem();
-		$requestedQty = $quoteItem->getProduct()->getQty();
-		$productId = $quoteItem->getProduct()->getId();
-		$productSku = $quoteItem->getProduct()->getSku();
+		$product = $quoteItem->getProduct(); // get product from quote item
+		$requestedQty = $product->getQty();
+		$productId = $product->getId();
+		$productSku = $product->getSku();
 
 		if ($productId) {
 			// We have a valid product, let's check Eb2c Quantity

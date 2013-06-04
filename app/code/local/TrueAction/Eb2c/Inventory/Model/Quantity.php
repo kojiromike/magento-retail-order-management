@@ -33,7 +33,7 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	 */
 	public function requestQuantity($qty=0, $product, $sku)
 	{
-		$isReserved = 0;
+		$isReserved = 0; // this is to simulate out of stock reponse from eb2c
 		if ($qty > 0) {
 			// connect to eb2c
 			// check if request $qty is less than what's in eb2c

@@ -55,7 +55,10 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		));
 	}
 
-	protected function _processAddresses($destinationId)
+	/**
+	 * generates the nodes for the shipgroups and destinations subtrees.
+	 */
+	protected function _processAddresses()
 	{
 		$shippingAddresses = $this->getShippingAddress()->getQuote()
 			->getAllShippingAddresses();

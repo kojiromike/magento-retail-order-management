@@ -123,6 +123,10 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$parent->createChild('FirstName', $address->getFirstName());
 	}
 
+	/**
+	 * shortcut function to get the quote.
+	 * @return Mage_Sales_Model_Quote
+	 */
 	protected function _getQuote()
 	{
 		$quote = null;

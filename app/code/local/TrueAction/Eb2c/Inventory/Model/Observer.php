@@ -32,7 +32,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	}
 
 	/**
-	 * Check e2bc quanity, triggering sales_quote_item_qty_set_after event will run this method.
+	 * Check e2bc quantity, triggering sales_quote_item_qty_set_after event will run this method.
 	 *
 	 * @param Varien_Event_Observer $observer
 	 * @return void
@@ -79,7 +79,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	}
 
 	/**
-	 * Check e2bc quanity, triggering sales_quote_add_item event will run this method.
+	 * Check e2bc quantity, triggering sales_quote_add_item event will run this method.
 	 *
 	 * @param Varien_Event_Observer $observer
 	 * @return void

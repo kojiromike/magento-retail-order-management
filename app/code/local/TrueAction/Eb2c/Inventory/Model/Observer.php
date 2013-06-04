@@ -53,11 +53,14 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				// set cart item to eb2c available qty
 				$quoteItem->setQty($availableStock);
 
-				//recalc totals
-				$quoteItem->getQuote()->collectTotals();
+				// get quote from quote item
+				$quote = $quoteItem->getQuote();
 
-				//save the item
-				$quoteItem->getQuote()->save();
+				// recalc totals
+				$quote->collectTotals();
+
+				// save the quote
+				$quote->save();
 
 				$this->_getCart()->getCheckoutSession()->addNotice(
 					'Sorry for the inconvenience, however, the requested quantity ' .
@@ -100,11 +103,14 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				// set cart item to eb2c available qty
 				$quoteItem->setQty($availableStock);
 
-				//recalc totals
-				$quoteItem->getQuote()->collectTotals();
+				// get quote from quote item
+				$quote = $quoteItem->getQuote();
 
-				//save the item
-				$quoteItem->getQuote()->save();
+				// recalc totals
+				$quote->collectTotals();
+
+				// save the quote
+				$quote->save();
 
 				$this->_getCart()->getCheckoutSession()->addNotice(
 					'Sorry for the inconvenience, however, the requested quantity ' .

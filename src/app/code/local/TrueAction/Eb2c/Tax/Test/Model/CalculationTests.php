@@ -18,7 +18,7 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 	public $billAddress=null;
 
 	/**
-	 * @var ReflecitonProperty(TrueAction_Eb2c_Tax_Model_TaxDutyRequest::_xml)
+	 * @var ReflectionProperty(TrueAction_Eb2c_Tax_Model_TaxDutyRequest::_xml)
 	 */
 	public $doc = null;
 

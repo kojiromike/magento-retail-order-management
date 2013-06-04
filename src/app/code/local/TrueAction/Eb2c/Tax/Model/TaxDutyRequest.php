@@ -114,18 +114,6 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$parent->createChild('LastName', $address->getLastName());
 		$parent->createChild('FirstName', $address->getFirstName());
 	}
-
-	protected function _getDestinations()
-	{
-		$shippingAddresses = $this->getShippingAddress()->getQuote()
-			->getAllShippingAddresses();
-		$destinations = $this->_destinations;
-		foreach ($shippingAddresses as $address) {
-			$groupedRates = $address->getGroupedAllShippingRates();
-			$shipGroup = $destinations->createChild('ShipGroup');
-			$shipGroup->setNode('ShipGroup')
-				->getNode('ShipGroup')
-				->addAttribute('ref', $address->getId());
 		}
 	}
 

@@ -81,12 +81,9 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * assumes $parent is an Address node and populates it with the necessary
-	 * child nodes/data from the address.
-	 * @param TrueAction_Dom_Document $parent
-	 * @param Mage_Sales_Model_Quote_Address $address
+	 * Populate $parent with nodes using data extracted from the specified address.
 	 */
-	protected function _buildAddressNode($parent, $address)
+	protected function _buildAddressNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
 	{
 		// loop through to get all of the street lines.
 		$street = $address->getStreet1();
@@ -103,12 +100,9 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * populates $parent with the necessary nodes for a person's last name first name
-	 * using the specified address.
-	 * @param TrueAction_Dom_Document $parent
-	 * @param Mage_Sales_Model_Quote_Address $address
+	 * Populate $parent with the nodes for a person's name extracted from the specified address.
 	 */
-	protected function _buildPersonName($parent, $address)
+	protected function _buildPersonName(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
 	{
 		$honorific  = $address->getPrefix();
 		$middleName = $address->getMiddleName();
@@ -139,11 +133,9 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 
 	/**
 	 * builds the MailingAddress node
-	 * @param TrueAction_Dom_Element $parent
-	 * @param Mage_Sales_Model_Quote_Address $address
 	 * @return TrueAction_Dom_Element
 	 */
-	protected function _buildMailingAddressNode($parent, $address)
+	protected function _buildMailingAddressNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
 	{
 		$parent->createChild('MailingAddress')
 			->setAttribute('id', 'dest_' . ++$this->_destinationId, true);

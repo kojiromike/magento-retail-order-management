@@ -42,4 +42,30 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 		}
 		return $isReserved;
 	}
+
+	/**
+	 * take an array of quote item id and product sku id
+	 *
+	 * return Dom Document of the QuantityRequestMessage request
+	 */
+	public function buildQuantityRequestMessage($items)
+	{
+		$domDocument = $this->_getHelper()->getDomDocument();
+		$quantityRequestMessage = $domDocument->addElement('QuantityRequestMessage', null, $this->_getHelper()->getXmlNs())->firstChild;
+		if ($items) {
+			foreach ($items as $item) {
+				try{
+					$quantityRequestMessage->createChild(
+						'QuantityRequest',
+						null,
+						array('lineId' => $item['id'], 'itemId' => $item['sku'])
+					);
+				}catch(Exception $e){
+					Mage::logException($e);
+				}
+			}
+		}
+		return $domDocument;
+	}
+
 }

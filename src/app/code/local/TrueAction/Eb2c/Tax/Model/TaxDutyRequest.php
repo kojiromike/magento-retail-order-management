@@ -62,12 +62,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$shipGroups   = $this->_shipGroups;
 		$destinations = $this->_destinations;
 		foreach ($shippingAddresses as $addressKey => $address) {
-			$mailingAddress = $destinations->createChild('MailingAddress')
-				->addAttribute('id', 'dest_' . ++$this->_destinationId, true);
-			$personName = $mailingAddress->createChild('PersonName');
-			$this->_createPersonName($personName, $address);
-			$addressNode = $parent->createChild('Address');
-			$this->_buildAddressNode($addressNode, $address);
+			$mailingAddress = $this->_buildMailingAddressNode($destinations, $address);
 
 			$groupedRates = $address->getGroupedAllShippingRates();
 			foreach ($groupedRates as $rateKey => $shippingRate) {
@@ -138,8 +133,20 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		return $quote;
 	}
 
-	protected function _getShipGroupId()
+	/**
+	 * builds the MailingAddress node
+	 * @param TrueAction_Dom_Element $parent
+	 * @param Mage_Sales_Model_Quote_Address $address
+	 * @return TrueAction_Dom_Element
+	 */
+	protected function _buildMailingAddressNode($parent, $address)
 	{
-		return $this->_shipGroupIdCounter++;
+		$parent->createChild('MailingAddress')
+			->setAttribute('id', 'dest_' . ++$this->_destinationId, true);
+		$personName = $parent->createChild('PersonName');
+		$this->_createPersonName($personName, $address);
+		$addressNode = $parent->createChild('Address');
+		$this->_buildAddressNode($addressNode, $address);
+		return $mailingAddress;
 	}
 }

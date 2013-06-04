@@ -1,11 +1,4 @@
 <?xml version="1.0"?>
-<!--
-/**
- * Module configuration
- *
- * @author mphang
- */
--->
 <config>
 	<modules>
 		<TrueAction_Eb2c_Tax>

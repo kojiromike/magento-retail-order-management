@@ -11,13 +11,11 @@ class TrueAction_Eb2c_Tax_Model_Calculation extends Mage_Tax_Model_Calculation
 		$customerTaxClass = null,
 		$store = null
 	) {
-		$init = array(
+		return new TrueAction_Eb2c_Tax_Model_TaxDutyRequest(array(
 			'shipping_address'   => $shippingAddress,
 			'billing_address'    => $billingAddress,
 			'customer_tax_class' => $customerTaxClass,
 			'store'              => $store
-		);
-		$request = new TrueAction_Eb2c_Tax_Model_TaxDutyRequest($init);
-		return $request;
+		));
 	}
 }

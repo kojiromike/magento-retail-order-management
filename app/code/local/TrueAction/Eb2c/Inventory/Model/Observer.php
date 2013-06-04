@@ -46,12 +46,12 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 
 		if ($productId) {
 			// We have a valid product, let's check Eb2c Quantity
-			$ebTwoCAvailableStock = $this->_getQuantity()->requestQuantity($requestedQty, $productId, $productSku);
-			if ($ebTwoCAvailableStock < $requestedQty && $ebTwoCAvailableStock > 0) {
+			$availableStock = $this->_getQuantity()->requestQuantity($requestedQty, $productId, $productSku);
+			if ($availableStock < $requestedQty && $availableStock > 0) {
 				// Inventory Quantity is less in eb2c than what user requested from magento front-end
 				// then, remove item from cart, and then alert customers of the available stock number of this inventory
 				// set cart item to eb2c available qty
-				$quoteItem->setQty($ebTwoCAvailableStock);
+				$quoteItem->setQty($availableStock);
 
 				//recalc totals
 				$quoteItem->getQuote()->collectTotals();
@@ -62,10 +62,10 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				$this->_getCart()->getCheckoutSession()->addNotice(
 					'Sorry for the inconvenience, however, the requested quantity ' .
 					$requestedQty . ' is greater than what we currently have in stock ' .
-					$ebTwoCAvailableStock . '.'
+					$availableStock . '.'
 				);
 
-			} elseif ($ebTwoCAvailableStock <= 0) {
+			} elseif ($availableStock <= 0) {
 				// Inventory Quantity is out of stock in eb2c
 				// then, remove item from cart, and then alert customer the inventory is out of stock.
 				$quoteItem->getQuote()->deleteItem($quoteItem);
@@ -93,12 +93,12 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 
 		if ($productId) {
 			// We have a valid product, let's check Eb2c Quantity
-			$ebTwoCAvailableStock = $this->_getQuantity()->requestQuantity($requestedQty, $productId, $productSku);
-			if ($ebTwoCAvailableStock < $requestedQty && $ebTwoCAvailableStock > 0) {
+			$availableStock = $this->_getQuantity()->requestQuantity($requestedQty, $productId, $productSku);
+			if ($availableStock < $requestedQty && $availableStock > 0) {
 				// Inventory Quantity is less in eb2c than what user requested from magento front-end
 				// then, remove item from cart, and then alert customers of the available stock number of this inventory
 				// set cart item to eb2c available qty
-				$quoteItem->setQty($ebTwoCAvailableStock);
+				$quoteItem->setQty($availableStock);
 
 				//recalc totals
 				$quoteItem->getQuote()->collectTotals();
@@ -109,10 +109,10 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				$this->_getCart()->getCheckoutSession()->addNotice(
 					'Sorry for the inconvenience, however, the requested quantity ' .
 					$requestedQty . ' is greater than what we currently have in stock ' .
-					$ebTwoCAvailableStock . '.'
+					$availableStock . '.'
 				);
 
-			} elseif ($ebTwoCAvailableStock <= 0) {
+			} elseif ($availableStock <= 0) {
 				// Inventory Quantity is out of stock in eb2c
 				// then, remove item from cart, and then alert customer the inventory is out of stock.
 				$quoteItem->getQuote()->deleteItem($quoteItem);

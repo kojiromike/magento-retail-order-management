@@ -1,3 +1,4 @@
 # Import these extensions via their own modman files.
 @import extensions/filetransfer
 @import extensions/mage_log
+@import extensions/dom

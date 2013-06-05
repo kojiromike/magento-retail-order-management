@@ -7,23 +7,23 @@
 class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	/**
-	 * take a request, api url, default signature 'post' and soap curl request to eb2c webservice.
+	 * Call the API.
 	 *
-	 * @param $request - TrueAction_Dom_Document
-	 * @param $apiUri - string
-	 * @param $signature - string
+	 * @param DOMDocument $xmlDoc The xml document to send in the request body
+	 * @param string $apiUri The url of the request
+	 * @param string $method The HTTP method of the request (only POST is supported right now)
 	 *
-	 * @return $reponse - xml
+	 * @return string The response from the server.
 	 */
-	public function apiCall(TrueAction_Dom_Document $request, $apiUri, $signature='POST')
+	public function apiCall(DOMDocument $xmlDoc, $apiUri, $method='POST')
 	{
 		$client = new Varien_Http_Client($apiUri);
 		if (!function_exists('curl_init')) {
 			// curl isn't install in the server, let's use Socket
 			$client->setAdapter(new Zend_Http_Client_Adapter_Socket());
 		}
-		$client->setRawData($request->saveXML(), 'text/xml');
+		$client->setRawData($xmlDoc->saveXML(), 'text/xml');
 
-		return $client->request($signature);
+		return $client->request($method);
 	}
 }

@@ -17,13 +17,8 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function apiCall(DOMDocument $xmlDoc, $apiUri, $method='POST')
 	{
-		$client = new Varien_Http_Client($apiUri);
-		if (!function_exists('curl_init')) {
-			// curl isn't install in the server, let's use Socket
-			$client->setAdapter(new Zend_Http_Client_Adapter_Socket());
-		}
+		$client = new Varien_Http_Client($apiUri, array('adapter' => 'Zend_Http_Client_Adapter_Socket'));
 		$client->setRawData($xmlDoc->saveXML(), 'text/xml');
-
 		return $client->request($method);
 	}
 }

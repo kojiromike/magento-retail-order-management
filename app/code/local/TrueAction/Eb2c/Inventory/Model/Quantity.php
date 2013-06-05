@@ -27,26 +27,39 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * take a quantity request, reserve quantity in eb2c
+	 * Get the stock value for a product added to the cart from eb2c.
 	 *
-	 * @return boolean true/false
+	 * @param int $qty the customer requested quantity
+	 * @param int $itemId quote itemId in the shopping cart
+	 * @param string $sku product sku for the added item
+	 *
+	 * @return int $isReserved, the eb2c available stock for the item.
 	 */
-	public function requestQuantity($qty=0, $product, $sku)
+	public function requestQuantity($qty=0, $itemId, $sku)
 	{
-		$isReserved = 1; // this is to simulate out of stock reponse from eb2c
+		$isReserved = 0; // this is to simulate out of stock reponse from eb2c
 		if ($qty > 0) {
-			// connect to eb2c
-			// check if request $qty is less than what's in eb2c
-			// if request $qty is less, then proceed to reserve it
-			// if request $qty greater than, alert the user the $qty requested is greater in what's in stock.
+			// build request
+			$quantityRequestMessage = $this->buildQuantityRequestMessage(array('id' => $itemId, 'sku' => $sku));
+
+			// make request to eb2c for quantity
+			$quantityResponseMessage = $this->_getHelper()->getCoreHelper()->apiCall(
+				$quantityRequestMessage,
+				$this->_getHelper()->getQuantityUri()
+			);
+
+			// get available stock from reponse xml
+			$isReserved = $this->getAvailableStockFromResponse($quantityResponseMessage);
 		}
 		return $isReserved;
 	}
 
 	/**
-	 * take an array of quote item id and product sku id
+	 * Build quantity request.
 	 *
-	 * return Dom Document of the QuantityRequestMessage request
+	 * @param array $items The array containing quote item id and product sku
+	 *
+	 * @return DOMDocument The xml document, to be sent as request to eb2c.
 	 */
 	public function buildQuantityRequestMessage($items)
 	{
@@ -68,4 +81,21 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 		return $domDocument;
 	}
 
+	/**
+	 * parse through xml reponse to get eb2c available stock for an item.
+	 *
+	 * @param string $quantityResponseMessage the xml reponse from eb2c
+	 *
+	 * @return int $availableStock The available stock from eb2c.
+	 */
+	public function getAvailableStockFromResponse($quantityResponseMessage)
+	{
+		$availableStock = 0;
+		if (trim($quantityResponseMessage) !== '') {
+			if($response = simplexml_load_string($quantityResponseMessage)){
+				$availableStock = (int) $response->QuantityResponseMessage->QuantityResponse->Quantity;
+			}
+		}
+		return $availableStock;
+	}
 }

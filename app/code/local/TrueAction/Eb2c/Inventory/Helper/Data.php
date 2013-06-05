@@ -16,6 +16,21 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	const EB2C_URI_FROMAT = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s.%s';
 	const EB2C_INVENTORY_RETURN_FORMAT = 'xml';
 
+	public $coreHelper;
+
+	/**
+	 * Get core helper instantiated object.
+	 *
+	 * @return TrueAction_Eb2c_Core_Helper_Data
+	 */
+	public function getCoreHelper()
+	{
+		if (!$this->coreHelper) {
+			$this->coreHelper = Mage::helper('eb2ccore');
+		}
+		return $this->coreHelper;
+	}
+
 	/**
 	 * Get Dom instantiated object.
 	 *

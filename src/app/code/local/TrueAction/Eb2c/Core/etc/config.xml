@@ -1,32 +1,39 @@
 <?xml version="1.0"?>
 <config>
-<modules>
-	<trueaction_core>
-		<version>0.1</version>
-	</trueaction_core>
-</modules>
-<global>
-	<models>
-		<sales_order>
-			<rewrite>
-				<item>TrueAction_Eb2c_Core_Model_Order_Item</item>
-			</rewrite>
-		</sales_order>
-		<sales_quote>
-			<rewrite>
-				<item>TrueAction_Eb2c_Core_Model_Quote_Item</item>
-			</rewrite>
-		</sales_quote>
-		<sales_quote_address>
-			<rewrite>
-				<item>TrueAction_Eb2c_Core_Model_Quote_Address_Item</item>
-			</rewrite>
-		</sales_quote_address>
-	</models>
-	<helpers>
-		<eb2ccore>
-			<class>TrueAction_Eb2c_Core_Helper</class>
-		</eb2ccore>
-	</helpers>
-</global>
+	<modules>
+		<trueaction_core>
+			<version>0.1</version>
+		</trueaction_core>
+	</modules>
+	<global>
+		<models>
+			<sales_order>
+				<rewrite>
+					<item>TrueAction_Eb2c_Core_Model_Order_Item</item>
+				</rewrite>
+			</sales_order>
+			<sales_quote>
+				<rewrite>
+					<item>TrueAction_Eb2c_Core_Model_Quote_Item</item>
+				</rewrite>
+			</sales_quote>
+			<sales_quote_address>
+				<rewrite>
+					<item>TrueAction_Eb2c_Core_Model_Quote_Address_Item</item>
+				</rewrite>
+			</sales_quote_address>
+		</models>
+		<helpers>
+			<eb2ccore>
+				<class>TrueAction_Eb2c_Core_Helper</class>
+			</eb2ccore>
+		</helpers>
+	</global>
+	<phpunit>
+		<suite>
+			<modules>
+				<TrueAction_Eb2c_Core />
+			</modules>
+		</suite>
+	</phpunit>
 </config>

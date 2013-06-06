@@ -154,7 +154,13 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	 */
 	public function processInventoryDetails($observer)
 	{
+		// get the quote from the event observer
 		$quote = $observer->getEvent()->getQuote();
-		// More to do
+
+		// generate request and send request to eb2c inventory details
+		if ($inventoryDetailsResponseMessage = $this->_getDetails()->getInventoryDetails($quote)) {
+			// got a valid response from eb2c, then go ahead and update the quote with the eb2c information
+			$this->_getDetails()->processInventoryDetails($quote, $inventoryDetailsResponseMessage);
+		}
 	}
 }

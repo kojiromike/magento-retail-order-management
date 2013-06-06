@@ -16,6 +16,10 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	const EB2C_URI_FROMAT = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s.%s';
 	const EB2C_INVENTORY_RETURN_FORMAT = 'xml';
 
+	const EB2C_INVENTORY_DEVELOPER_MODE = 'eb2c/inventory/developerMode';
+	const EB2C_INVENTORY_DEVELOPER_MODE_QTY_API_URI = 'eb2c/inventory/quantityApiUri';
+	const EB2C_INVENTORY_DEVELOPER_MODE_DETAIL_API_URI = 'eb2c/inventory/inventoryDetailUri';
+
 	public $coreHelper;
 
 	/**
@@ -42,6 +46,39 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
+	 * isDeveloperMode method
+	 */
+	public function isDeveloperMode($store=null)
+	{
+		return Mage::getStoreConfigFlag(
+			self::EB2C_INVENTORY_DEVELOPER_MODE,
+			$store
+		);
+	}
+
+	/**
+	 * getDeveloperModeQtyApiUri method
+	 */
+	public function getDeveloperModeQtyApiUri($store=null)
+	{
+		return Mage::getStoreConfig(
+			self::EB2C_INVENTORY_DEVELOPER_MODE_QTY_API_URI,
+			$store
+		);
+	}
+
+	/**
+	 * getDeveloperModeDetailApiUri method
+	 */
+	public function getDeveloperModeDetailApiUri($store=null)
+	{
+		return Mage::getStoreConfig(
+			self::EB2C_INVENTORY_DEVELOPER_MODE_DETAIL_API_URI,
+			$store
+		);
+	}
+
+	/**
 	 * getXmlNs method
 	 */
 	public function getXmlNs()
@@ -54,16 +91,20 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getQuantityUri()
 	{
-		return sprintf(
-			self::EB2C_URI_FROMAT,
-			self::EB2C_INVENTORY_ENV,
-			self::EB2C_INVENTORY_REGION,
-			self::EB2C_INVENTORY_VERSION,
-			Mage::app()->getStore()->getStoreId(),
-			self::EB2C_INVENTORY_SERVICE,
-			self::EB2C_INVENTORY_OPT_QTY,
-			self::EB2C_INVENTORY_RETURN_FORMAT
-		);
+		$apiUri = $this->getDeveloperModeQtyApiUri();
+		if (!$this->isDeveloperMode()){
+			$apiUri = sprintf(
+				self::EB2C_URI_FROMAT,
+				self::EB2C_INVENTORY_ENV,
+				self::EB2C_INVENTORY_REGION,
+				self::EB2C_INVENTORY_VERSION,
+				Mage::app()->getStore()->getStoreId(),
+				self::EB2C_INVENTORY_SERVICE,
+				self::EB2C_INVENTORY_OPT_QTY,
+				self::EB2C_INVENTORY_RETURN_FORMAT
+			);
+		}
+		return $apiUri;
 	}
 
 	/**
@@ -71,15 +112,19 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getInventoryDetailsUri()
 	{
-		return sprintf(
-			self::EB2C_URI_FROMAT,
-			self::EB2C_INVENTORY_ENV,
-			self::EB2C_INVENTORY_REGION,
-			self::EB2C_INVENTORY_VERSION,
-			Mage::app()->getStore()->getStoreId(),
-			self::EB2C_INVENTORY_SERVICE,
-			self::EB2C_INVENTORY_OPT_INV_DETAILS,
-			self::EB2C_INVENTORY_RETURN_FORMAT
-		);
+		$apiUri = $this->getDeveloperModeDetailApiUri();
+		if (!$this->isDeveloperMode()){
+			$apiUri = sprintf(
+				self::EB2C_URI_FROMAT,
+				self::EB2C_INVENTORY_ENV,
+				self::EB2C_INVENTORY_REGION,
+				self::EB2C_INVENTORY_VERSION,
+				Mage::app()->getStore()->getStoreId(),
+				self::EB2C_INVENTORY_SERVICE,
+				self::EB2C_INVENTORY_OPT_INV_DETAILS,
+				self::EB2C_INVENTORY_RETURN_FORMAT
+			);
+		}
+		return $apiUri;
 	}
 }

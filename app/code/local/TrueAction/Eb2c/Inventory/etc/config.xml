@@ -55,7 +55,16 @@
 				</observers>
 			</checkout_controller_onepage_save_shipping_method>
 		</events>
-	</frontend>
+    </frontend>
+	<default>
+		<eb2c>
+			<inventory>
+				<developerMode>1</developerMode>
+				<quantityApiUri>http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/QuantityResponseMessage.xml</quantityApiUri>
+				<inventoryDetailUri>http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/InventoryDetailsResponseMessage.xml</inventoryDetailUri>
+			</inventory>
+		</eb2c>
+	</default>
 	<phpunit>
 		<suite>
 			<modules>

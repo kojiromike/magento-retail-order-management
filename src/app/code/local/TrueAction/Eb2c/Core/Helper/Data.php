@@ -13,12 +13,17 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	 * @param string $apiUri The url of the request
 	 * @param string $method The HTTP method of the request (only POST is supported right now)
 	 *
-	 * @return string The response from the server.
+	 * @return string $results The response from the server.
 	 */
 	public function apiCall(DOMDocument $xmlDoc, $apiUri, $method='POST')
 	{
 		$client = new Varien_Http_Client($apiUri, array('adapter' => 'Zend_Http_Client_Adapter_Socket'));
-		$client->setRawData($xmlDoc->saveXML(), 'text/xml');
-		return $client->request($method);
+		$client->setRawData($xmlDoc->saveXML())->setEncType('text/xml');
+		$response = $client->request($method);
+		$results = '';
+		if ($response->isSuccessful()) {
+			$results = $response->getBody();
+		}
+		return $results;
 	}
 }

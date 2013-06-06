@@ -13,7 +13,7 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	 * @param string $apiUri The url of the request
 	 * @param string $method The HTTP method of the request (only POST is supported right now)
 	 *
-	 * @return string $results The response from the server.
+	 * @return string The response from the server.
 	 */
 	public function apiCall(DOMDocument $xmlDoc, $apiUri, $method='POST')
 	{

@@ -24,9 +24,9 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 
 	public function setUp()
 	{
-		$this->quote = $this->getModelMock('sales/quote', array('getCurrencyCode'));
+		$this->quote = $this->getModelMock('sales/quote', array('getQuoteCurrencyCode'));
 		$this->quote->expects($this->any())
-			->method('getCurrencyCode')
+			->method('getQuoteCurrencyCode')
 			->will($this->returnValue('USD'));
 		$this->shipAddress = $this->getModelMock('sales/quote_address', array('getQuote'));
 		$this->shipAddress->expects($this->any())

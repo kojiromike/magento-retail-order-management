@@ -63,4 +63,28 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 		$this->assertSame('Currency', $tdRequest->firstChild->nodeName);
 		$this->assertSame('USD', $tdRequest->firstChild->textContent);
 	}
+
+	/**
+	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture testGetRateRequest.yaml
+	 */
+	public function testGetRateRequest2()
+	{
+		$quote = Mage::getModel('sales/quote')->load(2);
+		$shipAddress = $quote->getShippingAddress();
+		$billaddress = $quote->getBillingAddress();
+
+		print "\n currency " . $quote->getQuoteCurrencyCode();
+
+		$calc = new TrueAction_Eb2c_Tax_Model_Calculation();
+		$request = $calc->getRateRequest($shipAddress, $billaddress, 'someclass', null);
+		$doc = $this->doc->getValue($request);
+		$xpath = new DOMXPath($doc);
+		$this->assertSame('TaxDutyRequest', $doc->firstChild->nodeName);
+		$tdRequest = $doc->firstChild;
+		$this->assertSame(3, $tdRequest->childNodes->length);
+		$this->assertSame('Currency', $tdRequest->firstChild->nodeName);
+		$this->assertSame('USD', $tdRequest->firstChild->textContent);
+	}
 }

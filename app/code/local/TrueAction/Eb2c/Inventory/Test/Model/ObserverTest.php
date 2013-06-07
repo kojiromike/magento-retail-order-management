@@ -93,86 +93,6 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 		);
 	}
 
-	public function providerCheckEb2cInventoryQtyAddNew()
-	{
-		$productMock = $this->getMock('Mage_Catalog_Model_Product', array('getQty', 'getId', 'getSku'));
-		$productMock->expects($this->any())
-			->method('getQty')
-			->will($this->returnValue(1)
-			);
-		$productMock->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(1)
-			);
-		$productMock->expects($this->any())
-			->method('getSku')
-			->will($this->returnValue('SKU-1234')
-			);
-
-		$quoteAMock = $this->getMock('Mage_Sales_Model_Quote', array('collectTotals', 'save', 'deleteItem'));
-		$quoteAMock->expects($this->any())
-			->method('collectTotals')
-			->will($this->returnValue(1)
-			);
-		$quoteAMock->expects($this->any())
-			->method('save')
-			->will($this->returnValue(1)
-			);
-		$quoteAMock->expects($this->any())
-			->method('deleteItem')
-			->will($this->returnValue(1)
-			);
-
-		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getProductId', 'getSku', 'getQuote', 'getProduct'));
-		$itemMock->expects($this->any())
-			->method('getQty')
-			->will($this->returnValue(1)
-			);
-		$itemMock->expects($this->any())
-			->method('getProductId')
-			->will($this->returnValue(1)
-			);
-		$itemMock->expects($this->any())
-			->method('getSku')
-			->will($this->returnValue('SKU-1234')
-			);
-		$itemMock->expects($this->any())
-			->method('getQuote')
-			->will($this->returnValue($quoteAMock)
-			);
-		$itemMock->expects($this->any())
-			->method('getProduct')
-			->will($this->returnValue($productMock)
-			);
-
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getQuoteItem'));
-		$quoteMock->expects($this->any())
-			->method('getQuoteItem')
-			->will($this->returnValue($itemMock)
-			);
-
-		$observerMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Observer', array('getEvent'));
-		$observerMock->expects($this->any())
-			->method('getEvent')
-			->will($this->returnValue($quoteMock));
-		return array(
-			array($observerMock)
-		);
-	}
-
-	/**
-	 * testing check
-	 *
-	 * @test
-	 * @dataProvider providerCheckEb2cInventoryQtyAddNew
-	 */
-	public function testCheckEb2cInventoryQtyAddNew($observer)
-	{
-		$this->assertNull(
-			$this->_getObserver()->checkEb2cInventoryQtyAddNew($observer)
-		);
-	}
-
 	public function providerProcessInventoryDetails()
 	{
 		$addressMock = $this->getMock('Mage_Sales_Model_Quote_Address',
@@ -217,7 +137,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->will($this->returnValue('SKU-1234')
 			);
 
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems', 'getShippingAddress'));
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems', 'getShippingAddress', 'getItemById'));
 		$quoteMock->expects($this->any())
 			->method('getAllItems')
 			->will($this->returnValue(array($itemMock))
@@ -226,11 +146,19 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->method('getShippingAddress')
 			->will($this->returnValue($addressMock)
 			);
+		$quoteMock->expects($this->any())
+			->method('getItemById')
+			->will($this->returnValue($itemMock)
+			);
+		$eventMock = $this->getMock('Varien_Event', array('getQuote'));
+		$eventMock->expects($this->any())
+			->method('getQuote')
+			->will($this->returnValue($quoteMock));
 
-		$observerMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Observer', array('getEvent'));
+		$observerMock = $this->getMock('Varien_Event', array('getEvent'));
 		$observerMock->expects($this->any())
 			->method('getEvent')
-			->will($this->returnValue($quoteMock));
+			->will($this->returnValue($eventMock));
 		return array(
 			array($observerMock)
 		);

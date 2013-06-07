@@ -46,8 +46,11 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 
 	public function expectedBuildQuantityRequestMessage()
 	{
-		return '<?xml version="1.0" encoding="UTF-8"?>
-<QuantityRequestMessage xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><QuantityRequest lineId="1" itemId="SKU_TEST_1"/><QuantityRequest lineId="2" itemId="SKU_TEST_2"/><QuantityRequest lineId="3" itemId="SKU_TEST_3"/></QuantityRequestMessage>';
+		return '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
+			preg_replace('/[\t\n\r]/', '', '<QuantityRequestMessage xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
+				<QuantityRequest lineId="1" itemId="SKU_TEST_1"/><QuantityRequest lineId="2" itemId="SKU_TEST_2"/>
+				<QuantityRequest lineId="3" itemId="SKU_TEST_3"/></QuantityRequestMessage>'
+			);
 	}
 
 	/**

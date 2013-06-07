@@ -6,19 +6,19 @@
  */
 class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 {
-	const EB2C_INVENTORY_XMLNS = 'http://api.gsicommerce.com/schema/checkout/1.0';
-	const EB2C_INVENTORY_ENV = 'developer';
-	const EB2C_INVENTORY_REGION = 'na';
-	const EB2C_INVENTORY_VERSION = 'v1.10';
-	const EB2C_INVENTORY_SERVICE = 'inventory';
-	const EB2C_INVENTORY_OPT_QTY = 'quantity';
-	const EB2C_INVENTORY_OPT_INV_DETAILS = 'inventoryDetails';
-	const EB2C_URI_FROMAT = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s.%s';
-	const EB2C_INVENTORY_RETURN_FORMAT = 'xml';
+	const XMLNS = 'http://api.gsicommerce.com/schema/checkout/1.0';
+	const ENV = 'developer';
+	const REGION = 'na';
+	const VERSION = 'v1.10';
+	const SERVICE = 'inventory';
+	const OPT_QTY = 'quantity';
+	const OPT_INV_DETAILS = 'inventoryDetails';
+	const URI_FROMAT = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s.%s';
+	const RETURN_FORMAT = 'xml';
 
-	const EB2C_INVENTORY_DEVELOPER_MODE = 'eb2c/inventory/developerMode';
-	const EB2C_INVENTORY_DEVELOPER_MODE_QTY_API_URI = 'eb2c/inventory/quantityApiUri';
-	const EB2C_INVENTORY_DEVELOPER_MODE_DETAIL_API_URI = 'eb2c/inventory/inventoryDetailUri';
+	const DEV_MODE = 'eb2c/inventory/developerMode';
+	const DEV_MODE_QTY_API_URI = 'eb2c/inventory/quantityApiUri';
+	const DEV_MODE_DETAIL_API_URI = 'eb2c/inventory/inventoryDetailUri';
 
 	public $coreHelper;
 
@@ -46,44 +46,11 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * isDeveloperMode method
-	 */
-	public function isDeveloperMode($store=null)
-	{
-		return Mage::getStoreConfigFlag(
-			self::EB2C_INVENTORY_DEVELOPER_MODE,
-			$store
-		);
-	}
-
-	/**
-	 * getDeveloperModeQtyApiUri method
-	 */
-	public function getDeveloperModeQtyApiUri($store=null)
-	{
-		return Mage::getStoreConfig(
-			self::EB2C_INVENTORY_DEVELOPER_MODE_QTY_API_URI,
-			$store
-		);
-	}
-
-	/**
-	 * getDeveloperModeDetailApiUri method
-	 */
-	public function getDeveloperModeDetailApiUri($store=null)
-	{
-		return Mage::getStoreConfig(
-			self::EB2C_INVENTORY_DEVELOPER_MODE_DETAIL_API_URI,
-			$store
-		);
-	}
-
-	/**
 	 * getXmlNs method
 	 */
 	public function getXmlNs()
 	{
-		return self::EB2C_INVENTORY_XMLNS;
+		return self::XMLNS;
 	}
 
 	/**
@@ -91,17 +58,17 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getQuantityUri()
 	{
-		$apiUri = $this->getDeveloperModeQtyApiUri();
-		if (!$this->isDeveloperMode()){
+		$apiUri = Mage::getStoreConfig(self::DEV_MODE_QTY_API_URI, null);
+		if (!Mage::getStoreConfigFlag(self::DEV_MODE, null)) {
 			$apiUri = sprintf(
-				self::EB2C_URI_FROMAT,
-				self::EB2C_INVENTORY_ENV,
-				self::EB2C_INVENTORY_REGION,
-				self::EB2C_INVENTORY_VERSION,
+				self::URI_FROMAT,
+				self::ENV,
+				self::REGION,
+				self::VERSION,
 				Mage::app()->getStore()->getStoreId(),
-				self::EB2C_INVENTORY_SERVICE,
-				self::EB2C_INVENTORY_OPT_QTY,
-				self::EB2C_INVENTORY_RETURN_FORMAT
+				self::SERVICE,
+				self::OPT_QTY,
+				self::RETURN_FORMAT
 			);
 		}
 		return $apiUri;
@@ -112,17 +79,17 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getInventoryDetailsUri()
 	{
-		$apiUri = $this->getDeveloperModeDetailApiUri();
-		if (!$this->isDeveloperMode()){
+		$apiUri = Mage::getStoreConfig(self::DEV_MODE_DETAIL_API_URI, null);
+		if (!Mage::getStoreConfigFlag(self::DEV_MODE, null)) {
 			$apiUri = sprintf(
-				self::EB2C_URI_FROMAT,
-				self::EB2C_INVENTORY_ENV,
-				self::EB2C_INVENTORY_REGION,
-				self::EB2C_INVENTORY_VERSION,
+				self::URI_FROMAT,
+				self::ENV,
+				self::REGION,
+				self::VERSION,
 				Mage::app()->getStore()->getStoreId(),
-				self::EB2C_INVENTORY_SERVICE,
-				self::EB2C_INVENTORY_OPT_INV_DETAILS,
-				self::EB2C_INVENTORY_RETURN_FORMAT
+				self::SERVICE,
+				self::OPT_INV_DETAILS,
+				self::RETURN_FORMAT
 			);
 		}
 		return $apiUri;

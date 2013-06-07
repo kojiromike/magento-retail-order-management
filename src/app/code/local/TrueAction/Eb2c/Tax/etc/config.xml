@@ -25,6 +25,10 @@
 	<default>
 		<eb2ctax>
 			<config>
+				<api>
+					<version>v1.10</version>
+					<region>na</region>
+				</api>
 			</config>
 		</eb2ctax>
 	</default>

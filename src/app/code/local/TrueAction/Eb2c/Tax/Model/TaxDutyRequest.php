@@ -5,13 +5,12 @@
  */
 class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 {
-	protected $_xml                 = null;
-	protected $_doc                 = null;
-	protected $_shipGroups          = null;
-	protected $_shipGroupIdCounter  = 0;
-
-	protected $_destinationId       = 0;
-	protected $_billingAddressId    = 0;
+	protected $_xml                = null;
+	protected $_doc                = null;
+	protected $_shipGroups         = null;
+	protected $_shipGroupIdCounter = 0;
+	protected $_destinationId      = 0;
+	protected $_billingAddressId   = 0;
 
 	protected function _construct()
 	{
@@ -36,14 +35,12 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	 */
 	protected function _processAddresses()
 	{
-		$shippingAddresses = $this->getShippingAddress()->getQuote()
-			->getAllShippingAddresses();
+		$shippingAddresses = $this->_getQuote()->getAllShippingAddresses();
 		$shipGroups   = $this->_shipGroups;
 		$destinations = $this->_destinations;
 		foreach ($shippingAddresses as $addressKey => $address) {
 			$mailingAddress = $this->_buildMailingAddressNode($destinations, $address);
-
-			$groupedRates = $address->getGroupedAllShippingRates();
+			$groupedRates   = $address->getGroupedAllShippingRates();
 			foreach ($groupedRates as $rateKey => $shippingRate) {
 				$shipGroup = $shipGroups->createChild('ShipGroup');
 				$shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)

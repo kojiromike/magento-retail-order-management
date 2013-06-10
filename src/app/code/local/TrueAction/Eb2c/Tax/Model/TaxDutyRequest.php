@@ -15,7 +15,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	protected function _construct()
 	{
 		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$tdRequest = $doc->createChild('TaxDutyRequest');
+		$tdRequest = $doc->addElement('TaxDutyRequest')->firstChild;
 		$tdRequest->addChild(
 			'Currency',
 			$this->_getQuote()->getQuoteCurrencyCode()

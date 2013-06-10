@@ -8,6 +8,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 {
 	protected $_quantity;
 	protected $_details;
+	protected $_allocation;
 
 	/**
 	 * Get Quantity instantiated object.
@@ -36,6 +37,19 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	}
 
 	/**
+	 * Get Allocation instantiated object.
+	 *
+	 * @return TrueAction_Eb2c_Inventory_Model_Allocation
+	 */
+	protected function _getAllocation()
+	{
+		if (!$this->_allocation) {
+			$this->_allocation = Mage::getModel('eb2c_inventory/allocation');
+		}
+		return $this->_allocation;
+	}
+
+	/**
 	 * Retrieve shopping cart model object
 	 *
 	 * @return Mage_Checkout_Model_Cart
@@ -49,6 +63,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	 * Check e2bc quantity, triggering sales_quote_item_qty_set_after event will run this method.
 	 *
 	 * @param Varien_Event_Observer $observer
+	 *
 	 * @return void
 	 */
 	public function checkEb2cInventoryQuantity($observer)
@@ -100,6 +115,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	 * Check e2bc inventoryDetails, triggering checkout_controller_onepage_save_shipping_method event will run this method.
 	 *
 	 * @param Varien_Event_Observer $observer
+	 *
 	 * @return void
 	 */
 	public function processInventoryDetails($observer)
@@ -111,6 +127,25 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 		if ($inventoryDetailsResponseMessage = $this->_getDetails()->getInventoryDetails($quote)) {
 			// got a valid response from eb2c, then go ahead and update the quote with the eb2c information
 			$this->_getDetails()->processInventoryDetails($quote, $inventoryDetailsResponseMessage);
+		}
+	}
+
+	/**
+	 * Allocating e2bc inventory for placed order, triggering sales_order_place_after event will run this method.
+	 *
+	 * @param Varien_Event_Observer $observer
+	 *
+	 * @return void
+	 */
+	public function processAllocation($observer)
+	{
+		// get the order from the event observer
+		$order = $observer->getEvent()->getOrder();
+
+		// generate request and send request to eb2c allocation
+		if ($allocationResponseMessage = $this->_getAllocation()->allocateOrderItems($order)) {
+			// got a valid response from eb2c, then go ahead and update the order with the eb2c information
+			$this->_getAllocation()->processAllocation($order, $allocationResponseMessage);
 		}
 	}
 }

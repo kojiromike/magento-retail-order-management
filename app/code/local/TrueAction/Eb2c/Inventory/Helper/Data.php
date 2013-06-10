@@ -6,21 +6,8 @@
  */
 class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 {
-	const XMLNS = 'http://api.gsicommerce.com/schema/checkout/1.0';
-	const ENV = 'developer';
-	const REGION = 'na';
-	const VERSION = 'v1.10';
-	const SERVICE = 'inventory';
-	const OPT_QTY = 'quantity';
-	const OPT_INV_DETAILS = 'inventoryDetails';
-	const URI_FROMAT = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s.%s';
-	const RETURN_FORMAT = 'xml';
-
-	const DEV_MODE = 'eb2c/inventory/developerMode';
-	const DEV_MODE_QTY_API_URI = 'eb2c/inventory/quantityApiUri';
-	const DEV_MODE_DETAIL_API_URI = 'eb2c/inventory/inventoryDetailUri';
-
 	public $coreHelper;
+	public $constantHelper;
 
 	/**
 	 * Get core helper instantiated object.
@@ -36,6 +23,19 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
+	 * Get Constants helper instantiated object.
+	 *
+	 * @return TrueAction_Eb2c_Inventory_Helper_Constants
+	 */
+	public function getConstantHelper()
+	{
+		if (!$this->constantHelper) {
+			$this->constantHelper = Mage::helper('eb2c_inventory/constants');
+		}
+		return $this->constantHelper;
+	}
+
+	/**
 	 * Get Dom instantiated object.
 	 *
 	 * @return TrueAction_Dom_Document
@@ -46,52 +46,128 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * getXmlNs method
+	 * Getting the NS constant value
+	 *
+	 * @return string, the ns value
 	 */
 	public function getXmlNs()
 	{
-		return self::XMLNS;
+		$constantHelper = $this->getConstantHelper();
+		return $constantHelper::XMLNS;
 	}
 
 	/**
-	 * getQuantityUri method
+	 * Generate eb2c api quantity api uri from config settings and constansts
+	 *
+	 * @return string, the quantity uri
 	 */
 	public function getQuantityUri()
 	{
-		$apiUri = Mage::getStoreConfig(self::DEV_MODE_QTY_API_URI, null);
-		if (!Mage::getStoreConfigFlag(self::DEV_MODE, null)) {
+		$coreHelper = $this->getCoreHelper();
+		$constantHelper = $this->getConstantHelper();
+		$apiUri = Mage::getStoreConfig($constantHelper::DEV_MODE_QTY_API_URI, null);
+		if (!Mage::getStoreConfigFlag($constantHelper::DEV_MODE, null)) {
 			$apiUri = sprintf(
-				self::URI_FROMAT,
-				self::ENV,
-				self::REGION,
-				self::VERSION,
-				Mage::app()->getStore()->getStoreId(),
-				self::SERVICE,
-				self::OPT_QTY,
-				self::RETURN_FORMAT
+				$constantHelper::URI_FROMAT,
+				$constantHelper::ENV,
+				$constantHelper::REGION,
+				$constantHelper::VERSION,
+				Mage::getStoreConfig($coreHelper::STORE_ID, null),
+				$constantHelper::SERVICE,
+				$constantHelper::OPT_QTY,
+				$constantHelper::RETURN_FORMAT
 			);
 		}
 		return $apiUri;
 	}
 
 	/**
-	 * getInventoryDetailsUri method
+	 * Generate eb2c api inventory detail api uri from config settings and constansts
+	 *
+	 * @return string, the inventory detail uri
 	 */
 	public function getInventoryDetailsUri()
 	{
-		$apiUri = Mage::getStoreConfig(self::DEV_MODE_DETAIL_API_URI, null);
-		if (!Mage::getStoreConfigFlag(self::DEV_MODE, null)) {
+		$coreHelper = $this->getCoreHelper();
+		$constantHelper = $this->getConstantHelper();
+		$apiUri = Mage::getStoreConfig($constantHelper::DEV_MODE_DETAIL_API_URI, null);
+		if (!Mage::getStoreConfigFlag($constantHelper::DEV_MODE, null)) {
 			$apiUri = sprintf(
-				self::URI_FROMAT,
-				self::ENV,
-				self::REGION,
-				self::VERSION,
-				Mage::app()->getStore()->getStoreId(),
-				self::SERVICE,
-				self::OPT_INV_DETAILS,
-				self::RETURN_FORMAT
+				$constantHelper::URI_FROMAT,
+				$constantHelper::ENV,
+				$constantHelper::REGION,
+				$constantHelper::VERSION,
+				Mage::getStoreConfig($coreHelper::STORE_ID, null),
+				$constantHelper::SERVICE,
+				$constantHelper::OPT_INV_DETAILS,
+				$constantHelper::RETURN_FORMAT
 			);
 		}
 		return $apiUri;
+	}
+
+	/**
+	 * Generate eb2c api allocation api uri from config settings and constansts
+	 *
+	 * @return string, the allocation uri
+	 */
+	public function getAllocationUri()
+	{
+		$coreHelper = $this->getCoreHelper();
+		$constantHelper = $this->getConstantHelper();
+		$apiUri = Mage::getStoreConfig($constantHelper::DEV_MODE_ALLOCATION_API_URI, null);
+		if (!Mage::getStoreConfigFlag($constantHelper::DEV_MODE, null)) {
+			$apiUri = sprintf(
+				$constantHelper::URI_FROMAT,
+				$constantHelper::ENV,
+				$constantHelper::REGION,
+				$constantHelper::VERSION,
+				Mage::getStoreConfig($coreHelper::STORE_ID, null),
+				$constantHelper::SERVICE,
+				$constantHelper::OPT_ALLOCATION,
+				$constantHelper::RETURN_FORMAT
+			);
+		}
+		return $apiUri;
+	}
+
+	/**
+	 * Generate eb2c api Universally unique ID used to globally identify to request.
+	 *
+	 * @param int $entityId, the magento sales_flat_order primary key
+	 * @param string $incrementId, the magento unique incrimental value
+	 *
+	 * @return string, the request id
+	 */
+	public function getRequestId($entityId, $incrementId)
+	{
+		$coreHelper = $this->getCoreHelper();
+
+		return implode('-', array(
+			Mage::getStoreConfig($coreHelper::CLIENT_ID, null),
+			Mage::getStoreConfig($coreHelper::STORE_ID, null),
+			$entityId,
+			$incrementId
+		));
+	}
+
+	/**
+	 * Generate eb2c api Universally unique ID to represent the reservation.
+	 *
+	 * @param int $entityId, the magento sales_flat_order primary key
+	 * @param string $incrementId, the magento unique incrimental value
+	 *
+	 * @return string, the reservation id
+	 */
+	public function getReservationId($entityId, $incrementId)
+	{
+		$coreHelper = $this->getCoreHelper();
+
+		return implode('-', array(
+			Mage::getStoreConfig($coreHelper::CLIENT_ID, null),
+			Mage::getStoreConfig($coreHelper::STORE_ID, null),
+			$entityId,
+			$incrementId
+		));
 	}
 }

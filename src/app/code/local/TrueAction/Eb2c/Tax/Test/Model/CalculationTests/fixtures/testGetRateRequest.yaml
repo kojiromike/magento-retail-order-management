@@ -36,30 +36,30 @@ tables:
       base_subtotal_with_discount: 25.0000
       is_changed: 1
       trigger_recollect: 0
-      # customer_balance_amount_used: 0.0000
-      # base_customer_bal_amount_used: 0.0000
+      customer_balance_amount_used: 0.0000
+      base_customer_bal_amount_used: 0.0000
       gift_cards: 'a:0:{}'
-      # gift_cards_amount: 0.0000
-      # base_gift_cards_amount: 0.0000
-      # gift_cards_amount_used: 0.0000
-      # base_gift_cards_amount_used: 0.0000
-      # is_persistent: 0
-      # gw_base_price: 0.0000
-      # gw_price: 0.0000
-      # gw_items_base_price: 0.0000
-      # gw_items_price: 0.0000
-      # gw_card_base_price: 0.0000
-      # gw_card_price: 0.0000
-      # gw_base_tax_amount: 0.0000
-      # gw_tax_amount: 0.0000
-      # gw_items_base_tax_amount: 0.0000
-      # gw_items_tax_amount: 0.0000
-      # gw_card_base_tax_amount: 0.0000
-      # gw_card_tax_amount: 0.0000
-      # use_reward_points: 0
-      # reward_points_balance: 0
-      # base_reward_currency_amount: 0.0000
-      # reward_currency_amount: 0.0000
+      gift_cards_amount: 0.0000
+      base_gift_cards_amount: 0.0000
+      gift_cards_amount_used: 0.0000
+      base_gift_cards_amount_used: 0.0000
+      is_persistent: 0
+      gw_base_price: 0.0000
+      gw_price: 0.0000
+      gw_items_base_price: 0.0000
+      gw_items_price: 0.0000
+      gw_card_base_price: 0.0000
+      gw_card_price: 0.0000
+      gw_base_tax_amount: 0.0000
+      gw_tax_amount: 0.0000
+      gw_items_base_tax_amount: 0.0000
+      gw_items_tax_amount: 0.0000
+      gw_card_base_tax_amount: 0.0000
+      gw_card_tax_amount: 0.0000
+      use_reward_points: 0
+      reward_points_balance: 0
+      base_reward_currency_amount: 0.0000
+      reward_currency_amount: 0.0000
   sales/quote_address:
     - address_id: 3
       quote_id: 2

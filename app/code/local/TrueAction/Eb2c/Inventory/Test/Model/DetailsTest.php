@@ -26,7 +26,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	protected function _getDetails()
 	{
 		if (!$this->_details) {
-			$this->_details = Mage::getModel('eb2c_inventory/details');
+			$this->_details = Mage::getModel('eb2cinventory/details');
 		}
 		return $this->_details;
 	}

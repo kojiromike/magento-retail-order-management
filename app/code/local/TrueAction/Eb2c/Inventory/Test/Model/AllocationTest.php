@@ -26,7 +26,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	protected function _getAllocation()
 	{
 		if (!$this->_allocation) {
-			$this->_allocation = Mage::getModel('eb2c_inventory/allocation');
+			$this->_allocation = Mage::getModel('eb2cinventory/allocation');
 		}
 		return $this->_allocation;
 	}

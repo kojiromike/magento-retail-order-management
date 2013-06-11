@@ -18,7 +18,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	protected function _getQuantity()
 	{
 		if (!$this->_quantity) {
-			$this->_quantity = Mage::getModel('eb2c_inventory/quantity');
+			$this->_quantity = Mage::getModel('eb2cinventory/quantity');
 		}
 		return $this->_quantity;
 	}
@@ -31,7 +31,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	protected function _getDetails()
 	{
 		if (!$this->_details) {
-			$this->_details = Mage::getModel('eb2c_inventory/details');
+			$this->_details = Mage::getModel('eb2cinventory/details');
 		}
 		return $this->_details;
 	}
@@ -44,7 +44,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	protected function _getAllocation()
 	{
 		if (!$this->_allocation) {
-			$this->_allocation = Mage::getModel('eb2c_inventory/allocation');
+			$this->_allocation = Mage::getModel('eb2cinventory/allocation');
 		}
 		return $this->_allocation;
 	}
@@ -69,7 +69,8 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	public function checkEb2cInventoryQuantity($observer)
 	{
 		$quoteItem = $observer->getEvent()->getItem();
-		$itemId = $quoteItem->getId();
+		$itemId = (int) $quoteItem->getId();
+
 		$requestedQty = $quoteItem->getQty();
 		$productId = $quoteItem->getProductId();
 		$productSku = $quoteItem->getSku();

@@ -21,7 +21,7 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	protected function _getHelper()
 	{
 		if (!$this->_helper) {
-			$this->_helper = Mage::helper('eb2c_inventory');
+			$this->_helper = Mage::helper('eb2cinventory/config');
 		}
 		return $this->_helper;
 	}

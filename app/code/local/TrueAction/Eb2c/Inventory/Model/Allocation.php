@@ -21,7 +21,7 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	protected function _getHelper()
 	{
 		if (!$this->_helper) {
-			$this->_helper = Mage::helper('eb2c_inventory');
+			$this->_helper = Mage::helper('eb2cinventory/config');
 		}
 		return $this->_helper;
 	}
@@ -189,17 +189,10 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 		// To do: not yet completed
 		// if allocation for this item is less then what the order customer requested
 		// then update the order item with what eb2c allocated.
-		if ($orderItem->getQtyOrdered() > $orderData['qty'] && $orderData['qty'] > 0) {
-			// set order item to eb2c allocated qty
+		if ($orderItem->getQtyOrdered() > $orderData['qty']) {
+			// Cancelled the order
+			$order = $orderItem->getOrder();
 
-			// get order from order item
-
-			// recalc totals
-
-			// save the order
-
-		} elseif ($orderData['qty'] <= 0) {
-			// Item is out of stock in eb2c, remove it from the order
 		}
 	}
 }

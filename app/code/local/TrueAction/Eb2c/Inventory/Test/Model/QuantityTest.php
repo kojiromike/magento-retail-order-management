@@ -26,7 +26,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 	protected function _getQuantity()
 	{
 		if (!$this->_quantity) {
-			$this->_quantity = Mage::getModel('eb2c_inventory/quantity');
+			$this->_quantity = Mage::getModel('eb2cinventory/quantity');
 		}
 		return $this->_quantity;
 	}

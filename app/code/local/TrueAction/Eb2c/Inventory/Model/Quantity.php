@@ -21,7 +21,7 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	protected function _getHelper()
 	{
 		if (!$this->_helper) {
-			$this->_helper = Mage::helper('eb2c_inventory');
+			$this->_helper = Mage::helper('eb2cinventory/config');
 		}
 		return $this->_helper;
 	}
@@ -72,14 +72,12 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 		$quantityRequestMessage = $domDocument->addElement('QuantityRequestMessage', null, $this->_getHelper()->getXmlNs())->firstChild;
 		if ($items) {
 			foreach ($items as $item) {
-				try{
+				if (isset($item['id']) && isset($item['sku'])) {
 					$quantityRequestMessage->createChild(
 						'QuantityRequest',
 						null,
 						array('lineId' => $item['id'], 'itemId' => $item['sku'])
 					);
-				}catch(Exception $e){
-					Mage::logException($e);
 				}
 			}
 		}

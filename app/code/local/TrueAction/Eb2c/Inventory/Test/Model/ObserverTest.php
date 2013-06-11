@@ -26,7 +26,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	protected function _getObserver()
 	{
 		if (!$this->_observer) {
-			$this->_observer = Mage::getModel('eb2c_inventory/observer');
+			$this->_observer = Mage::getModel('eb2cinventory/observer');
 		}
 		return $this->_observer;
 	}

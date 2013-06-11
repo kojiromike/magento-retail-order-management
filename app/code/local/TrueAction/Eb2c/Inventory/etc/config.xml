@@ -15,14 +15,27 @@
 	</modules>
 	<global>
 		<models>
-			<eb2c_inventory>
+			<eb2cinventory>
 				<class>TrueAction_Eb2c_Inventory_Model</class>
-			</eb2c_inventory>
+			</eb2cinventory>
+			<eb2cinventoryoverride>
+				<class>TrueAction_Eb2c_Inventory_Override_Model</class>
+			</eb2cinventoryoverride>
+			<checkout>
+				<rewrite>
+					<cart>TrueAction_Eb2c_Inventory_Override_Model_Cart</cart>
+				</rewrite>
+			</checkout>
+			<cataloginventory>
+				<rewrite>
+					<stock_item>TrueAction_Eb2c_Inventory_Override_Model_Stock_Item</stock_item>
+				</rewrite>
+			</cataloginventory>
 		</models>
 		<helpers>
-			<eb2c_inventory>
+			<eb2cinventory>
 				<class>TrueAction_Eb2c_Inventory_Helper</class>
-			</eb2c_inventory>
+			</eb2cinventory>
 		</helpers>
 	</global>
 	<frontend>

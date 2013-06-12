@@ -36,7 +36,7 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 	 * @loadFixture base.yaml
 	 * @loadFixture testGetRateRequest.yaml
 	 */
-	public function testGetRateRequest2()
+	public function testGetRateRequest()
 	{
 		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(2);
 		$shipAddress = $quote->getShippingAddress();

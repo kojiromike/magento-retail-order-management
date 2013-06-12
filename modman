@@ -1,8 +1,11 @@
 # Import these extensions via their own modman files.
+@import extensions/dom
 @import extensions/filetransfer
 @import extensions/mage_log
-@import extensions/dom
+
+# TrueAction_Eb2c_Core
+src/app/etc/modules/*.xml app/etc/modules/
+src/app/code/local/TrueAction/Eb2c/Core app/code/local/TrueAction/Eb2c/Core
 
 # TrueAction_Eb2c_Order
-src/app/etc/modules/*.xml app/etc/modules/
 src/app/code/local/TrueAction/Eb2c/Order app/code/local/TrueAction/Eb2c/Order

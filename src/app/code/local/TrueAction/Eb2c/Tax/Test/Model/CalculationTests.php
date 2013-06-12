@@ -50,13 +50,10 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 		$request = $calc->getRateRequest($shipAddress, $billaddress, 'someclass', null);
 		$doc = $this->doc->getValue($request);
 		$xpath = new DOMXPath($doc);
-		$this->assertSame('TaxDutyRequest', $doc->firstChild->nodeName);
-		$tdRequest = $doc->firstChild;
-		$this->assertSame(3, $tdRequest->childNodes->length);
-		$this->assertSame('Currency', $tdRequest->firstChild->nodeName);
-		$this->assertSame('USD', $tdRequest->firstChild->textContent);
-		$node = $tdRequest->firstChild->nextSibling;
-		$this->assertSame('BillingInformation', $node->nodeName);
-		$this->assertTrue($node->hasAttribute('ref'));
+		$node = $xpath->query('//TaxDutyRequest/Currency')->item(0);
+		$this->assertSame('USD', $node->textContent);
+
+		$node = $xpath->query('//TaxDutyRequest/BillingInformation')->item(0);
+		$this->assertSame('3', $node->getAttribute('ref'));
 	}
 }

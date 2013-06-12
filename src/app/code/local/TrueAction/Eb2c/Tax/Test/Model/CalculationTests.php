@@ -24,6 +24,10 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 
 	public function setUp()
 	{
+        parent::setUp();
+        $_SESSION = array();
+        $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
+        $this->app()->getRequest()->setBaseUrl($_baseUrl);
 		$this->cls = new ReflectionClass(
 			'TrueAction_Eb2c_Tax_Model_TaxDutyRequest'
 		);

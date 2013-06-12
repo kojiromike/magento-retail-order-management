@@ -7,20 +7,32 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 	/**
 	 * @var Mage_Sales_Model_Quote (mock)
 	 */
-	public $quote = null;
+	private $quote       = null;
+
 	/**
 	 * @var Mage_Sales_Model_Quote_Address (mock)
 	 */
-	public $shipAddress=null;
+	private $shipAddress = null;
+
 	/**
 	 * @var Mage_Sales_Model_Quote_Address (mock)
 	 */
-	public $billAddress=null;
+	private $billAddress = null;
 
 	/**
 	 * @var ReflectionProperty(TrueAction_Eb2c_Tax_Model_TaxDutyRequest::_xml)
 	 */
-	public $doc = null;
+	private $doc         = null;
+
+	/**
+	 * @var ReflectionClass(TrueAction_Eb2c_Tax_Model_TaxDutyRequest)
+	 */
+	private $cls         = null;
+
+
+	private $tdRequest    = null;
+	private $destinations = null;
+	private $shipGroups   = null;
 
 	public function setUp()
 	{
@@ -55,5 +67,6 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 
 		$node = $xpath->query('//TaxDutyRequest/BillingInformation')->item(0);
 		$this->assertSame('3', $node->getAttribute('ref'));
+
 	}
 }

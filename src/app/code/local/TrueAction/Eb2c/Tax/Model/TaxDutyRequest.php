@@ -7,27 +7,30 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 {
 	protected $_xml                = null;
 	protected $_doc                = null;
+	protected $_destinations       = null;
 	protected $_shipGroups         = null;
+	protected $_tdRequest          = null;
 	protected $_shipGroupIdCounter = 0;
 	protected $_destinationId      = 0;
 	protected $_billingAddressId   = 0;
 
 	protected function _construct()
 	{
-		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$tdRequest = $doc->addElement('TaxDutyRequest')->firstChild;
+		$doc               = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$tdRequest         = $doc->addElement('TaxDutyRequest')->firstChild;
 		$tdRequest->addChild(
 			'Currency',
 			$this->_getQuote()->getQuoteCurrencyCode()
 		)->addChild(
 			'BillingInformation',
 			null,
-			array('ref'=>$this->getBillingAddress()->getId())
+			array('ref' => $this->getBillingAddress()->getId())
 		);
 		$shipping = $tdRequest->createChild('Shipping');
+		$this->_tdRequest    = $tdRequest;
 		$this->_shipGroups   = $shipping->createChild('ShipGroups');
 		$this->_destinations = $shipping->createChild('Destinations');
-		$this->_doc = $doc;
+		$this->_doc          = $doc;
 	}
 
 	/**

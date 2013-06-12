@@ -10,14 +10,16 @@
 			<eb2ctax>
 				<class>TrueAction_Eb2c_Tax_Model</class>
 			</eb2ctax>
-		</models>
-		<helpers>
-			<eb2ctax>
-				<class>TrueAction_Eb2c_Tax_Helper</class>
-			</eb2ctax>
 			<tax>
 				<rewrite>
-					<data>TrueAction_Eb2c_Tax_Helper_Data</data>
+					<calculation>TrueAction_Eb2c_Tax_Overrides_Model_Calculation</calculation>
+				</rewrite>
+			</tax>
+		</models>
+		<helpers>
+			<tax>
+				<rewrite>
+					<data>TrueAction_Eb2c_Tax_Overrides_Helper_Data</data>
 				</rewrite>
 			</tax>
 		</helpers>

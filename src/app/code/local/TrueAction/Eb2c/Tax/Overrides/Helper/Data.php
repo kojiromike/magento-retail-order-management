@@ -2,7 +2,7 @@
 /**
  * replacement for the default magento tax helper.
  */
-class TrueAction_Eb2c_Tax_Helper_Data extends Mage_Tax_Helper_Data
+class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 {
 	// TODO: PUT THESE IN THE XML AND LOAD USING A HELPER
 	protected static $_apiUrlFormat = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s.%s';

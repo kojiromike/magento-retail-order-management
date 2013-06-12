@@ -111,11 +111,11 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	 */
 	protected function _buildMailingAddressNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
 	{
-		$parent->createChild('MailingAddress')
-			->setAttribute('id', 'dest_' . ++$this->_destinationId, true);
-		$personName = $parent->createChild('PersonName');
-		$this->_createPersonName($personName, $address);
-		$addressNode = $parent->createChild('Address');
+		$mailingAddress = $parent->createChild('MailingAddress');
+		$mailingAddress->setAttribute('id', 'dest_' . ++$this->_destinationId, true);
+		$personName = $mailingAddress->createChild('PersonName');
+		$this->_buildPersonName($personName, $address);
+		$addressNode = $mailingAddress->createChild('Address');
 		$this->_buildAddressNode($addressNode, $address);
 		return $mailingAddress;
 	}

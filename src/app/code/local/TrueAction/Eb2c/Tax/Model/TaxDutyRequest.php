@@ -63,12 +63,9 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	protected function _buildAddressNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
 	{
 		// loop through to get all of the street lines.
-		$street = $address->getStreet1();
-		$i = 1;
-		while ((bool)$street) {
-			$parent->createChild('Line' . $i, $street);
-			++$i;
-			$street = $address->getStreet($i);
+		$streetLines = $address->getStreet();
+		foreach ($streetLines as $streetIndex => $street) {
+			$parent->createChild('Line' . ($streetIndex + 1), $street);
 		}
 		$parent->createChild('City', $address->getCity());
 		$parent->createChild('MainDivision', $address->getRegionModel()->getCode());

@@ -22,6 +22,15 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 	 */
 	public $doc = null;
 
+	public function setUp()
+	{
+		$this->cls = new ReflectionClass(
+			'TrueAction_Eb2c_Tax_Model_TaxDutyRequest'
+		);
+		$this->doc = $this->cls->getProperty('_doc');
+		$this->doc->setAccessible(true);
+	}
+
 	/**
 	 * @test
 	 * @loadFixture base.yaml
@@ -42,5 +51,8 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 		$this->assertSame(3, $tdRequest->childNodes->length);
 		$this->assertSame('Currency', $tdRequest->firstChild->nodeName);
 		$this->assertSame('USD', $tdRequest->firstChild->textContent);
+		$node = $tdRequest->firstChild->nextSibling;
+		$this->assertSame('BillingInformation', $node->nodeName);
+		$this->assertTrue($node->hasAttribute('ref'));
 	}
 }

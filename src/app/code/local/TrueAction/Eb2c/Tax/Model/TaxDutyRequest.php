@@ -31,6 +31,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$this->_shipGroups   = $shipping->createChild('ShipGroups');
 		$this->_destinations = $shipping->createChild('Destinations');
 		$this->_doc          = $doc;
+		$this->_processAddresses();
 	}
 
 	/**

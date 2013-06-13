@@ -26,9 +26,16 @@ class TrueAction_Eb2c_Tax_Helper_Data extends Mage_Tax_Helper_Data
 		);
 	}
 
-	public function sendRequest($request)
+	/**
+	 * send a request and return the response
+	 * @param  TaxDutyRequest $request
+	 * @return TaxDutyResponse
+	 */
+	public function sendRequest(TaxDutyRequest $request)
 	{
-		$doc = $request->getDocument();
-		Mage::helper('eb2ccore')->apiCall($doc, $this->getApiUrl());
+		return Mage::helper('eb2ccore')->apiCall(
+			$request->getDocument(),
+			$this->getApiUrl()
+		);
 	}
 }

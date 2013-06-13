@@ -143,7 +143,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 	}
 
 	/**
-	 * If getConfigFlag is called and the key is not found, an exception should be raised.
+	 * An exception should be thrown if getConfigFlag is called and the key is not found.
 	 *
 	 * @test
 	 * @expectedException Exception
@@ -155,7 +155,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 	}
 
 	/**
-	 * Calling a magic getter that doesn't match a config key should thrown an error.
+	 * Calling a magic getter that doesn't match a config key should throw an error.
 	 *
 	 * @test
 	 * @expectedException Exception
@@ -167,7 +167,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 	}
 
 	/**
-	 * Calling magic 'is' method that doesn't return a config key should thrown an error.
+	 * Calling magic 'is' method that doesn't return a config key should throw an error.
 	 *
 	 * @test
 	 * @expectedException Exception

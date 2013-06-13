@@ -65,7 +65,7 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 				return Mage::$configMethod($configModel->getPathForKey($configKey), $store);
 			}
 		}
-		Mage::throwException('Configuration path, specified by ' . $key . ' was not found.');
+		Mage::throwException('Configuration path specified by ' . $key . ' was not found.');
 	}
 
 	/**
@@ -95,6 +95,35 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 	}
 
 	/**
+	 * Magic "get" method. Will convert the method name to a config key
+	 * and use it to retrieve a config value.
+	 * @param null|string|bool|int|Mage_Core_Model_Store $store
+	 * @return string
+	 */
+	// get.+($store);
+
+	/**
+	 * Magic "is" method.
+	 * Will convert the method name to a config key and use
+	 * it to get a config flag.
+	 * @param null|string|bool|int|Mage_Core_Model_Store $store
+	 * @return boolean
+	 */
+	// is.+($store)
+
+	/**
+	 * Convert the magic method name, minus the "get"/"is" to a
+	 * potential config key.
+	 * Changes CamelCase to underscore_words
+	 * @param string $name
+	 * @return string
+	 */
+	protected function _magicNameToConfigKey($name)
+	{
+		return strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', $name));
+	}
+
+	/**
 	 * Catch any unknown function methods calls to try to magically convert "get" methods to retrieve config values.
 	 * @param string $name The called method
 	 * @param array $args Any arguments passed to the function
@@ -103,15 +132,17 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 	 */
 	public function __call($name, $args)
 	{
-		// when $name begins with get, want to retrieve a config value
-		$method = substr($name, 0, 3);
-		if ($method === 'get') {
-			$configKey = strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', substr($name, 3)));
-			$store = (count($args) > 0) ? $args[0] : $this->getStore();
-			$asFlag = (count($args) > 1) ? $args[1] : false;
+		// check if the method $name starts with "is" or "get" and capture which one
+		$matches = array();
+		preg_match("/^(?:is|get)/", $name, $matches);
+		// "get" or "is" method type
+		$type = $matches[0];
+		if ($type) {
+			$configKey = $this->_magicNameToConfigKey(substr($name, strlen($type)));
+			$store = (isset($args[0])) ? $args[0] : $this->getStore();
 			try {
-				$configValue = $this->_getStoreConfigValue($configKey, $store, $asFlag);
-				return $this->_getStoreConfigValue($configKey, $store, $asFlag);
+				// retrieve the actual config value, passing the $isFlag arg as true if the method name started with 'is'
+				return $this->_getStoreConfigValue($configKey, $store, ($type === 'is'));
 			} catch (Exception $e) {
 				Mage::log($e->getMessage(), Zend_Log::WARN);
 			}

@@ -95,10 +95,10 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 		// can still use an explicit store id which should override the one set on the store
 		$this->assertSame($config->getApiKey(3), Mage::getStoreConfig('eb2c/core/api_key', 3));
 
-		// indicate the config is a "flag" to explicitly return a boolean value
-		$this->assertSame($config->getTestMode(1, true), Mage::getStoreConfigFlag('eb2c/core/test_mode', 1));
-		// lack of named args means a value we don't care about needs to be set
-		$this->assertSame($config->getTestMode(2, true), Mage::getStoreConfigFlag('eb2c/core/test_mode', 2));
+		// magic "is" methods will explicitly return the value as a boolean
+		$this->assertSame($config->isTestMode(), Mage::getStoreConfigFlag('eb2c/core/test_mode', 2));
+		// can override store when using the magic 'is' methods
+		$this->assertSame($config->isTestMode(1), Mage::getStoreConfigFlag('eb2c/core/test_mode', 1));
 	}
 
 	/**
@@ -155,7 +155,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 	}
 
 	/**
-	 * Calling a magic getter that doesn't match a config key shoudl thrown an error.
+	 * Calling a magic getter that doesn't match a config key should thrown an error.
 	 *
 	 * @test
 	 * @expectedException Exception
@@ -164,6 +164,18 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 	{
 		$config = Mage::helper('eb2ccore/config');
 		$config->getNonexistentConfig();
+	}
+
+	/**
+	 * Calling magic 'is' method that doesn't return a config key should thrown an error.
+	 *
+	 * @test
+	 * @expectedException Exception
+	 */
+	public function testMagicIsNotFoundException()
+	{
+		$config = Mage::helper('eb2ccore/config');
+		$config->isNonexistentConfig();
 	}
 
 	/**

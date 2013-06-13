@@ -140,4 +140,30 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$this->_buildAddressNode($addressNode, $address);
 		return $mailingAddress;
 	}
+	/**
+	 * check $string to see if it conforms to length requirements.
+	 * if $truncate is true, truncate the string so that it is never longer than
+	 * $maxLength characters.
+	 * null is returned if $string does not meet the minimum length requirement
+	 * or if $string does not meet the max length requirement and truncate is false.
+	 * @param  string  $string
+	 * @param  int  $minLength
+	 * @param  int  $maxLength
+	 * @param  boolean $truncate
+	 * @return null|string
+	 */
+	protected function _checkLength($string, $minLength = null, $maxLength = null, $truncate = true)
+	{
+		$result = null;
+		$len = mb_strlen($string);
+		if (is_null($minLength) || $len >= $minLength) {
+			$result = $string;
+		}
+		if ($result && !is_null($maxLength)) {
+			if (($len > $maxLength)) {
+				$result = ($truncate) ? mb_substr($string, 0, $maxLength) : null;
+			}
+		}
+		return $result;
+	}
 }

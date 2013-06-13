@@ -1,7 +1,7 @@
 <?php
 /**
  */
-class TrueAction_Eb2c_Tax_Test_Helper_DataTests extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Tax_Test_Overrides_Helper_DataTests extends EcomDev_PHPUnit_Test_Case
 {
 	/**
 	 * @test

@@ -13,6 +13,7 @@
 			<tax>
 				<rewrite>
 					<calculation>TrueAction_Eb2c_Tax_Overrides_Model_Calculation</calculation>
+					<observer>TrueAction_Eb2c_Tax_Overrides_Model_Observer</observer>
 				</rewrite>
 			</tax>
 		</models>

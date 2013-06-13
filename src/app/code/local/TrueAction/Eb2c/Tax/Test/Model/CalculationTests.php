@@ -66,7 +66,6 @@ class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Te
 		$this->assertSame('USD', $node->textContent);
 
 		$node = $xpath->query('//TaxDutyRequest/BillingInformation')->item(0);
-		$this->assertSame('3', $node->getAttribute('ref'));
-
+		$this->assertSame('dest_1', $node->getAttribute('ref'));
 	}
 }

@@ -10,7 +10,7 @@ class TrueAction_Eb2c_Tax_Test_Helper_DataTests extends EcomDev_PHPUnit_Test_Cas
 	{
 		$hlpr = Mage::helper('tax');
 		$this->assertSame(
-			'TrueAction_Eb2c_Tax_Helper_Data',
+			'TrueAction_Eb2c_Tax_Overrides_Helper_Data',
 			get_class($hlpr)
 		);
 	}

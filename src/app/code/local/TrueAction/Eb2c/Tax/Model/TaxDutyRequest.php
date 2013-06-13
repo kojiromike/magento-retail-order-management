@@ -12,7 +12,9 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	protected $_tdRequest          = null;
 	protected $_shipGroupIdCounter = 0;
 	protected $_destinationId      = 0;
-	protected $_billingAddressId   = 0;
+	protected $_billingInfoRef     = '';
+	protected $_cacheKey           = '';
+
 
 	protected function _construct()
 	{
@@ -32,6 +34,25 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$this->_destinations = $shipping->createChild('Destinations');
 		$this->_doc          = $doc;
 		$this->_processAddresses();
+	}
+
+	/**
+	 * determine if the request object has enough data to work with.
+	 * @return boolean
+	 */
+	public function isUsable()
+	{
+		return (bool)$this->getBillingAddress()->getId() &&
+			(bool)$this->getBillingAddress()->getQuote()->getId();
+	}
+
+	/**
+	 * generate a key to uniquely identify a request.
+	 * @return string
+	 */
+	public function getCacheKey()
+	{
+		return $this->_cacheKey;
 	}
 
 	/**

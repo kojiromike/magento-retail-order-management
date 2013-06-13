@@ -17,6 +17,9 @@
 			</tax>
 		</models>
 		<helpers>
+			<eb2ctax>
+				<class>TrueAction_Eb2c_Tax_Helper</class>
+			</eb2ctax>
 			<tax>
 				<rewrite>
 					<data>TrueAction_Eb2c_Tax_Overrides_Helper_Data</data>

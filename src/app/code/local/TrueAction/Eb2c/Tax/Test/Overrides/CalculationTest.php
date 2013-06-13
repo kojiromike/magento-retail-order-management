@@ -2,7 +2,7 @@
 /**
  * tests the tax calculation class.
  */
-class TrueAction_Eb2c_Tax_Test_Model_CalculationTests extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Tax_Test_Model_CalculationTest extends EcomDev_PHPUnit_Test_Case
 {
 	/**
 	 * @var Mage_Sales_Model_Quote (mock)

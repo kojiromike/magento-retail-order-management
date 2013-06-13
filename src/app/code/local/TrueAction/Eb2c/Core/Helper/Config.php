@@ -3,6 +3,9 @@
 /**
  * Single point of access for retrieving configuration values.
  * Looks up configuration paths and values via configuration models registered with the helper.
+ *
+ * @method string getConfigVal(null|string|bool|int|Mage_Core_Model_Store $store) Return the value at config_val
+ * @method bool isConfigFlag(null|string|bool|int|Mage_Core_Model_Store $store) Return the value at config_flag
  */
 class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 {

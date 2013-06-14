@@ -97,5 +97,13 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_P
 		$this->assertSame('US', $node->textContent);
 		$node = $xpath->query('Address/PostalCode', $parent)->item(0);
 		$this->assertSame('21229', $node->textContent);
+
+		// verify the email address
+		$parent = $xpath->query('/TaxDutyRequest/Shipping/Destinations')->item(0);
+		$node = $xpath->query('Email', $parent)->item(0);
+		$this->assertSame('dest_email_3', $node->getAttribute('id'));
+
+		$node = $xpath->query('Email/EmailAddress', $parent)->item(0);
+		$this->assertSame('foo@example.com', $node->textContent);
 	}
 }

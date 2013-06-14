@@ -1,22 +1,26 @@
 <?php
 /**
- * generates the xml for an EB2C taxdutyrequest.
+ * generate the xml for an EB2C taxdutyrequest.
  * @author mphang
  */
 class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 {
-	protected $_xml                = null;
+	protected $_xml                = '';
 	protected $_doc                = null;
 	protected $_destinations       = null;
 	protected $_shipGroups         = null;
 	protected $_tdRequest          = null;
-	protected $_shipGroupIdCounter = 0;
-	protected $_destinationId      = 0;
 	protected $_billingInfoRef     = '';
+	protected $_billingEmailRef    = '';
 	protected $_mailingAddressId   = '';
+	protected $_emailAddressId     = '';
 	protected $_cacheKey           = '';
 
+	const EMAIL_MAX_LENGTH         = 70;
 
+	/**
+	 * generate the request DOMDocument on construction.
+	 */
 	protected function _construct()
 	{
 		$doc               = new TrueAction_Dom_Document('1.0', 'UTF-8');
@@ -77,6 +81,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$destinations = $this->_destinations;
 		foreach ($shippingAddresses as $addressKey => $address) {
 			$mailingAddress = $this->_buildMailingAddressNode($destinations, $address);
+			$this->_buildEmailNode($destinations, $address);
 			$groupedRates   = $address->getGroupedAllShippingRates();
 			foreach ($groupedRates as $rateKey => $shippingRate) {
 				$shipGroup = $shipGroups->createChild('ShipGroup');
@@ -158,6 +163,30 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$this->_buildAddressNode($addressNode, $address);
 		return $mailingAddress;
 	}
+
+	/**
+	 * build an email address node for the destinations node.
+	 * @param  TrueAction_Dom_Element         $parent
+	 * @param  Mage_Sales_Model_Quote_Address $address
+	 */
+	protected function _buildEmailNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
+	{
+		$this->_emailAddressId = 'dest_email_' . $address->getId();
+		if ($address->getSameAsBilling()) {
+			$address = $this->getBillingAddress();
+			$this->_billingEmailRef = 'dest_email_' . $address->getId();
+			$this->_emailAddressId = $this->_billingEmailRef;
+		}
+		// do nothing if the email address doesn't meet size requirements.
+		$emailStr = $this->_checkLength($address->getEmail(), 1, self::EMAIL_MAX_LENGTH);
+		if ($emailStr) {
+			$email = $parent->createChild('Email')
+				->addAttribute('id', $this->_emailAddressId, true);
+			$this->_buildPersonName($email->createChild('Customer'), $address);
+			$email->createChild('EmailAddress', $emailStr);
+		}
+	}
+
 	/**
 	 * check $string to see if it conforms to length requirements.
 	 * if $truncate is true, truncate the string so that it is never longer than

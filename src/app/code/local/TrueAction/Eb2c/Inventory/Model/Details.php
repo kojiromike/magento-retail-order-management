@@ -21,7 +21,7 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	protected function _getHelper()
 	{
 		if (!$this->_helper) {
-			$this->_helper = Mage::helper('eb2cinventory/config');
+			$this->_helper = Mage::helper('eb2cinventory');
 		}
 		return $this->_helper;
 	}
@@ -41,7 +41,7 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 			$inventoryDetailsRequestMessage = $this->buildInventoryDetailsRequestMessage($quote);
 
 			// make request to eb2c for inventory details
-			$inventoryDetailsResponseMessage = $this->_getHelper()->getCoreHelper()->apiCall(
+			$inventoryDetailsResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
 				$inventoryDetailsRequestMessage,
 				$this->_getHelper()->getInventoryDetailsUri()
 			);

@@ -4,7 +4,7 @@
  * @package   TrueAction_Eb2c
  * @copyright Copyright (c) 2013 True Action (http://www.trueaction.com)
  */
-class TrueAction_Eb2c_Inventory_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Inventory_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
 {
 	protected $_helper;
 
@@ -26,7 +26,7 @@ class TrueAction_Eb2c_Inventory_Test_Helper_ConfigTest extends EcomDev_PHPUnit_T
 	protected function _getHelper()
 	{
 		if (!$this->_helper) {
-			$this->_helper = Mage::helper('eb2cinventory/config');
+			$this->_helper = Mage::helper('eb2cinventory');
 		}
 		return $this->_helper;
 	}
@@ -41,6 +41,19 @@ class TrueAction_Eb2c_Inventory_Test_Helper_ConfigTest extends EcomDev_PHPUnit_T
 		$this->assertSame(
 			'http://api.gsicommerce.com/schema/checkout/1.0',
 			$this->_getHelper()->getXmlNs()
+		);
+	}
+
+	/**
+	 * testing getQuantityUri method
+	 *
+	 * @test
+	 */
+	public function getQuantityUri()
+	{
+		$this->assertSame(
+			'http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/QuantityResponseMessage.xml',
+			$this->_getHelper()->getQuantityUri()
 		);
 	}
 }

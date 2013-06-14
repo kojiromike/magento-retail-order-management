@@ -21,7 +21,7 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	protected function _getHelper()
 	{
 		if (!$this->_helper) {
-			$this->_helper = Mage::helper('eb2cinventory/config');
+			$this->_helper = Mage::helper('eb2cinventory');
 		}
 		return $this->_helper;
 	}
@@ -37,15 +37,14 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	 */
 	public function requestQuantity($qty=0, $itemId, $sku)
 	{
-
 		$isReserved = 0; // this is to simulate out of stock reponse from eb2c
 		if ($qty > 0) {
 			try{
 				// build request
-				$quantityRequestMessage = $this->buildQuantityRequestMessage(array('id' => $itemId, 'sku' => $sku));
+				$quantityRequestMessage = $this->buildQuantityRequestMessage(array(array('id' => $itemId, 'sku' => $sku)));
 
 				// make request to eb2c for quantity
-				$quantityResponseMessage = $this->_getHelper()->getCoreHelper()->apiCall(
+				$quantityResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
 					$quantityRequestMessage,
 					$this->_getHelper()->getQuantityUri()
 				);

@@ -15,7 +15,7 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	 *
 	 * @return string The response from the server.
 	 */
-	public function apiCall(DOMDocument $xmlDoc, $apiUri, $method='POST')
+	public function callApi(DOMDocument $xmlDoc, $apiUri, $method='POST')
 	{
 		// setting default factory adapter to use socket just in case curl extension isn't install in the server
 		// by default, curl will be used as the default adapter

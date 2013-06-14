@@ -32,7 +32,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	}
 
 	/**
-	 * testing check
+	 * testing allocation class
 	 *
 	 * @test
 	 */

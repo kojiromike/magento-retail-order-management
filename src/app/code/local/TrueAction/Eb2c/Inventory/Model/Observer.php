@@ -130,23 +130,4 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 			$this->_getDetails()->processInventoryDetails($quote, $inventoryDetailsResponseMessage);
 		}
 	}
-
-	/**
-	 * Allocating e2bc inventory for placed order, triggering sales_order_place_after event will run this method.
-	 *
-	 * @param Varien_Event_Observer $observer
-	 *
-	 * @return void
-	 */
-	public function processAllocation($observer)
-	{
-		// get the order from the event observer
-		$order = $observer->getEvent()->getOrder();
-
-		// generate request and send request to eb2c allocation
-		if ($allocationResponseMessage = $this->_getAllocation()->allocateOrderItems($order)) {
-			// got a valid response from eb2c, then go ahead and update the order with the eb2c information
-			$this->_getAllocation()->processAllocation($order, $allocationResponseMessage);
-		}
-	}
 }

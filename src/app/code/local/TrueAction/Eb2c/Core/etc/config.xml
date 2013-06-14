@@ -7,6 +7,9 @@
 	</modules>
 	<global>
 		<models>
+			<eb2ccore>
+				<class>TrueAction_Eb2c_Core_Model</class>
+			</eb2ccore>
 			<sales_order>
 				<rewrite>
 					<item>TrueAction_Eb2c_Core_Model_Order_Item</item>
@@ -29,11 +32,11 @@
 			</eb2ccore>
 		</helpers>
 	</global>
-	<phpunit>
+	<!-- <phpunit>
 		<suite>
 			<modules>
 				<TrueAction_Eb2c_Core />
 			</modules>
 		</suite>
-	</phpunit>
+	</phpunit> -->
 </config>

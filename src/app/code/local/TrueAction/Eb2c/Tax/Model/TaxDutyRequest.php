@@ -13,6 +13,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	protected $_shipGroupIdCounter = 0;
 	protected $_destinationId      = 0;
 	protected $_billingInfoRef     = '';
+	protected $_mailingAddressId   = '';
 	protected $_cacheKey           = '';
 
 
@@ -24,9 +25,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 			'Currency',
 			$this->_getQuote()->getQuoteCurrencyCode()
 		)->addChild(
-			'BillingInformation',
-			null,
-			array('ref' => $this->getBillingAddress()->getId())
+			'BillingInformation'
 		);
 		$shipping = $tdRequest->createChild('Shipping');
 		$this->_tdRequest    = $tdRequest;
@@ -34,6 +33,10 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$this->_destinations = $shipping->createChild('Destinations');
 		$this->_doc          = $doc;
 		$this->_processAddresses();
+		$tdRequest->firstChild->nextSibling->setAttribute(
+			'ref',
+			$this->_billingInfoRef
+		);
 	}
 
 	/**
@@ -132,8 +135,14 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	 */
 	protected function _buildMailingAddressNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
 	{
+		$this->_mailingAddressId = 'dest_' . $address->getId();
+		if ($address->getSameAsBilling()) {
+			$address = $this->getBillingAddress();
+			$this->_billingInfoRef   = 'dest_' . $address->getId();
+			$this->_mailingAddressId = $this->_billingInfoRef;
+		}
 		$mailingAddress = $parent->createChild('MailingAddress');
-		$mailingAddress->setAttribute('id', 'dest_' . ++$this->_destinationId, true);
+		$mailingAddress->setAttribute('id', $this->_mailingAddressId, true);
 		$personName = $mailingAddress->createChild('PersonName');
 		$this->_buildPersonName($personName, $address);
 		$addressNode = $mailingAddress->createChild('Address');

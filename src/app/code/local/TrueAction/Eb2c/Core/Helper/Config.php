@@ -157,6 +157,7 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 	 * Catch any unknown property references to try to magically retrieve config values.
 	 * Uses the stored store.
 	 *
+	 * @param string $name The property name
 	 * @return null|string|boolean|Mage_Core_Model_Store Boolean if the property name ends with "Flag",
 	 *         Mage_Core_Model_Store if the property is "store", string otherwise.
 	 */
@@ -175,6 +176,23 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 		} catch (Exception $e) {
 			// Be consistent with how PHP treats undefined properties.
 			trigger_error(sprintf('Undefined property: %s::%s in php shell code on line %d', get_class($this), $name, __LINE__));
+		}
+	}
+
+	/**
+	 * Allow setting the store via a property.
+	 *
+	 * @see self::setStore
+	 * @param string $name If "store", pass to setStore, otherwise just set the property, php style.
+	 * @param any $value The store to set.
+	 * @return void
+	 */
+	public function __set($name, $value)
+	{
+		if ($name === 'store') {
+			$this->setStore($value);
+		} else {
+			$this->$name = $value;
 		}
 	}
 }

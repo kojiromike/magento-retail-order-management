@@ -218,5 +218,23 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 		// this is in the second config model and will be used
 		$this->assertSame($config->catalogId, Mage::getStoreConfig('eb2c/another/catalog_id'));
 	}
+
+	/**
+	 * @test
+	 * @loadFixture configData
+	 */
+	public function testMagicStoreProperty()
+	{
+		$config = Mage::helper('eb2ccore/config');
+		$config->addConfigModel(new Config_Stub());
+
+		// when store id is set on config object, will use that value for the store id.
+		$config->store = 2;
+		$this->assertSame($config->getConfig('catalog_id'), Mage::getStoreConfig('eb2c/core/catalog_id', 2));
+
+		// can even explicitly set store id to null.
+		$config->store = null;
+		$this->assertSame($config->getConfig('catalog_id'), Mage::getStoreConfig('eb2c/core/catalog_id'));
+	}
 }
 

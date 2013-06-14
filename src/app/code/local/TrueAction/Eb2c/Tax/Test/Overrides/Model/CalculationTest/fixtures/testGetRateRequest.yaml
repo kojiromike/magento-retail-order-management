@@ -69,7 +69,7 @@ tables:
       save_in_address_book: 1
       customer_address_id: 4
       address_type: 'billing'
-      email: 'phangm@trueaction.com'
+      email: 'foo@example.com'
       firstname: 'Test'
       lastname: 'Guy'
       street: '1 RoseDale st'

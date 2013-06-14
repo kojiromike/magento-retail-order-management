@@ -59,7 +59,16 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * generates the nodes for the shipgroups and destinations subtrees.
+	 * get the DOMDocument for the request.
+	 * @return TrueAction_Dom_Document
+	 */
+	public function getDocument()
+	{
+		return $this->_doc;
+	}
+
+	/**
+	 * generate the nodes for the shipgroups and destinations subtrees.
 	 */
 	protected function _processAddresses()
 	{
@@ -115,7 +124,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * shortcut function to get the quote.
+	 * get the quote using whatever address is available.
 	 * @return Mage_Sales_Model_Quote
 	 */
 	protected function _getQuote()
@@ -130,7 +139,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * builds the MailingAddress node
+	 * build the MailingAddress node
 	 * @return TrueAction_Dom_Element
 	 */
 	protected function _buildMailingAddressNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)

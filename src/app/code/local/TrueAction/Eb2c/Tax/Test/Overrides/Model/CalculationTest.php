@@ -58,9 +58,9 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_P
 		$shipAddress = $quote->getShippingAddress();
 		$billaddress = $quote->getBillingAddress();
 
-		$calc = new TrueAction_Eb2c_Tax_Model_Calculation();
+		$calc = new TrueAction_Eb2c_Tax_Overrides_Model_Calculation();
 		$request = $calc->getRateRequest($shipAddress, $billaddress, 'someclass', null);
-		$doc = $this->doc->getValue($request);
+		$doc = $request->getDocument();
 		$xpath = new DOMXPath($doc);
 		$node = $xpath->query('//TaxDutyRequest/Currency')->item(0);
 		$this->assertSame('USD', $node->textContent);

@@ -153,4 +153,28 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 		Mage::throwException('Invalid method ' . get_class($this) . '::' . $name . '(' . print_r($args, 1) . ')');
 	}
 
+	/**
+	 * Catch any unknown property references to try to magically retrieve config values.
+	 * Uses the stored store.
+	 *
+	 * @return null|string|boolean|Mage_Core_Model_Store Boolean if the property name ends with "Flag",
+	 *         Mage_Core_Model_Store if the property is "store", string otherwise.
+	 */
+	public function __get($name)
+	{
+		$store = $this->getStore();
+		if ($name === 'store') {
+			return $store;
+		}
+		$isFlag = preg_match('/Flag$/', $name); // It's a flag if it ends with "Flag"
+		// Strip the "Flag" part if it exists.
+		$configKey = $this->_magicNameToConfigKey(substr($name, 0, strlen($name) - 4 * $isFlag));
+		try {
+			// Retrieve the actual config value, passing the $isFlag arg.
+			return $this->_getStoreConfigValue($configKey, $store, $isFlag);
+		} catch (Exception $e) {
+			// Be consistent with how PHP treats undefined properties.
+			trigger_error(sprintf('Undefined property: %s::%s in php shell code on line %d', get_class($this), $name, __LINE__));
+		}
+	}
 }

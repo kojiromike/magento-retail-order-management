@@ -189,5 +189,34 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 		$config = Mage::helper('eb2ccore/config');
 		$config->notRealMethod();
 	}
+
+	/**
+	 * @test
+	 * @loadFixture configData
+	 */
+	public function testMagicPropConfig()
+	{
+		$config = Mage::helper('eb2ccore/config');
+		$config->addConfigModel(new Config_Stub())
+			->addConfigModel(new Alt_Config_Stub());
+
+		// should get some config value for both of these
+		// this will come from the first Config_Stub
+		$this->assertNotNull($config->apiKey);
+		// this will come from the second Alt_Config_Stub
+		$this->assertNotNull($config->anotherSetting);
+
+		// when no store id is set, should use whatever the default is
+		$this->assertSame($config->apiKey, Mage::getStoreConfig('eb2c/core/api_key'));
+
+		// should be able to get config added by either settings model
+		$this->assertSame($config->anotherSetting, Mage::getStoreConfig('eb2c/another/module/setting'));
+
+		// keys can collide...last added are used
+		// this path is in the first config model added and will not be used
+		$this->assertNotSame($config->catalogId, Mage::getStoreConfig('eb2c/core/catalog_id'));
+		// this is in the second config model and will be used
+		$this->assertSame($config->catalogId, Mage::getStoreConfig('eb2c/another/catalog_id'));
+	}
 }
 

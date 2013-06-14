@@ -102,8 +102,8 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		}
 		$parent->createChild('City', $address->getCity());
 		$parent->createChild('MainDivision', $address->getRegionModel()->getCode());
-		$parent->createChild('CountryCode', $address->getCountryCode());
-		$parent->createChild('PostalCode', $address->getPostalCode());
+		$parent->createChild('CountryCode', $address->getCountryId());
+		$parent->createChild('PostalCode', $address->getPostcode());
 	}
 
 	/**

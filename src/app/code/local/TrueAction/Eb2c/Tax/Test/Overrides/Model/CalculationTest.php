@@ -62,10 +62,40 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_P
 		$request = $calc->getRateRequest($shipAddress, $billaddress, 'someclass', null);
 		$doc = $request->getDocument();
 		$xpath = new DOMXPath($doc);
-		$node = $xpath->query('//TaxDutyRequest/Currency')->item(0);
+		$node = $xpath->query('/TaxDutyRequest/Currency')->item(0);
 		$this->assertSame('USD', $node->textContent);
 
-		$node = $xpath->query('//TaxDutyRequest/BillingInformation')->item(0);
-		$this->assertSame('dest_1', $node->getAttribute('ref'));
+		$node = $xpath->query('/TaxDutyRequest/BillingInformation')->item(0);
+		$this->assertSame('dest_3', $node->getAttribute('ref'));
+		$parent = $xpath->query('/TaxDutyRequest/Shipping/Destinations/MailingAddress')->item(0);
+		$this->assertSame('dest_3', $parent->getAttribute('id'));
+
+		// check the PersonName
+		$node = $xpath->query('PersonName/LastName', $parent)->item(0);
+		$this->assertSame('Guy', $node->textContent);
+		$node = $xpath->query('PersonName/FirstName', $parent)->item(0);
+		$this->assertSame('Test', $node->textContent);
+		$node = $xpath->query('PersonName/Honorific', $parent)->item(0);
+		$this->assertNull($node);
+		$node = $xpath->query('PersonName/MiddleName', $parent)->item(0);
+		$this->assertNull($node);
+
+		// verify the AddressNode
+		$node = $xpath->query('Address/Line1', $parent)->item(0);
+		$this->assertSame('1 RoseDale st', $node->textContent);
+		$node = $xpath->query('Address/Line2', $parent)->item(0);
+		$this->assertNull($node);
+		$node = $xpath->query('Address/Line3', $parent)->item(0);
+		$this->assertNull($node);
+		$node = $xpath->query('Address/Line4', $parent)->item(0);
+		$this->assertNull($node);
+		$node = $xpath->query('Address/City', $parent)->item(0);
+		$this->assertSame('BaltImore', $node->textContent);
+		$node = $xpath->query('Address/MainDivision', $parent)->item(0);
+		$this->assertSame('MD', $node->textContent);
+		$node = $xpath->query('Address/CountryCode', $parent)->item(0);
+		$this->assertSame('US', $node->textContent);
+		$node = $xpath->query('Address/PostalCode', $parent)->item(0);
+		$this->assertSame('21229', $node->textContent);
 	}
 }

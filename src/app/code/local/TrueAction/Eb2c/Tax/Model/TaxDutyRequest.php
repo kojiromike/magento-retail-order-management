@@ -103,15 +103,15 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	protected function _buildPersonName(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
 	{
 		$honorific  = $address->getPrefix();
-		$middleName = $address->getMiddleName();
+		$middleName = $address->getMiddlename();
 		if ($honorific) {
 			$parent->createChild('Honorific', $honorific);
 		}
-		$parent->createChild('LastName', $address->getLastName());
+		$parent->createChild('LastName', $address->getLastname());
 		if ($middleName) {
 			$parent->createChild('MiddleName', $middleName);
 		}
-		$parent->createChild('FirstName', $address->getFirstName());
+		$parent->createChild('FirstName', $address->getFirstname());
 	}
 
 	/**

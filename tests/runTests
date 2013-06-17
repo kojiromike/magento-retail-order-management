@@ -53,7 +53,7 @@ php -f install.php -- \
 
 # Initialize the extensions via modman
 modman init
-modman link --copy ../.. # PHPUnit does not respect symlinks.
+modman link --copy "$(cd ../.. && pwd)" # PHPUnit does not respect symlinks.
 modman clone --copy https://github.com/kojiromike/EcomDev_PHPUnit.git
 
 # Set up the phpunit configurations

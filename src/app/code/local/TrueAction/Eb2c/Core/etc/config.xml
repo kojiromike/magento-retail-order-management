@@ -7,6 +7,9 @@
 	</modules>
 	<global>
 		<models>
+			<eb2ccore>
+				<class>TrueAction_Eb2c_Core_Model</class>
+			</eb2ccore>
 			<sales_order>
 				<rewrite>
 					<item>TrueAction_Eb2c_Core_Model_Order_Item</item>

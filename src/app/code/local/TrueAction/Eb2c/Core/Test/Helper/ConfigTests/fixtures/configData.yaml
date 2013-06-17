@@ -1,0 +1,44 @@
+scope:
+  website:
+    - website_id: 1
+      code: main
+      name: Main Website
+      default_group_id: 1
+  group:
+    - group_id: 1
+      website_id: 1
+      name: Main Website Store
+      root_category_id: 8
+      default_store_id: 1
+  store:
+    - store_id: 1
+      code: default
+      website_id: 1
+      group_id: 1
+      name: Default Store View
+      is_active: 1
+    - store_id: 2
+      code: two
+      website_id: 1
+      group_id: 1
+      name: Two Store View
+      is_active: 1
+    - store_id: 3
+      code: three
+      website_id: 1
+      group_id: 1
+      name: Three Store View
+      is_active: 1
+config:
+  default/eb2c/core/catalog_id: catalog-default
+  default/eb2c/core/api_key: defaultKey
+  default/eb2c/core/test_mode: "false"
+  default/foo/bar/baz: The foo has come for you
+  default/eb2c/another/module/setting: Setting from another module
+  default/eb2c/another/catalog_id: overridden-catalog-id
+  two/eb2c/core/catalog_id: catalog-two
+  two/eb2c/core/api_key: twoKey
+  two/eb2c/core/test_mode: "true"
+  three/eb2c/core/api_key: threeKey
+  three/foo/bar/baz: The foo has got you
+  three/eb2c/another/module/setting: Setting from another module in store three

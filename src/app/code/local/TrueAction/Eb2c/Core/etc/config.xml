@@ -32,11 +32,11 @@
 			</eb2ccore>
 		</helpers>
 	</global>
-	<phpunit>
+	<!-- <phpunit>
 		<suite>
 			<modules>
 				<TrueAction_Eb2c_Core />
 			</modules>
 		</suite>
-	</phpunit>
+	</phpunit> -->
 </config>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * @category    TrueAction
+ * @package     TrueAction_Eb2c
+ * @copyright   Copyright (c) 2013 True Action (http://www.trueaction.com)
+ */
+-->
+<config>
+	<modules>
+		<TrueAction_Eb2c>
+			<version>1.0.0</version>
+		</TrueAction_Eb2c>
+	</modules>
+	<frontend>
+		<routers>
+			<trueaction_eb2c>
+				<use>standard</use>
+				<args>
+					<module>TrueAction_Eb2c</module>
+					<frontName>eb2c</frontName>
+				</args>
+			</trueaction_eb2c>
+            <checkout>
+                <args>
+                    <modules>
+                         <TrueAction_Eb2c before="Mage_Checkout">TrueAction_Eb2c_Override_Checkout</TrueAction_Eb2c>
+                    </modules>
+                </args>
+            </checkout>
+        </routers>
+    </frontend>
+	<phpunit>
+		<suite>
+			<modules>
+				<TrueAction_Eb2c />
+			</modules>
+		</suite>
+	</phpunit>
+</config>

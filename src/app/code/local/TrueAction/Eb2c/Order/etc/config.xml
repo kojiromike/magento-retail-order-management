@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<TrueAction_Eb2c_Tax>
+			<version>0.1.0</version>
+		</TrueAction_Eb2c_Tax>
+	</modules>
+	<global>
+		<models>
+			<eb2corder>
+				<class>TrueAction_Eb2c_Order_Model</class>
+			</eb2corder>
+		</models>
+		<helpers>
+			<order>
+				<class>TrueAction_Eb2c_Order_Helper</class>
+			</order>
+		</helpers>
+	</global>
+	<default>
+		<eb2corder>
+			<config>
+			</config>
+		</eb2corder>
+	</default>
+	<phpunit>
+		<suite>
+			<modules>
+				<TrueAction_Eb2c_Order />
+			</modules>
+		</suite>
+	</phpunit>
+</config>

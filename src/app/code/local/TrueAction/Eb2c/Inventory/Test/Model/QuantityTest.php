@@ -54,7 +54,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 	}
 
 	/**
-	 * testing check
+	 * testing Building Quantity Request Message
 	 *
 	 * @test
 	 * @dataProvider providerBuildQuantityRequestMessage

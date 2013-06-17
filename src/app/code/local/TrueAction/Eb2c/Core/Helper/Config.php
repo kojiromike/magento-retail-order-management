@@ -4,13 +4,8 @@
  * Single point of access for retrieving configuration values.
  * Looks up configuration paths and values via configuration models registered with the helper.
  *
-<<<<<<< HEAD
- * @method string getConfigVal(null|string|bool|int|Mage_Core_Model_Store $store) Return the value at config_val
- * @method bool isConfigFlag(null|string|bool|int|Mage_Core_Model_Store $store) Return the value at config_flag
-=======
  * @prop string configVal The store config value represented by the key config_val
  * @prop bool configValFlag A boolean store config value represented by the key config_val
->>>>>>> master
  */
 class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 {
@@ -43,21 +38,13 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 	 */
 	public function setStore($store)
 	{
-<<<<<<< HEAD
-		$this->_store = $store;
-=======
 		$this->_store = Mage::app()->getStore($store);
->>>>>>> master
 		return $this;
 	}
 
 	/**
 	 * Get the default store
-<<<<<<< HEAD
-	 * @return null|string|bool|int|Mage_Core_Model_Store
-=======
 	 * @return null|Mage_Core_Model_Store
->>>>>>> master
 	 */
 	public function getStore()
 	{
@@ -81,11 +68,7 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 				return Mage::$configMethod($configModel->getPathForKey($configKey), $store);
 			}
 		}
-<<<<<<< HEAD
-		Mage::throwException('Configuration path specified by ' . $configKey . ' was not found.');
-=======
 		Mage::throwException('Configuration path specified by ' . $key . ' was not found.');
->>>>>>> master
 	}
 
 	/**
@@ -115,26 +98,6 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-<<<<<<< HEAD
-	 * Magic "get" method. Will convert the method name to a config key
-	 * and use it to retrieve a config value.
-	 * @param null|string|bool|int|Mage_Core_Model_Store $store
-	 * @return string
-	 */
-	// get.+($store);
-
-	/**
-	 * Magic "is" method.
-	 * Will convert the method name to a config key and use
-	 * it to get a config flag.
-	 * @param null|string|bool|int|Mage_Core_Model_Store $store
-	 * @return boolean
-	 */
-	// is.+($store)
-
-	/**
-=======
->>>>>>> master
 	 * Convert the magic method name, minus the "get"/"is" to a
 	 * potential config key.
 	 * Changes CamelCase to underscore_words
@@ -147,36 +110,6 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-<<<<<<< HEAD
-	 * Catch any unknown function methods calls to try to magically convert "get" methods to retrieve config values.
-	 * @param string $name The called method
-	 * @param array $args Any arguments passed to the function
-	 * @return string|boolean
-	 * @throws Exception if the method name is not a "get" method or the found config key does not map to a know path
-	 */
-	public function __call($name, $args)
-	{
-		// check if the method $name starts with "is" or "get" and capture which one
-		$matches = array();
-		preg_match("/^(?:is|get)/", $name, $matches);
-		// "get" or "is" method type
-		$type = $matches[0];
-		if ($type) {
-			$configKey = $this->_magicNameToConfigKey(substr($name, strlen($type)));
-			$store = (isset($args[0])) ? $args[0] : $this->getStore();
-			try {
-				// retrieve the actual config value, passing the $isFlag arg as true if the method name started with 'is'
-				return $this->_getStoreConfigValue($configKey, $store, ($type === 'is'));
-			} catch (Exception $e) {
-				Mage::log($e->getMessage(), Zend_Log::WARN);
-			}
-		}
-		Mage::throwException('Invalid method ' . get_class($this) . '::' . $name . '(' . print_r($args, 1) . ')');
-	}
-
-	/**
-=======
->>>>>>> master
 	 * Catch any unknown property references to try to magically retrieve config values.
 	 * Uses the stored store.
 	 *
@@ -187,12 +120,6 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 	public function __get($name)
 	{
 		$store = $this->getStore();
-<<<<<<< HEAD
-		if ($name === 'store') {
-			return $store;
-		}
-=======
->>>>>>> master
 		$isFlag = preg_match('/Flag$/', $name); // It's a flag if it ends with "Flag"
 		// Strip the "Flag" part if it exists.
 		$configKey = $this->_magicNameToConfigKey(substr($name, 0, strlen($name) - 4 * $isFlag));
@@ -205,23 +132,4 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 		}
 	}
 
-<<<<<<< HEAD
-	/**
-	 * Allow setting the store via a property.
-	 *
-	 * @see self::setStore
-	 * @param string $name If "store", pass to setStore, otherwise just set the property, php style.
-	 * @param any $value The store to set.
-	 * @return void
-	 */
-	public function __set($name, $value)
-	{
-		if ($name === 'store') {
-			$this->setStore($value);
-		} else {
-			$this->$name = $value;
-		}
-	}
-=======
->>>>>>> master
 }

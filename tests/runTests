@@ -14,7 +14,7 @@ dropAllTables() {
 	local IFS=$'\n'
 	tables=( $(mysql --skip-column-names jenkins_mage_eb2c -e 'show tables;') )
 	IFS=';'
-	mysql jenkins_mage_eb2c <<< "${tables[*]/#/DROP TABLE };"
+	mysql jenkins_mage_eb2c <<< "SET FOREIGN_KEY_CHECKS = 0;${tables[*]/#/DROP TABLE IF EXISTS };SET FOREIGN_KEY_CHECKS = 1;"
 }
 dropAllTables
 

@@ -25,9 +25,7 @@ class TrueAction_Eb2c_Inventory_Test_Helper_DataTest extends EcomDev_PHPUnit_Tes
 	 */
 	protected function _getHelper()
 	{
-		if (!$this->_helper) {
-			$this->_helper = Mage::helper('eb2cinventory');
-		}
+		$this->_helper = Mage::helper('eb2cinventory');
 		return $this->_helper;
 	}
 
@@ -45,15 +43,31 @@ class TrueAction_Eb2c_Inventory_Test_Helper_DataTest extends EcomDev_PHPUnit_Tes
 	}
 
 	/**
-	 * testing getQuantityUri method
+	 * testing getOperationUri method
 	 *
 	 * @test
+	 * @loadFixture loadConfig.yaml
 	 */
-	public function getQuantityUri()
+	public function getOperationUri()
 	{
 		$this->assertSame(
-			'http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/QuantityResponseMessage.xml',
-			$this->_getHelper()->getQuantityUri()
+			'https://developer.na.gsipartners.com/v1.10/stores/ABCD/inventory/quantity/get.xml',
+			$this->_getHelper()->getOperationUri('check_quantity')
+		);
+
+		$this->assertSame(
+			'https://developer.na.gsipartners.com/v1.10/stores/ABCD/inventory/details/get.xml',
+			$this->_getHelper()->getOperationUri('get_inventory_details')
+		);
+
+		$this->assertSame(
+			'https://developer.na.gsipartners.com/v1.10/stores/ABCD/inventory/allocations/create.xml',
+			$this->_getHelper()->getOperationUri('allocate_inventory')
+		);
+
+		$this->assertSame(
+			'https://developer.na.gsipartners.com/v1.10/stores/ABCD/inventory/allocations/delete.xml',
+			$this->_getHelper()->getOperationUri('rollback_allocation')
 		);
 	}
 }

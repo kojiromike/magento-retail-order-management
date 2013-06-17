@@ -46,7 +46,7 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 				// make request to eb2c for quantity
 				$quantityResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
 					$quantityRequestMessage,
-					$this->_getHelper()->getQuantityUri()
+					$this->_getHelper()->getOperationUri('check_quantity')
 				);
 
 				// get available stock from reponse xml

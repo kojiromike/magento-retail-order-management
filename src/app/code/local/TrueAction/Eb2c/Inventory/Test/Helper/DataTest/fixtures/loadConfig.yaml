@@ -1,0 +1,14 @@
+tables:
+  core/config_data:
+tables:
+  core/config_data:
+    - config_id: 1
+      scope: "default"
+      scope_id: 0
+      path: "eb2c/inventory/developer_mode"
+      value: "0"
+    - config_id: 2
+      scope: "default"
+      scope_id: 0
+      path: "eb2c/core/store_id"
+      value: "ABCD"

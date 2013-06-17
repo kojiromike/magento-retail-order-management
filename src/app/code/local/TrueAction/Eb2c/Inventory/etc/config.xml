@@ -17,7 +17,16 @@
 		<models>
 			<eb2cinventory>
 				<class>TrueAction_Eb2c_Inventory_Model</class>
+				<resourceModel>eb2cinventory_resource</resourceModel>
 			</eb2cinventory>
+			<eb2cinventory_resource>
+                <class>TrueAction_Eb2c_Inventory_Model_Resource</class>
+                <entities>
+                    <details>
+                        <table>eb2c_inventory_details</table>
+                    </details>
+              	</entities>
+            </eb2cinventory_resource>
 			<eb2cinventoryoverride>
 				<class>TrueAction_Eb2c_Inventory_Override_Model</class>
 			</eb2cinventoryoverride>
@@ -32,6 +41,13 @@
 				</rewrite>
 			</cataloginventory>
 		</models>
+		<resources>
+			<eb2cinventory_setup>
+				<setup>
+					<module>TrueAction_Eb2c_Inventory</module>
+				</setup>
+			</eb2cinventory_setup>
+		</resources>
 		<helpers>
 			<eb2cinventory>
 				<class>TrueAction_Eb2c_Inventory_Helper</class>
@@ -67,6 +83,7 @@
 				<quantity_api_uri>http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/QuantityResponseMessage.xml</quantity_api_uri>
 				<inventory_detail_uri>http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/InventoryDetailsResponseMessage.xml</inventory_detail_uri>
 				<allocation_uri>http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/AllocationResponseMessage.xml</allocation_uri>
+				<rollback_allocation_uri>http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/RollbackAllocationResponseMessage.xml</rollback_allocation_uri>
 			</inventory>
 		</eb2c>
 	</default>

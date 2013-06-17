@@ -10,6 +10,34 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	public $coreConfigHelper;
 	public $configModel;
 	public $constantHelper;
+	protected $_operation;
+
+	public function __construct()
+	{
+		$this->coreHelper = $this->getCoreHelper();
+		$this->coreConfigHelper = $this->getCoreConfigHelper(null);
+		$this->configModel = $this->getConfigModel(null);
+		$this->constantHelper = $this->getConstantHelper();
+		$constantHelper = $this->getConstantHelper();
+		$this->_operation = array(
+			'check_quantity' => array(
+				'pro' => $constantHelper::OPT_QTY,
+				'dev' => $this->getConfigModel()->quantity_api_uri
+			),
+			'get_inventory_details' => array(
+				'pro' => $constantHelper::OPT_INV_DETAILS,
+				'dev' => $this->getConfigModel()->inventory_detail_uri
+			),
+			'allocate_inventory' => array(
+				'pro' => $constantHelper::OPT_ALLOCATION,
+				'dev' => $this->getConfigModel()->allocation_uri
+			),
+			'rollback_allocation' => array(
+				'pro' => $constantHelper::OPT_ROLLBACK_ALLOCATION,
+				'dev' => $this->getConfigModel()->rollback_allocation_uri
+			)
+		);
+	}
 
 	/**
 	 * Get core helper instantiated object.
@@ -49,7 +77,7 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 		if (!$this->configModel) {
 			$this->configModel = Mage::helper('eb2ccore/config');
 			$this->configModel->setStore($store)
-    			->addConfigModel(Mage::getModel('eb2cinventory/config'));
+				->addConfigModel(Mage::getModel('eb2cinventory/config'));
 		}
 		return $this->configModel;
 	}
@@ -89,41 +117,20 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * Generate eb2c api quantity api uri from config settings and constansts
+	 * Generate eb2c api operation uri from config settings and constansts
+	 * @param string $optIndex, the operation index of the associative array
 	 *
-	 * @return string, the quantity uri
+	 * @return string, the generated operation uri
 	 */
-	public function getQuantityUri()
+	public function getOperationUri($optIndex)
 	{
-		$coreHelper = $this->getCoreHelper();
-		$constantHelper = $this->getConstantHelper();
-		$apiUri = $this->getConfigModel()->quantity_api_uri;
-		if (! (bool) $this->getConfigModel()->developer_mode) {
-			$apiUri = sprintf(
-				$constantHelper::URI_FROMAT,
-				$constantHelper::ENV,
-				$constantHelper::REGION,
-				$constantHelper::VERSION,
-				$this->getCoreConfigHelper()->store_id,
-				$constantHelper::SERVICE,
-				$constantHelper::OPT_QTY,
-				$constantHelper::RETURN_FORMAT
-			);
+		$operation = '';
+		if (isset($this->_operation[$optIndex])) {
+			$operation = $this->_operation[$optIndex];
 		}
-		return $apiUri;
-	}
-
-	/**
-	 * Generate eb2c api inventory detail api uri from config settings and constansts
-	 *
-	 * @return string, the inventory detail uri
-	 */
-	public function getInventoryDetailsUri()
-	{
-		$coreHelper = $this->getCoreHelper();
 		$constantHelper = $this->getConstantHelper();
-		$apiUri = $this->getConfigModel()->inventory_detail_uri;
-		if (! (bool) $this->getConfigModel()->developer_mode) {
+		$apiUri = $operation['dev'];
+		if (!(bool) $this->getConfigModel()->developer_mode) {
 			$apiUri = sprintf(
 				$constantHelper::URI_FROMAT,
 				$constantHelper::ENV,
@@ -131,32 +138,7 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 				$constantHelper::VERSION,
 				$this->getCoreConfigHelper()->store_id,
 				$constantHelper::SERVICE,
-				$constantHelper::OPT_INV_DETAILS,
-				$constantHelper::RETURN_FORMAT
-			);
-		}
-		return $apiUri;
-	}
-
-	/**
-	 * Generate eb2c api allocation api uri from config settings and constansts
-	 *
-	 * @return string, the allocation uri
-	 */
-	public function getAllocationUri()
-	{
-		$coreHelper = $this->getCoreHelper();
-		$constantHelper = $this->getConstantHelper();
-		$apiUri = $this->getConfigModel()->allocation_uri;
-		if (! (bool) $this->getConfigModel()->developer_mode) {
-			$apiUri = sprintf(
-				$constantHelper::URI_FROMAT,
-				$constantHelper::ENV,
-				$constantHelper::REGION,
-				$constantHelper::VERSION,
-				$this->getCoreConfigHelper()->store_id,
-				$constantHelper::SERVICE,
-				$constantHelper::OPT_ALLOCATION,
+				$operation['pro'],
 				$constantHelper::RETURN_FORMAT
 			);
 		}

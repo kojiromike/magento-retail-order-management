@@ -8,9 +8,25 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 {
 	protected $_helper;
 
-	public function __construct()
+	/**
+	 * Init resource model
+	 */
+	protected function _construct()
 	{
 		$this->_helper = $this->_getHelper();
+		$this->_init('eb2cinventory/details');
+	}
+
+	/**
+	 * Load inventory detail by quote item id
+	 *
+	 * @param   int $itemId
+	 * @return  TrueAction_Eb2c_Inventory_Model_Details
+	 */
+	public function loadByQuoteItemId($itemId)
+	{
+		$this->_getResource()->loadByQuoteItemId($this, $itemId);
+		return $this;
 	}
 
 	/**
@@ -43,7 +59,7 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 			// make request to eb2c for inventory details
 			$inventoryDetailsResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
 				$inventoryDetailsRequestMessage,
-				$this->_getHelper()->getInventoryDetailsUri()
+				$this->_getHelper()->getOperationUri('get_inventory_details')
 			);
 		}catch(Exception $e){
 			Mage::logException($e);
@@ -215,38 +231,19 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	 */
 	protected function _updateQuoteWithEb2cInventoryDetails($quoteItem, $inventoryData)
 	{
-		if (isset($inventoryData['creationTime'])) {
-			$quoteItem->setData('eb2c_creation_time', $inventoryData['creationTime']);
-		}
-		if (isset($inventoryData['display'])) {
-			$quoteItem->setData('eb2c_display', $inventoryData['display']);
-		}
-		if (isset($inventoryData['deliveryWindow_from'])) {
-			$quoteItem->setData('eb2c_delivery_window_from', $inventoryData['deliveryWindow_from']);
-		}
-		if (isset($inventoryData['deliveryWindow_to'])) {
-			$quoteItem->setData('eb2c_delivery_window_to', $inventoryData['deliveryWindow_to']);
-		}
-		if (isset($inventoryData['shippingWindow_from'])) {
-			$quoteItem->setData('eb2c_shipping_window_from', $inventoryData['shippingWindow_from']);
-		}
-		if (isset($inventoryData['shippingWindow_to'])) {
-			$quoteItem->setData('eb2c_shipping_window_to', $inventoryData['shippingWindow_to']);
-		}
-		if (isset($inventoryData['shipFromAddress_line1'])) {
-			$quoteItem->setData('eb2c_ship_from_address_line1', $inventoryData['shipFromAddress_line1']);
-		}
-		if (isset($inventoryData['shipFromAddress_city'])) {
-			$quoteItem->setData('eb2c_ship_from_address_city', $inventoryData['shipFromAddress_city']);
-		}
-		if (isset($inventoryData['shipFromAddress_mainDivision'])) {
-			$quoteItem->setData('eb2c_ship_from_address_main_division', $inventoryData['shipFromAddress_mainDivision']);
-		}
-		if (isset($inventoryData['shipFromAddress_countryCode'])) {
-			$quoteItem->setData('eb2c_ship_from_address_country_code', $inventoryData['shipFromAddress_countryCode']);
-		}
-		if (isset($inventoryData['shipFromAddress_postalCode'])) {
-			$quoteItem->setData('eb2c_ship_from_address_postal_code', $inventoryData['shipFromAddress_postalCode']);
-		}
+		$this->loadByQuoteItemId($quoteItem->getItemId())
+			->setItemId($quoteItem->getItemId())
+			->setCreationTime($inventoryData['creationTime'])
+			->setDisplay($inventoryData['display']))
+			->setDeliveryWindowFrom(($inventoryData['deliveryWindow_from'])
+			->setDeliveryWindowTo($inventoryData['deliveryWindow_to'])
+			->setShippingWindowFrom($inventoryData['shippingWindow_from'])
+			->setShippingWindowTo($inventoryData['shippingWindow_to'])
+			->setShipFromAddressLine1($inventoryData['shipFromAddress_line1'])
+			->setShipFromAddressCity($inventoryData['shipFromAddress_city'])
+			->setShipFromAddressMainDivision($inventoryData['shipFromAddress_mainDivision'])
+			->setShipFromAddressCountryCode($inventoryData['shipFromAddress_countryCode'])
+			->setShipFromAddressPostalCode($inventoryData['shipFromAddress_postalCode'])
+			->save();
 	}
 }

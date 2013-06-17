@@ -43,7 +43,7 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 			// make request to eb2c for quote items allocation
 			$allocationResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
 				$allocationRequestMessage,
-				$this->_getHelper()->getAllocationUri()
+				$this->_getHelper()->getOperationUri('allocate_inventory')
 			);
 		}catch(Exception $e){
 			Mage::logException($e);
@@ -208,5 +208,48 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 		}
 
 		return $results;
+	}
+
+	/**
+	 * Rolling back allocation request.
+	 *
+	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request xmlfrom
+	 *
+	 * @return void
+	 */
+	public function rollbackAllocation($quote)
+	{
+		$rollbackAllocationResponseMessage = '';
+		try{
+			// build request
+			$rollbackAllocationRequestMessage = $this->buildRollbackAllocationRequestMessage($quote);
+
+			// make request to eb2c for inventory rollback allocation
+			$rollbackAllocationResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
+				$rollbackAllocationRequestMessage,
+				$this->_getHelper()->getOperationUri('rollback_allocation')
+			);
+		}catch(Exception $e){
+			Mage::logException($e);
+		}
+
+		return $rollbackAllocationResponseMessage;
+	}
+
+	/**
+	 * Build  Rollback Allocation request.
+	 *
+	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request xml from
+	 *
+	 * @return DOMDocument The xml document, to be sent as request to eb2c.
+	 */
+	public function buildRollbackAllocationRequestMessage($quote)
+	{
+		$domDocument = $this->_getHelper()->getDomDocument();
+		$rollbackAllocationRequestMessage = $domDocument->addElement('RollbackAllocationRequestMessage', null, $this->_getHelper()->getXmlNs())->firstChild;
+		$rollbackAllocationRequestMessage->setAttribute('requestId', $this->_getHelper()->getRequestId($quote->getEntityId()));
+		$rollbackAllocationRequestMessage->setAttribute('reservationId', $this->_getHelper()->getReservationId($quote->getEntityId()));
+
+		return $domDocument;
 	}
 }

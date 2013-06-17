@@ -11,6 +11,7 @@ class TrueAction_Eb2c_Inventory_Model_Config extends TrueAction_Eb2c_Core_Model_
 		'developer_mode' => 'eb2c/inventory/developer_mode',
 		'quantity_api_uri' => 'eb2c/inventory/quantity_api_uri',
 		'inventory_detail_uri' => 'eb2c/inventory/inventory_detail_uri',
-		'allocation_uri' => 'eb2c/inventory/allocation_uri'
+		'allocation_uri' => 'eb2c/inventory/allocation_uri',
+		'rollback_allocation_uri' => 'eb2c/inventory/rollback_allocation_uri'
 	);
 }

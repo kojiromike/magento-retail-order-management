@@ -55,5 +55,9 @@ modman init
 modman link --copy ../.. # PHPUnit does not respect symlinks.
 modman clone --copy https://github.com/kojiromike/EcomDev_PHPUnit.git
 
-# Set up the local.xml.phpunit file.
-xmllint --format > app/etc/local.xml.phpunit <<< '<?xml version="1.0"?><config><global><resources><default_setup><connection><dbname>jenkins_mage_eb2c</dbname></connection></default_setup></resources></global><default><web><seo><use_rewrites>1</use_rewrites></seo><secure><base_url>https://example.com</base_url></secure><unsecure><base_url>http://example.com</base_url></unsecure><url><redirect_to_base>0</redirect_to_base></url></web></default><phpunit><allow_same_db>1</allow_same_db></phpunit></config>'
+# Set up the phpunit configurations
+cp ../../tests/local.xml.phpunit app/etc # Magento configuration
+cp ../../tests/phpunit.xml.dist . # PHPUnit configuration
+
+# Run phpunit
+phpunit

@@ -1,5 +1,11 @@
 <?php
 
+<<<<<<< HEAD
+=======
+/**
+ * Stubs for use by the helper class for looking up config paths from keys.
+ */
+>>>>>>> master
 class Config_Stub implements TrueAction_Eb2c_Core_Model_Config_Interface
 {
 
@@ -32,6 +38,18 @@ class Alt_Config_Stub implements TrueAction_Eb2c_Core_Model_Config_Interface
 
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * Test the helper/config class. Should ensure that:
+ * - Looking up a config value through the helper returns
+ *   the same results as looking it up through the
+ *   Mage::getStoreConfig or Mage::getStoreConfigFlag methods.
+ * - The appropriate store view is used when looking up config values
+ * - Multiple config classes can be used to look up paths
+ * - When using multiple config models, the last one in takes precedence
+ */
+>>>>>>> master
 class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_Case
 {
 
@@ -68,6 +86,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 	}
 
 	/**
+<<<<<<< HEAD
 	 * @test
 	 * @loadFixture configData
 	 */
@@ -131,6 +150,8 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 	}
 
 	/**
+=======
+>>>>>>> master
 	 * If getConfig is called and the key is not found, an exception should be raised.
 	 *
 	 * @test
@@ -143,6 +164,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 	}
 
 	/**
+<<<<<<< HEAD
 	 * An exception should be thrown if getConfigFlag is called and the key is not found.
 	 *
 	 * @test
@@ -191,6 +213,8 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 	}
 
 	/**
+=======
+>>>>>>> master
 	 * @test
 	 * @loadFixture configData
 	 */
@@ -221,6 +245,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 
 	/**
 	 * @test
+<<<<<<< HEAD
 	 * @loadFixture configData
 	 */
 	public function testMagicStoreProperty()
@@ -238,3 +263,13 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 	}
 }
 
+=======
+	 * @expectedException Exception
+	 */
+	public function testUnknownProp()
+	{
+		$config = Mage::helper('eb2ccore/config');
+		$config->nonexistentConfig;
+	}
+}
+>>>>>>> master

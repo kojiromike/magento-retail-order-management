@@ -52,8 +52,8 @@ php -f install.php -- \
 
 # Initialize the extensions via modman
 modman init
-modman link --copy ../.. # PHPUnit does not respect symlinks.
-modman clone --copy https://github.com/kojiromike/EcomDev_PHPUnit.git
+modman link --force --copy ../.. # PHPUnit does not respect symlinks.
+modman clone --force --copy https://github.com/kojiromike/EcomDev_PHPUnit.git
 
 # Set up the phpunit configurations
 cp ../../tests/local.xml.phpunit app/etc # Magento configuration

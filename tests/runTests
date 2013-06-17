@@ -22,7 +22,7 @@ dropAllTables
 scp mage.tandev.net:/home/shared/ee/enterprise-1.13.0.0.tar-2013-04-09-02-46-53.gz mage.tandev.net:/home/shared/sample_data/magento_enterprise_sample_data_for_1.12.0.0-2012-04-23-11-43-17.zip .
 tar -xvzpf enterprise-1.13.0.0.tar-2013-04-09-02-46-53.gz
 cd magento
-unzip magento_enterprise_sample_data_for_1.12.0.0-2012-04-23-11-43-17.zip
+unzip ../magento_enterprise_sample_data_for_1.12.0.0-2012-04-23-11-43-17.zip
 mysql jenkins_mage_eb2c < magento_enterprise_sample_data_for_1.12.0.0.sql
 rm magento_enterprise_sample_data_for_1.12.0.0.sql
 

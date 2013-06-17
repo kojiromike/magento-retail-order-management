@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<TrueAction_Eb2c_Address>
+			<active>true</active>
+			<codePool>local</codePool>
+		</TrueAction_Eb2c_Address>
+	</modules>
+</config>

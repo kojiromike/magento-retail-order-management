@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<trueaction_core>
+			<version>0.1</version>
+		</trueaction_core>
+	</modules>
+	<global>
+		<models>
+			<eb2caddress>
+				<class>TrueAction_Eb2c_Address_Model</class>
+			</eb2caddress>
+		</models>
+		<helpers>
+			<eb2caddress>
+				<class>TrueAction_Eb2c_Address_Helper</class>
+			</eb2caddress>
+		</helpers>
+		<blocks>
+			<eb2caddress>
+				<class>TrueAction_Eb2c_Address_Block</class>
+			</eb2caddress>
+		</blocks>
+	</global>
+</config>

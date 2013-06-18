@@ -12,3 +12,8 @@ tables:
       scope_id: 0
       path: "eb2c/core/store_id"
       value: "ABCD"
+    - config_id: 3
+      scope: "default"
+      scope_id: 0
+      path: "eb2c/core/client_id"
+      value: "TAN-CLI"

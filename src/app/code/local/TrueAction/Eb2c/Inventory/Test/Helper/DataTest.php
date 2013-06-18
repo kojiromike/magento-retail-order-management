@@ -50,6 +50,18 @@ class TrueAction_Eb2c_Inventory_Test_Helper_DataTest extends EcomDev_PHPUnit_Tes
 	 */
 	public function getOperationUri()
 	{
+		$config = new TrueAction_Eb2c_Core_Helper_Config();
+		$config->developer_mode = 0;
+		$config->quantity_api_uri = '';
+		$config->inventory_detail_uri = '';
+		$config->allocation_uri = '';
+		$config->rollback_allocation_uri = '';
+
+		$reflector = new ReflectionObject($this->_getHelper());
+		$configModel = $reflector->getProperty('configModel');
+		$configModel->setAccessible(true);
+		$configModel->setValue($this->_getHelper(), $config);
+
 		$this->assertSame(
 			'https://developer.na.gsipartners.com/v1.10/stores/ABCD/inventory/quantity/get.xml',
 			$this->_getHelper()->getOperationUri('check_quantity')
@@ -68,6 +80,50 @@ class TrueAction_Eb2c_Inventory_Test_Helper_DataTest extends EcomDev_PHPUnit_Tes
 		$this->assertSame(
 			'https://developer.na.gsipartners.com/v1.10/stores/ABCD/inventory/allocations/delete.xml',
 			$this->_getHelper()->getOperationUri('rollback_allocation')
+		);
+	}
+
+	public function providerGetRequestId()
+	{
+		return array(
+			array(43)
+		);
+	}
+
+	/**
+	 * testing helper data getRequestId method
+	 *
+	 * @test
+	 * @loadFixture loadConfig.yaml
+	 * @dataProvider providerGetRequestId
+	 */
+	public function testGetRequestId($entityId)
+	{
+		$this->assertSame(
+			'TAN-CLI-ABCD-43',
+			$this->_getHelper()->getRequestId($entityId)
+		);
+	}
+
+	public function providerGetReservationId()
+	{
+		return array(
+			array(43)
+		);
+	}
+
+	/**
+	 * testing helper data getReservationId method
+	 *
+	 * @test
+	 * @loadFixture loadConfig.yaml
+	 * @dataProvider providerGetReservationId
+	 */
+	public function testGetReservationId($entityId)
+	{
+		$this->assertSame(
+			'TAN-CLI-ABCD-43',
+			$this->_getHelper()->getReservationId($entityId)
 		);
 	}
 }

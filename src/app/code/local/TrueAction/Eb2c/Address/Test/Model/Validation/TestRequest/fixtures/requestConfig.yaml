@@ -1,0 +1,2 @@
+config:
+  default/eb2c/address_validation/max_suggestions: 5

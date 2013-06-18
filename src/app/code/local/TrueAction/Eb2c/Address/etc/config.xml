@@ -22,4 +22,11 @@
 			</eb2caddress>
 		</blocks>
 	</global>
+	<default>
+		<eb2c>
+			<address_validation>
+				<max_suggestions>3</max_suggestions>
+			</address_validation>
+		</eb2c>
+	</default>
 </config>

@@ -4,7 +4,7 @@
  * 	TrueAction_Eb2c_Core Models.
  *
  */
-class TrueAction_Eb2c_Core_Test_Model_ItemTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Core_Test_Model_ItemInterfaceTest extends EcomDev_PHPUnit_Test_Case
 {
 	/**
 	 * @test

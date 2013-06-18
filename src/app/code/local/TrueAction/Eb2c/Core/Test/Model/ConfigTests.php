@@ -1,20 +1,10 @@
 <?php
-/**
- * Simple implementation of the abstract class for testing.
- */
-class Concrete_Config_Model_Stub extends TrueAction_Eb2c_Core_Model_Config_Abstract
-{
-	protected $_configPaths = array(
-		"catalog_id" => "eb2c/core/catalog_id",
-	);
-}
-
 
 /**
  * Test the abstract config model which does the majority of work implementing
  * the config model interface required by the TrueAction_Eb2c_Core_Helper_Config
  */
-class TrueAction_Eb2c_Core_Test_Model_ConfigTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Core_Test_Model_ConfigTests extends EcomDev_PHPUnit_Test_Case
 {
 
 	/**
@@ -38,4 +28,14 @@ class TrueAction_Eb2c_Core_Test_Model_ConfigTest extends EcomDev_PHPUnit_Test_Ca
 		$this->assertSame($configModel->getPathForKey('catalog_id'), 'eb2c/core/catalog_id');
 	}
 
+}
+
+/**
+ * Simple implementation of the abstract class for testing.
+ */
+class Concrete_Config_Model_Stub extends TrueAction_Eb2c_Core_Model_Config_Abstract
+{
+	protected $_configPaths = array(
+		"catalog_id" => "eb2c/core/catalog_id",
+	);
 }

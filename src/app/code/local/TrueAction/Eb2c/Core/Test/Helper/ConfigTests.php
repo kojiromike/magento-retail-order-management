@@ -1,41 +1,6 @@
 <?php
 
 /**
- * Stubs for use by the helper class for looking up config paths from keys.
- */
-class Config_Stub implements TrueAction_Eb2c_Core_Model_Config_Interface
-{
-
-	public function hasKey($key)
-	{
-		return $key === "catalog_id" || $key === "api_key" || $key === "test_mode";
-	}
-
-	public function getPathForKey($key)
-	{
-		$paths = array("catalog_id" => "eb2c/core/catalog_id", "api_key" => "eb2c/core/api_key", "test_mode" => "eb2c/core/test_mode");
-		return $paths[$key];
-	}
-
-}
-
-class Alt_Config_Stub implements TrueAction_Eb2c_Core_Model_Config_Interface
-{
-
-	public function hasKey($key)
-	{
-		return $key === "catalog_id" || $key === "another_setting";
-	}
-
-	public function getPathForKey($key)
-	{
-		$paths = array("catalog_id" => "eb2c/another/catalog_id", "another_setting" => "eb2c/another/module/setting");
-		return $paths[$key];
-	}
-
-}
-
-/**
  * Test the helper/config class. Should ensure that:
  * - Looking up a config value through the helper returns
  *   the same results as looking it up through the
@@ -44,7 +9,7 @@ class Alt_Config_Stub implements TrueAction_Eb2c_Core_Model_Config_Interface
  * - Multiple config classes can be used to look up paths
  * - When using multiple config models, the last one in takes precedence
  */
-class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_Case
 {
 
 	/**
@@ -130,3 +95,39 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTest extends EcomDev_PHPUnit_Test_C
 		$config->nonexistentConfig;
 	}
 }
+
+/**
+ * Stubs for use by the helper class for looking up config paths from keys.
+ */
+class Config_Stub implements TrueAction_Eb2c_Core_Model_Config_Interface
+{
+
+	public function hasKey($key)
+	{
+		return $key === "catalog_id" || $key === "api_key" || $key === "test_mode";
+	}
+
+	public function getPathForKey($key)
+	{
+		$paths = array("catalog_id" => "eb2c/core/catalog_id", "api_key" => "eb2c/core/api_key", "test_mode" => "eb2c/core/test_mode");
+		return $paths[$key];
+	}
+
+}
+
+class Alt_Config_Stub implements TrueAction_Eb2c_Core_Model_Config_Interface
+{
+
+	public function hasKey($key)
+	{
+		return $key === "catalog_id" || $key === "another_setting";
+	}
+
+	public function getPathForKey($key)
+	{
+		$paths = array("catalog_id" => "eb2c/another/catalog_id", "another_setting" => "eb2c/another/module/setting");
+		return $paths[$key];
+	}
+
+}
+

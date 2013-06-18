@@ -29,7 +29,7 @@ class TrueAction_Eb2c_Inventory_Model_Resource_Details extends Mage_Sales_Model_
 	{
 		$adapter = $this->_getReadAdapter();
 		$select  = $adapter->select()
-			->from($this->getMainTable(), array('details_batch_id'))
+			->from($this->getMainTable(), array('detail_id'))
 			->where("item_id = '" . (int) $itemId . "'");
 
 		$detailId = $adapter->fetchOne($select);

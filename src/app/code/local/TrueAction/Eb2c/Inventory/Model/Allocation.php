@@ -7,6 +7,7 @@
 class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstract
 {
 	protected $_helper;
+	protected $_details;
 
 	public function __construct()
 	{
@@ -27,6 +28,19 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	}
 
 	/**
+	 * Get Details instantiated object.
+	 *
+	 * @return TrueAction_Eb2c_Inventory_Model_Details
+	 */
+	protected function _getDetails()
+	{
+		if (!$this->_details) {
+			$this->_details = Mage::getModel('eb2cinventory/details');
+		}
+		return $this->_details;
+	}
+
+	/**
 	 * Allocating all items brand new quote from eb2c.
 	 *
 	 * @param Mage_Sales_Model_Quote $quote, the quote to allocate iventory items in eb2c for
@@ -38,7 +52,7 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 		$allocationResponseMessage = '';
 		try{
 			// build request
-			$allocationRequestMessage = $this->buildAllocationRequestMessage($quote, $order);
+			$allocationRequestMessage = $this->buildAllocationRequestMessage($quote);
 
 			// make request to eb2c for quote items allocation
 			$allocationResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
@@ -159,11 +173,14 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 			$doc->loadXML($allocationResponseMessage);
 			$i = 0;
 			$allocationResponse = $doc->getElementsByTagName('AllocationResponse');
+			$allocationMessage = $doc->getElementsByTagName('AllocationResponseMessage');
 			foreach($allocationResponse as $response) {
 				$allocationData = array(
 					'lineId' => $response->getAttribute('lineId'),
 					'itemId' => $response->getAttribute('itemId'),
-					'qty' => (int) $allocationResponse->item($i)->nodeValue
+					'qty' => (int) $allocationResponse->item($i)->nodeValue,
+					'reservation_id' => $allocationMessage->item(0)->getAttribute('reservationId'),
+					'reservation_expires' => Mage::getModel('core/date')->date('Y-m-d H:i:s')
 				);
 
 				if ($quoteItem = $quote->getItemById($allocationData['lineId'])) {
@@ -194,11 +211,13 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 		// get quote from quoteitem
 		$quote = $quoteItem->getQuote();
 
-		// set eb2c reserved qty to the quote item
-		$quoteItem->setData('ebc_reserved_qty', $quoteData['qty']);
-
-		// save quote
-		$quote->save();
+		// save reservation data to inventory detail
+		$inventoryDetails = $this->_getDetails()->loadByQuoteItemId($quoteItem->getItemId());
+		$inventoryDetails->setItemId($quoteItem->getItemId())
+			->setReservationId($quoteData['reservation_id'])
+			->setReservationExpires($quoteData['reservation_expires'])
+			->setQtyReserved($quoteData['qty'])
+			->save();
 
 		// Set the message allocation failure
 		if ($quoteData['qty'] > 0 && $quoteItem->getQty() > $quoteData['qty']) {

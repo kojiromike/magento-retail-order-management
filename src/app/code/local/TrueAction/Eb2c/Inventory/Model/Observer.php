@@ -126,8 +126,11 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 
 		// generate request and send request to eb2c inventory details
 		if ($inventoryDetailsResponseMessage = $this->_getDetails()->getInventoryDetails($quote)) {
+			// parse inventory detail response
+			$inventoryData = $this->_getDetails()->parseResponse($inventoryDetailsResponseMessage);
+
 			// got a valid response from eb2c, then go ahead and update the quote with the eb2c information
-			$this->_getDetails()->processInventoryDetails($quote, $inventoryDetailsResponseMessage);
+			$this->_getDetails()->processInventoryDetails($quote, $inventoryData);
 		}
 	}
 }

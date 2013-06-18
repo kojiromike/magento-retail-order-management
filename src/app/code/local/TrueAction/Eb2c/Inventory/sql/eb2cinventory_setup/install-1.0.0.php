@@ -48,6 +48,12 @@ try{
 		), 'eb2c ship from address country code')
 		->addColumn('ship_from_address_postal_code', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
 		), 'eb2c ship from address postal code')
+		->addColumn('reservation_id', Varien_Db_Ddl_Table::TYPE_TEXT, 255, array(
+		), 'Reservation Id')
+		->addColumn('reservation_expires', Varien_Db_Ddl_Table::TYPE_TIMESTAMP, null, array(
+		), 'Reservation Expiration Date')
+		->addColumn('qty_reserved', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
+		), 'Reserved Qty')
 		->addForeignKey($installer->getFkName('eb2cinventory/details', 'item_id', 'sales/quote_item', 'item_id'),
 			'item_id', $installer->getTable('sales/quote_item'), 'item_id',
 		Varien_Db_Ddl_Table::ACTION_SET_NULL, Varien_Db_Ddl_Table::ACTION_CASCADE)

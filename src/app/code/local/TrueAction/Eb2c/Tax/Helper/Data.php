@@ -12,6 +12,10 @@ class TrueAction_Eb2c_Tax_Helper_Data extends Mage_Tax_Helper_Data
 	protected $_operation           = 'quote';
 	protected $_responseFormat      = 'xml';
 
+	/**
+	 * returns the completed uri.
+	 * @return string
+	 */
 	public function getApiUrl()
 	{
 		return sprintf(
@@ -28,14 +32,15 @@ class TrueAction_Eb2c_Tax_Helper_Data extends Mage_Tax_Helper_Data
 
 	/**
 	 * send a request and return the response
-	 * @param  TaxDutyRequest $request
-	 * @return TaxDutyResponse
+	 * @param  TrueAction_Eb2c_Tax_Model_Request $request
+	 * @return TrueAction_Eb2c_Tax_Model_Response
 	 */
-	public function sendRequest(TaxDutyRequest $request)
+	public function sendRequest(TrueAction_Eb2c_Tax_Model_Request $request)
 	{
-		return Mage::helper('eb2ccore')->apiCall(
+		$response = Mage::helper('eb2ccore')->apiCall(
 			$request->getDocument(),
 			$this->getApiUrl()
 		);
+		return new TrueAction_Eb2c_Tax_Model_Response(array('xml' => $response));
 	}
 }

@@ -5,6 +5,8 @@
  */
 class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 {
+	const EMAIL_MAX_LENGTH         = 70;
+
 	protected $_xml                = '';
 	protected $_doc                = null;
 	protected $_destinations       = null;
@@ -15,16 +17,17 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	protected $_mailingAddressId   = '';
 	protected $_emailAddressId     = '';
 	protected $_cacheKey           = '';
-
-	const EMAIL_MAX_LENGTH         = 70;
+	protected $_skuLineMap         = array();
 
 	/**
 	 * generate the request DOMDocument on construction.
 	 */
 	protected function _construct()
 	{
+		// TODO: generate the cacheKey as we go along gathering the data for the request and remove this line. this is not adequate.
+		$this->_cacheKey   = $this->_getQuote()->getId() . '|';
 		$doc               = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$tdRequest         = $doc->addElement('TaxDutyRequest')->firstChild;
+		$tdRequest         = $doc->addElement('TaxDutyQuoteRequest')->firstChild;
 		$tdRequest->addChild(
 			'Currency',
 			$this->_getQuote()->getQuoteCurrencyCode()
@@ -36,6 +39,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$this->_shipGroups   = $shipping->createChild('ShipGroups');
 		$this->_destinations = $shipping->createChild('Destinations');
 		$this->_doc          = $doc;
+		$this->_buildSkuLineMap();
 		$this->_processAddresses();
 		$tdRequest->firstChild->nextSibling->setAttribute(
 			'ref',
@@ -80,17 +84,28 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$shipGroups   = $this->_shipGroups;
 		$destinations = $this->_destinations;
 		foreach ($shippingAddresses as $addressKey => $address) {
+			$this->_cacheKey .= '|' . $address->getId();
 			$mailingAddress = $this->_buildMailingAddressNode($destinations, $address);
 			$this->_buildEmailNode($destinations, $address);
+			$orderItemsFragment = $this->_doc->createDocumentFragment();
+			$orderItems = $orderItemsFragment->appendChild(
+				$this->_doc->createElement('Items')
+			);
+			foreach ($address->getAllVisibleItems() as $addressItem) {
+				$this->_addOrderItem($orderItems, $addressItem, $address);
+			}
 			$groupedRates   = $address->getGroupedAllShippingRates();
 			foreach ($groupedRates as $rateKey => $shippingRate) {
-				$shipGroup = $shipGroups->createChild('ShipGroup');
-				$shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)
-					->addAttribute('chargeType', strtoupper($shippingRate->getMethod()));
-				$shipGroup->createChild('DestinationTarget')
-					->setAttribute('ref', $mailingAddress->getAttribute('id'));
-				// TODO: REMOVE ME
-				Mage::log('DestinationTarget ref = ' . $mailingAddress->getAttribute('id'));
+				$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
+				Mage::log($address->getShippingMethod());
+				if ($address->getShippingMethod() == $shippingRate->getCode()) {
+					$shipGroup = $shipGroups->createChild('ShipGroup');
+					$shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)
+						->addAttribute('chargeType', strtoupper($shippingRate->getMethod()));
+					$shipGroup->createChild('DestinationTarget')
+						->setAttribute('ref', $this->_mailingAddressId);
+					$items = $shipGroup->appendChild($orderItems->cloneNode(true));
+				}
 			}
 		}
 	}
@@ -147,13 +162,14 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	 * build the MailingAddress node
 	 * @return TrueAction_Dom_Element
 	 */
-	protected function _buildMailingAddressNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
-	{
-		$this->_mailingAddressId = 'dest_' . $address->getId();
+	protected function _buildMailingAddressNode(
+		TrueAction_Dom_Element $parent,
+		Mage_Sales_Model_Quote_Address $address
+	) {
+		$this->_mailingAddressId = $address->getId();
 		if ($address->getSameAsBilling()) {
 			$address = $this->getBillingAddress();
-			$this->_billingInfoRef   = 'dest_' . $address->getId();
-			$this->_mailingAddressId = $this->_billingInfoRef;
+			$this->_billingInfoRef   = $this->_mailingAddressId;
 		}
 		$mailingAddress = $parent->createChild('MailingAddress');
 		$mailingAddress->setAttribute('id', $this->_mailingAddressId, true);
@@ -171,12 +187,11 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	 */
 	protected function _buildEmailNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
 	{
-		$this->_emailAddressId = 'dest_email_' . $address->getId();
 		if ($address->getSameAsBilling()) {
 			$address = $this->getBillingAddress();
-			$this->_billingEmailRef = 'dest_email_' . $address->getId();
-			$this->_emailAddressId = $this->_billingEmailRef;
+			$this->_billingEmailRef = $address->getEmail();
 		}
+		$this->_emailAddressId = $address->getEmail();
 		// do nothing if the email address doesn't meet size requirements.
 		$emailStr = $this->_checkLength($address->getEmail(), 1, self::EMAIL_MAX_LENGTH);
 		if ($emailStr) {
@@ -212,5 +227,100 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * build and append an orderitem node to the parent node.
+	 * @param TrueAction_Dom_Element         $parent
+	 * @param Mage_Sales_Model_Quote_Item    $item
+	 * @param Mage_Sales_Model_Quote_Address $address
+	 */
+	protected function _addOrderItem(
+		TrueAction_Dom_Element $parent,
+		Mage_Sales_Model_Quote_Item $item,
+		Mage_Sales_Model_Quote_Address $address
+	) {
+		$sku      = $this->_checkLength($item->getSku(), 1, 20);
+		if (is_null($sku)){
+			Mage::throwException(sprintf(
+				'Mage_Sales_Model_Quote_Item id:%s has an invalid SKU:%s',
+				$item->getId(),
+				$item->getSku()
+			));
+		}
+		$this->_cacheKey = '|' . $item->getSku() . '|' . $item->getQtyOrdered();
+		$orderItem = $parent->createChild('OrderItem')
+			->addAttribute('lineNumber', $this->_getLineNumber($item))
+			->addChild('ItemId', $item->getSku())
+			->addChild('Quantity', $item->getQtyOrdered())
+			->addChild('Pricing');
+		$merchandise = $orderItem->setNode('Pricing/Merchandise')
+			->addChild('Amount', $item->getRowTotal())
+			->addChild('UnitPrice', $item->getBasePrice());
+		// taxClass will be gotten from ItemMaster feed field "TaxCode"
+		$taxClass = $this->_checkLength(
+			$item->getProduct()->getTaxCode(),
+			1, 40
+		);
+		if ($taxClass) {
+			$shipping->createChild('TaxClass', $taxClass);
+		}
+
+		$shipping = $orderItem->setNode('Pricing/Shipping')
+			->addChild('Amount', $address->getShippingAmount());
+		$taxClass = $this->_checkLength(
+			Mage::getStoreConfig(
+				Mage_Tax_Model_Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
+				$this->getStore()->getId()
+			),
+			1, 40
+		);
+		if ($taxClass) {
+			$shipping->createChild('TaxClass', $taxClass);
+		}
+	}
+
+	/**
+	 * generate a mapping of sku to item id.
+	 * @param  Mage_Sales_Model_Quote_Item $item
+	 */
+	protected function _buildSkuLineMap()
+	{
+		$quoteItems = $this->_getQuote()->getAllVisibleItems();
+		foreach ($quoteItems as $key => $quoteItem) {
+			$this->_skuLineMap[$quoteItem->getSku()] = $key;
+		}
+	}
+
+	/**
+	 * get an item's position in the order
+	 * @param Mage_Sales_Model_Quote_Item $item
+	 * @return int
+	 */
+	protected function _getLineNumber(Mage_Sales_Model_Quote_Item $item)
+	{
+		return $this->_skuLineMap[$item->getSku()];
+	}
+
+	/**
+	 * get the taxCode for the item's product.
+	 * NOTE: the taxCode should be set by the ItemMaster feed.
+	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @return string
+	 */
+	protected function _getProductTaxCode(Mage_Sales_Model_Quote_Item $item)
+	{
+		return Mage::getModel('catalog/product')
+			->loadById($item->getProductId())
+			->getTaxCode();
+	}
+
+	/**
+	 * determine whether the prices include VAT.
+	 * @return boolean [description]
+	 */
+	protected function _isVatIncludedInPrice()
+	{
+		return 0;
 	}
 }

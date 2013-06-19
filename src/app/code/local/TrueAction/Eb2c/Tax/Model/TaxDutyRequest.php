@@ -126,7 +126,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 			$groupedRates   = $address->getGroupedAllShippingRates();
 			foreach ($groupedRates as $rateKey => $shippingRate) {
 				$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
-				Mage::log($address->getShippingMethod());
+				// FIXME: === always returns false in the following if statement
 				if ($address->getShippingMethod() == $shippingRate->getCode()) {
 					$shipGroup = $shipGroups->createChild('ShipGroup');
 					$shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)

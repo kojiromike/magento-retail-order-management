@@ -20,6 +20,12 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	protected $_skuLineMap         = array();
 
 	/**
+	 * map skus to a quote item
+	 * @var array('string' => Mage_Sales_Model_Quote_Item)
+	 */
+	protected $_skuItemMap         = array();
+
+	/**
 	 * generate the request DOMDocument on construction.
 	 */
 	protected function _construct()
@@ -284,11 +290,12 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	 * generate a mapping of sku to item id.
 	 * @param  Mage_Sales_Model_Quote_Item $item
 	 */
-	protected function _buildSkuLineMap()
+	protected function _buildSkuMaps()
 	{
 		$quoteItems = $this->_getQuote()->getAllVisibleItems();
 		foreach ($quoteItems as $key => $quoteItem) {
 			$this->_skuLineMap[$quoteItem->getSku()] = $key;
+			$this->_skuIdMap[$quoteItem->getSku()] = $quoteItem;
 		}
 	}
 

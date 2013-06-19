@@ -26,25 +26,24 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 
 	public function setUp()
 	{
-		$this->itemResults = self::$cls->getProperty('_itemResults');
-		$this->itemResults->setAccessible(true);
-		$reqDoc = new TrueAction_Dom_Document('1.0', 'utf8');
-		$reqDoc->loadXML(self::$reqXml);
-		$request = $this->getModelMock(
-			'eb2ctax/request',
-			array('getDocument')
-		);
-		$request->expects($this->any())
-			->method('getDocument')
-			->will($this->returnValue($reqDoc));
-		$this->request = $request;
+        parent::setUp();
+        $_SESSION = array();
+        $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
+        $this->app()->getRequest()->setBaseUrl($_baseUrl);
 	}
 
 	/**
 	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture testGetRateRequest.yaml
 	 */
 	public function testConstruction()
 	{
+		$this->markTestSkipped('not done yet');
+		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(2);
+		$this->request = new TrueAction_Eb2c_Tax_Model_Request(array(
+			'quote' => $quote
+		));
 		$this->markTestSkipped();
 		$response = new TrueAction_Eb2c_Tax_Model_Response(array(
 			'xml' => self::$_xml,

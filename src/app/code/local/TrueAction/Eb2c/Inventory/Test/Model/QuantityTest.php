@@ -66,4 +66,43 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 			trim($this->_getQuantity()->buildQuantityRequestMessage($items)->saveXML())
 		);
 	}
+
+	public function providerRequestQuantity()
+	{
+		return array(
+			array('qty' => 1, 'itemId' => 100, 'sku' => '1234-TA')
+		);
+	}
+
+	/**
+	 * testing requestQuantity method, when exception is throw from api call
+	 *
+	 * @test
+	 * @dataProvider providerRequestQuantity
+	 */
+	public function testRequestQuantity($qty=0, $itemId, $sku)
+	{
+		$coreHelperMock = $this->getMock('TrueAction_Eb2c_Core_Helper_Data', array('callApi'));
+		$coreHelperMock->expects($this->any())
+			->method('callApi')
+			->will(
+				$this->throwException(new Exception)
+			);
+
+		$inventoryHelper = Mage::helper('eb2cinventory');
+		$inventoryReflector = new ReflectionObject($inventoryHelper);
+		$coreHelper = $inventoryReflector->getProperty('coreHelper');
+		$coreHelper->setAccessible(true);
+		$coreHelper->setValue($inventoryHelper, $coreHelperMock);
+
+		$quantityReflector = new ReflectionObject($this->_getQuantity());
+		$helper = $quantityReflector->getProperty('_helper');
+		$helper->setAccessible(true);
+		$helper->setValue($this->_getQuantity(), $inventoryHelper);
+
+		$this->assertSame(
+			0,
+			$this->_getQuantity()->requestQuantity($qty, $itemId, $sku)
+		);
+	}
 }

@@ -15,6 +15,9 @@
 	</modules>
 	<global>
 		<models>
+			<eb2cinventory>
+				<class>TrueAction_Eb2c_Inventory_Model</class>
+			</eb2cinventory>
 			<eb2cinventoryoverride>
 				<class>TrueAction_Eb2c_Inventory_Override_Model</class>
 			</eb2cinventoryoverride>

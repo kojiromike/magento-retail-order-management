@@ -14,19 +14,6 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	protected function _construct()
 	{
 		$this->_helper = $this->_getHelper();
-		$this->_init('eb2cinventory/details');
-	}
-
-	/**
-	 * Load inventory detail by quote item id
-	 *
-	 * @param   int $itemId
-	 * @return  TrueAction_Eb2c_Inventory_Model_Details
-	 */
-	public function loadByQuoteItemId($itemId)
-	{
-		$this->_getResource()->loadByQuoteItemId($this, $itemId);
-		return $this;
 	}
 
 	/**
@@ -247,19 +234,22 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	 */
 	protected function _updateQuoteWithEb2cInventoryDetails($quoteItem, $inventoryData)
 	{
-		$this->loadByQuoteItemId($quoteItem->getItemId())
-			->setItemId($quoteItem->getItemId())
-			->setCreationTime($inventoryData['creationTime'])
-			->setDisplay($inventoryData['display'])
-			->setDeliveryWindowFrom($inventoryData['deliveryWindow_from'])
-			->setDeliveryWindowTo($inventoryData['deliveryWindow_to'])
-			->setShippingWindowFrom($inventoryData['shippingWindow_from'])
-			->setShippingWindowTo($inventoryData['shippingWindow_to'])
-			->setShipFromAddressLine1($inventoryData['shipFromAddress_line1'])
-			->setShipFromAddressCity($inventoryData['shipFromAddress_city'])
-			->setShipFromAddressMainDivision($inventoryData['shipFromAddress_mainDivision'])
-			->setShipFromAddressCountryCode($inventoryData['shipFromAddress_countryCode'])
-			->setShipFromAddressPostalCode($inventoryData['shipFromAddress_postalCode'])
-			->save();
+		// get quote from quote item
+		$quote = $quoteItem->getQuote();
+
+		// Add inventory details info to quote item
+		$quoteItem->setEb2cCreationTime($inventoryData['creationTime'])
+			->setEb2cDisplay($inventoryData['display'])
+			->setEb2cDeliveryWindowFrom($inventoryData['deliveryWindow_from'])
+			->setEb2cDeliveryWindowTo($inventoryData['deliveryWindow_to'])
+			->setEb2cShippingWindowFrom($inventoryData['shippingWindow_from'])
+			->setEb2cShippingWindowTo($inventoryData['shippingWindow_to'])
+			->setEb2cShipFromAddressLine1($inventoryData['shipFromAddress_line1'])
+			->setEb2cShipFromAddressCity($inventoryData['shipFromAddress_city'])
+			->setEb2cShipFromAddressMainDivision($inventoryData['shipFromAddress_mainDivision'])
+			->setEb2cShipFromAddressCountryCode($inventoryData['shipFromAddress_countryCode'])
+			->setEb2cShipFromAddressPostalCode($inventoryData['shipFromAddress_postalCode']);
+		// Save the quote
+		$quote->save();
 	}
 }

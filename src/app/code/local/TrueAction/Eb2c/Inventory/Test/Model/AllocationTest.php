@@ -31,16 +31,24 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 		return $this->_allocation;
 	}
 
+	public function providerAllocateQuoteItems()
+	{
+		$quote = Mage::getModel('sales/quote')->load(42);
+		return array(
+			array($quote)
+		);
+	}
+
 	/**
-	 * testing allocation class
+	 * testing AllocateQuoteItems method
 	 *
 	 * @test
+	 * @dataProvider providerAllocateQuoteItems
 	 */
-	public function testAllocation()
+	public function testAllocateQuoteItems($quote)
 	{
-		$this->assertSame(
-			'TrueAction_Eb2c_Inventory_Model_Allocation',
-			get_class($this->_getAllocation())
-		);
+		/*$this->assertNotNull(
+			$this->_getAllocation()->allocateQuoteItems($quote)
+		);*/
 	}
 }

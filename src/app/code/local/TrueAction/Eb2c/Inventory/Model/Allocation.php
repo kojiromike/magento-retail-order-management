@@ -7,7 +7,6 @@
 class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstract
 {
 	protected $_helper;
-	protected $_details;
 
 	public function __construct()
 	{
@@ -25,19 +24,6 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 			$this->_helper = Mage::helper('eb2cinventory');
 		}
 		return $this->_helper;
-	}
-
-	/**
-	 * Get Details instantiated object.
-	 *
-	 * @return TrueAction_Eb2c_Inventory_Model_Details
-	 */
-	protected function _getDetails()
-	{
-		if (!$this->_details) {
-			$this->_details = Mage::getModel('eb2cinventory/details');
-		}
-		return $this->_details;
 	}
 
 	/**
@@ -212,12 +198,11 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 		$quote = $quoteItem->getQuote();
 
 		// save reservation data to inventory detail
-		$inventoryDetails = $this->_getDetails()->loadByQuoteItemId($quoteItem->getItemId());
-		$inventoryDetails->setItemId($quoteItem->getItemId())
-			->setReservationId($quoteData['reservation_id'])
-			->setReservationExpires($quoteData['reservation_expires'])
-			->setQtyReserved($quoteData['qty'])
-			->save();
+		$quoteItem->setEb2cReservationId($quoteData['reservation_id'])
+			->setEb2cReservationExpires($quoteData['reservation_expires'])
+			->setEb2cQtyReserved($quoteData['qty']);
+
+		$quote->save();
 
 		// Set the message allocation failure
 		if ($quoteData['qty'] > 0 && $quoteItem->getQty() > $quoteData['qty']) {

@@ -1,2 +1,3 @@
 config:
+  default/eb2c/core/store_id: client-123
   default/eb2c/address_validation/max_suggestions: 5

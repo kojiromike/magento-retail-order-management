@@ -281,6 +281,8 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$orderItem = $parent->createChild('OrderItem')
 			->addAttribute('lineNumber', $this->_getLineNumber($item))
 			->addChild('ItemId', $item->getSku())
+			->addChild('ItemDesc', $this->_checkLength($item->getName(), 0, 12))
+			->addChild('HTSCode', $this->_checkLength($item->getHtsCode(), 0, 12))
 			->addChild('Quantity', $item->getQtyOrdered())
 			->addChild('Pricing');
 		$merchandise = $orderItem->setNode('Pricing/Merchandise')
@@ -310,7 +312,7 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * generate a mapping of sku to item id.
+	 * generate mappings for easy item lookups.
 	 * @param  Mage_Sales_Model_Quote_Item $item
 	 */
 	protected function _buildSkuMaps()
@@ -346,8 +348,8 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * determine whether the prices include VAT.
-	 * @return boolean [description]
+	 * determine whether the prices already include VAT.
+	 * @return boolean
 	 */
 	protected function _isVatIncludedInPrice()
 	{

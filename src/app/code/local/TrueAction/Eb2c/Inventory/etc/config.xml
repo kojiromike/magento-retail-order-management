@@ -14,20 +14,7 @@
 		</TrueAction_Eb2c_Inventory>
 	</modules>
 	<global>
-		
 		<models>
-			<eb2cinventory>
-				<class>TrueAction_Eb2c_Inventory_Model</class>
-				<resourceModel>eb2cinventory_resource</resourceModel>
-			</eb2cinventory>
-			<eb2cinventory_resource>
-                <class>TrueAction_Eb2c_Inventory_Model_Resource</class>
-                <entities>
-                    <details>
-                        <table>eb2c_inventory_details</table>
-                    </details>
-              	</entities>
-            </eb2cinventory_resource>
 			<eb2cinventoryoverride>
 				<class>TrueAction_Eb2c_Inventory_Override_Model</class>
 			</eb2cinventoryoverride>

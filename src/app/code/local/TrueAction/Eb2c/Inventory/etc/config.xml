@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * @category    TrueAction
+ * @package     TrueAction_Eb2c
+ * @copyright   Copyright (c) 2013 True Action (http://www.trueaction.com)
+ */
+-->
+<config>
+	<modules>
+		<TrueAction_Eb2c_Inventory>
+			<version>1.0.0</version>
+		</TrueAction_Eb2c_Inventory>
+	</modules>
+	<global>
+		<models>
+			<eb2cinventory>
+				<class>TrueAction_Eb2c_Inventory_Model</class>
+			</eb2cinventory>
+			<eb2cinventoryoverride>
+				<class>TrueAction_Eb2c_Inventory_Override_Model</class>
+			</eb2cinventoryoverride>
+			<checkout>
+				<rewrite>
+					<cart>TrueAction_Eb2c_Inventory_Override_Model_Cart</cart>
+				</rewrite>
+			</checkout>
+			<cataloginventory>
+				<rewrite>
+					<stock_item>TrueAction_Eb2c_Inventory_Override_Model_Stock_Item</stock_item>
+				</rewrite>
+			</cataloginventory>
+		</models>
+		<helpers>
+			<eb2cinventory>
+				<class>TrueAction_Eb2c_Inventory_Helper</class>
+			</eb2cinventory>
+		</helpers>
+	</global>
+	<frontend>
+		<events>
+			<sales_quote_item_qty_set_after>
+				<observers>
+					<trueaction_eb2c_inventory_observer>
+						<type>singleton</type>
+						<class>TrueAction_Eb2c_Inventory_Model_Observer</class>
+						<method>checkEb2cInventoryQuantity</method>
+					</trueaction_eb2c_inventory_observer>
+				</observers>
+			</sales_quote_item_qty_set_after>
+			<checkout_controller_onepage_save_shipping_method>
+				<observers>
+					<trueaction_eb2c_inventory_observer>
+						<type>singleton</type>
+						<class>TrueAction_Eb2c_Inventory_Model_Observer</class>
+						<method>processInventoryDetails</method>
+					</trueaction_eb2c_inventory_observer>
+				</observers>
+			</checkout_controller_onepage_save_shipping_method>
+			<sales_order_place_after>
+				<observers>
+					<trueaction_eb2c_inventory_observer>
+						<type>singleton</type>
+						<class>TrueAction_Eb2c_Inventory_Model_Observer</class>
+						<method>processAllocation</method>
+					</trueaction_eb2c_inventory_observer>
+				</observers>
+			</sales_order_place_after>
+		</events>
+    </frontend>
+	<default>
+		<eb2c>
+			<inventory>
+				<developerMode>1</developerMode>
+				<quantityApiUri>http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/QuantityResponseMessage.xml</quantityApiUri>
+				<inventoryDetailUri>http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/InventoryDetailsResponseMessage.xml</inventoryDetailUri>
+				<allocationUri>http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/AllocationResponseMessage.xml</allocationUri>
+			</inventory>
+		</eb2c>
+	</default>
+	<phpunit>
+		<suite>
+			<modules>
+				<TrueAction_Eb2c_Inventory />
+			</modules>
+		</suite>
+	</phpunit>
+</config>

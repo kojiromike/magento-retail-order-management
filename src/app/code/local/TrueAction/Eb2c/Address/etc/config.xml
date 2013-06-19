@@ -29,4 +29,11 @@
 			</address_validation>
 		</eb2c>
 	</default>
+	<phpunit>
+		<suite>
+			<modules>
+				<TrueAction_Eb2c_Address />
+			</modules>
+		</suite>
+	</phpunit>
 </config>

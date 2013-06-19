@@ -45,8 +45,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	public function getRate($request)
 	{
 		$rate = 1;
-		Mage::log($request->getCacheKey());
-		Mage::log($request->getDocument()->saveXML());
 		// if ($request->isUsable()) {
 		// 	$key = $request->getUniqueKey();
 		// 	if (isset($this->_rateCache[$key])) {

@@ -117,7 +117,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 					Mage::log("got item " . $validSku);
 					// get item quantity
 					// get merchandise unitprice
-					$type = TrueAction_Eb2c_Tax_Model_Quote::ITEM_TYPE;
+					$type = TrueAction_Eb2c_Tax_Model_Tax::ITEM_TYPE;
 					$taxes = $xpath->query('Pricing/Merchandise/TaxData/Taxes/Tax');
 					foreach ($taxes as $tax) {
 						// foreach pricing/merchandise/taxdata/taxes/tax
@@ -125,14 +125,14 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 					}
 					// get shipping amount
 					$amount = $this->_verifyShippingAmount();
-					$type = TrueAction_Eb2c_Tax_Model_Quote::SHIPPING_TYPE;
+					$type = TrueAction_Eb2c_Tax_Model_Tax::SHIPPING_TYPE;
 					$taxes = $xpath->query('Pricing/Shipping/TaxData/Taxes/Tax');
 					foreach ($taxes as $tax) {
 						// foreach pricing/shipping/taxdata/
 						$this->_createTaxRecord($type, $amount, $tax, $address, $quoteItem);
 					}
 					$amount = $this->_verifyDutyAmount();
-					$type = TrueAction_Eb2c_Tax_Model_Quote::DUTY_TYPE;
+					$type = TrueAction_Eb2c_Tax_Model_Tax::DUTY_TYPE;
 					$taxes = $xpath->query('Pricing/Duty/TaxData/Taxes/Tax');
 					foreach ($taxes as $tax) {
 						// foreach pricing/shipping/taxdata/

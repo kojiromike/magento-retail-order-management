@@ -88,7 +88,31 @@ try{
 			)
 		),
 		array(
-			'name'=>'ship_from_address_line_1',		
+			'name'=>'ship_from_address_line1',
+			'options'=> array (
+				'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
+				'visible'=> true,
+				'required' => false,
+			)
+		),
+		array(
+			'name'=>'ship_from_address_line2',
+			'options'=> array (
+				'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
+				'visible'=> true,
+				'required' => false,
+			)
+		),
+		array(
+			'name'=>'ship_from_address_line3',
+			'options'=> array (
+				'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
+				'visible'=> true,
+				'required' => false,
+			)
+		),
+		array(
+			'name'=>'ship_from_address_line4',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
 				'visible'=> true,

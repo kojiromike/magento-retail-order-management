@@ -58,9 +58,18 @@
 				<eb2c_shipping_window_to>
 					<to_order_item>*</to_order_item>
 				</eb2c_shipping_window_to>
-				<eb2c_ship_from_address_line_1>
+				<eb2c_ship_from_address_line1>
 					<to_order_item>*</to_order_item>
-				</eb2c_ship_from_address_line_1>
+				</eb2c_ship_from_address_line1>
+				<eb2c_ship_from_address_line2>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_line2>
+				<eb2c_ship_from_address_line3>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_line3>
+				<eb2c_ship_from_address_line4>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_line4>
 				<eb2c_ship_from_address_city>
 					<to_order_item>*</to_order_item>
 				</eb2c_ship_from_address_city>

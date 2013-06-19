@@ -32,12 +32,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$this->_setupQuote();
 		// TODO: generate the cacheKey as we go along gathering the data for the request and remove this line. this is not adequate.
-		$this->_cacheKey   = $this->_getQuote()->getId() . '|';
+		$this->_cacheKey   = $this->getQuote()->getId() . '|';
 		$doc               = new TrueAction_Dom_Document('1.0', 'UTF-8');
 		$tdRequest         = $doc->addElement('TaxDutyQuoteRequest')->firstChild;
 		$tdRequest->addChild(
 			'Currency',
-			$this->_getQuote()->getQuoteCurrencyCode()
+			$this->getQuote()->getQuoteCurrencyCode()
 		)
 			->addChild('VATInclusivePricing', $this->_isVatIncludedInPrice())
 			->addChild(
@@ -110,7 +110,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _processAddresses()
 	{
-		$shippingAddresses = $this->_getQuote()->getAllShippingAddresses();
+		$shippingAddresses = $this->getQuote()->getAllShippingAddresses();
 		$shipGroups   = $this->_shipGroups;
 		$destinations = $this->_destinations;
 		foreach ($shippingAddresses as $addressKey => $address) {
@@ -322,10 +322,10 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _buildSkuMaps()
 	{
-		$quoteItems = $this->_getQuote()->getAllVisibleItems();
+		$quoteItems = $this->getQuote()->getAllVisibleItems();
 		foreach ($quoteItems as $key => $quoteItem) {
 			$this->_skuLineMap[$quoteItem->getSku()] = $key;
-			$this->_skuIdMap[$quoteItem->getSku()] = $quoteItem;
+			$this->_skuItemMap[$quoteItem->getSku()] = $quoteItem;
 		}
 	}
 

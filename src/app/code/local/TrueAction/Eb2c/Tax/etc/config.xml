@@ -27,6 +27,32 @@
 				</rewrite>
 			</tax>
 		</helpers>
+		<events>
+            <sales_quote_add_item>
+                <observers>
+                    <tax>
+                        <class>tax/observer</class>
+                        <method>salesEventItemAdded</method>
+                    </tax>
+                </observers>
+            </sales_quote_add_item>
+            <checkout_cart_product_update_after>
+                <observers>
+                    <tax>
+                        <class>tax/observer</class>
+                        <method>cartEventProductUpdated</method>
+                    </tax>
+                </observers>
+            </checkout_cart_product_update_after>
+            <sales_quote_remove_item>
+                <observers>
+                    <tax>
+                        <class>tax/observer</class>
+                        <method>salesEventItemRemoved</method>
+                    </tax>
+                </observers>
+            </sales_quote_remove_item>
+        </events>
 	</global>
 	<default>
 		<eb2ctax>

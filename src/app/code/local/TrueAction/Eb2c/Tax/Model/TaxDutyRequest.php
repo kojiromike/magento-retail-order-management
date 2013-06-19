@@ -37,9 +37,13 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 		$tdRequest->addChild(
 			'Currency',
 			$this->_getQuote()->getQuoteCurrencyCode()
-		)->addChild(
-			'BillingInformation'
-		);
+		)
+			->addChild('VATInclusivePricing', $this->_isVatIncludedInPrice())
+			->addChild(
+				'CustomerTaxId',
+				$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
+			)
+			->addChild('BillingInformation');
 		$shipping = $tdRequest->createChild('Shipping');
 		$this->_tdRequest    = $tdRequest;
 		$this->_shipGroups   = $shipping->createChild('ShipGroups');

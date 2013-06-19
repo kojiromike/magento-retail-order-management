@@ -75,7 +75,10 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_P
 		$xpath = new DOMXPath($doc);
 		$node = $xpath->query('/TaxDutyQuoteRequest/Currency')->item(0);
 		$this->assertSame('USD', $node->textContent);
-
+		$node = $xpath->query('/TaxDutyQuoteRequest/VATInclusivePricing')->item(0);
+		$this->assertSame('0', $node->textContent);
+		$node = $xpath->query('/TaxDutyQuoteRequest/CustomerTaxId')->item(0);
+		$this->assertSame('', $node->textContent);
 		$node = $xpath->query('/TaxDutyQuoteRequest/BillingInformation')->item(0);
 		$this->assertSame('4', $node->getAttribute('ref'));
 		$parent = $xpath->query('/TaxDutyQuoteRequest/Shipping/Destinations/MailingAddress')->item(0);

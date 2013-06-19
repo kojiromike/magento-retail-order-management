@@ -1,9 +1,9 @@
 <?php
 /**
- * generate the xml for an EB2C taxdutyrequest.
+ * generate the xml for an EB2C tax and duty quote request.
  * @author mphang
  */
-class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
+class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 {
 	const EMAIL_MAX_LENGTH         = 70;
 

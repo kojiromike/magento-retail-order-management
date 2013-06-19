@@ -20,12 +20,12 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_P
 	private $billAddress = null;
 
 	/**
-	 * @var ReflectionProperty(TrueAction_Eb2c_Tax_Model_TaxDutyRequest::_xml)
+	 * @var ReflectionProperty(TrueAction_Eb2c_Tax_Model_Request::_xml)
 	 */
 	private $doc         = null;
 
 	/**
-	 * @var ReflectionClass(TrueAction_Eb2c_Tax_Model_TaxDutyRequest)
+	 * @var ReflectionClass(TrueAction_Eb2c_Tax_Model_Request)
 	 */
 	private $cls         = null;
 
@@ -52,7 +52,7 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_P
         $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
         $this->app()->getRequest()->setBaseUrl($_baseUrl);
 		$this->cls = new ReflectionClass(
-			'TrueAction_Eb2c_Tax_Model_TaxDutyRequest'
+			'TrueAction_Eb2c_Tax_Model_Request'
 		);
 		$this->doc = $this->cls->getProperty('_doc');
 		$this->doc->setAccessible(true);

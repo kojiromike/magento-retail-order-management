@@ -29,9 +29,9 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 		$this->itemResults = self::$cls->getProperty('_itemResults');
 		$this->itemResults->setAccessible(true);
 		$reqDoc = new TrueAction_Dom_Document('1.0', 'utf8');
-		$reqDoc->loadXML($requestXml);
+		$reqDoc->loadXML(self::$reqXml);
 		$request = $this->getModelMock(
-			'TrueAction_Eb2c_Tax_Model_TaxDutyRequest',
+			'eb2ctax/request',
 			array('getDocument')
 		);
 		$request->expects($this->any())

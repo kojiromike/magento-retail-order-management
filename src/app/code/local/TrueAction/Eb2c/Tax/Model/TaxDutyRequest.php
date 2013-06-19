@@ -86,6 +86,25 @@ class TrueAction_Eb2c_Tax_Model_TaxDutyRequest extends Mage_Core_Model_Abstract
 	}
 
 	/**
+	 * get the quote item for the sku.
+	 * @param stirng $sku
+	 * @return Mage_Sales_Model_Quote_Item
+	 */
+	public function getItemBySku($sku)
+	{
+		return $this->_skuItemMap[$sku];
+	}
+
+	/**
+	 * return the skus in the request.
+	 * @return array(string)
+	 */
+	public function getSkus()
+	{
+		return array_keys($this->_skuLineMap);
+	}
+
+	/**
 	 * generate the nodes for the shipgroups and destinations subtrees.
 	 */
 	protected function _processAddresses()

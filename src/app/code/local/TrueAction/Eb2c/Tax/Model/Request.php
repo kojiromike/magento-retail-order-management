@@ -30,6 +30,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _construct()
 	{
+		$this->_setupQuote();
 		// TODO: generate the cacheKey as we go along gathering the data for the request and remove this line. this is not adequate.
 		$this->_cacheKey   = $this->_getQuote()->getId() . '|';
 		$doc               = new TrueAction_Dom_Document('1.0', 'UTF-8');
@@ -173,18 +174,22 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * get the quote using whatever address is available.
+	 * set the quote so that it can be readily available.
 	 * @return Mage_Sales_Model_Quote
 	 */
-	protected function _getQuote()
+	protected function _setupQuote()
 	{
-		$quote = null;
-		if ($this->getShippingAddress()) {
-			$quote =  $this->getShippingAddress()->getQuote();
-		} elseif ($this->getBillingAddress()) {
-			$quote = $this->getBillingAddress()->getQuote();
+		$quote = $this->getQuote();
+		if (!$quote) {
+			if ($this->getShippingAddress()) {
+				$quote =  $this->getShippingAddress()->getQuote();
+			} elseif ($this->getBillingAddress()) {
+				$quote = $this->getBillingAddress()->getQuote();
+			}
 		}
-		return $quote;
+		$this->setQuote($quote);
+		$this->setBillingAddress($quote->getBillingAddress());
+		$this->setShippingAddress($quote->getShippingAddress());
 	}
 
 	/**

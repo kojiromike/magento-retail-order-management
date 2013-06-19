@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Test the helper/config class. Should ensure that:
  * - Looking up a config value through the helper returns
@@ -13,13 +12,75 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 {
 
 	/**
+	 * Create a stub config model to populate the config helper with keys/paths.
+	 */
+	protected function _createConfigStub()
+	{
+		$stub = $this->getMock('TrueAction_Eb2c_Core_Model_Config_Abstract');
+
+		$keyMap = array(
+			array('catalog_id', true),
+			array('another_setting', false),
+			array('api_key', true),
+			array('test_mode', true),
+		);
+		$stub->expects($this->any())
+			->method('hasKey')
+			->will($this->returnValueMap($keyMap));
+
+		$pathMap = array(
+			array('catalog_id', 'eb2c/core/catalog_id'),
+			array('api_key', 'eb2c/core/api_key'),
+			array('test_mode', 'eb2c/core/test_mode'),
+		);
+		$stub->expects($this->any())
+			->method('getPathForKey')
+			->will($this->returnValueMap($pathMap));
+
+		return $stub;
+	}
+
+	/**
+	 * Create another stub config model to populate the config helper
+	 * with additional config keys/paths.
+	 */
+	protected function _createAltConfigStub()
+	{
+		$stub = $this->getMock('TrueAction_Eb2c_Core_Model_Config_Abstract');
+
+		$keyMap = array(
+			array('catalog_id', true),
+			array('another_setting', true),
+			array('api_key', false),
+			array('test_mode', false),
+		);
+		$stub->expects($this->any())
+			->method('hasKey')
+			->will($this->returnValueMap($keyMap));
+
+		$pathMap = array(
+			array('catalog_id', 'eb2c/another/catalog_id'),
+			array('another_setting', 'eb2c/another/module/setting'),
+		);
+		$stub->expects($this->any())
+			->method('getPathForKey')
+			->will($this->returnValueMap($pathMap));
+
+		return $stub;
+	}
+
+	/**
+	 * Ensure that the config values returned by the config helper match up to
+	 * the values that would have been returned by simply using Magento's
+	 * Mage::getStoreConfig and Mage::getStoreConfigFlag methods.
+	 *
 	 * @test
 	 * @loadFixture configData
 	 */
 	public function testGetConfig()
 	{
 		$config = Mage::helper('eb2ccore/config');
-		$config->addConfigModel(new Config_Stub());
+		$config->addConfigModel($this->_createConfigStub());
 
 		// ensure a value is returned
 		$this->assertNotNull($config->getConfig('catalog_id'));
@@ -45,26 +106,17 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	}
 
 	/**
-	 * If getConfig is called and the key is not found, an exception should be raised.
+	 * Run through a similar test as $this::testGetConfig but this time run them
+	 * all through the overloaded __get method via "magic" properties.
 	 *
-	 * @test
-	 * @expectedException Exception
-	 */
-	public function testConfigNotFoundExceptions()
-	{
-		$config = Mage::helper('eb2ccore/config');
-		$config->getConfig('nonexistent_config');
-	}
-
-	/**
 	 * @test
 	 * @loadFixture configData
 	 */
 	public function testMagicPropConfig()
 	{
 		$config = Mage::helper('eb2ccore/config');
-		$config->addConfigModel(new Config_Stub())
-			->addConfigModel(new Alt_Config_Stub());
+		$config->addConfigModel($this->_createConfigStub())
+			->addConfigModel($this->_createAltConfigStub());
 
 		// should get some config value for both of these
 		// this will come from the first Config_Stub
@@ -86,6 +138,21 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	}
 
 	/**
+	 * If getConfig is called and the key is not found, an exception should be raised.
+	 *
+	 * @test
+	 * @expectedException Exception
+	 */
+	public function testConfigNotFoundExceptions()
+	{
+		$config = Mage::helper('eb2ccore/config');
+		$config->getConfig('nonexistent_config');
+	}
+
+	/**
+	 * Same as $this::testConfigNotFoundException except this time via
+	 * the overloaded __get method via "magic" properties.
+	 *
 	 * @test
 	 * @expectedException Exception
 	 */
@@ -95,39 +162,3 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 		$config->nonexistentConfig;
 	}
 }
-
-/**
- * Stubs for use by the helper class for looking up config paths from keys.
- */
-class Config_Stub implements TrueAction_Eb2c_Core_Model_Config_Interface
-{
-
-	public function hasKey($key)
-	{
-		return $key === "catalog_id" || $key === "api_key" || $key === "test_mode";
-	}
-
-	public function getPathForKey($key)
-	{
-		$paths = array("catalog_id" => "eb2c/core/catalog_id", "api_key" => "eb2c/core/api_key", "test_mode" => "eb2c/core/test_mode");
-		return $paths[$key];
-	}
-
-}
-
-class Alt_Config_Stub implements TrueAction_Eb2c_Core_Model_Config_Interface
-{
-
-	public function hasKey($key)
-	{
-		return $key === "catalog_id" || $key === "another_setting";
-	}
-
-	public function getPathForKey($key)
-	{
-		$paths = array("catalog_id" => "eb2c/another/catalog_id", "another_setting" => "eb2c/another/module/setting");
-		return $paths[$key];
-	}
-
-}
-

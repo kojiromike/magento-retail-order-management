@@ -45,6 +45,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	 */
 	public function testConstruction()
 	{
+		$this->markTestSkipped();
 		$response = new TrueAction_Eb2c_Tax_Model_Response(array(
 			'xml' => self::$_xml,
 			'request' => $this->request

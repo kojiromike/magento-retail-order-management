@@ -26,7 +26,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	{
 		$this->_doc = new TrueAction_Dom_Document('1.0', 'utf8');
 		$this->_doc->loadXML($this->getXml());
-		$this->_parseResults();
+		$this->_extractResults();
 	}
 
 	/**
@@ -107,34 +107,39 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			if (!is_null($address)) {
 				return;
 			}
+			$responseSkus = array();
 			// foreach item
-			$items = $xpath->query('Items/OrderItem', $shipGroup);
+			$items = $xpath->query('//Items/OrderItem', $shipGroup);
 			foreach ($items as $item) {
-				// get item address id (mage_quote_address)
-				$quoteItem = $this->_getQuoteItem($item);
-				// get item quantity
-				// get merchandise unitprice
-				$amount = $this->_verifyItemAmount();
-				$type = TaxDutyRecord::ITEM_TYPE;
-				$taxes = $xpath->query('Pricing/Merchandise/TaxData/Taxes/Tax');
-				foreach ($taxes as $tax) {
-					// foreach pricing/merchandise/taxdata/taxes/tax
-					$this->_createTaxRecord($type, $amount, $tax, $address, $quoteItem);
-				}
-				// get shipping amount
-				$amount = $this->_verifyShippingAmount();
-				$type = TaxDutyRecord::SHIPPING_TYPE;
-				$taxes = $xpath->query('Pricing/Shipping/TaxData/Taxes/Tax');
-				foreach ($taxes as $tax) {
-					// foreach pricing/shipping/taxdata/
-					$this->_createTaxRecord($type, $amount, $tax, $address, $quoteItem);
-				}
-				$amount = $this->_verifyDutyAmount();
-				$type = TaxDutyRecord::DUTY_TYPE;
-				$taxes = $xpath->query('Pricing/Duty/TaxData/Taxes/Tax');
-				foreach ($taxes as $tax) {
-					// foreach pricing/shipping/taxdata/
-					$this->_createTaxRecord($type, $amount, $tax, $address, $quoteItem);
+				$validSku = $this->_validateResponseItem($item);
+				if ($validSku) {
+					$quoteItem = $this->getRequest()->getItemBySku($validSku);
+					Mage::log("got item " . $validSku);
+					// get item quantity
+					// get merchandise unitprice
+					$type = TrueAction_Eb2c_Tax_Model_Quote::ITEM_TYPE;
+					$taxes = $xpath->query('Pricing/Merchandise/TaxData/Taxes/Tax');
+					foreach ($taxes as $tax) {
+						// foreach pricing/merchandise/taxdata/taxes/tax
+						$this->_createTaxRecord($type, $amount, $tax, $address, $quoteItem);
+					}
+					// get shipping amount
+					$amount = $this->_verifyShippingAmount();
+					$type = TrueAction_Eb2c_Tax_Model_Quote::SHIPPING_TYPE;
+					$taxes = $xpath->query('Pricing/Shipping/TaxData/Taxes/Tax');
+					foreach ($taxes as $tax) {
+						// foreach pricing/shipping/taxdata/
+						$this->_createTaxRecord($type, $amount, $tax, $address, $quoteItem);
+					}
+					$amount = $this->_verifyDutyAmount();
+					$type = TrueAction_Eb2c_Tax_Model_Quote::DUTY_TYPE;
+					$taxes = $xpath->query('Pricing/Duty/TaxData/Taxes/Tax');
+					foreach ($taxes as $tax) {
+						// foreach pricing/shipping/taxdata/
+						$this->_createTaxRecord($type, $amount, $tax, $address, $quoteItem);
+					}
+				} else {
+					Mage::log("Skipping item '%s'", Zend_Log::DEBUG);
 				}
 			}
 		}

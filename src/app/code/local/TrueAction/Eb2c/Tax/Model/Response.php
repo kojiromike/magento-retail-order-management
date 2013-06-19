@@ -89,6 +89,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			'calculated_tax' => $xpath->evaluate('CalculatedTax/text()', $tax),
 		));
 		$this->_itemResults[] = $record;
+		return $record;
 	}
 
 	/**

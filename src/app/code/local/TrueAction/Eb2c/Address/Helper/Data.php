@@ -1,7 +1,8 @@
 <?php
 
 /**
- *
+ * Methods for converting addresses represented in XML
+ * to Magento address model objects.
  */
 class TrueAction_Eb2c_Address_Helper_Data extends Mage_Core_Helper_Abstract
 {

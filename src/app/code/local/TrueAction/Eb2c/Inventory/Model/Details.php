@@ -213,6 +213,7 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	 */
 	public function processInventoryDetails($quote, $inventoryData)
 	{
+
 		foreach ($inventoryData as $data) {
 			foreach ($quote->getAllItems() as $item) {
 				// find the item in the quote

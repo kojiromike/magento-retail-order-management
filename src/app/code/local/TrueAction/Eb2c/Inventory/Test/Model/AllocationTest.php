@@ -31,24 +31,243 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 		return $this->_allocation;
 	}
 
+	public function buildQuoteMock()
+	{
+		$addressMock = $this->getMock('Mage_Sales_Model_Quote_Address',
+			array('getShippingMethod', 'getStreet', 'getCity', 'getRegion', 'getCountryId', 'getPostcode')
+		);
+		$addressMock->expects($this->any())
+			->method('getShippingMethod')
+			->will($this->returnValue('USPS: 3 Day Select')
+			);
+		$addressMock->expects($this->any())
+			->method('getStreet')
+			->will($this->returnValue(array('1938 Some Street'))
+			);
+		$addressMock->expects($this->any())
+			->method('getCity')
+			->will($this->returnValue('King of Prussia')
+			);
+		$addressMock->expects($this->any())
+			->method('getRegion')
+			->will($this->returnValue('Pennsylvania')
+			);
+		$addressMock->expects($this->any())
+			->method('getCountryId')
+			->will($this->returnValue('US')
+			);
+		$addressMock->expects($this->any())
+			->method('getPostcode')
+			->will($this->returnValue('19726')
+			);
+
+		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getId', 'getSku', 'getItemId', 'getQuote'));
+		$itemMock->expects($this->any())
+			->method('getQty')
+			->will($this->returnValue(1)
+			);
+		$itemMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1)
+			);
+		$itemMock->expects($this->any())
+			->method('getSku')
+			->will($this->returnValue('SKU-1234')
+			);
+		$itemMock->expects($this->any())
+			->method('getItemId')
+			->will($this->returnValue(1)
+			);
+
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems', 'getShippingAddress', 'getItemById', 'save'));
+
+		$itemMock->expects($this->any())
+			->method('getQuote')
+			->will($this->returnValue($quoteMock)
+			);
+
+		$quoteMock->expects($this->any())
+			->method('getAllItems')
+			->will($this->returnValue(array($itemMock))
+			);
+		$quoteMock->expects($this->any())
+			->method('getShippingAddress')
+			->will($this->returnValue($addressMock)
+			);
+		$quoteMock->expects($this->any())
+			->method('getItemById')
+			->will($this->returnValue($itemMock)
+			);
+		$quoteMock->expects($this->any())
+			->method('save')
+			->will($this->returnValue(1)
+			);
+
+		return $quoteMock;
+	}
+
 	public function providerAllocateQuoteItems()
 	{
-		$quote = Mage::getModel('sales/quote')->load(42);
 		return array(
-			array($quote)
+			array($this->buildQuoteMock())
 		);
 	}
 
 	/**
-	 * testing AllocateQuoteItems method
+	 * testing allocating quote items
 	 *
 	 * @test
 	 * @dataProvider providerAllocateQuoteItems
 	 */
 	public function testAllocateQuoteItems($quote)
 	{
-		/*$this->assertNotNull(
+		// testing when you can allocated inventory
+		$this->assertNotNull(
 			$this->_getAllocation()->allocateQuoteItems($quote)
-		);*/
+		);
+	}
+
+	/**
+	 * testing when alocating quote item api call throw an exception
+	 *
+	 * @test
+	 * @dataProvider providerAllocateQuoteItems
+	 */
+	public function testAllocateQuoteItemsWithApiCallException($quote)
+	{
+		$coreHelperMock = $this->getMock('TrueAction_Eb2c_Core_Helper_Data', array('callApi'));
+		$coreHelperMock->expects($this->any())
+			->method('callApi')
+			->will(
+				$this->throwException(new Exception)
+			);
+
+		$inventoryHelper = Mage::helper('eb2cinventory');
+		$inventoryReflector = new ReflectionObject($inventoryHelper);
+		$coreHelper = $inventoryReflector->getProperty('coreHelper');
+		$coreHelper->setAccessible(true);
+		$coreHelper->setValue($inventoryHelper, $coreHelperMock);
+
+		$allocationReflector = new ReflectionObject($this->_getAllocation());
+		$helper = $allocationReflector->getProperty('_helper');
+		$helper->setAccessible(true);
+		$helper->setValue($this->_getAllocation(), $inventoryHelper);
+
+		$this->assertSame(
+			'',
+			trim($this->_getAllocation()->allocateQuoteItems($quote))
+		);
+	}
+
+	public function providerBuildAllocationRequestMessage()
+	{
+		return array(
+			array($this->buildQuoteMock())
+		);
+	}
+
+	/**
+	 * testing building inventory details request message
+	 *
+	 * @test
+	 * @dataProvider providerBuildAllocationRequestMessage
+	 */
+	public function testBuildAllocationRequestMessage($quote)
+	{
+		// testing when you can allocated inventory
+		$this->assertNotNull(
+			$this->_getAllocation()->buildAllocationRequestMessage($quote)
+		);
+	}
+
+	public function providerBuildAllocationRequestMessageWithException()
+	{
+		$addressMock = $this->getMock('Mage_Sales_Model_Quote_Address',
+			array('getShippingMethod', 'getStreet', 'getCity', 'getRegion', 'getCountryId', 'getPostcode')
+		);
+		$addressMock->expects($this->any())
+			->method('getShippingMethod')
+			->will($this->returnValue('USPS: 3 Day Select')
+			);
+		$addressMock->expects($this->any())
+			->method('getStreet')
+			->will($this->returnValue(array('1938 Some Street'))
+			);
+		$addressMock->expects($this->any())
+			->method('getCity')
+			->will($this->returnValue('King of Prussia')
+			);
+		$addressMock->expects($this->any())
+			->method('getRegion')
+			->will($this->returnValue('Pennsylvania')
+			);
+		$addressMock->expects($this->any())
+			->method('getCountryId')
+			->will($this->returnValue('US')
+			);
+		$addressMock->expects($this->any())
+			->method('getPostcode')
+			->will($this->returnValue('19726')
+			);
+
+		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getId', 'getSku', 'getItemId'));
+		$itemMock->expects($this->any())
+			->method('getQty')
+			->will($this->returnValue(1)
+			);
+		$itemMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1)
+			);
+		$itemMock->expects($this->any())
+			->method('getSku')
+			->will($this->returnValue(
+					$this->throwException(new Exception)
+				)
+			);
+		$itemMock->expects($this->any())
+			->method('getItemId')
+			->will($this->returnValue(1)
+			);
+
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems', 'getShippingAddress', 'getItemById', 'save', 'getAllAddresses'));
+		$quoteMock->expects($this->any())
+			->method('getAllItems')
+			->will($this->returnValue(array($itemMock))
+			);
+		$quoteMock->expects($this->any())
+			->method('getShippingAddress')
+			->will($this->returnValue($addressMock)
+			);
+		$quoteMock->expects($this->any())
+			->method('getItemById')
+			->will($this->returnValue($itemMock)
+			);
+		$quoteMock->expects($this->any())
+			->method('save')
+			->will($this->returnValue(1)
+			);
+		$quoteMock->expects($this->any())
+			->method('getAllAddresses')
+			->will($this->returnValue(array($quoteMock))
+			);
+
+		return array(
+			array($quoteMock)
+		);
+	}
+
+	/**
+	 * testing building allocation request message
+	 *
+	 * @test
+	 * @dataProvider providerBuildAllocationRequestMessageWithException
+	 */
+	public function testBuildAllocationRequestMessageWithException($quote)
+	{
+		// testing when building the allocation message throw an exception
+		$this->assertNotNull(
+			$this->_getAllocation()->buildAllocationRequestMessage($quote)
+		);
 	}
 }

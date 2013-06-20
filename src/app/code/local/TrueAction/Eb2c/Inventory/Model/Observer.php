@@ -108,7 +108,9 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				);
 				// throwing an error to prevent the successful add to cart message
 				Mage::throwException('Cannot add the item to shopping cart.');
+				// @codeCoverageIgnoreStart
 			}
+			// @codeCoverageIgnoreEnd
 		}
 	}
 
@@ -143,28 +145,28 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	 */
 	public function processEb2cAllocation($observer)
 	{
-		print_r(
-			array(
-				'test' => 'inside processEb2cAllocation method'
-			)
-		);
-
 		// get the quote from the event observer
 		$quote = $observer->getEvent()->getQuote();
 
+		// get the event response object
+		$response = $observer->getEvent()->getResponse();
+
 		// flag for success/un-success allocation
-			$isAllocated = true;
+		$isAllocated = true;
 
 		// generate request and send request to eb2c allocation
 		if ($allocationResponseMessage = $this->_getAllocation()->allocateQuoteItems($quote)) {
+			// parse allocation response
+			$allocationData = $this->_getAllocation()->parseResponse($allocationResponseMessage);
+
 			// got a valid response from eb2c, then go ahead and update the quote with the eb2c information
-			$allocatedErr = $this->_getAllocation()->processAllocation($quote, $allocationResponseMessage);
+			$allocatedErr = $this->_getAllocation()->processAllocation($quote, $allocationData);
 
 			// Got an allocation failure
 			if (!empty($allocatedErr)) {
 				$isAllocated = false;
 				foreach ($allocatedErr as $error) {
-					Mage::getSingleton('checkout/session')->addError($this->__($error));
+					Mage::getSingleton('checkout/session')->addError($error);
 				}
 			}
 		}
@@ -172,13 +174,9 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 		if (!$isAllocated) {
 			// Rollback eb2c inventory allocation
 			$this->_getAllocation()->rollbackAllocation($quote);
-
-			$result['success'] = false;
-			$result['error'] = true;
-			$result['error_messages'] = $this->__('Inventory allocation Error');
-			$result['redirect'] = Mage::getUrl('checkout/cart');
-			$this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-			return;
+			throw new TrueAction_Eb2c_Inventory_Model_Allocation_Exception('Inventory allocation Error.');
+			// @codeCoverageIgnoreStart
 		}
+		// @codeCoverageIgnoreEnd
 	}
 }

@@ -156,9 +156,29 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	 * @test
 	 * @expectedException Exception
 	 */
-	public function testUnknownProp()
+	public function testUnknownPropError()
 	{
 		$config = Mage::helper('eb2ccore/config');
-		$config->nonexistentConfig;
+		$nonexistent = $config->nonexistentConfig;
+	}
+
+	/**
+	 * prevent PHPUnits normal handling of errors,
+	 * allowing execution to continue after an error is encountered
+	 */
+	public function noopErrorHandler($errno, $errstr, $errfile, $errline, $errcontext)
+	{}
+
+	/**
+	 * Getting a nonexistent property should error but still return null.
+	 * @test
+	 */
+	public function testUnknownProp()
+	{
+		// ensure code execution continues after the error is triggered
+		set_error_handler(array($this, 'noopErrorHandler'));
+		$config = Mage::helper('eb2ccore/config');
+		$nonexistent = $config->nonexistentConfig;
+		$this->assertNull($nonexistent);
 	}
 }

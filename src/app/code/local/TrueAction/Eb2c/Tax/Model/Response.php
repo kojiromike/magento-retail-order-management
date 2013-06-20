@@ -172,10 +172,11 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 * throw a mismatch error exception if a required field does not match what was sent.
 	 * log a debug message for any optional data that does not match.
 	 * @param  TrueAction_Dom_Element $itemNode OrderItem element from the request
+	 * @param  string                           ShipGroup's id
 	 * @return string                           the OrderItem's ItemId value (sku)
 	 * @throws TrueAction_Eb2c_Tax_Model_Response_MismatchError
 	 */
-	protected function _validateResponseItem(TrueAction_Dom_Element $itemNode)
+	protected function _validateResponseItem(TrueAction_Dom_Element $itemNode, $shipGrpId)
 	{
 		$n = $this->_namespaceAlias . ':';
 		$requestDoc = $this->getRequest()->getDocument();
@@ -184,7 +185,9 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 		$xpath = new DOMXPath($this->_doc);
 		$xpath->registerNamespace('a', $this->_namespaceUri);
 		$sku = $xpath->evaluate("a:ItemId/text()", $itemNode);
-		$reqNode = $requestXpath->query('//a:OrderItem/a:ItemId[.=' . $sku)->items(0);
+		$reqNode = $requestXpath->query(
+			'//a:ShipGroup[@id=' . $shipGrpId . '//a:OrderItem/a:ItemId[.=' . $sku . ']'
+		)->items(0);
 		$isValid = true;
 		// if we get back an order item we didn't send log it as a debug message and
 		// ignore it.

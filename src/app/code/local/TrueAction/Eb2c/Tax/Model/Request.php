@@ -31,31 +31,33 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected function _construct()
 	{
 		$this->_setupQuote();
-		// TODO: generate the cacheKey as we go along gathering the data for the request and remove this line. this is not adequate.
-		$this->_cacheKey   = $this->getQuote()->getId() . '|';
-		$doc               = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$tdRequest         = $doc->addElement('TaxDutyQuoteRequest')->firstChild;
-		$tdRequest->addChild(
-			'Currency',
-			$this->getQuote()->getQuoteCurrencyCode()
-		)
-			->addChild('VATInclusivePricing', $this->_isVatIncludedInPrice())
-			->addChild(
-				'CustomerTaxId',
-				$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
+		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		if ($this->isUsable()) {
+			// TODO: generate the cacheKey as we go along gathering the data for the request and remove this line. this is not adequate.
+			$this->_cacheKey   = $this->getQuote()->getId() . '|';
+			$tdRequest         = $doc->addElement('TaxDutyQuoteRequest')->firstChild;
+			$billingInformation = $tdRequest->addChild(
+				'Currency',
+				$this->getQuote()->getQuoteCurrencyCode()
 			)
-			->addChild('BillingInformation');
-		$shipping = $tdRequest->createChild('Shipping');
-		$this->_tdRequest    = $tdRequest;
-		$this->_shipGroups   = $shipping->createChild('ShipGroups');
-		$this->_destinations = $shipping->createChild('Destinations');
-		$this->_doc          = $doc;
-		$this->_buildSkuMaps();
-		$this->_processAddresses();
-		$billingInformation->setAttribute(
-			'ref',
-			$this->_billingInfoRef
-		);
+				->addChild('VATInclusivePricing', $this->_isVatIncludedInPrice())
+				->addChild(
+					'CustomerTaxId',
+					$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
+				)
+				->createChild('BillingInformation');
+			$shipping = $tdRequest->createChild('Shipping');
+			$this->_tdRequest    = $tdRequest;
+			$this->_shipGroups   = $shipping->createChild('ShipGroups');
+			$this->_destinations = $shipping->createChild('Destinations');
+			$this->_doc          = $doc;
+			$this->_buildSkuMaps();
+			$this->_processAddresses();
+			$billingInformation->setAttribute(
+				'ref',
+				$this->_billingInfoRef
+			);
+		}
 	}
 
 	/**
@@ -64,8 +66,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function isUsable()
 	{
-		return (bool)$this->getBillingAddress()->getId() &&
-			(bool)$this->getBillingAddress()->getQuote()->getId();
+		return $this->getBillingAddress() && $this->getBillingAddress()->getId() &&
+			$this->getQuote() && $this->getQuote()->getId() &&
+			$this->getQuote()->getItemsSummaryQty();
 	}
 
 	/**

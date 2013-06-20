@@ -23,6 +23,12 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	protected $_validSkus = array();
 
 	/**
+	 * is the response valid
+	 * @var boolean
+	 */
+	protected $_isValid   = false;
+
+	/**
 	 * alias to use when registering the root level namespace.
 	 * @var string
 	 */
@@ -46,6 +52,15 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	public function getResults()
 	{
 		return $this->_itemResults;
+	}
+
+	/**
+	 * @see self::$_isValid
+	 * @return boolean
+	 */
+	public function isValid()
+	{
+		return $this->_isValid;
 	}
 
 	/**

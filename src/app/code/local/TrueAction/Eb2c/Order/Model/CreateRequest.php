@@ -18,19 +18,10 @@
  */
 class TrueAction_Eb2c_Order_Model_CreateRequest extends Mage_Core_Model_Abstract
 {
+	const ORDER_CREATE_REQUEST_NAME = 'OrderCreateRequest';
+
 	protected $_xml = null;
 	protected $_doc = null;
-
-	protected function _construct()
-	{
-		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$createRequest = $doc->addElement('OrderCreateRequest')->firstChild;
-		$createRequest
-			->addChild('Customer', 'Mike West');
-		$doc->formatOutput = true;
-		$this->_doc = $doc;
-		$this->_xml = $this->_doc->saveXML();
-	}
 
 	/**
 	 * The Request as human-readable/ POST-able XML
@@ -40,5 +31,73 @@ class TrueAction_Eb2c_Order_Model_CreateRequest extends Mage_Core_Model_Abstract
 	public function toXml()
 	{
 		return $this->_xml;
+	}
+
+	/**
+	 * An observer to create an eb2c order.
+	 *
+	 */
+	public function observerCreateOrder($orderId)
+	{
+		return $this->_create($orderId);
+	}
+
+	/**
+	 * Function to create an eb2c order.
+	 *
+	 */
+	public function createOrder($orderId)
+	{
+		return $this->_create($orderId);
+	}
+
+	/**
+	 *
+	 */
+	private function _create($orderId)
+	{
+		$mage_order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+		if( !$mage_order->getId() ) {
+			Mage::throwException('Order ' . $orderId . ' not found.' );
+		}
+
+		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$orderCreateRequest = $doc->addElement(self::ORDER_CREATE_REQUEST_NAME)->firstChild;
+
+		$orderCreateRequest->addChild('Customer', $mage_order->getCustomerName());
+
+		$el = $doc->createElement('CreateTime', $mage_order->getCreatedAt());
+		$orderCreateRequest->appendChild($el);
+
+		$el = $doc->createElement('OrderItems', '');
+		$orderCreateRequest->appendChild($el);
+
+		$el = $doc->createElement('Shipping', '');
+		$orderCreateRequest->appendChild($el);
+
+		$el = $doc->createElement('Payment', '');
+		$orderCreateRequest->appendChild($el);
+
+		$el = $doc->createElement('Currency', '');
+		$orderCreateRequest->appendChild($el);
+
+		$el = $doc->createElement('TaxHeader', '');
+		$orderCreateRequest->appendChild($el);
+
+		$el = $doc->createElement('Locale', '');
+		$orderCreateRequest->appendChild($el);
+
+		$el = $doc->createElement('OrderSource', '');
+		$orderCreateRequest->appendChild($el);
+
+		$el = $doc->createElement('OrderHistoryUrl', '');
+		$orderCreateRequest->appendChild($el);
+
+		$el = $doc->createElement('OrderTotal', '');
+		$orderCreateRequest->appendChild($el);
+
+		$doc->formatOutput = true;
+		$this->_doc = $doc;
+		$this->_xml = $this->_doc->saveXML();
 	}
 }

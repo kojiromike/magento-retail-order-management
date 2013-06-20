@@ -169,7 +169,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 		if (!$reqNode) {
 			$isValid = false;
 			Mage::log(
-				sprintf('%s: sku "%s" not found in the request.', 'TaxDutyQuoteResponse', $sku),
+				sprintf('TaxDutyQuoteResponse: sku "%s" not found in the request.', $sku),
 				Zend_Log::DEBUG
 			);
 			$sku = '';
@@ -193,8 +193,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			{
 				Mage::log(
 					sprintf(
-						'%s: %s "%s" does not match request "%s"',
-						'TaxDutyQuoteResponse',
+						'TaxDutyQuoteResponse: %s "%s" does not match request "%s"',
 						'LineNumber',
 						$resValue,
 						$reqValue

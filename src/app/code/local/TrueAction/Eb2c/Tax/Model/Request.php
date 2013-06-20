@@ -32,7 +32,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$this->_setupQuote();
 		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		if ($this->isUsable()) {
+		if ($this->isValid()) {
 			// TODO: generate the cacheKey as we go along gathering the data for the request and remove this line. this is not adequate.
 			$this->_cacheKey   = $this->getQuote()->getId() . '|';
 			$tdRequest         = $doc->addElement('TaxDutyQuoteRequest')->firstChild;
@@ -64,7 +64,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * determine if the request object has enough data to work with.
 	 * @return boolean
 	 */
-	public function isUsable()
+	public function isValid()
 	{
 		return $this->getBillingAddress() && $this->getBillingAddress()->getId() &&
 			$this->getQuote() && $this->getQuote()->getId() &&

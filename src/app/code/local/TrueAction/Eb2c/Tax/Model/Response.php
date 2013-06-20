@@ -22,10 +22,19 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 */
 	protected $_validSkus = array();
 
+	/**
+	 * alias to use when registering the root level namespace.
+	 * @var string
+	 */
+	protected $_namespaceAlias = 'a';
+	protected $_namespaceUri   = '';
+
 	protected function _construct()
 	{
-		$this->_doc = new TrueAction_Dom_Document('1.0', 'utf8');
-		$this->_doc->loadXML($this->getXml());
+		$this->_doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$xml = $this->getXml();
+		$this->_doc->loadXML($xml);
+		$this->_namespaceUri =  $this->_doc->documentElement->namespaceURI;
 		$this->_extractResults();
 	}
 
@@ -72,21 +81,22 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 		Mage_Sales_Model_Quote_Item $quoteItem
 	) {
 		$xpath = new DOMXPath($tax->ownerDocument);
+		$xpath->registerNamespace('a', $this->_namespaceUri);
 		$record = new TrueAction_Eb2c_Tax_Model_Tax(array(
 			'type' => $type,
 			'amount' => $amount,
 			'quote_address_id' => $address->getId(),
 			'quote_item_id'  =>  $quoteItem->getId(),
 			// get effective rate
-			'effecive_rate' => $xpath->evaluate('EffectiveRate/text()', $tax),
+			'effecive_rate' => $xpath->evaluate('a:EffectiveRate/text()', $tax),
 			// get taxable amount
-			'taxable_amount' => $xpath->evaluate('TaxableAmount/text()', $tax),
+			'taxable_amount' => $xpath->evaluate('a:TaxableAmount/text()', $tax),
 			// get taxexemptamunt
-			'exempt_amount' => $xpath->evaluate('ExemptAmount/text()', $tax),
+			'exempt_amount' => $xpath->evaluate('a:ExemptAmount/text()', $tax),
 			// get nontaxableamount
-			'non_taxable_amount' => $xpath->evaluate('NonTaxableAmount/text()', $tax),
+			'non_taxable_amount' => $xpath->evaluate('a:NonTaxableAmount/text()', $tax),
 			// calculatedtax
-			'calculated_tax' => $xpath->evaluate('CalculatedTax/text()', $tax),
+			'calculated_tax' => $xpath->evaluate('a:CalculatedTax/text()', $tax),
 		));
 		$this->_itemResults[] = $record;
 		return $record;
@@ -98,10 +108,19 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	protected function _extractResults()
 	{
 		$xpath = new DOMXPath($this->_doc);
+		// namespace variable
+		$xpath->registerNamespace($this->_namespaceAlias, $this->_namespaceUri);
+		$n = $this->_namespaceAlias . ':';
+		$root = $this->_doc->documentElement;
 		$mailingAddresses = $xpath->query(
-			'/TaxDutyQuoteResponse/Shipping/Destinations/MailingAddress'
+			'/a:Shipping/a:Destinations/a:MailingAddress',
+			$root
 		);
-		$shipGroups = $xpath->query('/TaxDutyQuoteResponse/Shipping/ShipGroups/ShipGroup');
+		$shipGroups = $xpath->query(
+			'a:Shipping/a:ShipGroups/a:ShipGroup',
+			$root
+		);
+		print "count = ". $shipGroups->length;
 		foreach ($shipGroups as $shipGroup) {
 			$address = $this->_getAddress($shipGroup->getAttribute('ref'));
 			if (!is_null($address)) {
@@ -109,16 +128,16 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			}
 			$responseSkus = array();
 			// foreach item
-			$items = $xpath->query('//Items/OrderItem', $shipGroup);
+			$items = $xpath->query('//a:Items/a:OrderItem', $shipGroup);
 			foreach ($items as $item) {
 				$validSku = $this->_validateResponseItem($item);
 				if ($validSku) {
 					$quoteItem = $this->getRequest()->getItemBySku($validSku);
-					Mage::log("got item " . $validSku);
+					Mage::log('got item ' . $validSku);
 					// get item quantity
 					// get merchandise unitprice
 					$type = TrueAction_Eb2c_Tax_Model_Tax::ITEM_TYPE;
-					$taxes = $xpath->query('Pricing/Merchandise/TaxData/Taxes/Tax');
+					$taxes = $xpath->query('Pricing/a:Merchandise/a:TaxData/a:Taxes/a:Tax');
 					foreach ($taxes as $tax) {
 						// foreach pricing/merchandise/taxdata/taxes/tax
 						$this->_createTaxRecord($type, $amount, $tax, $address, $quoteItem);
@@ -126,14 +145,14 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 					// get shipping amount
 					$amount = $this->_verifyShippingAmount();
 					$type = TrueAction_Eb2c_Tax_Model_Tax::SHIPPING_TYPE;
-					$taxes = $xpath->query('Pricing/Shipping/TaxData/Taxes/Tax');
+					$taxes = $xpath->query('a:Pricing/a:Shipping/a:TaxData/a:Taxes/a:Tax');
 					foreach ($taxes as $tax) {
 						// foreach pricing/shipping/taxdata/
 						$this->_createTaxRecord($type, $amount, $tax, $address, $quoteItem);
 					}
 					$amount = $this->_verifyDutyAmount();
 					$type = TrueAction_Eb2c_Tax_Model_Tax::DUTY_TYPE;
-					$taxes = $xpath->query('Pricing/Duty/TaxData/Taxes/Tax');
+					$taxes = $xpath->query('a:Pricing/a:Duty/a:TaxData/a:Taxes/a:Tax');
 					foreach ($taxes as $tax) {
 						// foreach pricing/shipping/taxdata/
 						$this->_createTaxRecord($type, $amount, $tax, $address, $quoteItem);
@@ -158,11 +177,14 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 */
 	protected function _validateResponseItem(TrueAction_Dom_Element $itemNode)
 	{
+		$n = $this->_namespaceAlias . ':';
 		$requestDoc = $this->getRequest()->getDocument();
 		$requestXpath = new DOMXPath($requestDoc);
+		$requestXpath->registerNamespace('a', $this->_namespaceUri);
 		$xpath = new DOMXPath($this->_doc);
-		$sku = $xpath->evaluate('ItemId/text()', $itemNode);
-		$reqNode = $requestXpath->query('//OrderItem/ItemId[.=' . $sku)->items(0);
+		$xpath->registerNamespace('a', $this->_namespaceUri);
+		$sku = $xpath->evaluate("a:ItemId/text()", $itemNode);
+		$reqNode = $requestXpath->query('//a:OrderItem/a:ItemId[.=' . $sku)->items(0);
 		$isValid = true;
 		// if we get back an order item we didn't send log it as a debug message and
 		// ignore it.
@@ -174,22 +196,22 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			);
 			$sku = '';
 		} else {
-			$path = 'Quantity';
+			$path = 'a:Quantity';
 			if (!$this->_checkPathValues($path, $xpath, $itemNode, $requestXpath, $reqNode, true)) {
 				$isValid = false;
 				throw new TrueAction_Eb2c_Tax_Model_Response_Mismatch("$sku @ $path");
 			}
-			$path = 'Pricing/Merchandise/UnitPrice';
+			$path = 'a:Pricing/a:Merchandise/a:UnitPrice';
 			if (!$this->_checkPathValues($path, $xpath, $itemNode, $requestXpath, $reqNode, true)) {
 				$isValid = false;
 				throw new TrueAction_Eb2c_Tax_Model_Response_Mismatch("$sku @ $path");
 			}
-			$path = 'Pricing/Shipping/Amount';
+			$path = 'a:Pricing/a:Shipping/a:Amount';
 			if (!$this->_checkPathValues($path, $xpath, $itemNode, $requestXpath, $reqNode, true)) {
 				$isValid = false;
 				throw new TrueAction_Eb2c_Tax_Model_Response_Mismatch("$sku @ $path");
 			}
-			if ($reqNode->getAttribute('LineNumber') !== $itemNode->getAttribute('LineNumber'))
+			if ($reqNode->getAttribute("LineNumber") !== $itemNode->getAttribute('LineNumber'))
 			{
 				Mage::log(
 					sprintf(
@@ -201,11 +223,11 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 					Zend_Log::WARN
 				);
 			}
-			$path = 'ItemDesc';
+			$path = 'a:ItemDesc';
 			$isValid &= $this->_checkPathValues($path, $xpath, $itemNode, $requestXpath, $reqNode);
-			$path = 'HTSCode';
+			$path = 'a:HTSCode';
 			$isValid &= $this->_checkPathValues($path, $xpath, $itemNode, $requestXpath, $reqNode);
-			$path = 'Pricing/Merchandise/Amount';
+			$path = 'a:Pricing/a:Merchandise/a:Amount';
 			$isValid &= $this->_checkPathValues($path, $xpath, $itemNode, $requestXpath, $reqNode);
 		}
 		if ($isValid) {
@@ -235,8 +257,8 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 		$reqNode,
 		$isRequired = false
 	) {
-		$resValue = $xpath->evaluate($path . '/text()', $itemNode);
-		$reqValue = $reqXpath->evaluate($path . '/text()', $reqNode);
+		$resValue = $xpath->evaluate("{$path}/text()", $itemNode);
+		$reqValue = $reqXpath->evaluate("{$path}/text()", $reqNode);
 		$isMatching = true;
 		if ($resValue !== $reqValue) {
 			$isMatching = false;

@@ -30,6 +30,8 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
         $_SESSION = array();
         $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
         $this->app()->getRequest()->setBaseUrl($_baseUrl);
+        $this->itemResults = self::$cls->getProperty('_itemResults');
+        $this->itemResults->setAccessible(true);
 	}
 
 	/**

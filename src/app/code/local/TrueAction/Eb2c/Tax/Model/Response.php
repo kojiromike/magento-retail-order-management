@@ -120,7 +120,6 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			'a:Shipping/a:ShipGroups/a:ShipGroup',
 			$root
 		);
-		print "count = ". $shipGroups->length;
 		foreach ($shipGroups as $shipGroup) {
 			$address = $this->_getAddress($shipGroup->getAttribute('ref'));
 			if (!is_null($address)) {

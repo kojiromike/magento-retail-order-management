@@ -112,7 +112,80 @@ class TrueAction_Eb2c_Order_Model_CreateRequest extends Mage_Core_Model_Abstract
 
 
 		// <OrderItems>
-		$order->createChild('OrderItems');
+		$orderItems = $order->createChild('OrderItems');
+		$webLineId = 1;
+		foreach( $this->_o->getAllItems() as $i ) {
+			$orderItem = $orderItems->createChild('OrderItem');
+			$orderItem->setAttribute('id', $i->getId());
+			$orderItem->setAttribute('webLineId', $webLineId++);
+			$orderItem->createChild('ItemId', $i->getSku());
+			$orderItem->createChild('Quantity', $i->getQtyOrdered());
+			$orderItem->createChild('Description')->createChild('Description', $i->getName());
+
+			$pricing = $orderItem->createChild('Pricing');
+			$merchandise = $pricing->createChild('Merchandise');
+			$merchandise->createChild('Amount', sprintf('%.02f',$i->getQtyOrdered()*$i->getPrice()));
+
+			// Magento has only 1 discount per line item
+			// <Discount>
+			$discount = $merchandise
+				->createChild('PromotionalDiscounts')
+				->createChild('Discount');
+			$discount->createChild('Amount', sprintf('%.02f',$i->getDiscountAmount()));
+
+			// </Discount>
+
+			// Tax on the Merchandise:
+			$taxData = $merchandise->createChild('TaxData');
+			$taxData->createChild('TaxClass','????');
+			$taxes = $taxData->createChild('Taxes');
+			// TODO: More than 1 tax?
+			$tax = $taxes->createChild('Tax');
+			$tax->setAttribute('taxType', 'SELLER_USE');	// TODO: Fix where this comes from.
+			$tax->setAttribute('taxability','TAXABLE');		// TODO: Fix where this comes from.
+			$tax->createChild('EffectiveRate', $i->getTaxPercent());
+			$tax->createChild('TaxableAmount', sprintf('%.02f', $i->getPrice()-$i->getTaxAmount()));
+			$tax->createChild('CalculatedTax', sprintf('%.02f', $i->getTaxAmount()));
+			$merchandise->createChild('UnitPrice', sprintf('%.02f',$i->getPrice()));
+			// End Merchandise
+
+			// Shipping on the orderItem:
+			$shipping = $orderItem->createChild('Shipping');
+			$shipping->createChild('Amount');
+			// Tax on Shipping:
+			$taxData = $shipping->createChild('TaxData');
+			$taxData->createChild('TaxClass','????');
+			$taxes = $taxData->createChild('Taxes');
+			// TODO: More than 1 tax?
+			$tax = $taxes->createChild('Tax');
+			$tax->setAttribute('taxType', 'SELLER_USE');	// TODO: Fix where this comes from.
+			$tax->setAttribute('taxability','TAXABLE');		// TODO: Fix where this comes from.
+			$tax->createChild('Situs', 0);
+			$jurisdiction = $tax->createChild('Jurisdiction', '??Jurisdiction Name??');
+			$jurisdiction->setAttribute('jurisdictionLevel','??State or County Level??');
+			$jurisdiction->setAttribute('jurisdictionId', '??Jurisidiction Id??');
+			$tax->createChild('EffectiveRate', 0);
+			$tax->createChild('EffectiveRate', 0);
+			$tax->createChild('TaxableAmount', sprintf('%.02f', 0));
+			$tax->createChild('CalculatedTax', sprintf('%.02f', 0)); 
+			// End Shipping
+			
+
+			// Duty on the orderItem:
+			$duty = $orderItem->createChild('Duty');
+			$duty->createChild('Amount');
+			$taxData = $duty->createChild('TaxData');
+			$taxData->createChild('TaxClass','DUTY'); // Is this a hardcoded value?
+			$taxes = $taxData->createChild('Taxes');
+			// TODO: More than 1 tax? 
+			$tax->setAttribute('taxType', 'SELLER_USE');	// TODO: Fix where this comes from.
+			$tax->setAttribute('taxability','TAXABLE');		// TODO: Fix where this comes from.
+			$tax->createChild('EffectiveRate', $i->getTaxPercent());
+			$tax->createChild('TaxableAmount', sprintf('%.02f', $i->getPrice()-$i->getTaxAmount()));
+			$tax->createChild('CalculatedTax', sprintf('%.02f', $i->getTaxAmount()));
+			// End Duty
+				
+		}
 		// </OrderItems>
 
 		/**
@@ -172,7 +245,7 @@ class TrueAction_Eb2c_Order_Model_CreateRequest extends Mage_Core_Model_Abstract
 		// </OrderHistoryUrl>
 
 		// <OrderTotal>
-		$order->createChild('OrderTotal', $this->_o->getGrandTotal()); // TODO: Need understand MultiShipping here, even if we don't necessarily code for it.
+		$order->createChild('OrderTotal', sprintf('%.02f',$this->_o->getGrandTotal())); // TODO: Need understand MultiShipping here, even if we don't necessarily code for it.
 		// </OrderTotal>
 
 		$doc->formatOutput = true;

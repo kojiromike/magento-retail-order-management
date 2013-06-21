@@ -143,6 +143,10 @@ class TrueAction_Eb2c_Order_Model_CreateRequest extends Mage_Core_Model_Abstract
 			$tax = $taxes->createChild('Tax');
 			$tax->setAttribute('taxType', 'SELLER_USE');	// TODO: Fix where this comes from.
 			$tax->setAttribute('taxability','TAXABLE');		// TODO: Fix where this comes from.
+			$tax->createChild('Situs', 0);
+			$jurisdiction = $tax->createChild('Jurisdiction', '??Jurisdiction Name??');
+			$jurisdiction->setAttribute('jurisdictionLevel','??State or County Level??');
+			$jurisdiction->setAttribute('jurisdictionId', '??Jurisidiction Id??');
 			$tax->createChild('EffectiveRate', $i->getTaxPercent());
 			$tax->createChild('TaxableAmount', sprintf('%.02f', $i->getPrice()-$i->getTaxAmount()));
 			$tax->createChild('CalculatedTax', sprintf('%.02f', $i->getTaxAmount()));
@@ -165,7 +169,6 @@ class TrueAction_Eb2c_Order_Model_CreateRequest extends Mage_Core_Model_Abstract
 			$jurisdiction->setAttribute('jurisdictionLevel','??State or County Level??');
 			$jurisdiction->setAttribute('jurisdictionId', '??Jurisidiction Id??');
 			$tax->createChild('EffectiveRate', 0);
-			$tax->createChild('EffectiveRate', 0);
 			$tax->createChild('TaxableAmount', sprintf('%.02f', 0));
 			$tax->createChild('CalculatedTax', sprintf('%.02f', 0)); 
 			// End Shipping
@@ -178,8 +181,13 @@ class TrueAction_Eb2c_Order_Model_CreateRequest extends Mage_Core_Model_Abstract
 			$taxData->createChild('TaxClass','DUTY'); // Is this a hardcoded value?
 			$taxes = $taxData->createChild('Taxes');
 			// TODO: More than 1 tax? 
+			$tax = $taxes->createChild('Tax');
 			$tax->setAttribute('taxType', 'SELLER_USE');	// TODO: Fix where this comes from.
 			$tax->setAttribute('taxability','TAXABLE');		// TODO: Fix where this comes from.
+			$tax->createChild('Situs', 0);
+			$jurisdiction = $tax->createChild('Jurisdiction', '??Jurisdiction Name??');
+			$jurisdiction->setAttribute('jurisdictionLevel','??State or County Level??');
+			$jurisdiction->setAttribute('jurisdictionId', '??Jurisidiction Id??');
 			$tax->createChild('EffectiveRate', $i->getTaxPercent());
 			$tax->createChild('TaxableAmount', sprintf('%.02f', $i->getPrice()-$i->getTaxAmount()));
 			$tax->createChild('CalculatedTax', sprintf('%.02f', $i->getTaxAmount()));

@@ -87,7 +87,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				// get quote from quote item
 				$quote = $quoteItem->getQuote();
 
-				// recalc totals
+				// re-calculate totals
 				$quote->collectTotals();
 
 				// save the quote
@@ -115,7 +115,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 	}
 
 	/**
-	 * Check e2bc inventoryDetails, triggering checkout_controller_onepage_save_shipping_method event will run this method.
+	 * Check eb2c inventoryDetails, triggering checkout_controller_onepage_save_shipping_method event will run this method.
 	 *
 	 * @param Varien_Event_Observer $observer
 	 *
@@ -151,7 +151,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 		// get the event response object
 		$response = $observer->getEvent()->getResponse();
 
-		// flag for success/un-success allocation
+		// flag for failure or success allocation
 		$isAllocated = true;
 
 		// generate request and send request to eb2c allocation

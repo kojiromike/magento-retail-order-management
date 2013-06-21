@@ -15,7 +15,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	{
 		parent::setUp();
 		$this->_details = $this->_getDetails();
-		Mage::app()->getConfig()->reinit(); // re-initialize config to get fresh loaded data
+		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
 	}
 
 	/**
@@ -128,7 +128,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	}
 
 	/**
-	 * testing when getting inventory details api call throw an exception
+	 * testing when getting inventory details API call throw an exception
 	 *
 	 * @test
 	 * @dataProvider providerGetInventoryDetails

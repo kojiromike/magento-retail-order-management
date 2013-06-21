@@ -15,7 +15,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	{
 		parent::setUp();
 		$this->_observer = $this->_getObserver();
-		Mage::app()->getConfig()->reinit(); // re-initialize config to get fresh loaded data
+		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
 	}
 
 	/**
@@ -88,7 +88,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	 */
 	public function testCheckEb2cInventoryQuantity($observer)
 	{
-		// Testing when quanity check is all successful
+		// Testing when quantity check is all successful
 		$this->assertNull(
 			$this->_getObserver()->checkEb2cInventoryQuantity($observer)
 		);
@@ -103,7 +103,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	 */
 	public function testCheckEb2cInventoryQuantityOutOfStock($observer)
 	{
-		// testing when available stock is lesss, than what shopper requested.
+		// testing when available stock is less, than what shopper requested.
 		$quantityMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Quantity', array('requestQuantity'));
 		$quantityMock->expects($this->any())
 			->method('requestQuantity')
@@ -127,7 +127,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	 */
 	public function testCheckEb2cInventoryQuantityLessThanRequested($observer)
 	{
-		// testing when available stock is lesss, than what shopper requested.
+		// testing when available stock is less, than what shopper requested.
 		$quantityMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Quantity', array('requestQuantity'));
 		$quantityMock->expects($this->any())
 			->method('requestQuantity')

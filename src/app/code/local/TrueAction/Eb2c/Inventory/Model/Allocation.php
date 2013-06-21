@@ -29,7 +29,7 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	/**
 	 * Allocating all items brand new quote from eb2c.
 	 *
-	 * @param Mage_Sales_Model_Quote $quote, the quote to allocate iventory items in eb2c for
+	 * @param Mage_Sales_Model_Quote $quote, the quote to allocate inventory items in eb2c for
 	 *
 	 * @return string the eb2c response to the request.
 	 */
@@ -55,9 +55,9 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	/**
 	 * Build  Allocation request.
 	 *
-	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request xm from
+	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request XML from
 	 *
-	 * @return DOMDocument The xml document, to be sent as request to eb2c.
+	 * @return DOMDocument The XML document, to be sent as request to eb2c.
 	 */
 	public function buildAllocationRequestMessage($quote)
 	{
@@ -77,7 +77,7 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 								array('lineId' => $item->getId(), 'itemId' => $item->getSku())
 							);
 
-							// add quanity
+							// add quantity
 							$quoteItem->createChild(
 								'Quantity',
 								(string) $item->getQty() // integer value doesn't get added only string
@@ -102,34 +102,39 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 								null
 							);
 
-							// add ship to address Line1
+							// add ship to address Line 1
 							$shipToAddress->createChild(
 								'Line1',
-								$shippingAddress->getStreet(1)
+								$shippingAddress->getStreet(1),
+								null
 							);
 
 							// add ship to address City
 							$shipToAddress->createChild(
 								'City',
-								$shippingAddress->getCity()
+								$shippingAddress->getCity(),
+								null
 							);
 
 							// add ship to address MainDivision
 							$shipToAddress->createChild(
 								'MainDivision',
-								$shippingAddress->getRegion()
+								$shippingAddress->getRegion(),
+								null
 							);
 
 							// add ship to address CountryCode
 							$shipToAddress->createChild(
 								'CountryCode',
-								$shippingAddress->getCountryId()
+								$shippingAddress->getCountryId(),
+								null
 							);
 
 							// add ship to address PostalCode
 							$shipToAddress->createChild(
 								'PostalCode',
-								$shippingAddress->getPostcode()
+								$shippingAddress->getPostcode(),
+								null
 							);
 						}catch(Exception $e){
 							Mage::logException($e);
@@ -142,11 +147,11 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	}
 
 	/**
-	 * Parse allocation reponse xml.
+	 * Parse allocation response XML.
 	 *
-	 * @param string $allocationResponseMessage the xml reponse from eb2c
+	 * @param string $allocationResponseMessage the XML response from eb2c
 	 *
-	 * @return array, an associative array of reponse data
+	 * @return array, an associative array of response data
 	 */
 	public function parseResponse($allocationResponseMessage)
 	{
@@ -154,7 +159,7 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 		if (trim($allocationResponseMessage) !== '') {
 			$doc = $this->_getHelper()->getDomDocument();
 
-			// load response string xml from eb2c
+			// load response string XML from eb2c
 			$doc->loadXML($allocationResponseMessage);
 			$i = 0;
 			$allocationResponse = $doc->getElementsByTagName('AllocationResponse');
@@ -175,10 +180,10 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	}
 
 	/**
-	 * update quote with allocation reponse data.
+	 * update quote with allocation response data.
 	 *
-	 * @param Mage_Sales_Model_Order $quote the quote we use to get allocation reqponse from eb2c
-	 * @param string $allocationData, a parse associative array of eb2c reponse
+	 * @param Mage_Sales_Model_Order $quote the quote we use to get allocation response from eb2c
+	 * @param string $allocationData, a parse associative array of eb2c response
 	 *
 	 * @return array, error results of item that cannot be allocated
 	 */
@@ -203,7 +208,7 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	}
 
 	/**
-	 * update quote with allocation reponse data.
+	 * update quote with allocation response data.
 	 *
 	 * @param Mage_Sales_Model_Quote_Item $quoteItem the item to be updated with eb2c data
 	 * @param array $quoteData the data from eb2c for the quote item
@@ -220,7 +225,7 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 			$results = 'Sorry, item "' . $quoteItem->getSku() . '" out of stock.';
 		}
 
-		// get quote from quoteitem
+		// get quote from quote-item
 		$quote = $quoteItem->getQuote();
 
 		// save reservation data to inventory detail
@@ -237,7 +242,7 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	/**
 	 * Rolling back allocation request.
 	 *
-	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request xmlfrom
+	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request XMLfrom
 	 *
 	 * @return void
 	 */
@@ -263,9 +268,9 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	/**
 	 * Build  Rollback Allocation request.
 	 *
-	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request xml from
+	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request XML from
 	 *
-	 * @return DOMDocument The xml document, to be sent as request to eb2c.
+	 * @return DOMDocument The XML document, to be sent as request to eb2c.
 	 */
 	public function buildRollbackAllocationRequestMessage($quote)
 	{

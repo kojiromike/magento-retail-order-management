@@ -15,7 +15,7 @@ class TrueAction_Eb2c_Inventory_Test_Helper_DataTest extends EcomDev_PHPUnit_Tes
 	{
 		parent::setUp();
 		$this->_helper = $this->_getHelper();
-		Mage::app()->getConfig()->reinit(); // re-initialize config to get fresh loaded data
+		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
 	}
 
 	/**

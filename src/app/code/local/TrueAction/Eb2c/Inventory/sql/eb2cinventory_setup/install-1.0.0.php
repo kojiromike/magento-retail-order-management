@@ -16,7 +16,7 @@ try{
 
 	$eb2cinventory_attributes = array(
 		array(
-			'name'=>'reservation_id',		
+			'name'=>'reservation_id',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
 				'visible'=> true,
@@ -24,7 +24,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'reservation_expires',	
+			'name'=>'reservation_expires',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_DATETIME,
 				'visible'=> true,
@@ -32,7 +32,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'qty_reserved',			
+			'name'=>'qty_reserved',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_INTEGER,
 				'visible'=> true,
@@ -40,7 +40,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'creation_time',	
+			'name'=>'creation_time',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_DATETIME,
 				'visible'=> true,
@@ -48,7 +48,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'display',	
+			'name'=>'display',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
 				'visible'=> true,
@@ -56,7 +56,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'delivery_window_from',	
+			'name'=>'delivery_window_from',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_DATETIME,
 				'visible'=> true,
@@ -64,7 +64,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'delivery_window_to',	
+			'name'=>'delivery_window_to',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_DATETIME,
 				'visible'=> true,
@@ -72,7 +72,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'shipping_window_from',	
+			'name'=>'shipping_window_from',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_DATETIME,
 				'visible'=> true,
@@ -80,7 +80,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'shipping_window_to',	
+			'name'=>'shipping_window_to',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_DATETIME,
 				'visible'=> true,
@@ -120,7 +120,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'ship_from_address_city',		
+			'name'=>'ship_from_address_city',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
 				'visible'=> true,
@@ -128,7 +128,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'ship_from_address_main_division',		
+			'name'=>'ship_from_address_main_division',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
 				'visible'=> true,
@@ -136,7 +136,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'ship_from_address_country_code',		
+			'name'=>'ship_from_address_country_code',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
 				'visible'=> true,
@@ -144,7 +144,7 @@ try{
 			)
 		),
 		array(
-			'name'=>'ship_from_address_postal_code',		
+			'name'=>'ship_from_address_postal_code',
 			'options'=> array (
 				'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
 				'visible'=> true,
@@ -158,7 +158,7 @@ try{
 	foreach ($entities as $entity) {
 		foreach( $eb2cinventory_attributes as $a) {
 			$installer->addAttribute(
-				$entity, 
+				$entity,
 				$pfx.$a['name'],
 				$a['options']
 			);

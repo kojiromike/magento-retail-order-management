@@ -15,7 +15,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 	{
 		parent::setUp();
 		$this->_quantity = $this->_getQuantity();
-		Mage::app()->getConfig()->reinit(); // re-initialize config to get fresh loaded data
+		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
 	}
 
 	/**
@@ -75,7 +75,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 	}
 
 	/**
-	 * testing requestQuantity method, when exception is throw from api call
+	 * testing requestQuantity method, when exception is throw from API call
 	 *
 	 * @test
 	 * @dataProvider providerRequestQuantity

@@ -117,10 +117,10 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * Generate eb2c api operation uri from config settings and constansts
+	 * Generate eb2c API operation Uri from configuration settings and constants
 	 * @param string $optIndex, the operation index of the associative array
 	 *
-	 * @return string, the generated operation uri
+	 * @return string, the generated operation Uri
 	 */
 	public function getOperationUri($optIndex)
 	{
@@ -146,7 +146,7 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * Generate eb2c api Universally unique ID used to globally identify to request.
+	 * Generate eb2c API Universally unique ID used to globally identify to request.
 	 *
 	 * @param int $entityId, the magento sales_flat_order primary key
 	 *
@@ -162,7 +162,7 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * Generate eb2c api Universally unique ID to represent the reservation.
+	 * Generate eb2c API Universally unique ID to represent the reservation.
 	 *
 	 * @param int $entityId, the magento sales_flat_order primary key
 	 *

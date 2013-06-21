@@ -9,7 +9,7 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	protected $_helper;
 
 	/**
-	 * Init resource model
+	 * Initialize resource model
 	 */
 	protected function _construct()
 	{
@@ -58,7 +58,7 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	/**
 	 * Build Inventory Details request.
 	 *
-	 * @param Mage_Sales_Model_Quote $quote the quote to generate request xm from
+	 * @param Mage_Sales_Model_Quote $quote the quote to generate request XML from
 	 *
 	 * @return DOMDocument The xml document, to be sent as request to eb2c.
 	 */
@@ -76,7 +76,7 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 						array('lineId' => $item->getId(), 'itemId' => $item->getSku())
 					);
 
-					// add quanity
+					// add quantity
 					$orderItem->createChild(
 						'Quantity',
 						(string) $item->getQty() // integer value doesn't get added only string
@@ -144,11 +144,11 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * Parse inventory details reponse xml.
+	 * Parse inventory details response xml.
 	 *
-	 * @param string $inventoryDetailsResponseMessage the xml reponse from eb2c
+	 * @param string $inventoryDetailsResponseMessage the xml response from eb2c
 	 *
-	 * @return array, an associative array of reponse data
+	 * @return array, an associative array of response data
 	 */
 	public function parseResponse($inventoryDetailsResponseMessage)
 	{
@@ -204,10 +204,10 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * update quote with inventory details reponse data.
+	 * update quote with inventory details response data.
 	 *
 	 * @param Mage_Sales_Model_Quote $quote the quote we use to get inventory details from eb2c
-	 * @param array $inventoryData, a parse associative array of eb2c reponse
+	 * @param array $inventoryData, a parse associative array of eb2c response
 	 *
 	 * @return void
 	 */
@@ -226,10 +226,10 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * update quote with inventory details reponse data.
+	 * update quote with inventory details response data.
 	 *
 	 * @param Mage_Sales_Model_Quote_Item $quoteItem the item to be updated with eb2c data
-	 * @param array $inventoryData the data from eb2c for the quote idtem
+	 * @param array $inventoryData the data from eb2c for the quote-item
 	 *
 	 * @return void
 	 */

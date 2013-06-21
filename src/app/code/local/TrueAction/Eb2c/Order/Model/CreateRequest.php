@@ -18,8 +18,16 @@
  */
 class TrueAction_Eb2c_Order_Model_CreateRequest extends Mage_Core_Model_Abstract
 {
-	const ORDER_CREATE_REQUEST_NAME = 'OrderCreateRequest';
+	const ORDER_CREATE_REQUEST_TAG = 'OrderCreateRequest';
 
+	const ORDER_TYPE = 'SALES';
+	const LEVEL_OF_SERVICE = 'REGULAR';
+
+	const SHIPGROUP_DESTINATION_ID = 'dest_1';
+	const SHIPGROUP_BILLING_ID = 'billing_1';
+	const ORDER_HISTORY_PATH = 'sales/order/view/order_id/';
+
+	private $_o = null;
 	protected $_xml = null;
 	protected $_doc = null;
 
@@ -52,49 +60,120 @@ class TrueAction_Eb2c_Order_Model_CreateRequest extends Mage_Core_Model_Abstract
 	}
 
 	/**
+	 * Get globally unique request identifier
+	 */
+	private function _getRequestId()
+	{
+		return uniqid('OCR-');
+	}
+
+	/**
+	 * Build DOM for a complete order
 	 *
+	 * @param $orderId sting increment_id for the order we're building
 	 */
 	private function _create($orderId)
 	{
-		$mage_order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
-		if( !$mage_order->getId() ) {
+		$this->_o = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+		if( !$this->_o->getId() ) {
 			Mage::throwException('Order ' . $orderId . ' not found.' );
 		}
 
 		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$orderCreateRequest = $doc->addElement(self::ORDER_CREATE_REQUEST_NAME)->firstChild;
+		$orderCreateRequest = $doc->addElement(self::ORDER_CREATE_REQUEST_TAG)->firstChild;
+		$orderCreateRequest->setAttribute('orderType', self::ORDER_TYPE);
+		$orderCreateRequest->setAttribute('requestId', $this->_getRequestId());
 
-		$orderCreateRequest->addChild('Customer', $mage_order->getCustomerName());
 
-		$el = $doc->createElement('CreateTime', $mage_order->getCreatedAt());
-		$orderCreateRequest->appendChild($el);
+		$order = $orderCreateRequest->createChild('Order');
+		$order->setAttribute('levelOfService',self::LEVEL_OF_SERVICE);
+		$order->setAttribute('customerOrderId',$this->_o->getIncrementId());
 
-		$el = $doc->createElement('OrderItems', '');
-		$orderCreateRequest->appendChild($el);
+		// <Customer id='id'>
+		if ($customer = $order->createChild('Customer')) {
+			$customer->setAttribute('customerId', $this->_o->getCustomerId());
+			if( $name = $customer->createChild('Name') ) {
+				$name->createChild('Honorific', $this->_o->getCustomerPrefix() );
+				$name->createChild('LastName', trim($this->_o->getCustomerLastname() . ' ' . $this->_o->getCustomerSuffix()) );
+				$name->createChild('FirstName', $this->_o->getCustomerFirstname());
+				$name->createChild('MiddleName', $this->_o->getCustomerMiddlename());
+			}
+			$customer->createChild('Gender', $this->_o->getCustomerGender());
+			$customer->createChild('DateOfBirth', $this->_o->getCustomerDob());
+			$customer->createChild('EmailAddress', $this->_o->getCustomerEmail());
+			$customer->createChild('CustomerTaxId', $this->_o->getCustomerTaxvat());
+		}
+		// </Customer>
 
-		$el = $doc->createElement('Shipping', '');
-		$orderCreateRequest->appendChild($el);
 
-		$el = $doc->createElement('Payment', '');
-		$orderCreateRequest->appendChild($el);
+		// <CreateTime>
+		$order->createChild('CreateTime', $this->_o->getCreatedAt());
+		// </CreateTime>
 
-		$el = $doc->createElement('Currency', '');
-		$orderCreateRequest->appendChild($el);
 
-		$el = $doc->createElement('TaxHeader', '');
-		$orderCreateRequest->appendChild($el);
+		// <OrderItems>
+		$order->createChild('OrderItems');
+		// </OrderItems>
 
-		$el = $doc->createElement('Locale', '');
-		$orderCreateRequest->appendChild($el);
+		/**
+		 * <Shipping>
+		 * Magento never has multiple shipping destinations per-order. In Multi-Shipping, Magento 
+		 *	creates several orders all sent to a single destination.
+		 */
+		$shipGroup = $order->createChild('Shipping')
+			->createChild('ShipGroups')
+			->createChild('ShipGroup');
+		$shipGroup->setAttribute('id', 'shipGroup_1');
+		$shipGroup->setAttribute('chargeType','');
+		$shipGroup->createChild('DestinationTarget')->setAttribute('ref', self::SHIPGROUP_DESTINATION_ID);
+		$shipGroup->createChild('OrderItems');
+		$destinations = $shipGroup->createChild('Destinations');
 
-		$el = $doc->createElement('OrderSource', '');
-		$orderCreateRequest->appendChild($el);
+		$dest_1 = $destinations->createChild('MailingAddress');
+		$dest_1->setAttribute('id', self::SHIPGROUP_DESTINATION_ID);
 
-		$el = $doc->createElement('OrderHistoryUrl', '');
-		$orderCreateRequest->appendChild($el);
+		// We'll may have to revisit billig details in case of multiple tenders for a single order.
+		$billing_1 = $destinations->createChild('MailingAddress');
+		$billing_1->setAttribute('id',self::SHIPGROUP_BILLING_ID);
+		// </Shipping>
 
-		$el = $doc->createElement('OrderTotal', '');
-		$orderCreateRequest->appendChild($el);
+		// <Payment>
+		$payment = $order->createChild('Payment');
+		$payment->createChild('BillingAddress')->setAttribute('ref',self::SHIPGROUP_BILLING_ID);
+		$payments = $payment->createChild('Payments');
+		// </Payment>
+
+		// <Currency>
+		$order->createChild('Currency', $this->_o->getOrderCurrencyCode());
+		// </Currency>
+
+		// <TaxHeader>
+		$taxHeader = $order->createChild('TaxHeader');
+		$taxHeader->createChild('Error','false');	// TODO: Tax Details needed here.
+		// </TaxHeader>
+
+		// <PrintedCatalogCode>
+		$order->createChild('PrintedCatalogCode'); // TODO: Do we actually have this.
+		// </PrintedCatalogCode>
+
+		// <Locale>
+		$order->createChild('Locale');	// TODO: Maybe comes from store config?
+		// </Locale>
+
+		// <OrderSource>
+		$order->CreateChild('OrderSource'); // TODO: Not sure what this means.
+		// </OrderSource>
+
+		// <OrderHistoryUrl>
+		$order->createChild('OrderHistoryUrl', 
+				Mage::app()->getStore($this->_o->getStoreId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) .
+				self::ORDER_HISTORY_PATH . 
+				$this->_o->getEntityId());
+		// </OrderHistoryUrl>
+
+		// <OrderTotal>
+		$order->createChild('OrderTotal', $this->_o->getGrandTotal()); // TODO: Need understand MultiShipping here, even if we don't necessarily code for it.
+		// </OrderTotal>
 
 		$doc->formatOutput = true;
 		$this->_doc = $doc;

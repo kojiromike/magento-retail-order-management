@@ -32,10 +32,13 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$this->_setupQuote();
 		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		// TODO: GET THIS FROM A HELPER
+		$nsUri = 'http://api.gsicommerce.com/schema/checkout/1.0';
 		if ($this->isValid()) {
 			// TODO: generate the cacheKey as we go along gathering the data for the request and remove this line. this is not adequate.
-			$this->_cacheKey   = $this->getQuote()->getId() . '|';
-			$tdRequest         = $doc->addElement('TaxDutyQuoteRequest')->firstChild;
+			$this->_cacheKey    = $this->getQuote()->getId() . '|';
+			$doc->addElement('TaxDutyQuoteRequest', null, $nsUri);
+			$tdRequest          = $doc->documentElement;
 			$billingInformation = $tdRequest->addChild(
 				'Currency',
 				$this->getQuote()->getQuoteCurrencyCode()

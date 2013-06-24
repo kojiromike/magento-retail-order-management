@@ -36,20 +36,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer extends Mage_Tax_Model_Observ
 		$this->_fetchTaxDutyInfo($quote);
 	}
 
-	protected function _fetchTaxDutyInfo($quote)
-	{
-		$request = Mage::helper('tax')->getCalculator()
-			->getRateRequest(
-				$quote->getBillingAddress(),
-				$quote->getShippingAddress()
-			);
-		if ($request->isValid()) {
-			$response = Mage::helper('tax')->sendRequest($request);
-			Mage::helper('tax')->getCalculator()
-				->setResponse($response);
-		}
-	}
-
     /**
      * Reset extra tax amounts on quote addresses before recollecting totals
      *
@@ -67,4 +53,18 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer extends Mage_Tax_Model_Observ
         }
         return $this;
     }
+
+	protected function _fetchTaxDutyInfo($quote)
+	{
+		$request = Mage::helper('tax')->getCalculator()
+			->getRateRequest(
+				$quote->getBillingAddress(),
+				$quote->getShippingAddress()
+			);
+		if ($request->isValid()) {
+			$response = Mage::helper('tax')->sendRequest($request);
+			Mage::helper('tax')->getCalculator()
+				->setResponse($response);
+		}
+	}
 }

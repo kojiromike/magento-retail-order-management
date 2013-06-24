@@ -133,4 +133,9 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 		return null;
 	}
 
+	public function __set($name, $value)
+	{
+		trigger_error(sprintf('Cannot write property %s::%s in php shell code on line %d', get_class($this), $name, __LINE__), E_USER_ERROR);
+	}
+
 }

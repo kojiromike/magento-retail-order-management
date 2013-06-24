@@ -35,8 +35,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		// TODO: GET THIS FROM A HELPER
 		$nsUri = 'http://api.gsicommerce.com/schema/checkout/1.0';
 		if ($this->isValid()) {
-			// TODO: generate the cacheKey as we go along gathering the data for the request and remove this line. this is not adequate.
-			$this->_cacheKey    = $this->getQuote()->getId() . '|';
+			$this->_cacheKey    = $this->getQuote()->getId();
 			$doc->addElement('TaxDutyQuoteRequest', null, $nsUri);
 			$tdRequest          = $doc->documentElement;
 			$billingInformation = $tdRequest->addChild(
@@ -119,6 +118,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$shippingAddresses = $this->getQuote()->getAllShippingAddresses();
 		$shipGroups   = $this->_shipGroups;
 		$destinations = $this->_destinations;
+		$this->_addBillingDestination($destinations, $this->getBillingAddress());
 		foreach ($shippingAddresses as $addressKey => $address) {
 			$this->_cacheKey .= '|' . $address->getId();
 			$mailingAddress = $this->_buildMailingAddressNode($destinations, $address);
@@ -128,6 +128,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 				$this->_doc->createElement('Items')
 			);
 			foreach ($address->getAllVisibleItems() as $addressItem) {
+				$this->_cacheKey .= ';' . $addressItem->getId() . ',' . $addressItem->getQty();
 				$this->_addOrderItem($orderItems, $addressItem, $address);
 			}
 			$groupedRates   = $address->getGroupedAllShippingRates();
@@ -135,6 +136,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 				$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
 				// FIXME: === always returns false in the following if statement
 				if ($address->getShippingMethod() == $shippingRate->getCode()) {
+					$this->_cacheKey .= '@' . $shippingRate->getId();
 					$shipGroup = $shipGroups->createChild('ShipGroup');
 					$shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)
 						->addAttribute('chargeType', strtoupper($shippingRate->getMethod()));

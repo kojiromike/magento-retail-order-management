@@ -53,6 +53,22 @@
                     </tax>
                 </observers>
             </sales_quote_remove_item>
+            <sales_quote_item_qty_set_after>
+                <observers>
+                    <tax>
+                        <class>tax/observer</class>
+                        <method>salesEventItemQtyUpdated</method>
+                    </tax>
+                </observers>
+            </sales_quote_item_qty_set_after>
+            <sales_quote_address_discount_item>
+                <observers>
+                    <tax>
+                        <class>tax/observer</class>
+                        <method>salesEventDiscoutItem</method>
+                    </tax>
+                </observers>
+            </sales_quote_address_discount_item>
         </events>
 	</global>
 	<default>

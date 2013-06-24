@@ -22,6 +22,20 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer extends Mage_Tax_Model_Observ
 		$this->_fetchTaxDutyInfo($quote);
 	}
 
+	public function salesEventItemQtyUpdated(Varien_Event_Observer $observer)
+	{
+		Mage::log('salesEventItemRemoved');
+		$quote = $observer->getEvent()->getQuoteItem()->getQuote();
+		$this->_fetchTaxDutyInfo($quote);
+	}
+
+	public function salesEventDiscoutItem(Varien_Event_Observer $observer)
+	{
+		Mage::log('salesEventDiscoutItem');
+		$quote = $observer->getEvent()->getQuoteItem()->getQuote();
+		$this->_fetchTaxDutyInfo($quote);
+	}
+
 	protected function _fetchTaxDutyInfo($quote)
 	{
 		$request = Mage::helper('tax')->getCalculator()

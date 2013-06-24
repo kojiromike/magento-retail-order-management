@@ -16,7 +16,7 @@ class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 	 * returns the completed uri.
 	 * @return string
 	 */
-	public function getApiUrl()
+	public function getApiUrl($store = null)
 	{
 		return sprintf(
 			self::$_apiUrlFormat,
@@ -35,12 +35,21 @@ class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 	 * @param  TrueAction_Eb2c_Tax_Model_Request $request
 	 * @return TrueAction_Eb2c_Tax_Model_Response
 	 */
-	public function sendRequest(TrueAction_Eb2c_Tax_Model_Request $request)
+	public function sendRequest(TrueAction_Eb2c_Tax_Model_Request $request, $store = null)
 	{
 		$response = Mage::helper('eb2ccore')->apiCall(
 			$request->getDocument(),
-			$this->getApiUrl()
+			$this->getApiUrl(),
+			$store
 		);
-		return new TrueAction_Eb2c_Tax_Model_Response(array('xml' => $response));
+		return new TrueAction_Eb2c_Tax_Model_Response(array(
+			'xml' => $response,
+			'request' => $request
+		));
+	}
+
+	public function getNamespaceUri($store = null)
+	{
+		return Mage::getStoreConfig('eb2ctax/config/api/namspace_uri', $store = null);
 	}
 }

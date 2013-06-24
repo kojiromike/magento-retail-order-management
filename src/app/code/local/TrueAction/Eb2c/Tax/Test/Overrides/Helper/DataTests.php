@@ -14,4 +14,12 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Helper_DataTests extends EcomDev_PHPUni
 			get_class($hlpr)
 		);
 	}
+
+	public function testNamespaceUri()
+	{
+		$this->assertSame(
+			'http://api.gsicommerce.com/schema/checkout/1.0',
+			Mage::helper('tax')->getNamespaceUri()
+		);
+	}
 }

@@ -14,9 +14,7 @@ class TrueAction_Eb2c_Tax_Model_Response_Quote extends Mage_Core_Model_Abstract
 	protected function _construct()
 	{
 		$tax = $this->getNode();
-		$quoteItemId = $this->getQuoteItemId();
-		if ($tax && $quoteItemId) {
-			$this->setQuoteItemId($quoteItemId);
+		if ($tax) {
 			$xpath = new DOMXPath($tax->ownerDocument);
 			$xpath->registerNamespace('a', $this->getNamespaceUri)
 			// get effective rate

@@ -99,7 +99,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			$root
 		);
 		foreach ($shipGroups as $shipGroup) {
-			$address = $this->_getAddress($shipGroup->getAttribute('ref'));
+			$address = $this->_getAddress($shipGroup->getAttribute('id'));
 			if (!is_null($address)) {
 				return;
 			}

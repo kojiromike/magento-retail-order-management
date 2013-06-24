@@ -65,7 +65,7 @@
                 <observers>
                     <tax>
                         <class>tax/observer</class>
-                        <method>salesEventDiscoutItem</method>
+                        <method>salesEventDiscountItem</method>
                     </tax>
                 </observers>
             </sales_quote_address_discount_item>

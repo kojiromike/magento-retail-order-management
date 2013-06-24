@@ -38,7 +38,7 @@ class TrueAction_Eb2c_Address_Test_Helper_DataTests extends EcomDev_PHPUnit_Test
 	 */
 	protected function _generatePhysicalAddressElement($streetLines = 4)
 	{
-		$dom = new TrueAction_Dom_Document();
+		$dom = new TrueAction_Dom_Document('1.0', 'UTF-8');
 		$root = $dom->createElement('address');
 		for ($i = 1; $i <= $streetLines; $i++) {
 			$root->addChild('Line' . $i, $this->_addressParts['line' . $i]);
@@ -52,23 +52,44 @@ class TrueAction_Eb2c_Address_Test_Helper_DataTests extends EcomDev_PHPUnit_Test
 
 	/**
 	 * Test the generic method for getting the text contents from a set of XML
-	 * based on a given XPath expression.
+	 * based on a given XPath expression using element as XPath context.
 	 * @test
 	 */
-	public function testTextValueFromXmlPath()
+	public function testTextValueFromXmlPathOnElement()
 	{
-		$doc = new TrueAction_Dom_Document();
+		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
 		$doc->addElement('root');
 		$root = $doc->documentElement;
 		$root->createChild('foo')->addChild('bar', 'one')->addChild('baz', 'two');
 		$root->createChild('color', 'red');
 
-		$multiValues = Mage::helper('eb2caddress')->getTextValueByXPath($root, 'foo/*');
-		$singleValue = Mage::helper('eb2caddress')->getTextValueByXPath($root, 'color');
-		$nullValue = Mage::helper('eb2caddress')->getTextValueByXPath($root, 'nope_not_here');
+		$multiValues = Mage::helper('eb2caddress')->getTextValueByXPath('foo/*', $root);
+		$singleValue = Mage::helper('eb2caddress')->getTextValueByXPath('color', $root);
+		$nullValue = Mage::helper('eb2caddress')->getTextValueByXPath('nope_not_here', $root);
 		$this->assertSame($multiValues, array('one', 'two'));
 		$this->assertSame($singleValue, 'red');
 		$this->assertNull($nullValue);
+	}
+
+	/**
+	 * Test the generic method for getting text contents from a set of XML
+	 * based on a given XPath expression using document as XPath context.
+	 * @test
+	 */
+	public function testTextValueFromXmlPathOnDocument()
+	{
+		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$doc->addElement('root');
+		$root = $doc->documentElement;
+		$root->createChild('foo')->addChild('bar', 'one')->addChild('baz', 'two');
+		$root->createChild('color', 'red');
+
+		$multiValuesFromDoc = Mage::helper('eb2caddress')->getTextValueByXPath('root/foo/*', $doc);
+		$singleValueFromDoc = Mage::helper('eb2caddress')->getTextValueByXPath('root/color', $doc);
+		$nullValueFromDoc = Mage::helper('eb2caddress')->getTextValueByXPath('root/nope_not_here', $doc);
+		$this->assertSame($multiValuesFromDoc, array('one', 'two'));
+		$this->assertSame($singleValueFromDoc, 'red');
+		$this->assertNull($nullValueFromDoc);
 	}
 
 	/**
@@ -80,6 +101,15 @@ class TrueAction_Eb2c_Address_Test_Helper_DataTests extends EcomDev_PHPUnit_Test
 		$street = Mage::helper('eb2caddress')
 			->physicalAddressStreet($this->_generatePhysicalAddressElement());
 		$this->assertEquals($street, array('123 Main St', 'STE 6', 'Foo', 'Bar'));
+		$street = Mage::helper('eb2caddress')
+			->physicalAddressStreet($this->_generatePhysicalAddressElement(3));
+		$this->assertEquals($street, array('123 Main St', 'STE 6', 'Foo'));
+		$street = Mage::helper('eb2caddress')
+			->physicalAddressStreet($this->_generatePhysicalAddressElement(2));
+		$this->assertEquals($street, array('123 Main St', 'STE 6'));
+		$street = Mage::helper('eb2caddress')
+			->physicalAddressStreet($this->_generatePhysicalAddressElement(1));
+		$this->assertEquals($street, '123 Main St');
 	}
 
 	/**

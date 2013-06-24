@@ -38,10 +38,13 @@ class TrueAction_Eb2c_Address_Helper_Data extends Mage_Core_Helper_Abstract
 	 * @param string $path
 	 * @return array|string
 	 */
-	public function getTextValueByXPath(DOMNode $context, $path)
+	public function getTextValueByXPath($path, DOMNode $context)
 	{
-		$xpath = new DOMXPath($context->ownerDocument ?: $context);
-		$nodes = $xpath->evaluate($path, $context);
+		$doc = $context->ownerDocument ?: $context;
+		$xpath = new DOMXPath($doc);
+		$ns = $doc->lookupNamespaceUri($doc->namespaceURI);
+		$xpath->registerNamespace('eb2c', $ns);
+		$nodes = $xpath->query($path, $context);
 		if ($nodes->length === 1) {
 			return $nodes->item(0)->textContent;
 		} else if ($nodes->length > 1) {
@@ -78,7 +81,7 @@ class TrueAction_Eb2c_Address_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function physicalAddressStreet(DOMElement $physicalAddressXml)
 	{
-		return $this->getTextValueByXPath($physicalAddressXml, self::LINES_PATH);
+		return $this->getTextValueByXPath(self::LINES_PATH, $physicalAddressXml);
 	}
 
 	/**
@@ -87,7 +90,7 @@ class TrueAction_Eb2c_Address_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function physicalAddressCity(DOMElement $physicalAddressXml)
 	{
-		return $this->getTextValueByXPath($physicalAddressXml, self::CITY_PATH);
+		return $this->getTextValueByXPath(self::CITY_PATH, $physicalAddressXml);
 	}
 
 	/**
@@ -98,7 +101,7 @@ class TrueAction_Eb2c_Address_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getModel('directory/region')
 			->loadByCode(
-				$this->getTextValueByXPath($physicalAddressXml, self::REGION_PATH),
+				$this->getTextValueByXPath(self::REGION_PATH, $physicalAddressXml),
 				$this->physicalAddressCountryId($physicalAddressXml))
 			->getId();
 	}
@@ -109,7 +112,7 @@ class TrueAction_Eb2c_Address_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function physicalAddressCountryId(DOMElement $physicalAddressXml)
 	{
-		return $this->getTextValueByXPath($physicalAddressXml, self::COUNTRY_PATH);
+		return $this->getTextValueByXPath(self::COUNTRY_PATH, $physicalAddressXml);
 	}
 
 	/**
@@ -118,6 +121,6 @@ class TrueAction_Eb2c_Address_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function physicalAddressPostcode(DOMElement $physicalAddressXml)
 	{
-		return $this->getTextValueByXPath($physicalAddressXml, self::POSTCODE_PATH);
+		return $this->getTextValueByXPath(self::POSTCODE_PATH, $physicalAddressXml);
 	}
 }

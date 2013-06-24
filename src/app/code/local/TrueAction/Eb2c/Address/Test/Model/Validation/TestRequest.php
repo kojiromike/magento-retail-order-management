@@ -72,7 +72,7 @@ class TrueAction_Eb2c_Address_Test_Model_Validate_TestRequest
 	public function testRequestApiUri()
 	{
 		$request = $this->_createRequest();
-		$this->markTestSkipped('Not sure of exact spec for this functionality. Need to define where exactly each part of the API path should be coming from: class consts, module settings, core settings, etc.');
+		$this->markTestIncomplete('Not sure of exact spec for this functionality. Need to define where exactly each part of the API path should be coming from: class consts, module settings, core settings, etc.');
 	}
 
 	/**
@@ -82,7 +82,7 @@ class TrueAction_Eb2c_Address_Test_Model_Validate_TestRequest
 	{
 		$request = $this->_createRequest();
 		$message = $request->getMessage();
-		$this->markTestSkipped('Need to determine a sane way of actually testing the XML generation.');
+		$this->markTestIncomplete('Need to determine a sane way of actually testing the XML generation.');
 	}
 
 }

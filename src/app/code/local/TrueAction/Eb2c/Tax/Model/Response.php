@@ -81,44 +81,6 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * create a Tax record using data extracted from the arguments
-	 * @param  int                            $type       @see TrueAction_Eb2c_Tax_Model_Tax
-	 * @param  string                         $amount
-	 * @param  TrueAction_Dom_Element         $tax
-	 * @param  Mage_Sales_Model_Quote_Address $address
-	 * @param  Mage_Sales_Model_Quote_Item    $quoteItem
-	 * @return TrueAction_Eb2c_Tax_Model_Tax
-	 */
-	protected function _createTaxRecord(
-		$type,
-		$amount,
-		TrueAction_Dom_Element $tax,
-		Mage_Sales_Model_Quote_Address $address,
-		Mage_Sales_Model_Quote_Item $quoteItem
-	) {
-		$xpath = new DOMXPath($tax->ownerDocument);
-		$xpath->registerNamespace('a', $this->_namespaceUri);
-		$record = new TrueAction_Eb2c_Tax_Model_Tax(array(
-			'type' => $type,
-			'amount' => $amount,
-			'quote_address_id' => $address->getId(),
-			'quote_item_id'  =>  $quoteItem->getId(),
-			// get effective rate
-			'effecive_rate' => $xpath->evaluate('a:EffectiveRate/text()', $tax),
-			// get taxable amount
-			'taxable_amount' => $xpath->evaluate('a:TaxableAmount/text()', $tax),
-			// get taxexemptamunt
-			'exempt_amount' => $xpath->evaluate('a:ExemptAmount/text()', $tax),
-			// get nontaxableamount
-			'non_taxable_amount' => $xpath->evaluate('a:NonTaxableAmount/text()', $tax),
-			// calculatedtax
-			'calculated_tax' => $xpath->evaluate('a:CalculatedTax/text()', $tax),
-		));
-		$this->_itemResults[] = $record;
-		return $record;
-	}
-
-	/**
 	 * generate tax quote records with data extracted from the response.
 	 */
 	protected function _extractResults()

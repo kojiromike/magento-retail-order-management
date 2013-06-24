@@ -32,8 +32,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$this->_setupQuote();
 		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		// TODO: GET THIS FROM A HELPER
-		$nsUri = 'http://api.gsicommerce.com/schema/checkout/1.0';
+		$nsUri = Mage::helper('tax')->getNamespaceUri();
 		if ($this->isValid()) {
 			$this->_cacheKey    = $this->getQuote()->getId();
 			$doc->addElement('TaxDutyQuoteRequest', null, $nsUri);

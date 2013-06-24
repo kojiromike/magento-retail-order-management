@@ -41,10 +41,11 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer extends Mage_Tax_Model_Observ
 		$request = Mage::helper('tax')->getCalculator()
 			->getRateRequest(
 				$quote->getBillingAddress(),
-				$quote->getShippingAddress(),
-				'', null
+				$quote->getShippingAddress()
 			);
 		$response = Mage::helper('tax')->sendRequest($request);
+		Mage::helper('tax')->getCalculator()
+			->setResponse($response);
 	}
 
     /**

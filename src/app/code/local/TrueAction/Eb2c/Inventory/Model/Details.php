@@ -9,24 +9,11 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	protected $_helper;
 
 	/**
-	 * Init resource model
+	 * Initialize resource model
 	 */
 	protected function _construct()
 	{
 		$this->_helper = $this->_getHelper();
-		$this->_init('eb2cinventory/details');
-	}
-
-	/**
-	 * Load inventory detail by quote item id
-	 *
-	 * @param   int $itemId
-	 * @return  TrueAction_Eb2c_Inventory_Model_Details
-	 */
-	public function loadByQuoteItemId($itemId)
-	{
-		$this->_getResource()->loadByQuoteItemId($this, $itemId);
-		return $this;
 	}
 
 	/**
@@ -71,7 +58,7 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	/**
 	 * Build Inventory Details request.
 	 *
-	 * @param Mage_Sales_Model_Quote $quote the quote to generate request xm from
+	 * @param Mage_Sales_Model_Quote $quote the quote to generate request XML from
 	 *
 	 * @return DOMDocument The xml document, to be sent as request to eb2c.
 	 */
@@ -89,7 +76,7 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 						array('lineId' => $item->getId(), 'itemId' => $item->getSku())
 					);
 
-					// add quanity
+					// add quantity
 					$orderItem->createChild(
 						'Quantity',
 						(string) $item->getQty() // integer value doesn't get added only string
@@ -157,15 +144,15 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * update quote with inventory details reponse data.
+	 * Parse inventory details response xml.
 	 *
-	 * @param Mage_Sales_Model_Quote $quote the quote we use to get inventory details from eb2c
-	 * @param string $inventoryDetailsResponseMessage the xml reponse from eb2c
+	 * @param string $inventoryDetailsResponseMessage the xml response from eb2c
 	 *
-	 * @return void
+	 * @return array, an associative array of response data
 	 */
-	public function processInventoryDetails($quote, $inventoryDetailsResponseMessage)
+	public function parseResponse($inventoryDetailsResponseMessage)
 	{
+		$inventoryData = array();
 		if (trim($inventoryDetailsResponseMessage) !== '') {
 			$doc = $this->_getHelper()->getDomDocument();
 
@@ -175,75 +162,95 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 			$inventoryDetails = $doc->getElementsByTagName('InventoryDetails');
 			foreach($inventoryDetails as $response) {
 				foreach($response->childNodes as $inventoryDetail) {
-					$inventoryData = array();
+					$detail = array();
 					if ($inventoryDetail->nodeName === 'InventoryDetail') {
-						$inventoryData['lineId'] = $inventoryDetail->getAttribute('lineId');
-						$inventoryData['itemId'] = $inventoryDetail->getAttribute('itemId');
+						$detail['lineId'] = $inventoryDetail->getAttribute('lineId');
+						$detail['itemId'] = $inventoryDetail->getAttribute('itemId');
 
 						$deliveryEstimate = $inventoryDetail->getElementsByTagName('DeliveryEstimate');
 
 						if ($deliveryEstimate->length > 0) {
-							$inventoryData['creationTime'] = $deliveryEstimate->item(0)->getElementsByTagName('CreationTime')->item(0)->nodeValue;
-							$inventoryData['display'] = $deliveryEstimate->item(0)->getElementsByTagName('Display')->item(0)->nodeValue;
+							$detail['creationTime'] = $deliveryEstimate->item(0)->getElementsByTagName('CreationTime')->item(0)->nodeValue;
+							$detail['display'] = $deliveryEstimate->item(0)->getElementsByTagName('Display')->item(0)->nodeValue;
 
 							$deliveryWindow = $deliveryEstimate->item(0)->getElementsByTagName('DeliveryWindow');
-							$inventoryData['deliveryWindow_from'] = $deliveryWindow->item(0)->getElementsByTagName('From')->item(0)->nodeValue;
-							$inventoryData['deliveryWindow_to'] = $deliveryWindow->item(0)->getElementsByTagName('To')->item(0)->nodeValue;
+							$detail['deliveryWindow_from'] = $deliveryWindow->item(0)->getElementsByTagName('From')->item(0)->nodeValue;
+							$detail['deliveryWindow_to'] = $deliveryWindow->item(0)->getElementsByTagName('To')->item(0)->nodeValue;
 
 							$shippingWindow = $deliveryEstimate->item(0)->getElementsByTagName('ShippingWindow');
-							$inventoryData['shippingWindow_from'] = $shippingWindow->item(0)->getElementsByTagName('From')->item(0)->nodeValue;
-							$inventoryData['shippingWindow_to'] = $shippingWindow->item(0)->getElementsByTagName('To')->item(0)->nodeValue;
+							$detail['shippingWindow_from'] = $shippingWindow->item(0)->getElementsByTagName('From')->item(0)->nodeValue;
+							$detail['shippingWindow_to'] = $shippingWindow->item(0)->getElementsByTagName('To')->item(0)->nodeValue;
 						}
 
 						$shipFromAddress = $inventoryDetail->getElementsByTagName('ShipFromAddress');
 
 						if ($shipFromAddress->length > 0) {
-							$inventoryData['shipFromAddress_line1'] = $shipFromAddress->item(0)->getElementsByTagName('Line1')->item(0)->nodeValue;
-							$inventoryData['shipFromAddress_city'] = $shipFromAddress->item(0)->getElementsByTagName('City')->item(0)->nodeValue;
-							$inventoryData['shipFromAddress_mainDivision'] = $shipFromAddress->item(0)->getElementsByTagName('MainDivision')->item(0)->nodeValue;
-							$inventoryData['shipFromAddress_countryCode'] = $shipFromAddress->item(0)->getElementsByTagName('CountryCode')->item(0)->nodeValue;
-							$inventoryData['shipFromAddress_postalCode'] = $shipFromAddress->item(0)->getElementsByTagName('PostalCode')->item(0)->nodeValue;
+							$detail['shipFromAddress_line1'] = $shipFromAddress->item(0)->getElementsByTagName('Line1')->item(0)->nodeValue;
+							$detail['shipFromAddress_city'] = $shipFromAddress->item(0)->getElementsByTagName('City')->item(0)->nodeValue;
+							$detail['shipFromAddress_mainDivision'] = $shipFromAddress->item(0)->getElementsByTagName('MainDivision')->item(0)->nodeValue;
+							$detail['shipFromAddress_countryCode'] = $shipFromAddress->item(0)->getElementsByTagName('CountryCode')->item(0)->nodeValue;
+							$detail['shipFromAddress_postalCode'] = $shipFromAddress->item(0)->getElementsByTagName('PostalCode')->item(0)->nodeValue;
 						}
 					}
 
-					if (!empty($inventoryData)) {
-						$quoteItem = $quote->getItemById($inventoryData['lineId']);
-						if ($quoteItem) {
-							// update quote with eb2c data.
-							$this->_updateQuoteWithEb2cInventoryDetails($quoteItem, $inventoryData);
-
-							// saving the quote
-							$quote->save();
-						}
+					if (!empty($detail)) {
+						$inventoryData[] = $detail;
 					}
+				}
+			}
+		}
+
+		return $inventoryData;
+	}
+
+	/**
+	 * update quote with inventory details response data.
+	 *
+	 * @param Mage_Sales_Model_Quote $quote the quote we use to get inventory details from eb2c
+	 * @param array $inventoryData, a parse associative array of eb2c response
+	 *
+	 * @return void
+	 */
+	public function processInventoryDetails($quote, $inventoryData)
+	{
+
+		foreach ($inventoryData as $data) {
+			foreach ($quote->getAllItems() as $item) {
+				// find the item in the quote
+				if ((int) $item->getItemId() === (int) $data['lineId']) {
+					// update quote with eb2c data.
+					$this->_updateQuoteWithEb2cInventoryDetails($item, $data);
 				}
 			}
 		}
 	}
 
 	/**
-	 * update quote with inventory details reponse data.
+	 * update quote with inventory details response data.
 	 *
 	 * @param Mage_Sales_Model_Quote_Item $quoteItem the item to be updated with eb2c data
-	 * @param array $inventoryData the data from eb2c for the quote idtem
+	 * @param array $inventoryData the data from eb2c for the quote-item
 	 *
 	 * @return void
 	 */
 	protected function _updateQuoteWithEb2cInventoryDetails($quoteItem, $inventoryData)
 	{
-		$this->loadByQuoteItemId($quoteItem->getItemId())
-			->setItemId($quoteItem->getItemId())
-			->setCreationTime($inventoryData['creationTime'])
-			->setDisplay($inventoryData['display'])
-			->setDeliveryWindowFrom($inventoryData['deliveryWindow_from'])
-			->setDeliveryWindowTo($inventoryData['deliveryWindow_to'])
-			->setShippingWindowFrom($inventoryData['shippingWindow_from'])
-			->setShippingWindowTo($inventoryData['shippingWindow_to'])
-			->setShipFromAddressLine1($inventoryData['shipFromAddress_line1'])
-			->setShipFromAddressCity($inventoryData['shipFromAddress_city'])
-			->setShipFromAddressMainDivision($inventoryData['shipFromAddress_mainDivision'])
-			->setShipFromAddressCountryCode($inventoryData['shipFromAddress_countryCode'])
-			->setShipFromAddressPostalCode($inventoryData['shipFromAddress_postalCode'])
-			->save();
+		// get quote from quote item
+		$quote = $quoteItem->getQuote();
+
+		// Add inventory details info to quote item
+		$quoteItem->setEb2cCreationTime($inventoryData['creationTime'])
+			->setEb2cDisplay($inventoryData['display'])
+			->setEb2cDeliveryWindowFrom($inventoryData['deliveryWindow_from'])
+			->setEb2cDeliveryWindowTo($inventoryData['deliveryWindow_to'])
+			->setEb2cShippingWindowFrom($inventoryData['shippingWindow_from'])
+			->setEb2cShippingWindowTo($inventoryData['shippingWindow_to'])
+			->setEb2cShipFromAddressLine1($inventoryData['shipFromAddress_line1'])
+			->setEb2cShipFromAddressCity($inventoryData['shipFromAddress_city'])
+			->setEb2cShipFromAddressMainDivision($inventoryData['shipFromAddress_mainDivision'])
+			->setEb2cShipFromAddressCountryCode($inventoryData['shipFromAddress_countryCode'])
+			->setEb2cShipFromAddressPostalCode($inventoryData['shipFromAddress_postalCode']);
+		// Save the quote
+		$quote->save();
 	}
 }

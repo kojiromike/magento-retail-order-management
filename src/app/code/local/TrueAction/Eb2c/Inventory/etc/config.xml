@@ -17,16 +17,7 @@
 		<models>
 			<eb2cinventory>
 				<class>TrueAction_Eb2c_Inventory_Model</class>
-				<resourceModel>eb2cinventory_resource</resourceModel>
 			</eb2cinventory>
-			<eb2cinventory_resource>
-                <class>TrueAction_Eb2c_Inventory_Model_Resource</class>
-                <entities>
-                    <details>
-                        <table>eb2c_inventory_details</table>
-                    </details>
-              	</entities>
-            </eb2cinventory_resource>
 			<eb2cinventoryoverride>
 				<class>TrueAction_Eb2c_Inventory_Override_Model</class>
 			</eb2cinventoryoverride>
@@ -41,6 +32,61 @@
 				</rewrite>
 			</cataloginventory>
 		</models>
+		<fieldsets>
+			<sales_convert_quote_item>
+				<eb2c_reservation_id>
+					<to_order_item>*</to_order_item>
+				</eb2c_reservation_id>
+				<eb2c_reservation_expires>
+					<to_order_item>*</to_order_item>
+				</eb2c_reservation_expires>
+				<eb2c_qty_reserved>
+					<to_order_item>*</to_order_item>
+				</eb2c_qty_reserved>
+				<eb2c_creation_time>
+					<to_order_item>*</to_order_item>
+				</eb2c_creation_time>
+				<eb2c_display>
+					<to_order_item>*</to_order_item>
+				</eb2c_display>
+				<eb2c_delivery_window_from>
+					<to_order_item>*</to_order_item>
+				</eb2c_delivery_window_from>
+				<eb2c_delivery_window_to>
+					<to_order_item>*</to_order_item>
+				</eb2c_delivery_window_to>
+				<eb2c_shipping_window_from>
+					<to_order_item>*</to_order_item>
+				</eb2c_shipping_window_from>
+				<eb2c_shipping_window_to>
+					<to_order_item>*</to_order_item>
+				</eb2c_shipping_window_to>
+				<eb2c_ship_from_address_line1>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_line1>
+				<eb2c_ship_from_address_line2>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_line2>
+				<eb2c_ship_from_address_line3>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_line3>
+				<eb2c_ship_from_address_line4>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_line4>
+				<eb2c_ship_from_address_city>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_city>
+				<eb2c_ship_from_address_main_division>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_main_division>
+				<eb2c_ship_from_address_country_code>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_country_code>
+				<eb2c_ship_from_address_postal_code>
+					<to_order_item>*</to_order_item>
+				</eb2c_ship_from_address_postal_code>
+			</sales_convert_quote_item>
+		</fieldsets>
 		<resources>
 			<eb2cinventory_setup>
 				<setup>
@@ -74,6 +120,15 @@
 					</trueaction_eb2c_inventory_observer>
 				</observers>
 			</checkout_controller_onepage_save_shipping_method>
+			<eb2c_allocation_onepage_save_order_action_before>
+				<observers>
+					<trueaction_eb2c_inventory_observer>
+						<type>singleton</type>
+						<class>TrueAction_Eb2c_Inventory_Model_Observer</class>
+						<method>processEb2cAllocation</method>
+					</trueaction_eb2c_inventory_observer>
+				</observers>
+			</eb2c_allocation_onepage_save_order_action_before>
 		</events>
 	</frontend>
 	<default>

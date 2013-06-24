@@ -56,12 +56,13 @@
 	</global>
 	<default>
 		<eb2ctax>
-			<config>
-				<api>
-					<version>v1.10</version>
-					<region>na</region>
-				</api>
-			</config>
+			<api>
+				<namespace_uri>
+					<![CDATA[http://api.gsicommerce.com/schema/checkout/1.0]]>
+				</namespace_uri>
+				<version>v1.10</version>
+				<region>na</region>
+			</api>
 		</eb2ctax>
 	</default>
 	<phpunit>

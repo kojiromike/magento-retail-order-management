@@ -198,6 +198,15 @@ class TrueAction_Eb2c_Order_Model_CreateRequest extends Mage_Core_Model_Abstract
 
 		$orderItem->createChild('ReservationId', $item->getEb2cReservationId());
 
+		$estDeliveryDate = $orderItem->createChild('EstimatedDeliveryDate');
+
+		$deliveryWindow = $estDeliveryDate->createChild('DeliveryWindow');
+		$deliveryWindow->createChild('From', $item->getEb2cDeliveryWindowFrom());
+		$deliveryWindow->createChild('To', $item->getEb2cDeliveryWindowTo());
+
+		$shippingWindow = $estDeliveryDate->createChild('ShippingWindow');
+		$shippingWindow->createChild('From', $item->getEb2cShippingWindowFrom());
+		$shippingWindow->createChild('To', $item->getEb2cShippingWindowTo());
 
 		// Tax on the Merchandise:
 		$taxData = $merchandise->createChild('TaxData');

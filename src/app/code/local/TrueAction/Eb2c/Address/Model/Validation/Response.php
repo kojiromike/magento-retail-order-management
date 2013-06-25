@@ -7,6 +7,7 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 {
 
 	/**
+	 * Mapping of XPath expressions used to fetch various parts of the message
 	 * @var array
 	 */
 	protected static $_paths = array(
@@ -36,6 +37,8 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 
 	/**
 	 * Load the response message into the dom document.
+	 * @param string $message - the XML response message
+	 * @return TrueAction_Eb2c_Address_Model_Validation_Response $this
 	 */
 	public function setMessage($message)
 	{
@@ -45,8 +48,9 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 
 	/**
 	 * Pass through to the TrueAction_Eb2c_Address_Helper_Data::getTextValueByXPath method.
-	 * @param string $path
-	 * @param string|array
+	 * @param string $path - XPath expressions
+	 * @param DOMNode $context - when unspecified, will use the stored DOMDocument for the message - $this->_doc
+	 * @return string|array
 	 */
 	protected function _lookupPath($pathKey, DOMNode $context = null)
 	{
@@ -88,10 +92,12 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 
 	/**
 	 * Indicates if the address should be considered valid.
+	 * @return bool
 	 */
 	public function isAddressValid()
 	{
-		switch ($this->_lookupPath('result_code')) {
+		$resultCode = $this->_lookupPath('result_code');
+		switch ($resultCode) {
 			case 'V':
 				return true;
 			case 'C':
@@ -105,20 +111,20 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 			case 'N':
 				return true;
 			case 'U':
-				Mage::log('', Zend_Log::WARN);
+				Mage::log('EB2C Address Validation: Unable to contact provider', Zend_Log::WARN);
 				return true;
 			case 'T':
-				Mage::log('', Zend_Log::WARN);
+				Mage::log('EB2C Address Validation: Provider timed out', Zend_Log::WARN);
 				return true;
 			case 'P':
-				Mage::log('', Zend_Log::WARN);
+				Mage::log('EB2C Address Validation: Provider returned a system error', Zend_Log::WARN);
 				Mage::log($this->_lookupPath('provider_error'), Zend_Log::DEBUG);
 				return true;
 			case 'M':
-				Mage::log('', Zend_Log::WARN);
+				Mage::log('EB2C Address Validation: The request message was malformed or contained invalid data', Zend_Log::WARN);
 				return true;
 			default:
-				Mage::log('', Zend_Log::WARN);
+				Mage::log(sprintf('EB2C Address Validation: The response message did not contain a known result code. Result Code: %s', $resultCode), Zend_Log::WARN);
 				return true;
 		}
 	}

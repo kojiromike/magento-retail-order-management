@@ -10,3 +10,9 @@
 -
   - 1
   - <?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Result><ResultCode>M</ResultCode></Result></AddressValidationResponse>
+-
+  - 1
+  - <?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Result><ResultCode>Unknown</ResultCode></Result></AddressValidationResponse>
+-
+  - 1
+  - <?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Result></Result></AddressValidationResponse>

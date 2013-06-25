@@ -15,7 +15,6 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	{
 		parent::setUp();
 		$this->_details = $this->_getDetails();
-		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
 	}
 
 	/**

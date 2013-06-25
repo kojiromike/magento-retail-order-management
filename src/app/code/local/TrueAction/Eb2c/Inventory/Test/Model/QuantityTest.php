@@ -15,7 +15,6 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 	{
 		parent::setUp();
 		$this->_quantity = $this->_getQuantity();
-		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
 	}
 
 	/**

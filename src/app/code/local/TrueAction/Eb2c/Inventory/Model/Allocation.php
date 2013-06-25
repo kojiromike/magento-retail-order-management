@@ -244,10 +244,13 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	 *
 	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request XMLfrom
 	 *
-	 * @return void
+	 * @return string, the string xml message
 	 */
 	public function rollbackAllocation($quote)
 	{
+		// remove last allocations data from quote item
+		$this->_emptyQuoteItemAllocationDataOnRollback($quote);
+
 		$rollbackAllocationResponseMessage = '';
 		try{
 			// build request
@@ -263,6 +266,44 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 		}
 
 		return $rollbackAllocationResponseMessage;
+	}
+
+	/**
+	 * emptying any allocation data from the quote item on rollback.
+	 *
+	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request XMLfrom
+	 *
+	 * @return void
+	 */
+	protected function _emptyQuoteItemAllocationDataOnRollback($quote)
+	{
+		// update remove allocation data from all quote item
+		foreach ($quote->getAllItems() as $item) {
+			$item->setEb2cReservationId(null)
+				->setEb2cReservationExpires(null)
+				->setEb2cQtyReserved(null)
+				->save();
+		}
+	}
+
+	/**
+	 * checking if any quote item has allocation data.
+	 *
+	 * @param Mage_Sales_Model_Quote $quote, the quote to search all quote items for allocation data
+	 *
+	 * @return bool, true when allocation data is found on the quote item else false
+	 */
+	public function isRollback($quote)
+	{
+		$isRollback = false;
+		// search all quote items for allocation data
+		foreach ($quote->getAllItems() as $item) {
+			if ($item->getQty() !== $item->getEb2cQtyReserved()) {
+				$isRollback = true;
+				break;
+			}
+		}
+		return $isRollback;
 	}
 
 	/**

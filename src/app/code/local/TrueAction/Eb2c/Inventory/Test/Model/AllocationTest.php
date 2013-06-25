@@ -15,7 +15,6 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	{
 		parent::setUp();
 		$this->_allocation = $this->_getAllocation();
-		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
 	}
 
 	/**

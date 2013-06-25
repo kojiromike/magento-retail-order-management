@@ -75,6 +75,9 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 		$productId = $quoteItem->getProductId();
 		$productSku = $quoteItem->getSku();
 
+		// get quote from quote item
+		$quote = $quoteItem->getQuote();
+
 		if ($productId) {
 			// We have a valid product, let's check Eb2c Quantity
 			$availableStock = $this->_getQuantity()->requestQuantity($requestedQty, $itemId, $productSku);
@@ -83,9 +86,6 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				// then, remove item from cart, and then alert customers of the available stock number of this inventory
 				// set cart item to eb2c available qty
 				$quoteItem->setQty($availableStock);
-
-				// get quote from quote item
-				$quote = $quoteItem->getQuote();
 
 				// re-calculate totals
 				$quote->collectTotals();
@@ -150,6 +150,8 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 
 		// get the event response object
 		$response = $observer->getEvent()->getResponse();
+
+		// only allow allocation only when
 
 		// flag for failure or success allocation
 		$isAllocated = true;

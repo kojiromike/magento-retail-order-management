@@ -13,9 +13,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	 */
 	public function setUp()
 	{
-		parent::setUp();
+		$_SESSION = array();
+		$_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
+		$this->app()->getRequest()->setBaseUrl($_baseUrl);
 		$this->_observer = $this->_getObserver();
-		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
 	}
 
 	/**
@@ -257,7 +258,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->will($this->returnValue('19726')
 			);
 
-		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getId', 'getSku'));
+		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getId', 'getSku', 'save'));
 		$itemMock->expects($this->any())
 			->method('getQty')
 			->will($this->returnValue(1)
@@ -269,6 +270,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 		$itemMock->expects($this->any())
 			->method('getSku')
 			->will($this->returnValue('SKU-1234')
+			);
+		$itemMock->expects($this->any())
+			->method('save')
+			->will($this->returnValue(1)
 			);
 
 		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems', 'getShippingAddress', 'getItemById'));

@@ -15,9 +15,10 @@ class TrueAction_Eb2c_Address_Test_Model_Validation_TestResponse
 		$this->assertEquals((bool) $valid, $response->isAddressValid());
 	}
 
-	/*
+	/**
 	 * @test
 	 * @dataProvider dataProvider
+	 */
 	public function testIsValidLogged($valid, $message)
 	{
 		$response = Mage::getModel('eb2caddress/validation_response');
@@ -25,7 +26,6 @@ class TrueAction_Eb2c_Address_Test_Model_Validation_TestResponse
 		$this->assertEquals((bool) $valid, $response->isAddressValid());
 		$this->markTestIncomplete('Need to get data provider to work and test that messages are properly logged.');
 	}
-	 */
 
 	/**
 	 * Test creating a Mage_Customer_Model_Address from the response message.
@@ -56,7 +56,13 @@ class TrueAction_Eb2c_Address_Test_Model_Validation_TestResponse
 
 	/**
 	 * Test creating Mage_Customer_Model_Address objects from the response message
-	 * for each of the suggested addresses.
+	 * for each of the suggested addresses. The code in the helper/data for converting
+	 * address xml to address objects is thoroughly covered so I'm not so much concerend
+	 * in the address objects being instantiated and populated properly, hence minimal
+	 * checking here of the data in the address objects. Main concern here is:
+	 * - The number of suggested addresses returned
+	 * - That each suggested address is a proper address object
+	 *
 	 * @test
 	 */
 	public function testGettingSuggestedAddresses()

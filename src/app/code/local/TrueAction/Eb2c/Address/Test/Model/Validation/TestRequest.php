@@ -4,7 +4,7 @@
  * Test the generation of the xml request to the EB2C address validation service
  */
 
-class TrueAction_Eb2c_Address_Test_Model_Validate_TestRequest
+class TrueAction_Eb2c_Address_Test_Model_Validation_TestRequest
 	extends EcomDev_PHPUnit_Test_Case
 {
 
@@ -67,22 +67,29 @@ class TrueAction_Eb2c_Address_Test_Model_Validate_TestRequest
 
 	/**
 	 * @test
-	 * @loadFixture requestConfig
-	 */
-	public function testRequestApiUri()
-	{
-		$request = $this->_createRequest();
-		$this->markTestIncomplete('Not sure of exact spec for this functionality. Need to define where exactly each part of the API path should be coming from: class consts, module settings, core settings, etc.');
-	}
-
-	/**
-	 * @test
 	 */
 	public function testRequestMessage()
 	{
 		$request = $this->_createRequest();
 		$message = $request->getMessage();
-		$this->markTestIncomplete('Need to determine a sane way of actually testing the XML generation.');
+		$xpath = new DOMXPath($message);
+		$ns = $message->lookupNamespaceUri($message->namespaceURI);
+		$xpath->registerNamespace('x', $ns);
+
+		$maxSuggestions = $xpath
+			->query('x:AddressValidationRequest/Header/MaxAddressSuggestions', $message)
+			->item(0)
+			->textContent;
+		// test that the MaxAddressSuggestions pulled correctly from config
+		$this->assertEquals(
+			Mage::getStoreConfig('eb2caddress/general/max_suggestions'),
+			$maxSuggestions);
+		$address = $xpath
+			->query('x:AddressValidationRequest/Address', $message);
+		// make sure there is an address node - actual content tested elsewhere
+		$this->assertSame(
+			$address->length,
+			1);
 	}
 
 }

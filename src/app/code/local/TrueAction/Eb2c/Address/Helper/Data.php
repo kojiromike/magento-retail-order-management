@@ -7,11 +7,11 @@
 class TrueAction_Eb2c_Address_Helper_Data extends Mage_Core_Helper_Abstract
 {
 
-	const LINES_PATH     = 'Line1|Line2|Line3|Line4';
-	const CITY_PATH      = 'City';
-	const REGION_PATH    = 'MainDivision';
-	const COUNTRY_PATH   = 'CountryCode';
-	const POSTCODE_PATH  = 'PostalCode';
+	const LINES_PATH     = 'eb2c:Line1|eb2c:Line2|eb2c:Line3|eb2c:Line4';
+	const CITY_PATH      = 'eb2c:City';
+	const REGION_PATH    = 'eb2c:MainDivision';
+	const COUNTRY_PATH   = 'eb2c:CountryCode';
+	const POSTCODE_PATH  = 'eb2c:PostalCode';
 
 	/**
 	 * Generate the xml to represent the Eb2c PhysicalAddressType from an address

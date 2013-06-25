@@ -9,24 +9,6 @@ class TrueAction_Eb2c_Address_Model_Validation_Request
 	extends Mage_Core_Model_Abstract
 {
 
-	/**
-	 * Service URI has the following format:
-	 * https://{env}-{rr}.gsipartners.com/v{M}.{m}/stores/{storeid}/{service}/{operation}{/parameters}.{format}
-	 * - env - GSI Environment to access
-	 * - rr - Geographic region - na, eu, ap
-	 * - M - major version of the API
-	 * - m - minor version of the API
-	 * - storeid - GSI assigned store identifier
-	 * - service - API call service/subject area
-	 * - operation - specific API call of the specified service
-	 * - parameters - optionally any parameters needed by the call
-	 * - format - extension of the requested response format. Currently only xml is supported
-	 */
-	const URI_FORMAT = 'https://%s-%s.gsipartners.com/v%s.%s/stores/%s/%s/%s.%s';
-	const API_ENV = 'developer';
-	const API_REGION = 'na';
-	const API_MAJOR_VERSION = '1';
-	const API_MINOR_VERSION = '10';
 	const API_SERVICE = 'address';
 	const API_OPERATION = 'validate';
 	const API_FORMAT = 'xml';
@@ -41,17 +23,6 @@ class TrueAction_Eb2c_Address_Model_Validation_Request
 	protected $_dom;
 
 	/**
-	 * Get the GSI Store Id from core EB2C configuration
-	 * @return string
-	 */
-	protected function _configStoreId()
-	{
-		return Mage::helper('eb2ccore/config')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'))
-			->storeId;
-	}
-
-	/**
 	 * Get the number of max suggestions from the address configuration
 	 * @return string
 	 */
@@ -60,24 +31,6 @@ class TrueAction_Eb2c_Address_Model_Validation_Request
 		return Mage::helper('eb2ccore/config')
 			->addConfigModel(Mage::getSingleton('eb2caddress/config'))
 			->maxAddressSuggestions;
-	}
-
-	/**
-	 * Get the API URI for this message.
-	 * @return string
-	 * @todo simply pulling most all of this from class consts seems limiting, suspect this will need to change.
-	 */
-	public function getApiUri()
-	{
-		return sprintf(self::URI_FORMAT,
-			self::API_ENV,
-			self::API_REGION,
-			self::API_MAJOR_VERSION,
-			self::API_MINOR_VERSION,
-			$this->_configStoreId(),
-			self::API_SERVICE,
-			self::API_OPERATION,
-			self::API_FORMAT);
 	}
 
 	/**

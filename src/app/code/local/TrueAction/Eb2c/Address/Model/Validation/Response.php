@@ -15,7 +15,7 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 		'result_errors'    => 'eb2c:AddressValidationResponse/eb2c:Result/eb2c:ErrorLocations/eb2c:ErrorLocation',
 		'suggestion_count' => 'eb2c:AddressValidationResponse/eb2c:Result/eb2c:ResultSuggestionCount',
 		'suggestions'      => 'eb2c:AddressValidationResponse/eb2c:Result/eb2c:SuggestedAddresses/eb2c:SuggestedAddress',
-		'provider_error'  => 'eb2c:AddressValidationResponse/eb2c:Result/eb2c:ProviderErrorText'
+		'provider_error'   => 'eb2c:AddressValidationResponse/eb2c:Result/eb2c:ProviderErrorText'
 	);
 
 	/**
@@ -61,7 +61,10 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 	public function getOriginalAddress()
 	{
 		$xpath = new DOMXPath($this->_doc);
-		$physicalAddressElement = $xpath->query(self::$_paths['request_address'])->item(0);
+		$ns = $this->_doc->lookupNamespaceUri($this->_doc->namespaceURI);
+		$xpath->registerNamespace('eb2c', $ns);
+
+		$physicalAddressElement = $xpath->query(self::$_paths['request_address'], $this->_doc)->item(0);
 		return $this->_helper->physicalAddressXmlToAddress($physicalAddressElement);
 	}
 
@@ -72,7 +75,10 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 	public function getAddressSuggestions()
 	{
 		$xpath = new DOMXPath($this->_doc);
-		$physicalAddressElements = $xpath->query(self::$_paths['suggestions']);
+		$ns = $this->_doc->lookupNamespaceUri($this->_doc->namespaceURI);
+		$xpath->registerNamespace('eb2c', $ns);
+
+		$physicalAddressElements = $xpath->query(self::$_paths['suggestions'], $this->_doc);
 		$suggestionAddresses = array();
 		foreach ($physicalAddressElements as $physicalAddress) {
 			$suggestionAddresses[] = $this->_helper->physicalAddressXmlToAddress($physicalAddress);

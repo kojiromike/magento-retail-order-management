@@ -93,4 +93,69 @@ class TrueAction_Eb2c_Address_Test_Model_Validation_TestResponse
 		$this->assertTrue($second instanceof Mage_Customer_Model_Address);
 		$this->assertSame($second->getRegionId(), 51);
 	}
+
+	/**
+	 * When there are multiple suggestions, and the supplied is not considered valid,
+	 * there should be no valid address, hence getValidAddress should return null.
+	 * @test
+	 */
+	public function testNoValidAddress()
+	{
+		$response = Mage::getModel('eb2caddress/validation_response');
+		/* Following in suggested addresses:
+		 * Suggestion 1:
+		 *   Line1 = 1671 S Clark Street Rd
+		 *   City = Foo
+		 *   MainDivision = NY = 43
+		 *   CountryCode = US
+		 *   PostalCode = 13021-9523
+		 * Suggestion 2:
+		 *   Line1 = 1671 N Clark Street Rd
+		 * City = Bar
+		 * MainDivision = PA = 51
+		 * CountryCode = US
+		 * PostalCode = 19406-1234
+		 */
+		$response->setMessage('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Result><ResultCode>C</ResultCode><ResultSuggestionCount>2</ResultSuggestionCount><SuggestedAddresses><SuggestedAddress><Line1>1671 S Clark Street Rd</Line1><City>Foo</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13021-9523</PostalCode><FormattedAddress>1671 S Clark Street Rd\nAuburn NY 13021-9523\nUS</FormattedAddress><ErrorLocations><ErrorLocation>Line1</ErrorLocation><ErrorLocation>MainDivision</ErrorLocation><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations></SuggestedAddress><SuggestedAddress><Line1>1671 N Clark Street Rd</Line1><City>Bar</City><MainDivision>PA</MainDivision><CountryCode>US</CountryCode><PostalCode>19406-1234</PostalCode><FormattedAddress>1671 N Clark Street Rd\nAuburn NY 13021-9511\nUS</FormattedAddress><ErrorLocations><ErrorLocation>Line1</ErrorLocation><ErrorLocation>City</ErrorLocation><ErrorLocation>MainDivision</ErrorLocation><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations></SuggestedAddress></SuggestedAddresses></Result></AddressValidationResponse>');
+		$this->assertNull($response->getValidAddress());
+	}
+
+	/**
+	 * When there are no suggestions and the original address is considered valid,
+	 * the valid address should be the same as the original address.
+	 * @test
+	 */
+	public function testOriginalAddressValid()
+	{
+		$response = Mage::getModel('eb2caddress/validation_response');
+		/* Response code is V and there are no suggestions.
+		 * Original address should be the same as the original address.
+		 */
+		$response->setMessage('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Header><MaxAddressSuggestions>5</MaxAddressSuggestions></Header><RequestAddress><Line1>1671 Clark Street Rd</Line1><Line2>Omnicare Building</Line2><City>Auburn</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13025</PostalCode></RequestAddress><Result><ResultCode>V</ResultCode><ProviderResultCode>C</ProviderResultCode><ProviderName>Address Doctor</ProviderName></Result></AddressValidationResponse>');
+		$origAddress = $response->getOriginalAddress();
+		$this->assertSame(
+			$response->getOriginalAddress(),
+			$response->getValidAddress()
+		);
+	}
+
+	/**
+	 * When there is only one suggestion, it should be considered the valid address.
+	 * @test
+	 */
+	public function testOneSuggestedAddressIsValid()
+	{
+		$response = Mage::getModel('eb2caddress/validation_response');
+		/* Following in suggested addresses:
+		 * Suggestion 1:
+		 *   Line1 = 1671 S Clark Street Rd
+		 *   City = Foo
+		 *   MainDivision = NY = 43
+		 *   CountryCode = US
+		 *   PostalCode = 13021-9523
+		 */
+		$response->setMessage('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Result><ResultCode>C</ResultCode><ResultSuggestionCount>1</ResultSuggestionCount><SuggestedAddresses><SuggestedAddress><Line1>1671 S Clark Street Rd</Line1><City>Foo</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13021-9523</PostalCode><FormattedAddress>1671 S Clark Street Rd\nAuburn NY 13021-9523\nUS</FormattedAddress><ErrorLocations><ErrorLocation>Line1</ErrorLocation><ErrorLocation>MainDivision</ErrorLocation><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations></SuggestedAddress></SuggestedAddresses></Result></AddressValidationResponse>');
+		$suggestions = $response->getAddressSuggestions();
+		$this->assertSame($response->getValidAddress(), $suggestions[0]);
+	}
 }

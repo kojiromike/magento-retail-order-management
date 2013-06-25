@@ -43,6 +43,8 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 	public function setMessage($message)
 	{
 		$this->_doc->loadXML($message);
+		// new message means any stored data on this instance is probably invalid, so nuke it
+		$this->unsetData();
 		return $this;
 	}
 
@@ -54,8 +56,28 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 	 */
 	protected function _lookupPath($pathKey, DOMNode $context = null)
 	{
-		return $this->_helper->
-			getTextValueByXPath(self::$_paths[$pathKey], $context ?: $this->_doc);
+		return $this->_helper
+			->getTextValueByXPath(self::$_paths[$pathKey], $context ?: $this->_doc);
+	}
+
+	/**
+	 * When there is a valid address in the response, return it. Otherwise
+	 * this should return null, as a "valid address" does not exist in the response.
+	 * @return Mage_Customer_Model_Address
+	 */
+	public function getValidAddress()
+	{
+		if (!$this->hasData('valid_address')) {
+			if ($this->isAddressValid()) {
+				if ((int) $this->_lookupPath('suggestion_count') === 1) {
+					$suggestions = $this->getAddressSuggestions();
+					$this->setData('valid_address', $suggestions[0]);
+				} else {
+					$this->setData('valid_address', $this->getOriginalAddress());
+				}
+			}
+		}
+		return $this->getData('valid_address');
 	}
 
 	/**
@@ -64,12 +86,23 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 	 */
 	public function getOriginalAddress()
 	{
-		$xpath = new DOMXPath($this->_doc);
-		$ns = $this->_doc->lookupNamespaceUri($this->_doc->namespaceURI);
-		$xpath->registerNamespace('eb2c', $ns);
+		if (!$this->hasData('original_address')) {
+			$xpath = new DOMXPath($this->_doc);
+			$xpath->registerNamespace(
+				'eb2c',
+				$this->_doc->lookupNamespaceUri($this->_doc->namespaceURI)
+			);
 
-		$physicalAddressElement = $xpath->query(self::$_paths['request_address'], $this->_doc)->item(0);
-		return $this->_helper->physicalAddressXmlToAddress($physicalAddressElement);
+			$physicalAddressElement = $xpath->query(
+				self::$_paths['request_address'],
+				$this->_doc)->item(0);
+			$this->setData(
+				'original_address',
+				$this->_helper->physicalAddressXmlToAddress($physicalAddressElement)
+					->setHasBeenValidated(true)
+			);
+		}
+		return $this->getData('original_address');
 	}
 
 	/**
@@ -78,16 +111,23 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 	 */
 	public function getAddressSuggestions()
 	{
-		$xpath = new DOMXPath($this->_doc);
-		$ns = $this->_doc->lookupNamespaceUri($this->_doc->namespaceURI);
-		$xpath->registerNamespace('eb2c', $ns);
+		if (!$this->hasData('address_suggestions')) {
+			$xpath = new DOMXPath($this->_doc);
+			$xpath->registerNamespace(
+				'eb2c',
+				$this->_doc->lookupNamespaceUri($this->_doc->namespaceURI)
+			);
 
-		$physicalAddressElements = $xpath->query(self::$_paths['suggestions'], $this->_doc);
-		$suggestionAddresses = array();
-		foreach ($physicalAddressElements as $physicalAddress) {
-			$suggestionAddresses[] = $this->_helper->physicalAddressXmlToAddress($physicalAddress);
+			$physicalAddressElements = $xpath->query(self::$_paths['suggestions'], $this->_doc);
+			$suggestionAddresses = array();
+			foreach ($physicalAddressElements as $physicalAddress) {
+				$suggestionAddresses[] = $this->_helper
+					->physicalAddressXmlToAddress($physicalAddress)
+					->setHasBeenValidated(true);
+			}
+			$this->setData('address_suggestions', $suggestionAddresses);
 		}
-		return $suggestionAddresses;
+		return $this->getData('address_suggestions');
 	}
 
 	/**
@@ -96,37 +136,51 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 	 */
 	public function isAddressValid()
 	{
-		$resultCode = $this->_lookupPath('result_code');
-		switch ($resultCode) {
-			case 'V':
-				return true;
-			case 'C':
-				if ((int) $this->_lookupPath('suggestion_count') <= 1) {
-					return true;
-				} else {
-					return false;
-				}
-			case 'K':
-				return false;
-			case 'N':
-				return true;
-			case 'U':
-				Mage::log('EB2C Address Validation: Unable to contact provider', Zend_Log::WARN);
-				return true;
-			case 'T':
-				Mage::log('EB2C Address Validation: Provider timed out', Zend_Log::WARN);
-				return true;
-			case 'P':
-				Mage::log('EB2C Address Validation: Provider returned a system error', Zend_Log::WARN);
-				Mage::log($this->_lookupPath('provider_error'), Zend_Log::DEBUG);
-				return true;
-			case 'M':
-				Mage::log('EB2C Address Validation: The request message was malformed or contained invalid data', Zend_Log::WARN);
-				return true;
-			default:
-				Mage::log(sprintf('EB2C Address Validation: The response message did not contain a known result code. Result Code: %s', $resultCode), Zend_Log::WARN);
-				return true;
+		if (!$this->hasData('is_valid')) {
+			$resultCode = $this->_lookupPath('result_code');
+			$validity;
+			switch ($resultCode) {
+				case 'V':
+					$validity = true;
+					break;
+				case 'C':
+					if ((int) $this->_lookupPath('suggestion_count') <= 1) {
+						$validity = true;
+					} else {
+						$validity = false;
+					}
+					break;
+				case 'K':
+					$validity = false;
+					break;
+				case 'N':
+					$validity = true;
+					break;
+				case 'U':
+					Mage::log('EB2C Address Validation: Unable to contact provider', Zend_Log::WARN);
+					$validity = true;
+					break;
+				case 'T':
+					Mage::log('EB2C Address Validation: Provider timed out', Zend_Log::WARN);
+					$validity = true;
+					break;
+				case 'P':
+					Mage::log('EB2C Address Validation: Provider returned a system error', Zend_Log::WARN);
+					Mage::log($this->_lookupPath('provider_error'), Zend_Log::DEBUG);
+					$validity = true;
+					break;
+				case 'M':
+					Mage::log('EB2C Address Validation: The request message was malformed or contained invalid data', Zend_Log::WARN);
+					$validity = true;
+					break;
+				default:
+					Mage::log(sprintf('EB2C Address Validation: The response message did not contain a known result code. Result Code: %s', $resultCode), Zend_Log::WARN);
+					$validity = true;
+					break;
+			}
+			$this->setData('is_valid', $validity);
 		}
+		return $this->getData('is_valid');
 	}
 
 }

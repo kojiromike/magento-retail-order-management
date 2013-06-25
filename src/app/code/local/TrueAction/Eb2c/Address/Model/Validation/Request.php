@@ -2,8 +2,8 @@
 
 /**
  * Generate the xml request to the AddressValidation service
- * @method Mage_Sales_Model_Quote getQuote
- * @method TrueAction_Eb2c_Address_Model_Validation_Request setQuote(Mage_Sales_Model_Quote $quote)
+ * @method Mage_Customer_Model_Address_Abstract getQuote
+ * @method TrueAction_Eb2c_Address_Model_Validation_Request setADdress(Mage_Customer_Model_Address_Abstract $address)
  */
 class TrueAction_Eb2c_Address_Model_Validation_Request
 	extends Mage_Core_Model_Abstract

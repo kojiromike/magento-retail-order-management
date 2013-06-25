@@ -312,9 +312,10 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$shipping = $orderItem->setNode('Pricing/Shipping')
 			->addChild('Amount', $address->getShippingAmount());
 		$taxClass = $this->_checkLength(
+			// TODO: create a helper function for this value.
 			Mage::getStoreConfig(
 				Mage_Tax_Model_Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-				$this->getStore()->getId()
+				$this->getStore()
 			),
 			1, 40
 		);

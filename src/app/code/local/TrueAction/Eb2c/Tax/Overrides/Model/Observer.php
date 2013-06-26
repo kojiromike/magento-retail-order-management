@@ -54,17 +54,29 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer extends Mage_Tax_Model_Observ
         return $this;
     }
 
-	protected function _fetchTaxDutyInfo($quote)
+    /**
+     * attempt to send a request for taxes.
+     * @param  Mage_Sales_Model_Quote $quote
+     */
+	protected function _fetchTaxDutyInfo(Mage_Sales_Model_Quote $quote)
 	{
-		$request = Mage::helper('tax')->getCalculator()
-			->getRateRequest(
-				$quote->getBillingAddress(),
-				$quote->getShippingAddress()
+		try {
+			$helper = Mage::helper('tax');
+			$calc = $helper->getCalculator();
+			$request = $calc->getTaxRequest($quote);
+			if ($request && $request->isValid()) {
+				Mage::log(
+					'sending taxduty request for quote ' . $quote->getId(),
+					Zend_Log::DEBUG
+				);
+				$response = $helper->sendRequest($request);
+				$calc->setTaxResponse($response);
+			}
+		} catch (Exception $e) {
+			Mage::log(
+				'Unable to send TaxDutyQuote request: ' . $e->getMessage(),
+				Zend_Log::WARN
 			);
-		if ($request->isValid()) {
-			$response = Mage::helper('tax')->sendRequest($request);
-			Mage::helper('tax')->getCalculator()
-				->setResponse($response);
 		}
 	}
 }

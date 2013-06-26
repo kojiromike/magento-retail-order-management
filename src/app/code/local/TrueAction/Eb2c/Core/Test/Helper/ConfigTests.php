@@ -11,6 +11,13 @@
 class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_Case
 {
 
+	// make sure that any changes make to the config helper's store are reset back to the default
+	public function tearDown()
+	{
+		Mage::helper('eb2ccore/config')->setStore(null);
+		parent::tearDown();
+	}
+
 	/**
 	 * Create a stub config model to populate the config helper with keys/paths.
 	 */

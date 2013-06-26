@@ -30,26 +30,27 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
         $_SESSION = array();
         $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
         $this->app()->getRequest()->setBaseUrl($_baseUrl);
-        $this->itemResults = self::$cls->getProperty('_itemResults');
-        $this->itemResults->setAccessible(true);
+		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(2);
+		$this->request = Mage::getModel('eb2ctax/request', array(
+			'quote' => $quote
+		));
 	}
 
 	/**
 	 * @test
-	 * @loadFixture base.yaml
-	 * @loadFixture testGetRateRequest.yaml
 	 */
-	public function testConstruction()
+	public function testGetResponseForItem()
 	{
-		$this->markTestSkipped('not done yet');
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(2);
-		$this->request = new TrueAction_Eb2c_Tax_Model_Request(array(
-			'quote' => $quote
-		));
-		$response = new TrueAction_Eb2c_Tax_Model_Response(array(
+		$response = Mage::getModel('eb2ctax/response', array(
 			'xml' => self::$_xml,
 			'request' => $this->request
 		));
-		$this->assertSame(2, count($this->itemResults->getValue($response)));
+		$item = $this->getModelMock('sales/quote_item', array('getSku'));
+		$item->expects($this->any())
+			->method('getSku')
+			->will($this->returnValue('gc_virtual1'));
+		$responseItem = $response->getResponseForItem($item);
+		$this->assertNotNull($responseItem);
+		$this->assertSame(3, count($responseItem->getTaxQuotes()));
 	}
 }

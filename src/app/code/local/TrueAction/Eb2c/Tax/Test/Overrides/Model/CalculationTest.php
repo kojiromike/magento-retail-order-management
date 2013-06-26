@@ -39,12 +39,6 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_P
 	private $destinations = null;
 	private $shipGroups   = null;
 
-	public static function setUpBeforeClass()
-	{
-		self::$xsdFile = dirname(__FILE__) .
-			'/CalculationTest/fixtures/TaxDutyFee-QuoteRequest-1.0.xsd';
-	}
-
 	public function setUp()
 	{
         parent::setUp();

@@ -68,14 +68,16 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 	public function getValidAddress()
 	{
 		if (!$this->hasData('valid_address')) {
+			$validAddress = null;
 			if ($this->isAddressValid()) {
 				if ((int) $this->_lookupPath('suggestion_count') === 1) {
 					$suggestions = $this->getAddressSuggestions();
-					$this->setData('valid_address', $suggestions[0]);
+					$validAddress = $suggestions[0];
 				} else {
-					$this->setData('valid_address', $this->getOriginalAddress());
+					$validAddress = $this->getOriginalAddress();
 				}
 			}
+			$this->setData('valid_address', $validAddress);
 		}
 		return $this->getData('valid_address');
 	}
@@ -103,6 +105,19 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 			);
 		}
 		return $this->getData('original_address');
+	}
+
+	/**
+	 * Does the response message include suggestions?
+	 * @return boolean
+	 */
+	public function hasAddressSuggestions()
+	{
+		if (!$this->hasData('has_address_suggestions')) {
+			$suggestionCount = (int) $this->_lookupPath('suggestion_count');
+			$this->setData('has_address_suggestions', ($suggestionCount > 1));
+		}
+		return $this->getData('has_address_suggestions');
 	}
 
 	/**
@@ -144,10 +159,10 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 					$validity = true;
 					break;
 				case 'C':
-					if ((int) $this->_lookupPath('suggestion_count') <= 1) {
-						$validity = true;
-					} else {
+					if ($this->hasAddressSuggestions()) {
 						$validity = false;
+					} else {
+						$validity = true;
 					}
 					break;
 				case 'K':

@@ -4,24 +4,29 @@ class TrueAction_Eb2c_Address_Test_Model_TestValidator
 	extends EcomDev_PHPUnit_Test_Case
 {
 
-	protected function _createAddress()
+	public function setUp()
 	{
-		$addr = Mage::getModel('customer/address')
-			->setStreet('123 Main St')
-			->setCity('Foo')
-			->setCountryId('US')
-			->setRegionId(51)
-			->setPostcode('19406');
+		parent::setUp();
+		$this->_mockCoreHelper();
+		$this->_mockCustomerSession();
+	}
+
+	/**
+	 * Create an address object to pass off to the validator.
+	 * @return Mage_Customer_Model_Address
+	 */
+	protected function _createAddress($fields = array())
+	{
+		$addr = Mage::getModel('customer/address');
+		$addr->setData($fields);
 		return $addr;
 	}
 
 	/**
 	 * Replace the eb2ccore helper/data class with a mock.
-	 * $message will be returned as the response message from eb2c in the
-	 * callApi method.
 	 * @return PHPUnit_Framework_MockObject_MockObject - the mock helper
 	 */
-	protected function _mockCoreHelper($message)
+	protected function _mockCoreHelper()
 	{
 		$mockCoreHelper = $this->getHelperMock(
 			'eb2ccore/data',
@@ -29,7 +34,7 @@ class TrueAction_Eb2c_Address_Test_Model_TestValidator
 		);
 		$mockCoreHelper->expects($this->any())
 			->method('callApi')
-			->will($this->returnValue($message));
+			->will($this->returnValue('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"></AddressValidationResponse>'));
 		$mockCoreHelper->expects($this->any())
 			->method('apiUri')
 			->will($this->returnValue('https://does.not.matter/as/this/isnot/actually/used.xml'));
@@ -55,32 +60,84 @@ class TrueAction_Eb2c_Address_Test_Model_TestValidator
 	}
 
 	/**
+	 * Replace the eb2caddress/validation_response model with a mock
+	 * @return PHPUnit_Framework_MockObject_MockObject - the mock respose model
+	 */
+	protected function _mockValidationResponse(
+		$isAddressValid = false,
+		$hasSuggestions = false,
+		$originalAddress = null,
+		$validAddress = null,
+		$addressSuggestions = array()
+	) {
+		$respMock = $this->getModelMock('eb2caddress/validation_response', array(
+			'setMessage', 'isAddressValid', 'getValidAddress', 'getOriginalAddress',
+			'hasSuggestions', 'getAddressSuggestions'));
+		$respMock->expects($this->any())
+			->method('isAddressValid')
+			->will($this->returnValue($isAddressValid));
+		$respMock->expects($this->any())
+			->method('hasSuggestions')
+			->will($this->returnValue($hasSuggestions));
+		$respMock->expects($this->any())
+			->method('getOriginalAddress')
+			->will($this->returnValue($originalAddress));
+		$respMock->expects($this->any())
+			->method('getValidAddress')
+			->will($this->returnValue($validAddress));
+		$respMock->expects($this->any())
+			->method('getAddressSuggestions')
+			->will($this->returnValue($addressSuggestions));
+		$respMock->expects($this->any())
+			->method('setMessage')
+			->will($this->returnValue($respMock));
+		$this->replaceByMock('model', 'eb2caddress/validation_response', $respMock);
+	}
+
+	/**
+	 * Get the session model used by the validator model.
+	 * @return Mage_Customer_Model_Session
+	 */
+	protected function _session()
+	{
+		return Mage::getSingleton('customer/session');
+	}
+
+	/**
 	 * Test validation when the response indicates the address is correct
 	 * and there are no suggestions or changes.
 	 * @test
 	 */
 	public function testValidateAddressVerified()
 	{
-		/* Simulated response message:
-		 * ResultCode - V
-		 * Request Address:
-		 * Line1 - 1671 Clark Street Rd
-		 * City - Auburn
-		 * MainDivision - NY
-		 * CountryCode - US
-		 * PostalCode - 13021-9523
-		 */
-		$mockHelper = $this->_mockCoreHelper('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Header><MaxAddressSuggestions>5</MaxAddressSuggestions></Header><RequestAddress><Line1>1671 Clark Street Rd</Line1><City>Auburn</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13021-9523</PostalCode><FormattedAddress>1671 Clark Street Rd\nAuburn NY 13021-9523\nUS</FormattedAddress></RequestAddress><Result><ResultCode>V</ResultCode><ProviderResultCode>C</ProviderResultCode><ProviderName>Address Doctor</ProviderName><ResultSuggestionCount>0</ResultSuggestionCount></Result></AddressValidationResponse>');
-		$mockSession = $this->_mockCustomerSession();
+		// address to feed to the validator
+		$address = $this->_createAddress(array(
+			'street' => '1671 Clark Street Rd',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13021-9523',
+			'has_been_validated' => true,
+		));
+		// original address from the response model
+		$origAddress = $this->_createAddress(array(
+			'street' => '1671 Clark Street Rd',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13021',
+		));
+
+		$mockResponse = $this->_mockValidationResponse(true, false, $address, $address);
 		$validator = Mage::getModel('eb2caddress/validator');
-		$address = $this->_createAddress();
-		$validator->validateAddress($address);
-		$this->assertTrue($address->getHasBeenValidated());
-		$this->assertSame($address->getStreet1(), '1671 Clark Street Rd');
-		$this->assertSame($address->getCity(), 'Auburn');
-		$this->assertSame($address->getRegionCode(), 'NY');
-		$this->assertSame($address->getCountryId(), 'US');
-		$this->assertSame($address->getPostcode(), '13021-9523');
+		$errorMessage = $validator->validateAddress($origAddress);
+		$this->assertNull($errorMessage);
+		$this->assertTrue($origAddress->getHasBeenValidated());
+		$this->assertSame($origAddress->getStreet1(), '1671 Clark Street Rd');
+		$this->assertSame($origAddress->getCity(), 'Auburn');
+		$this->assertSame($origAddress->getRegionCode(), 'NY');
+		$this->assertSame($origAddress->getCountryId(), 'US');
+		$this->assertSame($origAddress->getPostcode(), '13021-9523');
 	}
 
 	/**
@@ -89,6 +146,59 @@ class TrueAction_Eb2c_Address_Test_Model_TestValidator
 	 * @test
 	 */
 	public function testValidateAddressMultiSuggestions()
+	{
+		// address to feed to validator
+		$address = $this->_createAddress(array(
+			'street' => '1671 Clark Street Rd',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13025',
+		));
+		// original address from response model
+		$origAddress = $this->_createAddress(array(
+			'street' => '1671 Clark Street Rd',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13025',
+			'has_been_validated' => true,
+		));
+		// suggestions from the response model
+		$suggestions = array(
+			$this->_createAddress(array(
+				'street' => 'Suggestion 1 Line 1',
+				'city' => 'Suggestion 1 City',
+				'region_id' => 'NY',
+				'country_id' => 'US',
+				'postcode' => '13021-9876',
+				'has_been_validated' => true,
+			)),
+			$this->_createAddress(array(
+				'street' => '1671 W Clark Street Rd',
+				'city' => 'Auburn',
+				'region_id' => 'NY',
+				'country_id' => 'US',
+				'postcode' => '13021-1234',
+				'has_been_validated' => true,
+			)),
+		);
+		$mockResponse = $this->_mockValidationResponse(false, true, $origAddress, null, $suggestions);
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$errorMessage = $validator->validateAddress($address);
+
+		$this->assertTrue($address->getHasBeenValidated());
+		// when there are suggestions, main address should not be changed
+		$this->assertSame($address->getStreet1(), '1671 Clark Street Rd');
+		$this->assertSame($errorMessage, TrueAction_Eb2c_Address_Model_Validator::SUGGESTIONS_ERROR_MESSAGE);
+	}
+
+	/**
+	 * Test the session interactions of the validation.
+	 * @test
+	 */
+	public function testSessionInteractions()
 	{
 		/* Simulated response message
 		 * Result Code - C
@@ -112,26 +222,182 @@ class TrueAction_Eb2c_Address_Test_Model_TestValidator
 		 * -  MainDivision - NY
 		 * -  CountryCode - US
 		 * -  PostalCode - 13021-1234
-		 *
 		 */
-		$mockHelper = $this->_mockCoreHelper('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Header><MaxAddressSuggestions>5</MaxAddressSuggestions></Header><RequestAddress><Line1>1671 Clark Street Rd</Line1><City>Auburn</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13025</PostalCode></RequestAddress><Result><ResultCode>C</ResultCode><ProviderResultCode>C</ProviderResultCode><ProviderName>Address Doctor</ProviderName><ErrorLocations><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations><ResultSuggestionCount>1</ResultSuggestionCount><SuggestedAddresses><SuggestedAddress><Line1>Suggestion 1 Line 1</Line1><City>Suggestion 1 City</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13021-9876</PostalCode><FormattedAddress>Do Not Care</FormattedAddress><ErrorLocations><ErrorLocation>Line1</ErrorLocation><ErrorLocation>City</ErrorLocation><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations></SuggestedAddress><SuggestedAddress><Line1>1671 W Clark Street Rd</Line1><City>Auburn</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13021-1234</PostalCode><FormattedAddress>Do Not Care</FormattedAddress><ErrorLocations><ErrorLocation>Line1</ErrorLocation><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations></SuggestedAddress></SuggestedAddresses></Result></AddressValidationResponse>');
-		$mockSession = $this->_mockCustomerSession();
+
+		// address to feed to validator
+		$address = $this->_createAddress(array(
+			'street' => '1671 Clark Street Rd',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13025',
+		));
+		// original address from response model
+		$origAddress = $this->_createAddress(array(
+			'street' => '1671 Clark Street Rd',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13025',
+			'has_been_validated' => true,
+		));
+		// suggestions from the response model
+		$suggestions = array(
+			$this->_createAddress(array(
+				'street' => 'Suggestion 1 Line 1',
+				'city' => 'Suggestion 1 City',
+				'region_id' => 'NY',
+				'country_id' => 'US',
+				'postcode' => '13021-9876',
+				'has_been_validated' => true,
+			)),
+			$this->_createAddress(array(
+				'street' => '1671 W Clark Street Rd',
+				'city' => 'Auburn',
+				'region_id' => 'NY',
+				'country_id' => 'US',
+				'postcode' => '13021-1234',
+				'has_been_validated' => true,
+			)),
+		);
+		$mockResponse = $this->_mockValidationResponse(false, true, $origAddress, null, $suggestions);
 
 		$validator = Mage::getModel('eb2caddress/validator');
-		$address = $this->_createAddress();
 		$validator->validateAddress($address);
-		$this->assertTrue($address->getHasBeenValidated());
-		// when there are suggestions, main address should not be changed
-		$this->assertSame($address->getStreet1(), '1671 Clark Street Rd');
-		$suggestions = $mockSession->getAddressSuggestions();
-		$this->assertSame(count($suggestions), 2);
-		$this->assertTrue($suggestions[0] instanceof Mage_Customer_Model_Address_Abstract);
-		$this->assertSame($suggestions[0]->getStreet1(), 'Suggestion 1 Line 1');
-		$this->assertTrue($suggestions[0]->getHasBeenValidated());
 
-		$this->assertTrue($suggestions[1] instanceof Mage_Customer_Model_Address_Abstract);
-		$this->assertSame($suggestions[1]->getStreet1(), '1671 W Clark Street Rd');
-		$this->assertTrue($suggestions[1]->getHasBeenValidated());
+		$mockSession = $this->_session();
+		$this->assertTrue($mockSession->hasData('address_validation_addresses'));
+		$this->assertSame(
+			$mockSession->getData('address_validation_addresses'),
+			$validator->getAddressCollection()
+		);
+		$this->assertArrayHasKey('original', $validator->getAddressCollection());
+		$this->assertArrayHasKey('suggestion_0', $validator->getAddressCollection());
+		$this->assertArrayHasKey('suggestion_1', $validator->getAddressCollection());
+
+		$this->assertSame('Suggestion 1 Line 1', $validator->getValidatedAddress('suggestion_0')->getStreet1());
+		$this->assertSame('13021-1234', $validator->getValidatedAddress('suggestion_1')->getPostcode());
+	}
+
+	/**
+	 * Test the removal of session values.
+	 * @test
+	 */
+	public function testCleaningOfSession()
+	{
+		$mockSession = $this->_session();
+		$validator = Mage::getModel('eb2caddress/validator');
+		$staleData = "STALE_DATA";
+		$mockSession->setAddressValidationAddresses($staleData);
+		$this->assertNotNull($mockSession->getAddressValidationAddresses());
+		$validator->clearSessionAddresses();
+		$this->assertNull($mockSession->getAddressValidationAddresses());
+	}
+
+	/**
+	 * Asking the validator model to validate a new address should clear out
+	 * any values it has populated in the session.
+	 * @test
+	 */
+	public function ensureSessionClearedOnNewValidation()
+	{
+		// address to feed to validator
+		$address = $this->_createAddress(array(
+			'street' => '1671 Clark Street Rd',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13025',
+		));
+		// original address from response model
+		$origAddress = $this->_createAddress(array(
+			'street' => '1671 Clark Street Rd',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13025',
+			'has_been_validated' => true,
+		));
+		// suggestions from the response model
+		$suggestions = array(
+			$this->_createAddress(array(
+				'street' => 'Suggestion 1 Line 1',
+				'city' => 'Suggestion 1 City',
+				'region_id' => 'NY',
+				'country_id' => 'US',
+				'postcode' => '13021-9876',
+				'has_been_validated' => true,
+			)),
+			$this->_createAddress(array(
+				'street' => '1671 W Clark Street Rd',
+				'city' => 'Auburn',
+				'region_id' => 'NY',
+				'country_id' => 'US',
+				'postcode' => '13021-1234',
+				'has_been_validated' => true,
+			)),
+		);
+		$mockResponse = $this->_mockValidationResponse(false, true, $origAddress, null, $suggestions);
+
+		// set up some stale data in the session that should be overwritten by the validator model
+		$staleSessionData = 'STALE_DATA';
+		$sessionKey = TrueAction_Eb2c_Address_Model_Validator::SESSION_KEY;
+		$mockSession = $this->_session();
+		$mockSession->setData($sessionKey, $staleSessionData);
+		// make sure it has been set
+		$this->assertSame($staleSessionData, $mockSession->getData($sessionKey));
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$validator->validateAddress($address);
+
+		$this->assertNotEquals(
+			$staleSessionData,
+			$mockSession->getData($sessionKey)
+		);
+	}
+
+	/**
+	 * This is a very odd scenario and really should never happen.
+	 * @test
+	 */
+	public function errorMessageWithInvalidMessageAndNoSuggestions()
+	{
+		// address to feed to validator
+		$address = $this->_createAddress(array(
+			'street' => '1671 Clark Street Rd',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13025',
+		));
+		// original address from response model
+		$origAddress = $this->_createAddress(array(
+			'street' => '1671 Clark Street Rd',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13025',
+			'has_been_validated' => true,
+		));
+		$mockResponse = $this->_mockValidationResponse(false, false, $origAddress, null);
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$errorMessage = $validator->validateAddress($address);
+
+		$this->assertSame(
+			$errorMessage,
+			TrueAction_Eb2c_Address_Model_Validator::NO_SUGGESTIONS_ERROR_MESSAGE
+		);
+	}
+
+	/**
+	 * Trying to get a validated address with an unknown key will return null
+	 * @test
+	 */
+	public function gettingValidatedAddressByUnknownKey()
+	{
+		$validator = Mage::getModel('eb2caddress/validator');
+		$this->assertNull($validator->getValidatedAddress('dont_know_about_this'));
 	}
 
 }

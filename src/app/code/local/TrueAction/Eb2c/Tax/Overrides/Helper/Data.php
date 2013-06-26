@@ -4,30 +4,15 @@
  */
 class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 {
-	protected static $_apiUrlFormat = 'https://%s.%s.gsipartners.com/%s/stores/%s/%s/%s.%s';
-	protected $_env                 = 'developer';
-	protected $_region              = 'na';
-	protected $_version             = 'v1.10';
 	protected $_service             = 'taxes';
 	protected $_operation           = 'quote';
 	protected $_responseFormat      = 'xml';
 
-	/**
-	 * returns the completed uri.
-	 * @return string
-	 */
-	public function getApiUrl($store = null)
+	protected $_coreHelper          = null;
+
+	public function __construct()
 	{
-		return sprintf(
-			self::$_apiUrlFormat,
-			$this->_env,
-			$this->_region,
-			$this->_version,
-			$this->getStoreId(),
-			$this->_service,
-			$this->_operation,
-			$this->_responseFormat
-		);
+		$this->_coreHelper = Mage::helper('eb2ccore');
 	}
 
 	/**
@@ -37,19 +22,29 @@ class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 	 */
 	public function sendRequest(TrueAction_Eb2c_Tax_Model_Request $request, $store = null)
 	{
-		$response = Mage::helper('eb2ccore')->apiCall(
+		$response = $this->_coreHelper->callApi(
 			$request->getDocument(),
-			$this->getApiUrl(),
+			$this->_coreHelper->apiUri(
+				$this->_service,
+				$this->_operation,
+				array(),
+				$this->_responseFormat
+			),
 			$store
 		);
-		return new TrueAction_Eb2c_Tax_Model_Response(array(
+		return Mage::getModel('eb2ctax/response', array(
 			'xml' => $response,
 			'request' => $request
 		));
 	}
 
+	/**
+	 * get the default namespace
+	 * @param  Mage_Core_Model_Store $store
+	 * @return int
+	 */
 	public function getNamespaceUri($store = null)
 	{
-		return Mage::getStoreConfig('eb2ctax/config/api/namspace_uri', $store = null);
+		return Mage::getStoreConfig('eb2ctax/api/namspace_uri', $store);
 	}
 }

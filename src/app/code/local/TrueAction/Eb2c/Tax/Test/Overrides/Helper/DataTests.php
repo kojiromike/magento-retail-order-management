@@ -22,4 +22,11 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Helper_DataTests extends EcomDev_PHPUni
 			Mage::helper('tax')->getNamespaceUri()
 		);
 	}
+
+	public function testSendRequest()
+	{
+		$this->markTestIncomplete();
+		$request  = $this->getModelMock('TrueAction_Eb2c_Tax_Model_Request');
+		$response = $this->getModelMock('TrueAction_Eb2c_Tax_Model_Response');
+	}
 }

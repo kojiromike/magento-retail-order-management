@@ -158,4 +158,49 @@ class TrueAction_Eb2c_Address_Test_Model_Validation_TestResponse
 		$suggestions = $response->getAddressSuggestions();
 		$this->assertSame($response->getValidAddress(), $suggestions[0]);
 	}
+
+	/**
+	 * When there are more than one suggestion in the response message,
+	 * should accurately detect that there are suggestions.
+	 * @test
+	 */
+	public function testDetectingSuggestionsInMessage()
+	{
+		$response = Mage::getModel('eb2caddress/validation_response');
+		/**
+		 * Response message includes 2 suggestions.
+		 */
+		$response->setMessage('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Result><ResultCode>C</ResultCode><ResultSuggestionCount>2</ResultSuggestionCount><SuggestedAddresses><SuggestedAddress><Line1>1671 S Clark Street Rd</Line1><City>Foo</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13021-9523</PostalCode><FormattedAddress>1671 S Clark Street Rd\nAuburn NY 13021-9523\nUS</FormattedAddress><ErrorLocations><ErrorLocation>Line1</ErrorLocation><ErrorLocation>MainDivision</ErrorLocation><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations></SuggestedAddress><SuggestedAddress><Line1>1671 N Clark Street Rd</Line1><City>Bar</City><MainDivision>PA</MainDivision><CountryCode>US</CountryCode><PostalCode>19406-1234</PostalCode><FormattedAddress>1671 N Clark Street Rd\nAuburn NY 13021-9511\nUS</FormattedAddress><ErrorLocations><ErrorLocation>Line1</ErrorLocation><ErrorLocation>City</ErrorLocation><ErrorLocation>MainDivision</ErrorLocation><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations></SuggestedAddress></SuggestedAddresses></Result></AddressValidationResponse>');
+		$this->assertTrue($response->hasAddressSuggestions());
+	}
+
+	/**
+	 * When there is only one suggestions, the one suggestion will be considered valid,
+	 * hence, it should not consider there to be any suggestions.
+	 * @test
+	 */
+	public function testDetectOnlyOneSuggestionInMessage()
+	{
+		$response = Mage::getModel('eb2caddress/validation_response');
+		/**
+		 * Response message includes 1 suggestions - which should be considered the valid address.
+		 */
+		$response->setMessage('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Result><ResultCode>C</ResultCode><ResultSuggestionCount>1</ResultSuggestionCount><SuggestedAddresses><SuggestedAddress><Line1>1671 S Clark Street Rd</Line1><City>Foo</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13021-9523</PostalCode><FormattedAddress>1671 S Clark Street Rd\nAuburn NY 13021-9523\nUS</FormattedAddress><ErrorLocations><ErrorLocation>Line1</ErrorLocation><ErrorLocation>MainDivision</ErrorLocation><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations></SuggestedAddress></SuggestedAddresses></Result></AddressValidationResponse>');
+		$this->assertFalse($response->hasAddressSuggestions());
+	}
+
+	/**
+	 * Should accurately detect and report that there are no suggestions when
+	 * no suggestions exist in the response message.
+	 */
+	public function testDetectNoSuggestionsInMessage()
+	{
+		$response = Mage::getModel('eb2caddress/validation_response');
+		/* Response code is V and there are no suggestions.
+		 * Original address should be the same as the original address.
+		 */
+		$response->setMessage('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Header><MaxAddressSuggestions>5</MaxAddressSuggestions></Header><RequestAddress><Line1>1671 Clark Street Rd</Line1><Line2>Omnicare Building</Line2><City>Auburn</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13025</PostalCode></RequestAddress><Result><ResultCode>V</ResultCode><ProviderResultCode>C</ProviderResultCode><ProviderName>Address Doctor</ProviderName></Result></AddressValidationResponse>');
+		$this->assertFalse($response->hasAddressSuggestions());
+	}
+
 }

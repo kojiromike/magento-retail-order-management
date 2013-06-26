@@ -7,13 +7,33 @@ class TrueAction_Eb2c_Address_Model_Validator
 	extends Mage_Core_Model_Abstract
 {
 
+	const SESSION_KEY = 'address_validation_addresses';
+	const SUGGESTIONS_ERROR_MESSAGE = 'The address could not be validated. Please select one of the suggestions.';
+	const NO_SUGGESTIONS_ERROR_MESSAGE = 'The address could not be validated. Please provide a new address.';
+	/**
+	 * Get the session object to use for storing address information.
+	 * Currently will use the customer session but may be swapped out later.
+	 * @return Mage_Core_Model_Session_Abstract
+	 */
+	protected function _getSession()
+	{
+		return Mage::getSingleton('customer/session');
+	}
+
 	/**
 	 * Validate an address via the EB2C Address Validation service.
+	 * Calls the EB2C API and feeds the results into a response model.
+	 * Will also ensure that the supplied address is populated with
+	 * the response from EB2C and suggested addresses are stashed in the session
+	 * for later use.
 	 * @param Mage_Customer_Model_Address_Abstract $address
+	 * @return string - the error message generated in validation
 	 */
 	public function validateAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
+		$errorMessage = null;
 		if (!$address->getHasBeenValidated()) {
+			$this->clearSessionAddresses();
 			$helper = Mage::helper('eb2ccore');
 			$request = Mage::getModel('eb2caddress/validation_request')->setAddress($address);
 			$response = Mage::getModel('eb2caddress/validation_response')->setMessage(
@@ -26,10 +46,69 @@ class TrueAction_Eb2c_Address_Model_Validator
 				)
 			);
 			// copy over validated address data
-			$address->addData($response->getOriginalAddress()->getData());
-			Mage::getSingleton('customer/session')
-				->setAddressSuggestions($response->getAddressSuggestions());
+			if ($response->isAddressValid()) {
+				$address->addData($response->getValidAddress()->getData());
+			} else {
+				$address->addData($response->getOriginalAddress()->getData());
+				$errorMessage = '';
+				if ($response->hasSuggestions()) {
+					$errorMessage = Mage::helper('eb2caddress')
+						->__(self::SUGGESTIONS_ERROR_MESSAGE);
+				} else {
+					$errorMessage = Mage::helper('eb2caddress')
+						->__(self::NO_SUGGESTIONS_ERROR_MESSAGE);
+				}
+			}
+			$this->_stashAddresses($response);
 		}
+		return $errorMessage;
+	}
+
+	/**
+	 * Store the necessary addresses and address data in the session.
+	 * @param TrueAction_Eb2c_Address_Model_Validation_Response $response
+	 */
+	protected function _stashAddresses(TrueAction_Eb2c_Address_Model_Validation_Response $response)
+	{
+		$addressCollection = array();
+		$addressCollection['original'] = $response->getOriginalAddress();
+		foreach ($response->getAddressSuggestions() as $idx => $suggestedAddress) {
+			$addressCollection['suggestion_' . $idx] = $suggestedAddress;
+		}
+		$this->_getSession()->setAddressValidationAddresses($addressCollection);
+	}
+
+	/**
+	 * Return the collection (key=>value pairs) of addresses for address validation.
+	 * @return Mage_Customer_Model_Address[]
+	 */
+	public function getAddressCollection()
+	{
+		return $this->_getSession()->getAddressValidationAddresses();
+	}
+
+	/**
+	 * Return the address from the session represented by the given key.
+	 * If no address for that key exists, returns null.
+	 * @return Mage_Customer_Model_Address
+	 */
+	public function getValidatedAddress($key)
+	{
+		$addressCollection = $this->getAddressCollection();
+		if (isset($addressCollection[$key])) {
+			return $addressCollection[$key];
+		}
+		return null;
+	}
+
+	/**
+	 * Remove the collection of addresses from the session.
+	 * @return TrueAction_Eb2c_Address_Model_Validator $this
+	 */
+	public function clearSessionAddresses()
+	{
+		$this->_getSession()->unsetData(self::SESSION_KEY);
+		return $this;
 	}
 
 }

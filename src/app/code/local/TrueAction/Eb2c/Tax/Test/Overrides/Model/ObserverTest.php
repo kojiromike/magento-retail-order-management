@@ -14,11 +14,13 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_ObserverTest extends EcomDev_PHPU
         $_SESSION = array();
         $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
         $this->app()->getRequest()->setBaseUrl($_baseUrl);
+        $response = $this->getModelMock('eb2ctax/response');
+        $this->responseMock = $response;
 		$helper = $this->getHelperMock('tax/data', array('sendRequest'));
 		$this->replaceByMock('helper', 'tax', $helper);
 		$helper->expects($this->any())
 			->method('sendRequest')
-			->will($this->returnValue('foo'));
+			->will($this->returnValue($response));
 		$quoteItem = $this->getMock('Varien_Object');
 		$this->quoteItem = $quoteItem;
 		$listeners = array(
@@ -94,7 +96,7 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_ObserverTest extends EcomDev_PHPU
 	 */
 	public function testQuoteCollectTotalsBefore()
 	{
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(2);
+		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$this->observerMock->expects($this->once())
 			->method('quoteCollectTotalsBefore')
 			->will($this->returnSelf());
@@ -105,9 +107,41 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_ObserverTest extends EcomDev_PHPU
 	 */
 	public function testFetchTaxDutyInfo()
 	{
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(2);
+		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$this->fetchTaxDutyInfo->invoke($this->observer, $quote);
-		$response = Mage::helper('tax')->getCalculator()->getResponse();
-		$this->assertSame('foo', $response);
+		$response = Mage::helper('tax')->getCalculator()->getTaxResponse();
+		$this->assertSame($this->responseMock, $response);
+	}
+	/**
+	 * @test
+	 */
+	public function testFetchTaxDutyInfoEmptyQuote()
+	{
+		$quote = $this->getModelMock('sales/quote', array('getId'));
+		$quote->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(null));
+		$this->fetchTaxDutyInfo->invoke($this->observer, $quote);
+		$response = Mage::helper('tax')->getCalculator()->getTaxResponse();
+	}
+	/**
+	 * @test
+	 */
+	public function testFetchTaxDutyInfoRaiseException()
+	{
+		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
+		$helper = $this->getHelperMock('tax/data', array('sendRequest'));
+		$helper->expects($this->any())
+			->method('sendRequest')
+			->will(
+				$this->throwException(
+					new Zend_Http_Client_Exception(
+						'i am death from above... below and all sides :-D'
+					)
+				)
+			);
+		$this->replaceByMock('helper', 'tax', $helper);
+		$this->fetchTaxDutyInfo->invoke($this->observer, $quote);
+		$response = Mage::helper('tax')->getCalculator()->getTaxResponse();
 	}
 }

@@ -32,6 +32,27 @@
 			</eb2ccore>
 		</helpers>
 	</global>
+	<default>
+		<eb2ccore>
+			<general>
+				<catalog_id />
+				<client_id />
+				<store_id />
+				<sftp_username />
+				<sftp_password backend_model="adminhtml/system_config_backend_encrypted" />
+				<sftp_location />
+				<api_key backend_model="adminhtml/system_config_backend_encrypted" />
+				<api_timeout />
+				<test_mode />
+			</general>
+			<api>
+				<environment>developer</environment>
+				<region>na</region>
+				<major_version>1</major_version>
+				<minor_version>10</minor_version>
+			</api>
+		</eb2ccore>
+	</default>
 	<phpunit>
 		<suite>
 			<modules>

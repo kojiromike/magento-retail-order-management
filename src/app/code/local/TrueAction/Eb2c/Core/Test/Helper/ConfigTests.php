@@ -156,9 +156,58 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	 * @test
 	 * @expectedException Exception
 	 */
-	public function testUnknownProp()
+	public function testUnknownPropError()
 	{
 		$config = Mage::helper('eb2ccore/config');
-		$config->nonexistentConfig;
+		$nonexistent = $config->nonexistentConfig;
 	}
+
+	/**
+	 * prevent PHPUnits normal handling of errors,
+	 * allowing execution to continue after an error is encountered
+	 */
+	public function noopErrorHandler($errno, $errstr, $errfile, $errline, $errcontext)
+	{}
+
+	/**
+	 * Getting a nonexistent property should error but still return null.
+	 * @test
+	 */
+	public function testUnknownProp()
+	{
+		// ensure code execution continues after the error is triggered
+		$handler = set_error_handler(array($this, 'noopErrorHandler'));
+		$config = Mage::helper('eb2ccore/config');
+		$nonexistent = $config->nonexistentConfig;
+		$this->assertNull($nonexistent);
+		// set error handler back to initial value
+		set_error_handler($handler);
+	}
+
+	/**
+	 * All properties on the config helper should be readonly.
+	 * Attemtping to set a property on the object should trigger an error.
+	 * @test
+	 * @expectedException Exception
+	 */
+	public function testAllPropsReadonlyError()
+	{
+
+		$config = Mage::helper('eb2ccore/config');
+		$config->someConfig = 'foo';
+	}
+
+	/**
+	 * Sidestep the error and ensure that values are not getting set.
+	 * @test
+	 */
+	public function testAllPropsReadonly()
+	{
+		$handler = set_error_handler(array($this, 'noopErrorHandler'));
+		$config = Mage::helper('eb2ccore/config');
+		$config->catalogId = 'foo';
+		$this->assertSame(Mage::getStoreConfig('eb2c/core/catalog_id'), $config->catalogId);
+		set_error_handler($handler);
+	}
+
 }

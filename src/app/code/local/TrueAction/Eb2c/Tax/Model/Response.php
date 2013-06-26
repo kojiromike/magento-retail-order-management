@@ -46,6 +46,20 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	}
 
 	/**
+	 * get the response for $item from the request.
+	 * return null if there is no valid response to retrieve.
+	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @return TrueAction_Eb2c_Tax_Model_Response_OrderItem
+	 */
+	public function getResponseForItem(Mage_Sales_Model_Quote_Item $item)
+	{
+		$sku = $item->getSku();
+		$orderItem = isset($this->_responseItems[$sku]) ?
+			$this->_responseItems[$sku] : null;
+		return $orderItem;
+	}
+
+	/**
 	 * get the result records of the request
 	 * @return array(TrueAction_Eb2c_Tax_Model_Tax)
 	 */

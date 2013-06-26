@@ -67,9 +67,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function isValid()
 	{
-		return $this->getBillingAddress() && $this->getBillingAddress()->getId() &&
-			$this->getQuote() && $this->getQuote()->getId() &&
-			$this->getQuote()->getItemsSummaryQty();
+		return $this->getQuote() && $this->getQuote()->getId() &&
+			$this->getBillingAddress() && $this->getBillingAddress()->getId() &&
+			$this->getQuote()->getItemsCount();
 	}
 
 	/**
@@ -187,16 +187,10 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected function _setupQuote()
 	{
 		$quote = $this->getQuote();
-		if (!$quote) {
-			if ($this->getShippingAddress()) {
-				$quote =  $this->getShippingAddress()->getQuote();
-			} elseif ($this->getBillingAddress()) {
-				$quote = $this->getBillingAddress()->getQuote();
-			}
+		if ($quote) {
+			$this->setBillingAddress($quote->getBillingAddress());
+			$this->setShippingAddress($quote->getShippingAddress());
 		}
-		$this->setQuote($quote);
-		$this->setBillingAddress($quote->getBillingAddress());
-		$this->setShippingAddress($quote->getShippingAddress());
 	}
 
 	/**

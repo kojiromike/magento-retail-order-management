@@ -38,6 +38,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	protected function _construct()
 	{
 		$this->_doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$this->_doc->preserveWhiteSpace = false;
 		if ($this->hasXml()) {
 			$this->_doc->loadXML($this->getXml());
 			$this->_namespaceUri =  $this->_doc->documentElement->namespaceURI;

@@ -4,7 +4,7 @@
  * @package    TrueAction_Eb2c
  * @copyright  Copyright (c) 2013 True Action Network (http://www.trueaction.com)
  */
-class TrueAction_Eb2c_Inventory_Override_Model_Cart extends Mage_Checkout_Model_Cart
+class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model_Cart
 {
 	/**
 	 * Overriding Add product to shopping cart (quote)

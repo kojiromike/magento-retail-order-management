@@ -418,4 +418,36 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 			trim($this->_getAllocation()->rollbackAllocation($quote))
 		);
 	}
+
+	public function providerHasAllocation()
+	{
+		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getEb2cReservationId'));
+		$itemMock->expects($this->any())
+			->method('getEb2cReservationId')
+			->will($this->returnValue('FAKE-RESERVATION-ID')
+			);
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems'));
+		$quoteMock->expects($this->any())
+			->method('getAllItems')
+			->will($this->returnValue(array($itemMock))
+			);
+		return array(
+			array($quoteMock)
+		);
+	}
+
+	/**
+	 * testing when allocation data is found in quote items
+	 *
+	 * @test
+	 * @dataProvider providerHasAllocation
+	 */
+	public function testHasAllocation($quote)
+	{
+		// testing when building the allocation message throw an exception
+		$this->assertSame(
+			true,
+			$this->_getAllocation()->hasAllocation($quote)
+		);
+	}
 }

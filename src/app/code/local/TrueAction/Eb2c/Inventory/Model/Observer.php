@@ -78,6 +78,12 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 		// get quote from quote item
 		$quote = $quoteItem->getQuote();
 
+		// check allocation and rollback on the cart quote item adding/editing event
+		if ($this->_getAllocation()->hasAllocation($quote)) {
+			// this cart quote has allocation data, therefore, rollback eb2c inventory allocation
+			$this->_getAllocation()->rollbackAllocation($quote);
+		}
+
 		if ($productId) {
 			// We have a valid product, let's check Eb2c Quantity
 			$availableStock = $this->_getQuantity()->requestQuantity($requestedQty, $itemId, $productSku);
@@ -111,6 +117,26 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				// @codeCoverageIgnoreStart
 			}
 			// @codeCoverageIgnoreEnd
+		}
+	}
+
+	/**
+	 * Rollback allocation if cart has reservation data, triggering sales_quote_remove_item event will run this method.
+	 *
+	 * @param Varien_Event_Observer $observer
+	 *
+	 * @return void
+	 */
+	public function rollbackOnRemoveItemInReservedCart($observer)
+	{
+		$quoteItem = $observer->getEvent()->getQuoteItem();
+
+		// get quote from quote item
+		$quote = $quoteItem->getQuote();
+
+		if ($this->_getAllocation()->hasAllocation($quote)) {
+			// this cart quote has allocation data, therefore, rollback eb2c inventory allocation
+			$this->_getAllocation()->rollbackAllocation($quote);
 		}
 	}
 
@@ -174,8 +200,6 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 		}
 
 		if (!$isAllocated) {
-			// Rollback eb2c inventory allocation
-			$this->_getAllocation()->rollbackAllocation($quote);
 			throw new TrueAction_Eb2c_Inventory_Model_Allocation_Exception('Inventory allocation Error.');
 			// @codeCoverageIgnoreStart
 		}

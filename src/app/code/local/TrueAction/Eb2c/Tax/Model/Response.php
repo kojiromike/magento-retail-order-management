@@ -14,7 +14,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 * result objects parsed from the response
 	 * @var array
 	 */
-	protected $_itemResults = array();
+	protected $_responseItems = array();
 
 	/**
 	 * skus of OrderItem elements that passed validation
@@ -29,10 +29,9 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	protected $_isValid   = false;
 
 	/**
-	 * alias to use when registering the root level namespace.
+	 * namespace uri of the root element.
 	 * @var string
 	 */
-	protected $_namespaceAlias = 'a';
 	protected $_namespaceUri   = '';
 
 	protected function _construct()
@@ -50,9 +49,9 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 * get the result records of the request
 	 * @return array(TrueAction_Eb2c_Tax_Model_Tax)
 	 */
-	public function getResults()
+	public function getResponseItems()
 	{
-		return $this->_itemResults;
+		return $this->_responseItems;
 	}
 
 	/**
@@ -88,8 +87,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	{
 		$xpath = new DOMXPath($this->_doc);
 		// namespace variable
-		$xpath->registerNamespace($this->_namespaceAlias, $this->_namespaceUri);
-		$n = $this->_namespaceAlias . ':';
+		$xpath->registerNamespace('a', $this->_namespaceUri);
 		$root = $this->_doc->documentElement;
 		$mailingAddresses = $xpath->query(
 			'/a:Shipping/a:Destinations/a:MailingAddress',

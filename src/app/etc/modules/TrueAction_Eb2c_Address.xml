@@ -4,6 +4,9 @@
 		<TrueAction_Eb2c_Address>
 			<active>true</active>
 			<codePool>local</codePool>
+			<depends>
+				<TrueAction_Eb2c_Core />
+			</depends>
 		</TrueAction_Eb2c_Address>
 	</modules>
 </config>

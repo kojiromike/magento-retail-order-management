@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <config>
 	<modules>
-		<trueaction_core>
+		<TrueAction_Eb2c_Address>
 			<version>0.1</version>
-		</trueaction_core>
+		</TrueAction_Eb2c_Address>
 	</modules>
 	<global>
 		<models>
@@ -23,11 +23,14 @@
 		</blocks>
 	</global>
 	<default>
-		<eb2c>
-			<address_validation>
+		<eb2caddress>
+			<general>
 				<max_suggestions>3</max_suggestions>
-			</address_validation>
-		</eb2c>
+			</general>
+			<api>
+				<namespace_uri><![CDATA[http://api.gsicommerce.com/schema/checkout/1.0]]></namespace_uri>
+			</api>
+		</eb2caddress>
 	</default>
 	<phpunit>
 		<suite>

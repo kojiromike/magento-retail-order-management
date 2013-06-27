@@ -14,7 +14,6 @@ class TrueAction_Eb2c_Address_Model_Validation_Request
 	const API_FORMAT = 'xml';
 
 	const DOM_ROOT_NODE_NAME = 'AddressValidationRequest';
-	const DOM_ROOT_NS = 'http://api.gsicommerce.com/sehcma/checkout/1.0';
 
 	/**
 	 * DOMDocument used to build the request message
@@ -23,14 +22,18 @@ class TrueAction_Eb2c_Address_Model_Validation_Request
 	protected $_dom;
 
 	/**
-	 * Get the number of max suggestions from the address configuration
-	 * @return string
+	 * Config helper with address validation config model loaded in.
+	 * @var TrueAction_Eb2c_Core_Helper_Config
 	 */
-	protected function _configMaxSuggestions()
+	protected $_config;
+
+	/**
+	 * Get a core config helper object and load an address validation config model into it.
+	 */
+	protected function _construct()
 	{
-		return Mage::helper('eb2ccore/config')
-			->addConfigModel(Mage::getSingleton('eb2caddress/config'))
-			->maxAddressSuggestions;
+		$this->_config = Mage::helper('eb2ccore/config')
+			->addConfigModel(Mage::getSingleton('eb2caddress/config'));
 	}
 
 	/**
@@ -42,7 +45,7 @@ class TrueAction_Eb2c_Address_Model_Validation_Request
 	{
 		$this->_dom = new TrueAction_Dom_Document('1.0', 'UTF-8');
 		if ($this->hasData('address')) {
-			$this->_dom->addElement(self::DOM_ROOT_NODE_NAME, null, self::DOM_ROOT_NS);
+			$this->_dom->addElement(self::DOM_ROOT_NODE_NAME, null, $this->_config->apiNamespace);
 			$this->_dom->documentElement->appendChild($this->_createMessageHeader());
 			$this->_dom->documentElement->appendChild($this->_createMessageAddress());
 		}
@@ -61,7 +64,7 @@ class TrueAction_Eb2c_Address_Model_Validation_Request
 		$fragment->appendChild(
 			$dom->createElement('Header',
 				$dom->createElement('MaxAddressSuggestions',
-					$this->_configMaxSuggestions()
+					$this->_config->maxAddressSuggestions
 				)
 			)
 		);

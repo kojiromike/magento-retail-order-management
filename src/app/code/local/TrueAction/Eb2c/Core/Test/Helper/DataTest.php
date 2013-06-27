@@ -67,10 +67,10 @@ class TrueAction_Eb2c_Core_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Cas
 	 * @test
 	 * @dataProvider providerApiCall
 	 */
-	public function testApiCall($request, $apiUri, $signature='POST')
+	public function testApiCall($request, $apiUri, $timeout=0, $signature='POST')
 	{
 		$this->assertNotEmpty(
-			$this->_getHelper()->callApi($request, $apiUri)
+			$this->_getHelper()->callApi($request, $apiUri, $timeout)
 		);
 	}
 

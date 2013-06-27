@@ -1,21 +1,15 @@
 <?xml version="1.0"?>
-<!--
-/**
- * @category    TrueAction
- * @package     TrueAction_Eb2c
- * @copyright   Copyright (c) 2013 True Action (http://www.trueaction.com)
- */
--->
 <config>
 	<tabs>
 		<eb2c translate="label" module="eb2ccore">
-			<label>EB2C - GSI Connect</label>
-			<sort_order>99999</sort_order>
+			<label>EB2C</label>
+			<sort_order>550</sort_order>
 		</eb2c>
 	</tabs>
 	<sections>
-		<eb2c>
-			<label>GSI Commerce Connect</label>
+		<eb2ccore translate="label" module="eb2ccore">
+			<class>separator-top</class>
+			<label>Core</label>
 			<tab>eb2c</tab>
 			<frontend_type>text</frontend_type>
 			<sort_order>100</sort_order>
@@ -23,101 +17,109 @@
 			<show_in_website>1</show_in_website>
 			<show_in_store>1</show_in_store>
 			<groups>
-				<core translate="label">
-					<label>EB2C Settings</label>
+				<general translate="label">
+					<label>General</label>
 					<frontend_type>text</frontend_type>
-					<sort_order>40</sort_order>
+					<sort_order>5</sort_order>
 					<show_in_default>1</show_in_default>
 					<show_in_website>1</show_in_website>
 					<show_in_store>1</show_in_store>
 					<fields>
 						<catalog_id translate="label comment">
 							<label>Catalog ID</label>
+							<comment></comment>
+							<sort_order>10</sort_order>
 							<frontend_type>text</frontend_type>
-							<sort_order>1</sort_order>
+							<validate>validate-alphanum</validate>
 							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-							<comment>EB2C Webservice Catalog ID, used in request id.</comment>
+							<show_in_website>0</show_in_website>
+							<show_in_store>0</show_in_store>
 						</catalog_id>
-						<client_id translate="label comment">
+						<client_id>
 							<label>Client ID</label>
+							<comment></comment>
+							<sort_order>20</sort_order>
 							<frontend_type>text</frontend_type>
-							<sort_order>2</sort_order>
+							<validate>validate-alphanum</validate>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-							<comment>EB2C Webservice Client ID</comment>
+							<show_in_store>0</show_in_store>
 						</client_id>
-						<store_id translate="label comment">
+						<store_id>
 							<label>Store ID</label>
+							<comment></comment>
+							<sort_order>30</sort_order>
 							<frontend_type>text</frontend_type>
-							<sort_order>3</sort_order>
+							<validate>validate-alphanum</validate>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-							<comment>EB2C Webservice Store ID, used in request id.</comment>
+							<show_in_store>0</show_in_store>
 						</store_id>
-						<sftp_username translate="label comment">
+						<sftp_username>
 							<label>SFTP User Name</label>
+							<comment></comment>
+							<sort_order>40</sort_order>
 							<frontend_type>text</frontend_type>
-							<sort_order>4</sort_order>
+							<validate>validate-alphanum</validate>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-							<comment>EB2C Webservice SFTP User Name, used in batch generation.</comment>
+							<show_in_store>0</show_in_store>
 						</sftp_username>
-						<sftp_password translate="label comment">
+						<sftp_password>
 							<label>SFTP Password/Key</label>
+							<comment></comment>
+							<sort_order>50</sort_order>
 							<frontend_type>obscure</frontend_type>
+							<validate>validate-password</validate>
 							<backend_model>adminhtml/system_config_backend_encrypted</backend_model>
-							<sort_order>5</sort_order>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-							<comment>EB2C Webservice SFTP User Name, used in batch generation.</comment>
+							<show_in_store>0</show_in_store>
 						</sftp_password>
-						<sftp_location translate="label comment">
+						<sftp_location>
 							<label>SFTP Location</label>
+							<comment></comment>
+							<sort_order>60</sort_order>
 							<frontend_type>text</frontend_type>
-							<sort_order>6</sort_order>
+							<validate>validate-url</validate>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-							<comment>EB2C Webservice SFTP Location, used in batch generation.</comment>
+							<show_in_store>0</show_in_store>
 						</sftp_location>
-						<api_key translate="label comment">
-							<label>API Key</label>
+						<api_key>
+							<label>Catalog ID</label>
+							<comment></comment>
+							<sort_order>70</sort_order>
 							<frontend_type>obscure</frontend_type>
+							<validate>validate-password</validate>
 							<backend_model>adminhtml/system_config_backend_encrypted</backend_model>
-							<sort_order>7</sort_order>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-							<comment>EB2C Webservice API Key, used in connecting EB2C Webservice.</comment>
+							<show_in_store>0</show_in_store>
 						</api_key>
-						<api_timeout translate="label comment">
+						<api_timeout>
 							<label>API Timeout</label>
+							<comment>Time in milliseconds</comment>
+							<sort_order>80</sort_order>
 							<frontend_type>text</frontend_type>
-							<sort_order>8</sort_order>
+							<validate>validate-digits</validate>
 							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-							<comment>EB2C Webservice API Timeout, used in consuming webservice.</comment>
+							<show_in_website>0</show_in_website>
+							<show_in_store>0</show_in_store>
 						</api_timeout>
-						<test_mode translate="label comment">
+						<test_mode>
 							<label>Test Mode</label>
+							<comment>Should messages be sent as tests?</comment>
+							<sort_order>90</sort_order>
 							<frontend_type>select</frontend_type>
 							<source_model>adminhtml/system_config_source_yesno</source_model>
-							<sort_order>9</sort_order>
 							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-							<comment>Select Yes/No selector to enable eb2c between development mode and production mode</comment>
+							<show_in_website>0</show_in_website>
+							<show_in_store>0</show_in_store>
 						</test_mode>
 					</fields>
-				</core>
+				</general>
 			</groups>
-		</eb2c>
+		</eb2ccore>
 	</sections>
 </config>

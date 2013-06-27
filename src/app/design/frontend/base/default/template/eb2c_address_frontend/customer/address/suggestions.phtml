@@ -1,0 +1,10 @@
+<?php
+/**
+ * When suggestions are available from EB2C for the current address, render
+ * the suggestions and necessary form fields for suggestions to be chosen.
+ */
+$_suggestions = $this->getAddressSuggestions();
+if (!empty($suggestions)): ?>
+<fieldset class="suggestion_fields">
+</fieldset>
+<?php endif; ?>

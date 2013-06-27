@@ -34,7 +34,7 @@ class TrueAction_Eb2c_Inventory_Test_Helper_DataTest extends EcomDev_PHPUnit_Tes
 	 *
 	 * @test
 	 */
-	public function getXmlNs()
+	public function testGetXmlNs()
 	{
 		$this->assertSame(
 			'http://api.gsicommerce.com/schema/checkout/1.0',
@@ -48,20 +48,8 @@ class TrueAction_Eb2c_Inventory_Test_Helper_DataTest extends EcomDev_PHPUnit_Tes
 	 * @test
 	 * @loadFixture loadConfig.yaml
 	 */
-	public function getOperationUri()
+	public function testGetOperationUri()
 	{
-		$config = new TrueAction_Eb2c_Core_Helper_Config();
-		$config->developer_mode = 0;
-		$config->quantity_api_uri = '';
-		$config->inventory_detail_uri = '';
-		$config->allocation_uri = '';
-		$config->rollback_allocation_uri = '';
-
-		$reflector = new ReflectionObject($this->_getHelper());
-		$configModel = $reflector->getProperty('configModel');
-		$configModel->setAccessible(true);
-		$configModel->setValue($this->_getHelper(), $config);
-
 		$this->assertSame(
 			'https://developer.na.gsipartners.com/v1.10/stores/ABCD/inventory/quantity/get.xml',
 			$this->_getHelper()->getOperationUri('check_quantity')

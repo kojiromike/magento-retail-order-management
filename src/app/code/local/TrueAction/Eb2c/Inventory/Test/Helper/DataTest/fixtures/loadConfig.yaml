@@ -10,10 +10,10 @@ tables:
     - config_id: 2
       scope: "default"
       scope_id: 0
-      path: "eb2c/core/store_id"
+      path: "eb2ccore/general/store_id"
       value: "ABCD"
     - config_id: 3
       scope: "default"
       scope_id: 0
-      path: "eb2c/core/client_id"
+      path: "eb2ccore/general/client_id"
       value: "TAN-CLI"

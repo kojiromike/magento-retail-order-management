@@ -37,3 +37,8 @@ tables:
       scope_id: 0
       path: "eb2c/inventory/rollback_allocation_uri"
       value: "http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/RollbackAllocationResponseMessage.xml"
+    - config_id: 8
+      scope: "default"
+      scope_id: 0
+      path: "eb2c/inventory/allocation_expired"
+      value: 60

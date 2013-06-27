@@ -75,12 +75,34 @@ class TrueAction_Eb2c_Core_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Cas
 	}
 
 	/**
+	 * Mock out the config helper.
+	 */
+	protected function _mockConfig()
+	{
+		$mock = $this->getHelperMockBuilder('eb2ccore/config')
+			->disableOriginalConstructor()
+			->setMethods(array('__get'))
+			->getMock();
+		$mockConfig = array(
+			array('apiEnvironment', 'prod'),
+			array('apiRegion', 'eu'),
+			array('apiMajorVersion', '1'),
+			array('apiMinorVersion', '10'),
+			array('storeId', 'store-123'),
+		);
+		$mock->expects($this->any())
+			->method('__get')
+			->will($this->returnValueMap($mockConfig));
+		$this->replaceByMock('helper', 'eb2ccore/config', $mock);
+	}
+
+	/**
 	 * test generating the API URIs
 	 * @test
-	 * @loadFixture configData
 	 */
 	public function testApiUriCreation()
 	{
+		$this->_mockConfig();
 		$helper = Mage::helper('eb2ccore');
 		// simplest case - just a service and operation
 		$this->assertSame(

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <config>
 	<modules>
-		<trueaction_core>
+		<TrueAction_Eb2c_Core>
 			<version>0.1</version>
-		</trueaction_core>
+		</TrueAction_Eb2c_Core>
 	</modules>
 	<global>
 		<models>

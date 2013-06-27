@@ -177,32 +177,33 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 		// get the event response object
 		$response = $observer->getEvent()->getResponse();
 
-		// only allow allocation only when
+		// only allow allocation only when, there's no previous allocation or the previous allocation expired
+		if (!$this->_getAllocation()->hasAllocation($quote) || $this->_getAllocation()->isExpired($quote)) {
+			// flag for failure or success allocation
+			$isAllocated = true;
 
-		// flag for failure or success allocation
-		$isAllocated = true;
+			// generate request and send request to eb2c allocation
+			if ($allocationResponseMessage = $this->_getAllocation()->allocateQuoteItems($quote)) {
+				// parse allocation response
+				$allocationData = $this->_getAllocation()->parseResponse($allocationResponseMessage);
 
-		// generate request and send request to eb2c allocation
-		if ($allocationResponseMessage = $this->_getAllocation()->allocateQuoteItems($quote)) {
-			// parse allocation response
-			$allocationData = $this->_getAllocation()->parseResponse($allocationResponseMessage);
+				// got a valid response from eb2c, then go ahead and update the quote with the eb2c information
+				$allocatedErr = $this->_getAllocation()->processAllocation($quote, $allocationData);
 
-			// got a valid response from eb2c, then go ahead and update the quote with the eb2c information
-			$allocatedErr = $this->_getAllocation()->processAllocation($quote, $allocationData);
-
-			// Got an allocation failure
-			if (!empty($allocatedErr)) {
-				$isAllocated = false;
-				foreach ($allocatedErr as $error) {
-					Mage::getSingleton('checkout/session')->addError($error);
+				// Got an allocation failure
+				if (!empty($allocatedErr)) {
+					$isAllocated = false;
+					foreach ($allocatedErr as $error) {
+						Mage::getSingleton('checkout/session')->addError($error);
+					}
 				}
 			}
-		}
 
-		if (!$isAllocated) {
-			throw new TrueAction_Eb2c_Inventory_Model_Allocation_Exception('Inventory allocation Error.');
-			// @codeCoverageIgnoreStart
+			if (!$isAllocated) {
+				throw new TrueAction_Eb2c_Inventory_Model_Allocation_Exception('Inventory allocation Error.');
+				// @codeCoverageIgnoreStart
+			}
+			// @codeCoverageIgnoreEnd
 		}
-		// @codeCoverageIgnoreEnd
 	}
 }

@@ -21,6 +21,7 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 		$productId = $product->getId();
 
 		// Disable Magento built-in inventory check, to prevent clashing with eb2c quantity check event.
+		// @codeCoverageIgnoreStart
 		if ($product->getStockItem() && false) {
 			$minimumQty = $product->getStockItem()->getMinSaleQty();
 			//If product was not found in cart and there is set minimal qty for it
@@ -30,6 +31,7 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 				$request->setQty($minimumQty);
 			}
 		}
+		// @codeCoverageIgnoreEnd
 
 		if ($productId) {
 			try {
@@ -87,6 +89,7 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 			$request = $this->_getProductRequest($requestInfo);
 
 			// Disable Magento built-in inventory check, to prevent clashing with eb2c quantity check event.
+			// @codeCoverageIgnoreStart
 			if ($product->getStockItem() && false) {
 				$minimumQty = $product->getStockItem()->getMinSaleQty();
 				// If product was not found in cart and there is set minimal qty for it
@@ -97,7 +100,7 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 					$request->setQty($minimumQty);
 				}
 			}
-
+			// @codeCoverageIgnoreEnd
 			$result = $this->getQuote()->updateItem($itemId, $request, $updatingParams);
 		} catch (Mage_Core_Exception $e) {
 			$this->getCheckoutSession()->setUseNotice(false);

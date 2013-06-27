@@ -240,9 +240,37 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 			// find the reservation data in the quote item
 			if (trim($item->getEb2cReservationId()) !== '') {
 				$hasReservation = true;
+				break;
 			}
 		}
 		return $hasReservation;
+	}
+
+	/**
+	 * Check if the reserved allocation exceed the maximum expired setting.
+	 *
+	 * @param Mage_Sales_Model_Order $quote the quote to check if it's items have any allocation data
+	 *
+	 * @return boolean, true reserved allocation is found, false no allocation data found on any quote item
+	 */
+	public function isExpired($quote)
+	{
+		$isExpired = false;
+		foreach ($quote->getAllItems() as $item) {
+			// find the reservation data in the quote item
+			if (trim($item->getEb2cReservationExpires()) !== '') {
+				$reservedExpiredDateTime = new DateTime($item->getEb2cReservationExpires());
+				$currentDateTime = new DateTime(gmdate('c'));
+				$interval = $reservedExpiredDateTime->diff($currentDateTime);
+				$differenceInMinutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
+				// check if the current date time exceed the maximum allocation expired in minutes
+				if ($differenceInMinutes > (int) $this->_getHelper()->getConfigModel()->allocation_expired) {
+					$isExpired = true;
+					break;
+				}
+			}
+		}
+		return $isExpired;
 	}
 
 	/**
@@ -256,23 +284,28 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	protected function _updateQuoteWithEb2cAllocation($quoteItem, $quoteData)
 	{
 		$results = '';
-		// Set the message allocation failure
-		if ($quoteData['qty'] > 0 && $quoteItem->getQty() > $quoteData['qty']) {
-			$results = 'Sorry, we only have ' . $quoteData['qty'] . ' of item "' . $quoteItem->getSku() . '" in stock.';
-		} elseif ($quoteData['qty'] <= 0) {
-			$results = 'Sorry, item "' . $quoteItem->getSku() . '" out of stock.';
-		}
 
 		// get quote from quote-item
 		$quote = $quoteItem->getQuote();
 
-		// save reservation data to inventory detail
-		$quoteItem->setEb2cReservationId($quoteData['reservation_id'])
-			->setEb2cReservationExpires($quoteData['reservation_expires'])
-			->setEb2cQtyReserved($quoteData['qty'])
-			->save();
+		// Set the message allocation failure, adjust quote with quantity reserved.
+		if ($quoteData['qty'] > 0 && $quoteItem->getQty() > $quoteData['qty']) {
+			// save reservation data to inventory detail
+			$quoteItem->setQty($quoteData['qty'])
+				->setEb2cReservationId($quoteData['reservation_id'])
+				->setEb2cReservationExpires($quoteData['reservation_expires'])
+				->setEb2cQtyReserved($quoteData['qty'])
+				->save();
 
-		$quote->save();
+			// save the quote
+			$quote->save();
+
+			$results = 'Sorry, we only have ' . $quoteData['qty'] . ' of item "' . $quoteItem->getSku() . '" in stock.';
+		} elseif ($quoteData['qty'] <= 0) {
+			// removed the out of stock allocated item
+			$quote->deleteItem($quoteItem);
+			$results = 'Sorry, item "' . $quoteItem->getSku() . '" out of stock.';
+		}
 
 		return $results;
 	}

@@ -14,20 +14,8 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_allocation = $this->_getAllocation();
-	}
-
-	/**
-	 * Get Allocation instantiated object.
-	 *
-	 * @return TrueAction_Eb2c_Inventory_Model_Allocation
-	 */
-	protected function _getAllocation()
-	{
-		if (!$this->_allocation) {
-			$this->_allocation = Mage::getModel('eb2cinventory/allocation');
-		}
-		return $this->_allocation;
+		$this->_allocation = Mage::getModel('eb2cinventory/allocation');
+		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
 	}
 
 	public function buildQuoteMock()
@@ -125,12 +113,23 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	 *
 	 * @test
 	 * @dataProvider providerAllocateQuoteItems
+	 * @loadFixture loadConfig.yaml
 	 */
 	public function testAllocateQuoteItems($quote)
 	{
+		$inventoryHelperMock = $this->getMock('TrueAction_Eb2c_Inventory_Helper_Data', array('getOperationUri'));
+		$inventoryHelperMock->expects($this->any())
+			->method('getOperationUri')
+			->will($this->returnValue('http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/AllocationResponseMessage.xml'));
+
+		$allocationReflector = new ReflectionObject($this->_allocation);
+		$helper = $allocationReflector->getProperty('_helper');
+		$helper->setAccessible(true);
+		$helper->setValue($this->_allocation, $inventoryHelperMock);
+
 		// testing when you can allocated inventory
 		$this->assertNotNull(
-			$this->_getAllocation()->allocateQuoteItems($quote)
+			$this->_allocation->allocateQuoteItems($quote)
 		);
 	}
 
@@ -139,6 +138,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	 *
 	 * @test
 	 * @dataProvider providerAllocateQuoteItems
+	 * @loadFixture loadConfig.yaml
 	 */
 	public function testAllocateQuoteItemsWithApiCallException($quote)
 	{
@@ -155,14 +155,14 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 		$coreHelper->setAccessible(true);
 		$coreHelper->setValue($inventoryHelper, $coreHelperMock);
 
-		$allocationReflector = new ReflectionObject($this->_getAllocation());
+		$allocationReflector = new ReflectionObject($this->_allocation);
 		$helper = $allocationReflector->getProperty('_helper');
 		$helper->setAccessible(true);
-		$helper->setValue($this->_getAllocation(), $inventoryHelper);
+		$helper->setValue($this->_allocation, $inventoryHelper);
 
 		$this->assertSame(
 			'',
-			trim($this->_getAllocation()->allocateQuoteItems($quote))
+			trim($this->_allocation->allocateQuoteItems($quote))
 		);
 	}
 
@@ -178,12 +178,13 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	 *
 	 * @test
 	 * @dataProvider providerBuildAllocationRequestMessage
+	 * @loadFixture loadConfig.yaml
 	 */
 	public function testBuildAllocationRequestMessage($quote)
 	{
 		// testing when you can allocated inventory
 		$this->assertNotNull(
-			$this->_getAllocation()->buildAllocationRequestMessage($quote)
+			$this->_allocation->buildAllocationRequestMessage($quote)
 		);
 	}
 
@@ -269,12 +270,13 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	 *
 	 * @test
 	 * @dataProvider providerBuildAllocationRequestMessageWithException
+	 * @loadFixture loadConfig.yaml
 	 */
 	public function testBuildAllocationRequestMessageWithException($quote)
 	{
 		// testing when building the allocation message throw an exception
 		$this->assertNotNull(
-			$this->_getAllocation()->buildAllocationRequestMessage($quote)
+			$this->_allocation->buildAllocationRequestMessage($quote)
 		);
 	}
 
@@ -300,12 +302,13 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	 *
 	 * @test
 	 * @dataProvider providerProcessAllocation
+	 * @loadFixture loadConfig.yaml
 	 */
 	public function testProcessAllocation($quote, $allocationData)
 	{
 		$this->assertSame(
 			array('Sorry, item "SKU-1234" out of stock.'),
-			$this->_getAllocation()->processAllocation($quote, $allocationData)
+			$this->_allocation->processAllocation($quote, $allocationData)
 		);
 	}
 
@@ -354,15 +357,16 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	 *
 	 * @test
 	 * @dataProvider providerUpdateQuoteWithEb2cAllocation
+	 * @loadFixture loadConfig.yaml
 	 */
 	public function testUpdateQuoteWithEb2cAllocation($quoteItem, $quoteData)
 	{
-		$allocationReflector = new ReflectionObject($this->_getAllocation());
+		$allocationReflector = new ReflectionObject($this->_allocation);
 		$updateQuoteWithEb2cAllocation = $allocationReflector->getMethod('_updateQuoteWithEb2cAllocation');
 		$updateQuoteWithEb2cAllocation->setAccessible(true);
 		$this->assertSame(
 			'Sorry, we only have 1 of item "SKU-1234" in stock.',
-			$updateQuoteWithEb2cAllocation->invoke($this->_getAllocation(), $quoteItem, $quoteData)
+			$updateQuoteWithEb2cAllocation->invoke($this->_allocation, $quoteItem, $quoteData)
 		);
 	}
 
@@ -378,12 +382,13 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	 *
 	 * @test
 	 * @dataProvider providerRollbackAllocation
+	 * @loadFixture loadConfig.yaml
 	 */
 	public function testRollbackAllocation($quote)
 	{
 		// testing when you can rolling back allocated inventory
 		$this->assertNull(
-			$this->_getAllocation()->rollbackAllocation($quote)
+			$this->_allocation->rollbackAllocation($quote)
 		);
 	}
 
@@ -392,6 +397,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	 *
 	 * @test
 	 * @dataProvider providerRollbackAllocation
+	 * @loadFixture loadConfig.yaml
 	 */
 	public function testRollbackAllocationWithApiCallException($quote)
 	{
@@ -408,14 +414,14 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 		$coreHelper->setAccessible(true);
 		$coreHelper->setValue($inventoryHelper, $coreHelperMock);
 
-		$allocationReflector = new ReflectionObject($this->_getAllocation());
+		$allocationReflector = new ReflectionObject($this->_allocation);
 		$helper = $allocationReflector->getProperty('_helper');
 		$helper->setAccessible(true);
-		$helper->setValue($this->_getAllocation(), $inventoryHelper);
+		$helper->setValue($this->_allocation, $inventoryHelper);
 
 		$this->assertSame(
 			'',
-			trim($this->_getAllocation()->rollbackAllocation($quote))
+			trim($this->_allocation->rollbackAllocation($quote))
 		);
 	}
 
@@ -441,13 +447,81 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	 *
 	 * @test
 	 * @dataProvider providerHasAllocation
+	 * @loadFixture loadConfig.yaml
 	 */
 	public function testHasAllocation($quote)
 	{
 		// testing when building the allocation message throw an exception
 		$this->assertSame(
 			true,
-			$this->_getAllocation()->hasAllocation($quote)
+			$this->_allocation->hasAllocation($quote)
+		);
+	}
+
+	public function providerIsExpired()
+	{
+		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getEb2cReservationExpires'));
+		$itemMock->expects($this->any())
+			->method('getEb2cReservationExpires')
+			->will($this->returnValue('2013-06-26 16:42:20')
+			);
+
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems'));
+		$quoteMock->expects($this->any())
+			->method('getAllItems')
+			->will($this->returnValue(array($itemMock))
+			);
+		return array(
+			array($quoteMock)
+		);
+	}
+
+	/**
+	 * testing isExpired method
+	 *
+	 * @test
+	 * @dataProvider providerIsExpired
+	 * @loadFixture loadConfig.yaml
+	 */
+	public function testIsExpired($quote)
+	{
+		$this->assertSame(
+			true,
+			$this->_allocation->isExpired($quote)
+		);
+	}
+
+	public function providerIsExpiredReturnFalse()
+	{
+		$expiredDateTime = new DateTime(gmdate('c'));
+		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getEb2cReservationExpires'));
+		$itemMock->expects($this->any())
+			->method('getEb2cReservationExpires')
+			->will($this->returnValue($expiredDateTime->format('c'))
+			);
+
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems'));
+		$quoteMock->expects($this->any())
+			->method('getAllItems')
+			->will($this->returnValue(array($itemMock))
+			);
+		return array(
+			array($quoteMock)
+		);
+	}
+
+	/**
+	 * testing isExpired method
+	 *
+	 * @test
+	 * @dataProvider providerIsExpiredReturnFalse
+	 * @loadFixture loadConfig.yaml
+	 */
+	public function testIsExpiredReturnFalse($quote)
+	{
+		$this->assertSame(
+			false,
+			$this->_allocation->isExpired($quote)
 		);
 	}
 }

@@ -6,34 +6,39 @@ tables:
       scope: "default"
       scope_id: 0
       path: "eb2c/inventory/developer_mode"
-      value: "1"
+      value: 1
     - config_id: 2
       scope: "default"
       scope_id: 0
-      path: "eb2c/core/store_id"
+      path: "eb2ccore/general/store_id"
       value: "ABCD"
     - config_id: 3
       scope: "default"
       scope_id: 0
-      path: "eb2c/core/client_id"
+      path: "eb2ccore/general/client_id"
       value: "TAN-CLI"
     - config_id: 4
       scope: "default"
       scope_id: 0
-      path: "eb2c/core/quantity_api_uri"
+      path: "eb2c/inventory/quantity_api_uri"
       value: "http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/QuantityResponseMessage.xml"
     - config_id: 5
       scope: "default"
       scope_id: 0
-      path: "eb2c/core/inventory_detail_uri"
+      path: "eb2c/inventory/inventory_detail_uri"
       value: "http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/InventoryDetailsResponseMessage.xml"
     - config_id: 6
       scope: "default"
       scope_id: 0
-      path: "eb2c/core/allocation_uri"
+      path: "eb2c/inventory/allocation_uri"
       value: "http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/AllocationResponseMessage.xml"
     - config_id: 7
       scope: "default"
       scope_id: 0
-      path: "eb2c/core/rollback_allocation_uri"
+      path: "eb2c/inventory/rollback_allocation_uri"
       value: "http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/RollbackAllocationResponseMessage.xml"
+    - config_id: 8
+      scope: "default"
+      scope_id: 0
+      path: "eb2c/inventory/allocation_expired"
+      value: 60

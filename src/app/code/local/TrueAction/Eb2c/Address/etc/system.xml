@@ -1,9 +1,16 @@
 <?xml version="1.0"?>
 <config>
 	<sections>
-		<eb2c>
+		<eb2caddress translate="label" module="eb2caddress">
+			<label>Address Validation</label>
+			<tab>eb2c</tab>
+			<frontend_type>text</frontend_type>
+			<sort_order>200</sort_order>
+			<show_in_default>1</show_in_default>
+			<show_in_website>1</show_in_website>
+			<show_in_store>1</show_in_store>
 			<groups>
-				<address_validation>
+				<general translate="label">
 					<label>Address Validation</label>
 					<frontend_type>text</frontend_type>
 					<sort_order>500</sort_order>
@@ -21,8 +28,8 @@
 							<validate>validate-number validate-zero-or-greater</validate>
 						</max_suggestions>
 					</fields>
-				</address_validation>
+				</general>
 			</groups>
-		</eb2c>
+		</eb2caddress>
 	</sections>
 </config>

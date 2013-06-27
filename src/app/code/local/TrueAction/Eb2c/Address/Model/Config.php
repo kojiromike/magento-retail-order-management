@@ -8,5 +8,6 @@ class TrueAction_Eb2c_Address_Model_Config
 {
 	protected $_configPaths = array(
 		'max_address_suggestions' => 'eb2caddress/general/max_suggestions',
+		'api_namespace' => 'eb2caddress/api/namespace_uri',
 	);
 }

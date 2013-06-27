@@ -25,6 +25,5 @@ class TrueAction_Eb2c_Order_Test_Model_CancelTest extends EcomDev_PHPUnit_Test_C
 		$this->assertSame(get_class($cr), 'TrueAction_Eb2c_Order_Model_Cancel');
 		$xmlString = $cr->toXml();
 		$this->assertSame(get_class(simplexml_load_string($xmlString)), 'SimpleXMLElement');
-		echo "\n" . get_class($cr) . ": \n" . $xmlString . "\n";
 	}
 }

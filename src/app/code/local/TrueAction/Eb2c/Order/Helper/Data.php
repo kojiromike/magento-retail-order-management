@@ -4,6 +4,7 @@
  */
 class TrueAction_Eb2c_Order_Helper_Data extends Mage_Core_Helper_Abstract
 {
+	public $configModel;
 	public $coreHelper;
 	public $constHelper;
 
@@ -37,6 +38,21 @@ class TrueAction_Eb2c_Order_Helper_Data extends Mage_Core_Helper_Abstract
 			$this->constHelper = Mage::helper('eb2corder/constants');
 		}
 		return $this->constHelper;
+	}
+
+	/**
+	 * Get inventory config instantiated object.
+	 *
+	 * @return TrueAction_Eb2c_Order_Model_Config
+	 */
+	public function getConfigModel($store=null)
+	{
+		if (!$this->configModel) {
+			$this->configModel = Mage::helper('eb2ccore/config');
+			$this->configModel->setStore($store)
+				->addConfigModel(Mage::getModel('eb2corder/config'));
+		}
+		return $this->configModel;
 	}
 
 

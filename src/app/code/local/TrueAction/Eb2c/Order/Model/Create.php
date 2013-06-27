@@ -1,6 +1,6 @@
 <?php
 /**
- * Generates an OrderCreate
+o* Generates an OrderCreate
  * @package Eb2c\Order
  * @author westm@trueaction.com
  *
@@ -74,6 +74,11 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 */
 	public function toXml()
 	{
+		if( !$this->_domRequest ) {
+			$this->_domRequest = new TrueAction_Dom_Document('1.0', 'UTF-8');
+			$this->_domRequest->formatOutput = true;
+			$this->_xmlRequest = $this->_domRequest->saveXML();
+		}
 		return $this->_xmlRequest;
 	}
 
@@ -84,7 +89,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	private function _transmit()
 	{
 		$response = $this->_getHelper()->getCoreHelper()->callApi(
-						$this->_domRequest, Mage::getStoreConfig('eb2c/order/create_uri') 
+						$this->_domRequest, $this->_getHelper()->getConfigModel()->createUri
 						);
 
 		$this->_domResponse = new TrueAction_Dom_Document(); 
@@ -452,20 +457,5 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	private function _getRequestId()
 	{
 		return uniqid('OCR-');
-	}
-
-	private function _localCallApi(DOMDocument $xmlDoc, $apiUri, $method='POST')
-	{
-		// setting default factory adapter to use socket just in case curl extension isn't install in the server
-		// by default, curl will be used as the default adapter
-		$client = new Varien_Http_Client($apiUri, array('adapter' => 'Zend_Http_Client_Adapter_Socket'));
-		$client->setRawData($xmlDoc->saveXML())->setEncType('text/xml');
-		$response = $client->request($method);
-		$results = '';
-		if ($response->isSuccessful()) {
-			$results = $response->getBody();
-		}
-print_r($results);
-		return $results;
 	}
 }

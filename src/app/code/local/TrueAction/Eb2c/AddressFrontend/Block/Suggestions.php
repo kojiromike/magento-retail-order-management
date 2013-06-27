@@ -7,16 +7,9 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 	 * Return the list of suggested addresses.
 	 * @return Mage_Customer_Model_Address[]
 	 */
-	public function getAddressSuggestions()
+	public function getSuggestedAddresses()
 	{
-		$addressColl = Mage::getSingleton('eb2caddress/validator');
-		$suggestions = array();
-		foreach ($addressColl as $addressKey => $address) {
-			if ($addressKey !== 'original') {
-				$suggestions[$addressKey] = $address;
-			}
-		}
-		return $suggestions;
+		return Mage::getSingleton('eb2caddress/validator')->getSuggestedAddresses();
 	}
 
 	/**
@@ -25,7 +18,7 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 	 */
 	public function getOriginalAddress()
 	{
-		return Mage::getSingleton('eb2caddress/validation')->getValidatedAddress('original');
+		return Mage::getSingleton('eb2caddress/validation')->getOriginalAddress();
 	}
 
 }

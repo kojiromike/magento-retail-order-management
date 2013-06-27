@@ -11,6 +11,11 @@
 				<class>TrueAction_Eb2c_Core_Helper</class>
 			</eb2ccore>
 		</helpers>
+		<models>
+			<eb2ccore>
+				<class>TrueAction_Eb2c_Core_Model</class>
+			</eb2ccore>
+		</models>
 	</global>
 	<default>
 		<eb2ccore>

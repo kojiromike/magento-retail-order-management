@@ -22,15 +22,15 @@
 					<frontName>eb2c</frontName>
 				</args>
 			</trueaction_eb2c>
-            <checkout>
-                <args>
-                    <modules>
-                         <TrueAction_Eb2c before="Mage_Checkout">TrueAction_Eb2c_Override_Checkout</TrueAction_Eb2c>
-                    </modules>
-                </args>
-            </checkout>
-        </routers>
-    </frontend>
+			<checkout>
+			<args>
+				<modules>
+					<TrueAction_Eb2c before="Mage_Checkout">TrueAction_Eb2c_Override_Checkout</TrueAction_Eb2c>
+				</modules>
+			</args>
+			</checkout>
+		</routers>
+	</frontend>
 	<phpunit>
 		<suite>
 			<modules>

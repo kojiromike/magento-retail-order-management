@@ -71,8 +71,9 @@ class TrueAction_Eb2c_Address_Model_Validator
 	{
 		$addressCollection = array();
 		$addressCollection['original'] = $response->getOriginalAddress();
+		$addressCollection['suggestions'] = array();
 		foreach ($response->getAddressSuggestions() as $idx => $suggestedAddress) {
-			$addressCollection['suggestion_' . $idx] = $suggestedAddress;
+			$addressCollection['suggestions'][$idx] = $suggestedAddress;
 		}
 		$this->_getSession()->setAddressValidationAddresses($addressCollection);
 	}
@@ -84,6 +85,26 @@ class TrueAction_Eb2c_Address_Model_Validator
 	public function getAddressCollection()
 	{
 		return $this->_getSession()->getAddressValidationAddresses();
+	}
+
+	/**
+	 * Get the address returned as the "original" address from EB2C.
+	 * @return Mage_Customer_Model_Address
+	 */
+	public function getOriginalAddress()
+	{
+		$addresses = $this->getAddressCollection();
+		return $addresses['original'];
+	}
+
+	/**
+	 * Get the suggested address returned by EB2C
+	 * @return Mage_Customer_Model_Address[]
+	 */
+	public function getSuggestedAddresses()
+	{
+		$addresses = $this->getAddressCollection();
+		return $addresses['suggestions'];
 	}
 
 	/**

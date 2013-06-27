@@ -4,7 +4,6 @@
  * storing and retrieving address suggestions.
  */
 class TrueAction_Eb2c_Address_Model_Validator
-	extends Mage_Core_Model_Abstract
 {
 
 	const SESSION_KEY = 'address_validation_addresses';

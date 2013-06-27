@@ -1,125 +1,125 @@
 <?xml version="1.0"?>
 <config>
-    <tabs>
-        <eb2c translate="label" module="eb2ccore">
-            <label>EB2C</label>
-            <sort_order>550</sort_order>
-        </eb2c>
-    </tabs>
-    <sections>
-        <eb2ccore translate="label" module="eb2ccore">
-            <class>separator-top</class>
-            <label>Core</label>
-            <tab>eb2c</tab>
-            <frontend_type>text</frontend_type>
-            <sort_order>100</sort_order>
-            <show_in_default>1</show_in_default>
-            <show_in_website>1</show_in_website>
-            <show_in_store>1</show_in_store>
-            <groups>
-                <general translate="label">
-                    <label>General</label>
-                    <frontend_type>text</frontend_type>
-                    <sort_order>5</sort_order>
-                    <show_in_default>1</show_in_default>
-                    <show_in_website>1</show_in_website>
-                    <show_in_store>1</show_in_store>
-                    <fields>
-                        <catalog_id translate="label comment">
-                            <label>Catalog ID</label>
-                            <comment></comment>
-                            <sort_order>10</sort_order>
-                            <frontend_type>text</frontend_type>
-                            <validate>validate-alphanum</validate>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </catalog_id>
-                        <client_id>
-                            <label>Client ID</label>
-                            <comment></comment>
-                            <sort_order>20</sort_order>
-                            <frontend_type>text</frontend_type>
-                            <validate>validate-alphanum</validate>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </client_id>
-                        <store_id>
-                            <label>Store ID</label>
-                            <comment></comment>
-                            <sort_order>30</sort_order>
-                            <frontend_type>text</frontend_type>
-                            <validate>validate-alphanum</validate>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </store_id>
-                        <sftp_username>
-                            <label>SFTP User Name</label>
-                            <comment></comment>
-                            <sort_order>40</sort_order>
-                            <frontend_type>text</frontend_type>
-                            <validate>validate-alphanum</validate>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </sftp_username>
-                        <sftp_password>
-                            <label>SFTP Password/Key</label>
-                            <comment></comment>
-                            <sort_order>50</sort_order>
-                            <frontend_type>obscure</frontend_type>
-                            <validate>validate-password</validate>
-                            <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </sftp_password>
-                        <sftp_location>
-                            <label>SFTP Location</label>
-                            <comment></comment>
-                            <sort_order>60</sort_order>
-                            <frontend_type>text</frontend_type>
-                            <validate>validate-url</validate>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </sftp_location>
-                        <api_key>
-                            <label>Catalog ID</label>
-                            <comment></comment>
-                            <sort_order>70</sort_order>
-                            <frontend_type>obscure</frontend_type>
-                            <validate>validate-password</validate>
-                            <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </api_key>
-                        <api_timeout>
-                            <label>API Timeout</label>
-                            <comment>Time in milliseconds</comment>
-                            <sort_order>80</sort_order>
-                            <frontend_type>text</frontend_type>
-                            <validate>validate-digits</validate>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </api_timeout>
-                        <test_mode>
-                            <label>Test Mode</label>
-                            <comment>Should messages be sent as tests?</comment>
-                            <sort_order>90</sort_order>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </test_mode>
-                    </fields>
-                </general>
-            </groups>
-        </eb2ccore>
-    </sections>
+	<tabs>
+		<eb2c translate="label" module="eb2ccore">
+			<label>EB2C</label>
+			<sort_order>550</sort_order>
+		</eb2c>
+	</tabs>
+	<sections>
+		<eb2ccore translate="label" module="eb2ccore">
+			<class>separator-top</class>
+			<label>Core</label>
+			<tab>eb2c</tab>
+			<frontend_type>text</frontend_type>
+			<sort_order>100</sort_order>
+			<show_in_default>1</show_in_default>
+			<show_in_website>1</show_in_website>
+			<show_in_store>1</show_in_store>
+			<groups>
+				<general translate="label">
+					<label>General</label>
+					<frontend_type>text</frontend_type>
+					<sort_order>5</sort_order>
+					<show_in_default>1</show_in_default>
+					<show_in_website>1</show_in_website>
+					<show_in_store>1</show_in_store>
+					<fields>
+						<catalog_id translate="label comment">
+							<label>Catalog ID</label>
+							<comment></comment>
+							<sort_order>10</sort_order>
+							<frontend_type>text</frontend_type>
+							<validate>validate-alphanum</validate>
+							<show_in_default>1</show_in_default>
+							<show_in_website>0</show_in_website>
+							<show_in_store>0</show_in_store>
+						</catalog_id>
+						<client_id>
+							<label>Client ID</label>
+							<comment></comment>
+							<sort_order>20</sort_order>
+							<frontend_type>text</frontend_type>
+							<validate>validate-alphanum</validate>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</client_id>
+						<store_id>
+							<label>Store ID</label>
+							<comment></comment>
+							<sort_order>30</sort_order>
+							<frontend_type>text</frontend_type>
+							<validate>validate-alphanum</validate>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</store_id>
+						<sftp_username>
+							<label>SFTP User Name</label>
+							<comment></comment>
+							<sort_order>40</sort_order>
+							<frontend_type>text</frontend_type>
+							<validate>validate-alphanum</validate>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</sftp_username>
+						<sftp_password>
+							<label>SFTP Password/Key</label>
+							<comment></comment>
+							<sort_order>50</sort_order>
+							<frontend_type>obscure</frontend_type>
+							<validate>validate-password</validate>
+							<backend_model>adminhtml/system_config_backend_encrypted</backend_model>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</sftp_password>
+						<sftp_location>
+							<label>SFTP Location</label>
+							<comment></comment>
+							<sort_order>60</sort_order>
+							<frontend_type>text</frontend_type>
+							<validate>validate-url</validate>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</sftp_location>
+						<api_key>
+							<label>Catalog ID</label>
+							<comment></comment>
+							<sort_order>70</sort_order>
+							<frontend_type>obscure</frontend_type>
+							<validate>validate-password</validate>
+							<backend_model>adminhtml/system_config_backend_encrypted</backend_model>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</api_key>
+						<api_timeout>
+							<label>API Timeout</label>
+							<comment>Time in milliseconds</comment>
+							<sort_order>80</sort_order>
+							<frontend_type>text</frontend_type>
+							<validate>validate-digits</validate>
+							<show_in_default>1</show_in_default>
+							<show_in_website>0</show_in_website>
+							<show_in_store>0</show_in_store>
+						</api_timeout>
+						<test_mode>
+							<label>Test Mode</label>
+							<comment>Should messages be sent as tests?</comment>
+							<sort_order>90</sort_order>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+							<show_in_default>1</show_in_default>
+							<show_in_website>0</show_in_website>
+							<show_in_store>0</show_in_store>
+						</test_mode>
+					</fields>
+				</general>
+			</groups>
+		</eb2ccore>
+	</sections>
 </config>

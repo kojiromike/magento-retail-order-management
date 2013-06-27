@@ -130,6 +130,12 @@ class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
 			// Be consistent with how PHP treats undefined properties.
 			trigger_error(sprintf('Undefined property: %s::%s in php shell code on line %d', get_class($this), $name, __LINE__));
 		}
+		return null;
+	}
+
+	public function __set($name, $value)
+	{
+		trigger_error(sprintf('Cannot write property %s::%s in php shell code on line %d', get_class($this), $name, __LINE__), E_USER_ERROR);
 	}
 
 }

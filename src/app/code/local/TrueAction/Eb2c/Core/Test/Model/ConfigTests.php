@@ -7,30 +7,13 @@
 class TrueAction_Eb2c_Core_Test_Model_ConfigTests extends EcomDev_PHPUnit_Test_Case
 {
 
-	protected function _createConfigStub()
-	{
-		$stub = $this->getMock('TrueAction_Eb2c_Core_Model_Config_Abstract');
-
-		$keyMap = array(array('catalog_id', true), array('foo_bar_baz', false));
-		$stub->expects($this->any())
-			->method('hasKey')
-			->will($this->returnValueMap($keyMap));
-
-		$pathMap = array(array('catalog_id', 'eb2c/core/catalog_id'));
-		$stub->expects($this->any())
-			->method('getPathForKey')
-			->will($this->returnValueMap($pathMap));
-
-		return $stub;
-	}
-
 	/**
 	 * Test determining if a config model knows about a key
 	 * @test
 	 */
 	public function testConfigModelHasKey()
 	{
-		$configModel = $this->_createConfigStub();
+		$configModel = new ConfigStub();
 		$this->assertTrue($configModel->hasKey('catalog_id'));
 		$this->assertFalse($configModel->hasKey('foo_bar_baz'));
 	}
@@ -41,8 +24,19 @@ class TrueAction_Eb2c_Core_Test_Model_ConfigTests extends EcomDev_PHPUnit_Test_C
 	 */
 	public function testConfigModelGetPath()
 	{
-		$configModel = $this->_createConfigStub();
+		$configModel = new ConfigStub();
 		$this->assertSame($configModel->getPathForKey('catalog_id'), 'eb2c/core/catalog_id');
 	}
 
+}
+
+/**
+ * Simple implementation of the config abstract model.
+ * Used to test the concrete implementations in the abstract class.
+ *
+ * @codeCoverageIgnore
+ */
+class ConfigStub extends TrueAction_Eb2c_Core_Model_Config_Abstract
+{
+	protected $_configPaths = array('catalog_id' => 'eb2c/core/catalog_id');
 }

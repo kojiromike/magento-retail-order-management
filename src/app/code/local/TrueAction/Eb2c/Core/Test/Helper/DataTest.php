@@ -15,7 +15,6 @@ class TrueAction_Eb2c_Core_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Cas
 	{
 		parent::setUp();
 		$this->_helper = $this->_getHelper();
-		Mage::app()->getConfig()->reinit(); // re-initialize config to get fresh loaded data
 	}
 
 	/**
@@ -73,5 +72,27 @@ class TrueAction_Eb2c_Core_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Cas
 		$this->assertNotEmpty(
 			$this->_getHelper()->callApi($request, $apiUri)
 		);
+	}
+
+	/**
+	 * test generating the API URIs
+	 * @test
+	 * @loadFixture configData
+	 */
+	public function testApiUriCreation()
+	{
+		$helper = Mage::helper('eb2ccore');
+		// simplest case - just a service and operation
+		$this->assertSame(
+			'https://prod-eu.gsipartners.com/v1.10/stores/store-123/address/validate.xml',
+			$helper->apiUri('address', 'validate'));
+		// service, operation and params
+		$this->assertSame(
+			'https://prod-eu.gsipartners.com/v1.10/stores/store-123/payments/creditcard/auth/VC.xml',
+			$helper->apiUri('payments', 'creditcard', array('auth', 'VC')));
+		// service, operation, params and type
+		$this->assertSame(
+			'https://prod-eu.gsipartners.com/v1.10/stores/store-123/inventory/allocations/delete.json',
+			$helper->apiUri('inventory', 'allocations', array('delete'), 'json'));
 	}
 }

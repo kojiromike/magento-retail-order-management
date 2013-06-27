@@ -12,9 +12,9 @@
 			</eb2corder>
 		</models>
 		<helpers>
-			<order>
+			<eb2corder>
 				<class>TrueAction_Eb2c_Order_Helper</class>
-			</order>
+			</eb2corder>
 		</helpers>
 	</global>
 	<frontend>
@@ -23,8 +23,8 @@
 				<observers>
 					<createrequest_observer>
 						<type>singleton</type>
-						<class>TrueAction_Eb2c_Inventory_Model_CreateRequest</class>
-						<method>observerRealTimeCreate</method>
+						<class>TrueAction_Eb2c_Order_Model_Create</class>
+						<method>observerCreate</method>
 					</createrequest_observer>
 				</observers>
 			</checkout_type_onepage_save_order_after>
@@ -34,12 +34,14 @@
 		<eb2c>
 			<order>
 				<developer_mode>1</developer_mode>
-				<create_request_uri>
-					http://ENV-RR.virtubox.net/VM.m/stores/STOREID/order/create.format
-				</create_request_uri>
-				<cancel_request_uri>
-					http://ENV-RR.virtubox.net/VM.m/stores/STOREID/order/cancel.format
-				</cancel_request_uri>
+					<!--
+					To view using dumbListener
+					<create_uri>http://virtbox.net:8080/</create_uri>
+					<cancel_uri>http://virtbox.net:8080/</cancel_uri>
+					-->
+				<create_uri>http://virtbox.net/~mwest/fakeb2c/orderCreateRequest.php</create_uri>
+				<cancel_uri>http://virtbox.net/~mwest/fakeb2c/orderCancelRequest.php</cancel_uri>
+				<gsi_payments_enabled>false</gsi_payments_enabled>
 			</order>
 		</eb2c>
 	</default>

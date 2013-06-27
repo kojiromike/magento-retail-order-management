@@ -18,16 +18,6 @@
  */
 class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 {
-	const DOM_ROOT_NODE_NAME = 'OrderCreateRequest';
-	const DOM_ROOT_NS = 'http://api.gsicommerce.com/schema/checkout/1.0';
-
-	const ORDER_TYPE = 'SALES';
-	const LEVEL_OF_SERVICE = 'REGULAR';
-
-	const SHIPGROUP_DESTINATION_ID = 'dest_1';
-	const SHIPGROUP_BILLING_ID = 'billing_1';
-	const ORDER_HISTORY_PATH = 'sales/order/view/order_id/';
-
 	private $_o = null;					// Magento Order Object
 	private $_xmlRequest = null;		// Human readable XML
 	private $_xmlResponse = null;		// Human readable XML
@@ -41,7 +31,6 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	public function __construct()
 	{
 		$this->_helper = $this->_getHelper();
-		$this->_coreHelper = $this->_getCoreHelper();
 	}
 
 	/**
@@ -55,14 +44,6 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 			$this->_helper = Mage::helper('eb2corder');
 		}
 		return $this->_helper;
-	}
-
-	protected function _getCoreHelper()
-	{
-		if (!$this->_coreHelper) {
-			$this->_coreHelper = Mage::helper('eb2ccore');
-		}
-		return $this->_coreHelper;
 	}
 
 	/**
@@ -102,7 +83,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 */
 	private function _transmit()
 	{
-		$response = $this->_getCoreHelper()->callApi(
+		$response = $this->_getHelper()->getCoreHelper()->callApi(
 						$this->_domRequest, Mage::getStoreConfig('eb2c/order/create_uri') 
 						);
 
@@ -129,14 +110,16 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 			Mage::throwException('Order ' . $orderId . ' not found.' );
 		}
 
+		$consts = $this->_getHelper()->getConstHelper();
+
 		$this->_domRequest = new TrueAction_Dom_Document('1.0', 'UTF-8');
 		$this->_domRequest->formatOutput = true;
-		$orderCreateRequest = $this->_domRequest->addElement(self::DOM_ROOT_NODE_NAME, null, self::DOM_ROOT_NS)->firstChild;
-		$orderCreateRequest->setAttribute('orderType', self::ORDER_TYPE);
+		$orderCreateRequest = $this->_domRequest->addElement($consts::CREATE_DOM_ROOT_NODE_NAME, null, $consts::DOM_ROOT_NS)->firstChild;
+		$orderCreateRequest->setAttribute('orderType', $consts::ORDER_TYPE);
 		$orderCreateRequest->setAttribute('requestId', $this->_getRequestId());
 
 		$order = $orderCreateRequest->createChild('Order');
-		$order->setAttribute('levelOfService', self::LEVEL_OF_SERVICE);
+		$order->setAttribute('levelOfService', $consts::LEVEL_OF_SERVICE);
 		$order->setAttribute('customerOrderId', $this->_o->getIncrementId());
 
 		$this->_buildCustomer( $order->createChild('Customer') );
@@ -164,7 +147,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 
 		$order->createChild('OrderHistoryUrl', 
 			Mage::app()->getStore($this->_o->getStoreId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) .
-			self::ORDER_HISTORY_PATH . 
+			$consts::ORDER_HISTORY_PATH . 
 			$this->_o->getEntityId());
 
 		$order->createChild('OrderTotal', sprintf('%.02f', $this->_o->getGrandTotal()));
@@ -310,9 +293,10 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 */
 	private function _buildShipping(DomElement $shipGroup)
 	{
+		$consts = $this->_getHelper()->getConstHelper();
 		$shipGroup->setAttribute('id', 'shipGroup_1');
 		$shipGroup->setAttribute('chargeType', '');
-		$shipGroup->createChild('DestinationTarget')->setAttribute('ref', self::SHIPGROUP_DESTINATION_ID);
+		$shipGroup->createChild('DestinationTarget')->setAttribute('ref', $consts::SHIPGROUP_DESTINATION_ID);
 		$orderItems = $shipGroup->createChild('OrderItems');
 		foreach( $this->_orderItemRef as $orderItemRef ) {
 			$shipItem = $orderItems->createChild('Item');
@@ -323,7 +307,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 		// Ship-To
 		$sa = $this->_o->getShippingAddress();
 		$dest = $destinations->createChild('MailingAddress');
-		$dest->setAttribute('id', self::SHIPGROUP_DESTINATION_ID);
+		$dest->setAttribute('id', $consts::SHIPGROUP_DESTINATION_ID);
 		$this->_buildPersonName($dest->createChild('PersonName'), $sa);
 		$this->_buildAddress($dest->createChild('Address'), $sa);
 		$dest->createChild('Phone', $sa->getTelephone());
@@ -333,7 +317,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 		// TODO: We may have to revisit billing details in case of multiple tenders for a single order? Don't know what magento allows.
 		$ba = $this->_o->getBillingAddress();
 		$billing = $destinations->createChild('MailingAddress');
-		$billing->setAttribute('id', self::SHIPGROUP_BILLING_ID);
+		$billing->setAttribute('id', $consts::SHIPGROUP_BILLING_ID);
 		$this->_buildPersonName($billing->createChild('PersonName'), $ba);
 		$this->_buildAddress($billing->createChild('Address'), $ba);
 		$billing->createChild('Phone', $ba->getTelephone());
@@ -385,7 +369,8 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 */
 	private function _buildPayment($payment)
 	{
-		$payment->createChild('BillingAddress')->setAttribute('ref', self::SHIPGROUP_BILLING_ID);
+		$consts = $this->_getHelper()->getConstHelper();
+		$payment->createChild('BillingAddress')->setAttribute('ref', $consts::SHIPGROUP_BILLING_ID);
 		$this->_buildPayments($payment->createChild('Payments'));
 		return;
 	}

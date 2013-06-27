@@ -207,11 +207,13 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	/**
 	 * Sidestep the error and ensure that values are not getting set.
 	 * @test
+	 * @loadFixture configData
 	 */
 	public function testAllPropsReadonly()
 	{
 		$handler = set_error_handler(array($this, 'noopErrorHandler'));
-		$config = Mage::helper('eb2ccore/config');
+		$config = Mage::helper('eb2ccore/config')
+			->addConfigModel($this->_createConfigStub());
 		$config->catalogId = 'foo';
 		$this->assertSame(Mage::getStoreConfig('eb2c/core/catalog_id'), $config->catalogId);
 		set_error_handler($handler);

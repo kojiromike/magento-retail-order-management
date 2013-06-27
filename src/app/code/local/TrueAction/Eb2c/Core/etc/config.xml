@@ -6,16 +6,16 @@
 		</TrueAction_Eb2c_Core>
 	</modules>
 	<global>
-		<helpers>
-			<eb2ccore>
-				<class>TrueAction_Eb2c_Core_Helper</class>
-			</eb2ccore>
-		</helpers>
 		<models>
 			<eb2ccore>
 				<class>TrueAction_Eb2c_Core_Model</class>
 			</eb2ccore>
 		</models>
+		<helpers>
+			<eb2ccore>
+				<class>TrueAction_Eb2c_Core_Helper</class>
+			</eb2ccore>
+		</helpers>
 	</global>
 	<default>
 		<eb2ccore>

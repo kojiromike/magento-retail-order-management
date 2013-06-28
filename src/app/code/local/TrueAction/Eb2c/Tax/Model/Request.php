@@ -133,7 +133,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	protected function _buildTaxDutyRequest()
 	{
-		$this->_doc->addElement('TaxDutyQuoteRequest', null, $this->namespaceUri);
+		$this->_doc->addElement('TaxDutyQuoteRequest', null, $this->_namespaceUri);
 		$tdRequest          = $this->_doc->documentElement;
 		$billingInformation = $tdRequest->addChild(
 			'Currency',
@@ -185,11 +185,11 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 				if ($item->getHasChildren() && $item->isChildrenCalculated()) {
 					foreach ($item->getChildren() as $child) {
 						$isVirtual = $item->getProduct()->getIsVirtual();
-						$this->_addToDestination($address, $item, $isVirtual);
+						$this->_addToDestination($item, $address, $isVirtual);
 					}
 				} else {
 					$isVirtual = $item->getProduct()->getIsVirtual();
-					$this->_addToDestination($address, $item, $isVirtual);
+					$this->_addToDestination($item, $address, $isVirtual);
 				}
 			}
 		}
@@ -217,7 +217,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		}
 	}
 
-	protected function _addToDestination($address, $item, $isVirtual = false)
+	protected function _addToDestination($item, $address, $isVirtual = false)
 	{
 		$addressEmail = $this->_getEmailFromAddress($address);
 		$id = $this->_addShipGroup($address, $isVirtual);
@@ -313,7 +313,11 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	protected function _getItemTaxClass($item)
 	{
-		return $this->_checkLength($item->getProduct()->getTaxCode(),1, 40);
+		$taxCode = '';
+		if ($item->getProduct()->hasTaxCode()) {
+			$taxCode = $item->getProduct()->getTaxCode();
+		}
+		return $this->_checkLength($taxCode ,1, 40);
 	}
 
 	protected function _checkSku($item)
@@ -525,7 +529,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$quoteItems = $this->getQuote()->getAllVisibleItems();
 		foreach ($quoteItems as $key => $quoteItem) {
-			$this->_skuLineMap[$quoteItem->getSku()] = $key;
+			$this->_skuLineMap[$quoteItem->getSku()] = $quoteItem->getId();
 			$this->_skuItemMap[$quoteItem->getSku()] = $quoteItem;
 		}
 	}
@@ -537,7 +541,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _getLineNumber($item)
 	{
-		return $this->_skuLineMap[$item['id']];
+		return $item['id'];
 	}
 
 	/**

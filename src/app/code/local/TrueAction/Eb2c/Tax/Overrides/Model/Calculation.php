@@ -51,9 +51,12 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 * @param  Mage_Sales_Model_Quote $quote
 	 * @return TrueAction_Eb2c_Tax_Model_Request
 	 */
-	public function getTaxRequest(Mage_Sales_Model_Quote $quote)
+	public function getTaxRequest(Mage_Sales_Model_Quote $quote = null)
 	{
-		return Mage::getModel('eb2ctax/request', array('quote' => $quote));
+		$response = $this->getTaxResponse();
+		$request = ($response && $response->getTaxRequest()) ? 
+			$response->getRequest() : 
+			Mage::getModel('eb2ctax/request', array('quote' => $quote));
 	}
 
 	/**

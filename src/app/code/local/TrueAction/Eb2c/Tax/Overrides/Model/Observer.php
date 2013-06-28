@@ -1,6 +1,8 @@
 <?php
-class TrueAction_Eb2c_Tax_Overrides_Model_Observer extends Mage_Tax_Model_Observer
+class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 {
+	// TODO: ADD SHIPPING METHOD EVENT
+	// TODO: EACH OF THESE EVENTS SHOULD BOIL DOWN TO 3 CASES: 1 ITEM CHANGED FORCE RESEND; 2 ITEM CHANGED CHECKED RESEND; ADDRESS CHECK
 	public function salesEventItemAdded(Varien_Event_Observer $observer)
 	{
 		Mage::log('salesEventItemAdded');
@@ -79,4 +81,16 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer extends Mage_Tax_Model_Observ
 			);
 		}
 	}
+
+
+    /**
+     * placeholder
+     *
+     * @param   Varien_Event_Observer $observer
+     * @return  Mage_Tax_Model_Observer
+     */
+    public function addTaxPercentToProductCollection($observer)
+    {
+        return $this;
+    }
 }

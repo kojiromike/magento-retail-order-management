@@ -227,27 +227,30 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$this->_orderItems[$item->getSku()] = $this->_extractItemData($item);
 	}
 
+	/**
+	 * generate a shipgroup id and map it to a destination id
+	 */
 	protected function _addShipGroup($address, $isVirtual)
 	{
-		if ($address->getAddressType() === 'billing') {
-			$this->_shipGroups[$address->getEmail()] = 'shipGroup_' . 
-				strtoupper($address->getEmail()) . '_NONE';
+		$rateKey = 'NONE';
+		$addressKey = $address->getId();
+		if ($address->getAddressType() === 'billing' || $isVirtual) {
+			$addressKey = strtoupper($this->_getEmailFromAddress($address));
 		} else {
 			$groupedRates = $address->getGroupedAllShippingRates();
-			foreach ($groupedRates as $rateKey => $shippingRate) {
-				$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
-				$addressKey = $address->getId();
-				if ($isVirtual) {
-					$addressKey = $this->_getEmailFromAddress($address);
-				}
-				// FIXME: === always returns false in the following if statement
-				var_dump($address->getShippingMethod());
-				var_dump($shippingRate->getCode());
-				if ($address->getShippingMethod() == $shippingRate->getCode()) {
-					$this->_shipGroups[$address->getId()] = "shipGroup_{$addressKey}_{$rateKey}";
+			if ($groupedRates) {
+				foreach ($groupedRates as $rateKey => $shippingRate) {
+					$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
+					$addressKey = $address->getId();
+					if ($address->getShippingMethod() === $shippingRate->getCode()) {
+						$rateKey = strtoupper($shippingRate->getMethod());
+					}
 				}
 			}
 		}
+		$id = "shipGroup_{$addressKey}_{$rateKey}";
+		$this->_shipGroups[$addressKey] = $id;
+		return $id;
 	}
 
 	protected function _getEmailFromAddress($address)

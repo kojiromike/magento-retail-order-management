@@ -271,12 +271,13 @@ class TrueAction_Eb2c_Address_Test_Model_TestValidator
 			$mockSession->getData('address_validation_addresses'),
 			$validator->getAddressCollection()
 		);
-		$this->assertArrayHasKey('original', $validator->getAddressCollection());
-		$this->assertArrayHasKey('suggestion_0', $validator->getAddressCollection());
-		$this->assertArrayHasKey('suggestion_1', $validator->getAddressCollection());
 
-		$this->assertSame('Suggestion 1 Line 1', $validator->getValidatedAddress('suggestion_0')->getStreet1());
-		$this->assertSame('13021-1234', $validator->getValidatedAddress('suggestion_1')->getPostcode());
+		$this->assertTrue($validator->getAddressCollection()->hasData('original_address'));
+		$this->assertTrue($validator->getAddressCollection()->hasData('suggested_addresses'));
+		$this->assertSame(
+			count($validator->getAddressCollection()->getSuggestedAddresses()),
+			2
+		);
 	}
 
 	/**
@@ -391,11 +392,22 @@ class TrueAction_Eb2c_Address_Test_Model_TestValidator
 	}
 
 	/**
+	 * Test retrieval of address objects from the validator by key.
+	 * @test
+	 */
+	public function getValidatedAddressKyKey()
+	{
+		$this->markTestIncomplete('not yet implemented.');
+		$validator = Mage::getModel('eb2caddress/validator');
+	}
+
+	/**
 	 * Trying to get a validated address with an unknown key will return null
 	 * @test
 	 */
 	public function gettingValidatedAddressByUnknownKey()
 	{
+		$this->markTestIncomplete('not yet implemented.');
 		$validator = Mage::getModel('eb2caddress/validator');
 		$this->assertNull($validator->getValidatedAddress('dont_know_about_this'));
 	}

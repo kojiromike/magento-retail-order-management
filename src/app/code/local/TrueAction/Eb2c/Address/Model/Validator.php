@@ -7,6 +7,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 {
 
 	const SESSION_KEY = 'address_validation_addresses';
+
 	const SUGGESTIONS_ERROR_MESSAGE = 'The address could not be validated. Please select one of the suggestions.';
 	const NO_SUGGESTIONS_ERROR_MESSAGE = 'The address could not be validated. Please provide a new address.';
 	/**
@@ -59,6 +60,11 @@ class TrueAction_Eb2c_Address_Model_Validator
 				}
 			}
 			$this->_stashAddresses($response);
+		} else {
+			// When the address has already been validated, it means the address has come
+			// from the session. When this happens, the session data has been used and
+			// should be cleared out to prevent it from being reused.
+			$this->clearSessionAddresses();
 		}
 		return $errorMessage;
 	}
@@ -69,22 +75,26 @@ class TrueAction_Eb2c_Address_Model_Validator
 	 */
 	protected function _stashAddresses(TrueAction_Eb2c_Address_Model_Validation_Response $response)
 	{
-		$addressCollection = array();
-		$addressCollection['original'] = $response->getOriginalAddress();
-		$addressCollection['suggestions'] = array();
-		foreach ($response->getAddressSuggestions() as $idx => $suggestedAddress) {
-			$addressCollection['suggestions'][$idx] = $suggestedAddress;
+		$addressCollection = new Varien_Object();
+		$addressCollection->setOriginalAddress($response->getOriginalAddress()->setStashKey('original_address'));
+		$suggestions = $response->getAddressSuggestions();
+		foreach ($suggestions as $idx => $suggestion) {
+			$suggestion->setStashKey('suggested_addresses/' . $idx);
 		}
+		$addressCollection->setSuggestedAddresses($suggestions);
+		$addressCollection->setResponseMessage($response);
 		$this->_getSession()->setAddressValidationAddresses($addressCollection);
 	}
 
 	/**
-	 * Return the collection (key=>value pairs) of addresses for address validation.
-	 * @return Mage_Customer_Model_Address[]
+	 * Return a Varien_Object containing stashed data about address validation and
+	 * validated addresses. Most of the properties it contains are retrievable
+	 * from this class so it is unlikely this will need to be called publicly.
+	 * @return Varien_Object
 	 */
 	public function getAddressCollection()
 	{
-		return $this->_getSession()->getAddressValidationAddresses();
+		return $this->_getSession()->getData(self::SESSION_KEY) ?: new Varien_Object();
 	}
 
 	/**
@@ -93,8 +103,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 	 */
 	public function getOriginalAddress()
 	{
-		$addresses = $this->getAddressCollection();
-		return $addresses['original'];
+		return $this->getAddressCollection()->getOriginalAddress();
 	}
 
 	/**
@@ -103,8 +112,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 	 */
 	public function getSuggestedAddresses()
 	{
-		$addresses = $this->getAddressCollection();
-		return $addresses['suggestions'];
+		return $this->getAddressCollection()->getSuggestedAddresses();
 	}
 
 	/**
@@ -114,11 +122,25 @@ class TrueAction_Eb2c_Address_Model_Validator
 	 */
 	public function getValidatedAddress($key)
 	{
+		// @TODO fix me
 		$addressCollection = $this->getAddressCollection();
-		if (isset($addressCollection[$key])) {
-			return $addressCollection[$key];
+		if ($addressCollection->hasData($key)) {
+			return $addressCollection->getData($key);
 		}
 		return null;
+	}
+
+	/**
+	 * Returns whether or not there are address suggestions stored in the session
+	 * and they should be shown to the user.
+	 * @return boolean
+	 */
+	public function hasSuggestions()
+	{
+		// @TODO this logic is likely going to need to be a more
+		// robust to prevent stale session data from being used.
+		$suggestions = $this->getSuggestedAddresses();
+		return !empty($suggestions);
 	}
 
 	/**

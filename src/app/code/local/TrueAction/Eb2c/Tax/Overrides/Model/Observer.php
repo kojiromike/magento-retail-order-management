@@ -6,6 +6,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	public function salesEventItemAdded(Varien_Event_Observer $observer)
 	{
 		Mage::log('salesEventItemAdded');
+		// TODO: Make sure this is actually a quote item! 
 		$quote = $observer->getEvent()->getQuoteItem()->getQuote();
 		$this->_fetchTaxDutyInfo($quote);
 	}
@@ -13,6 +14,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	public function cartEventProductUpdated(Varien_Event_Observer $observer)
 	{
 		Mage::log('cartEventProductUpdated');
+		// TODO: Make sure this is actually a quote item! 
 		$quote = $observer->getEvent()->getQuoteItem()->getQuote();
 		$this->_fetchTaxDutyInfo($quote);
 	}
@@ -20,6 +22,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	public function salesEventItemRemoved(Varien_Event_Observer $observer)
 	{
 		Mage::log('salesEventItemRemoved');
+		// TODO: Make sure this is actually a quote item! 
 		$quote = $observer->getEvent()->getQuoteItem()->getQuote();
 		$this->_fetchTaxDutyInfo($quote);
 	}
@@ -27,6 +30,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	public function salesEventItemQtyUpdated(Varien_Event_Observer $observer)
 	{
 		Mage::log('salesEventItemQtyUpdated');
+		// TODO: Make sure this is actually a quote item! 
 		$quote = $observer->getEvent()->getItem()->getQuote();
 		$this->_fetchTaxDutyInfo($quote);
 	}
@@ -34,6 +38,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	public function salesEventDiscountItem(Varien_Event_Observer $observer)
 	{
 		Mage::log('salesEventDiscountItem');
+		// TODO: Make sure this is actually a quote item! 
 		$quote = $observer->getEvent()->getItem()->getQuote();
 		$this->_fetchTaxDutyInfo($quote);
 	}

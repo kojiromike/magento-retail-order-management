@@ -5,10 +5,4 @@
 
 # TrueAction_Eb2c_Core
 src/app/etc/modules/*.xml app/etc/modules/
-src/app/code/local/TrueAction/Eb2c/Core app/code/local/TrueAction/Eb2c/Core
-
-# TrueAction_Eb2c_Order
-src/app/code/local/TrueAction/Eb2c/Order app/code/local/TrueAction/Eb2c/Order
-
-# TrueAction_Eb2c_Inventory
-src/app/code/local/TrueAction/Eb2c/Inventory app/code/local/TrueAction/Eb2c/Inventory
+src/app/code/local/TrueAction/Eb2c app/code/local/TrueAction/Eb2c

@@ -23,19 +23,38 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	const URI_FORMAT = 'https://%s-%s.gsipartners.com/v%s.%s/stores/%s/%s/%s%s.%s';
 
 	/**
+	 * If timeout is not specified for callApi, and the configuration does not contain one, this our failsafe value.
+	 * This value is taken from Zend_Http_Client's default. That class provides no way to 'get' this value. Due to
+	 * the class implementation, a timeout of 0 will make @fread use the php directive 'default_socket_timeout'.
+	 */
+	const FAILSAFE_TIMEOUT = 10;
+
+	/**
 	 * Call the API.
 	 *
 	 * @param DOMDocument $xmlDoc The xml document to send in the request body
 	 * @param string $apiUri The url of the request
+	 * @param string $timeout in seconds, for the request to complete 
 	 * @param string $method The HTTP method of the request (only POST is supported right now)
 	 *
 	 * @return string The response from the server.
 	 */
-	public function callApi(DOMDocument $xmlDoc, $apiUri, $method='POST')
+	public function callApi(DOMDocument $xmlDoc, $apiUri, $timeout=0, $method='POST')
 	{
+		if( !$timeout ) {
+			$config = Mage::helper('eb2ccore/config');
+			$config->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+			$timeout = $config->apiTimeout;
+			if( !$timeout ) {
+				$timeout = self::FAILSAFE_TIMEOUT;
+			}
+		}
 		// setting default factory adapter to use socket just in case curl extension isn't install in the server
 		// by default, curl will be used as the default adapter
-		$client = new Varien_Http_Client($apiUri, array('adapter' => 'Zend_Http_Client_Adapter_Socket'));
+		$client = new Varien_Http_Client($apiUri, array(
+			'adapter' => 'Zend_Http_Client_Adapter_Socket',
+			'timeout' => $timeout, 
+			));
 		$client->setRawData($xmlDoc->saveXML())->setEncType('text/xml');
 		$response = $client->request($method);
 		$results = '';

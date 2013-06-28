@@ -10,21 +10,6 @@
 			<eb2ccore>
 				<class>TrueAction_Eb2c_Core_Model</class>
 			</eb2ccore>
-			<sales_order>
-				<rewrite>
-					<item>TrueAction_Eb2c_Core_Model_Order_Item</item>
-				</rewrite>
-			</sales_order>
-			<sales_quote>
-				<rewrite>
-					<item>TrueAction_Eb2c_Core_Model_Quote_Item</item>
-				</rewrite>
-			</sales_quote>
-			<sales_quote_address>
-				<rewrite>
-					<item>TrueAction_Eb2c_Core_Model_Quote_Address_Item</item>
-				</rewrite>
-			</sales_quote_address>
 		</models>
 		<helpers>
 			<eb2ccore>

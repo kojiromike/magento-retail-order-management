@@ -4,7 +4,7 @@
  * @package    TrueAction_Eb2c
  * @copyright  Copyright (c) 2013 True Action Network (http://www.trueaction.com)
  */
-class TrueAction_Eb2c_Inventory_Override_Model_Cart extends Mage_Checkout_Model_Cart
+class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model_Cart
 {
 	/**
 	 * Overriding Add product to shopping cart (quote)
@@ -21,6 +21,7 @@ class TrueAction_Eb2c_Inventory_Override_Model_Cart extends Mage_Checkout_Model_
 		$productId = $product->getId();
 
 		// Disable Magento built-in inventory check, to prevent clashing with eb2c quantity check event.
+		// @codeCoverageIgnoreStart
 		if ($product->getStockItem() && false) {
 			$minimumQty = $product->getStockItem()->getMinSaleQty();
 			//If product was not found in cart and there is set minimal qty for it
@@ -30,8 +31,9 @@ class TrueAction_Eb2c_Inventory_Override_Model_Cart extends Mage_Checkout_Model_
 				$request->setQty($minimumQty);
 			}
 		}
+		// @codeCoverageIgnoreEnd
 
-		if ($productId) {
+		if ((int) $productId > 0) {
 			try {
 				$result = $this->getQuote()->addProduct($product, $request);
 			} catch (Mage_Core_Exception $e) {
@@ -41,6 +43,7 @@ class TrueAction_Eb2c_Inventory_Override_Model_Cart extends Mage_Checkout_Model_
 			/**
 			 * String we can get if prepare process has error
 			 */
+
 			if (is_string($result)) {
 				$redirectUrl = ($product->hasOptionsValidationFail())
 					? $product->getUrlModel()->getUrl(
@@ -49,11 +52,13 @@ class TrueAction_Eb2c_Inventory_Override_Model_Cart extends Mage_Checkout_Model_
 					)
 					: $product->getProductUrl();
 				$this->getCheckoutSession()->setRedirectUrl($redirectUrl);
-				if ($this->getCheckoutSession()->getUseNotice() === null) {
+				if ($this->getCheckoutSession()->getUseNotice() === null || trim($this->getCheckoutSession()->getUseNotice()) === '') {
 					$this->getCheckoutSession()->setUseNotice(true);
 				}
 				Mage::throwException($result);
+				// @codeCoverageIgnoreStart
 			}
+			// @codeCoverageIgnoreEnd
 		} else {
 			Mage::throwException(Mage::helper('checkout')->__('The product does not exist.'));
 		}
@@ -81,12 +86,15 @@ class TrueAction_Eb2c_Inventory_Override_Model_Cart extends Mage_Checkout_Model_
 			$item = $this->getQuote()->getItemById($itemId);
 			if (!$item) {
 				Mage::throwException(Mage::helper('checkout')->__('Quote item does not exist.'));
+				// @codeCoverageIgnoreStart
 			}
+			// @codeCoverageIgnoreEnd
 			$productId = $item->getProduct()->getId();
 			$product = $this->_getProduct($productId);
 			$request = $this->_getProductRequest($requestInfo);
 
 			// Disable Magento built-in inventory check, to prevent clashing with eb2c quantity check event.
+			// @codeCoverageIgnoreStart
 			if ($product->getStockItem() && false) {
 				$minimumQty = $product->getStockItem()->getMinSaleQty();
 				// If product was not found in cart and there is set minimal qty for it
@@ -97,7 +105,7 @@ class TrueAction_Eb2c_Inventory_Override_Model_Cart extends Mage_Checkout_Model_
 					$request->setQty($minimumQty);
 				}
 			}
-
+			// @codeCoverageIgnoreEnd
 			$result = $this->getQuote()->updateItem($itemId, $request, $updatingParams);
 		} catch (Mage_Core_Exception $e) {
 			$this->getCheckoutSession()->setUseNotice(false);
@@ -108,12 +116,13 @@ class TrueAction_Eb2c_Inventory_Override_Model_Cart extends Mage_Checkout_Model_
 		 * We can get string if updating process had some errors
 		 */
 		if (is_string($result)) {
-			if ($this->getCheckoutSession()->getUseNotice() === null) {
+			if ($this->getCheckoutSession()->getUseNotice() === null || trim($this->getCheckoutSession()->getUseNotice()) === '') {
 				$this->getCheckoutSession()->setUseNotice(true);
 			}
 			Mage::throwException($result);
+			// @codeCoverageIgnoreStart
 		}
-
+		// @codeCoverageIgnoreEnd
 		Mage::dispatchEvent('checkout_cart_product_update_after', array(
 			'quote_item' => $result,
 			'product' => $product

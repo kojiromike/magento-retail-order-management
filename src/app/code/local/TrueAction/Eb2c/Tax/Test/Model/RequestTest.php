@@ -83,11 +83,14 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$this->assertTrue($doc->schemaValidate(self::$xsdFile));
 	}
 
+	/**
+	 * @test
+	 */
 	public function testCheckAddresses()
 	{
 		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
-		$request->testCheckAddresses($quote);
+		$request->checkAddresses($quote);
 		$this->assertTrue($request->isValid());
 	}
 }

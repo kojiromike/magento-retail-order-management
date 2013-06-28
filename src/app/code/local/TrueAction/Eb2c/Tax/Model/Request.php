@@ -418,9 +418,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		array $address
 	) {
 		$this->_shipAddressRef = $address['id'];
-		if ($address->getSameAsBilling()) {
-			$address = $this->getBillingAddress();
-		}
 		$mailingAddress = $parent->createChild('MailingAddress');
 		$mailingAddress->setAttribute('id', $this->_shipAddressRef, true);
 		$personName = $mailingAddress->createChild('PersonName');
@@ -436,20 +433,14 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _buildEmailNode(TrueAction_Dom_Element $parent, array $address)
 	{
-		if ($address->getSameAsBilling()) {
-			$address = $this->getBillingAddress();
-		}
 		$this->_emailAddressId = $address->getEmail();
-		// make sure we don't add the an email address more than once
-		if (array_search($this->_emailAddressId, $this->_emailAddresses, true) === false) {
-			// do nothing if the email address doesn't meet size requirements.
-			$emailStr = $this->_checkLength($this->_emailAddressId, 1, self::EMAIL_MAX_LENGTH);
-			if ($emailStr) {
-				$email = $parent->createChild('Email')
-					->addAttribute('id', $this->_emailAddressId, true);
-				$this->_buildPersonName($email->createChild('Customer'), $address);
-				$email->createChild('EmailAddress', $emailStr);
-			}
+		// do nothing if the email address doesn't meet size requirements.
+		$emailStr = $this->_checkLength($this->_emailAddressId, 1, self::EMAIL_MAX_LENGTH);
+		if ($emailStr) {
+			$email = $parent->createChild('Email')
+				->addAttribute('id', $this->_emailAddressId, true);
+			$this->_buildPersonName($email->createChild('Customer'), $address);
+			$email->createChild('EmailAddress', $emailStr);
 		}
 	}
 

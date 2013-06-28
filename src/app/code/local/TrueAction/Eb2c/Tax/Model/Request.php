@@ -131,6 +131,18 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$this->unsQuote();
 	}
 
+	public function checkItemQty($quoteItem)
+	{
+		$sku = $quoteItem->getSku()
+		$itemData = isset($this->_orderItems[$sku]) ?
+			$this->_orderItems[$sku] : !($this->_hasChanges = true);
+		if (!$this->_hasChanges && $itemData) {
+			$newQty = (float)$quoteItem->getQtyOrdered();
+			$oldQty =  (float)$itemData['quantity'];
+			$this->_hasChanges = $oldQty !== $newQty; 
+		}
+	}
+
 	protected function _processQuote()
 	{
 		$this->_destinationsChecked = array();

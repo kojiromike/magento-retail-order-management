@@ -61,7 +61,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testIsValid()
 	{
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
+		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(2);
 		$req   = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$this->assertTrue($req->isValid());
 		$req   = Mage::getModel('eb2ctax/request', array('quote' => $quote));
@@ -76,11 +76,18 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testValidateWithXsd()
 	{
-		$this->markTestIncomplete('need to fix namespaces in nodes');
 		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$this->assertTrue($request->isValid());
 		$doc = $request->getDocument();
 		$this->assertTrue($doc->schemaValidate(self::$xsdFile));
+	}
+
+	public function testCheckAddresses()
+	{
+		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
+		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
+		$request->testCheckAddresses($quote);
+		$this->assertTrue($request->isValid());
 	}
 }

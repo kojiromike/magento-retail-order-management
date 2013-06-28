@@ -401,7 +401,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 	 * @param   float $rate
 	 * @return  Mage_Tax_Model_Sales_Total_Quote
 	 */
-	protected function _calcRowTaxAmount($item, $rate)
+	protected function _calcRowTaxAmount($item, $rate = null)
 	{
 		return $this;
 		$inclTax        = $item->getIsPriceInclTax();

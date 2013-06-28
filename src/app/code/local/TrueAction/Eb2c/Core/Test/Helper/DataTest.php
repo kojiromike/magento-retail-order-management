@@ -107,14 +107,14 @@ class TrueAction_Eb2c_Core_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Cas
 		// simplest case - just a service and operation
 		$this->assertSame(
 			'https://prod-eu.gsipartners.com/v1.10/stores/store-123/address/validate.xml',
-			$helper->apiUri('address', 'validate'));
+			$helper->getApiUri('address', 'validate'));
 		// service, operation and params
 		$this->assertSame(
 			'https://prod-eu.gsipartners.com/v1.10/stores/store-123/payments/creditcard/auth/VC.xml',
-			$helper->apiUri('payments', 'creditcard', array('auth', 'VC')));
+			$helper->getApiUri('payments', 'creditcard', array('auth', 'VC')));
 		// service, operation, params and type
 		$this->assertSame(
 			'https://prod-eu.gsipartners.com/v1.10/stores/store-123/inventory/allocations/delete.json',
-			$helper->apiUri('inventory', 'allocations', array('delete'), 'json'));
+			$helper->getApiUri('inventory', 'allocations', array('delete'), 'json'));
 	}
 }

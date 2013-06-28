@@ -71,7 +71,7 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	 * @param array $params
 	 * @param string $format
 	 */
-	public function apiUri($service, $operation, $params = array(), $format = 'xml')
+	public function getApiUri($service, $operation, $params = array(), $format = 'xml')
 	{
 		$config = Mage::getModel('eb2ccore/config_registry')
 			->addConfigModel(Mage::getSingleton('eb2ccore/config'));

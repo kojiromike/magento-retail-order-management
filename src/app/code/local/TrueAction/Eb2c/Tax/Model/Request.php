@@ -199,7 +199,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$shipAddress = $quote->getShippingAddress();
 		$shipAddressRef = $shipAddress->getId();
-		$destData = $this->_extractDestData($billAddress);
+		$destData = $this->_extractDestData($shipAddress);
 		$this->_destinations[$shipAddressRef] = $this->_extractDestData(
 			$shipAddress
 		);
@@ -220,8 +220,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected function _addToDestination($address, $item, $isVirtual = false)
 	{
 		$addressEmail = $this->_getEmailFromAddress($address);
-		$id = ($isVirtual) ? $addressEmail : $address->getId() . '_' . $shippingRate->getMethod();
-		$this->_addShipGroup($address, $isVirtual);
+		$id = $this->_addShipGroup($address, $isVirtual);
 		if (!isset($this->shipGroups[$id])) {
 			$this->_shipGroups[$id][] = $item->getSku(); 
 		}
@@ -533,7 +532,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * @param Mage_Sales_Model_Quote_Item $item
 	 * @return int
 	 */
-	protected function _getLineNumber(Mage_Sales_Model_Quote_Item $item)
+	protected function _getLineNumber($item)
 	{
 		return $this->_skuLineMap[$item['id']];
 	}

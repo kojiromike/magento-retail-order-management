@@ -30,6 +30,13 @@
 			<api>
 				<namespace_uri><![CDATA[http://api.gsicommerce.com/schema/checkout/1.0]]></namespace_uri>
 			</api>
+			<address_suggestion_templates>
+				<html>{{if street1}}{{var street1}}&lt;br /&gt;{{/if}}
+{{depend street2}}{{var street2}}&lt;br /&gt;{{/depend}}
+{{depend street3}}{{var street3}}&lt;br /&gt;{{/depend}}
+{{depend street4}}{{var street4}}&lt;br /&gt;{{/depend}}
+{{if city}}{{var city}},  {{/if}}{{if region}}{{var region}}, {{/if}}{{if postcode}}{{var postcode}}{{/if}}</html>
+			</address_suggestion_templates>
 		</eb2caddress>
 	</default>
 	<phpunit>

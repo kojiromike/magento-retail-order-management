@@ -5,4 +5,4 @@
 
 # TrueAction_Eb2c_Core
 src/app/etc/modules/*.xml app/etc/modules/
-src/app/code/local/TrueAction/Eb2c/Core app/code/local/TrueAction/Eb2c/Core
+src/app/code/local/TrueAction/Eb2c app/code/local/TrueAction/Eb2c

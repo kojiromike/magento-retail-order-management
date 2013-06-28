@@ -1,19 +1,8 @@
-tables:
-  core/config_data:
-tables:
-  core/config_data:
-    - config_id: 1
-      scope: "default"
-      scope_id: 0
-      path: "eb2c/inventory/developer_mode"
-      value: "0"
-    - config_id: 2
-      scope: "default"
-      scope_id: 0
-      path: "eb2ccore/general/store_id"
-      value: "ABCD"
-    - config_id: 3
-      scope: "default"
-      scope_id: 0
-      path: "eb2ccore/general/client_id"
-      value: "TAN-CLI"
+config:
+  default/eb2ccore/general/store_id: "ABCD"
+  default/eb2ccore/general/client_id: "TAN-CLI"
+  default/eb2ccore/api/environment: "developer"
+  default/eb2ccore/api/region: "na"
+  default/eb2ccore/api/major_version: 1
+  default/eb2ccore/api/minor_version: 10
+  default/eb2c/inventory/developer_mode: 0

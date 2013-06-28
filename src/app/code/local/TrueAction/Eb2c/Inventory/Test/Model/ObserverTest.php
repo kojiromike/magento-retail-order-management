@@ -17,16 +17,36 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 		$_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
 		$this->app()->getRequest()->setBaseUrl($_baseUrl);
 		$this->_observer = Mage::getModel('eb2cinventory/observer');
-		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
-	}
 
-	/**
-	 * tearDown method
-	 */
-	public function tearDown()
-	{
-		$this->_observer = null;
-		parent::tearDown();
+		$newHelper = new TrueAction_Eb2c_Inventory_Helper_Data();
+		$observerReflector = new ReflectionObject($this->_observer);
+
+		$allocation = Mage::getModel('eb2cinventory/allocation');
+		$allocationReflector = new ReflectionObject($allocation);
+		$allocationHelper = $allocationReflector->getProperty('_helper');
+		$allocationHelper->setAccessible(true);
+		$allocationHelper->setValue($allocation, $newHelper);
+		$observerAllocation = $observerReflector->getProperty('_allocation');
+		$observerAllocation->setAccessible(true);
+		$observerAllocation->setValue($this->_observer, $allocation);
+
+		$details = Mage::getModel('eb2cinventory/details');
+		$detailsReflector = new ReflectionObject($details);
+		$detailsHelper = $detailsReflector->getProperty('_helper');
+		$detailsHelper->setAccessible(true);
+		$detailsHelper->setValue($details, $newHelper);
+		$observerDetails = $observerReflector->getProperty('_details');
+		$observerDetails->setAccessible(true);
+		$observerDetails->setValue($this->_observer, $details);
+
+		$quantity = Mage::getModel('eb2cinventory/quantity');
+		$quantityReflector = new ReflectionObject($quantity);
+		$quantityHelper = $quantityReflector->getProperty('_helper');
+		$quantityHelper->setAccessible(true);
+		$quantityHelper->setValue($quantity, $newHelper);
+		$observerQuantity = $observerReflector->getProperty('_quantity');
+		$observerQuantity->setAccessible(true);
+		$observerQuantity->setValue($this->_observer, $quantity);
 	}
 
 	public function providerCheckEb2cInventoryQuantity()
@@ -88,20 +108,19 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	public function testCheckEb2cInventoryQuantity($observer)
 	{
 		try {
-			$observerObject = Mage::getModel('eb2cinventory/observer');
 			// mockup to allow rollback on event to occur.
 			$allocationMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Allocation', array('hasAllocation'));
 			$allocationMock->expects($this->any())
 				->method('hasAllocation')
 				->will($this->returnValue(true));
 
-			$allocationReflector = new ReflectionObject($observerObject);
+			$allocationReflector = new ReflectionObject($this->_observer);
 			$allocation = $allocationReflector->getProperty('_allocation');
 			$allocation->setAccessible(true);
-			$allocation->setValue($observerObject, $allocationMock);
+			$allocation->setValue($this->_observer, $allocationMock);
 
 			$this->assertNull(
-				$observerObject->checkEb2cInventoryQuantity($observer)
+				$this->_observer->checkEb2cInventoryQuantity($observer)
 			);
 		} catch (Exception $e) {
 			// The try/catch block is for PHPUnit inconsistencies
@@ -483,20 +502,59 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	 */
 	public function testRollbackOnRemoveItemInReservedCart($observer)
 	{
-		$observerObject = Mage::getModel('eb2cinventory/observer');
 		// mockup to allow rollback on event to occur.
 		$allocationMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Allocation', array('hasAllocation'));
 		$allocationMock->expects($this->any())
 			->method('hasAllocation')
 			->will($this->returnValue(true));
 
-		$allocationReflector = new ReflectionObject($observerObject);
+		$allocationReflector = new ReflectionObject($this->_observer);
 		$allocation = $allocationReflector->getProperty('_allocation');
 		$allocation->setAccessible(true);
-		$allocation->setValue($observerObject, $allocationMock);
+		$allocation->setValue($this->_observer, $allocationMock);
 
 		$this->assertNull(
-			$observerObject->rollbackOnRemoveItemInReservedCart($observer)
+			$this->_observer->rollbackOnRemoveItemInReservedCart($observer)
 		);
+	}
+
+	/**
+	 * test to cover procted methods, where their being set in setup method
+	 *
+	 * @test
+	 */
+	public function testToCoverObserverPrivateMethod()
+	{
+		$observerReflector = new ReflectionObject($this->_observer);
+		$observerAllocationProperty = $observerReflector->getProperty('_allocation');
+		$observerAllocationProperty->setAccessible(true);
+		$observerAllocationProperty->setValue($this->_observer, null);
+		$observerAllocationMethod = $observerReflector->getMethod('_getAllocation');
+		$observerAllocationMethod->setAccessible(true);
+		$this->assertSame(
+			'TrueAction_Eb2c_Inventory_Model_Allocation',
+			get_class($observerAllocationMethod->invoke($this->_observer))
+		);
+
+		$observerDetailsProperty = $observerReflector->getProperty('_details');
+		$observerDetailsProperty->setAccessible(true);
+		$observerDetailsProperty->setValue($this->_observer, null);
+		$observerDetailsMethod = $observerReflector->getMethod('_getDetails');
+		$observerDetailsMethod->setAccessible(true);
+		$this->assertSame(
+			'TrueAction_Eb2c_Inventory_Model_Details',
+			get_class($observerDetailsMethod->invoke($this->_observer))
+		);
+
+		$observerQuantityProperty = $observerReflector->getProperty('_quantity');
+		$observerQuantityProperty->setAccessible(true);
+		$observerQuantityProperty->setValue($this->_observer, null);
+		$observerQuantityMethod = $observerReflector->getMethod('_getQuantity');
+		$observerQuantityMethod->setAccessible(true);
+		$this->assertSame(
+			'TrueAction_Eb2c_Inventory_Model_Quantity',
+			get_class($observerQuantityMethod->invoke($this->_observer))
+		);
+
 	}
 }

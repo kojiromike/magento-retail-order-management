@@ -131,15 +131,9 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 		$constantHelper = $this->getConstantHelper();
 		$apiUri = $operation['dev'];
 		if (!(bool) $this->getConfigModel()->developer_mode) {
-			$apiUri = sprintf(
-				$constantHelper::URI_FROMAT,
-				$constantHelper::ENV,
-				$constantHelper::REGION,
-				$constantHelper::VERSION,
-				$this->getCoreConfigHelper()->store_id,
+			$apiUri = $this->getCoreHelper()->apiUri(
 				$constantHelper::SERVICE,
-				$operation['pro'],
-				$constantHelper::RETURN_FORMAT
+				$operation['pro']
 			);
 		}
 		return $apiUri;

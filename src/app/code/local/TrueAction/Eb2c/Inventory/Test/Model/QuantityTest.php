@@ -14,20 +14,14 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_quantity = $this->_getQuantity();
-	}
+		$this->_quantity = Mage::getModel('eb2cinventory/quantity');
 
-	/**
-	 * Get Quantity instantiated object.
-	 *
-	 * @return TrueAction_Eb2c_Inventory_Model_Quantity
-	 */
-	protected function _getQuantity()
-	{
-		if (!$this->_quantity) {
-			$this->_quantity = Mage::getModel('eb2cinventory/quantity');
-		}
-		return $this->_quantity;
+		$newHelper = new TrueAction_Eb2c_Inventory_Helper_Data();
+
+		$quantityReflector = new ReflectionObject($this->_quantity);
+		$helper = $quantityReflector->getProperty('_helper');
+		$helper->setAccessible(true);
+		$helper->setValue($this->_quantity, $newHelper);
 	}
 
 	public function providerBuildQuantityRequestMessage()
@@ -56,13 +50,14 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 	 * testing Building Quantity Request Message
 	 *
 	 * @test
+	 * @loadFixture loadConfig.yaml
 	 * @dataProvider providerBuildQuantityRequestMessage
 	 */
 	public function testBuildQuantityRequestMessage($items)
 	{
 		$this->assertSame(
 			trim($this->expectedBuildQuantityRequestMessage()),
-			trim($this->_getQuantity()->buildQuantityRequestMessage($items)->saveXML())
+			trim($this->_quantity->buildQuantityRequestMessage($items)->saveXML())
 		);
 	}
 
@@ -77,6 +72,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 	 * testing requestQuantity method, when exception is throw from API call
 	 *
 	 * @test
+	 * @loadFixture loadConfig.yaml
 	 * @dataProvider providerRequestQuantity
 	 */
 	public function testRequestQuantity($qty=0, $itemId, $sku)
@@ -94,14 +90,14 @@ class TrueAction_Eb2c_Inventory_Test_Model_QuantityTest extends EcomDev_PHPUnit_
 		$coreHelper->setAccessible(true);
 		$coreHelper->setValue($inventoryHelper, $coreHelperMock);
 
-		$quantityReflector = new ReflectionObject($this->_getQuantity());
+		$quantityReflector = new ReflectionObject($this->_quantity);
 		$helper = $quantityReflector->getProperty('_helper');
 		$helper->setAccessible(true);
-		$helper->setValue($this->_getQuantity(), $inventoryHelper);
+		$helper->setValue($this->_quantity, $inventoryHelper);
 
 		$this->assertSame(
 			0,
-			$this->_getQuantity()->requestQuantity($qty, $itemId, $sku)
+			$this->_quantity->requestQuantity($qty, $itemId, $sku)
 		);
 	}
 }

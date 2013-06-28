@@ -57,7 +57,6 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 * testing addProduct method
 	 *
 	 * @test
-	 * @expectedException Mage_Core_Exception
 	 * @dataProvider providerAddProduct
 	 * @loadFixture loadWebsiteConfig.yaml
 	 */
@@ -66,18 +65,16 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('addProduct'));
 		$quoteMock->expects($this->any())
 			->method('addProduct')
-			->will($this->returnValue('some message'));
+			->will($this->returnValue(array('some message')));
+
+		$this->_getCart()->setQuote($quoteMock);
+
+		$session = Mage::getSingleton('checkout/session');
+		$session->setData('use_notice', NULL);
 
 		$this->assertNotNull(
 			$this->_getCart()->addProduct($productInfo, $requestInfo)
 		);
-
-		// testing when product id is not a valid integer value
-		$productInfo->setId(-1);
-		$this->assertNotNull(
-			$this->_getCart()->addProduct($productInfo, $requestInfo)
-		);
-
 	}
 
 	/**
@@ -101,6 +98,120 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 
 		$this->assertNotNull(
 			$this->_getCart()->addProduct($productInfo, $requestInfo)
+		);
+	}
+
+	public function providerAddProductInvalidProductId()
+	{
+		$productMock = $this->getMock('Mage_Catalog_Model_Product', array('getId', 'getWebsiteIds', 'hasOptionsValidationFail'));
+		$productMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue('testing...'));
+		$productMock->expects($this->any())
+			->method('getWebsiteIds')
+			->will($this->returnValue(array(0,1,2,3,4)));
+		$productMock->expects($this->any())
+			->method('hasOptionsValidationFail')
+			->will($this->returnValue(true));
+
+		$product = Mage::getModel('catalog/product')->load(1);
+		$product->setWebsiteIds(array(0,1,2,3,4));
+		return array(
+			array($productMock, null)
+		);
+	}
+
+	/**
+	 * testing addProduct method
+	 *
+	 * @test
+	 * @expectedException Mage_Core_Exception
+	 * @dataProvider providerAddProductInvalidProductId
+	 * @loadFixture loadWebsiteConfig.yaml
+	 */
+	public function testAddProductInvalidProductId($productInfo, $requestInfo=null)
+	{
+		$this->assertNotNull(
+			$this->_getCart()->addProduct($productInfo, $requestInfo)
+		);
+	}
+
+	public function providerUpdateItem()
+	{
+		return array(
+			array(1, null, null)
+		);
+	}
+
+	/**
+	 * testing addProduct method
+	 *
+	 * @test
+	 * @dataProvider providerUpdateItem
+	 * @loadFixture loadWebsiteConfig.yaml
+	 */
+	public function testUpdateItem($itemId, $requestInfo=null, $updatingParams=null)
+	{
+		$productMock = $this->getMock('Mage_Catalog_Model_Product', array('getId', 'getWebsiteIds', 'hasOptionsValidationFail'));
+		$productMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue($productMock));
+		$productMock->expects($this->any())
+			->method('getWebsiteIds')
+			->will($this->returnValue(array(0,1,2,3,4)));
+		$productMock->expects($this->any())
+			->method('hasOptionsValidationFail')
+			->will($this->returnValue(true));
+
+		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getProduct'));
+		$itemMock->expects($this->any())
+			->method('getProduct')
+			->will($this->returnValue($productMock));
+
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('updateItem', 'getItemById'));
+		$quoteMock->expects($this->any())
+			->method('updateItem')
+			->will($this->returnValue(array('some message')));
+		$quoteMock->expects($this->any())
+			->method('getItemById')
+			->will($this->returnValue($itemMock));
+
+		$this->_getCart()->setQuote($quoteMock);
+
+		$this->assertNotNull(
+			$this->_getCart()->updateItem($itemId, $requestInfo, $updatingParams)
+		);
+	}
+
+	public function providerUpdateItemMissingItemException()
+	{
+		return array(
+			array(0, null, null)
+		);
+	}
+
+	/**
+	 * testing addProduct method
+	 *
+	 * @test
+	 * @expectedException Mage_Core_Exception
+	 * @dataProvider providerUpdateItemMissingItemException
+	 * @loadFixture loadWebsiteConfig.yaml
+	 */
+	public function testUpdateItemMissingItemException($itemId, $requestInfo=null, $updatingParams=null)
+	{
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('updateItem', 'getItemById'));
+		$quoteMock->expects($this->any())
+			->method('updateItem')
+			->will($this->returnValue(array('some message')));
+		$quoteMock->expects($this->any())
+			->method('getItemById')
+			->will($this->returnValue(null));
+
+		$this->_getCart()->setQuote($quoteMock);
+
+		$this->assertNotNull(
+			$this->_getCart()->updateItem($itemId, $requestInfo, $updatingParams)
 		);
 	}
 }

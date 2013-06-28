@@ -33,7 +33,7 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 		}
 		// @codeCoverageIgnoreEnd
 
-		if ($productId) {
+		if ((int) $productId > 0) {
 			try {
 				$result = $this->getQuote()->addProduct($product, $request);
 			} catch (Mage_Core_Exception $e) {
@@ -43,6 +43,7 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 			/**
 			 * String we can get if prepare process has error
 			 */
+
 			if (is_string($result)) {
 				$redirectUrl = ($product->hasOptionsValidationFail())
 					? $product->getUrlModel()->getUrl(
@@ -51,11 +52,13 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 					)
 					: $product->getProductUrl();
 				$this->getCheckoutSession()->setRedirectUrl($redirectUrl);
-				if ($this->getCheckoutSession()->getUseNotice() === null) {
+				if ($this->getCheckoutSession()->getUseNotice() === null || trim($this->getCheckoutSession()->getUseNotice()) === '') {
 					$this->getCheckoutSession()->setUseNotice(true);
 				}
 				Mage::throwException($result);
+				// @codeCoverageIgnoreStart
 			}
+			// @codeCoverageIgnoreEnd
 		} else {
 			Mage::throwException(Mage::helper('checkout')->__('The product does not exist.'));
 		}
@@ -83,7 +86,9 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 			$item = $this->getQuote()->getItemById($itemId);
 			if (!$item) {
 				Mage::throwException(Mage::helper('checkout')->__('Quote item does not exist.'));
+				// @codeCoverageIgnoreStart
 			}
+			// @codeCoverageIgnoreEnd
 			$productId = $item->getProduct()->getId();
 			$product = $this->_getProduct($productId);
 			$request = $this->_getProductRequest($requestInfo);
@@ -111,12 +116,13 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 		 * We can get string if updating process had some errors
 		 */
 		if (is_string($result)) {
-			if ($this->getCheckoutSession()->getUseNotice() === null) {
+			if ($this->getCheckoutSession()->getUseNotice() === null || trim($this->getCheckoutSession()->getUseNotice()) === '') {
 				$this->getCheckoutSession()->setUseNotice(true);
 			}
 			Mage::throwException($result);
+			// @codeCoverageIgnoreStart
 		}
-
+		// @codeCoverageIgnoreEnd
 		Mage::dispatchEvent('checkout_cart_product_update_after', array(
 			'quote_item' => $result,
 			'product' => $product

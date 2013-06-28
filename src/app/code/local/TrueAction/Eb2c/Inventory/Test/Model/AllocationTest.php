@@ -15,7 +15,13 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	{
 		parent::setUp();
 		$this->_allocation = Mage::getModel('eb2cinventory/allocation');
-		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
+
+		$newHelper = new TrueAction_Eb2c_Inventory_Helper_Data();
+
+		$allocationReflector = new ReflectionObject($this->_allocation);
+		$helper = $allocationReflector->getProperty('_helper');
+		$helper->setAccessible(true);
+		$helper->setValue($this->_allocation, $newHelper);
 	}
 
 	public function buildQuoteMock()
@@ -387,7 +393,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 	public function testRollbackAllocation($quote)
 	{
 		// testing when you can rolling back allocated inventory
-		$this->assertNull(
+		$this->assertNotNull(
 			$this->_allocation->rollbackAllocation($quote)
 		);
 	}

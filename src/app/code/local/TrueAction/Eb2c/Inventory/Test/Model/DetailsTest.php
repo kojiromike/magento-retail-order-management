@@ -15,6 +15,13 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	{
 		parent::setUp();
 		$this->_details = $this->_getDetails();
+
+		$newHelper = new TrueAction_Eb2c_Inventory_Helper_Data();
+
+		$detailsReflector = new ReflectionObject($this->_details);
+		$helper = $detailsReflector->getProperty('_helper');
+		$helper->setAccessible(true);
+		$helper->setValue($this->_details, $newHelper);
 	}
 
 	/**
@@ -116,12 +123,13 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	 * testing getting inventory details
 	 *
 	 * @test
+	 * @loadFixture loadConfig.yaml
 	 * @dataProvider providerGetInventoryDetails
 	 */
 	public function testGetInventoryDetails($quote)
 	{
 		// testing when you can allocated inventory
-		$this->assertNull(
+		$this->assertNotNull(
 			$this->_getDetails()->getInventoryDetails($quote)
 		);
 	}
@@ -130,6 +138,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	 * testing when getting inventory details API call throw an exception
 	 *
 	 * @test
+	 * @loadFixture loadConfig.yaml
 	 * @dataProvider providerGetInventoryDetails
 	 */
 	public function testGetInventoryDetailsWithApiCallException($quote)
@@ -169,6 +178,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	 * testing building inventory details request message
 	 *
 	 * @test
+	 * @loadFixture loadConfig.yaml
 	 * @dataProvider providerBuildInventoryDetailsRequestMessage
 	 */
 	public function testBuildInventoryDetailsRequestMessage($quote)
@@ -256,6 +266,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	 * testing building inventory details request message
 	 *
 	 * @test
+	 * @loadFixture loadConfig.yaml
 	 * @dataProvider providerBuildInventoryDetailsRequestMessageWithException
 	 */
 	public function testBuildInventoryDetailsRequestMessageWithException($quote)
@@ -295,6 +306,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	 * testing processing inventory details data
 	 *
 	 * @test
+	 * @loadFixture loadConfig.yaml
 	 * @dataProvider providerProcessInventoryDetails
 	 */
 	public function testProcessInventoryDetails($quote, $inventoryData)

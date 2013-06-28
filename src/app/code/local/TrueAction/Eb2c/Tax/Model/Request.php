@@ -9,15 +9,19 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	protected $_xml                = '';
 	protected $_doc                = null;
-	protected $_destinations       = null;
-	protected $_shipGroups         = null;
 	protected $_tdRequest          = null;
+	protected $_namespaceUri       = '';
 	protected $_billingInfoRef     = '';
 	protected $_billingEmailRef    = '';
-	protected $_mailingAddressId   = '';
+	protected $_shipAddressRef     = '';
 	protected $_emailAddressId     = '';
-	protected $_cacheKey           = '';
+	protected $_hasChanges         = '';
+	protected $_emailAddresses     = array();
 	protected $_skuLineMap         = array();
+	protected $_destinations       = array();
+	protected $_orderItems         = array();
+	protected $_shipGroups         = array();
+	protected $_discounts          = array();
 
 	/**
 	 * map skus to a quote item
@@ -30,37 +34,46 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _construct()
 	{
-		$this->_setupQuote();
-		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$nsUri = Mage::helper('tax')->getNamespaceUri();
+		$this->_namespaceUri = Mage::helper('tax')->getNamespaceUri();
+		$doc                 = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$this->_doc          = $doc;
+		$quote               = $this->getQuote();
+		if ($quote) {
+			$this->setBillingAddress($quote->getBillingAddress());
+			$this->setShippingAddress($quote->getShippingAddress());
+		}
 		if ($this->isValid()) {
-			$this->_cacheKey    = $this->getQuote()->getId();
-			$doc->addElement('TaxDutyQuoteRequest', null, $nsUri);
-			$tdRequest          = $doc->documentElement;
-			$billingInformation = $tdRequest->addChild(
-				'Currency',
-				$this->getQuote()->getQuoteCurrencyCode()
-			)
-				->addChild('VATInclusivePricing', $this->_isVatIncludedInPrice())
-				->addChild(
-					'CustomerTaxId',
-					$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
-				)
-				->createChild('BillingInformation');
-			$shipping = $tdRequest->createChild('Shipping');
-			$this->_tdRequest    = $tdRequest;
-			$this->_shipGroups   = $shipping->createChild('ShipGroups');
-			$this->_destinations = $shipping->createChild('Destinations');
-			$this->_doc          = $doc;
-			$this->_buildSkuMaps();
-			$this->_processAddresses();
-			$billingInformation->setAttribute(
-				'ref',
-				$this->_billingInfoRef
-			);
+			$this->_buildTaxDutyRequest();
 		}
 	}
 
+	public function checkAddresses($quote)
+	{
+		if ($this->getIsMultiShipping() != $quote->getIsMultiShipping()) {
+			$this->_hasChanges = true;
+		}
+		// first check the billing address
+		$billingDestination = isset($this->_destinations[$this->_billingInfoRef]) ?
+			$this->_destinations[$this->_billingInfoRef] : !($this->_hasChanges = true);
+		if (!$this->_hasChanges) {
+			$billAddressData = $this->_extractDestData($this->getBillingAddress());
+			$this->_hasChanges = (bool)array_diff_assoc($billingDestination, $billAddressData);
+			if (!$this->getIsMultiShipping() && $quote->hasVirtualItems()) {
+
+			}
+			if (!$this->hasChanges) {
+				// check shipping addresses
+				foreach ($this->getQuote()->getAllShippingAddresses() as $address) {
+					$addressData = $this->_extractDestData($address);
+					$destination = isset($this->_destinations[$address->getId()]) ?
+						$this->_destinations[$address->getId()] : !($this->_hasChanges = true);
+				}
+			}
+		}
+		if ($this->_hasChanges) {
+			$this->invalidate();
+		}
+	}
 	/**
 	 * determine if the request object has enough data to work with.
 	 * @return boolean
@@ -70,15 +83,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $this->getQuote() && $this->getQuote()->getId() &&
 			$this->getBillingAddress() && $this->getBillingAddress()->getId() &&
 			$this->getQuote()->getItemsCount();
-	}
-
-	/**
-	 * generate a key to uniquely identify a request.
-	 * @return string
-	 */
-	public function getCacheKey()
-	{
-		return $this->_cacheKey;
 	}
 
 	/**
@@ -110,39 +114,245 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	}
 
 	/**
+	 * make this request invalid, which will force a new request to
+	 * be generated and sent.
+	 */
+	public function invalidate()
+	{
+		$this->unsQuote();
+	}
+
+	protected function _buildTaxDutyRequest()
+	{
+		$this->_doc->addElement('TaxDutyQuoteRequest', null, $this->namespaceUri);
+		$tdRequest          = $this->_doc->documentElement;
+		$billingInformation = $tdRequest->addChild(
+			'Currency',
+			$this->getQuote()->getQuoteCurrencyCode()
+		)
+			->addChild('VATInclusivePricing', $this->_isVatIncludedInPrice())
+			->addChild(
+				'CustomerTaxId',
+				$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
+			)
+			->createChild('BillingInformation');
+		$shipping = $tdRequest->createChild('Shipping');
+		$this->_tdRequest    = $tdRequest;
+		$this->_shipGroups   = $shipping->createChild('ShipGroups');
+		$this->_destinations = $shipping->createChild('Destinations');
+		$this->_buildSkuMaps();
+		$this->_processQuote();
+		$billingInformation->setAttribute(
+			'ref',
+			$this->_billingInfoRef
+		);
+	}
+
+	protected function _processQuote()
+	{
+		$this->_destinationsChecked = array();
+		$quote = $this->getQuote();
+		// create the billing address destination node(s)
+		$billAddress = $quote->getBillingAddress();
+		$this->_billingInfoRef = $billAddress->getId();
+		$this->_destinations[$this->_billingInfoRef] = $this->_buildMailingAddressFragment(
+			$billAddress
+		);
+		if ($quote->getIsMultiShipping()) {
+			$this->_processMultiShippingQuote($quote);
+		} else {
+			$this->_processSingleShipQuote($quote);
+		}
+	}
+
+	protected function _processMultiShippingQuote($quote)
+	{
+		foreach ($quote->getAllShippingAddresses() as $address) {
+			$items = $address->getAllVisibleItems();
+			if ($item->getHasChildren() && $item->isChildrenCalculated()) {
+				foreach ($item->getChildren() as $child) {
+					$itemData = $this->_extractItemData($item);
+					$isVirtual = $item->getProduct()->getIsVirtual();
+					$this->_addToShipGroup($address, $item, $isVirtual);
+				}
+			} else {
+				$itemData = $this->_extractItemData($item);
+				$isVirtual = $item->getProduct()->getIsVirtual();
+				$this->_addToShipGroup($address, $item, $isVirtual);
+			}
+		}
+	}
+
+	protected function _processSingleShipQuote($quote)
+	{
+		$shipAddress = $quote->getShippingAddress();
+		$this->_shipAddressRef = $shipAddress->getId();
+		$destData = $this->_extractDestData($billAddress);
+		$this->_destinations[$this->_shipAddressRef] = $this->_extractDestData(
+			$shipAddress
+		);
+
+		foreach($items as $item) {
+			if ($item->getHasChildren() && $item->isChildrenCalculated()) {
+				foreach ($item->getChildren() as $child) {
+					$itemData = $this->_extractItemData($item);
+					$isVirtual = $item->getProduct()->getIsVirtual();
+					$this->_addToShipGroup($address, $item, $isVirtual);
+				}
+			} else {
+				$itemData = $this->_extractItemData($item);
+				$isVirtual = $item->getProduct()->getIsVirtual();
+				$this->_addToShipGroup($address, $item, $isVirtual);
+			}
+		}
+	}
+
+	protected function _addToShipGroup($address, $item, $isVirtual = false)
+	{
+		$shipGroupId = $address->getId()
+		$groupedRates = $address->getGroupedAllShippingRates();
+		foreach ($groupedRates as $rateKey => $shippingRate) {
+			$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
+			// FIXME: === always returns false in the following if statement
+			var_dump($address->getShippingMethod());
+			var_dump($shippingRate->getCode());
+			if ($address->getShippingMethod() == $shippingRate->getCode()) {
+				$id = ($isVirtual) ? $address->getEmail() | $address->getId() .
+					'_' . $shippingRate->getMethod();
+			}
+		}
+	}
+
+	protected function _getEmailFromAddress($address)
+	{
+
+	}
+
+	protected function _extractDestData($address, $isVirtual = false)
+	{
+		$data = array(
+			'is_virtual' => $isVirtual,
+			'last_name'  => $address->getLastname(),
+			'first_name' => $address->getFirstname()
+		);
+		$honorific  = $address->getPrefix();
+		if ($honorific) {
+			$data['honorific'] = $honorific;
+		}
+		$middleName = $address->getMiddlename();
+		if ($middleName) {
+			$parent->createChild('middle_name', $middleName);
+		}
+		if ($isVirtual) {
+			$data['email_address'] = $address->getEmail();
+		} else {
+			$data['city'] = $address->getCity($item);
+			$data['main_division'] = $address->getRegionModel()->getCode();
+			$data['country_code'] = $address->getCountryId();
+			$data['postal_code'] = $address->getPostcode();
+			foreach ($streetLines as $streetIndex => $street) {
+				$data['line' . $streetIndex + 1] = $street;
+			}
+		}
+		return $data;
+	}
+
+	protected function _extractItemData($item)
+	{
+		$data = array(
+			'line_number' => $this->_getLineNumber($item),
+			'item_id' => $this->_getItemSku($item),
+			'item_desc' => $item->getName(),
+			'hts_code' => $item->getHtsCode(),
+			'quantity' => $item->getQtyOrdered(),
+			'merchandise_amount' => $item->getRowTotal(),
+			'merchandise_unit_price' => $item->getBasePrice(),
+			'merchandise_tax_class' => $this->_getItemTaxClass($item),
+			'shipping_amount' => $item->getRowTotal(),
+			'shipping_tax_class' => $this->_getShippingTaxClass(),
+		);
+		return $data;
+	}
+
+	protected function _getItemTaxClass($item)
+	{
+		return $this->_checkLength($item->getProduct()->getTaxCode(),1, 40);
+	}
+
+	protected function _getItemSku($item)
+	{
+		$sku      = $this->_checkLength($item->getSku(), 1, 20);
+		if (is_null($sku)){
+			Mage::throwException(sprintf(
+				'Mage_Sales_Model_Quote_Item id:%s has an invalid SKU:%s',
+				$item->getId(),
+				$item->getSku()
+			));
+		}
+		return $sku;
+	}
+
+	protected function _getShippingTaxClass()
+	{
+		return $this->_checkLength(
+			// TODO: create a helper function for this value.
+			Mage::getStoreConfig(
+				Mage_Tax_Model_Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
+				$this->getStore()
+			),
+			1, 40
+		);
+	}
+
+	/**getIsMultiShipping
 	 * generate the nodes for the shipgroups and destinations subtrees.
 	 */
 	protected function _processAddresses()
 	{
-		$shippingAddresses = $this->getQuote()->getAllShippingAddresses();
-		$shipGroups   = $this->_shipGroups;
-		$destinations = $this->_destinations;
-		$this->_addBillingDestination($destinations, $this->getBillingAddress());
-		foreach ($shippingAddresses as $addressKey => $address) {
-			$this->_cacheKey .= '|' . $address->getId();
-			$mailingAddress = $this->_buildMailingAddressNode($destinations, $address);
-			$this->_buildEmailNode($destinations, $address);
-			$orderItemsFragment = $this->_doc->createDocumentFragment();
-			$orderItems = $orderItemsFragment->appendChild(
-				$this->_doc->createElement('Items')
-			);
-			foreach ($address->getAllVisibleItems() as $addressItem) {
-				$this->_cacheKey .= ';' . $addressItem->getId() . ',' . $addressItem->getQty();
-				$this->_addOrderItem($orderItems, $addressItem, $address);
+		$quote = $this->getQuote();
+		$destinations = array();
+		$addresses = $this->getQuote()->getAllAddresses();
+		foreach ($addresses as $address) {
+			if ($address->getAddressType() === 'billing') {
+				$this->_billingInfoRef = $address->getId();
 			}
-			$groupedRates   = $address->getGroupedAllShippingRates();
-			foreach ($groupedRates as $rateKey => $shippingRate) {
-				$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
-				// FIXME: === always returns false in the following if statement
-				if ($address->getShippingMethod() == $shippingRate->getCode()) {
-					$this->_cacheKey .= '@' . $shippingRate->getId();
-					$shipGroup = $shipGroups->createChild('ShipGroup');
-					$shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)
-						->addAttribute('chargeType', strtoupper($shippingRate->getMethod()));
-					$shipGroup->createChild('DestinationTarget')
-						->setAttribute('ref', $this->_mailingAddressId);
-					$items = $shipGroup->appendChild($orderItems->cloneNode(true));
-				}
+			$this->_processAddress($address);
+		}
+	}
+
+	protected function _processAddress($address)
+	{
+		$addressKey = $address->getId();
+		$this->_cacheKey .= '|' . $address->getId();
+		$this->_buildMailingAddressNode($this->_destinations, $address);
+		$this->_buildEmailNode($this->_destinations, $address);
+		$orderItemsFragment = $this->_doc->createDocumentFragment();
+		$orderItems = $orderItemsFragment->appendChild(
+			$this->_doc->createElement('Items')
+		);
+		var_dump($this->_getAllAddressItems($address));
+		foreach ($this->_getAllAddressItems($address) as $addressItem) {
+			var_dump($addressItem->getSku());
+			$this->_addOrderItem($item, $orderItems, $address);
+		}
+		$groupedRates   = $address->getGroupedAllShippingRates();
+		foreach ($groupedRates as $rateKey => $shippingRate) {
+			$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
+			// FIXME: === always returns false in the following if statement
+			var_dump($address->getShippingMethod());
+			var_dump($shippingRate->getCode());
+			if ($address->getShippingMethod() == $shippingRate->getCode()) {
+				$shipGroup = $this->_shipGroups->createChild(
+					'ShipGroup',
+					null,
+					null,
+					$this->_namespaceUri
+				);
+				$shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)
+					->addAttribute('chargeType', strtoupper($shippingRate->getMethod()));
+				$destinationTarget = $shipGroup->createChild('DestinationTarget');
+				$desintationTarget->setAttribute('ref', $this->_shipAddressRef);
+				$items = $shipGroup->appendChild($orderItems->cloneNode(true));
 			}
 		}
 	}
@@ -181,19 +391,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * set the quote so that it can be readily available.
-	 * @return Mage_Sales_Model_Quote
-	 */
-	protected function _setupQuote()
-	{
-		$quote = $this->getQuote();
-		if ($quote) {
-			$this->setBillingAddress($quote->getBillingAddress());
-			$this->setShippingAddress($quote->getShippingAddress());
-		}
-	}
-
-	/**
 	 * build the MailingAddress node
 	 * @return TrueAction_Dom_Element
 	 */
@@ -201,18 +398,16 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		TrueAction_Dom_Element $parent,
 		Mage_Sales_Model_Quote_Address $address
 	) {
-		$this->_mailingAddressId = $address->getId();
+		$this->_shipAddressRef = $address->getId();
 		if ($address->getSameAsBilling()) {
 			$address = $this->getBillingAddress();
-			$this->_billingInfoRef   = $this->_mailingAddressId;
 		}
 		$mailingAddress = $parent->createChild('MailingAddress');
-		$mailingAddress->setAttribute('id', $this->_mailingAddressId, true);
+		$mailingAddress->setAttribute('id', $this->_shipAddressRef, true);
 		$personName = $mailingAddress->createChild('PersonName');
 		$this->_buildPersonName($personName, $address);
 		$addressNode = $mailingAddress->createChild('Address');
 		$this->_buildAddressNode($addressNode, $address);
-		return $mailingAddress;
 	}
 
 	/**
@@ -224,16 +419,18 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		if ($address->getSameAsBilling()) {
 			$address = $this->getBillingAddress();
-			$this->_billingEmailRef = $address->getEmail();
 		}
 		$this->_emailAddressId = $address->getEmail();
-		// do nothing if the email address doesn't meet size requirements.
-		$emailStr = $this->_checkLength($address->getEmail(), 1, self::EMAIL_MAX_LENGTH);
-		if ($emailStr) {
-			$email = $parent->createChild('Email')
-				->addAttribute('id', $this->_emailAddressId, true);
-			$this->_buildPersonName($email->createChild('Customer'), $address);
-			$email->createChild('EmailAddress', $emailStr);
+		// make sure we don't add the an email address more than once
+		if (array_search($this->_emailAddressId, $this->_emailAddresses, true) === false) {
+			// do nothing if the email address doesn't meet size requirements.
+			$emailStr = $this->_checkLength($this->_emailAddressId, 1, self::EMAIL_MAX_LENGTH);
+			if ($emailStr) {
+				$email = $parent->createChild('Email')
+					->addAttribute('id', $this->_emailAddressId, true);
+				$this->_buildPersonName($email->createChild('Customer'), $address);
+				$email->createChild('EmailAddress', $emailStr);
+			}
 		}
 	}
 
@@ -271,8 +468,8 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
 	protected function _addOrderItem(
-		TrueAction_Dom_Element $parent,
 		Mage_Sales_Model_Quote_Item $item,
+		TrueAction_Dom_Element $parent,
 		Mage_Sales_Model_Quote_Address $address
 	) {
 		$sku      = $this->_checkLength($item->getSku(), 1, 20);

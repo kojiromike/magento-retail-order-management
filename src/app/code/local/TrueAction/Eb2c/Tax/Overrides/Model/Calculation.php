@@ -118,27 +118,40 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		return $tax;
 	}
 
-    /**
-     * Calculate rated tax abount based on price and tax rate.
-     * If you are using price including tax $priceIncludeTax should be true.
-     *
-     * @param   float $price
-     * @param   float $taxRate
-     * @param   boolean $priceIncludeTax
-     * @return  float
-     */
-    public function calcTaxAmount($price, $taxRate, $priceIncludeTax=false, $round=true)
-    {
-        if ($priceIncludeTax) {
-            $amount = $price*(1-1/(1+$taxRate));
-        } else {
-            $amount = $price*$taxRate;
-        }
+	/**
+	 * Calculate rated tax abount based on price and tax rate.
+	 * If you are using price including tax $priceIncludeTax should be true.
+	 *
+	 * @param   float $price
+	 * @param   float $taxRate
+	 * @param   boolean $priceIncludeTax
+	 * @return  float
+	 */
+	public function calcTaxAmount($price, $taxRate, $priceIncludeTax=false, $round=true)
+	{
+		if ($priceIncludeTax) {
+			$amount = $price*(1-1/(1+$taxRate));
+		} else {
+			$amount = $price*$taxRate;
+		}
 
-        if ($round) {
-            return $this->round($amount);
-        }
+		if ($round) {
+			return $this->round($amount);
+		}
 
-        return $amount;
-    }
+		return $amount;
+	}
+
+
+	/**
+	 * Get information about tax rates applied
+	 *
+	 * @param   Varien_Object $request
+	 * @return  array
+	 */
+	public function getAppliedRates($item)
+	{
+		$result = array();
+		return $result;
+	}
 }

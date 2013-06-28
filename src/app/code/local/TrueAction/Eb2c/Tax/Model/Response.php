@@ -135,10 +135,20 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	}
 
 	/**
+	 * validate the destination address and setup shortcuts to allow for
+	 * easy access to the validated data.
 	 */
+	protected function _validateDestinations()
 	{
 		$xpath = new DOMXPath($this->_doc);
 		$xpath->registerNamespace('a', $this->_namespaceUri);
+		$root = $this->_doc->documentElement;
+		$mailingAddresses = $xpath->query(
+			'/a:Shipping/a:Destinations/a:MailingAddress',
+			$root
+		);
+		foreach ($mailingAddresses as $mailingAddress)
+		{
 
 		}
 	}

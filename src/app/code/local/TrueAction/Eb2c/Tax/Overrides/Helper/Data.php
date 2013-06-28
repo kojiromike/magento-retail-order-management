@@ -12,6 +12,7 @@ class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 
 	public function __construct()
 	{
+		parent::__construct();
 		$this->_coreHelper = Mage::helper('eb2ccore');
 	}
 
@@ -45,6 +46,6 @@ class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 	 */
 	public function getNamespaceUri($store = null)
 	{
-		return Mage::getStoreConfig('eb2ctax/api/namspace_uri', $store);
+		return Mage::getStoreConfig('eb2ctax/api/namespace_uri', $store);
 	}
 }

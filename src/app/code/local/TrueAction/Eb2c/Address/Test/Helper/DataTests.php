@@ -39,7 +39,9 @@ class TrueAction_Eb2c_Address_Test_Helper_DataTests extends EcomDev_PHPUnit_Test
 	protected function _generatePhysicalAddressElement($streetLines = 4)
 	{
 		$dom = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$root = $dom->appendChild($dom->createElement('address', null, TrueAction_Eb2c_Address_Model_Validation_Request::DOM_ROOT_NS));
+		$rootNs = Mage::helper('eb2ccore/config')
+			->addConfigModel(Mage::getSingleton('eb2caddress/config'))->apiNamespace;
+		$root = $dom->appendChild($dom->createElement('address', null, $rootNs));
 		for ($i = 1; $i <= $streetLines; $i++) {
 			$root->addChild('Line' . $i, $this->_addressParts['line' . $i]);
 		}

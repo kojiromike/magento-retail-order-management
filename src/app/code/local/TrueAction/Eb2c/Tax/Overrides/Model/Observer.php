@@ -6,65 +6,90 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	public function salesEventItemAdded(Varien_Event_Observer $observer)
 	{
 		Mage::log('salesEventItemAdded');
-		// TODO: Make sure this is actually a quote item! 
-		$quote = $observer->getEvent()->getQuoteItem()->getQuote();
-		$this->_fetchTaxDutyInfo($quote);
+		Mage::Helper('tax')->getCalculator()
+			->getTaxResponse()
+			->getRequest()
+			->invalidate();
 	}
 
 	public function cartEventProductUpdated(Varien_Event_Observer $observer)
 	{
 		Mage::log('cartEventProductUpdated');
-		// TODO: Make sure this is actually a quote item! 
-		$quote = $observer->getEvent()->getQuoteItem()->getQuote();
-		$this->_fetchTaxDutyInfo($quote);
+		Mage::Helper('tax')->getCalculator()
+			->getTaxResponse()
+			->getRequest()
+			->invalidate();
 	}
 
 	public function salesEventItemRemoved(Varien_Event_Observer $observer)
 	{
 		Mage::log('salesEventItemRemoved');
-		// TODO: Make sure this is actually a quote item! 
-		$quote = $observer->getEvent()->getQuoteItem()->getQuote();
-		$this->_fetchTaxDutyInfo($quote);
+		Mage::Helper('tax')->getCalculator()
+			->getTaxResponse()
+			->getRequest()
+			->invalidate();
 	}
 
 	public function salesEventItemQtyUpdated(Varien_Event_Observer $observer)
 	{
 		Mage::log('salesEventItemQtyUpdated');
-		// TODO: Make sure this is actually a quote item! 
-		$quote = $observer->getEvent()->getItem()->getQuote();
-		$this->_fetchTaxDutyInfo($quote);
+		$quoteItem = $observer->getEvent->getItem();
+		if (!is_a('Mage_Sales_Model_Quote_Item', $quote)) {
+			Mage::log(
+				'EB2C Tax Error: quoteCollectTotalsBefore: did not receive a Mage_Sales_Model_Quote_Item object',
+				Zend_Log::WARN
+			);
+		} else {
+			Mage::helper('tax')->getCalculator()
+				->getTaxResponse()
+				->getRequest()
+				->checkItemQty($quoteItem);
+		}
 	}
 
 	public function salesEventDiscountItem(Varien_Event_Observer $observer)
 	{
 		Mage::log('salesEventDiscountItem');
-		// TODO: Make sure this is actually a quote item! 
-		$quote = $observer->getEvent()->getItem()->getQuote();
-		$this->_fetchTaxDutyInfo($quote);
+		Mage::Helper('tax')->getCalculator()
+			->getTaxResponse()
+			->getRequest()
+			->invalidate();
 	}
 
-    /**
-     * Reset extra tax amounts on quote addresses before recollecting totals
-     *
-     * @param Varien_Event_Observer $observer
-     * @return Mage_Tax_Model_Observer
-     */
-    public function quoteCollectTotalsBefore(Varien_Event_Observer $observer)
-    {
+	/**
+	 * Reset extra tax amounts on quote addresses before recollecting totals
+	 *
+	 * @param Varien_Event_Observer $observer
+	 * @return Mage_Tax_Model_Observer
+	 */
+	public function quoteCollectTotalsBefore(Varien_Event_Observer $observer)
+	{
 		Mage::log('quoteCollectTotalsBefore');
-        /* @var $quote Mage_Sales_Model_Quote */
-        $quote = $observer->getEvent()->getQuote();
-        foreach ($quote->getAllAddresses() as $address) {
-            $address->setExtraTaxAmount(0);
-            $address->setBaseExtraTaxAmount(0);
-        }
-        return $this;
-    }
+		/* @var $quote Mage_Sales_Model_Quote */
+		$quote = $observer->getEvent()->getQuote();
+		foreach ($quote->getAllAddresses() as $address) {
+			$address->setExtraTaxAmount(0);
+			$address->setBaseExtraTaxAmount(0);
+		}
+		if (!is_a('Mage_Sales_Model_Quote', $quote)) {
+			Mage::log(
+				'EB2C Tax Error: quoteCollectTotalsBefore: did not receive a Mage_Sales_Model_Quote object',
+				Zend_Log::WARN
+			);
+		} else {
+			Mage::Helper('tax')->getCalculator()
+				->getTaxResponse()
+				->getRequest()
+				->checkAddresses($quote);
+			$this->_fetchTaxDutyInfo($quote);
+		}
+		return $this;
+	}
 
-    /**
-     * attempt to send a request for taxes.
-     * @param  Mage_Sales_Model_Quote $quote
-     */
+	/**
+	 * attempt to send a request for taxes.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 */
 	protected function _fetchTaxDutyInfo(Mage_Sales_Model_Quote $quote)
 	{
 		try {
@@ -88,14 +113,14 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	}
 
 
-    /**
-     * placeholder
-     *
-     * @param   Varien_Event_Observer $observer
-     * @return  Mage_Tax_Model_Observer
-     */
-    public function addTaxPercentToProductCollection($observer)
-    {
-        return $this;
-    }
+	/**
+	 * placeholder
+	 *
+	 * @param   Varien_Event_Observer $observer
+	 * @return  Mage_Tax_Model_Observer
+	 */
+	public function addTaxPercentToProductCollection($observer)
+	{
+		return $this;
+	}
 }

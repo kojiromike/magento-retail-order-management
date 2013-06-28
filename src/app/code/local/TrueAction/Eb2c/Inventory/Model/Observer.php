@@ -75,6 +75,15 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 		$productId = $quoteItem->getProductId();
 		$productSku = $quoteItem->getSku();
 
+		// get quote from quote item
+		$quote = $quoteItem->getQuote();
+
+		// check allocation and rollback on the cart quote item adding/editing event
+		if ($this->_getAllocation()->hasAllocation($quote)) {
+			// this cart quote has allocation data, therefore, rollback eb2c inventory allocation
+			$this->_getAllocation()->rollbackAllocation($quote);
+		}
+
 		if ($productId) {
 			// We have a valid product, let's check Eb2c Quantity
 			$availableStock = $this->_getQuantity()->requestQuantity($requestedQty, $itemId, $productSku);
@@ -84,10 +93,7 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				// set cart item to eb2c available qty
 				$quoteItem->setQty($availableStock);
 
-				// get quote from quote item
-				$quote = $quoteItem->getQuote();
-
-				// recalc totals
+				// re-calculate totals
 				$quote->collectTotals();
 
 				// save the quote
@@ -108,12 +114,34 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 				);
 				// throwing an error to prevent the successful add to cart message
 				Mage::throwException('Cannot add the item to shopping cart.');
+				// @codeCoverageIgnoreStart
 			}
+			// @codeCoverageIgnoreEnd
 		}
 	}
 
 	/**
-	 * Check e2bc inventoryDetails, triggering checkout_controller_onepage_save_shipping_method event will run this method.
+	 * Rollback allocation if cart has reservation data, triggering sales_quote_remove_item event will run this method.
+	 *
+	 * @param Varien_Event_Observer $observer
+	 *
+	 * @return void
+	 */
+	public function rollbackOnRemoveItemInReservedCart($observer)
+	{
+		$quoteItem = $observer->getEvent()->getQuoteItem();
+
+		// get quote from quote item
+		$quote = $quoteItem->getQuote();
+
+		if ($this->_getAllocation()->hasAllocation($quote)) {
+			// this cart quote has allocation data, therefore, rollback eb2c inventory allocation
+			$this->_getAllocation()->rollbackAllocation($quote);
+		}
+	}
+
+	/**
+	 * Check eb2c inventoryDetails, triggering checkout_controller_onepage_save_shipping_method event will run this method.
 	 *
 	 * @param Varien_Event_Observer $observer
 	 *
@@ -126,27 +154,56 @@ class TrueAction_Eb2c_Inventory_Model_Observer
 
 		// generate request and send request to eb2c inventory details
 		if ($inventoryDetailsResponseMessage = $this->_getDetails()->getInventoryDetails($quote)) {
+			// parse inventory detail response
+			$inventoryData = $this->_getDetails()->parseResponse($inventoryDetailsResponseMessage);
+
 			// got a valid response from eb2c, then go ahead and update the quote with the eb2c information
-			$this->_getDetails()->processInventoryDetails($quote, $inventoryDetailsResponseMessage);
+			$this->_getDetails()->processInventoryDetails($quote, $inventoryData);
 		}
 	}
 
 	/**
-	 * Allocating e2bc inventory for placed order, triggering sales_order_place_after event will run this method.
+	 * Processing e2bc allocation, triggering eb2c_allocation_onepage_save_order_action_before event will run this method.
 	 *
 	 * @param Varien_Event_Observer $observer
 	 *
 	 * @return void
 	 */
-	public function processAllocation($observer)
+	public function processEb2cAllocation($observer)
 	{
-		// get the order from the event observer
-		$order = $observer->getEvent()->getOrder();
+		// get the quote from the event observer
+		$quote = $observer->getEvent()->getQuote();
 
-		// generate request and send request to eb2c allocation
-		if ($allocationResponseMessage = $this->_getAllocation()->allocateOrderItems($order)) {
-			// got a valid response from eb2c, then go ahead and update the order with the eb2c information
-			$this->_getAllocation()->processAllocation($order, $allocationResponseMessage);
+		// get the event response object
+		$response = $observer->getEvent()->getResponse();
+
+		// only allow allocation only when, there's no previous allocation or the previous allocation expired
+		if (!$this->_getAllocation()->hasAllocation($quote) || $this->_getAllocation()->isExpired($quote)) {
+			// flag for failure or success allocation
+			$isAllocated = true;
+
+			// generate request and send request to eb2c allocation
+			if ($allocationResponseMessage = $this->_getAllocation()->allocateQuoteItems($quote)) {
+				// parse allocation response
+				$allocationData = $this->_getAllocation()->parseResponse($allocationResponseMessage);
+
+				// got a valid response from eb2c, then go ahead and update the quote with the eb2c information
+				$allocatedErr = $this->_getAllocation()->processAllocation($quote, $allocationData);
+
+				// Got an allocation failure
+				if (!empty($allocatedErr)) {
+					$isAllocated = false;
+					foreach ($allocatedErr as $error) {
+						Mage::getSingleton('checkout/session')->addError($error);
+					}
+				}
+			}
+
+			if (!$isAllocated) {
+				throw new TrueAction_Eb2c_Inventory_Model_Allocation_Exception('Inventory allocation Error.');
+				// @codeCoverageIgnoreStart
+			}
+			// @codeCoverageIgnoreEnd
 		}
 	}
 }

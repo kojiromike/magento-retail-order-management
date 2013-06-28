@@ -1,0 +1,4 @@
+tables:
+  sales/order:
+    - entity_id: 1
+    - increment_id: 100000004

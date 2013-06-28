@@ -72,9 +72,7 @@
 	<default>
 		<eb2ctax>
 			<api>
-				<namespace_uri>
-					<![CDATA[http://api.gsicommerce.com/schema/checkout/1.0]]>
-				</namespace_uri>
+				<namespace_uri><![CDATA[http://api.gsicommerce.com/schema/checkout/1.0]]></namespace_uri>
 			</api>
 		</eb2ctax>
 	</default>

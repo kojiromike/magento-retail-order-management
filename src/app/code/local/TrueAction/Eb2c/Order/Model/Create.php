@@ -54,6 +54,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	public function observerCreate($orderId)
 	{
 		$this->_buildRequest($orderId);
+		return $this->_transmit();
 	}
 
 	/**
@@ -88,6 +89,9 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 */
 	private function _transmit()
 	{
+		if( $this->_getHelper()->getConfigModel()->developerMode ) {
+			return true;
+		}
 		$response = $this->_getHelper()->getCoreHelper()->callApi(
 						$this->_domRequest, $this->_getHelper()->getConfigModel()->createUri
 						);
@@ -179,7 +183,14 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 		$name->createChild('FirstName', $this->_o->getCustomerFirstname());
 
 		if( $this->_o->getCustomerGender() ) {
-			$customer->createChild('Gender', $customerGender());
+			$genderOpts = Mage::getResourceSingleton('customer/customer')->getAttribute('gender')->getSource()->getAllOptions();
+			$eb2cGender = '';
+			foreach( $genderOpts as $genderOpt ) {
+				if( $genderOpt['value'] == $this->_o->getCustomerGender() ) {
+					$eb2cGender = substr(ucfirst($genderOpt['label']),0,1);
+				}
+			}
+			$customer->createChild('Gender', $eb2cGender);
 		}
 		if( $this->_o->getCustomerDob() ) {
 			$customer->createChild('DateOfBirth', $this->_o->getCustomerDob());

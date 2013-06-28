@@ -34,7 +34,7 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	 *
 	 * @param DOMDocument $xmlDoc The xml document to send in the request body
 	 * @param string $apiUri The url of the request
-	 * @param string $timeout in seconds, for the request to complete 
+	 * @param string $timeout in seconds, for the request to complete
 	 * @param string $method The HTTP method of the request (only POST is supported right now)
 	 *
 	 * @return string The response from the server.
@@ -42,9 +42,9 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	public function callApi(DOMDocument $xmlDoc, $apiUri, $timeout=0, $method='POST')
 	{
 		if( !$timeout ) {
-			$config = Mage::helper('eb2ccore/config');
-			$config->addConfigModel(Mage::getSingleton('eb2ccore/config'));
-			$timeout = $config->apiTimeout;
+			$timeout = Mage::getModel('eb2ccore/config_registry')
+				->addConfigModel(Mage::getSingleton('eb2ccore/config'))
+				->apiTimeout;
 			if( !$timeout ) {
 				$timeout = self::FAILSAFE_TIMEOUT;
 			}
@@ -53,7 +53,7 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 		// by default, curl will be used as the default adapter
 		$client = new Varien_Http_Client($apiUri, array(
 			'adapter' => 'Zend_Http_Client_Adapter_Socket',
-			'timeout' => $timeout, 
+			'timeout' => $timeout,
 			));
 		$client->setRawData($xmlDoc->saveXML())->setEncType('text/xml');
 		$response = $client->request($method);
@@ -73,8 +73,8 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function apiUri($service, $operation, $params = array(), $format = 'xml')
 	{
-		$config = Mage::helper('eb2ccore/config');
-		$config->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$config = Mage::getModel('eb2ccore/config_registry')
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 
 		return sprintf(
 			self::URI_FORMAT,

@@ -8,15 +8,8 @@
  * - Multiple config classes can be used to look up paths
  * - When using multiple config models, the last one in takes precedence
  */
-class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Core_Test_Model_ConfigRegistryTest extends EcomDev_PHPUnit_Test_Case
 {
-
-	// make sure that any changes make to the config helper's store are reset back to the default
-	public function tearDown()
-	{
-		Mage::helper('eb2ccore/config')->setStore(null);
-		parent::tearDown();
-	}
 
 	/**
 	 * Create a stub config model to populate the config helper with keys/paths.
@@ -86,7 +79,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	 */
 	public function testGetConfig()
 	{
-		$config = Mage::helper('eb2ccore/config');
+		$config = Mage::getModel('eb2ccore/config_registry');
 		$config->addConfigModel($this->_createConfigStub());
 
 		// ensure a value is returned
@@ -121,7 +114,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	 */
 	public function testMagicPropConfig()
 	{
-		$config = Mage::helper('eb2ccore/config');
+		$config = Mage::getModel('eb2ccore/config_registry');
 		$config->addConfigModel($this->_createConfigStub())
 			->addConfigModel($this->_createAltConfigStub());
 
@@ -152,7 +145,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	 */
 	public function testConfigNotFoundExceptions()
 	{
-		$config = Mage::helper('eb2ccore/config');
+		$config = Mage::getModel('eb2ccore/config_registry');
 		$config->getConfig('nonexistent_config');
 	}
 
@@ -165,7 +158,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	 */
 	public function testUnknownPropError()
 	{
-		$config = Mage::helper('eb2ccore/config');
+		$config = Mage::getModel('eb2ccore/config_registry');
 		$nonexistent = $config->nonexistentConfig;
 	}
 
@@ -184,7 +177,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	{
 		// ensure code execution continues after the error is triggered
 		$handler = set_error_handler(array($this, 'noopErrorHandler'));
-		$config = Mage::helper('eb2ccore/config');
+		$config = Mage::getModel('eb2ccore/config_registry');
 		$nonexistent = $config->nonexistentConfig;
 		$this->assertNull($nonexistent);
 		// set error handler back to initial value
@@ -200,7 +193,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	public function testAllPropsReadonlyError()
 	{
 
-		$config = Mage::helper('eb2ccore/config');
+		$config = Mage::getModel('eb2ccore/config_registry');
 		$config->someConfig = 'foo';
 	}
 
@@ -212,7 +205,7 @@ class TrueAction_Eb2c_Core_Test_Helper_ConfigTests extends EcomDev_PHPUnit_Test_
 	public function testAllPropsReadonly()
 	{
 		$handler = set_error_handler(array($this, 'noopErrorHandler'));
-		$config = Mage::helper('eb2ccore/config')
+		$config = Mage::getModel('eb2ccore/config_registry')
 			->addConfigModel($this->_createConfigStub());
 		$config->catalogId = 'foo';
 		$this->assertSame(Mage::getStoreConfig('eb2c/core/catalog_id'), $config->catalogId);

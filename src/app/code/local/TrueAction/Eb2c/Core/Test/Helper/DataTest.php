@@ -79,7 +79,7 @@ class TrueAction_Eb2c_Core_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Cas
 	 */
 	protected function _mockConfig()
 	{
-		$mock = $this->getHelperMockBuilder('eb2ccore/config')
+		$mock = $this->getModelMockBuilder('eb2ccore/config_registry')
 			->disableOriginalConstructor()
 			->setMethods(array('__get'))
 			->getMock();
@@ -93,7 +93,7 @@ class TrueAction_Eb2c_Core_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Cas
 		$mock->expects($this->any())
 			->method('__get')
 			->will($this->returnValueMap($mockConfig));
-		$this->replaceByMock('helper', 'eb2ccore/config', $mock);
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $mock);
 	}
 
 	/**

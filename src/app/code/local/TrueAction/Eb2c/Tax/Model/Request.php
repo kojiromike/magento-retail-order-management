@@ -131,30 +131,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$this->unsQuote();
 	}
 
-	protected function _buildTaxDutyRequest()
-	{
-		$this->_doc->addElement('TaxDutyQuoteRequest', null, $this->_namespaceUri);
-		$tdRequest          = $this->_doc->documentElement;
-		$billingInformation = $tdRequest->addChild(
-			'Currency',
-			$this->getQuote()->getQuoteCurrencyCode()
-		)
-			->addChild('VATInclusivePricing', $this->_isVatIncludedInPrice())
-			->addChild(
-				'CustomerTaxId',
-				$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
-			)
-			->createChild('BillingInformation');
-		$shipping = $tdRequest->createChild('Shipping');
-		$this->_tdRequest    = $tdRequest;
-		$shipGroups   = $shipping->createChild('ShipGroups');
-		$destinations = $shipping->createChild('Destinations');
-		$billingInformation->setAttribute(
-			'ref',
-			$this->_billingInfoRef
-		);
-	}
-
 	protected function _processQuote()
 	{
 		$this->_destinationsChecked = array();
@@ -266,6 +242,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected function _extractDestData($address, $isVirtual = false)
 	{
 		$data = array(
+			'id'         => $address->getId(),
 			'is_virtual' => $isVirtual,
 			'last_name'  => $address->getLastname(),
 			'first_name' => $address->getFirstname()
@@ -344,51 +321,61 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		);
 	}
 
+	protected function _buildTaxDutyRequest()
+	{
+		$this->_doc->addElement('TaxDutyQuoteRequest', null, $this->_namespaceUri);
+		$tdRequest          = $this->_doc->documentElement;
+		$billingInformation = $tdRequest->addChild(
+			'Currency',
+			$this->getQuote()->getQuoteCurrencyCode()
+		)
+			->addChild('VATInclusivePricing', $this->_isVatIncludedInPrice())
+			->addChild(
+				'CustomerTaxId',
+				$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
+			)
+			->createChild('BillingInformation');
+		$shipping = $tdRequest->createChild('Shipping');
+		$this->_tdRequest    = $tdRequest;
+		$shipGroups   = $shipping->createChild('ShipGroups');
+		$destinations = $shipping->createChild('Destinations');
+		$this->_processAddresses($destinations, $shipGroups);
+		$billingInformation->setAttribute(
+			'ref',
+			$this->_billingInfoRef
+		);
+	}
+
 	/**getIsMultiShipping
 	 * generate the nodes for the shipgroups and destinations subtrees.
 	 */
-	protected function _processAddresses($desinationsNode, $shipGroupsNode)
+	protected function _processAddresses($destinationsNode, $shipGroupsNode)
 	{
 		foreach ($this->_destinations as $destination) {
 			if ($destination['is_virtual']) {
-				$this->_buildEmailNode($destination, $destinationsNode);
+				$this->_buildEmailNode($destinationsNode, $destination);
 			} else {
-				$this->_buildMailingAddressNode($destination, $destinationsNode);
+				$this->_buildMailingAddressNode($destinationsNode, $destination);
 			}
 		}
 		$orderItemsFragment = $this->_doc->createDocumentFragment();
 		$orderItems = $orderItemsFragment->appendChild(
 			$this->_doc->createElement('Items')
 		);
-		foreach ($this->_shipGroups as $shipGroup) {
-				$this->_addOrderItem($orderItem, $orderItems);
-		}
-		$groupedRates   = $address->getGroupedAllShippingRates();
-		foreach ($groupedRates as $rateKey => $shippingRate) {
-			$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
-			// FIXME: === always returns false in the following if statement
-			var_dump($address->getShippingMethod());
-			var_dump($shippingRate->getCode());
-			if ($address->getShippingMethod() == $shippingRate->getCode()) {
-				$shipGroup = $this->_shipGroups->createChild(
-					'ShipGroup',
-					null,
-					null,
-					$this->_namespaceUri
-				);
-				$shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)
-					->addAttribute('chargeType', strtoupper($shippingRate->getMethod()));
-				$destinationTarget = $shipGroup->createChild('DestinationTarget');
-				$desintationTarget->setAttribute('ref', $this->_shipAddressRef);
-				$items = $shipGroup->appendChild($orderItems->cloneNode(true));
-			}
-		}
+		// foreach ($this->_shipGroups as $addressKey => $shipGroup) {
+		// 		$this->_addOrderItem($orderItem, $orderItems);
+		// }
+		// $shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)
+		// 	->addAttribute('chargeType', strtoupper($shippingRate->getMethod()));
+		// $destinationTarget = $shipGroup->createChild('DestinationTarget');
+		// $desintationTarget->setAttribute('ref', $this->_shipAddressRef);
+		// $items = $shipGroup->appendChild($orderItems->cloneNode(true));
 	}
 
 	/**
 	 * Populate $parent with nodes using data extracted from the specified address.
 	 */
-	protected function _buildAddressNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
+	protected function _buildAddressNode(TrueAction_Dom_Element $parent, $address)
 	{
 		// loop through to get all of the street lines.
 		$streetLines = $address->getStreet();
@@ -404,7 +391,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	/**
 	 * Populate $parent with the nodes for a person's name extracted from the specified address.
 	 */
-	protected function _buildPersonName(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
+	protected function _buildPersonName(TrueAction_Dom_Element $parent, $address)
 	{
 		$honorific  = $address->getPrefix();
 		$middleName = $address->getMiddlename();
@@ -424,9 +411,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _buildMailingAddressNode(
 		TrueAction_Dom_Element $parent,
-		Mage_Sales_Model_Quote_Address $address
+		array $address
 	) {
-		$this->_shipAddressRef = $address->getId();
+		$this->_shipAddressRef = $address['id'];
 		if ($address->getSameAsBilling()) {
 			$address = $this->getBillingAddress();
 		}
@@ -441,9 +428,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	/**
 	 * build an email address node for the destinations node.
 	 * @param  TrueAction_Dom_Element         $parent
-	 * @param  Mage_Sales_Model_Quote_Address $address
+	 * @param  array $address
 	 */
-	protected function _buildEmailNode(TrueAction_Dom_Element $parent, Mage_Sales_Model_Quote_Address $address)
+	protected function _buildEmailNode(TrueAction_Dom_Element $parent, array $address)
 	{
 		if ($address->getSameAsBilling()) {
 			$address = $this->getBillingAddress();

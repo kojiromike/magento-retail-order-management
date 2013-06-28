@@ -7,37 +7,37 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	/**
 	 * @var Mage_Sales_Model_Quote (mock)
 	 */
-	private $quote          = null;
+	public $quote          = null;
 
 	/**
 	 * @var Mage_Sales_Model_Quote_Address (mock)
 	 */
-	private $shipAddress    = null;
+	public $shipAddress    = null;
 
 	/**
 	 * @var Mage_Sales_Model_Quote_Address (mock)
 	 */
-	private $billAddress    = null;
+	public $billAddress    = null;
 
 	/**
 	 * @var ReflectionProperty(TrueAction_Eb2c_Tax_Model_Request::_xml)
 	 */
-	private $doc            = null;
+	public $doc            = null;
 
 	/**
 	 * @var ReflectionClass(TrueAction_Eb2c_Tax_Model_Request)
 	 */
-	private static $cls     = null;
+	public static $cls     = null;
 
 	/**
 	 * path to the xsd file to validate against.
 	 * @var string
 	 */
-	private static $xsdFile = '';
+	public static $xsdFile = '';
 
-	private $tdRequest      = null;
-	private $destinations   = null;
-	private $shipGroups     = null;
+	public $tdRequest      = null;
+	public $destinations   = null;
+	public $shipGroups     = null;
 
 	public static function setUpBeforeClass()
 	{

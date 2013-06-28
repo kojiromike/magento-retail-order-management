@@ -15,7 +15,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected $_billingEmailRef    = '';
 	protected $_shipAddressRef     = '';
 	protected $_emailAddressId     = '';
-	protected $_hasChanges         = '';
+	protected $_hasChanges         = false;
 	protected $_emailAddresses     = array();
 	protected $_skuLineMap         = array();
 	protected $_destinations       = array();
@@ -89,7 +89,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function isValid()
 	{
-		return $this->getQuote() && $this->getQuote()->getId() &&
+		return !$this->_hasChanges && $this->getQuote() && $this->getQuote()->getId() &&
 			$this->getBillingAddress() && $this->getBillingAddress()->getId() &&
 			$this->getQuote()->getItemsCount();
 	}
@@ -133,7 +133,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	public function checkItemQty($quoteItem)
 	{
-		$sku = $quoteItem->getSku()
+		$sku = $quoteItem->getSku();
 		$itemData = isset($this->_orderItems[$sku]) ?
 			$this->_orderItems[$sku] : !($this->_hasChanges = true);
 		if (!$this->_hasChanges && $itemData) {
@@ -207,18 +207,21 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	protected function _addToDestination($item, $address, $isVirtual = false)
 	{
-		$addressEmail = $this->_getEmailFromAddress($address);
-		$id = $this->_addShipGroup($address, $isVirtual);
-		if (!isset($this->shipGroups[$id])) {
-			$this->_shipGroups[$id][] = $item->getSku(); 
+		$destinationId = ($isVirtual) ? $this->_getEmailFromAddress($address) : $address->getId();
+		$id = $this->_addShipGroupId($address, $isVirtual);
+		if (!isset($this->_shipGroups[$destinationId])) {
+			$this->_shipGroups[$destinationId] = array();
+		}
+		if (array_search( $item->getSku(), $this->_shipGroups[$destinationId]) === false) {
+			$this->_shipGroups[$destinationId][] = $item->getSku();
 		}
 		$this->_orderItems[$item->getSku()] = $this->_extractItemData($item);
 	}
 
 	/**
-	 * generate a shipgroup id and map it to a destination id
+	 * generate a shipgroup id and map a destination id to it.
 	 */
-	protected function _addShipGroup($address, $isVirtual)
+	protected function _addShipGroupId($address, $isVirtual)
 	{
 		$rateKey = 'NONE';
 		$addressKey = $address->getId();
@@ -237,7 +240,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			}
 		}
 		$id = "shipGroup_{$addressKey}_{$rateKey}";
-		$this->_shipGroups[$addressKey] = $id;
+		$this->_shipGroupIds[$addressKey] = array('group_id' => $id, 'method' => $rateKey);
 		return $id;
 	}
 
@@ -371,18 +374,25 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 				$this->_buildMailingAddressNode($destinationsNode, $destination);
 			}
 		}
-		$orderItemsFragment = $this->_doc->createDocumentFragment();
-		$orderItems = $orderItemsFragment->appendChild(
-			$this->_doc->createElement('Items')
-		);
-		// foreach ($this->_shipGroups as $addressKey => $shipGroup) {
-		// 		$this->_addOrderItem($orderItem, $orderItems);
-		// }
-		// $shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)
-		// 	->addAttribute('chargeType', strtoupper($shippingRate->getMethod()));
-		// $destinationTarget = $shipGroup->createChild('DestinationTarget');
-		// $desintationTarget->setAttribute('ref', $this->_shipAddressRef);
-		// $items = $shipGroup->appendChild($orderItems->cloneNode(true));
+		foreach ($this->_shipGroups as $destinationId => $itemList) {
+			$orderItemsFragment = $this->_doc->createDocumentFragment();
+			$orderItems = $orderItemsFragment->appendChild(
+				$this->_doc->createElement('Items')
+			);
+			$shipGroupInfo = $this->_shipGroupIds[$destinationId];
+			$shipGroupId   = $shipGroupInfo['group_id'];
+			$chargeType    = $shipGroupInfo['method'];
+			$shipGroup     = $shipGroupsNode->createChild('ShipGroup');
+			$shipGroup->addAttribute('id', $shipGroupId, true)
+				->addAttribute('chargeType', strtoupper($chargeType));
+			$destinationTarget = $shipGroup->createChild('DestinationTarget');
+			$destinationTarget->setAttribute('ref', $destinationId);
+			foreach($itemList as $orderItemSku) {
+				$orderItem = $this->_orderItems[$orderItemSku];
+				$this->_addOrderItem($orderItem, $orderItems);
+			}
+			$shipGroup->appendChild($orderItemsFragment);
+		}
 	}
 
 	/**
@@ -491,7 +501,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$orderItem = $parent->createChild('OrderItem')
 			->addAttribute('lineNumber', $this->_getLineNumber($item))
 			->addChild('ItemId', $this->_checkSku($item))
-			->addChild('ItemDesc', $this->_checkLength($item['name'], 0, 12))
+			->addChild('ItemDesc', $this->_checkLength($item['item_desc'], 0, 12))
 			->addChild('HTSCode', $this->_checkLength($item['hts_code'], 0, 12))
 			->addChild('Quantity', $item['quantity'])
 			->addChild('Pricing');

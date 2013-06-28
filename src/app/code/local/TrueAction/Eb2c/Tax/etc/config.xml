@@ -16,6 +16,7 @@
 					<observer>TrueAction_Eb2c_Tax_Overrides_Model_Observer</observer>
 					<sales_total_quote_subtotal>TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Subtotal</sales_total_quote_subtotal>
 					<sales_total_quote_tax>TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax</sales_total_quote_tax>
+					<sales_total_quote_shipping>TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Shipping</sales_total_quote_shipping>
 				</rewrite>
 			</tax>
 		</models>

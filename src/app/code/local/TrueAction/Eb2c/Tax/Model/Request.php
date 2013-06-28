@@ -205,8 +205,8 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		);
 		$items = $quote->getAllVisibleItems();
 		foreach($items as $item) {
-			$isVirtual = $item->getProduct()->getIsVirtual();
-			$address   = ($isVirtual) ? $this->getBillingAddress() : $shipAddress 			
+			$isVirtual = $item->getProduct()->isVirtual();
+			$address   = $isVirtual ? $this->getBillingAddress() : $shipAddress; 			
 			if ($item->getHasChildren() && $item->isChildrenCalculated()) {
 				foreach ($item->getChildren() as $child) {
 					$this->_addToDestination($item, $address, $isVirtual);
@@ -230,24 +230,23 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	protected function _addShipGroup($address, $isVirtual)
 	{
-		$groupedRates = $address->getGroupedAllShippingRates();
-		foreach ($groupedRates as $rateKey => $shippingRate) {
-			$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
-			// FIXME: === always returns false in the following if statement
-			var_dump($address->getShippingMethod());
-			var_dump($shippingRate->getCode());
-			if ($address->getShippingMethod() == $shippingRate->getCode()) {
-				$shipGroup = $this->_shipGroups->createChild(
-					'ShipGroup',
-					null,
-					null,
-					$this->_namespaceUri
-				);
-				$shipGroup->addAttribute('id', "shipGroup_{$addressKey}_{$rateKey}", true)
-					->addAttribute('chargeType', strtoupper($shippingRate->getMethod()));
-				$destinationTarget = $shipGroup->createChild('DestinationTarget');
-				$desintationTarget->setAttribute('ref', $this->_shipAddressRef);
-				$items = $shipGroup->appendChild($orderItems->cloneNode(true));
+		if ($address->getAddressType() === 'billing') {
+			$this->_shipGroups[$address->getEmail()] = 'shipGroup_' . 
+				strtoupper($address->getEmail()) . '_NONE';
+		} else {
+			$groupedRates = $address->getGroupedAllShippingRates();
+			foreach ($groupedRates as $rateKey => $shippingRate) {
+				$shippingRate = (is_array($shippingRate)) ? $shippingRate[0] : $shippingRate;
+				$addressKey = $address->getId();
+				if ($isVirtual) {
+					$addressKey = $this->_getEmailFromAddress($address);
+				}
+				// FIXME: === always returns false in the following if statement
+				var_dump($address->getShippingMethod());
+				var_dump($shippingRate->getCode());
+				if ($address->getShippingMethod() == $shippingRate->getCode()) {
+					$this->_shipGroups[$address->getId()] = "shipGroup_{$addressKey}_{$rateKey}";
+				}
 			}
 		}
 	}
@@ -295,7 +294,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected function _extractItemData($item)
 	{
 		$data = array(
-			'id' = $item->getId(),
+			'id' => $item->getId(),
 			'line_number' => $this->_getLineNumber($item),
 			'item_id' => $item->getSku(),
 			'item_desc' => $item->getName(),
@@ -328,14 +327,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $newSku;
 	}
 
-	protected function _buildShip
-
 	protected function _getShippingTaxClass()
 	{
 		return $this->_checkLength(
 			Mage::getStoreConfig(
 				Mage_Tax_Model_Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-				$this->getQuote()->getStore();
+				$this->getQuote()->getStore()
 			),
 			1, 40
 		);
@@ -492,10 +489,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * @param Mage_Sales_Model_Quote_Item    $item
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
-	protected function _addOrderItem(
-		array $item,
-		TrueAction_Dom_Element $parent,
-	) {
+	protected function _addOrderItem(array $item, TrueAction_Dom_Element $parent) {
 		$sku      = $this->_checkSku($item);
 		$orderItem = $parent->createChild('OrderItem')
 			->addAttribute('lineNumber', $this->_getLineNumber($item))
@@ -504,7 +498,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			->addChild('HTSCode', $this->_checkLength($item['hts_code'], 0, 12))
 			->addChild('Quantity', $item['quantity'])
 			->addChild('Pricing');
-		$merchandise = $orderItem->setNode('Pricing/Merchandise'])
+		$merchandise = $orderItem->setNode('Pricing/Merchandise')
 			->addChild('Amount', $item['merchandise_amount'])
 			->addChild('UnitPrice', $item['merchandise_unit_price']);
 		// taxClass will be gotten from ItemMaster feed field "TaxCode"

@@ -262,14 +262,11 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		if ($isVirtual) {
 			$data['email_address'] = $address->getEmail();
 		} else {
-			$streetLines = $address->getStreet();
 			$data['city'] = $address->getCity();
 			$data['main_division'] = $address->getRegionModel()->getCode();
 			$data['country_code'] = $address->getCountryId();
 			$data['postal_code'] = $address->getPostcode();
-			foreach ($streetLines as $streetIndex => $street) {
-				$data['line' . $streetIndex + 1] = $street;
-			}
+			$data['street'] = $address->getStreet();
 		}
 		return $data;
 	}
@@ -382,14 +379,14 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected function _buildAddressNode(TrueAction_Dom_Element $parent, $address)
 	{
 		// loop through to get all of the street lines.
-		$streetLines = $address->getStreet();
+		$streetLines = $address['street'];
 		foreach ($streetLines as $streetIndex => $street) {
 			$parent->createChild('Line' . ($streetIndex + 1), $street);
 		}
-		$parent->createChild('City', $address->getCity());
-		$parent->createChild('MainDivision', $address->getRegionModel()->getCode());
-		$parent->createChild('CountryCode', $address->getCountryId());
-		$parent->createChild('PostalCode', $address->getPostcode());
+		$parent->createChild('City', $address['city']);
+		$parent->createChild('MainDivision', $address['main_division']);
+		$parent->createChild('CountryCode', $address['country_code']);
+		$parent->createChild('PostalCode', $address['postal_code']);
 	}
 
 	/**
@@ -397,16 +394,16 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _buildPersonName(TrueAction_Dom_Element $parent, $address)
 	{
-		$honorific  = $address->getPrefix();
-		$middleName = $address->getMiddlename();
+		$honorific  = isset($address['honorific']) ? $address['honorific'] : null;
+		$middleName = isset($address['middle_name']) ? $address['middle_name'] : null;
 		if ($honorific) {
 			$parent->createChild('Honorific', $honorific);
 		}
-		$parent->createChild('LastName', $address->getLastname());
+		$parent->createChild('LastName', $address['last_name']);
 		if ($middleName) {
 			$parent->createChild('MiddleName', $middleName);
 		}
-		$parent->createChild('FirstName', $address->getFirstname());
+		$parent->createChild('FirstName', $address['first_name']);
 	}
 
 	/**

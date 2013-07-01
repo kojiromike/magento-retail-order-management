@@ -301,6 +301,8 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		if ($middleName) {
 			$parent->createChild('middle_name', $middleName);
 		}
+		// if this is a virtual destination, then only extract the
+		// email address
 		if ($isVirtual) {
 			$data['email_address'] = $address->getEmail();
 		} else {
@@ -389,9 +391,11 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$shipGroups   = $shipping->createChild('ShipGroups');
 		$destinations = $shipping->createChild('Destinations');
 		$this->_processAddresses($destinations, $shipGroups);
-		$attr = $this->_doc->createAttributeNs('ref', $this->_namespaceUri);
-		$attr->value = $this->_billingInfoRef;		
-		$billingInformation->appendChild($attr);
+		$billingInformation->setAttributeNs(
+			$this->_namespaceUri,
+			'ref',
+			$this->_billingInfoRef
+		);
 	}
 
 	/**getIsMultiShipping

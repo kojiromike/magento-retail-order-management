@@ -506,12 +506,18 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	/**
 	 * build and append an orderitem node to the parent node.
+	 * @param array    $item
 	 * @param TrueAction_Dom_Element         $parent
-	 * @param Mage_Sales_Model_Quote_Item    $item
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
 	protected function _addOrderItem(array $item, TrueAction_Dom_Element $parent) {
 		$sku      = $this->_checkSku($item);
+		if (strlen($sku) < strlen($item['item_id'])) {
+			Mage::log(
+				'Item sku "' . $item->getSku() . '" is too long and has been truncated',
+				Zend_Log::WARN
+			);
+		}
 		$orderItem = $parent->createChild('OrderItem')
 			->addAttribute('lineNumber', $this->_getLineNumber($item))
 			->addChild('ItemId', $this->_checkSku($item))

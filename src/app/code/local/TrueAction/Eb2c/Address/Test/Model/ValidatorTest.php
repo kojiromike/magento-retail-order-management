@@ -1,6 +1,6 @@
 <?php
 
-class TrueAction_Eb2c_Address_Test_Model_TestValidator
+class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	extends EcomDev_PHPUnit_Test_Case
 {
 

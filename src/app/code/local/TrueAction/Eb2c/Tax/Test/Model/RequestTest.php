@@ -95,6 +95,18 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$this->assertEquals(array(1111, 1112, 1113), $result);
 	}
 
+	public function testGetItemBySku()
+	{
+		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
+		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
+		$itemData = $request->getItemBySku('1111');
+		$this->assertNotNull($itemData);
+		$itemData = $request->getItemBySku(1111);
+		$this->assertNotNull($itemData);
+		$itemData = $request->getItemBySku('notfound');
+		$this->assertNull($itemData);
+	}
+
 	/**
 	 * @test
 	 */

@@ -110,12 +110,15 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	/**
 	 * get the quote item for the sku.
-	 * @param stirng $sku
-	 * @return Mage_Sales_Model_Quote_Item
+	 * return null if the sku does not exist.
+	 * @param string $sku
+	 * @return array
 	 */
 	public function getItemBySku($sku)
 	{
-		return $this->_skuItemMap[$sku];
+		$sku = (string)$sku;
+		$item = isset($this->_skuItemMap[$sku]) ? $this->_skuItemMap[$sku] : null;
+		return $item;
 	}
 
 	/**

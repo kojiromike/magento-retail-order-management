@@ -82,9 +82,10 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function isValid()
 	{
-		return !$this->_hasChanges && $this->getQuote() && $this->getQuote()->getId() &&
+		$result = !$this->_hasChanges && $this->getQuote() && $this->getQuote()->getId() &&
 			$this->getBillingAddress() && $this->getBillingAddress()->getId() &&
 			$this->getQuote()->getItemsCount();
+		return $result;
 	}
 
 	/**

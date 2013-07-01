@@ -145,8 +145,10 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$itemData = isset($this->_orderItems[$sku]) ?
 			$this->_orderItems[$sku] : !($this->_hasChanges = true);
 		if (!$this->_hasChanges && $itemData) {
-			$newQty = (float)$quoteItem->getQtyOrdered();
-			$oldQty =  (float)$itemData['quantity'];
+			$newQty = (float)$quoteItem->getQty();
+			var_dump($newQty);
+			$oldQty = (float)$itemData['quantity'];
+			var_dump($oldQty);
 			$this->_hasChanges = $oldQty !== $newQty; 
 		}
 	}
@@ -303,7 +305,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			'item_id' => $item->getSku(),
 			'item_desc' => $item->getName(),
 			'hts_code' => $item->getHtsCode(),
-			'quantity' => $item->getQtyOrdered(),
+			'quantity' => $item->getQty(),
 			'merchandise_amount' => $item->getRowTotal(),
 			'merchandise_unit_price' => $item->getBasePrice(),
 			'merchandise_tax_class' => $this->_getItemTaxClass($item),

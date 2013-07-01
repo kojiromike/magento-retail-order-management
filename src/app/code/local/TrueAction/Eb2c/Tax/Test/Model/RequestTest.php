@@ -139,7 +139,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 
 	public function testCheckItemQty()
 	{
-		$this->markTestIncomplete('disabled for push to fix jenkins errors');
 		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(3);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$items = $quote->getAllVisibleItems();

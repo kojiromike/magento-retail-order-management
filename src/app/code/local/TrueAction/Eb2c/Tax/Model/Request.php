@@ -304,6 +304,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $data;
 	}
 
+	/**
+	 * get the tax class for the item's product.
+	 * NOTE: the taxCode should be set by the ItemMaster feed.
+	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @return string
+	 */
 	protected function _getItemTaxClass($item)
 	{
 		$taxCode = '';
@@ -543,19 +549,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected function _getLineNumber($item)
 	{
 		return $item['id'];
-	}
-
-	/**
-	 * get the taxCode for the item's product.
-	 * NOTE: the taxCode should be set by the ItemMaster feed.
-	 * @param  Mage_Sales_Model_Quote_Item $item
-	 * @return string
-	 */
-	protected function _getProductTaxCode(Mage_Sales_Model_Quote_Item $item)
-	{
-		return Mage::getModel('catalog/product')
-			->loadById($item->getProductId())
-			->getTaxCode();
 	}
 
 	/**

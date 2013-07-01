@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<TrueAction_Eb2c_AddressFrontend>
+			<version>0.1</version>
+		</TrueAction_Eb2c_AddressFrontend>
+	</modules>
+	<frontend>
+		<layout>
+			<updates>
+				<eb2caddressfrontend>
+					<file>eb2c_address_frontend.xml</file>
+				</eb2caddressfrontend>
+			</updates>
+		</layout>
+	</frontend>
+</config>

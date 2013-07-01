@@ -20,19 +20,7 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 
 		$productId = $product->getId();
 
-		// Disable Magento built-in inventory check, to prevent clashing with eb2c quantity check event.
-		// @codeCoverageIgnoreStart
-		if ($product->getStockItem() && false) {
-			$minimumQty = $product->getStockItem()->getMinSaleQty();
-			//If product was not found in cart and there is set minimal qty for it
-			if ($minimumQty && $minimumQty > 0 && $request->getQty() < $minimumQty &&
-				!$this->getQuote()->hasProductId($productId)
-			) {
-				$request->setQty($minimumQty);
-			}
-		}
-		// @codeCoverageIgnoreEnd
-
+		// Removing Magento built-in inventory check, to prevent clashing with eb2c quantity check event.
 		if ((int) $productId > 0) {
 			try {
 				$result = $this->getQuote()->addProduct($product, $request);
@@ -93,19 +81,7 @@ class TrueAction_Eb2c_Inventory_Overrides_Model_Cart extends Mage_Checkout_Model
 			$product = $this->_getProduct($productId);
 			$request = $this->_getProductRequest($requestInfo);
 
-			// Disable Magento built-in inventory check, to prevent clashing with eb2c quantity check event.
-			// @codeCoverageIgnoreStart
-			if ($product->getStockItem() && false) {
-				$minimumQty = $product->getStockItem()->getMinSaleQty();
-				// If product was not found in cart and there is set minimal qty for it
-				if ($minimumQty && ($minimumQty > 0) &&
-					($request->getQty() < $minimumQty) &&
-					!$this->getQuote()->hasProductId($productId)
-				) {
-					$request->setQty($minimumQty);
-				}
-			}
-			// @codeCoverageIgnoreEnd
+			// removing Magento built-in inventory check, to prevent clashing with eb2c quantity check event.
 			$result = $this->getQuote()->updateItem($itemId, $request, $updatingParams);
 		} catch (Mage_Core_Exception $e) {
 			$this->getCheckoutSession()->setUseNotice(false);

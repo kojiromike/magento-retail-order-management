@@ -4,52 +4,73 @@
  */
 class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_Case
 {
+
 	/**
-	 * Test we can fail gracefully
 	 * @test
 	 * @loadFixture
 	 */
-	public function testInstantiate()
+	public function testOrdersInterfaces()
 	{
-		$cr = Mage::getModel('eb2corder/create');
-		$this->assertSame(get_class($cr), 'TrueAction_Eb2c_Order_Model_Create');
+		$status = null;
 
+		// Factory should be the same as new: 
+		$theClassItself = new TrueAction_Eb2c_Order_Model_Create();
+		$cr = Mage::getModel('eb2corder/create');
+		$this->assertSame(get_class($cr), get_class($theClassItself));
+
+		// Loop thru a collection, try creating order for last one
 		$salesModel = Mage::getModel('sales/order');
 		$orders = $salesModel->getCollection();
 		foreach( $orders as $order ) {
 			$testId = $order->getIncrementId();
 		}
-		$status = '';
+		$creator = Mage::getModel('eb2corder/create');
 		try {
-			$status = $cr->create($order->getIncrementId());
+			$status = $creator->create($testId);
 		}
 		catch(Exception $e) {
-			$status = false;		// Order isn't found.
+			echo $e->getMessage();
+			$status = false;
 		}
-		$this->assertSame($status, false);
-	}
+		$this->assertSame($status, true);
 
-	/**
-	 * Test the observer's event handler can fail gracefully
-	 * @test
-	 */
-	public function testObserverCreate()
-	{
-		$cr = Mage::getModel('eb2corder/create');
+		// Got 1 known order, create it ...
+		$incrementId = '100000003';
 		try {
-			$status = $cr->observerCreate('X00000004');
+			$status = $creator->create($incrementId);
 		}
 		catch(Exception $e) {
-			$status = false;		// Order isn't found.
+			echo $e->getMessage();
+			$status = false;
+		}
+		$this->assertSame($status, true);
+
+		// Don't want to find this, handle exception correctly.
+		$incrementId = 'NO_CHANCE';
+		try {
+			$status = $creator->create($incrementId);
+		}
+		catch(Exception $e) {
+			$status = false;
 		}
 		$this->assertSame($status, false);
-	}
 
+		// Excercise Event Observer Version. 
+		$incrementId = '100000002';
+		try {
+			$status = $cr->observerCreate($incrementId);
+		}
+		catch(Exception $e) {
+			$status = false;	
+		}
+		$this->assertSame($status, true);
+	}
+	
 	/**
 	 * Test get some XML, OK to be empty
 	 * @test
 	 */
-	public function testToXml()
+	public function testEmptyXml()
 	{
 		$cr = Mage::getModel('eb2corder/create');
 		$xml = $cr->toXml();

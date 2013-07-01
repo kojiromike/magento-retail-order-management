@@ -171,7 +171,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('updateItem', 'getItemById'));
 		$quoteMock->expects($this->any())
 			->method('updateItem')
-			->will($this->returnValue(array('some message')));
+			->will($this->returnValue($quoteMock));
 		$quoteMock->expects($this->any())
 			->method('getItemById')
 			->will($this->returnValue($itemMock));

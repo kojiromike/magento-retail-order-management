@@ -1,0 +1,40 @@
+/**
+ * Styling for the address validation address suggestions.
+ */
+.suggestion-fields {}
+
+.suggestion-fields .suggestion-list {
+	display: block;
+	width: 100%;
+}
+
+.suggestion-fields .suggestion {
+	display: block;
+	float: left;
+	padding: 1em;
+	width: 12em;
+	text-align: center;
+	position: relative;
+	border: solid 1px #ddd;
+	padding: 0 0 12px;
+	margin: 0 12px 0 0;
+}
+.suggestion-fields .original-message {
+	background: #ddd;
+	margin: 0;
+}
+.suggestion-fields .suggestion input {
+	bottom: 8px;
+	position: absolute;
+}
+.suggestion-fields .suggestion .address {
+	background: #ddd;
+	text-align: left;
+	padding: 1em;
+	display: block;
+}
+
+.suggestion-fields .new-option {
+	clear: left;
+	float: left;
+}

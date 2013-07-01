@@ -48,7 +48,7 @@ class TrueAction_Eb2c_Order_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getConfigModel($store=null)
 	{
 		if (!$this->configModel) {
-			$this->configModel = Mage::helper('eb2ccore/config');
+			$this->configModel = Mage::getModel('eb2ccore/config_registry');
 			$this->configModel->setStore($store)
 				->addConfigModel(Mage::getModel('eb2corder/config'));
 		}

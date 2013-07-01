@@ -60,7 +60,7 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getCoreConfigHelper($store=null)
 	{
 		if (!$this->coreConfigHelper) {
-			$this->coreConfigHelper = Mage::helper('eb2ccore/config');
+			$this->coreConfigHelper = Mage::getModel('eb2ccore/config_registry');
 			$this->coreConfigHelper->setStore($store)
 				->addConfigModel(Mage::getModel('eb2ccore/config'));
 		}
@@ -75,7 +75,7 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getConfigModel($store=null)
 	{
 		if (!$this->configModel) {
-			$this->configModel = Mage::helper('eb2ccore/config');
+			$this->configModel = Mage::getModel('eb2ccore/config_registry');
 			$this->configModel->setStore($store)
 				->addConfigModel(Mage::getModel('eb2cinventory/config'));
 		}

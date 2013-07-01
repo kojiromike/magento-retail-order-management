@@ -63,7 +63,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			}
 			// if everything was good so far then check the shipping addresses for
 			// changes
-			if (!$this->hasChanges) {
+			if (!$this->_hasChanges) {
 				// check shipping addresses
 				foreach ($quote->getAllShippingAddresses() as $address) {
 					$addressData = $this->_extractDestData($address);
@@ -133,7 +133,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	public function checkItemQty($quoteItem)
 	{
-		$sku = $quoteItem->getSku();
+		$sku = (string)$quoteItem->getSku();
 		$itemData = isset($this->_orderItems[$sku]) ?
 			$this->_orderItems[$sku] : !($this->_hasChanges = true);
 		if (!$this->_hasChanges && $itemData) {
@@ -218,9 +218,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->_shipGroups[$destinationId] = array();
 		}
 		if (array_search( $item->getSku(), $this->_shipGroups[$destinationId]) === false) {
-			$this->_shipGroups[$destinationId][] = $item->getSku();
+			$this->_shipGroups[$destinationId][] = (string)$item->getSku();
 		}
-		$this->_orderItems[$item->getSku()] = $this->_extractItemData($item);
+		$this->_orderItems[(string)$item->getSku()] = $this->_extractItemData($item, $address);
 	}
 
 	/**
@@ -291,7 +291,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $data;
 	}
 
-	protected function _extractItemData($item)
+	protected function _extractItemData($item, $address)
 	{
 		$data = array(
 			'id' => $item->getId(),
@@ -303,7 +303,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			'merchandise_amount' => $item->getRowTotal(),
 			'merchandise_unit_price' => $item->getBasePrice(),
 			'merchandise_tax_class' => $this->_getItemTaxClass($item),
-			'shipping_amount' => $item->getRowTotal(),
+			'shipping_amount' => $address->getShippingAmount(),
 			'shipping_tax_class' => $this->_getShippingTaxClass(),
 		);
 		return $data;

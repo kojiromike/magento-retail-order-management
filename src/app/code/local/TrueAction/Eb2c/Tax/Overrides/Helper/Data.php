@@ -33,10 +33,11 @@ class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 			),
 			$store
 		);
-		return Mage::getModel('eb2ctax/response', array(
+		$response = Mage::getModel('eb2ctax/response', array(
 			'xml' => $response,
 			'request' => $request
 		));
+		return $response;
 	}
 
 	/**

@@ -35,9 +35,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _construct()
 	{
-		$this->_namespaceUri = Mage::helper('tax')->getNamespaceUri();
-		$doc                 = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$this->_doc          = $doc;
 		$quote               = $this->getQuote();
 		if ($quote) {
 			$this->setBillingAddress($quote->getBillingAddress());
@@ -46,15 +43,11 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		if ($this->isValid()) {
 			$this->_buildSkuMaps();
 			$this->_processQuote();
-			$this->_buildTaxDutyRequest();
 		}
 	}
 
 	public function checkAddresses($quote)
 	{
-		if ($this->getIsMultiShipping() != $quote->getIsMultiShipping()) {
-			$this->_hasChanges = true;
-		}
 		$quoteBillingAddress = $quote->getBillingAddress();
 		$this->_hasChanges = $this->_billingInfoRef !== $quoteBillingAddress->getId();
 		// first check the billing address
@@ -100,6 +93,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function getDocument()
 	{
+		if (!$this->_doc) {
+			$this->_namespaceUri = Mage::helper('tax')->getNamespaceUri();
+			$doc                 = new TrueAction_Dom_Document('1.0', 'UTF-8');
+			$this->_doc          = $doc;
+			$this->_buildTaxDutyRequest();
+		}
 		return $this->_doc;
 	}
 

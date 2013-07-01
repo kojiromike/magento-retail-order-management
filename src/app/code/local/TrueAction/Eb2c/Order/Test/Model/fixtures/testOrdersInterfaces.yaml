@@ -1,5 +1,24 @@
+scope:
+  website:
+    - website_id: 1
+      code: main
+      name: Main Website
+      default_group_id: 1
+  group:
+    - group_id: 1
+      website_id: 1
+      name: Main Website Store
+      root_category_id: 8
+      default_store_id: 1
+  store:
+    - store_id: 1
+      code: default
+      website_id: 1
+      group_id: 1
+      name: Default Store View
+      is_active: 1
 config:
-  default/eb2c/order/developer_mode: 0
+  default/eb2c/order/developer_mode: 1
   default/eb2c/order/create_uri: "http://fak-eb2c.mwest.mage.tandev.net/orderCreateRequest.php"
   default/eb2c/order/cancel_uri: "http://fak-eb2c.mwest.mage.tandev.net/orderCancelRequest.php"
 tables:
@@ -11,7 +30,7 @@ tables:
       shipping_description: "Flat Rate - Fixed"
       is_virtual: 0
       store_id: 1
-      customer_id: 1
+      customer_id: 2
       base_discount_amount: 0.0000
       base_grand_total: 19.9900
       base_shipping_amount: 5.0000
@@ -89,7 +108,7 @@ tables:
       shipping_description: "Flat Rate - Fixed"
       is_virtual: 0
       store_id: 1
-      customer_id: 1
+      customer_id: 2
       base_discount_amount: 0.0000
       base_grand_total: 19.9900
       base_shipping_amount: 5.0000
@@ -170,7 +189,7 @@ tables:
       shipping_description: "Flat Rate - Fixed"
       is_virtual: 0
       store_id: 1
-      customer_id: 1
+      customer_id: 2
       base_discount_amount: 0.0000
       base_grand_total: 19.9900
       base_shipping_amount: 5.0000
@@ -248,7 +267,7 @@ tables:
       shipping_description: "Flat Rate - Fixed"
       is_virtual: 0
       store_id: 1
-      customer_id: 1
+      customer_id: 2
       base_discount_amount: 0.0000
       base_grand_total: 40.4700
       base_shipping_amount: 15.0000
@@ -326,7 +345,7 @@ tables:
       shipping_description: "Flat Rate - Fixed"
       is_virtual: 0
       store_id: 1
-      customer_id: 1
+      customer_id: 2
       base_discount_amount: 0.0000
       base_grand_total: 9.9900
       base_shipping_amount: 5.0000
@@ -431,7 +450,7 @@ tables:
       parent_id: 2
       customer_address_id: 1
       region_id: 41
-      customer_id: 1
+      customer_id: 2
       region: "New Jersey"
       postcode: 08094
       lastname: "West"
@@ -447,7 +466,7 @@ tables:
       parent_id: 2
       customer_address_id: 1
       region_id: 41
-      customer_id: 1
+      customer_id: 2
       region: "New Jersey"
       postcode: 08094
       lastname: "West"
@@ -463,7 +482,7 @@ tables:
       parent_id: 3
       customer_address_id: 1
       region_id: 41
-      customer_id: 1
+      customer_id: 2
       region: "New Jersey"
       postcode: 08094
       lastname: "West"
@@ -479,7 +498,7 @@ tables:
       parent_id: 3
       customer_address_id: 1
       region_id: 41
-      customer_id: 1
+      customer_id: 2
       region: "New Jersey"
       postcode: 08094
       lastname: "West"
@@ -495,7 +514,7 @@ tables:
       parent_id: 4
       customer_address_id: 1
       region_id: 41
-      customer_id: 1
+      customer_id: 2
       region: "New Jersey"
       postcode: 08094
       lastname: "West"
@@ -511,7 +530,7 @@ tables:
       parent_id: 4
       customer_address_id: 1
       region_id: 41
-      customer_id: 1
+      customer_id: 2
       region: "New Jersey"
       postcode: 08094
       lastname: "West"
@@ -527,7 +546,7 @@ tables:
       parent_id: 5
       customer_address_id: 1
       region_id: 41
-      customer_id: 1
+      customer_id: 2
       region: "New Jersey"
       postcode: 08094
       lastname: "West"
@@ -543,7 +562,7 @@ tables:
       parent_id: 5
       customer_address_id: 1
       region_id: 41
-      customer_id: 1
+      customer_id: 2
       region: "New Jersey"
       postcode: 08094
       lastname: "West"

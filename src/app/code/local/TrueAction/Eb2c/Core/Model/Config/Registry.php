@@ -7,7 +7,7 @@
  * @prop string configVal The store config value represented by the key config_val
  * @prop bool configValFlag A boolean store config value represented by the key config_val
  */
-class TrueAction_Eb2c_Core_Helper_Config extends Mage_Core_Helper_Abstract
+class TrueAction_Eb2c_Core_Model_Config_Registry
 {
 
 	/**

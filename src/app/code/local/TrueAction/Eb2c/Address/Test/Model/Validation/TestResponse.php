@@ -192,6 +192,7 @@ class TrueAction_Eb2c_Address_Test_Model_Validation_TestResponse
 	/**
 	 * Should accurately detect and report that there are no suggestions when
 	 * no suggestions exist in the response message.
+	 * @test
 	 */
 	public function testDetectNoSuggestionsInMessage()
 	{

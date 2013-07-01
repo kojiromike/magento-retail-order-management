@@ -1,6 +1,7 @@
 <?php
 
-class TrueAction_Eb2c_Address_Test_Helper_DataTests extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Address_Test_Helper_DataTests
+	extends EcomDev_PHPUnit_Test_Case
 {
 
 	protected $_addressParts = array(

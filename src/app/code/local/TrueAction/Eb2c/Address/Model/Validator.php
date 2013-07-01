@@ -76,7 +76,9 @@ class TrueAction_Eb2c_Address_Model_Validator
 	protected function _stashAddresses(TrueAction_Eb2c_Address_Model_Validation_Response $response)
 	{
 		$addressCollection = new Varien_Object();
-		$addressCollection->setOriginalAddress($response->getOriginalAddress()->setStashKey('original_address'));
+		$addressCollection->setOriginalAddress(
+			$response->getOriginalAddress()->setStashKey('original_address')
+		);
 		$suggestions = $response->getAddressSuggestions();
 		foreach ($suggestions as $idx => $suggestion) {
 			$suggestion->setStashKey('suggested_addresses/' . $idx);
@@ -122,12 +124,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 	 */
 	public function getValidatedAddress($key)
 	{
-		// @TODO fix me
-		$addressCollection = $this->getAddressCollection();
-		if ($addressCollection->hasData($key)) {
-			return $addressCollection->getData($key);
-		}
-		return null;
+		return $addressCollection = $this->getAddressCollection()->getData($key);
 	}
 
 	/**

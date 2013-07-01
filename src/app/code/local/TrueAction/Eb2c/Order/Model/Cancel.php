@@ -69,8 +69,11 @@ class TrueAction_Eb2c_Order_Model_Cancel extends Mage_Core_Model_Abstract
 	 */
 	private function _transmit()
 	{
-		$response = $this->_getCoreHelper()->callApi(
-						$this->_domRequest, Mage::getStoreConfig('eb2c/order/cancel_uri') 
+		if( $this->_getHelper()->getConfigModel()->developerMode ) {
+			return true;
+		}
+		$response = $this->_getHelper()->getCoreHelper()->callApi(
+						$this->_domRequest, $this->_getHelper()->getConfigModel()->cancelUri
 						);
 
 		$this->_domResponse = new TrueAction_Dom_Document(); 

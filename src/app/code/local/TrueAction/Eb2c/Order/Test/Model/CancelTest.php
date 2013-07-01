@@ -10,8 +10,9 @@ class TrueAction_Eb2c_Order_Test_Model_CancelTest extends EcomDev_PHPUnit_Test_C
 
 	/**
 	 * @test
+	 * @loadFixture
 	 */
-	public function testInstantiate()
+	public function testCancel()
 	{
 		// TODO: args should come from a fixture
 		$cr = Mage::getModel('eb2corder/cancel');

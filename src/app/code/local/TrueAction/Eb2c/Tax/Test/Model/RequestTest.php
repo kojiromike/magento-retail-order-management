@@ -107,9 +107,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$this->assertNull($itemData);
 	}
 
-	/**
-	 * @test
-	 */
 	public function testCheckAddresses()
 	{
 		$this->markTestIncomplete();
@@ -117,9 +114,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$request->checkAddresses($quote);
 		$this->assertTrue($request->isValid());
-
-		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
-		$request = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$quote->getBillingAddress()->setCity('wrongcitybub');
 		$request->checkAddresses($quote);
 		$this->assertFalse($request->isValid());

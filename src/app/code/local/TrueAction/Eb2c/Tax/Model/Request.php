@@ -150,9 +150,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->_orderItems[$sku] : !($this->_hasChanges = true);
 		if (!$this->_hasChanges && $itemData) {
 			$newQty = (float)$quoteItem->getQty();
-			var_dump($newQty);
 			$oldQty = (float)$itemData['quantity'];
-			var_dump($oldQty);
 			$this->_hasChanges = $oldQty !== $newQty; 
 		}
 	}
@@ -220,17 +218,31 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		}
 	}
 
-	protected function _addToDestination($item, $address, $isVirtual = false)
-	{
+	/**
+	 * add the data extracted from $item to the request and map it to the destination
+	 * data extracted from $address.
+	 * @param Mage_Sales_Model_Quote_Item|Mage_Sales_Model_Quote_Address_Item $item
+	 * @param Mage_Sales_Model_Quote_Address $address
+	 * @param boolean                        $isVirtual
+	 */
+	protected function _addToDestination(
+		$item, 
+		Mage_Sales_Model_Quote_Address $address,
+		$isVirtual = false
+	) {
 		$destinationId = ($isVirtual) ? $this->_getEmailFromAddress($address) : $address->getId();
 		$id = $this->_addShipGroupId($address, $isVirtual);
 		if (!isset($this->_shipGroups[$destinationId])) {
 			$this->_shipGroups[$destinationId] = array();
 		}
-		if (array_search( $item->getSku(), $this->_shipGroups[$destinationId]) === false) {
-			$this->_shipGroups[$destinationId][] = (string)$item->getSku();
+		if (!isset($this->_destinations[$destinationId])) {
+			$this->_destinations[$destinationId] = $this->_extractDestData($address, $isVirtual);
 		}
-		$this->_orderItems[(string)$item->getSku()] = $this->_extractItemData($item, $address);
+		$sku = (string)$item->getSku();
+		if (array_search($sku, $this->_shipGroups[$destinationId]) === false) {
+			$this->_shipGroups[$destinationId][] = $sku;
+		}
+		$this->_orderItems[$sku] = $this->_extractItemData($item, $address);
 	}
 
 	/**

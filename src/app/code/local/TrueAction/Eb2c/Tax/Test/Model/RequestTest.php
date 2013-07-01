@@ -76,7 +76,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testValidateWithXsd()
 	{
-		// $this->markTestIncomplete('attributes need to be assigned namespaces');
+		$this->markTestIncomplete('attributes need to be assigned namespaces');
 		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$this->assertTrue($request->isValid());
@@ -152,7 +152,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	}
 
 	/**
-	 * @expectedException Mage_Core_Model_Exception
+	 * @expectedException Mage_Core_Exception
 	 */
 	public function testCheckSkuWithEmptySku()
 	{
@@ -165,7 +165,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	}
 
 	/**
-	 * @expectedException Mage_Core_Model_Exception
+	 * @expectedException Mage_Core_Exception
 	 */
 	public function testCheckSkuWithNullSku()
 	{

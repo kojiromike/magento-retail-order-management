@@ -1,0 +1,2 @@
+config:
+  default/eb2caddress/general/max_suggestions: 5

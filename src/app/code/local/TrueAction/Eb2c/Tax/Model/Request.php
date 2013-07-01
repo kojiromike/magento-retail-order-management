@@ -35,6 +35,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _construct()
 	{
+		$this->setIsMultiShipping(false);
 		$quote               = $this->getQuote();
 		if ($quote) {
 			$this->setBillingAddress($quote->getBillingAddress());
@@ -48,6 +49,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	public function checkAddresses($quote)
 	{
+		if ($this->getIsMultiShipping() !== (bool)$this->getQuote()->getIsMultiShipping()) {
+			$this->_hasChanges = true;
+		}
 		$quoteBillingAddress = $quote->getBillingAddress();
 		$this->_hasChanges = $this->_billingInfoRef !== $quoteBillingAddress->getId();
 		// first check the billing address
@@ -145,11 +149,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	protected function _processQuote()
 	{
-		$this->_destinationsChecked = array();
 		$quote = $this->getQuote();
-		if ($this->getIsMultiShipping() != $quote->getIsMultiShipping()) {
-			$this->_hasChanges = true;
-		}
 		// track if this is a multishipping quote or not.
 		$this->setIsMultiShipping($quote->getIsMultiShipping());
 		// create the billing address destination node(s)

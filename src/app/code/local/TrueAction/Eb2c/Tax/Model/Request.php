@@ -146,6 +146,11 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$this->_destinationsChecked = array();
 		$quote = $this->getQuote();
+		if ($this->getIsMultiShipping() != $quote->getIsMultiShipping()) {
+			$this->_hasChanges = true;
+		}
+		// track if this is a multishipping quote or not.
+		$this->setIsMultiShipping($quote->getIsMultiShipping());
 		// create the billing address destination node(s)
 		$billAddress = $quote->getBillingAddress();
 		$this->_billingInfoRef = $billAddress->getId();

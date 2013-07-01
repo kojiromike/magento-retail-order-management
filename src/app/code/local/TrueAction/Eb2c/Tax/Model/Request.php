@@ -23,6 +23,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected $_shipGroups         = array();
 	protected $_discounts          = array();
 	protected $_shipGroupIds       = array();
+	protected $_isValid            = true;
 
 	/**
 	 * map skus to a quote item
@@ -86,10 +87,10 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function isValid()
 	{
-		$result = !$this->_hasChanges && $this->getQuote() && $this->getQuote()->getId() &&
+		$this->_isValid = !$this->_hasChanges && $this->getQuote() && $this->getQuote()->getId() &&
 			$this->getBillingAddress() && $this->getBillingAddress()->getId() &&
 			$this->getQuote()->getItemsCount();
-		return $result;
+		return $this->_isValid;
 	}
 
 	/**
@@ -132,7 +133,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function invalidate()
 	{
-		$this->unsQuote();
+		$this->_isValid = false;
 	}
 
 	public function checkItemQty($quoteItem)
@@ -367,10 +368,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$shipGroups   = $shipping->createChild('ShipGroups');
 		$destinations = $shipping->createChild('Destinations');
 		$this->_processAddresses($destinations, $shipGroups);
-		$billingInformation->setAttribute(
-			'ref',
-			$this->_billingInfoRef
-		);
+		$attr = $this->_doc->createAttributeNs('ref', $this->_namespaceUri);
+		$attr->value = $this->_billingInfoRef;		
+		$billingInformation->appendChild($attr);
 	}
 
 	/**getIsMultiShipping

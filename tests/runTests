@@ -61,4 +61,4 @@ cp ../../tests/local.xml.phpunit app/etc # Magento configuration
 cp ../../tests/phpunit.xml.dist . # PHPUnit configuration
 
 # Run phpunit
-phpunit
+phpunit --debug

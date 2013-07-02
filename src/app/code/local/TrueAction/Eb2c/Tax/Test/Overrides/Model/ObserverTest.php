@@ -1,7 +1,9 @@
 <?php
 /**
-* sdfsdf
-*/
+ * @category   TrueAction
+ * @package    TrueAction_Eb2c
+ * @copyright  Copyright (c) 2013 True Action Network (http://www.trueaction.com)
+ */
 class TrueAction_Eb2c_Tax_Test_Overrides_Model_ObserverTest extends EcomDev_PHPUnit_Test_Case
 {
 	public $className = 'TrueAction_Eb2c_Tax_Overrides_Model_Observer';
@@ -41,107 +43,395 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_ObserverTest extends EcomDev_PHPU
 		$this->fetchTaxDutyInfo->setAccessible(true);
 	}
 
-	/**
-	 * @test
-	 */
-	public function testSalesEventItemAdded()
+	public function getMockQuote()
 	{
-		$this->observerMock->expects($this->once())
-			->method('salesEventItemAdded')
-			->will($this->returnSelf());
-		Mage::dispatchEvent('sales_quote_add_item', array('quote_item' => $this->quoteItem));
+		$quoteAMock = $this->getMock('Mage_Sales_Model_Quote', array('collectTotals', 'save', 'deleteItem'));
+		$quoteAMock->expects($this->any())
+			->method('collectTotals')
+			->will($this->returnValue(1)
+			);
+		$quoteAMock->expects($this->any())
+			->method('save')
+			->will($this->returnValue(1)
+			);
+		$quoteAMock->expects($this->any())
+			->method('deleteItem')
+			->will($this->returnValue(1)
+			);
+
+		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getProductId', 'getSku', 'getQuote'));
+		$itemMock->expects($this->any())
+			->method('getQty')
+			->will($this->returnValue(1)
+			);
+		$itemMock->expects($this->any())
+			->method('getProductId')
+			->will($this->returnValue(1)
+			);
+		$itemMock->expects($this->any())
+			->method('getSku')
+			->will($this->returnValue('SKU-1234')
+			);
+		$itemMock->expects($this->any())
+			->method('getQuote')
+			->will($this->returnValue($quoteAMock)
+			);
+
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getItem', 'getAllAddresses', 'getQuote'));
+		$quoteMock->expects($this->any())
+			->method('getQuote')
+			->will($this->returnValue($quoteMock)
+			);
+		$quoteMock->expects($this->any())
+			->method('getItem')
+			->will($this->returnValue($itemMock)
+			);
+		$quoteMock->expects($this->any())
+			->method('getAllAddresses')
+			->will($this->returnValue(array($quoteMock))
+			);
+		return $quoteMock;
 	}
-	/**
-	 * @test
-	 */
-	public function testCartEventProductUpdated()
+
+	public function providerSalesEventItemAdded()
 	{
-		$this->observerMock->expects($this->once())
-			->method('cartEventProductUpdated')
-			->will($this->returnSelf());
-		Mage::dispatchEvent('checkout_cart_product_update_after', array('quote_item' => $this->quoteItem));
+		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
+		$observerMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnValue($this->getMockQuote()));
+		return array(
+			array($observerMock)
+		);
 	}
+
 	/**
+	 * Tesing salesEventItemAdded observer method
+	 *
 	 * @test
+	 * @dataProvider providerSalesEventItemAdded
 	 */
-	public function testSalesEventItemRemoved()
+	public function testSalesEventItemAdded($observer)
 	{
-		$this->observerMock->expects($this->once())
-			->method('salesEventItemRemoved')
-			->will($this->returnSelf());
-		Mage::dispatchEvent('sales_quote_remove_item', array('quote_item' => $this->quoteItem));
+		$this->assertNull(
+			$this->observer->salesEventItemAdded($observer)
+		);
 	}
-	/**
-	 * @test
-	 */
-	public function testSalesEventItemQtyUpdated()
+
+	public function providerCartEventProductUpdated()
 	{
-		$this->observerMock->expects($this->once())
-			->method('salesEventItemQtyUpdated')
-			->will($this->returnSelf());
-		Mage::dispatchEvent('sales_quote_item_qty_set_after', array('quote_item' => $this->quoteItem));
+		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
+		$observerMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnValue($this->getMockQuote()));
+		return array(
+			array($observerMock)
+		);
 	}
+
 	/**
+	 * Tesing cartEventProductUpdated observer method
+	 *
 	 * @test
+	 * @dataProvider providerCartEventProductUpdated
 	 */
-	public function testSalesEventDiscountItem()
+	public function testCartEventProductUpdated($observer)
 	{
-		$this->observerMock->expects($this->once())
-			->method('salesEventDiscountItem')
-			->will($this->returnSelf());
-		Mage::dispatchEvent('sales_quote_address_discount_item', array('quote_item' => $this->quoteItem));
+		$this->assertNull(
+			$this->observer->cartEventProductUpdated($observer)
+		);
 	}
-	/**
-	 * @test
-	 */
-	public function testQuoteCollectTotalsBefore()
+
+	public function providerSalesEventItemRemoved()
 	{
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
-		$this->observerMock->expects($this->once())
-			->method('quoteCollectTotalsBefore')
-			->will($this->returnSelf());
-		Mage::dispatchEvent('sales_quote_collect_totals_before', array('quote' => $quote));
+		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
+		$observerMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnValue($this->getMockQuote()));
+		return array(
+			array($observerMock)
+		);
 	}
+
 	/**
+	 * Tesing salesEventItemRemoved observer method
+	 *
 	 * @test
+	 * @dataProvider providerSalesEventItemRemoved
 	 */
-	public function testFetchTaxDutyInfo()
+	public function testSalesEventItemRemoved($observer)
 	{
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
-		$this->fetchTaxDutyInfo->invoke($this->observer, $quote);
-		$response = Mage::helper('tax')->getCalculator()->getTaxResponse();
-		$this->assertSame($this->responseMock, $response);
+		$this->assertNull(
+			$this->observer->salesEventItemRemoved($observer)
+		);
 	}
-	/**
-	 * @test
-	 */
-	public function testFetchTaxDutyInfoEmptyQuote()
+
+	public function providerSalesEventItemQtyUpdated()
 	{
-		$quote = $this->getModelMock('sales/quote', array('getId'));
-		$quote->expects($this->any())
+		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
+		$observerMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnValue($this->getMockQuote()));
+		return array(
+			array($observerMock)
+		);
+	}
+
+	/**
+	 * Tesing salesEventItemQtyUpdated observer method
+	 *
+	 * @test
+	 * @dataProvider providerSalesEventItemQtyUpdated
+	 */
+	public function testSalesEventItemQtyUpdated($observer)
+	{
+		$this->assertNull(
+			$this->observer->salesEventItemQtyUpdated($observer)
+		);
+	}
+
+	public function providerSalesEventItemQtyUpdatedWithoutQuoteItem()
+	{
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getItem'));
+		$quoteMock->expects($this->any())
+			->method('getItem')
+			->will($this->returnValue($quoteMock)
+			);
+
+		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
+		$observerMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnValue($quoteMock));
+		return array(
+			array($observerMock)
+		);
+	}
+
+	/**
+	 * Tesing salesEventItemQtyUpdated observer method - without quote item
+	 *
+	 * @test
+	 * @dataProvider providerSalesEventItemQtyUpdatedWithoutQuoteItem
+	 */
+	public function testSalesEventItemQtyUpdatedWithoutQuoteItem($observer)
+	{
+		$this->assertNull(
+			$this->observer->salesEventItemQtyUpdated($observer)
+		);
+	}
+
+	public function providerSalesEventDiscountItem()
+	{
+		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
+		$observerMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnValue($this->getMockQuote()));
+		return array(
+			array($observerMock)
+		);
+	}
+
+	/**
+	 * Tesing salesEventDiscountItem observer method
+	 *
+	 * @test
+	 * @dataProvider providerSalesEventDiscountItem
+	 */
+	public function testSalesEventDiscountItem($observer)
+	{
+		$this->assertNull(
+			$this->observer->salesEventDiscountItem($observer)
+		);
+	}
+
+	public function providerQuoteCollectTotalsBefore()
+	{
+		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
+		$observerMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnValue($this->getMockQuote()));
+		return array(
+			array($observerMock)
+		);
+	}
+
+	/**
+	 * Tesing quoteCollectTotalsBefore observer method
+	 *
+	 * @test
+	 * @dataProvider providerQuoteCollectTotalsBefore
+	 */
+	public function testQuoteCollectTotalsBefore($observer)
+	{
+		$this->assertNotNull(
+			$this->observer->quoteCollectTotalsBefore($observer)
+		);
+	}
+
+	public function providerQuoteCollectTotalsBeforeWithInvalidQuoteObject()
+	{
+		$quoteMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQuote', 'getAllAddresses'));
+		$quoteMock->expects($this->any())
+			->method('getQuote')
+			->will($this->returnValue($quoteMock)
+			);
+		$quoteMock->expects($this->any())
+			->method('getAllAddresses')
+			->will($this->returnValue(array($quoteMock))
+			);
+
+		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
+		$observerMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnValue($quoteMock));
+		return array(
+			array($observerMock)
+		);
+	}
+
+	/**
+	 * Tesing quoteCollectTotalsBefore observer method - invalid quote class
+	 *
+	 * @test
+	 * @dataProvider providerQuoteCollectTotalsBeforeWithInvalidQuoteObject
+	 */
+	public function testQuoteCollectTotalsBeforeWithInvalidQuoteObject($observer)
+	{
+		$this->assertNotNull(
+			$this->observer->quoteCollectTotalsBefore($observer)
+		);
+	}
+
+	public function providerFetchTaxDutyInfo()
+	{
+		return array(
+			array($this->getMockQuote())
+		);
+	}
+
+	/**
+	 * Tesing _fetchTaxDutyInfo observer method
+	 *
+	 * @test
+	 * @dataProvider providerFetchTaxDutyInfo
+	 */
+	public function testFetchTaxDutyInfo($quote)
+	{
+		$responseMock = $this->getModelMock('eb2ctax/response', array());
+		$requestMock = $this->getModelMock('eb2ctax/request', array('isValid', 'getQuoteCurrencyCode'));
+		$requestMock->expects($this->any())
+			->method('isValid')
+			->will($this->returnValue(true));
+		$requestMock->expects($this->any())
+			->method('getQuoteCurrencyCode')
+			->will($this->returnValue('USD'));
+
+		$calculatorMock = $this->getModelMock('tax/calculation', array('getTaxRequest', 'setTaxResponse'));
+		$calculatorMock->expects($this->any())
+			->method('getTaxRequest')
+			->will($this->returnValue($requestMock));
+		$calculatorMock->expects($this->any())
+			->method('setTaxResponse')
+			->will($this->returnValue(true));
+
+		$taxMock = $this->getMock('TrueAction_Eb2c_Tax_Overrides_Helper_Data', array('getCalculator', 'sendRequest'));
+		$taxMock->expects($this->any())
+			->method('getCalculator')
+			->will($this->returnValue($calculatorMock));
+		$taxMock->expects($this->any())
+			->method('sendRequest')
+			->will($this->returnValue($responseMock));
+
+		$observerReflector = new ReflectionObject($this->observer);
+		$taxProperty = $observerReflector->getProperty('_tax');
+		$taxProperty->setAccessible(true);
+		$taxProperty->setValue($this->observer, $taxMock);
+
+		$fetchTaxDutyInfoMethod = $observerReflector->getMethod('_fetchTaxDutyInfo');
+		$fetchTaxDutyInfoMethod->setAccessible(true);
+
+		$this->assertNull(
+			$fetchTaxDutyInfoMethod->invoke($this->observer, $quote)
+		);
+	}
+
+	/**
+	 * Tesing _fetchTaxDutyInfo observer method - With exception thrown.
+	 *
+	 * @test
+	 * @dataProvider providerFetchTaxDutyInfo
+	 */
+	public function testFetchTaxDutyInfoWithExceptionThrown($quote)
+	{
+		$responseMock = $this->getModelMock('eb2ctax/response', array());
+		$requestMock = $this->getModelMock('eb2ctax/request', array('isValid', 'getQuoteCurrencyCode'));
+		$requestMock->expects($this->any())
+			->method('isValid')
+			->will($this->returnValue(true));
+		$requestMock->expects($this->any())
+			->method('getQuoteCurrencyCode')
+			->will($this->returnValue('USD'));
+
+		$calculatorMock = $this->getModelMock('tax/calculation', array('getTaxRequest', 'setTaxResponse'));
+		$calculatorMock->expects($this->any())
+			->method('getTaxRequest')
+			->will($this->returnValue($requestMock));
+		$calculatorMock->expects($this->any())
+			->method('setTaxResponse')
+			->will($this->returnValue(true));
+
+		$taxMock = $this->getMock('TrueAction_Eb2c_Tax_Overrides_Helper_Data', array('getCalculator', 'sendRequest'));
+		$taxMock->expects($this->any())
+			->method('getCalculator')
+			->will($this->returnValue($calculatorMock));
+		$taxMock->expects($this->any())
+			->method('sendRequest')
+			->will($this->throwException(new Exception('Unit Test Exception thrown')));
+
+		$observerReflector = new ReflectionObject($this->observer);
+		$taxProperty = $observerReflector->getProperty('_tax');
+		$taxProperty->setAccessible(true);
+		$taxProperty->setValue($this->observer, $taxMock);
+
+		$fetchTaxDutyInfoMethod = $observerReflector->getMethod('_fetchTaxDutyInfo');
+		$fetchTaxDutyInfoMethod->setAccessible(true);
+
+		$this->assertNull(
+			$fetchTaxDutyInfoMethod->invoke($this->observer, $quote)
+		);
+	}
+
+	public function providerFetchTaxDutyInfoEmptyQuote()
+	{
+		$quotMock = $this->getModelMock('sales/quote', array('getId'));
+		$quotMock->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(null));
-		$this->fetchTaxDutyInfo->invoke($this->observer, $quote);
-		$response = Mage::helper('tax')->getCalculator()->getTaxResponse();
+		return array(
+			array($quotMock)
+		);
 	}
-	/**
-	 * @test
-	 */
-	public function testFetchTaxDutyInfoRaiseException()
+
+	public function providerAddTaxPercentToProductCollection()
 	{
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
-		$helper = $this->getHelperMock('tax/data', array('sendRequest'));
-		$helper->expects($this->any())
-			->method('sendRequest')
-			->will(
-				$this->throwException(
-					new Zend_Http_Client_Exception(
-						'i am death from above... below and all sides :-D'
-					)
-				)
-			);
-		$this->replaceByMock('helper', 'tax', $helper);
-		$this->fetchTaxDutyInfo->invoke($this->observer, $quote);
-		$response = Mage::helper('tax')->getCalculator()->getTaxResponse();
+		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
+		$observerMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnValue($this->getMockQuote()));
+		return array(
+			array($observerMock)
+		);
+	}
+
+	/**
+	 * Tesing addTaxPercentToProductCollection observer method
+	 *
+	 * @test
+	 * @dataProvider providerAddTaxPercentToProductCollection
+	 */
+	public function testAddTaxPercentToProductCollection($observer)
+	{
+		$this->assertNotNull(
+			$this->observer->addTaxPercentToProductCollection($observer)
+		);
 	}
 }

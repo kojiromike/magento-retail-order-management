@@ -61,18 +61,21 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testIsValid()
 	{
-		$quote = $this->getModelMock('sales/quote', array('getId', 'getItemsCount'));
-		$quote->expects($this->exactly(2))
+		$addr = $this->getModelMock('customer/address', array('getId'));
+		$addr->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(1));
-		$quote->expects($this->once())
+		$quote = $this->getModelMock('sales/quote', array('getId', 'getItemsCount', 'getBillingAddress'));
+		$quote->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$quote->expects($this->any())
 			->method('getItemsCount')
 			->will($this->returnValue(1));
-		$addr  = $this->getModelMock('customer/address', array('getId'));
-		$addr->expects($this->exactly(2))
-			->method('getId')
-			->will($this->returnValue(1));
-		$req = Mage::getModel('eb2ctax/request', array('quote' => $quote, 'billing_address' => $addr));
+		$quote->expects($this->any())
+			->method('getBillingAddress')
+			->will($this->returnValue($addr));
+		$req = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$this->assertTrue($req->isValid());
 		$req->invalidate();
 		$this->assertFalse($req->isValid());

@@ -54,30 +54,30 @@
 			</ShipGroup>
 		</ShipGroups>
 		<Destinations>
-			<MailingAddress id="1">
+			<MailingAddress id="2">
 				<PersonName>
-					<LastName>John</LastName>
-					<FirstName>Smith</FirstName>
+					<LastName>Doe</LastName>
+					<FirstName>John</FirstName>
 				</PersonName>
 				<Address>
-					<Line1>630 Allendale Road</Line1>
-					<City>King Of Prussia</City>
-					<MainDivision>PA</MainDivision>
-					<CountryCode>US</CountryCode>
-					<PostalCode>19406</PostalCode>
+					<Line1>1630 Allendale Road</Line1>
+					<City>King Off Prussia</City>
+					<MainDivision>MA</MainDivision>
+					<CountryCode>EU</CountryCode>
+					<PostalCode>19106</PostalCode>
 				</Address>
 			</MailingAddress>
 			<MailingAddress id="bill_dest_1">
 				<PersonName>
-					<LastName>John</LastName>
-					<FirstName>Smith</FirstName>
+					<LastName>Doe</LastName>
+					<FirstName>John</FirstName>
 				</PersonName>
 				<Address>
-					<Line1>630 Allendale Road</Line1>
-					<City>King Of Prussia</City>
-					<MainDivision>PA</MainDivision>
-					<CountryCode>US</CountryCode>
-					<PostalCode>19406</PostalCode>
+					<Line1>1630 Allendale Road</Line1>
+					<City>King Off Prussia</City>
+					<MainDivision>MA</MainDivision>
+					<CountryCode>EU</CountryCode>
+					<PostalCode>19106</PostalCode>
 				</Address>
 			</MailingAddress>
 		</Destinations>

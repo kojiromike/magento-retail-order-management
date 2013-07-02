@@ -27,10 +27,14 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 
 	private $_helper;
 	private $_coreHelper;
+	private $_config;
 
-	public function __construct()
+	protected function _construct()
 	{
 		$this->_helper = $this->_getHelper();
+		$this->_config = Mage::getModel('eb2ccore/config_registry')
+							->addConfigModel(Mage::getSingleton('eb2corder/config'))
+							->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 	}
 
 	/**
@@ -89,11 +93,13 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 */
 	private function _transmit()
 	{
-		if( $this->_getHelper()->getConfigModel()->developerMode ) {
+		if( $this->_config->developerMode ) {
 			return true;
 		}
 		$response = $this->_getHelper()->getCoreHelper()->callApi(
-						$this->_domRequest, $this->_getHelper()->getConfigModel()->createUri
+						$this->_domRequest,
+						$this->_config->createUri,
+						$this->_config->serviceOrderTimeout
 						);
 
 		$this->_domResponse = new TrueAction_Dom_Document(); 

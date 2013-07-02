@@ -1,3 +1,3 @@
 config:
   default/eb2c/order/developer_mode: 1
-  default/eb2c/order/cancel_uri: "http://fak-eb2c.mwest.mage.tandev.net/orderCancelRequest.php"
+  default/eb2c/order/developer_cancel_uri: "http://mwest.mage.tandev.net"

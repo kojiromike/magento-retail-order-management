@@ -32,7 +32,7 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 	 */
 	public function getOriginalAddress()
 	{
-		return Mage::getSingleton('eb2caddress/validation')->getOriginalAddress();
+		return Mage::getSingleton('eb2caddress/validator')->getOriginalAddress();
 	}
 
 	/**
@@ -43,7 +43,6 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 		return Mage::helper('customer/address')
 			->getRenderer('eb2caddress/address_renderer')
 			->render($address);
-
 	}
 
 	/**

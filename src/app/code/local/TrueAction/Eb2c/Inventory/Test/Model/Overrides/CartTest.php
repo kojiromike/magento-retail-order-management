@@ -143,6 +143,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 * testing addProduct method
 	 *
 	 * @test
+	 * @medium // TODO: This is a slow test. Make it faster.
 	 * @dataProvider providerUpdateItem
 	 * @loadFixture loadWebsiteConfig.yaml
 	 */

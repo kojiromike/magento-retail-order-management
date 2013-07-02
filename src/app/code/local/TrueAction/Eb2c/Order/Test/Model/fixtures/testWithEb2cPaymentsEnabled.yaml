@@ -31,7 +31,6 @@ tables:
       shipping_description: "Flat Rate - Fixed"
       is_virtual: 0
       store_id: 1
-      customer_id: 2
       base_discount_amount: 0.0000
       base_grand_total: 19.9900
       base_shipping_amount: 5.0000
@@ -107,7 +106,6 @@ tables:
       parent_id: 3
       customer_address_id: 1
       region_id: 41
-      customer_id: 2
       region: "New Jersey"
       postcode: 08094
       lastname: "West"
@@ -123,7 +121,6 @@ tables:
       parent_id: 3
       customer_address_id: 1
       region_id: 41
-      customer_id: 2
       region: "New Jersey"
       postcode: 08094
       lastname: "West"

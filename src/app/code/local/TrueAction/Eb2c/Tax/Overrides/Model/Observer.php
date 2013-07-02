@@ -7,8 +7,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	{
 		Mage::log('salesEventItemAdded');
 		Mage::Helper('tax')->getCalculator()
-			->getTaxResponse()
-			->getRequest()
+			->getTaxRequest()
 			->invalidate();
 	}
 
@@ -16,8 +15,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	{
 		Mage::log('cartEventProductUpdated');
 		Mage::Helper('tax')->getCalculator()
-			->getTaxResponse()
-			->getRequest()
+			->getTaxRequest()
 			->invalidate();
 	}
 
@@ -25,8 +23,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	{
 		Mage::log('salesEventItemRemoved');
 		Mage::Helper('tax')->getCalculator()
-			->getTaxResponse()
-			->getRequest()
+			->getTaxRequest()
 			->invalidate();
 	}
 
@@ -41,8 +38,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 			);
 		} else {
 			Mage::helper('tax')->getCalculator()
-				->getTaxResponse()
-				->getRequest()
+				->getTaxRequest()
 				->checkItemQty($quoteItem);
 		}
 	}
@@ -51,8 +47,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	{
 		Mage::log('salesEventDiscountItem');
 		Mage::Helper('tax')->getCalculator()
-			->getTaxResponse()
-			->getRequest()
+			->getTaxRequest()
 			->invalidate();
 	}
 
@@ -78,8 +73,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 			);
 		} else {
 			Mage::Helper('tax')->getCalculator()
-				->getTaxResponse()
-				->getRequest()
+				->getTaxRequest()
 				->checkAddresses($quote);
 			$this->_fetchTaxDutyInfo($quote);
 		}

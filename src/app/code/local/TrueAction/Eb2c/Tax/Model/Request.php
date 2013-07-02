@@ -23,6 +23,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected $_shipGroups         = array();
 	protected $_discounts          = array();
 	protected $_shipGroupIds       = array();
+	protected $_isValid            = true;
 
 	/**
 	 * map skus to a quote item
@@ -35,9 +36,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _construct()
 	{
-		$this->_namespaceUri = Mage::helper('tax')->getNamespaceUri();
-		$doc                 = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$this->_doc          = $doc;
+		$this->setIsMultiShipping(0);
 		$quote               = $this->getQuote();
 		if ($quote) {
 			$this->setBillingAddress($quote->getBillingAddress());
@@ -46,13 +45,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		if ($this->isValid()) {
 			$this->_buildSkuMaps();
 			$this->_processQuote();
-			$this->_buildTaxDutyRequest();
 		}
 	}
 
 	public function checkAddresses($quote)
 	{
-		if ($this->getIsMultiShipping() != $quote->getIsMultiShipping()) {
+		if ($this->getIsMultiShipping() !== (bool)$this->getQuote()->getIsMultiShipping()) {
 			$this->_hasChanges = true;
 		}
 		$quoteBillingAddress = $quote->getBillingAddress();
@@ -70,7 +68,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			}
 			// if everything was good so far then check the shipping addresses for
 			// changes
-			if (!$this->hasChanges) {
+			if (!$this->_hasChanges) {
 				// check shipping addresses
 				foreach ($quote->getAllShippingAddresses() as $address) {
 					$addressData = $this->_extractDestData($address);
@@ -89,9 +87,10 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function isValid()
 	{
-		return !$this->_hasChanges && $this->getQuote() && $this->getQuote()->getId() &&
+		$this->_isValid = !$this->_hasChanges && $this->getQuote() && $this->getQuote()->getId() &&
 			$this->getBillingAddress() && $this->getBillingAddress()->getId() &&
 			$this->getQuote()->getItemsCount();
+		return $this->_isValid;
 	}
 
 	/**
@@ -100,17 +99,26 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function getDocument()
 	{
+		if (!$this->_doc) {
+			$this->_namespaceUri = Mage::helper('tax')->getNamespaceUri();
+			$doc                 = new TrueAction_Dom_Document('1.0', 'UTF-8');
+			$this->_doc          = $doc;
+			$this->_buildTaxDutyRequest();
+		}
 		return $this->_doc;
 	}
 
 	/**
 	 * get the quote item for the sku.
-	 * @param stirng $sku
-	 * @return Mage_Sales_Model_Quote_Item
+	 * return null if the sku does not exist.
+	 * @param string $sku
+	 * @return array
 	 */
 	public function getItemBySku($sku)
 	{
-		return $this->_skuItemMap[$sku];
+		$sku = (string)$sku;
+		$item = isset($this->_skuItemMap[$sku]) ? $this->_skuItemMap[$sku] : null;
+		return $item;
 	}
 
 	/**
@@ -128,12 +136,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function invalidate()
 	{
-		$this->unsQuote();
+		$this->_isValid = false;
 	}
 
 	public function checkItemQty($quoteItem)
 	{
-		$sku = $quoteItem->getSku();
+		$sku = (string)$quoteItem->getSku();
 		$itemData = isset($this->_orderItems[$sku]) ?
 			$this->_orderItems[$sku] : !($this->_hasChanges = true);
 		if (!$this->_hasChanges && $itemData) {
@@ -145,8 +153,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	protected function _processQuote()
 	{
-		$this->_destinationsChecked = array();
 		$quote = $this->getQuote();
+		// track if this is a multishipping quote or not.
+		$this->setIsMultiShipping($quote->getIsMultiShipping());
 		// create the billing address destination node(s)
 		$billAddress = $quote->getBillingAddress();
 		$this->_billingInfoRef = $billAddress->getId();
@@ -213,9 +222,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->_shipGroups[$destinationId] = array();
 		}
 		if (array_search( $item->getSku(), $this->_shipGroups[$destinationId]) === false) {
-			$this->_shipGroups[$destinationId][] = $item->getSku();
+			$this->_shipGroups[$destinationId][] = (string)$item->getSku();
 		}
-		$this->_orderItems[$item->getSku()] = $this->_extractItemData($item);
+		$this->_orderItems[(string)$item->getSku()] = $this->_extractItemData($item, $address);
 	}
 
 	/**
@@ -286,7 +295,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $data;
 	}
 
-	protected function _extractItemData($item)
+	protected function _extractItemData($item, $address)
 	{
 		$data = array(
 			'id' => $item->getId(),
@@ -298,12 +307,18 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			'merchandise_amount' => $item->getRowTotal(),
 			'merchandise_unit_price' => $item->getBasePrice(),
 			'merchandise_tax_class' => $this->_getItemTaxClass($item),
-			'shipping_amount' => $item->getRowTotal(),
+			'shipping_amount' => $address->getShippingAmount(),
 			'shipping_tax_class' => $this->_getShippingTaxClass(),
 		);
 		return $data;
 	}
 
+	/**
+	 * get the tax class for the item's product.
+	 * NOTE: the taxCode should be set by the ItemMaster feed.
+	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @return string
+	 */
 	protected function _getItemTaxClass($item)
 	{
 		$taxCode = '';
@@ -356,10 +371,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$shipGroups   = $shipping->createChild('ShipGroups');
 		$destinations = $shipping->createChild('Destinations');
 		$this->_processAddresses($destinations, $shipGroups);
-		$billingInformation->setAttribute(
-			'ref',
-			$this->_billingInfoRef
-		);
+		$attr = $this->_doc->createAttributeNs('ref', $this->_namespaceUri);
+		$attr->value = $this->_billingInfoRef;		
+		$billingInformation->appendChild($attr);
 	}
 
 	/**getIsMultiShipping
@@ -492,12 +506,18 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	/**
 	 * build and append an orderitem node to the parent node.
+	 * @param array    $item
 	 * @param TrueAction_Dom_Element         $parent
-	 * @param Mage_Sales_Model_Quote_Item    $item
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
 	protected function _addOrderItem(array $item, TrueAction_Dom_Element $parent) {
 		$sku      = $this->_checkSku($item);
+		if (strlen($sku) < strlen($item['item_id'])) {
+			Mage::log(
+				'Item sku "' . $item->getSku() . '" is too long and has been truncated',
+				Zend_Log::WARN
+			);
+		}
 		$orderItem = $parent->createChild('OrderItem')
 			->addAttribute('lineNumber', $this->_getLineNumber($item))
 			->addChild('ItemId', $this->_checkSku($item))
@@ -543,19 +563,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected function _getLineNumber($item)
 	{
 		return $item['id'];
-	}
-
-	/**
-	 * get the taxCode for the item's product.
-	 * NOTE: the taxCode should be set by the ItemMaster feed.
-	 * @param  Mage_Sales_Model_Quote_Item $item
-	 * @return string
-	 */
-	protected function _getProductTaxCode(Mage_Sales_Model_Quote_Item $item)
-	{
-		return Mage::getModel('catalog/product')
-			->loadById($item->getProductId())
-			->getTaxCode();
 	}
 
 	/**

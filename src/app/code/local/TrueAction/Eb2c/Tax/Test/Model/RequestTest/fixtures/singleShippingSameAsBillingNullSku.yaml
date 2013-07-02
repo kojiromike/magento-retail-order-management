@@ -3,7 +3,7 @@ eav:
   catalog_product:
     - entity_id: 51
       type_id: simple
-      sku: 1111
+      sku: ""
       name: "Ottoman"
       short_description: red ottoman
       description: red ottoman long desc
@@ -22,7 +22,7 @@ eav:
       visibility: 4 # Visible in Catalog & Search
     - entity_id: 52
       type_id: simple
-      sku: 1112
+      sku: null
       name: "Chair"
       short_description: red chair
       description: red chair long desc
@@ -41,7 +41,7 @@ eav:
       visibility: 4 # Visible in Catalog & Search
     - entity_id: 53
       type_id: simple
-      sku: 1113
+      sku: null
       name: "Couch"
       short_description: red couch
       description: red couch long desc
@@ -242,7 +242,7 @@ tables:
       product_id: 51
       store_id: 2
       is_virtual: 0
-      sku: 1111
+      sku: ""
       name: "Ottoman"
       free_shipping: 0
       is_qty_decimal: 0
@@ -282,7 +282,7 @@ tables:
       product_id: 52
       store_id: 2
       is_virtual: 0
-      sku: 1112
+      sku: null
       name: "Chair"
       free_shipping: 0
       is_qty_decimal: 0
@@ -322,7 +322,7 @@ tables:
       product_id: 53
       store_id: 2
       is_virtual: 0
-      sku: 1113
+      sku: null
       name: "Couch"
       free_shipping: 0
       is_qty_decimal: 0

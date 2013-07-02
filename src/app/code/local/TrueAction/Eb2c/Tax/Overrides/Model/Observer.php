@@ -1,6 +1,21 @@
 <?php
 class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 {
+	protected $_tax;
+
+	/**
+	 * Get helper tax instantiated object.
+	 *
+	 * @return TrueAction_Eb2c_Tax_Overrides_Helper_Data
+	 */
+	protected function _getTaxHelper()
+	{
+		if (!$this->_tax) {
+			$this->_tax =Mage::helper('tax');
+		}
+		return $this->_tax;
+	}
+
 	// TODO: ADD SHIPPING METHOD EVENT
 	// TODO: EACH OF THESE EVENTS SHOULD BOIL DOWN TO 3 CASES: 1 ITEM CHANGED FORCE RESEND; 2 ITEM CHANGED CHECKED RESEND; ADDRESS CHECK
 	public function salesEventItemAdded(Varien_Event_Observer $observer)
@@ -31,13 +46,13 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	{
 		Mage::log('salesEventItemQtyUpdated');
 		$quoteItem = $observer->getEvent()->getItem();
-		if (!is_a('Mage_Sales_Model_Quote_Item', $quoteItem)) {
+		if (!is_a($quoteItem, 'Mage_Sales_Model_Quote_Item')) {
 			Mage::log(
 				'EB2C Tax Error: quoteCollectTotalsBefore: did not receive a Mage_Sales_Model_Quote_Item object',
 				Zend_Log::WARN
 			);
 		} else {
-			Mage::helper('tax')->getCalculator()
+			$this->_getTaxHelper()->getCalculator()
 				->getTaxRequest()
 				->checkItemQty($quoteItem);
 		}
@@ -87,7 +102,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	protected function _fetchTaxDutyInfo(Mage_Sales_Model_Quote $quote)
 	{
 		try {
-			$helper = Mage::helper('tax');
+			$helper = $this->_getTaxHelper();
 			$calc = $helper->getCalculator();
 			$request = $calc->getTaxRequest($quote);
 			if ($request && $request->isValid()) {

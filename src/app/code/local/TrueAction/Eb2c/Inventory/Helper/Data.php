@@ -7,7 +7,6 @@
 class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	public $coreHelper;
-	public $coreConfigHelper;
 	public $configModel;
 	public $constantHelper;
 	protected $_operation;
@@ -15,26 +14,25 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	public function __construct()
 	{
 		$this->coreHelper = $this->getCoreHelper();
-		$this->coreConfigHelper = $this->getCoreConfigHelper(null);
 		$this->configModel = $this->getConfigModel(null);
 		$this->constantHelper = $this->getConstantHelper();
 		$constantHelper = $this->getConstantHelper();
 		$this->_operation = array(
 			'check_quantity' => array(
 				'pro' => $constantHelper::OPT_QTY,
-				'dev' => $this->getConfigModel()->quantity_api_uri
+				'dev' => $this->getConfigModel()->quantityApiUri
 			),
 			'get_inventory_details' => array(
 				'pro' => $constantHelper::OPT_INV_DETAILS,
-				'dev' => $this->getConfigModel()->inventory_detail_uri
+				'dev' => $this->getConfigModel()->inventoryDetailUri
 			),
 			'allocate_inventory' => array(
 				'pro' => $constantHelper::OPT_ALLOCATION,
-				'dev' => $this->getConfigModel()->allocation_uri
+				'dev' => $this->getConfigModel()->allocationUri
 			),
 			'rollback_allocation' => array(
 				'pro' => $constantHelper::OPT_ROLLBACK_ALLOCATION,
-				'dev' => $this->getConfigModel()->rollback_allocation_uri
+				'dev' => $this->getConfigModel()->rollbackAllocationUri
 			)
 		);
 	}
@@ -52,20 +50,6 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 		return $this->coreHelper;
 	}
 
-	/**
-	 * Get core helper instantiated object.
-	 *
-	 * @return TrueAction_Eb2c_Core_Helper_Data
-	 */
-	public function getCoreConfigHelper($store=null)
-	{
-		if (!$this->coreConfigHelper) {
-			$this->coreConfigHelper = Mage::getModel('eb2ccore/config_registry');
-			$this->coreConfigHelper->setStore($store)
-				->addConfigModel(Mage::getModel('eb2ccore/config'));
-		}
-		return $this->coreConfigHelper;
-	}
 
 	/**
 	 * Get inventory config instantiated object.
@@ -77,7 +61,8 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 		if (!$this->configModel) {
 			$this->configModel = Mage::getModel('eb2ccore/config_registry');
 			$this->configModel->setStore($store)
-				->addConfigModel(Mage::getModel('eb2cinventory/config'));
+				->addConfigModel(Mage::getModel('eb2cinventory/config'))
+				->addConfigModel(Mage::getModel('eb2ccore/config'));
 		}
 		return $this->configModel;
 	}
@@ -130,8 +115,8 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 		$constantHelper = $this->getConstantHelper();
 		$apiUri = $operation['dev'];
-		if (!(bool) $this->getConfigModel()->developer_mode) {
-			$apiUri = $this->getCoreHelper()->apiUri(
+		if (!(bool) $this->getConfigModel()->developerMode) {
+			$apiUri = $this->getCoreHelper()->getApiUri(
 				$constantHelper::SERVICE,
 				$operation['pro']
 			);
@@ -149,8 +134,8 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getRequestId($entityId)
 	{
 		return implode('-', array(
-			$this->getCoreConfigHelper()->client_id,
-			$this->getCoreConfigHelper()->store_id,
+			$this->getConfigModel()->clientId,
+			$this->getConfigModel()->storeId,
 			$entityId
 		));
 	}
@@ -165,8 +150,8 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getReservationId($entityId)
 	{
 		return implode('-', array(
-			$this->getCoreConfigHelper()->client_id,
-			$this->getCoreConfigHelper()->store_id,
+			$this->getConfigModel()->clientId,
+			$this->getConfigModel()->storeId,
 			$entityId
 		));
 	}

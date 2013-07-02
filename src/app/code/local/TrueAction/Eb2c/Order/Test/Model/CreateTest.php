@@ -9,7 +9,7 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 	 * @test
 	 * @loadFixture
 	 */
-	public function testOrdersInterfaces()
+	public function testOrderCreateScenarios()
 	{
 		$status = null;
 
@@ -64,16 +64,24 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 			$status = false;	
 		}
 		$this->assertSame($status, true);
-	}
-	
+	} 
 	/**
-	 * Test get some XML, OK to be empty
 	 * @test
+	 * @loadFixture
+	 * This fixture was setup to fail with a syntactically correct URL that couldn't really answer us in any sensible way.
 	 */
-	public function testEmptyXml()
+	public function testWithEb2cPaymentsEnabled()
 	{
-		$cr = Mage::getModel('eb2corder/create');
-		$xml = $cr->toXml();
-		$this->assertSame($xml, '<?xml version="1.0" encoding="UTF-8"?>'."\n");
+		$status = null;
+
+		$creator = Mage::getModel('eb2corder/create');
+		$incrementId = '100000003';
+		try {
+			$status = $creator->create($incrementId);
+		}
+		catch(Exception $e) {
+			$status = false;
+		}
+		$this->assertSame($status, false);
 	}
 }

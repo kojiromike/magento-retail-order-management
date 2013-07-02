@@ -1,6 +1,6 @@
 <?php
 /**
-o* Generates an OrderCreate
+ * Generates an OrderCreate
  * @package Eb2c\Order
  * @author westm@trueaction.com
  *
@@ -26,28 +26,12 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	private $_orderItemRef = array();	// Saves an array of item_id's for use in shipping node
 
 	private $_helper;
-	private $_coreHelper;
 	private $_config;
 
 	protected function _construct()
 	{
-		$this->_helper = $this->_getHelper();
-		$this->_config = Mage::getModel('eb2ccore/config_registry')
-							->addConfigModel(Mage::getSingleton('eb2corder/config'))
-							->addConfigModel(Mage::getSingleton('eb2ccore/config'));
-	}
-
-	/**
-	 * Get helper instantiated object.
-	 *
-	 * @return TrueAction_Eb2c_Inventory_Helper_Data
-	 */
-	protected function _getHelper()
-	{
-		if (!$this->_helper) {
-			$this->_helper = Mage::helper('eb2corder');
-		}
-		return $this->_helper;
+		$this->_helper = Mage::helper('eb2corder');
+		$this->_config = $this->_helper->getConfig();
 	}
 
 	/**
@@ -73,42 +57,37 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * The Request as human-readable/ POST-able XML
-	 *
-	 * @returns string formatted XML
-	 */
-	public function toXml()
-	{
-		if( !$this->_domRequest ) {
-			$this->_domRequest = new TrueAction_Dom_Document('1.0', 'UTF-8');
-			$this->_domRequest->formatOutput = true;
-			$this->_xmlRequest = $this->_domRequest->saveXML();
-		}
-		return $this->_xmlRequest;
-	}
-
-	/**
 	 * Transmit Order
 	 *
 	 */
 	private function _transmit()
 	{
-		if( $this->_config->developerMode ) {
-			return true;
+		$consts = $this->_helper->getConstHelper();
+		$uri = $this->_helper->getOperationUri($consts::CREATE_OPERATION);
+
+		if( $this->_helper->getConfig()->developerMode ) {
+			$uri = $this->_helper->getConfig()->developerCreateUri;
 		}
-		$response = $this->_getHelper()->getCoreHelper()->callApi(
-						$this->_domRequest,
-						$this->_config->createUri,
-						$this->_config->serviceOrderTimeout
+
+		try {
+			$response = $this->_helper->getCoreHelper()->callApi(
+							$this->_domRequest,
+							$uri,
+							$this->_helper->getConfig()->serviceOrderTimeout
 						);
 
-		$this->_domResponse = new TrueAction_Dom_Document(); 
-		$this->_domResponse->loadXML($response);
-		$elementSet = $this->_domResponse->getElementsByTagName('ResponseStatus');
-		$status='';
-		foreach( $elementSet as $element ) {
-			$status = $element->nodeValue;
+			$status='';
+			$this->_domResponse = $this->_helper->getDomDocument();
+			$this->_domResponse->loadXML($response);
+			$elementSet = $this->_domResponse->getElementsByTagName('ResponseStatus');
+			foreach( $elementSet as $element ) {
+				$status = $element->nodeValue;
+			}
 		}
+		catch(Exception $e) {
+			Mage::throwException('Create Request Failed: ' . $e->getMessage());
+		}
+		
 		return strcmp($status,'Success') ? false : true;
 	}
 
@@ -123,9 +102,11 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 		$this->_o = Mage::getModel('sales/order')->loadByIncrementId($orderId);
 		if( !$this->_o->getId() ) {
 			Mage::throwException('Order ' . $orderId . ' not found.' );
+		// @codeCoverageIgnoreStart
 		}
+		// @codeCoverageIgnoreEnd
 
-		$consts = $this->_getHelper()->getConstHelper();
+		$consts = $this->_helper->getConstHelper();
 
 		$this->_domRequest = new TrueAction_Dom_Document('1.0', 'UTF-8');
 		$this->_domRequest->formatOutput = true;
@@ -188,6 +169,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 		$name->createChild('MiddleName', $this->_o->getCustomerMiddlename());
 		$name->createChild('FirstName', $this->_o->getCustomerFirstname());
 
+		// TODO: I don't trust this 100%, it depends on language used in the front end. Might have to be configurable.
 		if( $this->_o->getCustomerGender() ) {
 			$genderOpts = Mage::getResourceSingleton('customer/customer')->getAttribute('gender')->getSource()->getAllOptions();
 			$eb2cGender = '';
@@ -315,7 +297,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 */
 	private function _buildShipping(DomElement $shipGroup)
 	{
-		$consts = $this->_getHelper()->getConstHelper();
+		$consts = $this->_helper->getConstHelper();
 		$shipGroup->setAttribute('id', 'shipGroup_1');
 		$shipGroup->setAttribute('chargeType', '');
 		$shipGroup->createChild('DestinationTarget')->setAttribute('ref', $consts::SHIPGROUP_DESTINATION_ID);
@@ -391,7 +373,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 */
 	private function _buildPayment($payment)
 	{
-		$consts = $this->_getHelper()->getConstHelper();
+		$consts = $this->_helper->getConstHelper();
 		$payment->createChild('BillingAddress')->setAttribute('ref', $consts::SHIPGROUP_BILLING_ID);
 		$this->_buildPayments($payment->createChild('Payments'));
 		return;
@@ -405,28 +387,35 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 */
 	private function _buildPayments(DomElement $payments)
 	{
-		foreach($this->_o->getAllPayments() as $payment) {
-			$method = ucfirst($payment->getMethod());
-			$thisPayment = $payments->createChild($method);
+		if( $this->_helper->getConfig()->eb2cPaymentsEnabled ) {
+			foreach($this->_o->getAllPayments() as $payment) {
+				$method = ucfirst($payment->getMethod());
+				$thisPayment = $payments->createChild($method);
 
-			$paymentContext = $thisPayment->createChild('PaymentContext');
-			$paymentContext->createChild('PaymentSessionId', '???');
-			$paymentContext->createChild('TenderType', '???');
-			$paymentContext->createChild('PaymentAccountUniqueId', '???')->setAttribute('isToken', 'true');
+				$paymentContext = $thisPayment->createChild('PaymentContext');
+				$paymentContext->createChild('PaymentSessionId', '???');
+				$paymentContext->createChild('TenderType', '???');
+				$paymentContext->createChild('PaymentAccountUniqueId', '???')->setAttribute('isToken', 'true');
 
-			$thisPayment->createChild('PaymentRequestId', '???');
-			$thisPayment->createChild('CreateTimeStamp', '???');
+				$thisPayment->createChild('PaymentRequestId', '???');
+				$thisPayment->createChild('CreateTimeStamp', '???');
 
-			$auth = $thisPayment->createChild('Authorization');
-			$auth->createChild('ResponseCode', $payment->getCcStatus());
-			$auth->createChild('BankAuthorizationCode', $payment->getCcApproval());
-			$auth->createChild('CVV2ResponseCode', $payment->getCcCidStatus());
-			$auth->createChild('AVSResponseCode', $payment->getCcAvsStatus());
-			$auth->createChild('AmountAuthorized', sprintf('%.02f', $payment->getAmountAuthorized()));
+				$auth = $thisPayment->createChild('Authorization');
+				$auth->createChild('ResponseCode', $payment->getCcStatus());
+				$auth->createChild('BankAuthorizationCode', $payment->getCcApproval());
+				$auth->createChild('CVV2ResponseCode', $payment->getCcCidStatus());
+				$auth->createChild('AVSResponseCode', $payment->getCcAvsStatus());
+				$auth->createChild('AmountAuthorized', sprintf('%.02f', $payment->getAmountAuthorized()));
 
-			$thisPayment->createChild('ExpirationDate', $payment->getCcExpYear().'-'.$payment->getCcExpMonth());
-			$thisPayment->createChild('StartDate', '???');
-			$thisPayment->createChild('IssueNumber', '???');
+				$thisPayment->createChild('ExpirationDate', $payment->getCcExpYear().'-'.$payment->getCcExpMonth());
+				$thisPayment->createChild('StartDate', '???');
+				$thisPayment->createChild('IssueNumber', '???');
+			}
+		}
+		else {
+			$thisPayment = $payments->createChild('PrepaidPaymentType');
+			$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGrandTotal()));
+			
 		}
 		return;
 	}

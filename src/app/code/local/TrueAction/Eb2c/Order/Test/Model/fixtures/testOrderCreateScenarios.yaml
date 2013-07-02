@@ -19,8 +19,9 @@ scope:
       is_active: 1
 config:
   default/eb2c/order/developer_mode: 1
-  default/eb2c/order/create_uri: "http://fak-eb2c.mwest.mage.tandev.net/orderCreateRequest.php"
-  default/eb2c/order/cancel_uri: "http://fak-eb2c.mwest.mage.tandev.net/orderCancelRequest.php"
+  default/eb2c/order/developer_create_uri: "http://fak-eb2c.mwest.mage.tandev.net/orderCreateRequest.php"
+  default/eb2c/order/developer_cancel_uri: "http://fak-eb2c.mwest.mage.tandev.net/orderCancelRequest.php"
+  default/eb2c/order/payments_enabled: false
 tables:
   sales/order:
     - entity_id: 1

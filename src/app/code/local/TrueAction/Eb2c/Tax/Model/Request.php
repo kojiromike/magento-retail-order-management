@@ -50,7 +50,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	public function checkAddresses($quote)
 	{
-		if ($this->getIsMultiShipping() !== (bool)$this->getQuote()->getIsMultiShipping()) {
+		if ($this->getIsMultiShipping() !== $this->getQuote()->getIsMultiShipping()) {
 			$this->_hasChanges = true;
 		}
 		$quoteBillingAddress = $quote->getBillingAddress();

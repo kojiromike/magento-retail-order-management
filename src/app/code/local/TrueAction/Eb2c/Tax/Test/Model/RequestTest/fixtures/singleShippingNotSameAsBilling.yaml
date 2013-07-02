@@ -1,12 +1,11 @@
-# furniture set: single shipping address same as billing
 eav:
   catalog_product:
-    - entity_id: 51
+    - entity_id: 174
       type_id: simple
-      sku: 1111
-      name: "Ottoman"
-      short_description: red ottoman
-      description: red ottoman long desc
+      sku: "gc_physvirt1"
+      name: "Physical and Virtual Gift Card"
+      short_description: "Physical and Virtual Gift Card short description"
+      description: "Physical and Virtual Gift Card description"
       is_virtual: 0
       stock:
         qty: 100.00
@@ -15,60 +14,22 @@ eav:
         - usa_website
       category_ids:
         - 2 # Default Category
-      price: 299.9900
-      no_discount: 0
-      tax_class_id: 2 # Taxable Goods
-      status: 1 # Enabled
-      visibility: 4 # Visible in Catalog & Search
-    - entity_id: 52
-      type_id: simple
-      sku: 1112
-      name: "Chair"
-      short_description: red chair
-      description: red chair long desc
-      is_virtual: 0
-      stock:
-        qty: 100.00
-        is_in_stock: 1
-      website_ids:
-        - usa_website
-      category_ids:
-        - 2 # Default Category
-      price: 129.9900
-      no_discount: 0
-      tax_class_id: 2 # Taxable Goods
-      status: 1 # Enabled
-      visibility: 4 # Visible in Catalog & Search
-    - entity_id: 53
-      type_id: simple
-      sku: 1113
-      name: "Couch"
-      short_description: red couch
-      description: red couch long desc
-      is_virtual: 0
-      stock:
-        qty: 100.00
-        is_in_stock: 1
-      website_ids:
-        - usa_website
-      category_ids:
-        - 2 # Default Category
-      price: 599.9900
+      price: 100.0000
       no_discount: 0
       tax_class_id: 2 # Taxable Goods
       status: 1 # Enabled
       visibility: 4 # Visible in Catalog & Search
 tables:
   sales/quote:
-    - entity_id: 1
+    - entity_id: 3
       store_id: 2
-      created_at: "2013-06-27 17:32:54"
-      updated_at: "2013-06-27 17:36:19"
+      created_at: "2013-06-27 17:46:12"
+      updated_at: "2013-06-27 17:47:49"
       is_active: 0
       is_virtual: 0
       is_multi_shipping: 0
-      items_count: 3
-      items_qty: 3.0000
+      items_count: 1
+      items_qty: 1.0000
       orig_order_id: 0
       store_to_base_rate: 1.0000
       store_to_quote_rate: 1.0000
@@ -78,8 +39,8 @@ tables:
       base_currency_code: "USD"
       store_currency_code: "USD"
       quote_currency_code: "USD"
-      grand_total: 1044.9700
-      base_grand_total: 1044.9700
+      grand_total: 105.0000
+      base_grand_total: 105.0000
       customer_id: 5
       customer_tax_class_id: 3
       customer_group_id: 1
@@ -89,11 +50,11 @@ tables:
       customer_note_notify: 1
       customer_is_guest: 0
       remote_ip: "192.168.56.1"
-      reserved_order_id: 100000050
-      subtotal: 1029.9700
-      base_subtotal: 1029.9700
-      subtotal_with_discount: 1029.9700
-      base_subtotal_with_discount: 1029.9700
+      reserved_order_id: 100000053
+      subtotal: 100.0000
+      base_subtotal: 100.0000
+      subtotal_with_discount: 100.0000
+      base_subtotal_with_discount: 100.0000
       is_changed: 1
       trigger_recollect: 0
       customer_balance_amount_used: 0.0000
@@ -121,12 +82,12 @@ tables:
       base_reward_currency_amount: 0.0000
       reward_currency_amount: 0.0000
   sales/quote_address:
-    - address_id: 1
-      quote_id: 1
-      created_at: "2013-06-27 13:34:00"
-      updated_at: "2013-06-27 17:36:18"
+    - address_id: 12
+      quote_id: 3
+      created_at: "2013-06-27 13:46:16"
+      updated_at: "2013-06-27 17:47:49"
       customer_id: 5
-      save_in_address_book: 1
+      save_in_address_book: 0
       customer_address_id: 4
       address_type: "billing"
       email: "foo@example.com"
@@ -167,43 +128,44 @@ tables:
       subtotal_incl_tax: 0.0000
       shipping_incl_tax: 0.0000
       base_shipping_incl_tax: 0.0000
-    - address_id: 2
-      quote_id: 1
-      created_at: "2013-06-27 13:34:00"
-      updated_at: "2013-06-27 17:36:18"
+    - address_id: 13
+      quote_id: 3
+      created_at: "2013-06-27 13:46:16"
+      updated_at: "2013-06-27 17:47:49"
       customer_id: 5
       save_in_address_book: 0
+      customer_address_id: 5
       address_type: "shipping"
       email: "foo@example.com"
-      firstname: "test"
+      firstname: "extra"
       lastname: "guy"
-      street: "1 Rosedale St"
-      city: "Baltimore"
-      region: "Maryland"
-      region_id: 31
-      postcode: 21229
+      street: "1 Shields"
+      city: "davis"
+      region: "California"
+      region_id: 12
+      postcode: 90210
       country_id: "US"
-      telephone: "(123) 456-7890"
-      same_as_billing: 1
+      telephone: 1234567890
+      same_as_billing: 0
       free_shipping: 0
       collect_shipping_rates: 0
       shipping_method: "flatrate_flatrate"
       shipping_description: "Flat Rate - Fixed"
-      weight: 270.0000
-      subtotal: 1029.9700
-      base_subtotal: 1029.9700
+      weight: 0.2000
+      subtotal: 100.0000
+      base_subtotal: 100.0000
       subtotal_with_discount: 0.0000
       base_subtotal_with_discount: 0.0000
       tax_amount: 0.0000
       base_tax_amount: 0.0000
-      shipping_amount: 15.0000
-      base_shipping_amount: 15.0000
+      shipping_amount: 5.0000
+      base_shipping_amount: 5.0000
       shipping_tax_amount: 0.0000
       base_shipping_tax_amount: 0.0000
       discount_amount: 0.0000
       base_discount_amount: 0.0000
-      grand_total: 1044.9700
-      base_grand_total: 1044.9700
+      grand_total: 105.0000
+      base_grand_total: 105.0000
       applied_taxes: "a:0:{}"
       base_customer_balance_amount: 0.0000
       customer_balance_amount: 0.0000
@@ -213,12 +175,12 @@ tables:
       used_gift_cards: "a:0:{}"
       shipping_discount_amount: 0.0000
       base_shipping_discount_amount: 0.0000
-      subtotal_incl_tax: 1029.9700
+      subtotal_incl_tax: 100.0000
       hidden_tax_amount: 0.0000
       base_hidden_tax_amount: 0.0000
       shipping_hidden_tax_amount: 0.0000
-      shipping_incl_tax: 15.0000
-      base_shipping_incl_tax: 15.0000
+      shipping_incl_tax: 5.0000
+      base_shipping_incl_tax: 5.0000
       gw_base_price: 0.0000
       gw_price: 0.0000
       gw_items_base_price: 0.0000
@@ -235,33 +197,33 @@ tables:
       base_reward_currency_amount: 0.0000
       reward_currency_amount: 0.0000
   sales/quote_item:
-    - item_id: 1
-      quote_id: 1
-      created_at: "2013-06-27 17:33:58"
-      updated_at: "2013-06-27 17:33:58"
-      product_id: 51
+    - item_id: 5
+      quote_id: 3
+      created_at: "2013-06-27 17:46:12"
+      updated_at: "2013-06-27 17:46:12"
+      product_id: 174
       store_id: 2
       is_virtual: 0
-      sku: 1111
-      name: "Ottoman"
+      sku: "gc_physvirt1"
+      name: "Physical and Virtual Gift Card"
       free_shipping: 0
       is_qty_decimal: 0
       no_discount: 0
-      weight: 20.0000
+      weight: 0.2000
       qty: 1.0000
-      price: 299.9900
-      base_price: 299.9900
+      price: 100.0000
+      base_price: 100.0000
       discount_percent: 0.0000
       discount_amount: 0.0000
       base_discount_amount: 0.0000
       tax_percent: 0.0000
       tax_amount: 0.0000
       base_tax_amount: 0.0000
-      row_total: 299.9900
-      base_row_total: 299.9900
+      row_total: 100.0000
+      base_row_total: 100.0000
       row_total_with_discount: 0.0000
-      row_weight: 20.0000
-      product_type: "simple"
+      row_weight: 0.2000
+      product_type: "giftcard"
       weee_tax_applied: "a:0:{}"
       weee_tax_applied_amount: 0.0000
       weee_tax_applied_row_amount: 0.0000
@@ -270,88 +232,7 @@ tables:
       weee_tax_row_disposition: 0.0000
       base_weee_tax_disposition: 0.0000
       base_weee_tax_row_disposition: 0.0000
-      base_cost: 50.0000
-      price_incl_tax: 299.9900
-      base_price_incl_tax: 299.9900
-      row_total_incl_tax: 299.9900
-      base_row_total_incl_tax: 299.9900
-    - item_id: 2
-      quote_id: 1
-      created_at: "2013-06-27 17:33:58"
-      updated_at: "2013-06-27 17:33:58"
-      product_id: 52
-      store_id: 2
-      is_virtual: 0
-      sku: 1112
-      name: "Chair"
-      free_shipping: 0
-      is_qty_decimal: 0
-      no_discount: 0
-      weight: 50.0000
-      qty: 1.0000
-      price: 129.9900
-      base_price: 129.9900
-      discount_percent: 0.0000
-      discount_amount: 0.0000
-      base_discount_amount: 0.0000
-      tax_percent: 0.0000
-      tax_amount: 0.0000
-      base_tax_amount: 0.0000
-      row_total: 129.9900
-      base_row_total: 129.9900
-      row_total_with_discount: 0.0000
-      row_weight: 50.0000
-      product_type: "simple"
-      weee_tax_applied: "a:0:{}"
-      weee_tax_applied_amount: 0.0000
-      weee_tax_applied_row_amount: 0.0000
-      base_weee_tax_applied_amount: 0.0000
-      weee_tax_disposition: 0.0000
-      weee_tax_row_disposition: 0.0000
-      base_weee_tax_disposition: 0.0000
-      base_weee_tax_row_disposition: 0.0000
-      base_cost: 50.0000
-      price_incl_tax: 129.9900
-      base_price_incl_tax: 129.9900
-      row_total_incl_tax: 129.9900
-      base_row_total_incl_tax: 129.9900
-    - item_id: 3
-      quote_id: 1
-      created_at: "2013-06-27 17:33:58"
-      updated_at: "2013-06-27 17:33:58"
-      product_id: 53
-      store_id: 2
-      is_virtual: 0
-      sku: 1113
-      name: "Couch"
-      free_shipping: 0
-      is_qty_decimal: 0
-      no_discount: 0
-      weight: 200.0000
-      qty: 1.0000
-      price: 599.9900
-      base_price: 599.9900
-      discount_percent: 0.0000
-      discount_amount: 0.0000
-      base_discount_amount: 0.0000
-      tax_percent: 0.0000
-      tax_amount: 0.0000
-      base_tax_amount: 0.0000
-      row_total: 599.9900
-      base_row_total: 599.9900
-      row_total_with_discount: 0.0000
-      row_weight: 200.0000
-      product_type: "simple"
-      weee_tax_applied: "a:0:{}"
-      weee_tax_applied_amount: 0.0000
-      weee_tax_applied_row_amount: 0.0000
-      base_weee_tax_applied_amount: 0.0000
-      weee_tax_disposition: 0.0000
-      weee_tax_row_disposition: 0.0000
-      base_weee_tax_disposition: 0.0000
-      base_weee_tax_row_disposition: 0.0000
-      base_cost: 200.0000
-      price_incl_tax: 599.9900
-      base_price_incl_tax: 599.9900
-      row_total_incl_tax: 599.9900
-      base_row_total_incl_tax: 599.9900
+      price_incl_tax: 100.0000
+      base_price_incl_tax: 100.0000
+      row_total_incl_tax: 100.0000
+      base_row_total_incl_tax: 100.0000

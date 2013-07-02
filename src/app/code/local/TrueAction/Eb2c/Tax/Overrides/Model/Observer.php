@@ -66,7 +66,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 			$address->setExtraTaxAmount(0);
 			$address->setBaseExtraTaxAmount(0);
 		}
-		if (!is_a('Mage_Sales_Model_Quote', $quote)) {
+		if (!is_a($quote, 'Mage_Sales_Model_Quote')) {
 			Mage::log(
 				'EB2C Tax Error: quoteCollectTotalsBefore: did not receive a Mage_Sales_Model_Quote object',
 				Zend_Log::WARN

@@ -23,13 +23,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected $_shipGroups         = array();
 	protected $_discounts          = array();
 	protected $_shipGroupIds       = array();
-	protected $_isValid            = true;
 
 	/**
 	 * map skus to a quote item
 	 * @var array('string' => Mage_Sales_Model_Quote_Item)
 	 */
-	protected $_skuItemMap         = array();
+	protected $_skuItemMap = array();
 
 	/**
 	 * generate the request DOMDocument on construction.
@@ -82,15 +81,17 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		}
 	}
 	/**
-	 * determine if the request object has enough data to work with.
+	 * Determine if the request object has enough data to work with.
 	 * @return boolean
 	 */
 	public function isValid()
 	{
-		$this->_isValid = !$this->_hasChanges && $this->getQuote() && $this->getQuote()->getId() &&
-			$this->getBillingAddress() && $this->getBillingAddress()->getId() &&
+		return !$this->_hasChanges &&
+			$this->getQuote() &&
+			$this->getQuote()->getId() &&
+			$this->getBillingAddress() &&
+			$this->getBillingAddress()->getId() &&
 			$this->getQuote()->getItemsCount();
-		return $this->_isValid;
 	}
 
 	/**
@@ -135,12 +136,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * make this request invalid, which will force a new request to
+	 * Make this request invalid, which will force a new request to
 	 * be generated and sent.
 	 */
 	public function invalidate()
 	{
-		$this->_isValid = false;
+		$this->unsQuote();
 	}
 
 	public function checkItemQty($quoteItem)

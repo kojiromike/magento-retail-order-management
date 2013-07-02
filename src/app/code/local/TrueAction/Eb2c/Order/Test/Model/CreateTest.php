@@ -27,8 +27,7 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 		$creator = Mage::getModel('eb2corder/create');
 		try {
 			$status = $creator->create($testId);
-		}
-		catch(Exception $e) {
+		} catch(Exception $e) {
 			echo $e->getMessage();
 			$status = false;
 		}
@@ -38,8 +37,7 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 		$incrementId = '100000003';
 		try {
 			$status = $creator->create($incrementId);
-		}
-		catch(Exception $e) {
+		} catch(Exception $e) {
 			echo $e->getMessage();
 			$status = false;
 		}
@@ -49,18 +47,16 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 		$incrementId = 'NO_CHANCE';
 		try {
 			$status = $creator->create($incrementId);
-		}
-		catch(Exception $e) {
+		} catch(Exception $e) {
 			$status = false;
 		}
 		$this->assertSame($status, false);
 
-		// Excercise Event Observer Version. 
+		// Exercise Event Observer Version. 
 		$incrementId = '100000002';
 		try {
 			$status = $cr->observerCreate($incrementId);
-		}
-		catch(Exception $e) {
+		} catch(Exception $e) {
 			$status = false;	
 		}
 		$this->assertSame($status, true);

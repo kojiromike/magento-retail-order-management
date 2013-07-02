@@ -39,7 +39,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 			$response = Mage::getModel('eb2caddress/validation_response')->setMessage(
 				$helper->callApi(
 					$request->getMessage(),
-					$helper->apiUri(
+					$helper->getApiUri(
 						TrueAction_Eb2c_Address_Model_Validation_Request::API_SERVICE,
 						TrueAction_Eb2c_Address_Model_Validation_Request::API_OPERATION
 					)

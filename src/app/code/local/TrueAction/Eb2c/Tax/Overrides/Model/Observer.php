@@ -31,7 +31,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	{
 		Mage::log('salesEventItemQtyUpdated');
 		$quoteItem = $observer->getEvent()->getItem();
-		if (!is_a('Mage_Sales_Model_Quote_Item', $quote)) {
+		if (!is_a('Mage_Sales_Model_Quote_Item', $quoteItem)) {
 			Mage::log(
 				'EB2C Tax Error: quoteCollectTotalsBefore: did not receive a Mage_Sales_Model_Quote_Item object',
 				Zend_Log::WARN

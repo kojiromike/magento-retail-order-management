@@ -103,9 +103,13 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->_namespaceUri = Mage::helper('tax')->getNamespaceUri();
 			$doc                 = new TrueAction_Dom_Document('1.0', 'UTF-8');
 			$this->_doc          = $doc;
-			$this->_buildTaxDutyRequest();
+			if ($this->isValid()) {
+				$this->_buildTaxDutyRequest();
+			}
 		}
+		// @codeCoverageIgnoreStart
 		return $this->_doc;
+		// @codeCoverageIgnoreEnd
 	}
 
 	/**
@@ -145,8 +149,8 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$itemData = isset($this->_orderItems[$sku]) ?
 			$this->_orderItems[$sku] : !($this->_hasChanges = true);
 		if (!$this->_hasChanges && $itemData) {
-			$newQty = (float)$quoteItem->getQtyOrdered();
-			$oldQty =  (float)$itemData['quantity'];
+			$newQty = (float)$quoteItem->getQty();
+			$oldQty = (float)$itemData['quantity'];
 			$this->_hasChanges = $oldQty !== $newQty; 
 		}
 	}
@@ -214,17 +218,31 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		}
 	}
 
-	protected function _addToDestination($item, $address, $isVirtual = false)
-	{
+	/**
+	 * add the data extracted from $item to the request and map it to the destination
+	 * data extracted from $address.
+	 * @param Mage_Sales_Model_Quote_Item|Mage_Sales_Model_Quote_Address_Item $item
+	 * @param Mage_Sales_Model_Quote_Address $address
+	 * @param boolean                        $isVirtual
+	 */
+	protected function _addToDestination(
+		$item, 
+		Mage_Sales_Model_Quote_Address $address,
+		$isVirtual = false
+	) {
 		$destinationId = ($isVirtual) ? $this->_getEmailFromAddress($address) : $address->getId();
 		$id = $this->_addShipGroupId($address, $isVirtual);
 		if (!isset($this->_shipGroups[$destinationId])) {
 			$this->_shipGroups[$destinationId] = array();
 		}
-		if (array_search( $item->getSku(), $this->_shipGroups[$destinationId]) === false) {
-			$this->_shipGroups[$destinationId][] = (string)$item->getSku();
+		if (!isset($this->_destinations[$destinationId])) {
+			$this->_destinations[$destinationId] = $this->_extractDestData($address, $isVirtual);
 		}
-		$this->_orderItems[(string)$item->getSku()] = $this->_extractItemData($item, $address);
+		$sku = (string)$item->getSku();
+		if (array_search($sku, $this->_shipGroups[$destinationId]) === false) {
+			$this->_shipGroups[$destinationId][] = $sku;
+		}
+		$this->_orderItems[$sku] = $this->_extractItemData($item, $address);
 	}
 
 	/**
@@ -283,6 +301,8 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		if ($middleName) {
 			$parent->createChild('middle_name', $middleName);
 		}
+		// if this is a virtual destination, then only extract the
+		// email address
 		if ($isVirtual) {
 			$data['email_address'] = $address->getEmail();
 		} else {
@@ -303,7 +323,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			'item_id' => $item->getSku(),
 			'item_desc' => $item->getName(),
 			'hts_code' => $item->getHtsCode(),
-			'quantity' => $item->getQtyOrdered(),
+			'quantity' => $item->getQty(),
 			'merchandise_amount' => $item->getRowTotal(),
 			'merchandise_unit_price' => $item->getBasePrice(),
 			'merchandise_tax_class' => $this->_getItemTaxClass($item),
@@ -371,9 +391,11 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$shipGroups   = $shipping->createChild('ShipGroups');
 		$destinations = $shipping->createChild('Destinations');
 		$this->_processAddresses($destinations, $shipGroups);
-		$attr = $this->_doc->createAttributeNs('ref', $this->_namespaceUri);
-		$attr->value = $this->_billingInfoRef;		
-		$billingInformation->appendChild($attr);
+		$billingInformation->setAttributeNs(
+			$this->_namespaceUri,
+			'ref',
+			$this->_billingInfoRef
+		);
 	}
 
 	/**getIsMultiShipping

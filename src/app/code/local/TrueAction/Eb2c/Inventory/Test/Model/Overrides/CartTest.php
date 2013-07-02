@@ -121,6 +121,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 * testing addProduct method
 	 *
 	 * @test
+	 * @medium FIXME: Slow test
 	 * @expectedException Mage_Core_Exception
 	 * @dataProvider providerAddProductInvalidProductId
 	 * @loadFixture loadWebsiteConfig.yaml

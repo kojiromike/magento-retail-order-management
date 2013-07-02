@@ -9,7 +9,7 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 	 * @test
 	 * @loadFixture
 	 */
-	public function testOrdersInterfaces()
+	public function testOrderCreateScenarios()
 	{
 		$status = null;
 
@@ -27,8 +27,7 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 		$creator = Mage::getModel('eb2corder/create');
 		try {
 			$status = $creator->create($testId);
-		}
-		catch(Exception $e) {
+		} catch(Exception $e) {
 			echo $e->getMessage();
 			$status = false;
 		}
@@ -38,8 +37,7 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 		$incrementId = '100000003';
 		try {
 			$status = $creator->create($incrementId);
-		}
-		catch(Exception $e) {
+		} catch(Exception $e) {
 			echo $e->getMessage();
 			$status = false;
 		}
@@ -49,31 +47,37 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 		$incrementId = 'NO_CHANCE';
 		try {
 			$status = $creator->create($incrementId);
+		} catch(Exception $e) {
+			$status = false;
+		}
+		$this->assertSame($status, false);
+
+		// Exercise Event Observer Version. 
+		$incrementId = '100000002';
+		try {
+			$status = $cr->observerCreate($incrementId);
+		} catch(Exception $e) {
+			$status = false;	
+		}
+		$this->assertSame($status, true);
+	} 
+	/**
+	 * @test
+	 * @loadFixture
+	 * This fixture was setup to fail with a syntactically correct URL that couldn't really answer us in any sensible way.
+	 */
+	public function testWithEb2cPaymentsEnabled()
+	{
+		$status = null;
+
+		$creator = Mage::getModel('eb2corder/create');
+		$incrementId = '100000003';
+		try {
+			$status = $creator->create($incrementId);
 		}
 		catch(Exception $e) {
 			$status = false;
 		}
 		$this->assertSame($status, false);
-
-		// Excercise Event Observer Version. 
-		$incrementId = '100000002';
-		try {
-			$status = $cr->observerCreate($incrementId);
-		}
-		catch(Exception $e) {
-			$status = false;	
-		}
-		$this->assertSame($status, true);
-	}
-	
-	/**
-	 * Test get some XML, OK to be empty
-	 * @test
-	 */
-	public function testEmptyXml()
-	{
-		$cr = Mage::getModel('eb2corder/create');
-		$xml = $cr->toXml();
-		$this->assertSame($xml, '<?xml version="1.0" encoding="UTF-8"?>'."\n");
 	}
 }

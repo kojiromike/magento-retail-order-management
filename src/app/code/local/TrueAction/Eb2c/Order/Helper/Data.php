@@ -4,33 +4,30 @@
  */
 class TrueAction_Eb2c_Order_Helper_Data extends Mage_Core_Helper_Abstract
 {
-	public $configModel;
+	public $config;
 	public $coreHelper;
 	public $constHelper;
 
-	public function __construct()
-	{
-		$this->coreHelper = $this->getCoreHelper();
-		$this->constHelper = $this->getConstHelper();
-	}
 
 	/**
-	 * Instantiate core helper
+	 * Gets a combined configuration model from core and order
 	 *
-	 * @return TrueAction_Eb2c_Core_Helper_Data
+	 * @return 
 	 */
-	public function getCoreHelper()
+	public function getConfig()
 	{
-		if (!$this->coreHelper) {
-			$this->coreHelper = Mage::helper('eb2ccore');
+		if( !$this->config ) {
+			$this->config = Mage::getModel('eb2ccore/config_registry')
+							->addConfigModel(Mage::getModel('eb2corder/config'))
+							->addConfigModel(Mage::getModel('eb2ccore/config'));
 		}
-		return $this->coreHelper;
+		return $this->config;
 	}
 
 	/**
-	 * Get Constants helper instantiated object.
+	 * Instantiate and save constants-values helper
 	 *
-	 * @return TrueAction_Eb2c_Inventory_Helper_Constants
+	 * @return TrueAction_Eb2c_Order_Helper_Constants
 	 */
 	public function getConstHelper()
 	{
@@ -41,43 +38,37 @@ class TrueAction_Eb2c_Order_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * Get inventory config instantiated object.
+	 * Instantiate and save assignment of Core helper
 	 *
-	 * @return TrueAction_Eb2c_Order_Model_Config
+	 * @return TrueAction_Eb2c_Core_Helper
 	 */
-	public function getConfigModel($store=null)
+	public function getCoreHelper()
 	{
-		if (!$this->configModel) {
-			$this->configModel = Mage::getModel('eb2ccore/config_registry');
-			$this->configModel->setStore($store)
-				->addConfigModel(Mage::getModel('eb2corder/config'));
+		if (!$this->coreHelper) {
+			$this->coreHelper = Mage::helper('eb2ccore');
 		}
-		return $this->configModel;
+		return $this->coreHelper;
 	}
-
 
 	/**
 	 * Generate Eb2c API operation Uri from configuration settings and constants
 	 *
-	 * @param string $optIndex, the operation index of the associative array
 	 * @return string, the generated operation Uri
 	 */
-	public function getOperationUri($verb)
+	public function getOperationUri($operation)
 	{
-		$const = $this->getConstantHelper();
-		$apiUri = '';
-		if (!(bool) $this->getConfigModel()->developer_mode) {
-			$apiUri = sprintf(
-				$const::URI_FROMAT,
-				$const::ENV,
-				$const::REGION,
-				$const::VERSION,
-				$this->getCoreConfigHelper()->store_id,
-				$const::SERVICE,
-				$verb,
-				$const::RETURN_FORMAT
-			);
-		}
+		$consts = $this->getConstHelper();
+		$apiUri = $this->getCoreHelper()->getApiUri($consts::SERVICE, $operation);
 		return $apiUri;
+	}
+
+	/**
+	 * Return a usable DOMDocument of the TrueAction variety:
+	 *
+	 * @return TrueAction_Dom_Document
+	 */
+	public function getDomDocument()
+	{
+		return new TrueAction_Dom_Document('1.0', 'UTF-8');
 	}
 }

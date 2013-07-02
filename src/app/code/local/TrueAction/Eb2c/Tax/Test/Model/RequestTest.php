@@ -50,10 +50,10 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 
 	public function setUp()
 	{
-        parent::setUp();
-        $_SESSION = array();
-        $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
-        $this->app()->getRequest()->setBaseUrl($_baseUrl);
+		parent::setUp();
+		$_SESSION = array();
+		$_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
+		$this->app()->getRequest()->setBaseUrl($_baseUrl);
 	}
 
 	/**
@@ -61,13 +61,20 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testIsValid()
 	{
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
-		$req   = Mage::getModel('eb2ctax/request', array('quote' => $quote));
+		$quote = $this->getModelMock('sales/quote', array('getId', 'getItemsCount'));
+		$quote->expects($this->exactly(2))
+			->method('getId')
+			->will($this->returnValue(1));
+		$quote->expects($this->once())
+			->method('getItemsCount')
+			->will($this->returnValue(1));
+		$addr  = $this->getModelMock('customer/address', array('getId'));
+		$addr->expects($this->exactly(2))
+			->method('getId')
+			->will($this->returnValue(1));
+		$req = Mage::getModel('eb2ctax/request', array('quote' => $quote, 'billing_address' => $addr));
 		$this->assertTrue($req->isValid());
-		$req   = Mage::getModel('eb2ctax/request', array('quote' => $quote));
-		$req->unsBillingAddress();
-		$this->assertFalse($req->isValid());
-		$req   = Mage::getModel('eb2ctax/request');
+		$req->invalidate();
 		$this->assertFalse($req->isValid());
 	}
 
@@ -139,7 +146,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 
 	public function testCheckItemQty()
 	{
-		$this->markTestIncomplete('disabled for push to fix jenkins errors');
 		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(3);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$items = $quote->getAllVisibleItems();

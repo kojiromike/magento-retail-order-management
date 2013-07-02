@@ -47,39 +47,17 @@ scope:
       code: germany
       name: Germany Store
       is_active: 1
-config:
-  default/catalog/price/scope: 1 # Set price scope to website
 eav:
   customer:
     - entity_id: 5
-      email: phangm@trueaction.com
+      email: foo@example.com
       website_ids:
         - usa_website
-        - canada_website
-        - german_website
       is_active: 1
   customer_address:
     - entity_id: 4
       customer_id: 5
-  catalog_product:
-    - entity_id: 168
-      type_id: giftcard
-      sku: gc_virtual
-      name: Virtual Gift Card
-      short_description: Virtual Gift Card Short Desc
-      description: Virtual Gift Card Long Description
-      is_virtual: 0
-      url_key: giftcard
-      stock:
-        qty: 100.00
-        is_in_stock: 1
-      website_ids:
-        - usa_website
-        - canada_website
-        - german_website
-      category_ids:
-        - 2 # Default Category
-      price: 12.99
-      tax_class_id: 2 # Taxable Goods
-      status: 1 # Enabled
-      visibility: 4 # Visible in Catalog & Search
+      is_active: 1
+    - entity_id: 5
+      customer_id: 5
+      is_active: 1

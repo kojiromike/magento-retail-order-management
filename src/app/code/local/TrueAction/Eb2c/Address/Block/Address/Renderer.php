@@ -21,7 +21,7 @@ class TrueAction_Eb2c_Address_Block_Address_Renderer
 			->addressFormat;
 		$type = new Varien_Object();
 		$type->setCode('address_verification')
-			->setTitle('Address Verification Candidate')
+			->setTitle('Address Verification Suggestion')
 			->setDefaultFormat($format)
 			->setHtmlEscape(true);
 		$this->setType($type);

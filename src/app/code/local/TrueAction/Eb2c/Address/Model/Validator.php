@@ -59,7 +59,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 						->__(self::NO_SUGGESTIONS_ERROR_MESSAGE);
 				}
 			}
-			$this->_stashAddresses($response);
+			$this->_stashAddresses($response, $address);
 		} else {
 			// When the address has already been validated, it means the address has come
 			// from the session. When this happens, the session data has been used and
@@ -70,18 +70,41 @@ class TrueAction_Eb2c_Address_Model_Validator
 	}
 
 	/**
+	 * Merge "magic" data from source to destination.
+	 * Will create a clone of the destination object and return the new object.
+	 * Neither of the original objects will be modified.
+	 * @param Varien_Object $dest
+	 * @param Varien_Object $source
+	 * @return Varien_Object
+	 */
+	protected function _cloneMerge(Varien_Object $dest, Varien_Object $source)
+	{
+		$clone = clone $dest;
+		return $clone->addData($source->getData());
+	}
+
+	/**
 	 * Store the necessary addresses and address data in the session.
 	 * @param TrueAction_Eb2c_Address_Model_Validation_Response $response
 	 */
-	protected function _stashAddresses(TrueAction_Eb2c_Address_Model_Validation_Response $response)
-	{
+	protected function _stashAddresses(
+		TrueAction_Eb2c_Address_Model_Validation_Response $response,
+		Mage_Customer_Model_Address_Abstract $requestAddress
+	) {
 		$addressCollection = new Varien_Object();
 		$addressCollection->setOriginalAddress(
-			$response->getOriginalAddress()->setStashKey('original_address')
+			$this->_cloneMerge(
+				$requestAddress,
+				$response->getOriginalAddress()->setStashKey('original_address')
+			)
 		);
 		$suggestions = $response->getAddressSuggestions();
+		$mergedSuggestions = array();
 		foreach ($suggestions as $idx => $suggestion) {
-			$suggestion->setStashKey('suggested_addresses/' . $idx);
+			$mergedSuggestions[] = $this->_cloneMerge(
+				$requestAddress,
+				$suggestion->setStashKey('suggested_addresses/' . $idx)
+			);
 		}
 		$addressCollection->setSuggestedAddresses($suggestions);
 		$addressCollection->setResponseMessage($response);

@@ -371,14 +371,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$newSku      = $this->_checkLength($item['item_id'], 1, 20);
 		if (is_null($newSku)){
 			$this->invalidate();
-			Mage::log(
-				sprintf(
-					'Mage_Sales_Model_Quote_Item id:%s has an invalid SKU:%s',
-					$item['id'],
-					$item['item_id']
-				),
-				Zend_Log::WARN
+			$message = sprintf(
+				'TaxDutyQuoteRequest: Mage_Sales_Model_Quote_Item id:%s has an invalid SKU:%s',
+				$item['id'],
+				$item['item_id']
 			);
+			Mage::throwException($message);
 		}
 		if (strlen($newSku) < strlen($item['item_id'])) {
 			$message = 'Item sku "' . $item['item_id'] . '" is too long and has been truncated';
@@ -400,28 +398,32 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	protected function _buildTaxDutyRequest()
 	{
-		$this->_doc->addElement('TaxDutyQuoteRequest', null, $this->_namespaceUri);
-		$tdRequest          = $this->_doc->documentElement;
-		$billingInformation = $tdRequest->addChild(
-			'Currency',
-			$this->getQuote()->getQuoteCurrencyCode()
-		)
-			->addChild('VATInclusivePricing', $this->_isVatIncludedInPrice())
-			->addChild(
-				'CustomerTaxId',
-				$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
+		try {
+			$this->_doc->addElement('TaxDutyQuoteRequest', null, $this->_namespaceUri);
+			$tdRequest          = $this->_doc->documentElement;
+			$billingInformation = $tdRequest->addChild(
+				'Currency',
+				$this->getQuote()->getQuoteCurrencyCode()
 			)
-			->createChild('BillingInformation');
-		$shipping = $tdRequest->createChild('Shipping');
-		$this->_tdRequest    = $tdRequest;
-		$shipGroups   = $shipping->createChild('ShipGroups');
-		$destinations = $shipping->createChild('Destinations');
-		$this->_processAddresses($destinations, $shipGroups);
-		$billingInformation->setAttributeNs(
-			$this->_namespaceUri,
-			'ref',
-			$this->_billingInfoRef
-		);
+				->addChild('VATInclusivePricing', (int)$this->_helper->getVatInclusivePricingFlag())
+				->addChild(
+					'CustomerTaxId',
+					$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
+				)
+				->createChild('BillingInformation');
+			$shipping = $tdRequest->createChild('Shipping');
+			$this->_tdRequest    = $tdRequest;
+			$shipGroups   = $shipping->createChild('ShipGroups');
+			$destinations = $shipping->createChild('Destinations');
+			$this->_processAddresses($destinations, $shipGroups);
+			$billingInformation->setAttributeNs(
+				$this->_namespaceUri,
+				'ref',
+				$this->_billingInfoRef
+			);
+		} catch (Mage_Core_Exception $e) {
+			Mage::log('TaxDutyQuoteRequest Error: ' . $e->getMessage(), Zend_Log::WARN);
+		}
 	}
 
 	/**getIsMultiShipping

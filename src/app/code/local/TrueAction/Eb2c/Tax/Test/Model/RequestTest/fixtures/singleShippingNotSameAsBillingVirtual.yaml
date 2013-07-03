@@ -1,0 +1,265 @@
+eav:
+  catalog_product:
+    - entity_id: 168
+      type_id: simple
+      sku: "gc_virtual1"
+      name: "Virtual Gift Card"
+      short_description: "Virtual Gift Card short description"
+      description: "Virtual Gift Card description"
+      is_virtual: 1
+      stock:
+        qty: 100.00
+        is_in_stock: 1
+      website_ids:
+        - usa_website
+      category_ids:
+        - 2 # Default Category
+      price: 50.0000
+      no_discount: 0
+      tax_class_id: 2 # Taxable Goods
+      status: 1 # Enabled
+      visibility: 4 # Visible in Catalog & Search
+    - entity_id: 188
+      type_id: simple
+      sku: "classic-jeans"
+      name: "Classic Jeans"
+      short_description: "Classic Jeans short description"
+      description: "Classic Jeans description"
+      is_virtual: 0
+      stock:
+        qty: 100.00
+        is_in_stock: 1
+      website_ids:
+        - usa_website
+      category_ids:
+        - 2 # Default Category
+      price: 99.9900
+      no_discount: 0
+      tax_class_id: 2 # Taxable Goods
+      status: 1 # Enabled
+      visibility: 4 # Visible in Catalog & Search
+tables:
+  sales/quote:
+    - entity_id: 4
+      store_id: 2
+      created_at: "2013-07-01 22:05:33"
+      updated_at: "2013-07-01 22:10:09"
+      is_active: 0
+      is_virtual: 0
+      is_multi_shipping: 0
+      items_count: 2
+      items_qty: 2.0000
+      orig_order_id: 0
+      store_to_base_rate: 1.0000
+      store_to_quote_rate: 1.0000
+      base_to_global_rate: 1.0000
+      base_to_quote_rate: 1.0000
+      global_currency_code: "USD"
+      base_currency_code: "USD"
+      store_currency_code: "USD"
+      quote_currency_code: "USD"
+      grand_total: 163.2400
+      base_grand_total: 163.2400
+      customer_id: 5
+      customer_tax_class_id: 3
+      customer_group_id: 1
+      customer_email: "foo@example.com"
+      customer_firstname: "test"
+      customer_lastname: "guy"
+      customer_note_notify: 1
+      customer_is_guest: 0
+      remote_ip: "192.168.56.1"
+      reserved_order_id: 100000054
+      subtotal: 149.9900
+      base_subtotal: 149.9900
+      subtotal_with_discount: 149.9900
+      base_subtotal_with_discount: 149.9900
+      is_changed: 1
+      trigger_recollect: 0
+      customer_balance_amount_used: 0.0000
+      base_customer_bal_amount_used: 0.0000
+      gift_cards: "a:0:{}"
+      gift_cards_amount: 0.0000
+      base_gift_cards_amount: 0.0000
+      gift_cards_amount_used: 0.0000
+      base_gift_cards_amount_used: 0.0000
+      is_persistent: 0
+      gw_base_price: 0.0000
+      gw_price: 0.0000
+      gw_items_base_price: 0.0000
+      gw_items_price: 0.0000
+      gw_card_base_price: 0.0000
+      gw_card_price: 0.0000
+      gw_base_tax_amount: 0.0000
+      gw_tax_amount: 0.0000
+      gw_items_base_tax_amount: 0.0000
+      gw_items_tax_amount: 0.0000
+      gw_card_base_tax_amount: 0.0000
+      gw_card_tax_amount: 0.0000
+      use_reward_points: 0
+      reward_points_balance: 0
+      base_reward_currency_amount: 0.0000
+      reward_currency_amount: 0.0000
+  sales/quote_address:
+    - address_id: 14
+      quote_id: 4
+      created_at: "2013-07-01 18:07:38"
+      updated_at: "2013-07-01 22:10:09"
+      customer_id: 5
+      save_in_address_book: 0
+      customer_address_id: 5
+      address_type: "billing"
+      email: "foo@example.com"
+      firstname: "extra"
+      lastname: "guy"
+      street: "1 Shields"
+      city: "davis"
+      region: "California"
+      region_id: 12
+      postcode: 90210
+      country_id: "US"
+      telephone: 1234567890
+      same_as_billing: 0
+      free_shipping: 0
+      collect_shipping_rates: 0
+      weight: 0.0000
+      subtotal: 0.0000
+      base_subtotal: 0.0000
+      subtotal_with_discount: 0.0000
+      base_subtotal_with_discount: 0.0000
+      tax_amount: 0.0000
+      base_tax_amount: 0.0000
+      shipping_amount: 0.0000
+      base_shipping_amount: 0.0000
+      shipping_tax_amount: 0.0000
+      base_shipping_tax_amount: 0.0000
+      discount_amount: 0.0000
+      base_discount_amount: 0.0000
+      grand_total: 0.0000
+      base_grand_total: 0.0000
+      applied_taxes: "a:0:{}"
+      base_customer_balance_amount: 0.0000
+      customer_balance_amount: 0.0000
+      gift_cards_amount: 0.0000
+      base_gift_cards_amount: 0.0000
+      gift_cards: "a:0:{}"
+      used_gift_cards: "a:0:{}"
+      shipping_discount_amount: 0.0000
+      base_shipping_discount_amount: 0.0000
+      subtotal_incl_tax: 0.0000
+      hidden_tax_amount: 0.0000
+      base_hidden_tax_amount: 0.0000
+      shipping_hidden_tax_amount: 0.0000
+      shipping_incl_tax: 0.0000
+      base_shipping_incl_tax: 0.0000
+      reward_points_balance: 0
+      base_reward_currency_amount: 0.0000
+      reward_currency_amount: 0.0000
+    - address_id: 15
+      quote_id: 4
+      created_at: "2013-07-01 18:07:38"
+      updated_at: "2013-07-01 22:10:09"
+      customer_id: 5
+      save_in_address_book: 0
+      customer_address_id: 5
+      address_type: "shipping"
+      email: "foo@example.com"
+      firstname: "extra"
+      lastname: "guy"
+      street: "1 Shields"
+      city: "davis"
+      region: "California"
+      region_id: 12
+      postcode: 90210
+      country_id: "US"
+      telephone: 1234567890
+      same_as_billing: 1
+      free_shipping: 0
+      collect_shipping_rates: 0
+      shipping_method: "flatrate_flatrate"
+      shipping_description: "Flat Rate - Fixed"
+      weight: 3.0000
+      subtotal: 149.9900
+      base_subtotal: 149.9900
+      subtotal_with_discount: 0.0000
+      base_subtotal_with_discount: 0.0000
+      tax_amount: 8.2500
+      base_tax_amount: 8.2500
+      shipping_amount: 5.0000
+      base_shipping_amount: 5.0000
+      shipping_tax_amount: 0.0000
+      base_shipping_tax_amount: 0.0000
+      discount_amount: 0.0000
+      base_discount_amount: 0.0000
+      grand_total: 163.2400
+      base_grand_total: 163.2400
+      applied_taxes: 'a:1:{s:14:\"US-CA-*-Rate 1\";a:6:{s:5:\"rates\";a:1:{i:0;a:6:{s:4:\"code\";s:14:\"US-CA-*-Rate 1\";s:5:\"title\";s:14:\"US-CA-*-Rate 1\";s:7:\"percent\";d:8.25;s:8:\"position\";s:1:\"1\";s:8:\"priority\";s:1:\"1\";s:7:\"rule_id\";s:1:\"1\";}}s:7:\"percent\";d:8.25;s:2:\"id\";s:14:\"US-CA-*-Rate 1\";s:7:\"process\";i:0;s:6:\"amount\";d:8.25;s:11:\"base_amount\";d:8.25;}}'
+      base_customer_balance_amount: 0.0000
+      customer_balance_amount: 0.0000
+      gift_cards_amount: 0.0000
+      base_gift_cards_amount: 0.0000
+      gift_cards: "a:0:{}"
+      used_gift_cards: "a:0:{}"
+      shipping_discount_amount: 0.0000
+      base_shipping_discount_amount: 0.0000
+      subtotal_incl_tax: 158.2400
+      hidden_tax_amount: 0.0000
+      base_hidden_tax_amount: 0.0000
+      shipping_hidden_tax_amount: 0.0000
+      shipping_incl_tax: 5.0000
+      base_shipping_incl_tax: 5.0000
+      gw_base_price: 0.0000
+      gw_price: 0.0000
+      gw_items_base_price: 0.0000
+      gw_items_price: 0.0000
+      gw_card_base_price: 0.0000
+      gw_card_price: 0.0000
+      gw_base_tax_amount: 0.0000
+      gw_tax_amount: 0.0000
+      gw_items_base_tax_amount: 0.0000
+      gw_items_tax_amount: 0.0000
+      gw_card_base_tax_amount: 0.0000
+      gw_card_tax_amount: 0.0000
+      reward_points_balance: 0
+      base_reward_currency_amount: 0.0000
+      reward_currency_amount: 0.0000
+  sales/quote_item:
+    - item_id: 7
+      quote_id: 4
+      created_at: "2013-07-01 22:08:32"
+      updated_at: "2013-07-01 22:09:08"
+      product_id: 188
+      store_id: 2
+      is_virtual: 0
+      sku: "classic-jeans"
+      name: "Classic Jeans"
+      free_shipping: 0
+      is_qty_decimal: 0
+      no_discount: 0
+      weight: 3.0000
+      qty: 1.0000
+      price: 99.9900
+      base_price: 99.9900
+      discount_percent: 0.0000
+      discount_amount: 0.0000
+      base_discount_amount: 0.0000
+      tax_percent: 8.2500
+      tax_amount: 8.2500
+      base_tax_amount: 8.2500
+      row_total: 99.9900
+      base_row_total: 99.9900
+      row_total_with_discount: 0.0000
+      row_weight: 3.0000
+      product_type: "simple"
+      weee_tax_applied: "a:0:{}"
+      weee_tax_applied_amount: 0.0000
+      weee_tax_applied_row_amount: 0.0000
+      base_weee_tax_applied_amount: 0.0000
+      weee_tax_disposition: 0.0000
+      weee_tax_row_disposition: 0.0000
+      base_weee_tax_disposition: 0.0000
+      base_weee_tax_row_disposition: 0.0000
+      price_incl_tax: 108.2400
+      base_price_incl_tax: 108.2400
+      row_total_incl_tax: 108.2400
+      base_row_total_incl_tax: 108.2400

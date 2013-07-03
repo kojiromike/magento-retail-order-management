@@ -559,10 +559,10 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
 	protected function _addOrderItem(array $item, TrueAction_Dom_Element $parent) {
-		$sku      = $this->_checkSku($item);
+		$sku       = $this->_checkSku($item);
 		$orderItem = $parent->createChild('OrderItem')
 			->addAttribute('lineNumber', $this->_getLineNumber($item))
-			->addChild('ItemId', $this->_checkSku($item))
+			->addChild('ItemId', $sku)
 			->addChild('ItemDesc', $this->_checkLength($item['item_desc'], 0, 12))
 			->addChild('HTSCode', $this->_checkLength($item['hts_code'], 0, 12))
 			->addChild('Quantity', $item['quantity'])

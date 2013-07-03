@@ -169,7 +169,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 * @loadFixture base.yaml
 	 * @loadFixture multiShipNotSameAsBilling.yaml
 	 */
-	public function testCheckMultishipping()
+	public function testCheckAddressMultishipping()
 	{
 		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(2);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));

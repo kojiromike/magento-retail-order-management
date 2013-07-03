@@ -51,9 +51,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * in the specified quote.
 	 * @param  Mage_Sales_Model_Quote $quote
 	 */
-	public function checkAddresses(Mage_Sales_Model_Quote $quote)
+	public function checkAddresses(Mage_Sales_Model_Quote $quote = null)
 	{
-		if (!($this->isValid() && $quote)) {
+		if (!($this->isValid() && $quote && $quote->getId())) {
 			// skip it if the request is bad in the first place or if the quote
 			// passed in is null.
 			return;

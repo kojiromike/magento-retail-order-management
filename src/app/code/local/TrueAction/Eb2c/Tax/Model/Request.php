@@ -178,11 +178,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$this->_destinations[$this->_billingInfoRef] = $this->_extractDestData(
 			$billAddress
 		);
-		if ($quote->hasVirtualItems()) {
-			$this->_destinations[$billAddress->getEmail()] = $this->_extractDestData(
-				$billAddress
-			);
-		}
 		if ($quote->getIsMultiShipping()) {
 			$this->_processMultiShippingQuote($quote);
 		} else {
@@ -219,7 +214,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$items = $quote->getAllVisibleItems();
 		foreach($items as $item) {
 			$isVirtual = $item->getProduct()->isVirtual();
-			$address   = $isVirtual ? $this->getBillingAddress() : $shipAddress; 			
+			$address   = $isVirtual ? $this->getBillingAddress() : $shipAddress;
 			if ($item->getHasChildren() && $item->isChildrenCalculated()) {
 				foreach ($item->getChildren() as $child) {
 					$this->_addToDestination($item, $address, $isVirtual);

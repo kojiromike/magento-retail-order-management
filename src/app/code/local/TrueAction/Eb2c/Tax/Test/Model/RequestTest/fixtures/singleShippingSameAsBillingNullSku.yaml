@@ -22,7 +22,7 @@ eav:
       visibility: 4 # Visible in Catalog & Search
     - entity_id: 52
       type_id: simple
-      sku: null
+      sku:
       name: "Chair"
       short_description: red chair
       description: red chair long desc
@@ -41,7 +41,7 @@ eav:
       visibility: 4 # Visible in Catalog & Search
     - entity_id: 53
       type_id: simple
-      sku: null
+      sku:
       name: "Couch"
       short_description: red couch
       description: red couch long desc
@@ -282,7 +282,7 @@ tables:
       product_id: 52
       store_id: 2
       is_virtual: 0
-      sku: null
+      sku:
       name: "Chair"
       free_shipping: 0
       is_qty_decimal: 0
@@ -322,7 +322,7 @@ tables:
       product_id: 53
       store_id: 2
       is_virtual: 0
-      sku: null
+      sku:
       name: "Couch"
       free_shipping: 0
       is_qty_decimal: 0

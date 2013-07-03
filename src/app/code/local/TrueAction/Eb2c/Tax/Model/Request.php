@@ -426,7 +426,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		}
 	}
 
-	/**getIsMultiShipping
+	/**
 	 * generate the nodes for the shipgroups and destinations subtrees.
 	 */
 	protected function _processAddresses($destinationsNode, $shipGroupsNode)
@@ -502,7 +502,8 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	) {
 		$this->_shipAddressRef = $address['id'];
 		$mailingAddress = $parent->createChild('MailingAddress');
-		$mailingAddress->setAttribute('id', $this->_shipAddressRef, true);
+		$mailingAddress->setAttributeNs('', 'id', $this->_shipAddressRef);
+		$mailingAddress->setIdAttribute("id", true);
 		$personName = $mailingAddress->createChild('PersonName');
 		$this->_buildPersonName($personName, $address);
 		$addressNode = $mailingAddress->createChild('Address');

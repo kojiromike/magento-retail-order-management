@@ -263,3 +263,42 @@ tables:
       base_price_incl_tax: 108.2400
       row_total_incl_tax: 108.2400
       base_row_total_incl_tax: 108.2400
+    - item_id: 6
+      quote_id: 4
+      created_at: "2013-07-01 22:07:34"
+      updated_at: "2013-07-01 22:07:34"
+      product_id: 168
+      store_id: 2
+      is_virtual: 1
+      sku: "gc_virtual1"
+      name: "Virtual Gift Card"
+      free_shipping: 0
+      is_qty_decimal: 0
+      no_discount: 0
+      weight: 0.0000
+      qty: 1.0000
+      price: 50.0000
+      base_price: 50.0000
+      discount_percent: 0.0000
+      discount_amount: 0.0000
+      base_discount_amount: 0.0000
+      tax_percent: 0.0000
+      tax_amount: 0.0000
+      base_tax_amount: 0.0000
+      row_total: 50.0000
+      base_row_total: 50.0000
+      row_total_with_discount: 0.0000
+      row_weight: 0.0000
+      product_type: "giftcard"
+      weee_tax_applied: "a:0:{}"
+      weee_tax_applied_amount: 0.0000
+      weee_tax_applied_row_amount: 0.0000
+      base_weee_tax_applied_amount: 0.0000
+      weee_tax_disposition: 0.0000
+      weee_tax_row_disposition: 0.0000
+      base_weee_tax_disposition: 0.0000
+      base_weee_tax_row_disposition: 0.0000
+      price_incl_tax: 50.0000
+      base_price_incl_tax: 50.0000
+      row_total_incl_tax: 50.0000
+      base_row_total_incl_tax: 50.0000

@@ -45,7 +45,7 @@ class TrueAction_Eb2c_Address_Test_Model_Validation_ResponseTest
 		 */
 		$response->setMessage('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><Header><MaxAddressSuggestions>5</MaxAddressSuggestions></Header><RequestAddress><Line1>1671 Clark Street Rd</Line1><Line2>Omnicare Building</Line2><City>Auburn</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13025</PostalCode></RequestAddress><Result><ResultCode>C</ResultCode><ProviderResultCode>C</ProviderResultCode><ProviderName>Address Doctor</ProviderName><ErrorLocations><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations><ResultSuggestionCount>1</ResultSuggestionCount><SuggestedAddresses><SuggestedAddress><Line1>1671 Clark Street Rd</Line1><City>Auburn</City><MainDivision>NY</MainDivision><CountryCode>US</CountryCode><PostalCode>13021-9523</PostalCode><FormattedAddress>1671 Clark Street RdOmnicare BuildingAuburn NY 13021-9523US</FormattedAddress><ErrorLocations><ErrorLocation>PostalCode</ErrorLocation></ErrorLocations></SuggestedAddress></SuggestedAddresses></Result></AddressValidationResponse>');
 		$origAddress = $response->getOriginalAddress();
-		$this->assertTrue($origAddress instanceof Mage_Customer_Model_Address);
+		$this->assertInstanceOf('Mage_Customer_Model_Address', $origAddress);
 		$this->assertSame($origAddress->getStreet(1), '1671 Clark Street Rd');
 		$this->assertSame($origAddress->getStreet(2), 'Omnicare Building');
 		$this->assertSame($origAddress->getCity(), 'Auburn');
@@ -86,11 +86,11 @@ class TrueAction_Eb2c_Address_Test_Model_Validation_ResponseTest
 		$suggestions = $response->getAddressSuggestions();
 		$this->assertSame(count($suggestions), 2);
 		$first = $suggestions[0];
-		$this->assertTrue($first instanceof Mage_Customer_Model_Address);
+		$this->assertInstanceOf('Mage_Customer_Model_Address', $first);
 		$this->assertSame($first->getCity(), 'Foo');
 
 		$second = $suggestions[1];
-		$this->assertTrue($second instanceof Mage_Customer_Model_Address);
+		$this->assertInstanceOf('Mage_Customer_Model_Address', $second);
 		$this->assertSame($second->getRegionId(), 51);
 	}
 

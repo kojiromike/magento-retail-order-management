@@ -84,8 +84,8 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Subtotal extends Mag
 	 */
 	protected function _applyTaxes($item)
 	{
-		$rate   = 0; // this is no longer useful.
-		$qty    = $item->getTotalQty();
+		$rate           = 0; // this is no longer useful.
+		$qty            = $item->getTotalQty();
 
 		$price          = $taxPrice         = $this->_calculator->round($item->getCalculationPriceOriginal());
 		$basePrice      = $baseTaxPrice     = $this->_calculator->round($item->getBaseCalculationPriceOriginal());

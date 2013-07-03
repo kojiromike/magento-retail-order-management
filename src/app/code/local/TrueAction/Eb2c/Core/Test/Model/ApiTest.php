@@ -63,16 +63,16 @@ class TrueAction_Eb2c_Core_Test_Model_ApiTest extends EcomDev_PHPUnit_Test_Case
 	}
 
 	/**
-	 * testing callApi method
+	 * testing request() method
 	 *
 	 * @test
 	 * @dataProvider providerApiCall
 	 */
-	public function testCall($request, $apiUri)
+	public function testRequest($request, $apiUri)
 	{
 		$api = Mage::getModel('eb2ccore/api');
 		$this->assertNotEmpty(
-			$api->setUri($apiUri)->call($request)
+			$api->setUri($apiUri)->request($request)
 		);
 	}
 
@@ -90,16 +90,16 @@ class TrueAction_Eb2c_Core_Test_Model_ApiTest extends EcomDev_PHPUnit_Test_Case
 	}
 
 	/**
-	 * testing callApi method
+	 * testing request() method
 	 *
 	 * @test
 	 * @dataProvider providerApiCall
 	 */
-	public function testApiCallWithSetTimeout($request, $apiUri)
+	public function testApiRequestWithSetTimeout($request, $apiUri)
 	{
 		$api = Mage::getModel('eb2ccore/api');
 		$testTimeout = 8;
-		$result = $api->setUri($apiUri)->setTimeout($testTimeout)->call($request);
+		$result = $api->setUri($apiUri)->setTimeout($testTimeout)->request($request);
 		$this->assertNotEmpty($result);
 		$this->assertSame($api->getTimeout(), $testTimeout);
 		$this->assertSame($api->getUri(), $apiUri);

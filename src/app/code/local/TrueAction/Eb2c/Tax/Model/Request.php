@@ -48,7 +48,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		}
 	}
 
-	public function checkAddresses($quote)
+	/**
+	 * compare the addresses to be sent in the request with the addresses
+	 * in the specified quote.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 */
+	public function checkAddresses(Mage_Sales_Model_Quote $quote)
 	{
 		if (!($this->isValid() && $quote)) {
 			// skip it if the request is bad in the first place or if the quote
@@ -158,7 +163,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		if (!$this->_hasChanges && $itemData) {
 			$newQty = (float)$quoteItem->getQty();
 			$oldQty = (float)$itemData['quantity'];
-			$this->_hasChanges = $oldQty !== $newQty; 
+			$this->_hasChanges = $oldQty !== $newQty;
 		}
 	}
 

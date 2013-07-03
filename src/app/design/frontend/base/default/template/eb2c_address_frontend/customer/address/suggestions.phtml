@@ -25,7 +25,7 @@ if ($this->shouldShowSuggestions()): ?>
 		</li>
 		<li class="suggestion new">
 			<label for="suggestion-new" class="validation-message new-address-message">
-				<input type="radio" name="<?php echo $this->getSuggestionInputName() ?>" value="new_address" id="suggestion-new" />
+				<input type="radio" name="<?php echo $this->getSuggestionInputName() ?>" value="<?php echo $this->getNewAddressSelectionValue() ?>" id="suggestion-new" />
 				<?php echo $this->getNewAddressLabel() ?>
 			</label>
 		</li>

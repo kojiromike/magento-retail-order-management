@@ -5,6 +5,8 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 
 	const SUGGESTION_INPUT_NAME = 'validation_option';
 	const DEFAULT_ADDRESS_FORMAT_CONFIG = 'address_format_full';
+	const NEW_ADDRESS_SELECTION_VALUE = 'new_address';
+
 	/**
 	 * mapping of messages used by this block
 	 * @var array
@@ -68,9 +70,22 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 			->render($address);
 	}
 
+	/**
+	 * The name attribute of the address suggestion radio inputs.
+	 * @return string
+	 */
 	public function getSuggestionInputName()
 	{
 		return self::SUGGESTION_INPUT_NAME;
+	}
+
+	/**
+	 * The value of the input for chosing to enter a new address.
+	 * @return string
+	 */
+	public function getNewAddressSelectionValue()
+	{
+		return self::NEW_ADDRESS_SELECTION_VALUE;
 	}
 
 	/**

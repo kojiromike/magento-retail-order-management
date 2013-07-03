@@ -4,7 +4,7 @@
  * Test the generation of the xml request to the EB2C address validation service
  */
 
-class TrueAction_Eb2c_Address_Test_Model_Validation_TestRequest
+class TrueAction_Eb2c_Address_Test_Model_Validation_RequestTest
 	extends EcomDev_PHPUnit_Test_Case
 {
 

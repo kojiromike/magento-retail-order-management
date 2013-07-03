@@ -36,6 +36,14 @@
 				<major_version>1</major_version>
 				<minor_version>10</minor_version>
 			</api>
+			<service>
+				<order>
+					<timeout>15</timeout>
+				</order>
+				<payment>
+					<timeout>17</timeout>
+				</payment>
+			</service>
 		</eb2ccore>
 	</default>
 	<phpunit>

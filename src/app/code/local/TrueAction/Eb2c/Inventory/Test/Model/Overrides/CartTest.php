@@ -46,8 +46,6 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 			->method('hasOptionsValidationFail')
 			->will($this->returnValue(true));
 
-		$product = Mage::getModel('catalog/product')->load(1);
-		$product->setWebsiteIds(array(0,1,2,3,4));
 		return array(
 			array($productMock, null)
 		);
@@ -81,6 +79,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 * testing addProduct method, with exception being thrown
 	 *
 	 * @test
+	 * @medium FIXME: slow test
 	 * @dataProvider providerAddProduct
 	 * @expectedException Mage_Core_Exception
 	 * @loadFixture loadWebsiteConfig.yaml
@@ -114,8 +113,6 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 			->method('hasOptionsValidationFail')
 			->will($this->returnValue(true));
 
-		$product = Mage::getModel('catalog/product')->load(1);
-		$product->setWebsiteIds(array(0,1,2,3,4));
 		return array(
 			array($productMock, null)
 		);
@@ -125,6 +122,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 * testing addProduct method
 	 *
 	 * @test
+	 * @medium FIXME: Slow test
 	 * @expectedException Mage_Core_Exception
 	 * @dataProvider providerAddProductInvalidProductId
 	 * @loadFixture loadWebsiteConfig.yaml
@@ -147,6 +145,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 * testing addProduct method
 	 *
 	 * @test
+	 * @medium // TODO: This is a slow test. Make it faster.
 	 * @dataProvider providerUpdateItem
 	 * @loadFixture loadWebsiteConfig.yaml
 	 */
@@ -194,6 +193,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 * testing addProduct method
 	 *
 	 * @test
+	 * @medium FIXME: slow test
 	 * @expectedException Mage_Core_Exception
 	 * @dataProvider providerUpdateItemMissingItemException
 	 * @loadFixture loadWebsiteConfig.yaml

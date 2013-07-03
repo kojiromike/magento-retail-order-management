@@ -6,6 +6,7 @@
  */
 class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 {
+	private $_apiTimeout = 0;	// 0 Forces evaluation of config if not otherwise set by $this->setApiTimeout()
 
 	/**
 	 * Service URI has the following format:
@@ -23,11 +24,16 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	const URI_FORMAT = 'https://%s-%s.gsipartners.com/v%s.%s/stores/%s/%s/%s%s.%s';
 
 	/**
-	 * If timeout is not specified for callApi, and the configuration does not contain one, this our failsafe value.
-	 * This value is taken from Zend_Http_Client's default. That class provides no way to 'get' this value. Due to
-	 * the class implementation, a timeout of 0 will make @fread use the php directive 'default_socket_timeout'.
+	 * If _apiTimeout is not set via $this->setApiTimeout() for callApi(), and the configuration does not contain one, 
+	 * this our default value.  This value is taken from Zend_Http_Client's default.
 	 */
-	const FAILSAFE_TIMEOUT = 10;
+	const DEFAULT_TIMEOUT = 10;
+
+	/**
+	 * Default method is post.
+	 */
+	const DEFAULT_METHOD = 'POST';
+
 
 	/**
 	 * Call the API.
@@ -39,24 +45,16 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 	 *
 	 * @return string The response from the server.
 	 */
-	public function callApi(DOMDocument $xmlDoc, $apiUri, $timeout=0, $method='POST')
+	public function callApi(DOMDocument $xmlDoc, $apiUri)
 	{
-		if( !$timeout ) {
-			$timeout = Mage::getModel('eb2ccore/config_registry')
-				->addConfigModel(Mage::getSingleton('eb2ccore/config'))
-				->apiTimeout;
-			if( !$timeout ) {
-				$timeout = self::FAILSAFE_TIMEOUT;
-			}
-		}
 		// setting default factory adapter to use socket just in case curl extension isn't install in the server
 		// by default, curl will be used as the default adapter
 		$client = new Varien_Http_Client($apiUri, array(
-			'adapter' => 'Zend_Http_Client_Adapter_Socket',
-			'timeout' => $timeout,
-			));
+				'adapter' => 'Zend_Http_Client_Adapter_Socket',
+				'timeout' => $this->_getApiTimeout(),
+				));
 		$client->setRawData($xmlDoc->saveXML())->setEncType('text/xml');
-		$response = $client->request($method);
+		$response = $client->request(self::DEFAULT_METHOD);
 		$results = '';
 		if ($response->isSuccessful()) {
 			$results = $response->getBody();
@@ -89,4 +87,41 @@ class TrueAction_Eb2c_Core_Helper_Data extends Mage_Core_Helper_Abstract
 			$format);
 	}
 
+	/**
+	 * Set the default timeout value for subsquent invocation of callApi().
+	 *
+	 */
+	public function setApiTimeout( $timeoutIn ) 
+	{
+		$timeout = (int)$timeoutIn;
+		if( !$timeout ) {
+			$timeout = Mage::getModel('eb2ccore/config_registry')
+				->addConfigModel(Mage::getSingleton('eb2ccore/config'))
+				->apiTimeout;
+			if( !$timeout ) {
+				$timeout = self::DEFAULT_TIMEOUT;
+			}
+		}
+		$this->_apiTimeout = $timeout;
+		return $this;
+	}
+
+	/**
+	 * Private method used by callApi to get the timeout value.
+	 */
+	private function _getApiTimeout()
+	{
+		if( !$this->_apiTimeout ) {
+			$this->setApiTimeout(0);
+		}
+		return $this->_apiTimeout;
+	}
+
+	/**
+	 * Public method that caller can use to see if apiTimeout has been set at all
+	 */
+	public function getApiTimeout()
+	{
+		return $this->_apiTimeout;
+	}
 }

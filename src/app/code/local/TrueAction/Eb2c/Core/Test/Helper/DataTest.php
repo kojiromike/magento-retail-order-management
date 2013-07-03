@@ -67,11 +67,36 @@ class TrueAction_Eb2c_Core_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Cas
 	 * @test
 	 * @dataProvider providerApiCall
 	 */
-	public function testApiCall($request, $apiUri, $timeout=0, $signature='POST')
+	public function testApiCall($request, $apiUri)
 	{
 		$this->assertNotEmpty(
-			$this->_getHelper()->callApi($request, $apiUri, $timeout)
+			$this->_getHelper()->callApi($request, $apiUri)
 		);
+	}
+
+	/**
+	 * testing the setApiTimeout method standalone here
+	 * @test
+	 */
+	public function testSetApiTimeout()
+	{
+		$testTimeout = 16;
+		$this->_getHelper()->setApiTimeout($testTimeout);
+		$this->assertSame($this->_getHelper()->getApiTimeout(), $testTimeout );
+	}
+
+	/**
+	 * testing callApi method
+	 *
+	 * @test
+	 * @dataProvider providerApiCall
+	 */
+	public function testCallApiWithSetApiTimeout($request, $apiUri)
+	{
+		$testTimeout = 8;
+		$result = $this->_getHelper()->setApiTimeout($testTimeout)->callApi($request, $apiUri);
+		$this->assertNotEmpty($result);
+		$this->assertSame($this->_getHelper()->getApiTimeout(), $testTimeout);
 	}
 
 	/**

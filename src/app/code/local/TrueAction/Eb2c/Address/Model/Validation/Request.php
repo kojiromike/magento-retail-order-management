@@ -32,7 +32,7 @@ class TrueAction_Eb2c_Address_Model_Validation_Request
 	 */
 	protected function _construct()
 	{
-		$this->_config = Mage::helper('eb2ccore/config')
+		$this->_config = Mage::getModel('eb2ccore/config_registry')
 			->addConfigModel(Mage::getSingleton('eb2caddress/config'));
 	}
 

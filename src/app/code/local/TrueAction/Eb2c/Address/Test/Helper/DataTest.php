@@ -1,6 +1,7 @@
 <?php
 
-class TrueAction_Eb2c_Address_Test_Helper_DataTests extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Address_Test_Helper_DataTest
+	extends EcomDev_PHPUnit_Test_Case
 {
 
 	protected $_addressParts = array(
@@ -39,7 +40,7 @@ class TrueAction_Eb2c_Address_Test_Helper_DataTests extends EcomDev_PHPUnit_Test
 	protected function _generatePhysicalAddressElement($streetLines = 4)
 	{
 		$dom = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$rootNs = Mage::helper('eb2ccore/config')
+		$rootNs = Mage::getModel('eb2ccore/config_registry')
 			->addConfigModel(Mage::getSingleton('eb2caddress/config'))->apiNamespace;
 		$root = $dom->appendChild($dom->createElement('address', null, $rootNs));
 		for ($i = 1; $i <= $streetLines; $i++) {

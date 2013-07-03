@@ -16,12 +16,12 @@ class TrueAction_Eb2c_Address_Block_Address_Renderer
 	 */
 	public function initType()
 	{
-		$format = Mage::helper('eb2ccore/config')
+		$format = Mage::getModel('eb2ccore/config_registry')
 			->addConfigModel(Mage::getSingleton('eb2caddress/config'))
 			->addressFormat;
 		$type = new Varien_Object();
 		$type->setCode('address_verification')
-			->setTitle('Address Verification Candidate')
+			->setTitle('Address Verification Suggestion')
 			->setDefaultFormat($format)
 			->setHtmlEscape(true);
 		$this->setType($type);

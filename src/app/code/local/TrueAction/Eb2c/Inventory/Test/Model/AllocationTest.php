@@ -22,6 +22,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_AllocationTest extends EcomDev_PHPUni
 		$helper = $allocationReflector->getProperty('_helper');
 		$helper->setAccessible(true);
 		$helper->setValue($this->_allocation, $newHelper);
+
+		$_SESSION = array();
+		$_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
+		$this->app()->getRequest()->setBaseUrl($_baseUrl);
 	}
 
 	public function buildQuoteMock()

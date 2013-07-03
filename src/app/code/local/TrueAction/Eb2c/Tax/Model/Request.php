@@ -564,16 +564,17 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			->addChild('HTSCode', $this->_checkLength($item['hts_code'], 0, 12))
 			->addChild('Quantity', $item['quantity'])
 			->addChild('Pricing');
-		$merchandise = $orderItem->setNode('Pricing/Merchandise')
+		$merchandise = $orderItem->createChild('Pricing')
+			->createChild('Merchandise')
 			->addChild('Amount', $item['merchandise_amount'])
 			->addChild('UnitPrice', $item['merchandise_unit_price']);
 		// taxClass will be gotten from ItemMaster feed field "TaxCode"
 		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
 		if ($taxClass) {
-			$shipping->createChild('TaxClass', $taxClass);
+			$merchandise->createChild('TaxClass', $taxClass);
 		}
-
-		$shipping = $orderItem->setNode('Pricing/Shipping')
+		$shipping = $orderItem->createChild('Pricing')
+			->createChild('Shipping')
 			->addChild('Amount', $item['shipping_amount']);
 		$taxClass = $this->_checkLength($this->_getShippingTaxClass(), 1, 40);
 		if ($taxClass) {

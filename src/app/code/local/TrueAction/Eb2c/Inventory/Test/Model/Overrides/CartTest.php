@@ -79,6 +79,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 * testing addProduct method, with exception being thrown
 	 *
 	 * @test
+	 * @medium FIXME: slow test
 	 * @dataProvider providerAddProduct
 	 * @expectedException Mage_Core_Exception
 	 * @loadFixture loadWebsiteConfig.yaml
@@ -121,6 +122,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 * testing addProduct method
 	 *
 	 * @test
+	 * @medium FIXME: Slow test
 	 * @expectedException Mage_Core_Exception
 	 * @dataProvider providerAddProductInvalidProductId
 	 * @loadFixture loadWebsiteConfig.yaml
@@ -191,6 +193,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 * testing addProduct method
 	 *
 	 * @test
+	 * @medium FIXME: slow test
 	 * @expectedException Mage_Core_Exception
 	 * @dataProvider providerUpdateItemMissingItemException
 	 * @loadFixture loadWebsiteConfig.yaml

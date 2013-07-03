@@ -119,16 +119,15 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
-	public function testGetItemBySku()
+	public function testGetItemDataBySku()
 	{
-		$this->markTestIncomplete('Missing fixture?');
 		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
-		$itemData = $request->getItemBySku('1111');
+		$itemData = $request->getItemDataBySku('1111');
 		$this->assertNotNull($itemData);
-		$itemData = $request->getItemBySku(1111);
+		$itemData = $request->getItemDataBySku(1111);
 		$this->assertNotNull($itemData);
-		$itemData = $request->getItemBySku('notfound');
+		$itemData = $request->getItemDataBySku('notfound');
 		$this->assertNull($itemData);
 	}
 
@@ -141,8 +140,15 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	{
 		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
+		// passing in a quote with no changes should not invalidate the request
 		$request->checkAddresses($quote);
 		$this->assertTrue($request->isValid());
+		// passing in an unusable quote should not invalidate the request
+		$request->checkAddresses(Mage::getModel('sales/quote'));
+		$this->assertTrue($request->isValid());
+		$request->checkAddresses(null);
+		$this->assertTrue($request->isValid());
+		// changing address information should invalidate the request
 		$quote->getBillingAddress()->setCity('wrongcitybub');
 		$request->checkAddresses($quote);
 		$this->assertFalse($request->isValid());
@@ -173,14 +179,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	{
 		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(2);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
-		// passing in a quote with no changes should not invalidate the request
 		$request->checkAddresses($quote);
-		$this->assertTrue($request->isValid());
-		// passing in an unusable quote should not invalidate the request
-		$request->checkAddresses(null);
-		$this->assertTrue($request->isValid());
-		$request->checkAddresses(Mage::getModel('sales/quote'));
-		// changing address information should invalidate the request
 		$this->assertTrue($request->isValid());
 		$quote->getBillingAddress()->setCity('wrongcitybub');
 		$request->checkAddresses($quote);
@@ -269,6 +268,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$items = $quote->getAllVisibleItems();
 		$doc = $request->getDocument();
+		$this->assertFalse($request->isValid());
 	}
 
 	/**
@@ -284,12 +284,14 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$this->assertNotNull($doc->documentElement);
 		$x = new DOMXPath($doc);
 		$x->registerNamespace('a', $doc->documentElement->namespaceURI);
+		// the sku should be truncated at 20 characters so the original sku
+		// should not be found.
 		$ls = $x->query('//a:OrderItem/a:ItemId[.="123456789012345678901"]');
-		// the sku should be truncated at 20 characters
 		$this->assertSame(0, $ls->length);
+		$this->markTestIncomplete('the skus get trucated properly, but the below xpath query doesnt work');
 		$ls = $x->query('//a:OrderItem/a:ItemId[.="12345678901234567890"]');
 		// the sku should be truncated at 20 characters
-		// $this->assertSame(1, $ls->length);
+		$this->assertSame(1, $ls->length);
 	}
 
 	/**

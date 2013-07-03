@@ -36,8 +36,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _construct()
 	{
+		$quote          = $this->getQuote();
+		$this->_helper  = Mage::helper('tax');
 		$this->setIsMultiShipping(0);
-		$quote               = $this->getQuote();
 		if ($quote) {
 			$this->setBillingAddress($quote->getBillingAddress());
 			$this->setShippingAddress($quote->getShippingAddress());

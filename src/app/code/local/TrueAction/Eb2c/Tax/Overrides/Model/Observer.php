@@ -122,13 +122,12 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	}
 
 
-	/**
-	 * placeholder
-	 *
-	 * @param   Varien_Event_Observer $observer
-	 * @return  Mage_Tax_Model_Observer
-	 */
 	public function addTaxPercentToProductCollection($observer)
+	{
+		return $this;
+	}
+
+	public function prepareCatalogIndexPriceSelect($observer)
 	{
 		return $this;
 	}

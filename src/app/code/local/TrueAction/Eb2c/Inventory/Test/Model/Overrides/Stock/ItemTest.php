@@ -36,6 +36,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_Stock_ItemTest extends Ecom
 	/**
 	 * testing canSubtractQty method
 	 *
+	 * @medium FIXME: Slow test
 	 * @test
 	 */
 	public function testCanSubtractQty()

@@ -39,9 +39,9 @@
 					<create_uri>http://virtbox.net:8080/</create_uri>
 					<cancel_uri>http://virtbox.net:8080/</cancel_uri>
 					-->
-				<create_uri>http://virtbox.net/~mwest/fakeb2c/orderCreateRequest.php</create_uri>
-				<cancel_uri>http://virtbox.net/~mwest/fakeb2c/orderCancelRequest.php</cancel_uri>
-				<gsi_payments_enabled>false</gsi_payments_enabled>
+				<developer_create_uri>http://virtbox.net/~mwest/fakeb2c/orderCreateRequest.php</developer_create_uri>
+				<developer_cancel_uri>http://virtbox.net/~mwest/fakeb2c/orderCancelRequest.php</developer_cancel_uri>
+				<payments_enabled>false</payments_enabled>
 			</order>
 		</eb2c>
 	</default>

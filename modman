@@ -8,7 +8,6 @@ src/app/etc/modules/*.xml app/etc/modules/
 src/app/code/local/TrueAction/Eb2c app/code/local/TrueAction/Eb2c
 
 # TrueAction_Eb2c_Address
-src/app/code/local/TrueAction/Eb2c/AddressFrontend app/code/local/TrueAction/Eb2c/AddressFrontend
 src/app/design/frontend/base/default/template/eb2c_address_frontend app/design/frontend/base/default/template/eb2c_address_frontend
 src/app/design/frontend/base/default/layout/eb2c_address_frontend.xml app/design/frontend/base/default/layout/eb2c_address_frontend.xml
 src/app/design/frontend/enterprise/default/template/eb2c_address_frontend app/design/frontend/enterprise/default/template/eb2c_address_frontend

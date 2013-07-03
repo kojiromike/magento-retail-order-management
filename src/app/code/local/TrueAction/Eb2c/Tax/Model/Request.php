@@ -355,15 +355,29 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $this->_checkLength($taxCode ,1, 40);
 	}
 
+	/**
+	 * return the sku truncated down to 20 characters if too long or
+	 * null if the sku doesn't meet minimum size requirements.
+	 * @param  array $item
+	 * @return string
+	 */
 	protected function _checkSku($item)
 	{
 		$newSku      = $this->_checkLength($item['item_id'], 1, 20);
 		if (is_null($newSku)){
-			Mage::throwException(sprintf(
-				'Mage_Sales_Model_Quote_Item id:%s has an invalid SKU:%s',
-				$item['id'],
-				$item['item_id']
-			));
+			$this->invalidate();
+			Mage::log(
+				sprintf(
+					'Mage_Sales_Model_Quote_Item id:%s has an invalid SKU:%s',
+					$item['id'],
+					$item['item_id']
+				),
+				Zend_Log::WARN
+			);
+		}
+		if (strlen($newSku) < strlen($item['item_id'])) {
+			$message = 'Item sku "' . $item['item_id'] . '" is too long and has been truncated';
+ 			Mage::log($message, Zend_Log::WARN);
 		}
 		return $newSku;
 	}
@@ -541,12 +555,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _addOrderItem(array $item, TrueAction_Dom_Element $parent) {
 		$sku      = $this->_checkSku($item);
-		if (strlen($sku) < strlen($item['item_id'])) {
-			Mage::log(
-				'Item sku "' . $item->getSku() . '" is too long and has been truncated',
-				Zend_Log::WARN
-			);
-		}
 		$orderItem = $parent->createChild('OrderItem')
 			->addAttribute('lineNumber', $this->_getLineNumber($item))
 			->addChild('ItemId', $this->_checkSku($item))

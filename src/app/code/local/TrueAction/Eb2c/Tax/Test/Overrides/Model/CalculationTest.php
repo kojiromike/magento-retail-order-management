@@ -4,41 +4,6 @@
  */
 class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_PHPUnit_Test_Case
 {
-	/**
-	 * @var Mage_Sales_Model_Quote (mock)
-	 */
-	private $quote       = null;
-
-	/**
-	 * @var Mage_Sales_Model_Quote_Address (mock)
-	 */
-	private $shipAddress = null;
-
-	/**
-	 * @var Mage_Sales_Model_Quote_Address (mock)
-	 */
-	private $billAddress = null;
-
-	/**
-	 * @var ReflectionProperty(TrueAction_Eb2c_Tax_Model_Request::_xml)
-	 */
-	private $doc         = null;
-
-	/**
-	 * @var ReflectionClass(TrueAction_Eb2c_Tax_Model_Request)
-	 */
-	private $cls         = null;
-
-	/**
-	 * path to the xsd file to validate against.
-	 * @var string
-	 */
-	private static $xsdFile = '';
-
-	private $tdRequest    = null;
-	private $destinations = null;
-	private $shipGroups   = null;
-
 	public function setUp()
 	{
         parent::setUp();

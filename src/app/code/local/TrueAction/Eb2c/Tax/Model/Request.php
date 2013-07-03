@@ -338,7 +338,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			'quantity' => $item->getQty(),
 			'merchandise_amount' => $item->getRowTotal(),
 			'merchandise_unit_price' => $item->getBasePrice(),
-			'merchandise_tax_class' => $this->_getItemTaxClass($item),
+			'merchandise_tax_class' => $item->getTaxClassId(),
 			'shipping_amount' => $address->getShippingAmount(),
 			'shipping_tax_class' => $this->_getShippingTaxClass(),
 		);

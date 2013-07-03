@@ -44,10 +44,9 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 				$quantityRequestMessage = $this->buildQuantityRequestMessage(array(array('id' => $itemId, 'sku' => $sku)));
 
 				// make request to eb2c for quantity
-				$quantityResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
-					$quantityRequestMessage,
-					$this->_getHelper()->getOperationUri('check_quantity')
-				);
+				$quantityResponseMessage = $this->_getHelper()->getApiModel()
+					->setUri($this->_getHelper()->getOperationUri('check_quantity'))
+					->request($quantityRequestMessage);
 
 				// get available stock from response XML
 				$isReserved = $this->getAvailableStockFromResponse($quantityResponseMessage);

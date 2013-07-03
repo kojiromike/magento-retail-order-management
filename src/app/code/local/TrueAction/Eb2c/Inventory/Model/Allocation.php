@@ -41,10 +41,9 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 			$allocationRequestMessage = $this->buildAllocationRequestMessage($quote);
 
 			// make request to eb2c for quote items allocation
-			$allocationResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
-				$allocationRequestMessage,
-				$this->_getHelper()->getOperationUri('allocate_inventory')
-			);
+			$allocationResponseMessage = $this->_getHelper()->getApiModel()
+				->setUri($this->_getHelper()->getOperationUri('allocate_inventory'))
+				->request($allocationRequestMessage);
 
 		}catch(Exception $e){
 			Mage::logException($e);
@@ -328,10 +327,9 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 			$rollbackAllocationRequestMessage = $this->buildRollbackAllocationRequestMessage($quote);
 
 			// make request to eb2c for inventory rollback allocation
-			$rollbackAllocationResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
-				$rollbackAllocationRequestMessage,
-				$this->_getHelper()->getOperationUri('rollback_allocation')
-			);
+			$rollbackAllocationResponseMessage = $this->_getHelper()->getApiModel()
+				->setUri($this->_getHelper()->getOperationUri('rollback_allocation'))
+				->request($rollbackAllocationRequestMessage);
 		}catch(Exception $e){
 			Mage::logException($e);
 		}

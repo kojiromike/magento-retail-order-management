@@ -32,7 +32,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		$customerTaxClass = '',
 		$store = null
 	) {
-		return null;
+		return new Varien_Object();
 	}
 
 	/**

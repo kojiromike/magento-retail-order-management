@@ -238,7 +238,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * @param boolean                        $isVirtual
 	 */
 	protected function _addToDestination(
-		$item, 
+		$item,
 		Mage_Sales_Model_Quote_Address $address,
 		$isVirtual = false
 	) {
@@ -264,9 +264,8 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$rateKey = 'NONE';
 		$addressKey = $address->getId();
-		if ($address->getAddressType() === 'billing' || $isVirtual) {
-			$addressKey = strtoupper($this->_getEmailFromAddress($address));
-		} else {
+		$addressKey = ($isVirtual) ? $this->_getEmailFromAddress($address) : $address->getId();
+		if (!($address->getAddressType() === 'billing' || $isVirtual)) {
 			$groupedRates = $address->getGroupedAllShippingRates();
 			if ($groupedRates) {
 				foreach ($groupedRates as $rateKey => $shippingRate) {
@@ -279,7 +278,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			}
 		}
 		$id = "shipGroup_{$addressKey}_{$rateKey}";
-		$this->_shipGroupIds[$addressKey] = array('group_id' => $id, 'method' => $rateKey);
+		if (!isset($this->_shipGroupIds[$addressKey])) {
+			$this->_shipGroupIds[$addressKey] = array('group_id' => $id, 'method' => $rateKey);
+		}
 		return $id;
 	}
 

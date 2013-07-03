@@ -73,6 +73,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 				$virtualDestination = isset($this->_destinations[$quoteBillingAddress->getEmail()]) ?
 					$this->_destinations[$quoteBillingAddress->getEmail()] : !($this->_hasChanges = true);
 				$billAddressData = _extractDestData($this->getBillingAddress(), true);
+				$this->_hasChanges = (bool)array_diff_assoc($virtualDestination, $billAddressData);
 			}
 			// if everything was good so far then check the shipping addresses for
 			// changes
@@ -82,6 +83,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 					$addressData = $this->_extractDestData($address);
 					$destination = isset($this->_destinations[$address->getId()]) ?
 						$this->_destinations[$address->getId()] : !($this->_hasChanges = true);
+					$this->_hasChanges = (bool)array_diff_assoc($addressData, $destination);
 				}
 			}
 		}

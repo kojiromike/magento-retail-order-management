@@ -21,7 +21,7 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	protected function _getHelper()
 	{
 		if (!$this->_helper) {
-			$this->_helper = Mage::helper('eb2cinventory/config');
+			$this->_helper = Mage::helper('eb2cinventory');
 		}
 		return $this->_helper;
 	}
@@ -37,20 +37,19 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	 */
 	public function requestQuantity($qty=0, $itemId, $sku)
 	{
-
-		$isReserved = 0; // this is to simulate out of stock reponse from eb2c
+		$isReserved = 0; // this is to simulate out of stock response from eb2c
 		if ($qty > 0) {
 			try{
 				// build request
-				$quantityRequestMessage = $this->buildQuantityRequestMessage(array('id' => $itemId, 'sku' => $sku));
+				$quantityRequestMessage = $this->buildQuantityRequestMessage(array(array('id' => $itemId, 'sku' => $sku)));
 
 				// make request to eb2c for quantity
-				$quantityResponseMessage = $this->_getHelper()->getCoreHelper()->apiCall(
+				$quantityResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
 					$quantityRequestMessage,
-					$this->_getHelper()->getQuantityUri()
+					$this->_getHelper()->getOperationUri('check_quantity')
 				);
 
-				// get available stock from reponse xml
+				// get available stock from response XML
 				$isReserved = $this->getAvailableStockFromResponse($quantityResponseMessage);
 			}catch(Exception $e){
 				Mage::logException($e);
@@ -64,7 +63,7 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	 *
 	 * @param array $items The array containing quote item id and product sku
 	 *
-	 * @return DOMDocument The xml document, to be sent as request to eb2c.
+	 * @return DOMDocument The XML document, to be sent as request to eb2c.
 	 */
 	public function buildQuantityRequestMessage($items)
 	{
@@ -85,9 +84,9 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * parse through xml reponse to get eb2c available stock for an item.
+	 * parse through XML response to get eb2c available stock for an item.
 	 *
-	 * @param string $quantityResponseMessage the xml reponse from eb2c
+	 * @param string $quantityResponseMessage the XML response from eb2c
 	 *
 	 * @return int The available stock from eb2c.
 	 */
@@ -97,7 +96,7 @@ class TrueAction_Eb2c_Inventory_Model_Quantity extends Mage_Core_Model_Abstract
 		if (trim($quantityResponseMessage) !== '') {
 			$doc = $this->_getHelper()->getDomDocument();
 
-			// load response string xml from eb2c
+			// load response string XML from eb2c
 			$doc->loadXML($quantityResponseMessage);
 			$i = 0;
 			$quantityResponse = $doc->getElementsByTagName('QuantityResponse');

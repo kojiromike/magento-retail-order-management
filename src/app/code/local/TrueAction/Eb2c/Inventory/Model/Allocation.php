@@ -21,30 +21,31 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	protected function _getHelper()
 	{
 		if (!$this->_helper) {
-			$this->_helper = Mage::helper('eb2cinventory/config');
+			$this->_helper = Mage::helper('eb2cinventory');
 		}
 		return $this->_helper;
 	}
 
 	/**
-	 * Allocating all items brand new order from eb2c.
+	 * Allocating all items brand new quote from eb2c.
 	 *
-	 * @param Mage_Sales_Model_Order $order, the order to allocate iventory items in eb2c for
+	 * @param Mage_Sales_Model_Quote $quote, the quote to allocate inventory items in eb2c for
 	 *
 	 * @return string the eb2c response to the request.
 	 */
-	public function allocateOrderItems($order)
+	public function allocateQuoteItems($quote)
 	{
 		$allocationResponseMessage = '';
 		try{
 			// build request
-			$allocationRequestMessage = $this->buildAllocationRequestMessage($order);
+			$allocationRequestMessage = $this->buildAllocationRequestMessage($quote);
 
-			// make request to eb2c for order items allocation
-			$allocationResponseMessage = $this->_getHelper()->getCoreHelper()->apiCall(
+			// make request to eb2c for quote items allocation
+			$allocationResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
 				$allocationRequestMessage,
-				$this->_getHelper()->getAllocationUri()
+				$this->_getHelper()->getOperationUri('allocate_inventory')
 			);
+
 		}catch(Exception $e){
 			Mage::logException($e);
 		}
@@ -55,87 +56,91 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	/**
 	 * Build  Allocation request.
 	 *
-	 * @param Mage_Sales_Model_Order $order, the order to generate request xm from
+	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request XML from
 	 *
-	 * @return DOMDocument The xml document, to be sent as request to eb2c.
+	 * @return DOMDocument The XML document, to be sent as request to eb2c.
 	 */
-	public function buildAllocationRequestMessage($order)
+	public function buildAllocationRequestMessage($quote)
 	{
 		$domDocument = $this->_getHelper()->getDomDocument();
 		$allocationRequestMessage = $domDocument->addElement('AllocationRequestMessage', null, $this->_getHelper()->getXmlNs())->firstChild;
-		$allocationRequestMessage->setAttribute('requestId', $this->_getHelper()->getRequestId($order->getEntityId(), $order->getIncrementId()));
-		$allocationRequestMessage->setAttribute('reservationId', $this->_getHelper()->getReservationId($order->getEntityId(), $order->getIncrementId()));
-		if ($order) {
-			foreach($order->getAllItems() as $item){
-				try{
-					// creating orderItem element
-					$orderItem = $allocationRequestMessage->createChild(
-						'OrderItem',
-						null,
-						array('lineId' => $item->getId(), 'itemId' => $item->getSku())
-					);
+		$allocationRequestMessage->setAttribute('requestId', $this->_getHelper()->getRequestId($quote->getEntityId()));
+		$allocationRequestMessage->setAttribute('reservationId', $this->_getHelper()->getReservationId($quote->getEntityId()));
+		if ($quote) {
+			foreach($quote->getAllAddresses() as $addresses){
+				if ($addresses){
+					foreach ($addresses->getAllItems() as $item) {
+						try{
+							// creating quoteItem element
+							$quoteItem = $allocationRequestMessage->createChild(
+								'OrderItem',
+								null,
+								array('lineId' => $item->getId(), 'itemId' => $item->getSku())
+							);
 
-					// add quanity
-					$orderItem->createChild(
-						'Quantity',
-						(string) $item->getQtyOrdered() // integer value doesn't get added only string
-					);
+							// add quantity
+							$quoteItem->createChild(
+								'Quantity',
+								(string) $item->getQty() // integer value doesn't get added only string
+							);
 
-					$shippingAddress = $order->getShippingAddress();
-					// creating shipping details
-					$shipmentDetails = $orderItem->createChild(
-						'ShipmentDetails',
-						null
-					);
+							$shippingAddress = $quote->getShippingAddress();
+							// creating shipping details
+							$shipmentDetails = $quoteItem->createChild(
+								'ShipmentDetails',
+								null
+							);
 
-					// add shipment method
-					$shipmentDetails->createChild(
-						'ShippingMethod',
-						$order->getShippingMethod()
-					);
+							// add shipment method
+							$shipmentDetails->createChild(
+								'ShippingMethod',
+								$shippingAddress->getShippingMethod()
+							);
 
-					// add ship to address
-					$shipToAddress = $shipmentDetails->createChild(
-						'ShipToAddress',
-						null
-					);
+							// add ship to address
+							$shipToAddress = $shipmentDetails->createChild(
+								'ShipToAddress',
+								null
+							);
 
-					// add ship to address Line1
-					$street = $shippingAddress->getStreet();
-					$lineAddress = '';
-					if(sizeof($street) > 0){
-						$lineAddress = $street[0];
+							// add ship to address Line 1
+							$shipToAddress->createChild(
+								'Line1',
+								$shippingAddress->getStreet(1),
+								null
+							);
+
+							// add ship to address City
+							$shipToAddress->createChild(
+								'City',
+								$shippingAddress->getCity(),
+								null
+							);
+
+							// add ship to address MainDivision
+							$shipToAddress->createChild(
+								'MainDivision',
+								$shippingAddress->getRegion(),
+								null
+							);
+
+							// add ship to address CountryCode
+							$shipToAddress->createChild(
+								'CountryCode',
+								$shippingAddress->getCountryId(),
+								null
+							);
+
+							// add ship to address PostalCode
+							$shipToAddress->createChild(
+								'PostalCode',
+								$shippingAddress->getPostcode(),
+								null
+							);
+						}catch(Exception $e){
+							Mage::logException($e);
+						}
 					}
-					$shipToAddress->createChild(
-						'Line1',
-						$lineAddress
-					);
-
-					// add ship to address City
-					$shipToAddress->createChild(
-						'City',
-						$shippingAddress->getCity()
-					);
-
-					// add ship to address MainDivision
-					$shipToAddress->createChild(
-						'MainDivision',
-						$shippingAddress->getRegion()
-					);
-
-					// add ship to address CountryCode
-					$shipToAddress->createChild(
-						'CountryCode',
-						$shippingAddress->getCountryId()
-					);
-
-					// add ship to address PostalCode
-					$shipToAddress->createChild(
-						'PostalCode',
-						$shippingAddress->getPostcode()
-					);
-				}catch(Exception $e){
-					Mage::logException($e);
 				}
 			}
 		}
@@ -143,56 +148,211 @@ class TrueAction_Eb2c_Inventory_Model_Allocation extends Mage_Core_Model_Abstrac
 	}
 
 	/**
-	 * update order with allocation reponse data.
+	 * Parse allocation response XML.
 	 *
-	 * @param Mage_Sales_Model_Order $order the order we use to get allocation reqponse from eb2c
-	 * @param string $allocationResponseMessage the xml reponse from eb2c
+	 * @param string $allocationResponseMessage the XML response from eb2c
 	 *
-	 * @return void
+	 * @return array, an associative array of response data
 	 */
-	public function processAllocation($order, $allocationResponseMessage)
+	public function parseResponse($allocationResponseMessage)
 	{
+		$allocationData = array();
 		if (trim($allocationResponseMessage) !== '') {
 			$doc = $this->_getHelper()->getDomDocument();
 
-			// load response string xml from eb2c
+			// load response string XML from eb2c
 			$doc->loadXML($allocationResponseMessage);
 			$i = 0;
 			$allocationResponse = $doc->getElementsByTagName('AllocationResponse');
+			$allocationMessage = $doc->getElementsByTagName('AllocationResponseMessage');
 			foreach($allocationResponse as $response) {
-				$allocationData = array(
+				$allocationData[] = array(
 					'lineId' => $response->getAttribute('lineId'),
 					'itemId' => $response->getAttribute('itemId'),
-					'qty' => (int) $allocationResponse->item($i)->nodeValue
+					'qty' => (int) $allocationResponse->item($i)->nodeValue,
+					'reservation_id' => $allocationMessage->item(0)->getAttribute('reservationId'),
+					'reservation_expires' => Mage::getModel('core/date')->date('Y-m-d H:i:s')
 				);
-
-				if ($orderItem = $order->getItemById($allocationData['lineId'])) {
-					// update order with eb2c data.
-					$this->_updateOrderWithEb2cAllocation($orderItem, $allocationData);
-				}
-
 				$i++;
 			}
+		}
+
+		return $allocationData;
+	}
+
+	/**
+	 * update quote with allocation response data.
+	 *
+	 * @param Mage_Sales_Model_Order $quote the quote we use to get allocation response from eb2c
+	 * @param string $allocationData, a parse associative array of eb2c response
+	 *
+	 * @return array, error results of item that cannot be allocated
+	 */
+	public function processAllocation($quote, $allocationData)
+	{
+		$allocationResult = array();
+
+		foreach ($allocationData as $data) {
+			foreach ($quote->getAllItems() as $item) {
+				// find the item in the quote
+				if ((int) $item->getItemId() === (int) $data['lineId']) {
+					// update quote with eb2c data.
+					$result = $this->_updateQuoteWithEb2cAllocation($item, $data);
+					if (trim($result) !== '') {
+						$allocationResult[] = $result;
+					}
+				}
+			}
+		}
+
+		return $allocationResult;
+	}
+
+	/**
+	 * Removing all allocation data from quote item.
+	 *
+	 * @param Mage_Sales_Model_Order $quote the quote to empty any allocation data from it's item
+	 *
+	 * @return void
+	 */
+	protected function _emptyQuoteAllocation($quote)
+	{
+		foreach ($quote->getAllItems() as $item) {
+			// emptying reservation data from quote item
+			$item->setEb2cReservationId(null)
+				->setEb2cReservationExpires(null)
+				->setEb2cQtyReserved(null)
+				->save();
 		}
 	}
 
 	/**
-	 * update order with allocation reponse data.
+	 * checking if any quote item has allocation data.
 	 *
-	 * @param Mage_Sales_Model_Quote_Item $orderItem the item to be updated with eb2c data
-	 * @param array $orderData the data from eb2c for the order item
+	 * @param Mage_Sales_Model_Order $quote the quote to check if it's items have any allocation data
 	 *
-	 * @return void
+	 * @return boolean, true reserved allocation is found, false no allocation data found on any quote item
 	 */
-	protected function _updateOrderWithEb2cAllocation($orderItem, $orderData)
+	public function hasAllocation($quote)
 	{
-		// To do: not yet completed
-		// if allocation for this item is less then what the order customer requested
-		// then update the order item with what eb2c allocated.
-		if ($orderItem->getQtyOrdered() > $orderData['qty']) {
-			// Cancelled the order
-			$order = $orderItem->getOrder();
-
+		$hasReservation = false;
+		foreach ($quote->getAllItems() as $item) {
+			// find the reservation data in the quote item
+			if (trim($item->getEb2cReservationId()) !== '') {
+				$hasReservation = true;
+				break;
+			}
 		}
+		return $hasReservation;
+	}
+
+	/**
+	 * Check if the reserved allocation exceed the maximum expired setting.
+	 *
+	 * @param Mage_Sales_Model_Order $quote the quote to check if it's items have any allocation data
+	 *
+	 * @return boolean, true reserved allocation is found, false no allocation data found on any quote item
+	 */
+	public function isExpired($quote)
+	{
+		$isExpired = false;
+		foreach ($quote->getAllItems() as $item) {
+			// find the reservation data in the quote item
+			if (trim($item->getEb2cReservationExpires()) !== '') {
+				$reservedExpiredDateTime = new DateTime($item->getEb2cReservationExpires());
+				$currentDateTime = new DateTime(gmdate('c'));
+				$interval = $reservedExpiredDateTime->diff($currentDateTime);
+				$differenceInMinutes = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
+				// check if the current date time exceed the maximum allocation expired in minutes
+				if ($differenceInMinutes > (int) $this->_getHelper()->getConfigModel()->allocation_expired) {
+					$isExpired = true;
+					break;
+				}
+			}
+		}
+		return $isExpired;
+	}
+
+	/**
+	 * update quote with allocation response data.
+	 *
+	 * @param Mage_Sales_Model_Quote_Item $quoteItem the item to be updated with eb2c data
+	 * @param array $quoteData the data from eb2c for the quote item
+	 *
+	 * @return string, the allocation error message for that particular inventory
+	 */
+	protected function _updateQuoteWithEb2cAllocation($quoteItem, $quoteData)
+	{
+		$results = '';
+
+		// get quote from quote-item
+		$quote = $quoteItem->getQuote();
+
+		// Set the message allocation failure, adjust quote with quantity reserved.
+		if ($quoteData['qty'] > 0 && $quoteItem->getQty() > $quoteData['qty']) {
+			// save reservation data to inventory detail
+			$quoteItem->setQty($quoteData['qty'])
+				->setEb2cReservationId($quoteData['reservation_id'])
+				->setEb2cReservationExpires($quoteData['reservation_expires'])
+				->setEb2cQtyReserved($quoteData['qty'])
+				->save();
+
+			// save the quote
+			$quote->save();
+
+			$results = 'Sorry, we only have ' . $quoteData['qty'] . ' of item "' . $quoteItem->getSku() . '" in stock.';
+		} elseif ($quoteData['qty'] <= 0) {
+			// removed the out of stock allocated item
+			$quote->deleteItem($quoteItem);
+			$results = 'Sorry, item "' . $quoteItem->getSku() . '" out of stock.';
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Rolling back allocation request.
+	 *
+	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request XMLfrom
+	 *
+	 * @return string, the string xml message
+	 */
+	public function rollbackAllocation($quote)
+	{
+		// remove last allocations data from quote item
+		$this->_emptyQuoteAllocation($quote);
+
+		$rollbackAllocationResponseMessage = '';
+		try{
+			// build request
+			$rollbackAllocationRequestMessage = $this->buildRollbackAllocationRequestMessage($quote);
+
+			// make request to eb2c for inventory rollback allocation
+			$rollbackAllocationResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
+				$rollbackAllocationRequestMessage,
+				$this->_getHelper()->getOperationUri('rollback_allocation')
+			);
+		}catch(Exception $e){
+			Mage::logException($e);
+		}
+
+		return $rollbackAllocationResponseMessage;
+	}
+
+	/**
+	 * Build  Rollback Allocation request.
+	 *
+	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request XML from
+	 *
+	 * @return DOMDocument The XML document, to be sent as request to eb2c.
+	 */
+	public function buildRollbackAllocationRequestMessage($quote)
+	{
+		$domDocument = $this->_getHelper()->getDomDocument();
+		$rollbackAllocationRequestMessage = $domDocument->addElement('RollbackAllocationRequestMessage', null, $this->_getHelper()->getXmlNs())->firstChild;
+		$rollbackAllocationRequestMessage->setAttribute('requestId', $this->_getHelper()->getRequestId($quote->getEntityId()));
+		$rollbackAllocationRequestMessage->setAttribute('reservationId', $this->_getHelper()->getReservationId($quote->getEntityId()));
+
+		return $domDocument;
 	}
 }

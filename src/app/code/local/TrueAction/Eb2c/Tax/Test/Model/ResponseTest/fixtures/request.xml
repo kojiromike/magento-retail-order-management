@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TaxDutyQuoteRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
+	<Currency>USD</Currency>
+	<VATInclusivePricing>false</VATInclusivePricing>
+	<CustomerTaxId>12345</CustomerTaxId>
+	<BillingInformation ref="bill_dest_1"/>
+	<Shipping>
+		<ShipGroups>
+			<ShipGroup chargeType="FLATRATE" id="shipgroup_1">
+				<DestinationTarget ref="dest_1"/>
+				<Items>
+					<OrderItem lineNumber="1">
+						<ItemId>21-0034629866</ItemId>
+						<ItemDesc>Test Item 1</ItemDesc>
+						<HTSCode>duty code</HTSCode>
+						<Origins>
+							<AdminOrigin>
+								<Line1>11400, sawtelle blvd</Line1>
+								<City>Santa Monica</City>
+								<MainDivision>CA</MainDivision>
+								<CountryCode>US</CountryCode>
+								<PostalCode>90405</PostalCode>
+							</AdminOrigin>
+							<ShippingOrigin>
+								<Line1>333 Keys Road</Line1>
+								<City>Los Angeles</City>
+								<MainDivision>CA</MainDivision>
+								<CountryCode>US</CountryCode>
+								<PostalCode>90202</PostalCode>
+							</ShippingOrigin>
+							<ManufacturingCountryCode>CN</ManufacturingCountryCode>
+						</Origins>
+						<Quantity>2</Quantity>
+						<Pricing>
+							<Merchandise>
+								<Amount>200.00</Amount>
+								<TaxClass>89000</TaxClass>
+								<PromotionalDiscounts>
+									<Discount id="334" calculateDuty="false">
+										<Amount>20.00</Amount>
+									</Discount>
+								</PromotionalDiscounts>
+								<UnitPrice>100.00</UnitPrice>
+							</Merchandise>
+							<Shipping>
+								<Amount>10.00</Amount>
+							</Shipping>
+							<Duty>
+								<Amount>2.00</Amount>
+							</Duty>
+						</Pricing>
+					</OrderItem>
+				</Items>
+			</ShipGroup>
+		</ShipGroups>
+		<Destinations>
+			<MailingAddress id="1">
+				<PersonName>
+					<LastName>John</LastName>
+					<FirstName>Smith</FirstName>
+				</PersonName>
+				<Address>
+					<Line1>630 Allendale Road</Line1>
+					<City>King Of Prussia</City>
+					<MainDivision>PA</MainDivision>
+					<CountryCode>US</CountryCode>
+					<PostalCode>19406</PostalCode>
+				</Address>
+			</MailingAddress>
+			<MailingAddress id="bill_dest_1">
+				<PersonName>
+					<LastName>John</LastName>
+					<FirstName>Smith</FirstName>
+				</PersonName>
+				<Address>
+					<Line1>630 Allendale Road</Line1>
+					<City>King Of Prussia</City>
+					<MainDivision>PA</MainDivision>
+					<CountryCode>US</CountryCode>
+					<PostalCode>19406</PostalCode>
+				</Address>
+			</MailingAddress>
+		</Destinations>
+	</Shipping>
+</TaxDutyQuoteRequest>

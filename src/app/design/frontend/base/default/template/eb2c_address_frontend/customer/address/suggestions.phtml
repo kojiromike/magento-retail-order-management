@@ -1,0 +1,27 @@
+<?php
+/**
+ * When suggestions are available from EB2C for the current address, render
+ * the suggestions and necessary form fields for suggestions to be chosen.
+ */
+if ($this->shouldShowSuggestions()): ?>
+<fieldset class="suggestion-fields">
+	<p class="validation-message top-message"><?php echo $this->getSuggestedAddressMessage() ?></p>
+	<ul class="suggestion-list">
+		<?php foreach ($this->getSuggestedAddresses() as $idx => $suggestion): ?>
+		<li class="suggestion">
+			<input type="radio" name="validation_option" value="<?php echo $suggestion->getStashKey() ?>" id="suggestion-<?php echo $idx ?>" />
+			<label for="suggestion-<?php echo $idx ?>" class="address"><?php echo $this->getRenderedAddress($suggestion) ?></label>
+		</li>
+		<?php endforeach; ?>
+		<?php $_originalAddress = $this->getOriginalAddress() ?>
+		<li class="suggestion original">
+			<input type="radio" name="validation_option" value="<?php echo $_originalAddress->getStashKey() ?>" id="suggestion-original" />
+			<label class="address" for="suggestion-original"><?php echo $this->getRenderedAddress($_originalAddress) ?></label>
+		</li>
+	</ul>
+	<div class="new-option">
+		<input type="radio" name="validation_option" value="new_address" id="suggestion-new" />
+		<label for="suggestion-new" class="validation-message new-address-message"><?php echo $this->getNewAddressMessage() ?></label>
+	</div>
+</fieldset>
+<?php endif; ?>

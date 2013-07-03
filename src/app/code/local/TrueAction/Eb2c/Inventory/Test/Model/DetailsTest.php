@@ -143,18 +143,22 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	 */
 	public function testGetInventoryDetailsWithApiCallException($quote)
 	{
-		$coreHelperMock = $this->getMock('TrueAction_Eb2c_Core_Helper_Data', array('callApi'));
-		$coreHelperMock->expects($this->any())
-			->method('callApi')
+		$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
+		$apiModelMock->expects($this->any())
+			->method('setUri')
+			->will($this->returnSelf());
+
+		$apiModelMock->expects($this->any())
+			->method('request')
 			->will(
 				$this->throwException(new Exception)
 			);
 
 		$inventoryHelper = Mage::helper('eb2cinventory');
 		$inventoryReflector = new ReflectionObject($inventoryHelper);
-		$coreHelper = $inventoryReflector->getProperty('coreHelper');
-		$coreHelper->setAccessible(true);
-		$coreHelper->setValue($inventoryHelper, $coreHelperMock);
+		$apiModel = $inventoryReflector->getProperty('apiModel');
+		$apiModel->setAccessible(true);
+		$apiModel->setValue($inventoryHelper, $apiModelMock);
 
 		$detailsReflector = new ReflectionObject($this->_getDetails());
 		$helper = $detailsReflector->getProperty('_helper');

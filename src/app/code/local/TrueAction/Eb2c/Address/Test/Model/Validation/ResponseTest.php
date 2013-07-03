@@ -24,7 +24,7 @@ class TrueAction_Eb2c_Address_Test_Model_Validation_ResponseTest
 		$response = Mage::getModel('eb2caddress/validation_response');
 		$response->setMessage($message);
 		$this->assertEquals((bool) $valid, $response->isAddressValid());
-		$this->markTestIncomplete('Need to get data provider to work and test that messages are properly logged.');
+		$this->markTestIncomplete('Need to test that messages are properly logged.');
 	}
 
 	/**

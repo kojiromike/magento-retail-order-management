@@ -27,7 +27,6 @@ class TrueAction_Eb2c_Address_Model_Observer
 			if ($validationError) {
 				// @TODO - update to meet requirements of actual implementation of the event dispatch
 				// and error retrieval in Mage_Customer_Model_Address_Abstract::validate method
-				$eventErrors = $observer->getEvent()->getErrorContainer()->getErrors();
 				$eventErrors[] = $validationError;
 				$observer->getEvent()->getErrorContainer()->setErrors($eventErrors);
 			}

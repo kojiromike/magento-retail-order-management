@@ -49,4 +49,14 @@ class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 	{
 		return Mage::getStoreConfig('eb2ctax/api/namespace_uri', $store);
 	}
+
+
+	/**
+	 * return true if the prices already include VAT.
+	 * @return boolean
+	 */
+	public function getVatInclusivePricingFlag($store = null)
+	{
+		return Mage::getStoreConfigFlag('tax/calculation/vat_inclusive_pricing', $store);
+	}
 }

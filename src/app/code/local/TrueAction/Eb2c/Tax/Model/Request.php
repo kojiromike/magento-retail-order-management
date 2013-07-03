@@ -592,12 +592,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $item['id'];
 	}
 
-	/**
-	 * determine whether the prices already include VAT.
-	 * @return boolean
-	 */
-	protected function _isVatIncludedInPrice()
+	protected function _isDutyCalcNeeded($item, $address)
 	{
-		return 0;
+		// if calculate discounts before tax; then, return 1
+		// else return 0
 	}
 }

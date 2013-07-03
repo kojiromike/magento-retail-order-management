@@ -64,10 +64,13 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 * store the tax response from eb2c
 	 * @param TrueAction_Eb2c_Tax_Model_Response $response
 	 */
-	public function setTaxResponse(TrueAction_Eb2c_Tax_Model_Response $response)
+	public function setTaxResponse(TrueAction_Eb2c_Tax_Model_Response $response = null)
 	{
-		parent::setTaxResponse($response);
-		Mage::getSingleton('checkout/session')->setEb2cTaxResponse($response);
+		if (isset($response)) {
+			parent::setTaxResponse($response);
+			Mage::getSingleton('checkout/session')->setEb2cTaxResponse($response);
+		}
+		return $this;
 	}
 
 	/**

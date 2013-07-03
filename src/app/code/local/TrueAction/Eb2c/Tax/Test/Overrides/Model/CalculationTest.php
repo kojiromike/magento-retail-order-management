@@ -123,4 +123,11 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_P
 		$this->assertNotNull($calc2->getTaxResponse());
 		$this->assertSame($calc->getTaxResponse(), $calc2->getTaxResponse());
 	}
+
+	public function testGetTaxRequest()
+	{
+		$calc = Mage::getModel('tax/calculation');
+		$request = $calc->getTaxRequest();
+		$this->assertNotNull($request);
+	}
 }

@@ -509,7 +509,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _buildEmailNode(TrueAction_Dom_Element $parent, array $address)
 	{
-		$this->_emailAddressId = $address->getEmail();
+		$this->_emailAddressId = $address['email_address'];
 		// do nothing if the email address doesn't meet size requirements.
 		$emailStr = $this->_checkLength($this->_emailAddressId, 1, self::EMAIL_MAX_LENGTH);
 		if ($emailStr) {

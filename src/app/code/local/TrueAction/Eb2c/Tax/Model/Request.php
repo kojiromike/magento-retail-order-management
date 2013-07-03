@@ -17,7 +17,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected $_emailAddressId     = '';
 	protected $_hasChanges         = false;
 	protected $_emailAddresses     = array();
-	protected $_skuLineMap         = array();
 	protected $_destinations       = array();
 	protected $_orderItems         = array();
 	protected $_shipGroups         = array();
@@ -43,7 +42,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->setShippingAddress($quote->getShippingAddress());
 		}
 		if ($this->isValid()) {
-			$this->_buildSkuMaps();
 			$this->_processQuote();
 		}
 	}
@@ -125,15 +123,15 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * get the quote item for the sku.
+	 * get the item data for the sku.
 	 * return null if the sku does not exist.
 	 * @param string $sku
 	 * @return array
 	 */
-	public function getItemBySku($sku)
+	public function getItemDataBySku($sku)
 	{
 		$sku = (string)$sku;
-		$item = isset($this->_skuItemMap[$sku]) ? $this->_skuItemMap[$sku] : null;
+		$item = isset($this->_orderItems[$sku]) ? $this->_orderItems[$sku] : null;
 		return $item;
 	}
 
@@ -143,7 +141,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function getSkus()
 	{
-		return array_keys($this->_skuLineMap);
+		return array_keys($this->_orderItems);
 	}
 
 	/**
@@ -152,7 +150,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function invalidate()
 	{
-		$this->unsQuote();
+		$this->_hasChanges = true;
 	}
 
 	public function checkItemQty($quoteItem)
@@ -580,19 +578,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$taxClass = $this->_checkLength($this->_getShippingTaxClass(), 1, 40);
 		if ($taxClass) {
 			$shipping->createChild('TaxClass', $taxClass);
-		}
-	}
-
-	/**
-	 * generate mappings for easy item lookups.
-	 * @param  Mage_Sales_Model_Quote_Item $item
-	 */
-	protected function _buildSkuMaps()
-	{
-		$quoteItems = $this->getQuote()->getAllVisibleItems();
-		foreach ($quoteItems as $key => $quoteItem) {
-			$this->_skuLineMap[$quoteItem->getSku()] = $quoteItem->getId();
-			$this->_skuItemMap[$quoteItem->getSku()] = $quoteItem;
 		}
 	}
 

@@ -94,8 +94,8 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$this->assertTrue($request->isValid());
 		$doc = $request->getDocument();
-		// $this->markTestIncomplete('xsd validation fails even though the output xml looks good');
-		// $this->assertTrue($doc->schemaValidate(self::$xsdFile));
+		$this->markTestIncomplete('xsd validation fails even though the output xml looks good');
+		$this->assertTrue($doc->schemaValidate(self::$xsdFile));
 	}
 
 	/**
@@ -235,6 +235,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(4);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$doc = $request->getDocument();
+		$this->markTestIncomplete('need to check wether the virtual item got assigned to the virtual destination');
 	}
 
 	/**

@@ -108,11 +108,31 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	public function testCheckEb2cInventoryQuantity($observer)
 	{
 		try {
+			$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
+			$apiModelMock->expects($this->any())
+				->method('setUri')
+				->will($this->returnSelf());
+
+			$apiModelMock->expects($this->any())
+				->method('request')
+				->will(
+					$this->throwException(new Exception)
+				);
+
+			$inventoryHelper = Mage::helper('eb2cinventory');
+			$inventoryReflector = new ReflectionObject($inventoryHelper);
+			$apiModel = $inventoryReflector->getProperty('apiModel');
+			$apiModel->setAccessible(true);
+			$apiModel->setValue($inventoryHelper, $apiModelMock);
+
 			// mockup to allow rollback on event to occur.
-			$allocationMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Allocation', array('hasAllocation'));
+			$allocationMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Allocation', array('hasAllocation', '_getHelper'));
 			$allocationMock->expects($this->any())
 				->method('hasAllocation')
 				->will($this->returnValue(true));
+			$allocationMock->expects($this->any())
+				->method('_getHelper')
+				->will($this->returnValue($inventoryHelper));
 
 			$allocationReflector = new ReflectionObject($this->_observer);
 			$allocation = $allocationReflector->getProperty('_allocation');
@@ -502,11 +522,31 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	 */
 	public function testRollbackOnRemoveItemInReservedCart($observer)
 	{
+			$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
+			$apiModelMock->expects($this->any())
+				->method('setUri')
+				->will($this->returnSelf());
+
+			$apiModelMock->expects($this->any())
+				->method('request')
+				->will(
+					$this->returnValue('')
+				);
+
+			$inventoryHelper = Mage::helper('eb2cinventory');
+			$inventoryReflector = new ReflectionObject($inventoryHelper);
+			$apiModel = $inventoryReflector->getProperty('apiModel');
+			$apiModel->setAccessible(true);
+			$apiModel->setValue($inventoryHelper, $apiModelMock);
+
 		// mockup to allow rollback on event to occur.
-		$allocationMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Allocation', array('hasAllocation'));
+		$allocationMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Allocation', array('hasAllocation', '_getHelper'));
 		$allocationMock->expects($this->any())
 			->method('hasAllocation')
 			->will($this->returnValue(true));
+		$allocationMock->expects($this->any())
+			->method('_getHelper')
+			->will($this->returnValue($inventoryHelper));
 
 		$allocationReflector = new ReflectionObject($this->_observer);
 		$allocation = $allocationReflector->getProperty('_allocation');

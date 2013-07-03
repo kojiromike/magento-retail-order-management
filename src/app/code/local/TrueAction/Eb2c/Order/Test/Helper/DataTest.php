@@ -23,7 +23,7 @@ class TrueAction_Eb2c_Order_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Ca
 	public function testGetCoreHelper()
 	{
 		$coreHelper = $this->_helper->getCoreHelper();
-		$this->assertSame(get_class($coreHelper), 'TrueAction_Eb2c_Core_Helper_Data');
+		$this->assertInstanceOf('TrueAction_Eb2c_Core_Helper_Data', $coreHelper);
 	}
 
 

@@ -5,6 +5,7 @@
 class TrueAction_Eb2c_Order_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	public $config;
+	public $apiModel;
 	public $coreHelper;
 	public $constHelper;
 
@@ -70,5 +71,17 @@ class TrueAction_Eb2c_Order_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getDomDocument()
 	{
 		return new TrueAction_Dom_Document('1.0', 'UTF-8');
+	}
+
+
+	/**
+	 * Return the Core API model for issuing requests/ retrieving response:
+	 */
+	public function getApiModel()
+	{
+		if( !$this->apiModel ) {
+			$this->apiModel = Mage::getModel('eb2ccore/api');
+		}
+		return $this->apiModel;
 	}
 }

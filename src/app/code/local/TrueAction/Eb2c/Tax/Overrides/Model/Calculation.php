@@ -16,15 +16,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	}
 
 	/**
-	 * generate a request object to use when calculating taxes and duties.
-	 * @param  Mage_Sale_Model_Quote_Addres $shippingAddress
-	 * @param  Mage_Sale_Model_Quote_Addres $billingAddress
-	 * @param  string                       $customerTaxClass
-	 * @param  int|Mage_Core_Model_Store    $store
-	 * @return TrueAction_Eb2c_Tax_Model_TaxDutyRequest
-	 * get a request object for the quote.
-	 * @param  Mage_Sales_Model_Quote $quote
-	 * @return TrueAction_Eb2c_Tax_Model_Request
+	 * @codeCoverageIgnore
 	 */
 	public function getRateRequest(
 		$shippingAddress = null,
@@ -36,9 +28,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	}
 
 	/**
-	 * return 0
-	 * @param  TrueAction_Eb2c_Tax_Model_Request $request
-	 * @return float
+	 * @codeCoverageIgnore
 	 */
 	public function getRate($request)
 	{

@@ -4,6 +4,15 @@ class TrueAction_Eb2c_Tax_Test_Model_Sales_Total_Quote_SubtotalTest extends Ecom
 	public function setUp()
 	{
         parent::setUp();
+		$cookieMock = $this->getModelMockBuilder('core/cookie')
+			->disableOriginalConstructor() // This one removes session_start and other methods usage
+			->setMethods(array('set')) // Enables original methods usage, because by default it overrides all methods
+			->getMock();
+		$cookieMock->expects($this->any())
+			->method('set')
+			->will($this->returnSelf());
+		$this->replaceByMock('singleton', 'core/cookie', $cookieMock);
+
         $_SESSION = array();
         $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
         $this->app()->getRequest()->setBaseUrl($_baseUrl);
@@ -40,25 +49,30 @@ class TrueAction_Eb2c_Tax_Test_Model_Sales_Total_Quote_SubtotalTest extends Ecom
 	}
 	/**
 	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture singleShippingSameAsBilling.yaml
+	 * @loadExpectation testApplyTaxes.yaml
 	 */
 	public function testApplyTaxes()
 	{
-		$this->markTestIncomplete('need to update numbers to match data change');
 		$calc  = Mage::helper('tax')->getCalculator();
 		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
-		$items = $quote->getShippingAddress()->getAllVisibleItems();
-		$item = $items[0];
-		$this->applyTaxes->invoke($this->subtotal, $item);
-
-		$this->assertEquals(0.0, $item->getTaxPercent());
-		$this->assertSame(25.38, $item->getPriceInclTax());
-		$this->assertSame(25.38, $item->rowTotalInclTax());
-		$this->assertSame(25.00, $item->getTaxableAmount());
-		$this->assertSame(0, $item->getIsPriceInclTax());
+		$items = $quote->getShippingAddress()->getAllNonNominalItems();
+		foreach ($items as $item) {
+			$this->applyTaxes->invoke($this->subtotal, $item);
+			$exp = $this->expected('1-' . $item->getSku());
+			$this->assertSame($exp->getTaxPercent(), $item->getTaxPercent());
+			$this->assertSame($exp->getPriceInclTax(), $item->getPriceInclTax());
+			$this->assertSame($exp->getRowTotalInclTax(), $item->getRowTotalInclTax());
+			$this->assertSame($exp->getTaxableAmount(), $item->getTaxableAmount());
+			$this->assertSame($exp->getIsPriceInclTax(), $item->getIsPriceInclTax());
+		}
 	}
 
 	/**
 	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
 	public function testCollect()
 	{

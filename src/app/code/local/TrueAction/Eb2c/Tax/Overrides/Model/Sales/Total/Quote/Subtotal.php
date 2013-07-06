@@ -55,9 +55,9 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Subtotal extends Mag
 
 		$items = $this->_getAddressItems($address);
 		if (!$items) {
-			// @codeCovergeIgnore Start
+			// @codeCovergeIgnoreStart
 			return $this;
-			// @codeCovergeIgnore End
+			// @codeCovergeIgnoreEnd
 		}
 		foreach ($items as $item) {
 			if ($item->getParentItem()) {

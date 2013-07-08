@@ -1,5 +1,5 @@
 <?php
-class TrueAction_Eb2c_Tax_Test_Model_Sales_Total_Quote_TaxTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Tax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends EcomDev_PHPUnit_Test_Case
 {
 	public function setUp()
 	{

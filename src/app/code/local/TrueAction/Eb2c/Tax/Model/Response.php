@@ -151,7 +151,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			$address = $this->_getAddress($shipGroup);
 			$responseSkus = array();
 			// foreach item
-			$items = $xpath->query('//a:Items/a:OrderItem', $shipGroup);
+			$items = $xpath->query('./a:Items/a:OrderItem', $shipGroup);
 			foreach ($items as $item) {
 				$orderItem = Mage::getModel('eb2ctax/response_orderitem', array(
 					'node' => $item,

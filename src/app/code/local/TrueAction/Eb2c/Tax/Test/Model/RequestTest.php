@@ -315,6 +315,8 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$this->assertTrue(isset($destinations[$quote->getBillingAddress()->getId()]));
 		$fn->invoke($request, $items[0], $quote->getBillingAddress(), true);
 		$destinations = $d->getValue($request);
-		$this->assertTrue(isset($destinations[$quote->getBillingAddress()->getEmail()]));
+		$virtualId = $quote->getBillingAddress()->getId() .
+			'_' . $quote->getBillingAddress()->getEmail();
+		$this->assertTrue(isset($destinations[$virtualId]));
 	}
 }

@@ -63,22 +63,48 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testIsValid()
 	{
-		$this->markTestIncomplete('failing because of a missing variable error.');
-		$addr = $this->getModelMock('customer/address', array('getId'));
-		$addr->expects($this->any())
+		$mockQuoteAddress = $this->getModelMock('sales/quote_address', array('getId'));
+		$mockQuoteAddress->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(1));
-		$quote = $this->getModelMock('sales/quote', array('getId', 'getItemsCount', 'getBillingAddress'));
-		$quote->expects($this->any())
+
+		$mockProduct = $this->getModelMock('catalog/product', array('isVirtual'));
+		$mockProduct->expects($this->any())
+			->method('isVirtual')
+			->will($this->returnValue(true));
+
+		$mockItem = $this->getModelMock('sales/quote_item', array('getId', 'getProduct', 'getHasChildren', 'isChildrenCalculated', 'getChildren'));
+		$mockItem->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(1));
-		$quote->expects($this->any())
+		$mockItem->expects($this->any())
+			->method('getProduct')
+			->will($this->returnValue($mockProduct));
+		$mockItem->expects($this->any())
+			->method('getHasChildren')
+			->will($this->returnValue(true));
+		$mockItem->expects($this->any())
+			->method('isChildrenCalculated')
+			->will($this->returnValue(true));
+		$mockItem->expects($this->any())
+			->method('getChildren')
+			->will($this->returnValue(array($mockItem)));
+
+		$mockQuote = $this->getModelMock('sales/quote', array('getId', 'getItemsCount', 'getBillingAddress', 'getAllVisibleItems'));
+		$mockQuote->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$mockQuote->expects($this->any())
 			->method('getItemsCount')
 			->will($this->returnValue(1));
-		$quote->expects($this->any())
+		$mockQuote->expects($this->any())
 			->method('getBillingAddress')
-			->will($this->returnValue($addr));
-		$req = Mage::getModel('eb2ctax/request', array('quote' => $quote));
+			->will($this->returnValue($mockQuoteAddress));
+		$mockQuote->expects($this->any())
+			->method('getAllVisibleItems')
+			->will($this->returnValue(array($mockItem)));
+
+		$req = Mage::getModel('eb2ctax/request', array('quote' => $mockQuote));
 		$this->assertTrue($req->isValid());
 		$req->invalidate();
 		$this->assertFalse($req->isValid());

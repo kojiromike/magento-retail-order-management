@@ -1,7 +1,7 @@
 <?php
 /**
  */
-class TrueAction_Eb2c_Tax_Test_Overrides_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Tax_Test_Helper_Overrides_DataTest extends EcomDev_PHPUnit_Test_Case
 {
 	/**
 	 * @test
@@ -31,21 +31,32 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Helper_DataTest extends EcomDev_PHPUnit
 	 */
 	public function testSendRequest()
 	{
-		$this->markTestIncomplete('need to update for changes to core');
 		$request = $this->getModelMock('eb2ctax/request', array('getDocument'));
 		$request->expects($this->any())
 			->method('getDocument')
 			->will($this->returnValue(new TrueAction_Dom_Document()));
-		$coreHelper = $this->getHelperMock('eb2ccore/data', array('callApi', 'apiUri'));
-		$coreHelper->expects($this->any())
-			->method('callApi')
-			->will($this->returnValue(''));
-		$coreHelper->expects($this->any())
-			->method('apiUri')
-			->will($this->returnValue('https://som.u.ri'));
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
-		$response = Mage::helper('tax')->sendRequest($request);
-		$this->assertFalse($response->isValid());
+
+		$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
+		$apiModelMock->expects($this->any())
+			->method('setUri')
+			->will($this->returnSelf());
+
+		$apiModelMock->expects($this->any())
+			->method('request')
+			->will(
+				$this->returnValue('<foo>something</foo>')
+			);
+
+		$taxHelper = Mage::helper('tax');
+		$taxReflector = new ReflectionObject($taxHelper);
+		$apiModel = $taxReflector->getProperty('_apiModel');
+		$apiModel->setAccessible(true);
+		$apiModel->setValue($taxHelper, $apiModelMock);
+
+		$this->assertInstanceOf(
+			'TrueAction_Eb2c_Tax_Model_Response',
+			$taxHelper->sendRequest($request)
+		);
 	}
 
 	/**

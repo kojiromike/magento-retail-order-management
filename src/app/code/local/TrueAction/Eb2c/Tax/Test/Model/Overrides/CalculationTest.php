@@ -2,7 +2,7 @@
 /**
  * tests the tax calculation class.
  */
-class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_PHPUnit_Test_Case
 {
 	public function setUp()
 	{

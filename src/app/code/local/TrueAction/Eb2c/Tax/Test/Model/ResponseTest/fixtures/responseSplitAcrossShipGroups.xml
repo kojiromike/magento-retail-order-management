@@ -78,10 +78,10 @@
 					</OrderItem>
 				</Items>
 			</ShipGroup>
-			<ShipGroup chargeType="FLATRATE" id="shipgroup_2_FLATRATE">
-				<DestinationTarget ref="2"/>
+			<ShipGroup chargeType="FLATRATE" id="shipgroup_2_foo@example.com_FLATRATE">
+				<DestinationTarget ref="2_foo@example.com"/>
 				<Items>
-					<OrderItem lineNumber="1">
+					<OrderItem lineNumber="2">
 						<ItemId>gc_virtual1</ItemId>
 						<ItemDesc>Test Item 1</ItemDesc>
 						<HTSCode>duty code</HTSCode>
@@ -169,7 +169,7 @@
 					<PostalCode>19406</PostalCode>
 				</Address>
 			</MailingAddress>
-			<MailingAddress id="2">
+			<MailingAddress id="2_foo@example.com">
 				<PersonName>
 					<LastName>John</LastName>
 					<FirstName>Smith</FirstName>

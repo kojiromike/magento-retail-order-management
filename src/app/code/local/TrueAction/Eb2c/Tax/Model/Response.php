@@ -158,7 +158,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 					'namespace_uri' => $this->_namespaceUri
 				));
 				if ($orderItem->isValid()) {
-					$itemKey = $orderItem->getSku();
+					$itemKey = (string)$orderItem->getSku();
 					$this->_responseItems[$address->getId()][$itemKey] = $orderItem;
 				}
 			}

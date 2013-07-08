@@ -82,10 +82,10 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 */
 	public function getResponseForItem(
 		Mage_Sales_Model_Quote_Item $item,
-		Mage_Sales_Quote_Address $address
+		Mage_Sales_Model_Quote_Address $address
 	) {
-		$addressId = $address->getId();
-		$sku = $item->getSku();
+		$addressId = (int)$address->getId();
+		$sku = (string)$item->getSku();
 		$orderItem = isset($this->_responseItems[$addressId][$sku]) ?
 			$this->_responseItems[$addressId][$sku] : null;
 		return $orderItem;

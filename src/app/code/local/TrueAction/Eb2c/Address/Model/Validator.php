@@ -40,6 +40,33 @@ class TrueAction_Eb2c_Address_Model_Validator
 	}
 
 	/**
+	 * Perform the call to EB2C and return the Address Validation Response model
+	 * @todo this will need to be converted over to use the new Api model when that gets merged in
+	 * @param Mage_Customer_Model_Address_Abstract $address
+	 * @return TrueAction_Eb2c_Address_Model_Validation_Response
+	 */
+	protected function _makeRequestForAddress(Mage_Customer_Model_Address_Abstract $address)
+	{
+		$helper = Mage::helper('eb2ccore');
+		$api = Mage::getModel('eb2ccore/api');
+		$request = Mage::getModel('eb2caddress/validation_request')->setAddress($address);
+		$apiResponse = $api
+			->setUri($helper->getApiUri(
+					TrueAction_Eb2c_Address_Model_Validation_Request::API_SERVICE,
+					TrueAction_Eb2c_Address_Model_Validation_Request::API_OPERATION))
+			->request(
+				$request->getMessage());
+
+		if (empty($apiResponse)) {
+			Mage::log('EB2C Address: Empty reponse returned from address validation service.', Zend_Log::WARN);
+			return null;
+		} else {
+			return Mage::getModel('eb2caddress/validation_response')
+				->setMessage($apiResponse);
+		}
+	}
+
+	/**
 	 * Validate an address via the EB2C Address Validation service.
 	 * Calls the EB2C API and feeds the results into a response model.
 	 * Will also ensure that the supplied address is populated with
@@ -54,34 +81,26 @@ class TrueAction_Eb2c_Address_Model_Validator
 		$address = $this->_updateAddressWithSelection($address);
 		if (!$address->getHasBeenValidated()) {
 			$this->clearSessionAddresses();
-			$helper = Mage::helper('eb2ccore');
-			$request = Mage::getModel('eb2caddress/validation_request')->setAddress($address);
-			$response = Mage::getModel('eb2caddress/validation_response')
-				->setMessage(
-					Mage::getModel('eb2ccore/api')
-						->setUri($helper->getApiUri(
-							TrueAction_Eb2c_Address_Model_Validation_Request::API_SERVICE,
-							TrueAction_Eb2c_Address_Model_Validation_Request::API_OPERATION
-						))
-						->request($request->getMessage())
-				);
-			// copy over validated address data
-			if ($response->isAddressValid()) {
-				$address->addData($response->getValidAddress()->getData());
-			} else {
-				$address->addData($response->getOriginalAddress()->getData());
-				$errorMessage = '';
-				if ($response->hasSuggestions()) {
-					$errorMessage = Mage::helper('eb2caddress')
-						->__(self::SUGGESTIONS_ERROR_MESSAGE);
+
+			if ($response = $this->_makeRequestForAddress($address)) {
+				// copy over validated address data
+				if ($response->isAddressValid()) {
+					$address->addData($response->getValidAddress()->getData());
 				} else {
-					// I don't think we ever want this to happen.
-					Mage::log('EB2C Address: Address considered invalid but not suggestions given.', Zend_Log::WARN);
-					$errorMessage = Mage::helper('eb2caddress')
-						->__(self::NO_SUGGESTIONS_ERROR_MESSAGE);
+					$address->addData($response->getOriginalAddress()->getData());
+					$errorMessage = '';
+					if ($response->hasSuggestions()) {
+						$errorMessage = Mage::helper('eb2caddress')
+							->__(self::SUGGESTIONS_ERROR_MESSAGE);
+					} else {
+						// I don't think we ever want this to happen.
+						Mage::log('EB2C Address: Address considered invalid but no suggestions given.', Zend_Log::WARN);
+						$errorMessage = Mage::helper('eb2caddress')
+							->__(self::NO_SUGGESTIONS_ERROR_MESSAGE);
+					}
 				}
+				$this->_stashAddresses($response, $address);
 			}
-			$this->_stashAddresses($response, $address);
 		} else {
 			// When the address has already been validated, it means the address has come
 			// from the session. When this happens, the session data has been used and
@@ -107,6 +126,9 @@ class TrueAction_Eb2c_Address_Model_Validator
 
 	/**
 	 * Store the necessary addresses and address data in the session.
+	 * Address are stored in a TrueAction_Eb2c_Address_Model_Suggestion_Group.
+	 * Addresses get merged with the submitted address to fill in any
+	 * gaps between what the user gives us and what EB2C returns (like name and phone).
 	 * @param TrueAction_Eb2c_Address_Model_Validation_Response $response
 	 */
 	protected function _stashAddresses(

@@ -18,6 +18,7 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 		'new_address_box' => 'Add a New Address',
 		'new_label' => 'Use new address',
 	);
+
 	/**
 	 * config registry model, if populated, should be expected to have had
 	 * the necessary config models populated.
@@ -25,10 +26,18 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 	 */
 	protected $_config = null;
 
+	/**
+	 * An address validation validator model which will be used to look up
+	 * any necessary addresses/data related to address validation.
+	 * @var TrueAction_Eb2c_Address_Model_Validator
+	 */
+	protected $_validator = null;
+
 	protected function _construct()
 	{
 		$this->_config = Mage::getModel('eb2ccore/config_registry')
 			->addConfigModel(Mage::getSingleton('eb2caddress/config'));
+		$this->_validator = Mage::getModel('eb2caddress/validator');
 	}
 
 	/**
@@ -36,7 +45,7 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 	 */
 	public function shouldShowSuggestions()
 	{
-		return Mage::getSingleton('eb2caddress/validator')->hasSuggestions();
+		return $this->_validator->hasSuggestions();
 	}
 
 	/**
@@ -45,7 +54,7 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 	 */
 	public function getSuggestedAddresses()
 	{
-		return Mage::getSingleton('eb2caddress/validator')->getSuggestedAddresses();
+		return $this->_validator->getSuggestedAddresses();
 	}
 
 	/**
@@ -54,7 +63,7 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 	 */
 	public function getOriginalAddress()
 	{
-		return Mage::getSingleton('eb2caddress/validator')->getOriginalAddress();
+		return $this->_validator->getOriginalAddress();
 	}
 
 	/**

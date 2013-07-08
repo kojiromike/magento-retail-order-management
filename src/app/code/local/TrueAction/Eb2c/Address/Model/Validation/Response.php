@@ -42,9 +42,9 @@ class TrueAction_Eb2c_Address_Model_Validation_Response
 	 */
 	public function setMessage($message)
 	{
-		$this->_doc->loadXML($message);
 		// new message means any stored data on this instance is probably invalid, so nuke it
 		$this->unsetData();
+		$this->_doc->loadXML($message);
 		return $this;
 	}
 

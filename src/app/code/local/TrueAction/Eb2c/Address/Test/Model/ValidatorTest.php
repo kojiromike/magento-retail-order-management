@@ -27,7 +27,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	 * Replace the eb2ccore/api model with a mock
 	 * @param boolean $emptyResponse
 	 */
-	protected function _mockApiModel()
+	protected function _mockApiModel($emptyResponse = false)
 	{
 		$mock = $this->getModelMock(
 			'eb2ccore/api',
@@ -37,7 +37,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 			->will($this->returnSelf());
 		$mock->expects($this->any())
 			->method('request')
-			->will($this->returnValue('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"></AddressValidationResponse>'));
+			->will($this->returnValue($emptyResponse ? '' : '<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"></AddressValidationResponse>'));
 		$this->replaceByMock('model', 'eb2ccore/api', $mock);
 		return $mock;
 	}
@@ -46,7 +46,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	 * Replace the eb2ccore/data helper class with a mock.
 	 * @return PHPUnit_Framework_MockObject_MockObject - the mock helper
 	 */
-	protected function _mockCoreHelper()
+	protected function _mockCoreHelper($emptyResponse = false)
 	{
 		$mockCoreHelper = $this->getHelperMock(
 			'eb2ccore/data',
@@ -580,6 +580,28 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 			$errorMessage,
 			TrueAction_Eb2c_Address_Model_Validator::NO_SUGGESTIONS_ERROR_MESSAGE
 		);
+	}
+
+	/**
+	 * Test that when no message is received from the address validation service
+	 * the address is considered valid.
+	 * @test
+	 */
+	public function testNoReponseFromService()
+	{
+		$this->_mockApiModel(true);
+		// address to validate
+		$address = $this->_createAddress(array(
+			'street' => '123 Main St',
+			'city' => 'Auburn',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '13025',
+		));
+		$validator = Mage::getModel('eb2caddress/validator');
+		$errors = $validator->validateAddress($address);
+
+		$this->assertNull($errors);
 	}
 
 	/**

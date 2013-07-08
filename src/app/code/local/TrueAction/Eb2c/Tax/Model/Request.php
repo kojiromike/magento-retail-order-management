@@ -70,8 +70,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$billAddressData = $this->_extractDestData($quoteBillingAddress);
 			$this->_hasChanges = (bool)array_diff_assoc($billingDestination, $billAddressData);
 			if (!$this->getIsMultiShipping() && $quote->hasVirtualItems()) {
-				$virtualDestination = isset($this->_destinations[$quoteBillingAddress->getEmail()]) ?
-					$this->_destinations[$quoteBillingAddress->getEmail()] : !($this->_hasChanges = true);
+				$virtualId = $this->_getVirtualId($quoteBillingAddress);
+				$virtualDestination = isset($this->_destinations[$virtualId]) ?
+					$this->_destinations[$virtualId] : !($this->_hasChanges = true);
 				$billAddressData = _extractDestData($this->getBillingAddress(), true);
 				$this->_hasChanges = (bool)array_diff_assoc($virtualDestination, $billAddressData);
 			}
@@ -237,7 +238,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		Mage_Sales_Model_Quote_Address $address,
 		$isVirtual = false
 	) {
-		$destinationId = ($isVirtual) ? $this->_getEmailFromAddress($address) : $address->getId();
+		$destinationId = ($isVirtual) ? $this->_getVirtualId($address) : $address->getId();
 		$id = $this->_addShipGroupId($address, $isVirtual);
 		if (!isset($this->_shipGroups[$destinationId])) {
 			$this->_shipGroups[$destinationId] = array();
@@ -259,7 +260,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$rateKey = 'NONE';
 		$addressKey = $address->getId();
-		$addressKey = ($isVirtual) ? $this->_getEmailFromAddress($address) : $address->getId();
+		$addressKey = ($isVirtual) ? $this->_getVirtualId($address) : $address->getId();
 		if (!($address->getAddressType() === 'billing' || $isVirtual)) {
 			$groupedRates = $address->getGroupedAllShippingRates();
 			if ($groupedRates) {
@@ -279,14 +280,15 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $id;
 	}
 
-	protected function _getEmailFromAddress($address)
+	protected function _getVirtualId($address)
 	{
 		if ($address->getSameAsBilling() and !$address->getQuote()->getIsMultiShipping()) {
 			$email = $address->getQuote()->getBillingAddress()->getEmail();
 		} else {
 			$email = $address->getEmail();
 		}
-		return $email;
+		$id = $address->getId() . '_' . $email;
+		return $id;
 	}
 
 	protected function _extractDestData($address, $isVirtual = false)
@@ -586,7 +588,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	/**
 	 * get an item's position in the order
-	 * @param Mage_Sales_Model_Quote_Item $item
+	 * @param array $item
 	 * @return int
 	 */
 	protected function _getLineNumber($item)

@@ -96,6 +96,27 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		return $itemResponse;
 	}
 
+	/**
+	 * return the total taxable amount.
+	 * @param  Mage_Sales_Model_Quote_Item  $item    [description]
+	 * @param  Mage_Sale_Model_Quote_Addres $address [description]
+	 * @return [type]                                [description]
+	 */
+	public function getTaxableAmountForItem(
+		Mage_Sales_Model_Quote_Item $item,
+		Mage_Sale_Model_Quote_Addres $address
+	) {
+		$itemResponse = $this->_getItemResponse($item, $address);
+		$taxQuotes = ($itemResponse) ?
+			$itemResponse->getTaxQuotes() :
+			array();
+		foreach($taxQuotes as $taxQuote) {
+			$amount += $taxQuote->getTaxableAmount();
+		}
+		return min($amount, $itemResponse->getMerchandiseAmount());
+	}
+
+	/**
 	 * calculate tax for an amount with the rates from the response for the item.
 	 * @param  float                       $amount
 	 * @param  Mage_Sales_Model_Quote_Item $item

@@ -196,7 +196,7 @@ class TrueAction_Eb2c_Address_Test_Helper_DataTest
 	{
 		$address = Mage::helper('eb2caddress')
 			->physicalAddressXmlToAddress($this->_generatePhysicalAddressElement());
-		$this->assertTrue($address instanceof Mage_Customer_Model_Address);
+		$this->assertInstanceOf('Mage_Customer_Model_Address', $address);
 		$this->assertSame($address->getStreet1(), $this->_addressParts['line1']);
 		$this->assertSame($address->getStreet2(), $this->_addressParts['line2']);
 		$this->assertSame($address->getStreet3(), $this->_addressParts['line3']);

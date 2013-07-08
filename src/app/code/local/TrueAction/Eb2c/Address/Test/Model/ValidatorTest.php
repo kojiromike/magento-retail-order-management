@@ -94,9 +94,151 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 		$this->replaceByMock('model', 'eb2caddress/validation_response', $respMock);
 	}
 
+	/**
+	 * Get the session object used by address validation.
+	 * @return Mage_Customer_Model_Session
+	 */
 	protected function _getSession()
 	{
 		return Mage::getSingleton('customer/session');
+	}
+
+	/**
+	 * Setup the session data with the supplied addresses.
+	 * @param Mage_Customer_Model_Address_Abstract $original
+	 * @param Mage_Customer_Model_Address_Abstract[] $suggestions
+	 */
+	protected function _setupSessionWithSuggestions($original, $suggestions)
+	{
+		// populate the session with usable data - replaced with mock in setUp
+		$addresses = new TrueAction_Eb2c_Address_Model_Suggestion_Group();
+		$addresses->setOriginalAddress($original);
+		$addresses->setSuggestedAddresses($suggestions);
+		$this->_getSession()
+			->setData(TrueAction_Eb2c_Address_Model_Validator::SESSION_KEY, $addresses);
+	}
+
+	/**
+	 * Test the various session interactions when there is not session data
+	 * for address validation initialized.
+	 * @test
+	 */
+	public function testValidatorSessionNotInitialized()
+	{
+		$validator = Mage::getModel('eb2caddress/validator');
+		$this->assertNull($validator->getOriginalAddress());
+		$this->assertNull($validator->getSuggestedAddresses());
+		$this->assertNull($validator->getValidatedAddress('original_address'));
+		$this->assertFalse($validator->hasSuggestions());
+	}
+
+	/**
+	 * Make sure getAddressCollection *always* returns a
+	 * TrueAction_Eb2c_Address_Model_Suggestion_Group even if the
+	 * session data where it expects to find the suggestions is polluted
+	 * with something else.
+	 * @test
+	 */
+	public function testGettingAddressCollectionAlwaysReturnsProperObjectType()
+	{
+		$expectedType = 'TrueAction_Eb2c_Address_Model_Suggestion_Group';
+		$session = $this->_getSession();
+		$sessionKey = TrueAction_Eb2c_Address_Model_Validator::SESSION_KEY;
+
+		$validator = Mage::getModel('eb2caddress/validator');
+
+		$session->setData($sessionKey, "a string");
+		$this->assertInstanceOf($expectedType, $validator->getAddressCollection());
+
+		$session->setData($sessionKey, new Varien_Object());
+		$this->assertInstanceOf($expectedType, $validator->getAddressCollection());
+
+		$session->setData($sessionKey, 23);
+		$this->assertInstanceOf($expectedType, $validator->getAddressCollection());
+
+		$session->setData($sessionKey, new TrueAction_Eb2c_Address_Model_Suggestion_Group());
+		$this->assertInstanceOf($expectedType, $validator->getAddressCollection());
+
+		$session->unsetData($sessionKey);
+		$this->assertInstanceOf($expectedType, $validator->getAddressCollection());
+	}
+
+	/**
+	 * Test updating the submitted address with data from the chosen suggestion.
+	 * @dataProvider dataProvider
+	 * @test
+	 */
+	public function testUpdateAddressWithSelections($postValue)
+	{
+		$originalAddress = $this->_createAddress(array(
+			'street' => '123 Main St',
+			'city' => 'Fooville',
+			'region_code' => 'NY',
+			'country_id' => 'US',
+			'postcode' => '12345',
+			'has_been_validated' => true,
+			'stash_key' => 'original_address',
+		));
+		$suggestions = array(
+			$this->_createAddress(array(
+				'street' => '321 Main Rd',
+				'city' => 'Barton',
+				'region_code' => 'NY',
+				'country_id' => 'US',
+				'postcode' => '54321-1234',
+				'has_been_validated' => true,
+				'stash_key' => 'suggested_addresses/0',
+			)),
+			$this->_createAddress(array(
+				'street' => '321 Main St',
+				'city' => 'Fooville',
+				'country_id' => 'US',
+				'postcode' => '12345-6789',
+				'has_been_validated' => true,
+				'stash_key' => 'suggested_addresses/1',
+			))
+		);
+		$this->_setupSessionWithSuggestions($originalAddress, $suggestions);
+
+		// set the submitted value in the request post data
+		$_POST[TrueAction_Eb2c_Address_Block_Suggestions::SUGGESTION_INPUT_NAME] = $postValue;
+
+		// create an address object to act as the address submitted by the user
+		$submittedAddress = $this->_createAddress(array(
+			'street' => '1 Street Rd',
+			'city' => 'Foo',
+			'region_code' => 'PA',
+			'region_id' => 51,
+			'country_id' => 'US',
+			'postcode' => '23456',
+		));
+
+		// this is necessary due to expectation not allowing a / in the key to get expectations
+		$expectationKey = str_replace("/", "", $postValue);
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$reflection = new ReflectionClass('TrueAction_Eb2c_Address_Model_Validator');
+		$method = $reflection->getMethod('_updateAddressWithSelection');
+		$method->setAccessible(true);
+
+		$updated = $method->invoke($validator, $submittedAddress);
+
+		$this->assertSame(
+			$this->expected($expectationKey)->getStreet1(),
+			$submittedAddress->getStreet1()
+		);
+		$this->assertSame(
+			$this->expected($expectationKey)->getCity(),
+			$submittedAddress->getCity()
+		);
+		$this->assertSame(
+			$this->expected($expectationKey)->getPostcode(),
+			$submittedAddress->getPostcode()
+		);
+		$this->assertSame(
+			$this->expected($expectationKey)->getHasBeenValidated(),
+			$submittedAddress->getHasBeenValidated()
+		);
 	}
 
 	/**
@@ -291,8 +433,8 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 			'Ensure session data looks the way we expect it to.'
 		);
 
-		$this->assertTrue($validator->getAddressCollection()->hasData('original_address'), 'Address collection Varien_Object should have "original_address" data.');
-		$this->assertTrue($validator->getAddressCollection()->hasData('suggested_addresses'), 'Address collection Varien_Object should have "suggested_addresses" data.');
+		$this->assertTrue($validator->getAddressCollection()->hasData('original_address'), 'Address collection TrueAction_Eb2c_Address_Model_Suggestion_Group should have "original_address" data.');
+		$this->assertTrue($validator->getAddressCollection()->hasData('suggested_addresses'), 'Address collection TrueAction_Eb2c_Address_Model_Suggestion_Group should have "suggested_addresses" data.');
 		$this->assertSame(
 			count($validator->getAddressCollection()->getSuggestedAddresses()),
 			2,
@@ -427,20 +569,6 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	}
 
 	/**
-	 * Test the various session interactions when there is not session data
-	 * for address validation initialized.
-	 * @test
-	 */
-	public function testValidatorSessionNotInitialized()
-	{
-		$validator = Mage::getModel('eb2caddress/validator');
-		$this->assertNull($validator->getOriginalAddress());
-		$this->assertNull($validator->getSuggestedAddresses());
-		$this->assertNull($validator->getValidatedAddress('original_address'));
-		$this->assertFalse($validator->hasSuggestions());
-	}
-
-	/**
 	 * Test retrieval of address objects from the validator by key.
 	 * Each address should have a stash_key which will be used to get
 	 * the address back out of the address collection stored in the session.
@@ -448,8 +576,6 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	 */
 	public function getValidatedAddressByKey()
 	{
-		// populate the session with usable data - replaced with mock in setUp
-		$addresses = new Varien_Object();
 		$originalAddress = $this->_createAddress(array(
 			'street' => '123 Main St',
 			'city' => 'Fooville',
@@ -459,31 +585,26 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 			'has_been_validated' => true,
 			'stash_key' => 'original_address',
 		));
-		$addresses->setOriginalAddress($originalAddress);
-		$suggestedOne = $this->_createAddress(array(
-			'street' => '321 Main Rd',
-			'city' => 'Barton',
-			'region_code' => 'NY',
-			'country_id' => 'US',
-			'postcode' => '54321-1234',
-			'has_been_validated' => true,
-			'stash_key' => 'suggested_addresses/0',
-		));
-		$suggestedTwo = $this->_createAddress(array(
-			'street' => '321 Main St',
-			'city' => 'Fooville',
-			'country_id' => 'US',
-			'postcode' => '12345-6789',
-			'has_been_validated' => true,
-			'stash_key' => 'suggested_addresses/1',
-		));
-		$addresses->setSuggestedAddresses(array(
-			$suggestedOne,
-			$suggestedTwo
-		));
-		// populate the session with the data
-		$session = $this->_getSession();
-		$session->setData(TrueAction_Eb2c_Address_Model_Validator::SESSION_KEY, $addresses);
+		$suggestions = array(
+			$this->_createAddress(array(
+				'street' => '321 Main Rd',
+				'city' => 'Barton',
+				'region_code' => 'NY',
+				'country_id' => 'US',
+				'postcode' => '54321-1234',
+				'has_been_validated' => true,
+				'stash_key' => 'suggested_addresses/0',
+			)),
+			$this->_createAddress(array(
+				'street' => '321 Main St',
+				'city' => 'Fooville',
+				'country_id' => 'US',
+				'postcode' => '12345-6789',
+				'has_been_validated' => true,
+				'stash_key' => 'suggested_addresses/1',
+			))
+		);
+		$this->_setupSessionWithSuggestions($originalAddress, $suggestions);
 
 		$validator = Mage::getModel('eb2caddress/validator');
 
@@ -492,8 +613,8 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 			$validator->getValidatedAddress($originalAddress->getStashKey())
 		);
 		$this->assertSame(
-			$suggestedTwo,
-			$validator->getValidatedAddress($suggestedTwo->getStashKey())
+			$suggestions[1],
+			$validator->getValidatedAddress($suggestions[1]->getStashKey())
 		);
 	}
 
@@ -523,8 +644,8 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 			'has_been_validated' => true,
 			'stash_key' => 'original_address'
 		)));
-		// create the Varien_Object that stores address data in the session
-		$addresses = new Varien_Object();
+		// create the TrueAction_Eb2c_Address_Model_Suggestion_Group that stores address data in the session
+		$addresses = new TrueAction_Eb2c_Address_Model_Suggestion_Group();
 		$addresses->setOriginalAddress($origAddress);
 		// add the address data to the session
 		$this->_getSession()->setData(
@@ -562,8 +683,8 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 				'postcode' => '19231',
 			))
 		);
-		// create the Varien_Object that stores the address data in the session
-		$addressCollection = new Varien_Object();
+		// create the TrueAction_Eb2c_Address_Model_Suggestion_Group that stores the address data in the session
+		$addressCollection = new TrueAction_Eb2c_Address_Model_Suggestion_Group();
 		$addressCollection->setSuggestedAddresses($suggestions);
 		// add suggestions to the session
 		$this->_getSession()->setData(

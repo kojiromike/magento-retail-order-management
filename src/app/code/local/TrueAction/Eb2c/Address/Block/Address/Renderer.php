@@ -4,21 +4,11 @@ class TrueAction_Eb2c_Address_Block_Address_Renderer
 	extends Mage_Customer_Block_Address_Renderer_Default
 {
 
-	protected function _construct()
-	{
-		parent::_construct();
-		$this->initType();
-	}
-
 	/**
-	 * Set the default for the renderer type.
-	 * @return TrueAction_Eb2c_AddressFrontend_Block_Address_Renderer - $this
+	 * @param string $format - the template used to format the address
 	 */
-	public function initType()
+	public function initType($format)
 	{
-		$format = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2caddress/config'))
-			->addressFormat;
 		$type = new Varien_Object();
 		$type->setCode('address_verification')
 			->setTitle('Address Verification Suggestion')

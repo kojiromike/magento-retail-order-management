@@ -288,7 +288,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 			->method('getSku')
 			->will($this->returnValue('gc_virtual1'));
 		$responseItems = $response->getResponseItems();
-		xdebug_break();
+
 		$this->assertNotEmpty($response->getResponseItems());
 		$itemResponse = $response->getResponseForItem($itemMock, $addressMock1);
 		$this->assertNotNull($itemResponse);

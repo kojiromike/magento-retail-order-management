@@ -47,6 +47,7 @@ class TrueAction_Eb2c_Tax_Test_Model_Sales_Total_Quote_SubtotalTest extends Ecom
 		Mage::helper('tax')->getCalculator()
 			->setTaxResponse($response);
 	}
+
 	/**
 	 * @test
 	 * @loadFixture base.yaml
@@ -67,6 +68,27 @@ class TrueAction_Eb2c_Tax_Test_Model_Sales_Total_Quote_SubtotalTest extends Ecom
 			$this->assertSame($exp->getTaxableAmount(), $item->getTaxableAmount());
 			$this->assertSame($exp->getIsPriceInclTax(), $item->getIsPriceInclTax());
 		}
+	}
+
+	/**
+	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture singleShippingSameAsBillingBundle.yaml
+	 */
+	public function testApplyTaxesWithBundle()
+	{
+		$calc  = Mage::helper('tax')->getCalculator();
+		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
+		$items = $quote->getShippingAddress()->getAllNonNominalItems();
+		// foreach ($items as $item) {
+		// 	$this->applyTaxes->invoke($this->subtotal, $item);
+		// 	$exp = $this->expected('1-' . $item->getSku());
+		// 	$this->assertSame($exp->getTaxPercent(), $item->getTaxPercent());
+		// 	$this->assertSame($exp->getPriceInclTax(), $item->getPriceInclTax());
+		// 	$this->assertSame($exp->getRowTotalInclTax(), $item->getRowTotalInclTax());
+		// 	$this->assertSame($exp->getTaxableAmount(), $item->getTaxableAmount());
+		// 	$this->assertSame($exp->getIsPriceInclTax(), $item->getIsPriceInclTax());
+		// }
 	}
 
 	/**

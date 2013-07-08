@@ -17,7 +17,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected $_emailAddressId     = '';
 	protected $_hasChanges         = false;
 	protected $_emailAddresses     = array();
-	protected $_skuLineMap         = array();
 	protected $_destinations       = array();
 	protected $_orderItems         = array();
 	protected $_shipGroups         = array();
@@ -35,21 +34,26 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _construct()
 	{
+		$quote          = $this->getQuote();
+		$this->_helper  = Mage::helper('tax');
 		$this->setIsMultiShipping(0);
-		$quote               = $this->getQuote();
 		if ($quote) {
 			$this->setBillingAddress($quote->getBillingAddress());
 			$this->setShippingAddress($quote->getShippingAddress());
 		}
 		if ($this->isValid()) {
-			$this->_buildSkuMaps();
 			$this->_processQuote();
 		}
 	}
 
-	public function checkAddresses($quote)
+	/**
+	 * compare the addresses to be sent in the request with the addresses
+	 * in the specified quote.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 */
+	public function checkAddresses(Mage_Sales_Model_Quote $quote = null)
 	{
-		if (!($this->isValid() && $quote)) {
+		if (!($this->isValid() && $quote && $quote->getId())) {
 			// skip it if the request is bad in the first place or if the quote
 			// passed in is null.
 			return;
@@ -69,6 +73,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 				$virtualDestination = isset($this->_destinations[$quoteBillingAddress->getEmail()]) ?
 					$this->_destinations[$quoteBillingAddress->getEmail()] : !($this->_hasChanges = true);
 				$billAddressData = _extractDestData($this->getBillingAddress(), true);
+				$this->_hasChanges = (bool)array_diff_assoc($virtualDestination, $billAddressData);
 			}
 			// if everything was good so far then check the shipping addresses for
 			// changes
@@ -78,6 +83,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 					$addressData = $this->_extractDestData($address);
 					$destination = isset($this->_destinations[$address->getId()]) ?
 						$this->_destinations[$address->getId()] : !($this->_hasChanges = true);
+					$this->_hasChanges = (bool)array_diff_assoc($addressData, $destination);
 				}
 			}
 		}
@@ -119,15 +125,15 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * get the quote item for the sku.
+	 * get the item data for the sku.
 	 * return null if the sku does not exist.
 	 * @param string $sku
 	 * @return array
 	 */
-	public function getItemBySku($sku)
+	public function getItemDataBySku($sku)
 	{
 		$sku = (string)$sku;
-		$item = isset($this->_skuItemMap[$sku]) ? $this->_skuItemMap[$sku] : null;
+		$item = isset($this->_orderItems[$sku]) ? $this->_orderItems[$sku] : null;
 		return $item;
 	}
 
@@ -137,7 +143,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function getSkus()
 	{
-		return array_keys($this->_skuLineMap);
+		return array_keys($this->_orderItems);
 	}
 
 	/**
@@ -146,7 +152,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	public function invalidate()
 	{
-		$this->unsQuote();
+		$this->_hasChanges = true;
 	}
 
 	public function checkItemQty($quoteItem)
@@ -157,7 +163,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		if (!$this->_hasChanges && $itemData) {
 			$newQty = (float)$quoteItem->getQty();
 			$oldQty = (float)$itemData['quantity'];
-			$this->_hasChanges = $oldQty !== $newQty; 
+			$this->_hasChanges = $oldQty !== $newQty;
 		}
 	}
 
@@ -172,11 +178,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$this->_destinations[$this->_billingInfoRef] = $this->_extractDestData(
 			$billAddress
 		);
-		if ($quote->hasVirtualItems()) {
-			$this->_destinations[$billAddress->getEmail()] = $this->_extractDestData(
-				$billAddress
-			);
-		}
 		if ($quote->getIsMultiShipping()) {
 			$this->_processMultiShippingQuote($quote);
 		} else {
@@ -213,7 +214,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$items = $quote->getAllVisibleItems();
 		foreach($items as $item) {
 			$isVirtual = $item->getProduct()->isVirtual();
-			$address   = $isVirtual ? $this->getBillingAddress() : $shipAddress; 			
+			$address   = $isVirtual ? $this->getBillingAddress() : $shipAddress;
 			if ($item->getHasChildren() && $item->isChildrenCalculated()) {
 				foreach ($item->getChildren() as $child) {
 					$this->_addToDestination($item, $address, $isVirtual);
@@ -232,7 +233,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * @param boolean                        $isVirtual
 	 */
 	protected function _addToDestination(
-		$item, 
+		$item,
 		Mage_Sales_Model_Quote_Address $address,
 		$isVirtual = false
 	) {
@@ -258,9 +259,8 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$rateKey = 'NONE';
 		$addressKey = $address->getId();
-		if ($address->getAddressType() === 'billing' || $isVirtual) {
-			$addressKey = strtoupper($this->_getEmailFromAddress($address));
-		} else {
+		$addressKey = ($isVirtual) ? $this->_getEmailFromAddress($address) : $address->getId();
+		if (!($address->getAddressType() === 'billing' || $isVirtual)) {
 			$groupedRates = $address->getGroupedAllShippingRates();
 			if ($groupedRates) {
 				foreach ($groupedRates as $rateKey => $shippingRate) {
@@ -273,7 +273,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			}
 		}
 		$id = "shipGroup_{$addressKey}_{$rateKey}";
-		$this->_shipGroupIds[$addressKey] = array('group_id' => $id, 'method' => $rateKey);
+		if (!isset($this->_shipGroupIds[$addressKey])) {
+			$this->_shipGroupIds[$addressKey] = array('group_id' => $id, 'method' => $rateKey);
+		}
 		return $id;
 	}
 
@@ -332,7 +334,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			'quantity' => $item->getQty(),
 			'merchandise_amount' => $item->getRowTotal(),
 			'merchandise_unit_price' => $item->getBasePrice(),
-			'merchandise_tax_class' => $this->_getItemTaxClass($item),
+			'merchandise_tax_class' => $item->getTaxClassId(),
 			'shipping_amount' => $address->getShippingAmount(),
 			'shipping_tax_class' => $this->_getShippingTaxClass(),
 		);
@@ -354,15 +356,27 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $this->_checkLength($taxCode ,1, 40);
 	}
 
+	/**
+	 * return the sku truncated down to 20 characters if too long or
+	 * null if the sku doesn't meet minimum size requirements.
+	 * @param  array $item
+	 * @return string
+	 */
 	protected function _checkSku($item)
 	{
 		$newSku      = $this->_checkLength($item['item_id'], 1, 20);
 		if (is_null($newSku)){
-			Mage::throwException(sprintf(
-				'Mage_Sales_Model_Quote_Item id:%s has an invalid SKU:%s',
+			$this->invalidate();
+			$message = sprintf(
+				'TaxDutyQuoteRequest: Mage_Sales_Model_Quote_Item id:%s has an invalid SKU:%s',
 				$item['id'],
 				$item['item_id']
-			));
+			);
+			Mage::throwException($message);
+		}
+		if (strlen($newSku) < strlen($item['item_id'])) {
+			$message = 'Item sku "' . $item['item_id'] . '" is too long and has been truncated';
+ 			Mage::log($message, Zend_Log::WARN);
 		}
 		return $newSku;
 	}
@@ -380,31 +394,35 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	protected function _buildTaxDutyRequest()
 	{
-		$this->_doc->addElement('TaxDutyQuoteRequest', null, $this->_namespaceUri);
-		$tdRequest          = $this->_doc->documentElement;
-		$billingInformation = $tdRequest->addChild(
-			'Currency',
-			$this->getQuote()->getQuoteCurrencyCode()
-		)
-			->addChild('VATInclusivePricing', $this->_isVatIncludedInPrice())
-			->addChild(
-				'CustomerTaxId',
-				$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
+		try {
+			$this->_doc->addElement('TaxDutyQuoteRequest', null, $this->_namespaceUri);
+			$tdRequest          = $this->_doc->documentElement;
+			$billingInformation = $tdRequest->addChild(
+				'Currency',
+				$this->getQuote()->getQuoteCurrencyCode()
 			)
-			->createChild('BillingInformation');
-		$shipping = $tdRequest->createChild('Shipping');
-		$this->_tdRequest    = $tdRequest;
-		$shipGroups   = $shipping->createChild('ShipGroups');
-		$destinations = $shipping->createChild('Destinations');
-		$this->_processAddresses($destinations, $shipGroups);
-		$billingInformation->setAttributeNs(
-			$this->_namespaceUri,
-			'ref',
-			$this->_billingInfoRef
-		);
+				->addChild('VATInclusivePricing', (int)$this->_helper->getVatInclusivePricingFlag())
+				->addChild(
+					'CustomerTaxId',
+					$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
+				)
+				->createChild('BillingInformation');
+			$shipping = $tdRequest->createChild('Shipping');
+			$this->_tdRequest    = $tdRequest;
+			$shipGroups   = $shipping->createChild('ShipGroups');
+			$destinations = $shipping->createChild('Destinations');
+			$this->_processAddresses($destinations, $shipGroups);
+			$billingInformation->setAttributeNs(
+				$this->_namespaceUri,
+				'ref',
+				$this->_billingInfoRef
+			);
+		} catch (Mage_Core_Exception $e) {
+			Mage::log('TaxDutyQuoteRequest Error: ' . $e->getMessage(), Zend_Log::WARN);
+		}
 	}
 
-	/**getIsMultiShipping
+	/**
 	 * generate the nodes for the shipgroups and destinations subtrees.
 	 */
 	protected function _processAddresses($destinationsNode, $shipGroupsNode)
@@ -480,7 +498,8 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	) {
 		$this->_shipAddressRef = $address['id'];
 		$mailingAddress = $parent->createChild('MailingAddress');
-		$mailingAddress->setAttribute('id', $this->_shipAddressRef, true);
+		$mailingAddress->setAttributeNs('', 'id', $this->_shipAddressRef);
+		$mailingAddress->setIdAttribute("id", true);
 		$personName = $mailingAddress->createChild('PersonName');
 		$this->_buildPersonName($personName, $address);
 		$addressNode = $mailingAddress->createChild('Address');
@@ -494,7 +513,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _buildEmailNode(TrueAction_Dom_Element $parent, array $address)
 	{
-		$this->_emailAddressId = $address->getEmail();
+		$this->_emailAddressId = $address['email_address'];
 		// do nothing if the email address doesn't meet size requirements.
 		$emailStr = $this->_checkLength($this->_emailAddressId, 1, self::EMAIL_MAX_LENGTH);
 		if ($emailStr) {
@@ -520,13 +539,13 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected function _checkLength($string, $minLength = null, $maxLength = null, $truncate = true)
 	{
 		$result = null;
-		$len = mb_strlen($string);
+		$len = strlen($string);
 		if (is_null($minLength) || $len >= $minLength) {
 			$result = $string;
 		}
 		if ($result && !is_null($maxLength)) {
 			if (($len > $maxLength)) {
-				$result = ($truncate) ? mb_substr($string, 0, $maxLength) : null;
+				$result = ($truncate) ? substr($string, 0, $maxLength) : null;
 			}
 		}
 		return $result;
@@ -539,47 +558,29 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
 	protected function _addOrderItem(array $item, TrueAction_Dom_Element $parent) {
-		$sku      = $this->_checkSku($item);
-		if (strlen($sku) < strlen($item['item_id'])) {
-			Mage::log(
-				'Item sku "' . $item->getSku() . '" is too long and has been truncated',
-				Zend_Log::WARN
-			);
-		}
+		$sku       = $this->_checkSku($item);
 		$orderItem = $parent->createChild('OrderItem')
 			->addAttribute('lineNumber', $this->_getLineNumber($item))
-			->addChild('ItemId', $this->_checkSku($item))
+			->addChild('ItemId', $sku)
 			->addChild('ItemDesc', $this->_checkLength($item['item_desc'], 0, 12))
 			->addChild('HTSCode', $this->_checkLength($item['hts_code'], 0, 12))
 			->addChild('Quantity', $item['quantity'])
 			->addChild('Pricing');
-		$merchandise = $orderItem->setNode('Pricing/Merchandise')
+		$merchandise = $orderItem->createChild('Pricing')
+			->createChild('Merchandise')
 			->addChild('Amount', $item['merchandise_amount'])
 			->addChild('UnitPrice', $item['merchandise_unit_price']);
 		// taxClass will be gotten from ItemMaster feed field "TaxCode"
 		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
 		if ($taxClass) {
-			$shipping->createChild('TaxClass', $taxClass);
+			$merchandise->createChild('TaxClass', $taxClass);
 		}
-
-		$shipping = $orderItem->setNode('Pricing/Shipping')
+		$shipping = $orderItem->createChild('Pricing')
+			->createChild('Shipping')
 			->addChild('Amount', $item['shipping_amount']);
 		$taxClass = $this->_checkLength($this->_getShippingTaxClass(), 1, 40);
 		if ($taxClass) {
 			$shipping->createChild('TaxClass', $taxClass);
-		}
-	}
-
-	/**
-	 * generate mappings for easy item lookups.
-	 * @param  Mage_Sales_Model_Quote_Item $item
-	 */
-	protected function _buildSkuMaps()
-	{
-		$quoteItems = $this->getQuote()->getAllVisibleItems();
-		foreach ($quoteItems as $key => $quoteItem) {
-			$this->_skuLineMap[$quoteItem->getSku()] = $quoteItem->getId();
-			$this->_skuItemMap[$quoteItem->getSku()] = $quoteItem;
 		}
 	}
 
@@ -593,12 +594,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $item['id'];
 	}
 
-	/**
-	 * determine whether the prices already include VAT.
-	 * @return boolean
-	 */
-	protected function _isVatIncludedInPrice()
+	protected function _isDutyCalcNeeded($item, $address)
 	{
-		return 0;
+		// if calculate discounts before tax; then, return 1
+		// else return 0
 	}
 }

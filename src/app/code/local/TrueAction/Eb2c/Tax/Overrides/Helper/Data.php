@@ -9,6 +9,7 @@ class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 	protected $_responseFormat      = 'xml';
 
 	protected $_coreHelper          = null;
+	protected $_apiModel			= null;
 
 	public function __construct()
 	{
@@ -21,18 +22,23 @@ class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 	 * @param  TrueAction_Eb2c_Tax_Model_Request $request
 	 * @return TrueAction_Eb2c_Tax_Model_Response
 	 */
-	public function sendRequest(TrueAction_Eb2c_Tax_Model_Request $request, $store = null)
+	public function sendRequest(TrueAction_Eb2c_Tax_Model_Request $request)
 	{
-		$response = $this->_coreHelper->callApi(
-			$request->getDocument(),
-			$this->_coreHelper->apiUri(
-				$this->_service,
-				$this->_operation,
-				array(),
-				$this->_responseFormat
-			),
-			$store
-		);
+		$uri = $this->_coreHelper->getApiUri(
+						$this->_service,
+						$this->_operation,
+						array(),
+						$this->_responseFormat
+					);
+		try {
+			$response = $this->getApiModel()
+							->setUri($uri)
+							->request($request->getDocument());
+		}
+		catch(Exception $e) {
+			Mage::throwException('Error sending request' . $e->getMessage() );
+		}
+
 		$response = Mage::getModel('eb2ctax/response', array(
 			'xml' => $response,
 			'request' => $request
@@ -48,5 +54,26 @@ class TrueAction_Eb2c_Tax_Overrides_Helper_Data extends Mage_Tax_Helper_Data
 	public function getNamespaceUri($store = null)
 	{
 		return Mage::getStoreConfig('eb2ctax/api/namespace_uri', $store);
+	}
+
+
+	/**
+	 * return true if the prices already include VAT.
+	 * @return boolean
+	 */
+	public function getVatInclusivePricingFlag($store = null)
+	{
+		return Mage::getStoreConfigFlag('tax/calculation/vat_inclusive_pricing', $store);
+	}
+
+	/**
+	 * Retrieves core api model for sending/ receiving web services
+	 */
+	public function getApiModel()
+	{
+		if( !$this->_apiModel ) {
+			$this->_apiModel = Mage::getModel('eb2ccore/api');
+		}
+		return $this->_apiModel;
 	}
 }

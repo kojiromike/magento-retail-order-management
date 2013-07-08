@@ -4,41 +4,6 @@
  */
 class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_PHPUnit_Test_Case
 {
-	/**
-	 * @var Mage_Sales_Model_Quote (mock)
-	 */
-	private $quote       = null;
-
-	/**
-	 * @var Mage_Sales_Model_Quote_Address (mock)
-	 */
-	private $shipAddress = null;
-
-	/**
-	 * @var Mage_Sales_Model_Quote_Address (mock)
-	 */
-	private $billAddress = null;
-
-	/**
-	 * @var ReflectionProperty(TrueAction_Eb2c_Tax_Model_Request::_xml)
-	 */
-	private $doc         = null;
-
-	/**
-	 * @var ReflectionClass(TrueAction_Eb2c_Tax_Model_Request)
-	 */
-	private $cls         = null;
-
-	/**
-	 * path to the xsd file to validate against.
-	 * @var string
-	 */
-	private static $xsdFile = '';
-
-	private $tdRequest    = null;
-	private $destinations = null;
-	private $shipGroups   = null;
-
 	public function setUp()
 	{
         parent::setUp();
@@ -122,5 +87,12 @@ class TrueAction_Eb2c_Tax_Test_Overrides_Model_CalculationTest extends EcomDev_P
 		$calc2 = Mage::getModel('tax/calculation');
 		$this->assertNotNull($calc2->getTaxResponse());
 		$this->assertSame($calc->getTaxResponse(), $calc2->getTaxResponse());
+	}
+
+	public function testGetTaxRequest()
+	{
+		$calc = Mage::getModel('tax/calculation');
+		$request = $calc->getTaxRequest();
+		$this->assertNotNull($request);
 	}
 }

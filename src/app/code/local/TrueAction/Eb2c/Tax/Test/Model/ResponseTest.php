@@ -192,6 +192,8 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 
 	/**
 	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture singleShippingNotSameAsBilling.yaml
 	 */
 	public function testItemSplitAccrossShipgroups()
 	{

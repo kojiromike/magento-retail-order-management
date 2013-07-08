@@ -189,4 +189,45 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 			$constructMethod->invoke($response)
 		);
 	}
+
+	/**
+	 * @test
+	 */
+	public function testItemSplitAccrossShipgroups()
+	{
+		$xmlPath = dirname(__FILE__) . '/ResponseTest/fixtures/responseSplitAcrossShipGroups.xml';
+		$docObject = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$docObject->loadXML();
+		$response = Mage::getModel(
+			'eb2ctax/response',
+			array(
+				'xml' => file_get_contents($xmlPath)
+			)
+		);
+
+		$addressMock1 = $this->getModelMock('sales/quote_address');
+		$addressMock1->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$addressMock1->expects($this->any())
+			->method('getShippingRate')
+			->will($this->returnValue('flatrate_flatrate'));
+		$addressMock2 = $this->getModelMock('sales/quote_address');
+		$addressMock2->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(2));
+		$addressMock2->expects($this->any())
+			->method('getShippingRate')
+			->will($this->returnValue('flatrate_flatrate'));
+
+		$itemMock = $this->getModelMock('sales/quote_item');
+		$itemMock->expects($this->any())
+			->method('getSku')
+			->will($this->returnValue('gc_virtual1'));
+
+		$itemResponse = $response->getResponseForItem($itemMock, $addressMock1);
+		$this->assertSame(1, $itemResponse->getQantity());
+		$itemResponse = $response->getResponseForItem($itemMock, $addressMock2);
+		$this->assertSame(2, $itemResponse->getQantity());
+	}
 }

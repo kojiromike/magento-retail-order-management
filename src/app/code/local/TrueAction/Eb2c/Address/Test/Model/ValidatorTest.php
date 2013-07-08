@@ -587,7 +587,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	 * the address is considered valid.
 	 * @test
 	 */
-	public function testNoReponseFromService()
+	public function testEmptyReponseFromService()
 	{
 		$this->_mockApiModel(true);
 		// address to validate
@@ -598,6 +598,32 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 			'country_id' => 'US',
 			'postcode' => '13025',
 		));
+		$validator = Mage::getModel('eb2caddress/validator');
+		$errors = $validator->validateAddress($address);
+
+		$this->assertNull($errors);
+	}
+
+	/**
+	 * When the API model's request method throws an error, validation should
+	 * be considered successful.
+	 * @test
+	 */
+	public function testErrorResponseFromService()
+	{
+		$mock = $this->getModelMock(
+			'eb2ccore/api',
+			array('setUri', 'request'));
+		$mock->expects($this->any())
+			->method('setUri')
+			->will($this->returnSelf());
+		$mock->expects($this->any())
+			->method('request')
+			->will($this->throwException(new Exception()));
+		$this->replaceByMock('model', 'eb2ccore/api', $mock);
+
+		$address = Mage::getModel('customer/address');
+
 		$validator = Mage::getModel('eb2caddress/validator');
 		$errors = $validator->validateAddress($address);
 

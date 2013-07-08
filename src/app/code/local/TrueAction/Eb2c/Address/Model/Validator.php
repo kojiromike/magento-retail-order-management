@@ -47,16 +47,19 @@ class TrueAction_Eb2c_Address_Model_Validator
 	 */
 	protected function _makeRequestForAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
-		$helper = Mage::helper('eb2ccore');
+		$apiResponse = '';
 		$api = Mage::getModel('eb2ccore/api');
-		$request = Mage::getModel('eb2caddress/validation_request')->setAddress($address);
-		$apiResponse = $api
-			->setUri($helper->getApiUri(
-					TrueAction_Eb2c_Address_Model_Validation_Request::API_SERVICE,
-					TrueAction_Eb2c_Address_Model_Validation_Request::API_OPERATION))
-			->request(
-				$request->getMessage());
-
+		$api->setUri(Mage::helper('eb2ccore')->getApiUri(
+			TrueAction_Eb2c_Address_Model_Validation_Request::API_SERVICE,
+			TrueAction_Eb2c_Address_Model_Validation_Request::API_OPERATION)
+		);
+		try {
+			$apiResponse = $api->request(
+				Mage::getModel('eb2caddress/validation_request')->setAddress($address)->getMessage()
+			);
+		} catch (Exception $e) {
+			Mage::log('EB2C Address: Error returned from API request - ' . $e->getMessage(), Zend_Log::WARN);
+		}
 		if (empty($apiResponse)) {
 			Mage::log('EB2C Address: Empty reponse returned from address validation service.', Zend_Log::WARN);
 			return null;
@@ -90,13 +93,11 @@ class TrueAction_Eb2c_Address_Model_Validator
 					$address->addData($response->getOriginalAddress()->getData());
 					$errorMessage = '';
 					if ($response->hasSuggestions()) {
-						$errorMessage = Mage::helper('eb2caddress')
-							->__(self::SUGGESTIONS_ERROR_MESSAGE);
+						$errorMessage = Mage::helper('eb2caddress')->__(self::SUGGESTIONS_ERROR_MESSAGE);
 					} else {
 						// I don't think we ever want this to happen.
 						Mage::log('EB2C Address: Address considered invalid but no suggestions given.', Zend_Log::WARN);
-						$errorMessage = Mage::helper('eb2caddress')
-							->__(self::NO_SUGGESTIONS_ERROR_MESSAGE);
+						$errorMessage = Mage::helper('eb2caddress')->__(self::NO_SUGGESTIONS_ERROR_MESSAGE);
 					}
 				}
 				$this->_stashAddresses($response, $address);

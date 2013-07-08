@@ -77,19 +77,23 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 * get the response for $item from the request.
 	 * return null if there is no valid response to retrieve.
 	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @param  Mage_Sales_Quote_Address    $address
 	 * @return TrueAction_Eb2c_Tax_Model_Response_OrderItem
 	 */
-	public function getResponseForItem(Mage_Sales_Model_Quote_Item $item)
-	{
+	public function getResponseForItem(
+		Mage_Sales_Model_Quote_Item $item,
+		Mage_Sales_Quote_Address $address
+	) {
+		$addressId = $address->getId();
 		$sku = $item->getSku();
-		$orderItem = isset($this->_responseItems[$sku]) ?
-			$this->_responseItems[$sku] : null;
+		$orderItem = isset($this->_responseItems[$addressId][$sku]) ?
+			$this->_responseItems[$addressId][$sku] : null;
 		return $orderItem;
 	}
 
 	/**
 	 * get the result records of the request
-	 * @return array(TrueAction_Eb2c_Tax_Model_Tax)
+	 * @return array(TrueAction_Eb2c_Tax_Model_Response_OrderItem)
 	 */
 	public function getResponseItems()
 	{

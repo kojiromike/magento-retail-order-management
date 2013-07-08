@@ -4,7 +4,7 @@
  * @package    TrueAction_Eb2c
  * @copyright  Copyright (c) 2013 True Action Network (http://www.trueaction.com)
  */
-class TrueAction_Eb2c_Tax_Test_Overrides_Model_ObserverTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2c_Tax_Test_Model_Overrides_ObserverTest extends EcomDev_PHPUnit_Test_Case
 {
 	public $className = 'TrueAction_Eb2c_Tax_Overrides_Model_Observer';
 	public $quoteItem = null;

@@ -59,11 +59,10 @@ class TrueAction_Eb2c_Order_Model_Cancel extends Mage_Core_Model_Abstract
 		}
 
 		try {
-			$response = $this->_helper->getCoreHelper()->callApi(
-							$this->_domRequest,
-							$uri,
-							$this->_config->serviceOrderTimeout
-						);
+			$response = $this->_helper->getApiModel()
+								->setUri($uri)
+								->setTimeout($this->_helper->getConfig()->serviceOrderTimeout)
+								->request($this->_domRequest);
 
 			$status='';
 			$this->_domResponse = $this->_helper->getDomDocument();

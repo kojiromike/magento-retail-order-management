@@ -66,10 +66,12 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	/**
 	 * calculate tax amount for an item with the values from the response.
 	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @param  Mage_Salse_Model_Quote_Address $address
 	 * @return float
 	 */
 	public function getTaxforItem(
-		Mage_Sales_Model_Quote_Item $item
+		Mage_Sales_Model_Quote_Item $item,
+		Mage_Salse_Model_Quote_Address $address
 	) {
 		$itemResponse = $this->_getItemResponse($item, $address);
 		$tax = 0.0;
@@ -84,12 +86,15 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 
 	/**
 	 * return the response data for the specified item.
+	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @param  Mage_Salse_Model_Quote_Address $address
+	 * @return
 	 */
 	protected function _getItemResponse(
 		Mage_Sales_Model_Quote_Item $item,
 		Mage_Sale_Model_Quote_Addres $address
 	) {
-		$response = $this->getTaxResponse($item, $address);
+		$response = $this->getTaxResponse();
 		$itemResponse = ($response) ?
 			$response->getResponseForItem($item, $address) :
 			null;
@@ -98,9 +103,9 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 
 	/**
 	 * return the total taxable amount.
-	 * @param  Mage_Sales_Model_Quote_Item  $item    [description]
-	 * @param  Mage_Sale_Model_Quote_Addres $address [description]
-	 * @return [type]                                [description]
+	 * @param  Mage_Sales_Model_Quote_Item  $item
+	 * @param  Mage_Sale_Model_Quote_Addres $address
+	 * @return float
 	 */
 	public function getTaxableAmountForItem(
 		Mage_Sales_Model_Quote_Item $item,

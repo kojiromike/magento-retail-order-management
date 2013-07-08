@@ -85,7 +85,7 @@
 						<ItemId>gc_virtual1</ItemId>
 						<ItemDesc>Test Item 1</ItemDesc>
 						<HTSCode>duty code</HTSCode>
-						<Quantity>1</Quantity>
+						<Quantity>2</Quantity>
 						<Pricing>
 							<Merchandise>
 								<Amount>200.00</Amount>

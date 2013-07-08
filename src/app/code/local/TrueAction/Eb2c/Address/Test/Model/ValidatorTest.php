@@ -8,6 +8,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	{
 		parent::setUp();
 		$this->_mockCoreHelper();
+		$this->_mockApiModel();
 		$this->_mockCustomerSession();
 	}
 
@@ -23,24 +24,37 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	}
 
 	/**
-	 * Replace the eb2ccore helper/data class with a mock.
+	 * Replace the eb2ccore/api model with a mock
+	 * @param boolean $emptyResponse
+	 */
+	protected function _mockApiModel()
+	{
+		$mock = $this->getModelMock(
+			'eb2ccore/api',
+			array('setUri', 'request'));
+		$mock->expects($this->any())
+			->method('setUri')
+			->will($this->returnSelf());
+		$mock->expects($this->any())
+			->method('request')
+			->will($this->returnValue('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"></AddressValidationResponse>'));
+		$this->replaceByMock('model', 'eb2ccore/api', $mock);
+		return $mock;
+	}
+
+	/**
+	 * Replace the eb2ccore/data helper class with a mock.
 	 * @return PHPUnit_Framework_MockObject_MockObject - the mock helper
 	 */
 	protected function _mockCoreHelper()
 	{
 		$mockCoreHelper = $this->getHelperMock(
 			'eb2ccore/data',
-			array('callApi', 'apiUri', 'getMocked')
+			array('apiUri')
 		);
-		$mockCoreHelper->expects($this->any())
-			->method('callApi')
-			->will($this->returnValue('<?xml version="1.0" encoding="UTF-8"?><AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0"></AddressValidationResponse>'));
 		$mockCoreHelper->expects($this->any())
 			->method('apiUri')
 			->will($this->returnValue('https://does.not.matter/as/this/isnot/actually/used.xml'));
-		$mockCoreHelper->expects($this->any())
-			->method('getMocked')
-			->will($this->returnValue('yup'));
 		$this->replaceByMock('helper', 'eb2ccore', $mockCoreHelper);
 		return $mockCoreHelper;
 	}

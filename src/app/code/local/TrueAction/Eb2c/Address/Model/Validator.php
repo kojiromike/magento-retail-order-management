@@ -56,15 +56,15 @@ class TrueAction_Eb2c_Address_Model_Validator
 			$this->clearSessionAddresses();
 			$helper = Mage::helper('eb2ccore');
 			$request = Mage::getModel('eb2caddress/validation_request')->setAddress($address);
-			$response = Mage::getModel('eb2caddress/validation_response')->setMessage(
-				$helper->callApi(
-					$request->getMessage(),
-					$helper->getApiUri(
-						TrueAction_Eb2c_Address_Model_Validation_Request::API_SERVICE,
-						TrueAction_Eb2c_Address_Model_Validation_Request::API_OPERATION
-					)
-				)
-			);
+			$response = Mage::getModel('eb2caddress/validation_response')
+				->setMessage(
+					Mage::getModel('eb2ccore/api')
+						->setUri($helper->getApiUri(
+							TrueAction_Eb2c_Address_Model_Validation_Request::API_SERVICE,
+							TrueAction_Eb2c_Address_Model_Validation_Request::API_OPERATION
+						))
+						->request($request->getMessage())
+				);
 			// copy over validated address data
 			if ($response->isAddressValid()) {
 				$address->addData($response->getValidAddress()->getData());

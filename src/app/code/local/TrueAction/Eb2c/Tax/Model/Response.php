@@ -111,11 +111,14 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 
 	/**
 	 * get the address using the value from the ref attribute.
-	 * @param  string $idRef
+	 * @param  TrueAction_Dom_Element $shipGroup
 	 * @return Mage_Sales_Model_Quote_Address
 	 */
-	protected function _getAddress($idRef)
+	protected function _getAddress(TrueAction_Dom_Element $shipGroup)
 	{
+		$xpath = new DOMXPath($this->_doc);
+		$xpath->registerNamespace('a', $this->_namespaceUri);
+		$idRef = $xpath->evaluate('string(./a:DestinationTarget/@ref)', $shipGroup);
 		$idRefArray = explode('_', $idRef);
 		$id = $idRefArray[0];
 		$address = $this->_loadAddress($id);
@@ -145,7 +148,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			$root
 		);
 		foreach ($shipGroups as $shipGroup) {
-			$address = $this->_getAddress($shipGroup->getAttribute('id'));
+			$address = $this->_getAddress($shipGroup);
 			$responseSkus = array();
 			// foreach item
 			$items = $xpath->query('//a:Items/a:OrderItem', $shipGroup);

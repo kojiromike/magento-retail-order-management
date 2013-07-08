@@ -21,6 +21,25 @@ class TrueAction_Eb2c_Address_Model_Validator
 	}
 
 	/**
+	 * If a selection has been made, update the address object with data
+	 * from the stashed address. This will include copying over the
+	 * has_been_validated flag, which will bypass re-validating the address.
+	 * @return Mage_Customer_Model_Address_Abstract
+	 */
+	protected function _updateAddressWithSelection(Mage_Customer_Model_Address_Abstract $address)
+	{
+		$suggestionAddress = $this->getValidatedAddress(
+			Mage::app()
+				->getRequest()
+				->getPost(TrueAction_Eb2c_Address_Block_Suggestions::SUGGESTION_INPUT_NAME)
+		);
+		if ($suggestionAddress) {
+			$address->addData($suggestionAddress->getData());
+		}
+		return $address;
+	}
+
+	/**
 	 * Validate an address via the EB2C Address Validation service.
 	 * Calls the EB2C API and feeds the results into a response model.
 	 * Will also ensure that the supplied address is populated with
@@ -32,6 +51,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 	public function validateAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
 		$errorMessage = null;
+		$address = $this->_updateAddressWithSelection($address);
 		if (!$address->getHasBeenValidated()) {
 			$this->clearSessionAddresses();
 			$helper = Mage::helper('eb2ccore');
@@ -39,7 +59,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 			$response = Mage::getModel('eb2caddress/validation_response')->setMessage(
 				$helper->callApi(
 					$request->getMessage(),
-					$helper->apiUri(
+					$helper->getApiUri(
 						TrueAction_Eb2c_Address_Model_Validation_Request::API_SERVICE,
 						TrueAction_Eb2c_Address_Model_Validation_Request::API_OPERATION
 					)
@@ -55,6 +75,8 @@ class TrueAction_Eb2c_Address_Model_Validator
 					$errorMessage = Mage::helper('eb2caddress')
 						->__(self::SUGGESTIONS_ERROR_MESSAGE);
 				} else {
+					// I don't think we ever want this to happen.
+					Mage::log('EB2C Address: Address considered invalid but not suggestions given.', Zend_Log::WARN);
 					$errorMessage = Mage::helper('eb2caddress')
 						->__(self::NO_SUGGESTIONS_ERROR_MESSAGE);
 				}
@@ -91,7 +113,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 		TrueAction_Eb2c_Address_Model_Validation_Response $response,
 		Mage_Customer_Model_Address_Abstract $requestAddress
 	) {
-		$addressCollection = new Varien_Object();
+		$addressCollection = Mage::getModel('eb2caddress/suggestion_group');
 		$addressCollection->setOriginalAddress(
 			$this->_cloneMerge(
 				$requestAddress,
@@ -119,7 +141,10 @@ class TrueAction_Eb2c_Address_Model_Validator
 	 */
 	public function getAddressCollection()
 	{
-		return $this->_getSession()->getData(self::SESSION_KEY) ?: new Varien_Object();
+		$collection = $this->_getSession()->getData(self::SESSION_KEY);
+		return ($collection instanceof TrueAction_Eb2c_Address_Model_Suggestion_Group)
+			? $collection
+			: new TrueAction_Eb2c_Address_Model_Suggestion_Group();
 	}
 
 	/**
@@ -147,7 +172,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 	 */
 	public function getValidatedAddress($key)
 	{
-		return $addressCollection = $this->getAddressCollection()->getData($key);
+		return $this->getAddressCollection()->getData($key);
 	}
 
 	/**

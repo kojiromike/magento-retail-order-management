@@ -112,9 +112,11 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 */
 	protected function _getAddress($idRef)
 	{
-		$address = $this->_loadAddress($idRef);
+		$idRefArray = explode('_', $idRef);
+		$id = $idRefArray[0];
+		$address = $this->_loadAddress($id);
 		if (!$address->getId()) {
-			$message = "Address referenced by '$idRef' could not be verified in the original request";
+			$message = "Address referenced by '$idRef' could not be loaded from the quote";
 			Mage::log($message, Zend_Log::DEBUG);
 			$address = null;
 		}

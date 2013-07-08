@@ -264,6 +264,34 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipgroups.yaml
 	 */
+	public function testGetAddressFail()
+	{
+		$xmlPath = dirname(__FILE__) . '/ResponseTest/fixtures/responseSplitAcrossShipGroups.xml';
+		$response = Mage::getModel(
+			'eb2ctax/response',
+			array(
+				'xml' => file_get_contents($xmlPath)
+			)
+		);
+		$rf = new ReflectionObject($response);
+		$getAddress = $rf->getMethod('_getAddress');
+		$getAddress->setAccessible(true);
+		$docRf = $rf->getProperty('_doc');
+		$docRf->setAccessible(true);
+		$doc = $docRf->getValue($response);
+		$x = new DOMXPath($doc);
+		$x->registerNamespace('a', $doc->documentElement->namespaceURI);
+		$shipGroups = $x->query('//a:ShipGroup');
+		$shipGroup = $shipGroups->item(0)->parentNode->createChild('ShipGroup');
+		$getAddress->invoke($response, $shipGroup);
+		$this->assertFalse($response->isValid());
+	}
+
+	/**
+	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 */
 	public function testItemSplitAcrossShipgroups()
 	{
 		$xmlPath = dirname(__FILE__) . '/ResponseTest/fixtures/responseSplitAcrossShipGroups.xml';

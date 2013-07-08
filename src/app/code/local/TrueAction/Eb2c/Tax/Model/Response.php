@@ -67,7 +67,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 */
 	protected function _loadAddress($addressId)
 	{
-		if (!$this->_address) {
+		if (!($this->_address && $addressId)) {
 			$this->_address = Mage::getModel('sales/quote_address');
 		}
 		return $this->_address->load($addressId);
@@ -123,8 +123,9 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 		$id = $idRefArray[0];
 		$address = $this->_loadAddress($id);
 		if (!$address->getId()) {
+			$this->_isValid = false;
 			$message = "Address referenced by '$idRef' could not be loaded from the quote";
-			Mage::log($message, Zend_Log::DEBUG);
+			Mage::log($message, Zend_Log::WARN);
 			$address = null;
 		}
 		return $address;
@@ -152,14 +153,17 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			$responseSkus = array();
 			// foreach item
 			$items = $xpath->query('./a:Items/a:OrderItem', $shipGroup);
-			foreach ($items as $item) {
-				$orderItem = Mage::getModel('eb2ctax/response_orderitem', array(
-					'node' => $item,
-					'namespace_uri' => $this->_namespaceUri
-				));
-				if ($orderItem->isValid()) {
-					$itemKey = (string)$orderItem->getSku();
-					$this->_responseItems[$address->getId()][$itemKey] = $orderItem;
+			if ($address->getId()) {
+				// skip the shipgroup we can't get the address
+				foreach ($items as $item) {
+					$orderItem = Mage::getModel('eb2ctax/response_orderitem', array(
+						'node' => $item,
+						'namespace_uri' => $this->_namespaceUri
+					));
+					if ($orderItem->isValid()) {
+						$itemKey = (string)$orderItem->getSku();
+						$this->_responseItems[$address->getId()][$itemKey] = $orderItem;
+					}
 				}
 			}
 		}

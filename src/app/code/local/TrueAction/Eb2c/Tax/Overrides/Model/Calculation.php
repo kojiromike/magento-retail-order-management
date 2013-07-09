@@ -201,7 +201,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	public function getAppliedRates($request)
 	{
 		$appliedRates = array();
-		if ($request->getItem() && $request->getAddress()) {
+		if ($request && $request->getItem() && $request->getAddress()) {
 			$appliedRates = $this->_getAppliedRates($request->getItem(), $request->getAddress());
 		}
 		return $appliedRates;

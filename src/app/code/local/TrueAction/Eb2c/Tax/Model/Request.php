@@ -92,13 +92,23 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->invalidate();
 		}
 	}
+
+	/**
+	 * get hasChanges.
+	 * @return boolean
+	 */
+	public function hasChanges()
+	{
+		return $this->_hasChanges;
+	}
+
 	/**
 	 * Determine if the request object has enough data to work with.
 	 * @return boolean
 	 */
 	public function isValid()
 	{
-		return !$this->_hasChanges &&
+		return !$this->hasChanges() &&
 			$this->getQuote() &&
 			$this->getQuote()->getId() &&
 			$this->getBillingAddress() &&
@@ -409,16 +419,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 					$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
 				)
 				->createChild('BillingInformation');
+			$billingInformation->setAttribute('ref', '_' . $this->_billingInfoRef);
 			$shipping = $tdRequest->createChild('Shipping');
 			$this->_tdRequest    = $tdRequest;
 			$shipGroups   = $shipping->createChild('ShipGroups');
 			$destinations = $shipping->createChild('Destinations');
 			$this->_processAddresses($destinations, $shipGroups);
-			$billingInformation->setAttributeNs(
-				$this->_namespaceUri,
-				'ref',
-				$this->_billingInfoRef
-			);
 		} catch (Mage_Core_Exception $e) {
 			Mage::log('TaxDutyQuoteRequest Error: ' . $e->getMessage(), Zend_Log::WARN);
 		}
@@ -437,10 +443,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			}
 		}
 		foreach ($this->_shipGroups as $destinationId => $itemList) {
-			$orderItemsFragment = $this->_doc->createDocumentFragment();
-			$orderItems = $orderItemsFragment->appendChild(
-				$this->_doc->createElement('Items')
-			);
 			$shipGroupInfo = $this->_shipGroupIds[$destinationId];
 			$shipGroupId   = $shipGroupInfo['group_id'];
 			$chargeType    = $shipGroupInfo['method'];
@@ -448,12 +450,18 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$shipGroup->addAttribute('id', $shipGroupId, true)
 				->addAttribute('chargeType', strtoupper($chargeType));
 			$destinationTarget = $shipGroup->createChild('DestinationTarget');
-			$destinationTarget->setAttribute('ref', $destinationId);
+			$destinationTarget->setAttribute('ref', '_' . $destinationId);
+
+			$orderItemsFragment = $this->_doc->createDocumentFragment();
+			$orderItems = $orderItemsFragment->appendChild(
+				$this->_doc->createElement('Items', null, $this->_namespaceUri)
+			);
 			foreach($itemList as $orderItemSku) {
 				$orderItem = $this->_orderItems[$orderItemSku];
 				$this->_addOrderItem($orderItem, $orderItems);
 			}
 			$shipGroup->appendChild($orderItemsFragment);
+
 		}
 	}
 
@@ -500,7 +508,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	) {
 		$this->_shipAddressRef = $address['id'];
 		$mailingAddress = $parent->createChild('MailingAddress');
-		$mailingAddress->setAttributeNs('', 'id', $this->_shipAddressRef);
+		$mailingAddress->setAttributeNs('', 'id', '_' . $this->_shipAddressRef);
 		$mailingAddress->setIdAttribute("id", true);
 		$personName = $mailingAddress->createChild('PersonName');
 		$this->_buildPersonName($personName, $address);
@@ -559,31 +567,50 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * @param TrueAction_Dom_Element         $parent
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
-	protected function _addOrderItem(array $item, TrueAction_Dom_Element $parent) {
-		$sku       = $this->_checkSku($item);
+	protected function _addOrderItem(array $item, TrueAction_Dom_Element $parent)
+	{
+		$sku = $this->_checkSku($item);
 		$orderItem = $parent->createChild('OrderItem')
 			->addAttribute('lineNumber', $this->_getLineNumber($item))
 			->addChild('ItemId', $sku)
 			->addChild('ItemDesc', $this->_checkLength($item['item_desc'], 0, 12))
-			->addChild('HTSCode', $this->_checkLength($item['hts_code'], 0, 12))
-			->addChild('Quantity', $item['quantity'])
-			->addChild('Pricing');
+			->addChild('HTSCode', $this->_checkLength($item['hts_code'], 0, 12));
+
+		$adminOrigin = $parent->createChild('AdminOrigin')
+			->addChild('Line1', 1)
+			->addChild('Line2', 2)
+			->addChild('Line3', 3)
+			->addChild('Line4', 4)
+			->addChild('City', 'optional')
+			->addChild('MainDivision', 'optional')
+			->addChild('CountryCode', 'optional')
+			->addChild('PostalCode', 'optional');
+
+		$origins = $parent->createChild('Origins');
+		$origins->appendChild($adminOrigin);
+
+		$shippingOrigin = $parent->createChild('ShippingOrigin')
+			->addChild('Line1', 1)
+			->addChild('Line2', 2)
+			->addChild('Line3', 3)
+			->addChild('Line4', 4)
+			->addChild('City', 'optional')
+			->addChild('MainDivision', 'optional')
+			->addChild('CountryCode', 'optional')
+			->addChild('PostalCode', 'optional');
+
+		$origins->appendChild($shippingOrigin);
+
+		$orderItem->appendChild($origins);
+		$orderItem->addChild('Quantity', $item['quantity']);
+
+		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
+
 		$merchandise = $orderItem->createChild('Pricing')
 			->createChild('Merchandise')
 			->addChild('Amount', $item['merchandise_amount'])
+			->addChild('TaxClass', $taxClass)
 			->addChild('UnitPrice', $item['merchandise_unit_price']);
-		// taxClass will be gotten from ItemMaster feed field "TaxCode"
-		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
-		if ($taxClass) {
-			$merchandise->createChild('TaxClass', $taxClass);
-		}
-		$shipping = $orderItem->createChild('Pricing')
-			->createChild('Shipping')
-			->addChild('Amount', $item['shipping_amount']);
-		$taxClass = $this->_checkLength($this->_getShippingTaxClass(), 1, 40);
-		if ($taxClass) {
-			$shipping->createChild('TaxClass', $taxClass);
-		}
 	}
 
 	/**

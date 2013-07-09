@@ -65,11 +65,11 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Subtotal extends Mag
 			}
 			if ($item->getHasChildren() && $item->isChildrenCalculated()) {
 				foreach ($item->getChildren() as $child) {
-					$this->_applyTaxes($child);
+					$this->_applyTaxes($child, $address);
 				}
 				$this->_recalculateParent($item);
 			} else {
-				$this->_applyTaxes($item);
+				$this->_applyTaxes($item, $address);
 			}
 			$this->_addSubtotalAmount($address, $item);
 		}
@@ -84,7 +84,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Subtotal extends Mag
 	 * @param TrueAction_Eb2c_Tax_Model_Response_OrderItem $itemResponse
 	 * @return Mage_Tax_Model_Sales_Total_Quote_Subtotal
 	 */
-	protected function _applyTaxes($item)
+	protected function _applyTaxes($item, $address)
 	{
 		$rate           = 0; // this is no longer useful.
 		$qty            = $item->getTotalQty();
@@ -93,25 +93,15 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Subtotal extends Mag
 		$basePrice      = $baseTaxPrice     = $this->_calculator->round($item->getBaseCalculationPriceOriginal());
 		$subtotal       = $taxSubtotal      = $item->getRowTotal();
 		$baseSubtotal   = $baseTaxSubtotal  = $item->getBaseRowTotal();
-		$taxOnOrigPrice = !$this->_helper->applyTaxOnCustomPrice($this->_store) && $item->hasCustomPrice();
-		if ($taxOnOrigPrice) {
-			$origPrice       = $item->getOriginalPrice();
-			$baseOrigPrice   = $item->getBaseOriginalPrice();
-		}
 		$item->setTaxPercent($rate);
-		$tax             = $this->_calculator->getTaxForItem($item);
-		$baseTax         = $this->_calculator->getTaxForItemAmount($basePrice, $item);
+		$tax             = $this->_calculator->getTaxForItem($item, $address);
+		$baseTax         = $this->_calculator->getTaxForItemAmount($basePrice, $item, $address);
 		$taxPrice        = $price + $tax;
 		$baseTaxPrice    = $basePrice + $baseTax;
 		$taxSubtotal     = $taxPrice * $qty;
 		$baseTaxSubtotal = $baseTaxPrice * $qty;
-		// if ($taxOnOrigPrice) {
-		// 	$taxable        = $origPrice;
-		// 	$baseTaxable    = $baseOrigPrice;
-		// } else {
-		// 	$taxable        = $price;
-		// 	$baseTaxable    = $basePrice;
-		// }
+		$taxable         = $this->_calculator->getTaxableForItem($item, $address)
+		$baseTaxPrice    = $taxable;
 		if ($item->hasCustomPrice()) {
 			/**
 			 * Initialize item original price before declaring custom price
@@ -128,8 +118,8 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Subtotal extends Mag
 		$item->setBasePriceInclTax($baseTaxPrice);
 		$item->setRowTotalInclTax($taxSubtotal);
 		$item->setBaseRowTotalInclTax($baseTaxSubtotal);
-		// $item->setTaxableAmount($taxable);
-		// $item->setBaseTaxableAmount($baseTaxable);
+		$item->setTaxableAmount($taxable);
+		$item->setBaseTaxableAmount($baseTaxable);
 		$item->setIsPriceInclTax(false);
 		if ($this->_config->discountTax($this->_store)) {
 			$item->setDiscountCalculationPrice($taxPrice);
@@ -137,5 +127,4 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Subtotal extends Mag
 		}
 		return $this;
 	}
-
 }

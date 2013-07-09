@@ -325,7 +325,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 
 //////////////////////////////////////////////////////////////////////////
 // figure out these as they may need to be moved to the request.
-		$inclTax        = $address->getIsShippingInclTax();
 		$shipping       = $address->getShippingTaxable();
 		$baseShipping   = $address->getBaseShippingTaxable();
 //////////////////////////////////////////////////////////////////////////
@@ -853,14 +852,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 			$discountTaxCompensation += $item->getDiscountTaxCompensation();
 		}
 		$taxAmount = $amount + $discountTaxCompensation;
-		/*
-		 * when weee discount is not included in extraTaxAmount, we need to add it to the total tax
-		 */
-		if ($this->_weeeHelper->isEnabled()) {
-			if (!$this->_weeeHelper->includeInSubtotal()) {
-				$taxAmount  += $address->getWeeeDiscount();
-			}
-		}
 
 		$area       = null;
 		if ($this->_config->displayCartTaxWithGrandTotal($store) && $address->getGrandTotal()) {

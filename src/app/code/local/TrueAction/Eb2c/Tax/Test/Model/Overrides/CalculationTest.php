@@ -96,4 +96,33 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 		$request = $calc->getTaxRequest();
 		$this->assertNotNull($request);
 	}
+
+	public function providerGetAppliedRates()
+	{
+		$mockQuoteItem = $this->getModelMock('sales/quote_item', array('getId', 'getTaxPercent'));
+		$mockQuoteItem->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$mockQuoteItem->expects($this->any())
+			->method('getTaxPercent')
+			->will($this->returnValue(0.0));
+
+		return array(
+			array($mockQuoteItem )
+		);
+	}
+
+	/**
+	 * Testing getAppliedRates method
+	 *
+	 * @test
+	 * @dataProvider providerGetAppliedRates
+	 */
+	public function testGetAppliedRates($item)
+	{
+		$calc = Mage::getModel('tax/calculation');
+		$this->assertNotNull(
+			$calc->getAppliedRates($item)
+		);
+	}
 }

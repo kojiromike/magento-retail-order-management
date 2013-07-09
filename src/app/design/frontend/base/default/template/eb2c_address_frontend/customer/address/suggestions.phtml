@@ -31,12 +31,4 @@ if ($this->shouldShowSuggestions()): ?>
 		</li>
 	</ul>
 </fieldset>
-<script>
-console.log($('suggestion-new'));
-$('address-validation-suggestions').on('change', 'input', function (evt) {
-	$$('.customer-address-form-list').each(function (ele) {
-		ele[(evt.findElement('input').readAttribute('id') === 'suggestion-new') ? 'removeClassName' : 'addClassName']('hide-new-address');
-	});
-});
-</script>
 <?php endif; ?>

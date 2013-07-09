@@ -1,15 +1,20 @@
 <?xml version="1.0"?>
 <layout version="0.1.0">
 
-	<customer_address_form>
+	<address_validation_suggestions_assets>
 		<reference name="head">
 			<action method="addCss"><stylesheet>css/validation-suggestions.css</stylesheet></action>
+			<action method="addItem"><type>skin_js</type><name>js/validation-suggestions.js</name></action>
 		</reference>
+	</address_validation_suggestions_assets>
+
+	<customer_address_form>
+		<update handle="address_validation_suggestions_assets" />
 		<reference name="customer_address_edit">
 			<action method="setTemplate">
 				<template>eb2c_address_frontend/customer/address/edit.phtml</template>
 			</action>
-			<block type="eb2caddress/suggestions" name="address_validation_suggestions" template="eb2c_address_frontend/customer/address/suggestions.phtml">
+			<block type="eb2caddress/suggestions" name="address_validation_suggestions">
 				<action method="setAddressFormat">
 					<formatConfig>address_format_address_only</formatConfig>
 				</action>
@@ -18,14 +23,12 @@
 	</customer_address_form>
 
 	<enterprise_giftregistry_index_edit>
-		<reference name="head">
-			<action method="addCss"><stylesheet>css/validation-suggestions.css</stylesheet></action>
-		</reference>
+		<update handle="address_validation_suggestions_assets" />
 		<reference name="giftregistry_address_edit">
 			<action method="setTemplate">
 				<template>eb2c_address_frontend/giftregistry/address/edit.phtml</template>
 			</action>
-			<block type="eb2caddress/suggestions" name="address_validation_suggestions" template="eb2c_address_frontend/customer/address/suggestions.phtml">
+			<block type="eb2caddress/suggestions" name="address_validation_suggestions">
 				<action method="setAddressFormat">
 					<formatConfig>address_format_full</formatConfig>
 				</action>
@@ -34,19 +37,58 @@
 	</enterprise_giftregistry_index_edit>
 
 	<checkout_multishipping_customer_address>
-		<reference name="head">
-			<action method="addCss"><stylesheet>css/validation-suggestions.css</stylesheet></action>
-		</reference>
+		<update handle="address_validation_suggestions_assets" />
 		<reference name="customer_address_edit">
 			<action method="setTemplate">
 				<template>eb2c_address_frontend/customer/address/edit.phtml</template>
 			</action>
-			<block type="eb2caddress/suggestions" name="address_validation_suggestions" template="eb2c_address_frontend/customer/address/suggestions.phtml">
+			<block type="eb2caddress/suggestions" name="address_validation_suggestions">
 				<action method="setAddressFormat">
 					<formatConfig>address_format_address_only</formatConfig>
 				</action>
 			</block>
 		</reference>
 	</checkout_multishipping_customer_address>
+
+	<checkout_onepage_index>
+		<update handle="address_validation_suggestions_assets" />
+		<reference name="head">
+			<action method="addItem">
+				<type>skin_js</type>
+				<name>js/checkout-validation-suggestions.js</name>
+			</action>
+		</reference>
+		<reference name="checkout.onepage.billing">
+			<action method="setTemplate">
+				<template>eb2c_address_frontend/checkout/onepage/billing.phtml</template>
+			</action>
+			<block type="eb2caddress/suggestions" name="address_validation_suggestions">
+				<action method="setAddressFormat">
+					<formatConfig>address_format_full</formatConfig>
+				</action>
+			</block>
+		</reference>
+		<reference name="checkout.onepage.shipping">
+			<action method="setTemplate">
+				<template>eb2c_address_frontend/checkout/onepage/shipping.phtml</template>
+			</action>
+			<block type="eb2caddress/suggestions" name="address_validation_suggestions">
+				<action method="setAddressFormat">
+					<formatConfig>address_format_full</formatConfig>
+				</action>
+			</block>
+		</reference>
+	</checkout_onepage_index>
+
+	<checkout_onepage_address_suggestions>
+		<remove name="right" />
+		<remove anem="left" />
+
+		<block type="eb2caddress/suggestions" name="root" output="toHtml">
+			<action method="setAddressFormat">
+				<formatConfig>address_format_full</formatConfig>
+			</action>
+		</block>
+	</checkout_onepage_address_suggestions>
 
 </layout>

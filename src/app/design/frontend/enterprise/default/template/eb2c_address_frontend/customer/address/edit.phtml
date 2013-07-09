@@ -45,8 +45,11 @@
 	</div>
 	<div class="fieldset">
 		<h2 class="legend"><?php echo $this->__('Address') ?></h2>
-		<?php echo $this->getBlockHtml('address_validation_suggestions') ?>
-		<ul class="form-list customer-address-form-list<?php echo ($this->hasSuggestions()) ? ' hide-new-address' : ''?>">
+		<?php
+		$_suggestionBlock = $this->getChild('address_validation_suggestions');
+		echo $_suggestionBlock->toHtml();
+		?>
+		<ul class="form-list customer-address-form-list<?php echo ($_suggestionBlock->shouldShowSuggestions()) ? ' hide-new-address' : ''?>">
 		<?php $_streetValidationClass = $this->helper('customer/address')->getAttributeValidationClass('street'); ?>
 			<li>
 				<label for="street_1" class="required"><em>*</em><?php echo $this->__('Street Address') ?></label>

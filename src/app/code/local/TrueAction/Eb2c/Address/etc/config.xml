@@ -20,16 +20,6 @@
 			<eb2caddress>
 				<class>TrueAction_Eb2c_Address_Block</class>
 			</eb2caddress>
-			<customer>
-				<rewrite>
-					<address_edit>TrueAction_Eb2c_Address_Block_Override_Customer_Address_Edit</address_edit>
-				</rewrite>
-			</customer>
-			<enterprise_giftregistry>
-				<rewrite>
-					<customer_address_edit>TrueAction_Eb2c_Address_Block_Override_Giftregistry_Customer_Address_Edit</customer_address_edit>
-				</rewrite>
-			</enterprise_giftregistry>
 		</blocks>
 		<events>
 			<address_validate>
@@ -43,6 +33,28 @@
 			</address_validate>
 		</events>
 	</global>
+	<frontend>
+		<events>
+			<controller_action_postdispatch_checkout_onepage_saveBilling>
+				<observers>
+					<eb2caddress_add_suggestions_to_billing_response>
+						<type>singleton</type>
+						<class>eb2caddress/observer</class>
+						<method>addSuggestionsToResponse</method>
+					</eb2caddress_add_suggestions_to_billing_response>
+				</observers>
+			</controller_action_postdispatch_checkout_onepage_saveBilling>
+			<controller_action_postdispatch_checkout_onepage_saveShipping>
+				<observers>
+					<eb2caddress_add_suggestions_to_shipping_response>
+						<type>singleton</type>
+						<class>eb2caddress/observer</class>
+						<method>addSuggestionsToResponse</method>
+					</eb2caddress_add_suggestions_to_shipping_response>
+				</observers>
+			</controller_action_postdispatch_checkout_onepage_saveShipping>
+		</events>
+	</frontend>
 	<default>
 		<eb2caddress>
 			<general>

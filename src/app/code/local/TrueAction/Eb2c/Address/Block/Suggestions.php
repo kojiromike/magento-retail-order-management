@@ -7,6 +7,8 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 	const DEFAULT_ADDRESS_FORMAT_CONFIG = 'address_format_full';
 	const NEW_ADDRESS_SELECTION_VALUE = 'new_address';
 
+	protected $_template = "eb2c_address_frontend/customer/address/suggestions.phtml";
+
 	/**
 	 * mapping of messages used by this block
 	 * @var array

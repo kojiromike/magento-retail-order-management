@@ -11,38 +11,47 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
         $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
         $this->app()->getRequest()->setBaseUrl($_baseUrl);
 
-		$taxQuote  = $this->getModelMock('eb2ctax/response_quote',
-			array('getEffectiveRate', 'getCalculatedTax'));
+		$this->addressMock = $this->getModelMock('sales/quote_address');
+		$this->addressMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+
+		$taxQuoteMethods = array('getEffectiveRate', 'getCalculatedTax', 'getTaxableAmount');
+		$taxQuote  = $this->getModelMock('eb2ctax/response_quote', $taxQuoteMethods);
 		$taxQuote->expects($this->any())
 			->method('getEffectiveRate')
 			->will($this->returnValue(.5));
 		$taxQuote->expects($this->any())
 			->method('getCalculatedTax')
 			->will($this->returnValue(0.38));
-		$taxQuote2  = $this->getModelMock('eb2ctax/response_quote',
-			array('getEffectiveRate', 'getCalculatedTax'));
+		$taxQuote->expects($this->any())
+			->method('getTaxableAmount')
+			->will($this->returnValue(10));
+
+		$taxQuote2  = $this->getModelMock('eb2ctax/response_quote', $taxQuoteMethods);
 		$taxQuote2->expects($this->any())
 			->method('getEffectiveRate')
 			->will($this->returnValue(0.01));
 		$taxQuote2->expects($this->any())
 			->method('getCalculatedTax')
 			->will($this->returnValue(10.60));
+		$taxQuote2->expects($this->any())
+			->method('getTaxableAmount')
+			->will($this->returnValue(5));
 		$taxQuotes = array($taxQuote, $taxQuote2);
-		$orderItem = $this->getModelMock(
+
+		$this->orderItem = $this->getModelMock(
 			'eb2ctax/response_orderitem',
-			array('getTaxQuotes')
+			array('getTaxQuotes', 'getMerchandiseAmount')
 		);
-		$orderItem->expects($this->any())
+		$this->orderItem->expects($this->any())
 			->method('getTaxQuotes')
 			->will($this->returnValue($taxQuotes));
-		$orderItems = array($orderItem);
-		$response = $this->getModelMock(
-			'eb2ctax/response',
-			array('getResponseForItem')
-		);
+		$orderItems = array($this->orderItem);
+		$response = $this->getModelMock('eb2ctax/response', array('getResponseForItem'));
 		$response->expects($this->any())
 			->method('getResponseForItem')
-			->will($this->returnValue($orderItem));
+			->will($this->returnValue($this->orderItem));
 		$this->response = $response;
 		$item = $this->getModelMock('sales/quote_item', array('getSku'));
 		$item->expects($this->any())
@@ -56,10 +65,9 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 	 */
 	public function testCalcTaxForItem()
 	{
-		$this->markTestSkipped('TODO: Pass $address to getTaxforItem');
 		$calc = Mage::getSingleton('tax/calculation');
 		$calc->setTaxResponse($this->response);
-		$value = $calc->getTaxForItem($this->item);
+		$value = $calc->getTaxForItem($this->item, $this->addressMock);
 		$this->assertSame(10.98, $value);
 	}
 
@@ -70,11 +78,9 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 	{
 		$calc = Mage::getSingleton('tax/calculation');
 		$calc->setTaxResponse($this->response);
-		$value = $calc->getTaxForItemAmount(1, $this->item);
+		$value = $calc->getTaxForItemAmount(1, $this->item, $this->addressMock, true);
 		$this->assertSame(0.51, $value);
-		$value = $calc->getTaxForItemAmount(1.51, $this->item, true);
-		$this->assertSame(0.51, $value);
-		$value = $calc->getTaxForItemAmount(1.1, $this->item, false, false);
+		$value = $calc->getTaxForItemAmount(1.1, $this->item, $this->addressMock, false);
 		$this->assertSame(0.561, $value);
 	}
 
@@ -97,32 +103,37 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 		$this->assertNotNull($request);
 	}
 
-	public function providerGetAppliedRates()
-	{
-		$mockQuoteItem = $this->getModelMock('sales/quote_item', array('getId', 'getTaxPercent'));
-		$mockQuoteItem->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(1));
-		$mockQuoteItem->expects($this->any())
-			->method('getTaxPercent')
-			->will($this->returnValue(0.0));
-
-		return array(
-			array($mockQuoteItem )
-		);
-	}
-
-	/**
-	 * Testing getAppliedRates method
-	 *
-	 * @test
-	 * @dataProvider providerGetAppliedRates
-	 */
-	public function testGetAppliedRates($item)
+	public function testGetTaxableForItem()
 	{
 		$calc = Mage::getModel('tax/calculation');
-		$this->assertNotNull(
-			$calc->getAppliedRates($item)
-		);
+		$this->orderItem->expects($this->any())
+			->method('getMerchandiseAmount')
+			->will($this->returnValue(50));
+		$calc->setTaxResponse($this->response);
+		$amount = $calc->getTaxableForItem($this->item, $this->addressMock);
+		$this->assertSame(15, $amount);
+	}
+
+	public function testGetTaxableForItem2()
+	{
+		$calc = Mage::getModel('tax/calculation');
+		$this->orderItem->expects($this->any())
+			->method('getMerchandiseAmount')
+			->will($this->returnValue(7));
+		$calc->setTaxResponse($this->response);
+		$amount = $calc->getTaxableForItem($this->item, $this->addressMock);
+		$this->assertSame(7, $amount);
+	}
+
+	public function testGetAppliedRates()
+	{
+		$calc = Mage::getModel('tax/calculation');
+		$calc->setTaxResponse($this->response);
+		$a = $calc->getAppliedRates($this->item, $this->addressMock);
+		foreach ($a['rates'] as $index => $rate) {
+			$expected = $this->expected('1-' . $index);
+			$this->assertSame((float)$expected->getPercent(), $rate['percent']);
+			$this->assertSame((float)$expected->getAmount(), $rate['amount']);
+		}
 	}
 }

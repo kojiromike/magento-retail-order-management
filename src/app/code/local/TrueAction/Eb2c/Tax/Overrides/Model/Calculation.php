@@ -66,7 +66,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	/**
 	 * calculate tax amount for an item with the values from the response.
 	 * @param  Mage_Sales_Model_Quote_Item $item
-	 * @param  Mage_Salse_Model_Quote_Address $address
+	 * @param  Mage_Sales_Model_Quote_Address $address
 	 * @return float
 	 */
 	public function getTaxforItem(
@@ -95,7 +95,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		Mage_Sales_Model_Quote_Address $address
 	) {
 		$response = $this->getTaxResponse();
-		$itemResponse = ($response) ?
+		$itemResponse = $response ?
 			$response->getResponseForItem($item, $address) :
 			null;
 		return $itemResponse;
@@ -111,15 +111,18 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		Mage_Sales_Model_Quote_Item  $item,
 		Mage_Sales_Model_Quote_Address $address
 	) {
-		$itemResponse = $this->_getItemResponse($item, $address);
-		$taxQuotes = ($itemResponse) ?
-			$itemResponse->getTaxQuotes() :
-			array();
+		$itemResponse      = $this->_getItemResponse($item, $address);
+		$taxQuotes         = array();
+		$merchandiseAmount = 0;
 		$amount = 0;
-		foreach($taxQuotes as $taxQuote) {
-			$amount += $taxQuote->getTaxableAmount();
+		if ($itemResponse) {
+			$taxQuotes         = $itemResponse->getTaxQuotes();
+			$merchandiseAmount = $itemResponse->getMerchandiseAmount();
+			foreach($taxQuotes as $taxQuote) {
+				$amount += $taxQuote->getTaxableAmount();
+			}
 		}
-		return min($amount, $itemResponse->getMerchandiseAmount());
+		return min($amount, $merchandiseAmount);
 	}
 
 	/**
@@ -136,10 +139,8 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		Mage_Sales_Model_Quote_Address $address,
 		$round = true
 	) {
-		$response = $this->getTaxResponse();
-		$itemResponse = ($response) ?
-			$response->getResponseForItem($item, $address) : null;
-		$tax = 0.0;
+		$itemResponse = $this->_getItemResponse($item, $address);
+		$tax          = 0.0;
 		if ($itemResponse) {
 			$taxQuotes = $itemResponse->getTaxQuotes();
 			foreach ($taxQuotes as $taxQuote) {
@@ -172,16 +173,29 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		return $amount;
 	}
 
-
 	/**
 	 * Get information about tax rates applied
 	 *
 	 * @param   Varien_Object $request
+	 * @param   $item $request
 	 * @return  array
 	 */
-	public function getAppliedRates($item)
+	public function getAppliedRates($item, $address)
 	{
-		$result = array();
+		$result = array('percent' => null, 'amount' => null);
+		$itemResponse = $this->_getItemResponse($item, $address);
+		if ($itemResponse) {
+			$taxQuotes = $itemResponse->getTaxQuotes();
+			foreach ($taxQuotes as $index => $taxQuote) {
+				$rate['code']      = 'foo';
+				$rate['title']     = "tax_{$index}";
+				$rate['percent']   = $taxQuote->getEffectiveRate() * 100;
+				$rate['amount']    = $taxQuote->getCalculatedTax();
+				$rate['position']  = 1;
+				$rate['priority']  = 1;
+				$result['rates'][] =  $rate;
+			}
+		}
 		return $result;
 	}
 }

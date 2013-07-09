@@ -71,7 +71,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 */
 	public function getTaxforItem(
 		Mage_Sales_Model_Quote_Item $item,
-		Mage_Salse_Model_Quote_Address $address
+		Mage_Sales_Model_Quote_Address $address
 	) {
 		$itemResponse = $this->_getItemResponse($item, $address);
 		$tax = 0.0;
@@ -92,7 +92,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 */
 	protected function _getItemResponse(
 		Mage_Sales_Model_Quote_Item $item,
-		Mage_Sale_Model_Quote_Addres $address
+		Mage_Sales_Model_Quote_Address $address
 	) {
 		$response = $this->getTaxResponse();
 		$itemResponse = ($response) ?
@@ -104,17 +104,18 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	/**
 	 * return the total taxable amount.
 	 * @param  Mage_Sales_Model_Quote_Item  $item
-	 * @param  Mage_Sale_Model_Quote_Addres $address
+	 * @param  Mage_Sales_Model_Quote_Address $address
 	 * @return float
 	 */
-	public function getTaxableAmountForItem(
-		Mage_Sales_Model_Quote_Item $item,
-		Mage_Sale_Model_Quote_Addres $address
+	public function getTaxableForItem(
+		Mage_Sales_Model_Quote_Item  $item,
+		Mage_Sales_Model_Quote_Address $address
 	) {
 		$itemResponse = $this->_getItemResponse($item, $address);
 		$taxQuotes = ($itemResponse) ?
 			$itemResponse->getTaxQuotes() :
 			array();
+		$amount = 0;
 		foreach($taxQuotes as $taxQuote) {
 			$amount += $taxQuote->getTaxableAmount();
 		}
@@ -132,20 +133,20 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	public function getTaxforItemAmount(
 		$amount,
 		Mage_Sales_Model_Quote_Item $item,
-		$amountInlcudesTax = false,
+		Mage_Sales_Model_Quote_Address $address,
 		$round = true
 	) {
 		$response = $this->getTaxResponse();
 		$itemResponse = ($response) ?
-			$response->getResponseForItem($item) : null;
+			$response->getResponseForItem($item, $address) : null;
 		$tax = 0.0;
 		if ($itemResponse) {
 			$taxQuotes = $itemResponse->getTaxQuotes();
 			foreach ($taxQuotes as $taxQuote) {
-				$tax += $this->calcTaxAmount(
+				$tax += $this->_calcTaxAmount(
 					$amount,
 					$taxQuote->getEffectiveRate(),
-					$amountInlcudesTax,
+					false,
 					$round
 				);
 			}

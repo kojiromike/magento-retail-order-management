@@ -96,6 +96,9 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 		$this->assertSame($calc->getTaxResponse(), $calc2->getTaxResponse());
 	}
 
+	/**
+	 * @test
+	 */
 	public function testGetTaxRequest()
 	{
 		$calc = Mage::getModel('tax/calculation');
@@ -103,6 +106,9 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 		$this->assertNotNull($request);
 	}
 
+	/**
+	 * @test
+	 */
 	public function testGetTaxableForItem()
 	{
 		$calc = Mage::getModel('tax/calculation');
@@ -114,6 +120,9 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 		$this->assertSame(15, $amount);
 	}
 
+	/**
+	 * @test
+	 */
 	public function testGetTaxableForItem2()
 	{
 		$calc = Mage::getModel('tax/calculation');
@@ -125,15 +134,42 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 		$this->assertSame(7, $amount);
 	}
 
+	/**
+	 * @test
+	 * @loadExpectation
+	 */
 	public function testGetAppliedRates()
 	{
 		$calc = Mage::getModel('tax/calculation');
 		$calc->setTaxResponse($this->response);
-		$a = $calc->getAppliedRates($this->item, $this->addressMock);
+		$a = $calc->getAppliedRatesForItem($this->item, $this->addressMock);
 		foreach ($a['rates'] as $index => $rate) {
 			$expected = $this->expected('1-' . $index);
 			$this->assertSame((float)$expected->getPercent(), $rate['percent']);
 			$this->assertSame((float)$expected->getAmount(), $rate['amount']);
 		}
+	}
+
+	/**
+	 * @test
+	 * @loadExpectation testGetAppliedRates
+	 */
+	public function testGetAppliedRatesPlaceholder()
+	{
+		$calc = Mage::getModel('tax/calculation');
+		$calc->setTaxResponse($this->response);
+		$request = new Varien_Object();
+		$request->setItem($this->item)
+			->setAddress($this->addressMock);
+		$a = $calc->getAppliedRates($request);
+		foreach ($a['rates'] as $index => $rate) {
+			$expected = $this->expected('1-' . $index);
+			$this->assertSame((float)$expected->getPercent(), $rate['percent']);
+			$this->assertSame((float)$expected->getAmount(), $rate['amount']);
+		}
+
+		$request = new Varien_Object();
+		$a = $calc->getAppliedRates($request);
+		$this->assertEmpty($a);
 	}
 }

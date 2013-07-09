@@ -56,17 +56,15 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$this->app()->getRequest()->setBaseUrl($_baseUrl);
 	}
 
-	/**
-	 * @test
-	 * @loadFixture base.yaml
-	 * @loadFixture singleShippingSameAsBilling.yaml
-	 */
-	public function testIsValid()
+	public function quoteWithVirtualProducts()
 	{
-		$mockQuoteAddress = $this->getModelMock('sales/quote_address', array('getId'));
+		$mockQuoteAddress = $this->getModelMock('sales/quote_address', array('getId', 'getEmail'));
 		$mockQuoteAddress->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(1));
+		$mockQuoteAddress->expects($this->any())
+			->method('getEmail')
+			->will($this->returnValue('test@test.com'));
 
 		$mockProduct = $this->getModelMock('catalog/product', array('isVirtual'));
 		$mockProduct->expects($this->any())
@@ -104,7 +102,19 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 			->method('getAllVisibleItems')
 			->will($this->returnValue(array($mockItem)));
 
-		$req = Mage::getModel('eb2ctax/request', array('quote' => $mockQuote));
+		return $mockQuote;
+	}
+
+	/**
+	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture singleShippingSameAsBilling.yaml
+	 */
+	public function testIsValid()
+	{
+
+
+		$req = Mage::getModel('eb2ctax/request', array('quote' => $this->quoteWithVirtualProducts()));
 		$this->assertTrue($req->isValid());
 		$req->invalidate();
 		$this->assertFalse($req->isValid());
@@ -121,7 +131,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$this->assertTrue($request->isValid());
 		$doc = $request->getDocument();
-		$this->markTestIncomplete('xsd validation fails even though the output xml looks good');
 		$this->assertTrue($doc->schemaValidate(self::$xsdFile));
 	}
 
@@ -132,7 +141,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testGetSkus()
 	{
-		$this->markTestIncomplete('According to mphang this is useless now. Leaving for code review.');
+		// REMINDER: According to mphang this is useless now. Leaving for code review.
 		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$result = $request->getSkus();
@@ -254,14 +263,50 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	/**
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture singleShippingNotSameAsBilling.yaml
+	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
 	public function testVirtualPhysicalMix()
 	{
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(4);
+		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$doc = $request->getDocument();
-		$this->markTestIncomplete('need to check wether the virtual item got assigned to the virtual destination');
+
+		$requestXpath = new DOMXPath($doc);
+		$requestXpath->registerNamespace('a', $doc->documentElement->namespaceURI);
+		$hasVirtualDestination = false;
+		$shipGroups = $requestXpath->query('//a:Shipping/a:ShipGroups/a:ShipGroup');
+		foreach ($shipGroups as $group) {
+			$id = $group->getAttribute('id');
+			$destinationTarget = $requestXpath->query('//a:Shipping/a:ShipGroups/a:ShipGroup[@id="' . $id . '"]/a:DestinationTarget');
+			$refAttribute = $destinationTarget->item(0)->getAttribute('ref');
+			if ($refAttribute && sizeof(explode('_', $refAttribute)) === 3) {
+				$hasVirtualDestination = true;
+			}
+		}
+
+		// Test when no virtual destination is set because our fixtures doesn't have any virtual product
+		$this->assertFalse($hasVirtualDestination);
+
+		// Let condition our quote to have virtual products
+		$quote   = $this->quoteWithVirtualProducts();
+		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
+		$doc = $request->getDocument();
+
+		$requestXpath = new DOMXPath($doc);
+		$requestXpath->registerNamespace('a', $doc->documentElement->namespaceURI);
+		$hasVirtualDestination = false;
+		$shipGroups = $requestXpath->query('//a:Shipping/a:ShipGroups/a:ShipGroup');
+		foreach ($shipGroups as $group) {
+			$id = $group->getAttribute('id');
+			$destinationTarget = $requestXpath->query('//a:Shipping/a:ShipGroups/a:ShipGroup[@id="' . $id . '"]/a:DestinationTarget');
+			$refAttribute = $destinationTarget->item(0)->getAttribute('ref');
+			if ($refAttribute && sizeof(explode('_', $refAttribute)) === 3) {
+				$hasVirtualDestination = true;
+			}
+		}
+
+		// Test when virtual destination is set
+		$this->assertTrue($hasVirtualDestination);
 	}
 
 	/**
@@ -271,7 +316,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testCheckItemQty()
 	{
-		$this->markTestIncomplete('missing fixtures?');
 		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(3);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$items = $quote->getAllVisibleItems();
@@ -282,7 +326,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$request->checkItemQty($item);
 		$this->assertFalse($request->isValid());
 	}
-
 
 	/**
 	 * @test
@@ -315,10 +358,11 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		// should not be found.
 		$ls = $x->query('//a:OrderItem/a:ItemId[.="123456789012345678901"]');
 		$this->assertSame(0, $ls->length);
-		$this->markTestIncomplete('the skus get trucated properly, but the below xpath query doesnt work');
+
 		$ls = $x->query('//a:OrderItem/a:ItemId[.="12345678901234567890"]');
+
 		// the sku should be truncated at 20 characters
-		$this->assertSame(1, $ls->length);
+		$this->assertSame(3, $ls->length);
 	}
 
 	/**

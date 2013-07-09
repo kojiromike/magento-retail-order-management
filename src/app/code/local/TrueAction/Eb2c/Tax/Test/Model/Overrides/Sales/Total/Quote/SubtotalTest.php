@@ -21,21 +21,27 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest ex
         $this->applyTaxes = new ReflectionMethod($this->subtotal, '_applyTaxes');
         $this->applyTaxes->setAccessible(true);
 		$taxQuote  = $this->getModelMock('eb2ctax/response_quote',
-			array('getEffectiveRate', 'getCalculatedTax'));
+			array('getEffectiveRate', 'getCalculatedTax', 'getTaxableAmount'));
 		$taxQuote->expects($this->any())
 			->method('getEffectiveRate')
 			->will($this->returnValue(1.5));
 		$taxQuote->expects($this->any())
 			->method('getCalculatedTax')
 			->will($this->returnValue(0.38));
+		$taxQuote->expects($this->any())
+			->method('getTaxableAmount')
+			->will($this->returnValue(10));
 		$taxQuotes = array($taxQuote);
 		$orderItem = $this->getModelMock(
 			'eb2ctax/response_orderitem',
-			array('getTaxQuotes')
+			array('getTaxQuotes', 'getMerchandiseAmount')
 		);
 		$orderItem->expects($this->any())
 			->method('getTaxQuotes')
 			->will($this->returnValue($taxQuotes));
+		$orderItem->expects($this->any())
+			->method('getMerchandiseAmount')
+			->will($this->returnValue(299.99));
 		$orderItems = array($orderItem);
 		$response = $this->getModelMock(
 			'eb2ctax/response',
@@ -56,12 +62,12 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest ex
 	 */
 	public function testApplyTaxes()
 	{
-		$this->markTestSkipped('Pass $address argument to invocation.');
-		$calc  = Mage::helper('tax')->getCalculator();
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
-		$items = $quote->getShippingAddress()->getAllNonNominalItems();
+		$calc    = Mage::helper('tax')->getCalculator();
+		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
+		$address = $quote->getShippingAddress();
+		$items   = $address->getAllNonNominalItems();
 		foreach ($items as $item) {
-			$this->applyTaxes->invoke($this->subtotal, $item);
+			$this->applyTaxes->invoke($this->subtotal, $item, $address);
 			$exp = $this->expected('1-' . $item->getSku());
 			$this->assertSame($exp->getTaxPercent(), $item->getTaxPercent());
 			$this->assertSame($exp->getPriceInclTax(), $item->getPriceInclTax());

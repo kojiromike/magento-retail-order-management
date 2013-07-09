@@ -179,7 +179,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 * @param   $item $request
 	 * @return  array
 	 */
-	public function getAppliedRates($item, $address)
+	public function _getAppliedRates($item, $address)
 	{
 		$result = array('percent' => null, 'amount' => null);
 		$itemResponse = $this->_getItemResponse($item, $address);
@@ -196,5 +196,14 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 			}
 		}
 		return $result;
+	}
+
+	public function getAppliedRates($request)
+	{
+		$appliedRates = array();
+		if ($request->getItem() && $request->getAddress()) {
+			$appliedRates = $this->_getAppliedRates($request->getItem(), $request->getAddress());
+		}
+		return $appliedRates;
 	}
 }

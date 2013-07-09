@@ -50,7 +50,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	 *
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
 	public function testGetResponseForItem()
 	{
@@ -77,7 +77,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	 *
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
 	public function testGetResponseItems()
 	{
@@ -96,7 +96,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	 *
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
 	public function testIsValid()
 	{
@@ -112,7 +112,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	 *
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
 	public function testConstructValidRequestResponseMatch()
 	{
@@ -144,7 +144,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	 *
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
 	public function testConstructInvalidRequestResponseMatch()
 	{
@@ -174,7 +174,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	 *
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
 	public function testConstructMailingAddressMisMatch()
 	{
@@ -203,7 +203,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	/**
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
 	public function testLoadAddress()
 	{
@@ -230,7 +230,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	/**
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
 	public function testGetAddress()
 	{
@@ -262,7 +262,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	/**
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
 	public function testGetAddressFail()
 	{
@@ -290,7 +290,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 	/**
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture testItemSplitAcrossShipgroups.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
 	public function testItemSplitAcrossShipgroups()
 	{

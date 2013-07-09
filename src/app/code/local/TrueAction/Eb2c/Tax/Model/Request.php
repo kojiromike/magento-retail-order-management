@@ -92,13 +92,23 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->invalidate();
 		}
 	}
+
+	/**
+	 * get hasChanges.
+	 * @return boolean
+	 */
+	public function hasChanges()
+	{
+		return $this->_hasChanges;
+	}
+
 	/**
 	 * Determine if the request object has enough data to work with.
 	 * @return boolean
 	 */
 	public function isValid()
 	{
-		return !$this->_hasChanges &&
+		return !$this->hasChanges() &&
 			$this->getQuote() &&
 			$this->getQuote()->getId() &&
 			$this->getBillingAddress() &&
@@ -409,7 +419,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 					$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
 				)
 				->createChild('BillingInformation');
-			$billingInformation->setAttribute('ref', 'bill_dest_' . $this->_billingInfoRef);
+			$billingInformation->setAttribute('ref', '_' . $this->_billingInfoRef);
 			$shipping = $tdRequest->createChild('Shipping');
 			$this->_tdRequest    = $tdRequest;
 			$shipGroups   = $shipping->createChild('ShipGroups');
@@ -440,7 +450,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$shipGroup->addAttribute('id', $shipGroupId, true)
 				->addAttribute('chargeType', strtoupper($chargeType));
 			$destinationTarget = $shipGroup->createChild('DestinationTarget');
-			$destinationTarget->setAttribute('ref', 'dest_' . $destinationId);
+			$destinationTarget->setAttribute('ref', '_' . $destinationId);
 
 			$orderItemsFragment = $this->_doc->createDocumentFragment();
 			$orderItems = $orderItemsFragment->appendChild(
@@ -498,7 +508,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	) {
 		$this->_shipAddressRef = $address['id'];
 		$mailingAddress = $parent->createChild('MailingAddress');
-		$mailingAddress->setAttributeNs('', 'id', 'dest_' . $this->_shipAddressRef);
+		$mailingAddress->setAttributeNs('', 'id', '_' . $this->_shipAddressRef);
 		$mailingAddress->setIdAttribute("id", true);
 		$personName = $mailingAddress->createChild('PersonName');
 		$this->_buildPersonName($personName, $address);

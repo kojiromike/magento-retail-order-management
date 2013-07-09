@@ -101,7 +101,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Subtotal extends Mag
 		$taxSubtotal     = $taxPrice * $qty;
 		$baseTaxSubtotal = $baseTaxPrice * $qty;
 		$taxable         = $this->_calculator->getTaxableForItem($item, $address);
-		$baseTaxPrice    = $taxable;
+		$baseTaxable     = $taxable;
 		if ($item->hasCustomPrice()) {
 			/**
 			 * Initialize item original price before declaring custom price

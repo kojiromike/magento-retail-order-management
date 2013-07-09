@@ -19,6 +19,11 @@
 					<sales_total_quote_shipping>TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Shipping</sales_total_quote_shipping>
 				</rewrite>
 			</tax>
+			<enterprise_giftwrapping>
+				<rewrite>
+					<total_quote_tax_giftwrapping>TrueAction_Eb2c_Tax_Overrides_Model_Total_Quote_Tax_Giftwrapping</total_quote_tax_giftwrapping>
+				</rewrite>
+			</enterprise_giftwrapping>
 		</models>
 		<helpers>
 			<tax>

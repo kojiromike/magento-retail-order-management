@@ -4,7 +4,7 @@
  * the suggestions and necessary form fields for suggestions to be chosen.
  */
 if ($this->shouldShowSuggestions()): ?>
-<fieldset class="suggestion-fields">
+<fieldset class="suggestion-fields" id="address-validation-suggestions">
 	<p class="validation-message top-message"><?php echo $this->getSuggestedAddressMessage() ?></p>
 	<ul class="suggestion-list">
 		<?php foreach ($this->getSuggestedAddresses() as $idx => $suggestion): ?>
@@ -31,4 +31,12 @@ if ($this->shouldShowSuggestions()): ?>
 		</li>
 	</ul>
 </fieldset>
+<script>
+console.log($('suggestion-new'));
+$('address-validation-suggestions').on('change', 'input', function (evt) {
+	$$('.customer-address-form-list').each(function (ele) {
+		ele[(evt.findElement('input').readAttribute('id') === 'suggestion-new') ? 'removeClassName' : 'addClassName']('hide-new-address');
+	});
+});
+</script>
 <?php endif; ?>

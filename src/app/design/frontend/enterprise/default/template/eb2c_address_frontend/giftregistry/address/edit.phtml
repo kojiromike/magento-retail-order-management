@@ -12,7 +12,7 @@
 <div class="fieldset">
 	<h2 class="legend"><?php echo $this->__('Shipping Address') ?></h2>
 	<?php echo $this->getBlockHtml('address_validation_suggestions') ?>
-	<ul class="form-list<?php echo (($this->hasSuggestions()) ? ' hide-new-address' : '')?>">
+	<ul class="form-list customer-address-form-list<?php echo (($this->hasSuggestions()) ? ' hide-new-address' : '')?>">
 	<?php if ($this->customerHasAddresses()) : ?>
 		<li>
 			<label for="address_type_or_id"><?php echo $this->__('Select a shipping address from your address book or enter a new address.') ?></label>

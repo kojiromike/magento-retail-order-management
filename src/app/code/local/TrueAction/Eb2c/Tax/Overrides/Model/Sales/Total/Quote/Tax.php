@@ -157,9 +157,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 		// zero amounts for the address.
 		$this->_store = $address->getQuote()->getStore();
 		$customer = $address->getQuote()->getCustomer();
-		if ($customer) {
-			$this->_calculator->setCustomer($customer);
-		}
 
 		if (!$address->getAppliedTaxesReset()) {
 			$address->setAppliedTaxes(array());
@@ -173,15 +170,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 		if (!count($items)) {
 			return $this;
 		}
-
-		// move this into the request and have it so that it's disabled by default
-		//////////////////
-		// if ($this->_config->priceIncludesTax($this->_store)) {
-		//     $this->_areTaxRequestsSimilar = $this->_calculator->compareRequests(
-		//         $this->_calculator->getRateOriginRequest($this->_store),
-		//         $request
-		//     );
-		// }
 
 		// this is code that may also need to be moved to the request
 		/////////////////////////
@@ -203,11 +191,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 		//     default:
 		//         break;
 		// }
-
-		$taxResponse = $this->_calculator->getTaxResponse();
-		// calculate the total taxes for the address for now as a tracer
-		// TODO: modify this to get the value from some precalc'd cache
-		$this->_calcRowTaxAmount($address, $taxResponse);
 
 		// adds extra tax amounts to the address
 		$this->_addAmount($address->getExtraTaxAmount());
@@ -348,65 +331,9 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 				$baseRowTax = $this->_calculator
 					->getTaxforItemAmount($baseSubtotal - $baseDiscountAmount, $item, $inclTax);
 
-				// don't care since if weee tax is needed, eb2c will provide it
-				/////////////////////////////////////////////
-				// if ($isWeeeEnabled && $this->_weeeHelper->isTaxable()) {
-				// 	$weeeTax = ($item->getWeeeTaxAppliedRowAmount() - $item->getWeeeDiscount()) * $rate / 100;
-				// 	$rowTax += $weeeTax;
-				// 	$baseWeeeTax =
-				// 		($item->getBaseWeeeTaxAppliedRowAmount() - $item->getBaseWeeeDiscount()) * $rate / 100;
-				// 	$baseRowTax += $baseWeeeTax;
-				// }
-
 				$rowTax = $this->_calculator->round($rowTax);
 				$baseRowTax = $this->_calculator->round($baseRowTax);
-				$rateKey = 'taxratekey';
-				if ($inclTax && $discountAmount > 0) {
-					$hiddenTax      = $this->_calculator->getTaxforItemAmount($subtotal, $item, $inclTax) - $rowTax;
-					$baseHiddenTax  = $this->_calculator->getTaxforItemAmount($baseSubtotal, $item, $inclTax) - $baseRowTax;
-					$this->_hiddenTaxes[] = array(
-						'rate_key'   => $rateKey,
-						'qty'        => 1,
-						'item'       => $item,
-						'value'      => $hiddenTax,
-						'base_value' => $baseHiddenTax,
-						'incl_tax'   => $inclTax,
-					);
-				} elseif ($discountAmount > $subtotal) { // case with 100% discount on price incl. tax
-					$hiddenTax      = $discountAmount - $subtotal;
-					$baseHiddenTax  = $baseDiscountAmount - $baseSubtotal;
-					$this->_hiddenTaxes[] = array(
-						'rate_key'   => $rateKey,
-						'qty'        => 1,
-						'item'       => $item,
-						'value'      => $hiddenTax,
-						'base_value' => $baseHiddenTax,
-						'incl_tax'   => $inclTax,
-					);
-				}
 				// calculate discount compensation
-				if (!$item->getNoDiscount() && $item->getWeeeTaxApplied()) {
-					$rowTaxBeforeDiscount = $this->_calculator->getTaxforItemAmount(
-						$subtotal,
-						$item,
-						$inclTax,
-						false
-					);
-					$baseRowTaxBeforeDiscount = $this->_calculator->getTaxforItemAmount(
-						$baseSubtotal,
-						$item,
-						$inclTax,
-						false
-					);
-					if ($isWeeeTaxable) {
-						$rowTaxBeforeDiscount += $item->getWeeeTaxAppliedRowAmount() * $rate / 100;
-						$baseRowTaxBeforeDiscount += $item->getBaseWeeeTaxAppliedRowAmount() * $rate / 100;
-					}
-					$rowTaxBeforeDiscount = max(0, $this->_calculator->round($rowTaxBeforeDiscount));
-					$baseRowTaxBeforeDiscount = max(0, $this->_calculator->round($baseRowTaxBeforeDiscount));
-					$item->setDiscountTaxCompensation($rowTaxBeforeDiscount - max(0, $rowTax));
-					$item->setBaseDiscountTaxCompensation($baseRowTaxBeforeDiscount - max(0, $baseRowTax));
-				}
 				break;
 		}
 
@@ -417,10 +344,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 		if (!isset($rowTotalInclTax)) {
 			$weeeTaxBeforeDiscount = 0;
 			$baseWeeeTaxBeforeDiscount = 0;
-			// if ($isWeeeTaxable) {
-			//     $weeeTaxBeforeDiscount = $item->getWeeeTaxAppliedRowAmount() * $rate/100;
-			//     $baseWeeeTaxBeforeDiscount = $item->getBaseWeeeTaxAppliedRowAmount() * $rate/100;
-			// }
 			if ($this->_config->priceIncludesTax($this->_store)) {
 				$item->setRowTotalInclTax($subtotal + $weeeTaxBeforeDiscount);
 				$item->setBaseRowTotalInclTax($baseSubtotal + $baseWeeeTaxBeforeDiscount);

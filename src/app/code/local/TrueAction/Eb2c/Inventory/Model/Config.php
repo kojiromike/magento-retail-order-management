@@ -13,6 +13,9 @@ class TrueAction_Eb2c_Inventory_Model_Config extends TrueAction_Eb2c_Core_Model_
 		'quantity_api_uri' => 'eb2c/inventory/quantity_api_uri',
 		'inventory_detail_uri' => 'eb2c/inventory/inventory_detail_uri',
 		'allocation_uri' => 'eb2c/inventory/allocation_uri',
-		'rollback_allocation_uri' => 'eb2c/inventory/rollback_allocation_uri'
+		'rollback_allocation_uri' => 'eb2c/inventory/rollback_allocation_uri',
+		'feed_local_received_path' => 'eb2c/inventory/feed_local_received_path',
+		'feed_remote_received_path' => 'eb2c/inventory/feed_remote_received_path',
+		'config_path' => 'eb2c/inventory/config_path',
 	);
 }

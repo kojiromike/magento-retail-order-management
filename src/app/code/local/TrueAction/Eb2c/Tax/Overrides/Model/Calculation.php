@@ -198,13 +198,13 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		return $result;
 	}
 
-	public function getAppliedRates($request)
+	public function getAppliedRates($itemSelector)
 	{
 		$appliedRates = array();
-		if ($request && $request->getItem() && $request->getAddress()) {
+		if ($itemSelector && $itemSelector->getItem() && $itemSelector->getAddress()) {
 			$appliedRates = $this->getAppliedRatesForItem(
-				$request->getItem(),
-				$request->getAddress()
+				$itemSelector->getItem(),
+				$itemSelector->getAddress()
 			);
 		}
 		return $appliedRates;

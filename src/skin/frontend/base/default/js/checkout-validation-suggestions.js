@@ -12,10 +12,10 @@ document.observe('dom:loaded', function() {
 	var nextWithSuggestions = function nextWithSuggestions(originalFn, transport) {
 		// call the original next function and capture the results
 		var success = originalFn.call(this, transport);
-
+		
 		// this, unfortunately, is repeated in the originalFn
 		if (transport && transport.responseText) {
-			var response = transport.responseText.evalJson();
+			var response = transport.responseText.evalJSON();
 		}
 		// when the response has suggestions, insert them into the form
 		if ($(this.form) && response.suggestions) {

@@ -325,4 +325,37 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 		$this->assertNotNull($itemResponse);
 		$this->assertSame('2', $itemResponse->getLineNumber());
 	}
+
+	/**
+	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture testItemSplitAcrossShipGroups.yaml
+	 * @loadExpectation
+	 */
+	public function testDiscounts()
+	{
+		$response = Mage::getModel('eb2ctax/response', array('xml' => self::$respXml));
+		$addressMethods = array('getId');
+		$itemMethods    = array('getSku');
+		$mockAddress    = $this->getModelMock('sales/quote_address', $addressMethods);
+		$mockItem       = $this->getModelMock('sales/quote_address_item', $itemMethods);
+
+		$mockAddress->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$mockItem->expects($this->any())
+			->method('getSku')
+			->will($this->returnValue('gc_virtual1'));
+
+		$ir = $response->getResponseForItem($mockItem, $mockAddress);
+		$ds = $ir->getTaxQuoteDiscounts();
+		$this->assertSame(3, count($ds));
+		foreach ($ds as $d) {
+			$e = $this->expected('0-' . $d->getDiscountId());
+			$this->assertSame((float)$e->getAmount(), $d->getAmount());
+			$this->assertSame((float)$e->getEffectiveRate(), $d->getEffectiveRate());
+			$this->assertSame((float)$e->getTaxableAmount(), $d->getTaxableAmount());
+			$this->assertSame((float)$e->getCalculatedTax(), $d->getCalculatedTax());
+		}
+	}
 }

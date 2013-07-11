@@ -57,6 +57,21 @@
 										</Tax>
 									</Taxes>
 								</TaxData>
+								<PromotionalDiscounts>
+									<Discount calculateDuty="false" id="434">
+										<Amount>5.0</Amount>
+										<Taxes>
+											<Tax taxType="SELLER_USE" taxability="TAXABLE">
+												<Situs>DESTINATION</Situs>
+												<Jurisdiction jurisdictionId="31152" jurisdictionLevel="STATE">PENNSYLVANIA</Jurisdiction>
+												<Imposition impositionType="General Sales and Use Tax">Sales and Use Tax</Imposition>
+												<EffectiveRate>0.06</EffectiveRate>
+												<TaxableAmount>5.0</TaxableAmount>
+												<CalculatedTax>0.3</CalculatedTax>
+											</Tax>
+										</Taxes>
+									</Discount>
+								</PromotionalDiscounts>
 							</Shipping>
 							<Duty>
 								<Amount>2.00</Amount>
@@ -73,6 +88,21 @@
 										</Tax>
 									</Taxes>
 								</TaxData>
+								<PromotionalDiscounts>
+									<Discount calculateDuty="false" id="534">
+										<Amount>0.2</Amount>
+										<Taxes>
+											<Tax taxType="SELLER_USE" taxability="TAXABLE">
+												<Situs>DESTINATION</Situs>
+												<Jurisdiction jurisdictionId="31152" jurisdictionLevel="STATE">PENNSYLVANIA</Jurisdiction>
+												<Imposition impositionType="General Sales and Use Tax">Sales and Use Tax</Imposition>
+												<EffectiveRate>0.06</EffectiveRate>
+												<TaxableAmount>0.2</TaxableAmount>
+												<CalculatedTax>0.01</CalculatedTax>
+											</Tax>
+										</Taxes>
+									</Discount>
+								</PromotionalDiscounts>
 							</Duty>
 						</Pricing>
 					</OrderItem>

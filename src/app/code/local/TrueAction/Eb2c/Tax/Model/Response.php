@@ -28,6 +28,12 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	protected $_responseItems = array();
 
 	/**
+	 * discount amounts parsed from the response.
+	 * @var array
+	 */
+	protected $_discounts     = array();
+
+	/**
 	 * skus of OrderItem elements that passed validation
 	 * @var array(string)
 	 */
@@ -74,16 +80,14 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * get the response for $item from the request.
+	 * get the response for the specified sku and address id.
 	 * return null if there is no valid response to retrieve.
-	 * @param  Mage_Sales_Model_Quote_Item $item
-	 * @param  Mage_Sales_Quote_Address    $address
+	 * @param  string $sku
+	 * @param  int    $addressId
 	 * @return TrueAction_Eb2c_Tax_Model_Response_OrderItem
 	 */
-	public function getResponseForItem(
-		Mage_Sales_Model_Quote_Item $item,
-		Mage_Sales_Model_Quote_Address $address
-	) {
+	public function getResponseForItem($item, $address) {
+		// ensure the correct types to access the data
 		$addressId = (int)$address->getId();
 		$sku = (string)$item->getSku();
 		$orderItem = isset($this->_responseItems[$addressId][$sku]) ?

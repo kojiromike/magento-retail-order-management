@@ -17,7 +17,7 @@
 			<MessageId>20120222020047_26Fz6</MessageId>
 			<CorrelationId>0</CorrelationId>
 		</MessageData>
-			<CreateDateAndTime>2012-02-22T02:00:48+0000</CreateDateAndTime>
+		<CreateDateAndTime>2012-02-22T02:00:48+0000</CreateDateAndTime>
 	</MessageHeader>
 	<Inventory operation_type="Change" gsi_client_id="66-000906034352" catalog_id="66" measurement="Level">
 		<ItemId>

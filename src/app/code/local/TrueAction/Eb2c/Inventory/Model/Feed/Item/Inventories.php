@@ -143,6 +143,9 @@ class TrueAction_Eb2c_Inventory_Model_Feed_Item_Inventories extends Mage_Core_Mo
 					$this->_getStockItem()->loadByProduct($this->_getProduct()->getId())
     					->setQty($qty)
     					->save();
+				} else {
+					// This item doesn't exists in the Magento App, just logged it as a warning
+					Mage::log("Item Inventories Feed SKU (${sku}), doesn't exists in Magento", Zend_Log::WARN);
 				}
 			}
 		}

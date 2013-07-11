@@ -16,15 +16,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	}
 
 	/**
-	 * generate a request object to use when calculating taxes and duties.
-	 * @param  Mage_Sale_Model_Quote_Addres $shippingAddress
-	 * @param  Mage_Sale_Model_Quote_Addres $billingAddress
-	 * @param  string                       $customerTaxClass
-	 * @param  int|Mage_Core_Model_Store    $store
-	 * @return TrueAction_Eb2c_Tax_Model_TaxDutyRequest
-	 * get a request object for the quote.
-	 * @param  Mage_Sales_Model_Quote $quote
-	 * @return TrueAction_Eb2c_Tax_Model_Request
+	 * @codeCoverageIgnore
 	 */
 	public function getRateRequest(
 		$shippingAddress = null,
@@ -32,13 +24,11 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		$customerTaxClass = '',
 		$store = null
 	) {
-		return null;
+		return new Varien_Object();
 	}
 
 	/**
-	 * return 0
-	 * @param  TrueAction_Eb2c_Tax_Model_Request $request
-	 * @return float
+	 * @codeCoverageIgnore
 	 */
 	public function getRate($request)
 	{
@@ -54,8 +44,8 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	public function getTaxRequest(Mage_Sales_Model_Quote $quote = null)
 	{
 		$response = $this->getTaxResponse();
-		$request = ($response && $response->getTaxRequest()) ? 
-			$response->getRequest() : 
+		$request = ($response && $response->getTaxRequest()) ?
+			$response->getRequest() :
 			Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		return $request;
 	}
@@ -64,10 +54,13 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 * store the tax response from eb2c
 	 * @param TrueAction_Eb2c_Tax_Model_Response $response
 	 */
-	public function setTaxResponse(TrueAction_Eb2c_Tax_Model_Response $response)
+	public function setTaxResponse(TrueAction_Eb2c_Tax_Model_Response $response = null)
 	{
-		parent::setTaxResponse($response);
-		Mage::getSingleton('checkout/session')->setEb2cTaxResponse($response);
+		if (isset($response)) {
+			parent::setTaxResponse($response);
+			Mage::getSingleton('checkout/session')->setEb2cTaxResponse($response);
+		}
+		return $this;
 	}
 
 	/**
@@ -75,11 +68,10 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 * @param  Mage_Sales_Model_Quote_Item $item
 	 * @return float
 	 */
-	public function getTaxforItem(Mage_Sales_Model_Quote_Item $item)
-	{
-		$response = $this->getTaxResponse();
-		$itemResponse = ($response) ?
-			$response->getResponseForItem($item) : null;
+	public function getTaxforItem(
+		Mage_Sales_Model_Quote_Item $item
+	) {
+		$itemResponse = $this->_getItemResponse($item, $address);
 		$tax = 0.0;
 		if ($itemResponse) {
 			$taxQuotes = $itemResponse->getTaxQuotes();
@@ -88,6 +80,40 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 			}
 		}
 		return $tax;
+	}
+
+	/**
+	 * return the response data for the specified item.
+	 */
+	protected function _getItemResponse(
+		Mage_Sales_Model_Quote_Item $item,
+		Mage_Sale_Model_Quote_Addres $address
+	) {
+		$response = $this->getTaxResponse($item, $address);
+		$itemResponse = ($response) ?
+			$response->getResponseForItem($item, $address) :
+			null;
+		return $itemResponse;
+	}
+
+	/**
+	 * return the total taxable amount.
+	 * @param  Mage_Sales_Model_Quote_Item  $item    [description]
+	 * @param  Mage_Sale_Model_Quote_Addres $address [description]
+	 * @return [type]                                [description]
+	 */
+	public function getTaxableAmountForItem(
+		Mage_Sales_Model_Quote_Item $item,
+		Mage_Sale_Model_Quote_Addres $address
+	) {
+		$itemResponse = $this->_getItemResponse($item, $address);
+		$taxQuotes = ($itemResponse) ?
+			$itemResponse->getTaxQuotes() :
+			array();
+		foreach($taxQuotes as $taxQuote) {
+			$amount += $taxQuote->getTaxableAmount();
+		}
+		return min($amount, $itemResponse->getMerchandiseAmount());
 	}
 
 	/**

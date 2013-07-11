@@ -44,10 +44,10 @@ class TrueAction_Eb2c_Inventory_Model_Details extends Mage_Core_Model_Abstract
 			$inventoryDetailsRequestMessage = $this->buildInventoryDetailsRequestMessage($quote);
 
 			// make request to eb2c for inventory details
-			$inventoryDetailsResponseMessage = $this->_getHelper()->getCoreHelper()->callApi(
-				$inventoryDetailsRequestMessage,
-				$this->_getHelper()->getOperationUri('get_inventory_details')
-			);
+			$inventoryDetailsResponseMessage = $this->_getHelper()->getApiModel()
+				->setUri($this->_getHelper()->getOperationUri('get_inventory_details'))
+				->request($inventoryDetailsRequestMessage);
+
 		}catch(Exception $e){
 			Mage::logException($e);
 		}

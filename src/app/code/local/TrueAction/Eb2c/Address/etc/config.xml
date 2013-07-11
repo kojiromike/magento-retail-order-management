@@ -21,6 +21,8 @@
 				<class>TrueAction_Eb2c_Address_Block</class>
 			</eb2caddress>
 		</blocks>
+	</global>
+	<frontend>
 		<events>
 			<address_validate>
 				<observers>
@@ -31,10 +33,6 @@
 					</eb2caddress_validate_address>
 				</observers>
 			</address_validate>
-		</events>
-	</global>
-	<frontend>
-		<events>
 			<controller_action_postdispatch_checkout_onepage_saveBilling>
 				<observers>
 					<eb2caddress_add_suggestions_to_billing_response>

@@ -165,7 +165,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 */
 	protected function _calcTaxAmount($price, $taxRate, $round = true)
 	{
-		$amount = $price*$taxRate;
+		$amount = $price * $taxRate;
 		if ($round) {
 			return $this->round($amount);
 		}
@@ -185,17 +185,18 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		$itemResponse = $this->_getItemResponse($item, $address);
 		if ($itemResponse) {
 			$taxQuotes = $itemResponse->getTaxQuotes();
+			$discountTaxQuotes = $itemResponse->getTaxQuoteDiscounts();
 			foreach ($taxQuotes as $index => $taxQuote) {
 				$rate['code']      = 'foo';
 				$rate['title']     = "tax_{$index}";
-				$rate['percent']   = $taxQuote->getEffectiveRate() * 100;
+				$rate['percent']   = $taxQuote->getEffectiveRate();
 				$rate['amount']    = $taxQuote->getCalculatedTax();
 				$rate['position']  = 1;
 				$rate['priority']  = 1;
 				$result['rates'][] =  $rate;
 			}
 		}
-		return $result;
+		return array($result);
 	}
 
 	public function getAppliedRates($itemSelector)

@@ -9,6 +9,7 @@ class TrueAction_Eb2c_Inventory_Model_Feed_Item_Inventories extends Mage_Core_Mo
 	protected $_helper;
 	protected $_stockItem;
 	protected $_product;
+	protected $_stockStatus;
 
 	/**
 	 * Initialize model
@@ -18,6 +19,7 @@ class TrueAction_Eb2c_Inventory_Model_Feed_Item_Inventories extends Mage_Core_Mo
 		$this->_helper = $this->_getHelper();
 		$this->_stockItem = $this->_getStockItem();
 		$this->_product = $this->_getProduct();
+		$this->_stockStatus = $this->_getStockStatus();
 
 		return $this;
 	}
@@ -63,6 +65,19 @@ class TrueAction_Eb2c_Inventory_Model_Feed_Item_Inventories extends Mage_Core_Mo
 	}
 
 	/**
+	 * Get cataloginventory/stock_status instantiated object.
+	 *
+	 * @return cataloginventory/stock_status
+	 */
+	protected function _getStockStatus()
+	{
+		if (!$this->_stockStatus) {
+			$this->_stockStatus = Mage::getSingleton('cataloginventory/stock_status');
+		}
+		return $this->_stockStatus;
+	}
+
+	/**
 	 * Get the item inventory feed from eb2c.
 	 *
 	 * @return array, All the feed xml document, from eb2c server.
@@ -105,6 +120,9 @@ class TrueAction_Eb2c_Inventory_Model_Feed_Item_Inventories extends Mage_Core_Mo
 				unlink($feed);
 			}
 		}
+
+		// After all feeds have been process, let's clean magento cache and rebuild inventory status
+		$this->_clean();
 	}
 
 	/**
@@ -149,5 +167,25 @@ class TrueAction_Eb2c_Inventory_Model_Feed_Item_Inventories extends Mage_Core_Mo
 				}
 			}
 		}
+	}
+
+	/**
+	 * clear magento cache and rebuild inventory status.
+	 *
+	 * @return void
+	 */
+	protected function _clean()
+	{
+		try {
+			// STOCK STATUS
+			$this->_getStockStatus()->rebuild();
+
+			// CLEAN CACHE
+			Mage::app()->cleanCache();
+		} catch (Exception $e) {
+			Mage::log($e->getMessage(), Zend_Log::WARN);
+		}
+
+		return;
 	}
 }

@@ -115,4 +115,29 @@ class TrueAction_Eb2c_Inventory_Test_Model_Feed_Item_InventoriesTest extends Eco
 			$this->_inventories->processFeeds($feeds)
 		);
 	}
+
+
+	/**
+	 * testing _clean method, to cover exception catch section
+	 *
+	 * @test
+	 */
+	public function testCleanWithException()
+	{
+		$stockStatusMock = $this->getMock('Mage_CatalogInventory_Model_Stock_Status', array('rebuild'));
+		$stockStatusMock->expects($this->any())
+			->method('rebuild')
+			->will($this->throwException(new Exception));
+
+		$inventoriesReflector = new ReflectionObject($this->_inventories);
+		$stockStatusProperty = $inventoriesReflector->getProperty('_stockStatus');
+		$stockStatusProperty->setAccessible(true);
+		$stockStatusProperty->setValue($this->_inventories, $stockStatusMock);
+
+		$cleanMethod = $inventoriesReflector->getMethod('_clean');
+		$cleanMethod->setAccessible(true);
+		$this->assertNull(
+			$cleanMethod->invoke($this->_inventories)
+		);
+	}
 }

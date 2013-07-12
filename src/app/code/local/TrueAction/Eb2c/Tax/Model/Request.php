@@ -364,7 +364,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			'shipping_amount' => $address->getShippingAmount(),
 			'shipping_tax_class' => $this->_getShippingTaxClass(),
 		);
-		$this->_extractItemDiscountData($item, $address, $data);
+		$this->_extractItemDiscountData($item, $address, &$data);
 		return $data;
 	}
 

@@ -3,11 +3,11 @@
 	<Currency>USD</Currency>
 	<VATInclusivePricing>false</VATInclusivePricing>
 	<CustomerTaxId>12345</CustomerTaxId>
-	<BillingInformation ref="1"/>
+	<BillingInformation ref="_1"/>
 	<Shipping>
 		<ShipGroups>
 			<ShipGroup chargeType="FLATRATE" id="shipgroup_1_FLATRATE">
-				<DestinationTarget ref="1"/>
+				<DestinationTarget ref="_1"/>
 				<Items>
 					<OrderItem lineNumber="1">
 						<ItemId>21-0034629866</ItemId>
@@ -54,7 +54,7 @@
 			</ShipGroup>
 		</ShipGroups>
 		<Destinations>
-			<MailingAddress id="1">
+			<MailingAddress id="_1">
 				<PersonName>
 					<LastName>John</LastName>
 					<FirstName>Smith</FirstName>
@@ -67,7 +67,7 @@
 					<PostalCode>19406</PostalCode>
 				</Address>
 			</MailingAddress>
-			<MailingAddress id="2">
+			<MailingAddress id="_2">
 				<PersonName>
 					<LastName>John</LastName>
 					<FirstName>Smith</FirstName>

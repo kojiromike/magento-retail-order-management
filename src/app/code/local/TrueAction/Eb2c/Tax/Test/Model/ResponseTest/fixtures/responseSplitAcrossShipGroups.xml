@@ -3,7 +3,7 @@
 	<Shipping>
 		<ShipGroups>
 			<ShipGroup chargeType="FLATRATE" id="shipgroup_1_FLATRATE">
-				<DestinationTarget ref="1"/>
+				<DestinationTarget ref="_1"/>
 				<Items>
 					<OrderItem lineNumber="1">
 						<ItemId>gc_virtual1</ItemId>
@@ -79,7 +79,7 @@
 				</Items>
 			</ShipGroup>
 			<ShipGroup chargeType="FLATRATE" id="shipgroup_2_foo@example.com_FLATRATE">
-				<DestinationTarget ref="2_foo@example.com"/>
+				<DestinationTarget ref="_2_foo@example.com"/>
 				<Items>
 					<OrderItem lineNumber="2">
 						<ItemId>gc_virtual1</ItemId>
@@ -156,7 +156,7 @@
 			</ShipGroup>
 		</ShipGroups>
 		<Destinations>
-			<MailingAddress id="1">
+			<MailingAddress id="_1">
 				<PersonName>
 					<LastName>John</LastName>
 					<FirstName>Smith</FirstName>
@@ -169,7 +169,7 @@
 					<PostalCode>19406</PostalCode>
 				</Address>
 			</MailingAddress>
-			<MailingAddress id="2_foo@example.com">
+			<MailingAddress id="_2_foo@example.com">
 				<PersonName>
 					<LastName>John</LastName>
 					<FirstName>Smith</FirstName>

@@ -24,7 +24,8 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		$customerTaxClass = '',
 		$store = null
 	) {
-		return new Varien_Object();
+		$quote = $billingAddress ? $billingAddress->getQuote() : null;
+		return $this->getTaxRequest($quote);
 	}
 
 	/**
@@ -82,6 +83,16 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 			}
 		}
 		return $tax;
+	}
+
+	public function getTax(Varien_Object $itemSelector)
+	{
+		return $this->getTaxforItem($itemSelector->getItem(), $itemSelector->getAddress());
+	}
+
+	public function getTaxForAmount(float $amount, Varien_Object $itemSelector, $round = true)
+	{
+		return $this->getTaxforItemAmount($amount, $itemSelector->getItem(), $itemSelector->getAddress(), $round);
 	}
 
 	/**

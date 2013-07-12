@@ -21,7 +21,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected $_destinations       = array();
 	protected $_orderItems         = array();
 	protected $_shipGroups         = array();
-	protected $_discounts          = array();
+	protected $_appliedRuleIds     = array();
 	protected $_shipGroupIds       = array();
 
 	/**
@@ -104,13 +104,16 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		}
 	}
 
-	/**
-	 * get hasChanges.
-	 * @return boolean
-	 */
-	public function hasChanges()
+	public function checkDiscounts(Mage_Sales_Model_Quote_Item_Abstract_Abstract $item)
 	{
-		return $this->_hasChanges;
+		if (!$this->_hasChanges && isset($this->_appliedRuleIds[$item->getId()])) {
+			$oldRuleIds = $this->_appliedRuleIds[$item->getId()];
+			$newRuleIds = $item->getAppliedRuleIds();
+			$this->_hasChanges = (bool)array_diff_assoc($oldRuleIds, $newRuleIds);
+		}
+		if ($this->_hasChanges) {
+			$this->invalidate();
+		}
 	}
 
 	/**
@@ -543,6 +546,21 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->_buildPersonName($email->createChild('Customer'), $address);
 			$email->createChild('EmailAddress', $emailStr);
 		}
+	}
+
+	/**
+	 * build a discount node as a child of $parent.
+	 * @param  TrueAction_Dom_Element $parent
+	 * @param  Varien_Object          $discount
+	 */
+	protected function _buildDiscountNode(TrueAction_Dom_Element $parent, Varien_Object $discount)
+	{
+		$discountNode = $parent->createChild(
+			'Discount',
+			null,
+			array('id' => $discount->getCode(), 'calculateDuty' => $discount->getCalculateDuty())
+		);
+		$discountNode->createChild('Amount', $discount->getAmount());
 	}
 
 	/**

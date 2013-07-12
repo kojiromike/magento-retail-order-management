@@ -142,11 +142,18 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 	{
 		$calc = Mage::getModel('tax/calculation');
 		$calc->setTaxResponse($this->response);
-		$a = $calc->getAppliedRatesForItem($this->item, $this->addressMock);
-		foreach ($a['rates'] as $index => $rate) {
-			$expected = $this->expected('1-' . $index);
-			$this->assertSame((float)$expected->getPercent(), $rate['percent']);
-			$this->assertSame((float)$expected->getAmount(), $rate['amount']);
+		$itemSelector = new Varien_Object(
+			array('item' => $this->item, 'address' => $this->addressMock)
+		);
+		$a = $calc->getAppliedRates($itemSelector);
+		$this->assertNotEmpty($a);
+		foreach ($a as $key => $group) {
+			$this->assertNotEmpty($group);
+			foreach ($group['rates'] as $index => $rate) {
+				$expected = $this->expected('1-' . $index);
+				$this->assertSame((float)$expected->getPercent(), $rate['percent']);
+				$this->assertSame((float)$expected->getAmount(), $rate['amount']);
+			}
 		}
 	}
 
@@ -154,20 +161,10 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 	 * @test
 	 * @loadExpectation testGetAppliedRates
 	 */
-	public function testGetAppliedRatesPlaceholder()
+	public function testGetAppliedRatesEmptySelector()
 	{
 		$calc = Mage::getModel('tax/calculation');
 		$calc->setTaxResponse($this->response);
-		$request = new Varien_Object();
-		$request->setItem($this->item)
-			->setAddress($this->addressMock);
-		$a = $calc->getAppliedRates($request);
-		foreach ($a['rates'] as $index => $rate) {
-			$expected = $this->expected('1-' . $index);
-			$this->assertSame((float)$expected->getPercent(), $rate['percent']);
-			$this->assertSame((float)$expected->getAmount(), $rate['amount']);
-		}
-
 		$request = new Varien_Object();
 		$a = $calc->getAppliedRates($request);
 		$this->assertEmpty($a);

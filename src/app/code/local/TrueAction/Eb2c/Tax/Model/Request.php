@@ -634,9 +634,11 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $item['id'];
 	}
 
+	/**
+	 * return false since we don't do any duty informaiton.
+	 */
 	protected function _isDutyCalcNeeded($item, $address)
 	{
-		// if calculate discounts before tax; then, return 1
-		// else return 0
+		return false;
 	}
 }

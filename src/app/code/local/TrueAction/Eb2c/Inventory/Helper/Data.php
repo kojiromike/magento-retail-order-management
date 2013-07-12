@@ -7,6 +7,7 @@
 class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	public $coreHelper;
+	public $coreFeed;
 	public $fileTransferHelper;
 	public $constantHelper;
 	public $configModel;
@@ -20,6 +21,7 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 		$this->configModel = $this->getConfigModel(null);
 		$this->constantHelper = $this->getConstantHelper();
 		$constantHelper = $this->getConstantHelper();
+		$this->coreFeed = $this->getCoreFeed();
 		$this->_operation = array(
 			'check_quantity' => array(
 				'pro' => $constantHelper::OPT_QTY,
@@ -94,6 +96,19 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 			$this->constantHelper = Mage::helper('eb2cinventory/constants');
 		}
 		return $this->constantHelper;
+	}
+
+	/**
+	 * Get core helper feed instantiated object.
+	 *
+	 * @return TrueAction_Eb2c_Core_Helper_Feed
+	 */
+	public function getCoreFeed()
+	{
+		if (!$this->coreFeed) {
+			$this->coreFeed = Mage::helper('eb2ccore/feed');
+		}
+		return $this->coreFeed;
 	}
 
 	/**

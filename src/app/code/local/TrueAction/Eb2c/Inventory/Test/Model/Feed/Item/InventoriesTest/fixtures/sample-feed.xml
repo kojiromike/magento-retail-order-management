@@ -9,7 +9,7 @@
 			<SourceType>DW</SourceType>
 		</SourceData>
 		<DestinationData>
-			<DestinationId>CLIENT</DestinationId>
+			<DestinationId>TAN-CLI</DestinationId>
 			<DestinationType>MAILBOX</DestinationType>
 		</DestinationData>
 		<EventType>ItemInventories</EventType>

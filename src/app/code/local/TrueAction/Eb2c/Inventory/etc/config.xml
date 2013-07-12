@@ -162,6 +162,8 @@
 				<feed_local_received_path>TrueAction/Eb2c/Feed/Item/Inventories/</feed_local_received_path>
 				<feed_remote_received_path>/Item/Inventories/</feed_remote_received_path>
 				<config_path>eb2ccore/general</config_path>
+				<feed_event_type>ItemInventories</feed_event_type>
+				<feed_header_version>2.3.0</feed_header_version>
 			</inventory>
 		</eb2c>
 	</default>

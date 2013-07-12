@@ -17,5 +17,7 @@ class TrueAction_Eb2c_Inventory_Model_Config extends TrueAction_Eb2c_Core_Model_
 		'feed_local_received_path' => 'eb2c/inventory/feed_local_received_path',
 		'feed_remote_received_path' => 'eb2c/inventory/feed_remote_received_path',
 		'config_path' => 'eb2c/inventory/config_path',
+		'feed_event_type' => 'eb2c/inventory/feed_event_type',
+		'feed_header_version' => 'eb2c/inventory/feed_header_version',
 	);
 }

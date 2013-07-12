@@ -95,6 +95,8 @@ class TrueAction_Eb2c_Inventory_Model_Feed_Item_Inventories extends Mage_Core_Mo
 		// downloading feed from eb2c server down to local server
 		if ($this->_getHelper()->getFileTransferHelper()->getFile($localPath, $remoteFile, $configPath, null)) {
 			$feeds = glob($localPath . '*.xml');
+			// sort downloaded feeds by file names
+			asort($feeds);
 		}
 		return $feeds;
 	}
@@ -112,13 +114,20 @@ class TrueAction_Eb2c_Inventory_Model_Feed_Item_Inventories extends Mage_Core_Mo
 			// load feed files to dom object
 			$domDocument->load($feed);
 
-			// run inventory updates
-			$this->_inventoryUpdates($domDocument);
+			$expectEventType = $this->_getHelper()->getConfigModel()->feedEventType;
+			$expectHeaderVersion = $this->_getHelper()->getConfigModel()->feedHeaderVersion;
+
+			// validate feed header
+			if ($this->_getHelper()->getCoreFeed()->validateHeader($domDocument, $expectEventType, $expectHeaderVersion)) {
+				// run inventory updates
+				$this->_inventoryUpdates($domDocument);
+			}
 
 			// Remove feed file from local server after finishing processing it.
 			if (file_exists($feed)) {
 				unlink($feed);
 			}
+
 		}
 
 		// After all feeds have been process, let's clean magento cache and rebuild inventory status

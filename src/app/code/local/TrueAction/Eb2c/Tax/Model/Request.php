@@ -553,16 +553,21 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	/**
 	 * build a discount node as a child of $parent.
 	 * @param  TrueAction_Dom_Element $parent
-	 * @param  Varien_Object          $discount
+	 * @param  array                  $discount
+	 * @param  boolean                $isMerchandise
 	 */
-	protected function _buildDiscountNode(TrueAction_Dom_Element $parent, Varien_Object $discount)
+	protected function _buildDiscountNode(TrueAction_Dom_Element $parent, array $discount, $isMerchandise = true)
 	{
+		$type = $isMerchandise ? 'merchandise' : 'shipping';
 		$discountNode = $parent->createChild(
 			'Discount',
 			null,
-			array('id' => $discount->getCode(), 'calculateDuty' => $discount->getCalculateDuty())
+			array(
+				'id' => $discount["{$type}_discount_code"],
+				'calculateDuty' => $discount["{$type}_discount_calc_duty"]
+			)
 		);
-		$discountNode->createChild('Amount', $discount->getAmount());
+		$discountNode->createChild('Amount', $discount["{$type}_discount_amount"]);
 	}
 
 	/**

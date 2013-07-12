@@ -50,7 +50,6 @@ class TrueAction_Eb2c_Inventory_Model_Feed_Item_Inventories extends Mage_Core_Mo
 		return $this->_stockItem;
 	}
 
-
 	/**
 	 * Get catalog/product instantiated object.
 	 *
@@ -168,8 +167,8 @@ class TrueAction_Eb2c_Inventory_Model_Feed_Item_Inventories extends Mage_Core_Mo
 				if ($this->_getProduct()->getId()) {
 					// we've gotten a valid magento product, let's update its stock
 					$this->_getStockItem()->loadByProduct($this->_getProduct()->getId())
-    					->setQty($qty)
-    					->save();
+						->setQty($qty)
+						->save();
 				} else {
 					// This item doesn't exists in the Magento App, just logged it as a warning
 					Mage::log("Item Inventories Feed SKU (${sku}), doesn't exists in Magento", Zend_Log::WARN);

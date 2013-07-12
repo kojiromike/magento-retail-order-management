@@ -51,7 +51,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 
 	public function providerCheckEb2cInventoryQuantity()
 	{
-		$quoteAMock = $this->getMock('Mage_Sales_Model_Quote', array('collectTotals', 'save', 'deleteItem'));
+		$quoteAMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('collectTotals', 'save', 'deleteItem')
+		);
 		$quoteAMock->expects($this->any())
 			->method('collectTotals')
 			->will($this->returnValue(1)
@@ -65,7 +68,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->will($this->returnValue(1)
 			);
 
-		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getProductId', 'getSku', 'getQuote'));
+		$itemMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Item',
+			array('getQty', 'getProductId', 'getSku', 'getQuote')
+		);
 		$itemMock->expects($this->any())
 			->method('getQty')
 			->will($this->returnValue(1)
@@ -83,13 +89,19 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->will($this->returnValue($quoteAMock)
 			);
 
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getItem'));
+		$quoteMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('getItem')
+		);
 		$quoteMock->expects($this->any())
 			->method('getItem')
 			->will($this->returnValue($itemMock)
 			);
 
-		$observerMock = $this->getMock('Varien_Event', array('getEvent'));
+		$observerMock = $this->getMock(
+			'Varien_Event',
+			array('getEvent')
+		);
 		$observerMock->expects($this->any())
 			->method('getEvent')
 			->will($this->returnValue($quoteMock));
@@ -107,47 +119,46 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	 */
 	public function testCheckEb2cInventoryQuantity($observer)
 	{
-		try {
-			$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
-			$apiModelMock->expects($this->any())
-				->method('setUri')
-				->will($this->returnSelf());
+		$apiModelMock = $this->getMock(
+			'TrueAction_Eb2c_Core_Model_Api',
+			array('setUri', 'request')
+		);
+		$apiModelMock->expects($this->any())
+			->method('setUri')
+			->will($this->returnSelf());
 
-			$apiModelMock->expects($this->any())
-				->method('request')
-				->will(
-					$this->throwException(new Exception)
-				);
-
-			$inventoryHelper = Mage::helper('eb2cinventory');
-			$inventoryReflector = new ReflectionObject($inventoryHelper);
-			$apiModel = $inventoryReflector->getProperty('apiModel');
-			$apiModel->setAccessible(true);
-			$apiModel->setValue($inventoryHelper, $apiModelMock);
-
-			// mockup to allow rollback on event to occur.
-			$allocationMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Allocation', array('hasAllocation', '_getHelper'));
-			$allocationMock->expects($this->any())
-				->method('hasAllocation')
-				->will($this->returnValue(true));
-			$allocationMock->expects($this->any())
-				->method('_getHelper')
-				->will($this->returnValue($inventoryHelper));
-
-			$allocationReflector = new ReflectionObject($this->_observer);
-			$allocation = $allocationReflector->getProperty('_allocation');
-			$allocation->setAccessible(true);
-			$allocation->setValue($this->_observer, $allocationMock);
-
-			$this->assertNull(
-				$this->_observer->checkEb2cInventoryQuantity($observer)
+		$apiModelMock->expects($this->any())
+			->method('request')
+			->will(
+				$this->throwException(new Exception)
 			);
-		} catch (Exception $e) {
-			// The try/catch block is for PHPUnit inconsistencies
-			// simply running 'PHPUnit' don't thrown and exception
-			// but running phpunit app/code/local/TrueAction/Eb2c/Enventory/Test/Model/,
-			// Throws an exception
-		}
+
+		$inventoryHelper = Mage::helper('eb2cinventory');
+		$inventoryReflector = new ReflectionObject($inventoryHelper);
+		$apiModel = $inventoryReflector->getProperty('apiModel');
+		$apiModel->setAccessible(true);
+		$apiModel->setValue($inventoryHelper, $apiModelMock);
+
+		// mockup to allow rollback on event to occur.
+		$allocationMock = $this->getMock(
+			'TrueAction_Eb2c_Inventory_Model_Allocation',
+			array('hasAllocation', '_getHelper')
+		);
+		$allocationMock->expects($this->any())
+			->method('hasAllocation')
+			->will($this->returnValue(true));
+		$allocationMock->expects($this->any())
+			->method('_getHelper')
+			->will($this->returnValue($inventoryHelper));
+
+		$allocationReflector = new ReflectionObject($this->_observer);
+		$allocation = $allocationReflector->getProperty('_allocation');
+		$allocation->setAccessible(true);
+		$allocation->setValue($this->_observer, $allocationMock);
+
+		$this->assertNull(
+			$this->_observer->checkEb2cInventoryQuantity($observer)
+		);
 	}
 
 	/**
@@ -161,7 +172,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	public function testCheckEb2cInventoryQuantityOutOfStock($observer)
 	{
 		// testing when available stock is less, than what shopper requested.
-		$quantityMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Quantity', array('requestQuantity'));
+		$quantityMock = $this->getMock(
+			'TrueAction_Eb2c_Inventory_Model_Quantity',
+			array('requestQuantity')
+		);
 		$quantityMock->expects($this->any())
 			->method('requestQuantity')
 			->will($this->returnValue(0)
@@ -186,7 +200,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	public function testCheckEb2cInventoryQuantityLessThanRequested($observer)
 	{
 		// testing when available stock is less, than what shopper requested.
-		$quantityMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Quantity', array('requestQuantity'));
+		$quantityMock = $this->getMock(
+			'TrueAction_Eb2c_Inventory_Model_Quantity',
+			array('requestQuantity')
+		);
 		$quantityMock->expects($this->any())
 			->method('requestQuantity')
 			->will($this->returnValue(0.5)
@@ -203,7 +220,8 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 
 	public function providerProcessInventoryDetails()
 	{
-		$addressMock = $this->getMock('Mage_Sales_Model_Quote_Address',
+		$addressMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Address',
 			array('getShippingMethod', 'getStreet', 'getCity', 'getRegion', 'getCountryId', 'getPostcode')
 		);
 		$addressMock->expects($this->any())
@@ -231,7 +249,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->will($this->returnValue('19726')
 			);
 
-		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getId', 'getSku'));
+		$itemMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Item',
+			array('getQty', 'getId', 'getSku')
+		);
 		$itemMock->expects($this->any())
 			->method('getQty')
 			->will($this->returnValue(1)
@@ -245,7 +266,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->will($this->returnValue('SKU-1234')
 			);
 
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems', 'getShippingAddress', 'getItemById'));
+		$quoteMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('getAllItems', 'getShippingAddress', 'getItemById')
+		);
 		$quoteMock->expects($this->any())
 			->method('getAllItems')
 			->will($this->returnValue(array($itemMock))
@@ -258,12 +282,18 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->method('getItemById')
 			->will($this->returnValue($itemMock)
 			);
-		$eventMock = $this->getMock('Varien_Event', array('getQuote'));
+		$eventMock = $this->getMock(
+			'Varien_Event',
+			array('getQuote')
+		);
 		$eventMock->expects($this->any())
 			->method('getQuote')
 			->will($this->returnValue($quoteMock));
 
-		$observerMock = $this->getMock('Varien_Event', array('getEvent'));
+		$observerMock = $this->getMock(
+			'Varien_Event',
+			array('getEvent')
+		);
 		$observerMock->expects($this->any())
 			->method('getEvent')
 			->will($this->returnValue($eventMock));
@@ -288,7 +318,8 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 
 	public function providerProcessEb2cAllocation()
 	{
-		$addressMock = $this->getMock('Mage_Sales_Model_Quote_Address',
+		$addressMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Address',
 			array('getShippingMethod', 'getStreet', 'getCity', 'getRegion', 'getCountryId', 'getPostcode')
 		);
 		$addressMock->expects($this->any())
@@ -316,7 +347,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->will($this->returnValue('19726')
 			);
 
-		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getId', 'getSku', 'save'));
+		$itemMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Item',
+			array('getQty', 'getId', 'getSku', 'save')
+		);
 		$itemMock->expects($this->any())
 			->method('getQty')
 			->will($this->returnValue(1)
@@ -334,7 +368,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->will($this->returnValue(1)
 			);
 
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems', 'getShippingAddress', 'getItemById', 'getAllAddresses'));
+		$quoteMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('getAllItems', 'getShippingAddress', 'getItemById', 'getAllAddresses')
+		);
 		$quoteMock->expects($this->any())
 			->method('getAllItems')
 			->will($this->returnValue(array($itemMock))
@@ -351,12 +388,18 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->method('getAllAddresses')
 			->will($this->returnValue(array($quoteMock))
 			);
-		$eventMock = $this->getMock('Varien_Event', array('getQuote'));
+		$eventMock = $this->getMock(
+			'Varien_Event',
+			array('getQuote')
+		);
 		$eventMock->expects($this->any())
 			->method('getQuote')
 			->will($this->returnValue($quoteMock));
 
-		$observerMock = $this->getMock('Varien_Event', array('getEvent'));
+		$observerMock = $this->getMock(
+			'Varien_Event',
+			array('getEvent')
+		);
 		$observerMock->expects($this->any())
 			->method('getEvent')
 			->will($this->returnValue($eventMock));
@@ -391,7 +434,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	public function testProcessEb2cAllocationError($observer)
 	{
 		// testing when allocation error occurred.
-		$allocationMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Allocation', array('processAllocation', 'allocateQuoteItems'));
+		$allocationMock = $this->getMock(
+			'TrueAction_Eb2c_Inventory_Model_Allocation',
+			array('processAllocation', 'allocateQuoteItems')
+		);
 		$allocationMock->expects($this->any())
 			->method('processAllocation')
 			->will($this->returnValue(array(array('Sorry, item "2610" out of stock.')))
@@ -399,7 +445,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 
 		$alloc = Mage::getModel('eb2cinventory/allocation');
 
-		$inventoryHelperMock = $this->getMock('TrueAction_Eb2c_Inventory_Helper_Data', array('getOperationUri'));
+		$inventoryHelperMock = $this->getMock(
+			'TrueAction_Eb2c_Inventory_Helper_Data',
+			array('getOperationUri')
+		);
 		$inventoryHelperMock->expects($this->any())
 			->method('getOperationUri')
 			->will($this->returnValue('http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/AllocationResponseMessage.xml'));
@@ -408,7 +457,6 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 		$helper = $allocationReflector->getProperty('_helper');
 		$helper->setAccessible(true);
 		$helper->setValue($alloc, $inventoryHelperMock);
-
 
 		$quote = $observer->getEvent()->getQuote();
 		$response = $alloc->allocateQuoteItems($quote);
@@ -430,7 +478,8 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 
 	public function providerRollbackOnRemoveItemInReservedCart()
 	{
-		$addressMock = $this->getMock('Mage_Sales_Model_Quote_Address',
+		$addressMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Address',
 			array('getShippingMethod', 'getStreet', 'getCity', 'getRegion', 'getCountryId', 'getPostcode')
 		);
 		$addressMock->expects($this->any())
@@ -458,7 +507,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->will($this->returnValue('19726')
 			);
 
-		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getId', 'getSku', 'save', 'getQuote'));
+		$itemMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Item',
+			array('getQty', 'getId', 'getSku', 'save', 'getQuote')
+		);
 		$itemMock->expects($this->any())
 			->method('getQty')
 			->will($this->returnValue(1)
@@ -476,7 +528,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->will($this->returnValue(1)
 			);
 
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems', 'getShippingAddress', 'getItemById', 'getAllAddresses'));
+		$quoteMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('getAllItems', 'getShippingAddress', 'getItemById', 'getAllAddresses')
+		);
 
 		$itemMock->expects($this->any())
 			->method('getQuote')
@@ -499,12 +554,18 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 			->method('getAllAddresses')
 			->will($this->returnValue(array($quoteMock))
 			);
-		$eventMock = $this->getMock('Varien_Event', array('getQuoteItem'));
+		$eventMock = $this->getMock(
+			'Varien_Event',
+			array('getQuoteItem')
+		);
 		$eventMock->expects($this->any())
 			->method('getQuoteItem')
 			->will($this->returnValue($itemMock));
 
-		$observerMock = $this->getMock('Varien_Event', array('getEvent'));
+		$observerMock = $this->getMock(
+			'Varien_Event',
+			array('getEvent')
+		);
 		$observerMock->expects($this->any())
 			->method('getEvent')
 			->will($this->returnValue($eventMock));
@@ -522,25 +583,31 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	 */
 	public function testRollbackOnRemoveItemInReservedCart($observer)
 	{
-			$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
-			$apiModelMock->expects($this->any())
-				->method('setUri')
-				->will($this->returnSelf());
+		$apiModelMock = $this->getMock(
+			'TrueAction_Eb2c_Core_Model_Api',
+			array('setUri', 'request')
+		);
+		$apiModelMock->expects($this->any())
+			->method('setUri')
+			->will($this->returnSelf());
 
-			$apiModelMock->expects($this->any())
-				->method('request')
-				->will(
-					$this->returnValue('')
-				);
+		$apiModelMock->expects($this->any())
+			->method('request')
+			->will(
+				$this->returnValue('')
+			);
 
-			$inventoryHelper = Mage::helper('eb2cinventory');
-			$inventoryReflector = new ReflectionObject($inventoryHelper);
-			$apiModel = $inventoryReflector->getProperty('apiModel');
-			$apiModel->setAccessible(true);
-			$apiModel->setValue($inventoryHelper, $apiModelMock);
+		$inventoryHelper = Mage::helper('eb2cinventory');
+		$inventoryReflector = new ReflectionObject($inventoryHelper);
+		$apiModel = $inventoryReflector->getProperty('apiModel');
+		$apiModel->setAccessible(true);
+		$apiModel->setValue($inventoryHelper, $apiModelMock);
 
 		// mockup to allow rollback on event to occur.
-		$allocationMock = $this->getMock('TrueAction_Eb2c_Inventory_Model_Allocation', array('hasAllocation', '_getHelper'));
+		$allocationMock = $this->getMock(
+			'TrueAction_Eb2c_Inventory_Model_Allocation',
+			array('hasAllocation', '_getHelper')
+		);
 		$allocationMock->expects($this->any())
 			->method('hasAllocation')
 			->will($this->returnValue(true));
@@ -571,9 +638,9 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 		$observerAllocationProperty->setValue($this->_observer, null);
 		$observerAllocationMethod = $observerReflector->getMethod('_getAllocation');
 		$observerAllocationMethod->setAccessible(true);
-		$this->assertSame(
+		$this->assertInstanceOf(
 			'TrueAction_Eb2c_Inventory_Model_Allocation',
-			get_class($observerAllocationMethod->invoke($this->_observer))
+			$observerAllocationMethod->invoke($this->_observer)
 		);
 
 		$observerDetailsProperty = $observerReflector->getProperty('_details');
@@ -581,9 +648,9 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 		$observerDetailsProperty->setValue($this->_observer, null);
 		$observerDetailsMethod = $observerReflector->getMethod('_getDetails');
 		$observerDetailsMethod->setAccessible(true);
-		$this->assertSame(
+		$this->assertInstanceOf(
 			'TrueAction_Eb2c_Inventory_Model_Details',
-			get_class($observerDetailsMethod->invoke($this->_observer))
+			$observerDetailsMethod->invoke($this->_observer)
 		);
 
 		$observerQuantityProperty = $observerReflector->getProperty('_quantity');
@@ -591,9 +658,9 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 		$observerQuantityProperty->setValue($this->_observer, null);
 		$observerQuantityMethod = $observerReflector->getMethod('_getQuantity');
 		$observerQuantityMethod->setAccessible(true);
-		$this->assertSame(
+		$this->assertInstanceOf(
 			'TrueAction_Eb2c_Inventory_Model_Quantity',
-			get_class($observerQuantityMethod->invoke($this->_observer))
+			$observerQuantityMethod->invoke($this->_observer)
 		);
 
 	}

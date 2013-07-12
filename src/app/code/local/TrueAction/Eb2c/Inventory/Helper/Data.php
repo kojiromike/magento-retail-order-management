@@ -68,7 +68,6 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 		return $this->fileTransferHelper;
 	}
 
-
 	/**
 	 * Get inventory config instantiated object.
 	 *

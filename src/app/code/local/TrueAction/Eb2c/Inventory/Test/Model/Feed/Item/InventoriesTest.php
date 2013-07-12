@@ -57,13 +57,18 @@ class TrueAction_Eb2c_Inventory_Test_Model_Feed_Item_InventoriesTest extends Eco
 
 		copy($sampleFeed, $destination);
 
-		$fileTransferHelperMock = $this->getMock('TrueAction_FileTransfer_Helper_Data', array('getFile'));
+		$fileTransferHelperMock = $this->getMock(
+			'TrueAction_FileTransfer_Helper_Data',
+			array('getFile')
+		);
 		$fileTransferHelperMock->expects($this->any())
 			->method('getFile')
 			->will($this->returnValue(true));
 
-
-		$inventoryHelperMock = $this->getMock('TrueAction_Eb2c_Inventory_Helper_Data', array('getFileTransferHelper'));
+		$inventoryHelperMock = $this->getMock(
+			'TrueAction_Eb2c_Inventory_Helper_Data',
+			array('getFileTransferHelper')
+		);
 		$inventoryHelperMock->expects($this->any())
 			->method('getFileTransferHelper')
 			->will($this->returnValue($fileTransferHelperMock));
@@ -76,14 +81,16 @@ class TrueAction_Eb2c_Inventory_Test_Model_Feed_Item_InventoriesTest extends Eco
 			$this->_inventories->processFeeds($feeds)
 		);
 
-
 		copy($sampleFeed, $destination);
 		$this->assertNull(
 			$this->_inventories->processFeeds($feeds)
 		);
 
 		// test with mock product and stock item
-		$productMock = $this->getMock('Mage_Catalog_Model_Product', array('loadByAttribute', 'getId'));
+		$productMock = $this->getMock(
+			'Mage_Catalog_Model_Product',
+			array('loadByAttribute', 'getId')
+		);
 		$productMock->expects($this->any())
 			->method('loadByAttribute')
 			->will($this->returnValue(true));
@@ -91,7 +98,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_Feed_Item_InventoriesTest extends Eco
 			->method('getId')
 			->will($this->returnValue(1));
 
-		$stockItemMock = $this->getMock('Mage_CatalogInventory_Model_Stock_Item', array('loadByProduct', 'setQty', 'save'));
+		$stockItemMock = $this->getMock(
+			'Mage_CatalogInventory_Model_Stock_Item',
+			array('loadByProduct', 'setQty', 'save')
+		);
 		$stockItemMock->expects($this->any())
 			->method('loadByProduct')
 			->will($this->returnSelf());
@@ -101,7 +111,6 @@ class TrueAction_Eb2c_Inventory_Test_Model_Feed_Item_InventoriesTest extends Eco
 		$stockItemMock->expects($this->any())
 			->method('save')
 			->will($this->returnSelf());
-
 
 		$productProperty = $inventoriesReflector->getProperty('_product');
 		$productProperty->setAccessible(true);
@@ -117,7 +126,6 @@ class TrueAction_Eb2c_Inventory_Test_Model_Feed_Item_InventoriesTest extends Eco
 		);
 	}
 
-
 	/**
 	 * testing _clean method, to cover exception catch section
 	 *
@@ -125,7 +133,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_Feed_Item_InventoriesTest extends Eco
 	 */
 	public function testCleanWithException()
 	{
-		$stockStatusMock = $this->getMock('Mage_CatalogInventory_Model_Stock_Status', array('rebuild'));
+		$stockStatusMock = $this->getMock(
+			'Mage_CatalogInventory_Model_Stock_Status',
+			array('rebuild')
+		);
 		$stockStatusMock->expects($this->any())
 			->method('rebuild')
 			->will($this->throwException(new Exception));

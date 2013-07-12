@@ -39,7 +39,8 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 
 	public function buildQuoteMock()
 	{
-		$addressMock = $this->getMock('Mage_Sales_Model_Quote_Address',
+		$addressMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Address',
 			array('getShippingMethod', 'getStreet', 'getCity', 'getRegion', 'getCountryId', 'getPostcode')
 		);
 		$addressMock->expects($this->any())
@@ -67,7 +68,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 			->will($this->returnValue('19726')
 			);
 
-		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getId', 'getSku', 'getItemId', 'getQuote'));
+		$itemMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Item',
+			array('getQty', 'getId', 'getSku', 'getItemId', 'getQuote')
+		);
 		$itemMock->expects($this->any())
 			->method('getQty')
 			->will($this->returnValue(1)
@@ -85,7 +89,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 			->will($this->returnValue(1)
 			);
 
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems', 'getShippingAddress', 'getItemById', 'save'));
+		$quoteMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('getAllItems', 'getShippingAddress', 'getItemById', 'save')
+		);
 
 		$itemMock->expects($this->any())
 			->method('getQuote')
@@ -143,16 +150,17 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	 */
 	public function testGetInventoryDetailsWithApiCallException($quote)
 	{
-		$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
+		$apiModelMock = $this->getMock(
+			'TrueAction_Eb2c_Core_Model_Api',
+			array('setUri', 'request')
+		);
 		$apiModelMock->expects($this->any())
 			->method('setUri')
 			->will($this->returnSelf());
 
 		$apiModelMock->expects($this->any())
 			->method('request')
-			->will(
-				$this->throwException(new Exception)
-			);
+			->will($this->throwException(new Exception));
 
 		$inventoryHelper = Mage::helper('eb2cinventory');
 		$inventoryReflector = new ReflectionObject($inventoryHelper);
@@ -195,7 +203,8 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 
 	public function providerBuildInventoryDetailsRequestMessageWithException()
 	{
-		$addressMock = $this->getMock('Mage_Sales_Model_Quote_Address',
+		$addressMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Address',
 			array('getShippingMethod', 'getStreet', 'getCity', 'getRegion', 'getCountryId', 'getPostcode')
 		);
 		$addressMock->expects($this->any())
@@ -223,7 +232,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 			->will($this->returnValue('19726')
 			);
 
-		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getQty', 'getId', 'getSku', 'getItemId'));
+		$itemMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Item',
+			array('getQty', 'getId', 'getSku', 'getItemId')
+		);
 		$itemMock->expects($this->any())
 			->method('getQty')
 			->will($this->returnValue(1)
@@ -234,16 +246,16 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 			);
 		$itemMock->expects($this->any())
 			->method('getSku')
-			->will($this->returnValue(
-					$this->throwException(new Exception)
-				)
-			);
+			->will($this->returnValue($this->throwException(new Exception)));
 		$itemMock->expects($this->any())
 			->method('getItemId')
 			->will($this->returnValue(1)
 			);
 
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('getAllItems', 'getShippingAddress', 'getItemById', 'save'));
+		$quoteMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('getAllItems', 'getShippingAddress', 'getItemById', 'save')
+		);
 		$quoteMock->expects($this->any())
 			->method('getAllItems')
 			->will($this->returnValue(array($itemMock))
@@ -291,7 +303,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 				'deliveryWindow_from' => '2011-11-02T05:01:50Z',
 				'deliveryWindow_to' => '2011-11-02T05:01:50Z',
 				'shippingWindow_from' => '2011-11-02T05:01:50Z',
-				'shippingWindow_to'  => '2011-11-02T05:01:50Z',
+				'shippingWindow_to' => '2011-11-02T05:01:50Z',
 				'shipFromAddress_line1' => 'Ten Bagshot Row',
 				'shipFromAddress_city' => 'Bag End',
 				'shipFromAddress_mainDivision' => 'PA',

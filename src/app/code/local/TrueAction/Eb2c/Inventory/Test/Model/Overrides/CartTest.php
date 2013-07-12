@@ -16,26 +16,15 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 		$_SESSION = array();
 		$_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
 		$this->app()->getRequest()->setBaseUrl($_baseUrl);
-		$this->_cart = $this->_getCart();
-		Mage::app()->getConfig()->reinit(); // re-initialize configuration to get fresh loaded data
-	}
-
-	/**
-	 * Get Cart instantiated object.
-	 *
-	 * @return TrueAction_Eb2c_Inventory_Override_Model_Cart
-	 */
-	protected function _getCart()
-	{
-		if (!$this->_cart) {
-			$this->_cart = Mage::getModel('eb2cinventoryoverride/cart');
-		}
-		return $this->_cart;
+		$this->_cart = Mage::getModel('eb2cinventoryoverride/cart');
 	}
 
 	public function providerAddProduct()
 	{
-		$productMock = $this->getMock('Mage_Catalog_Model_Product', array('getId', 'getWebsiteIds', 'hasOptionsValidationFail'));
+		$productMock = $this->getMock(
+			'Mage_Catalog_Model_Product',
+			array('getId', 'getWebsiteIds', 'hasOptionsValidationFail')
+		);
 		$productMock->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(1));
@@ -61,18 +50,21 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 */
 	public function testAddProduct($productInfo, $requestInfo=null)
 	{
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('addProduct'));
+		$quoteMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('addProduct')
+		);
 		$quoteMock->expects($this->any())
 			->method('addProduct')
 			->will($this->returnValue(array('some message')));
 
-		$this->_getCart()->setQuote($quoteMock);
+		$this->_cart->setQuote($quoteMock);
 
 		$session = Mage::getSingleton('checkout/session');
-		$session->setData('use_notice', NULL);
+		$session->setData('use_notice', null);
 
 		$this->assertNotNull(
-			$this->_getCart()->addProduct($productInfo, $requestInfo)
+			$this->_cart->addProduct($productInfo, $requestInfo)
 		);
 	}
 
@@ -87,23 +79,27 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 */
 	public function testAddProductWithThrownException($productInfo, $requestInfo=null)
 	{
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('addProduct'));
+		$quoteMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('addProduct')
+		);
 		$quoteMock->expects($this->any())
 			->method('addProduct')
-			->will(
-				$this->throwException(new Mage_Core_Exception('Unit test Exception'))
-			);
+			->will($this->throwException(new Mage_Core_Exception('Unit test Exception')));
 
-		$this->_getCart()->setQuote($quoteMock);
+		$this->_cart->setQuote($quoteMock);
 
 		$this->assertNotNull(
-			$this->_getCart()->addProduct($productInfo, $requestInfo)
+			$this->_cart->addProduct($productInfo, $requestInfo)
 		);
 	}
 
 	public function providerAddProductInvalidProductId()
 	{
-		$productMock = $this->getMock('Mage_Catalog_Model_Product', array('getId', 'getWebsiteIds', 'hasOptionsValidationFail'));
+		$productMock = $this->getMock(
+			'Mage_Catalog_Model_Product',
+			array('getId', 'getWebsiteIds', 'hasOptionsValidationFail')
+		);
 		$productMock->expects($this->any())
 			->method('getId')
 			->will($this->returnValue('testing...'));
@@ -131,7 +127,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	public function testAddProductInvalidProductId($productInfo, $requestInfo=null)
 	{
 		$this->assertNotNull(
-			$this->_getCart()->addProduct($productInfo, $requestInfo)
+			$this->_cart->addProduct($productInfo, $requestInfo)
 		);
 	}
 
@@ -152,7 +148,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 */
 	public function testUpdateItem($itemId, $requestInfo=null, $updatingParams=null)
 	{
-		$productMock = $this->getMock('Mage_Catalog_Model_Product', array('getId', 'getWebsiteIds', 'hasOptionsValidationFail'));
+		$productMock = $this->getMock(
+			'Mage_Catalog_Model_Product',
+			array('getId', 'getWebsiteIds', 'hasOptionsValidationFail')
+		);
 		$productMock->expects($this->any())
 			->method('getId')
 			->will($this->returnValue($productMock));
@@ -163,12 +162,18 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 			->method('hasOptionsValidationFail')
 			->will($this->returnValue(true));
 
-		$itemMock = $this->getMock('Mage_Sales_Model_Quote_Item', array('getProduct'));
+		$itemMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Item',
+			array('getProduct')
+		);
 		$itemMock->expects($this->any())
 			->method('getProduct')
 			->will($this->returnValue($productMock));
 
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('updateItem', 'getItemById'));
+		$quoteMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('updateItem', 'getItemById')
+		);
 		$quoteMock->expects($this->any())
 			->method('updateItem')
 			->will($this->returnValue($quoteMock));
@@ -176,10 +181,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 			->method('getItemById')
 			->will($this->returnValue($itemMock));
 
-		$this->_getCart()->setQuote($quoteMock);
+		$this->_cart->setQuote($quoteMock);
 
 		$this->assertNotNull(
-			$this->_getCart()->updateItem($itemId, $requestInfo, $updatingParams)
+			$this->_cart->updateItem($itemId, $requestInfo, $updatingParams)
 		);
 	}
 
@@ -201,7 +206,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 	 */
 	public function testUpdateItemMissingItemException($itemId, $requestInfo=null, $updatingParams=null)
 	{
-		$quoteMock = $this->getMock('Mage_Sales_Model_Quote', array('updateItem', 'getItemById'));
+		$quoteMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('updateItem', 'getItemById')
+		);
 		$quoteMock->expects($this->any())
 			->method('updateItem')
 			->will($this->returnValue(array('some message')));
@@ -209,10 +217,10 @@ class TrueAction_Eb2c_Inventory_Test_Model_Overrides_CartTest extends EcomDev_PH
 			->method('getItemById')
 			->will($this->returnValue(null));
 
-		$this->_getCart()->setQuote($quoteMock);
+		$this->_cart->setQuote($quoteMock);
 
 		$this->assertNotNull(
-			$this->_getCart()->updateItem($itemId, $requestInfo, $updatingParams)
+			$this->_cart->updateItem($itemId, $requestInfo, $updatingParams)
 		);
 	}
 }

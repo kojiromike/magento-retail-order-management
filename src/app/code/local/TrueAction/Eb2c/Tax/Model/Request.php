@@ -134,7 +134,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	public function getDocument()
 	{
 		if (!$this->_doc) {
-			$this->_namespaceUri = Mage::helper('tax')->getNamespaceUri();
+			$this->_namespaceUri = Mage::helper('tax')->getNamespaceUri($this->getStore());
 			$doc                 = new TrueAction_Dom_Document('1.0', 'UTF-8');
 			$this->_doc          = $doc;
 			if ($this->isValid()) {

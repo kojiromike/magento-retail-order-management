@@ -36,6 +36,9 @@
 				<major_version>1</major_version>
 				<minor_version>10</minor_version>
 			</api>
+			<feed>
+				<destination_type />
+			</feed>
 			<service>
 				<order>
 					<timeout>15</timeout>

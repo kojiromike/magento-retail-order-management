@@ -441,6 +441,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->_processAddresses($destinations, $shipGroups);
 		} catch (Mage_Core_Exception $e) {
 			Mage::log('TaxDutyQuoteRequest Error: ' . $e->getMessage(), Zend_Log::WARN);
+			$this->invalidate();
 		}
 	}
 

@@ -635,6 +635,45 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	}
 
 	/**
+     * gather discount information about an item.
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract    $item
+	 * @param  Mage_Sales_Model_Quote_Address $address
+	 * @param  array                          $data
+	 */
+	protected function _extractItemDiscountData(
+		Mage_Sales_Model_Quote_Item_Abstract $item,
+		Mage_Sales_Model_Quote_Address $address,
+		array &$outData
+	) {
+		$this->_appliedRuleIds[$item->getId()] = $item->getAppliedRuledIds();
+		$discountCode = $this->_getDiscountCode($address);
+		$isDutyCalcNeeded = $this->_isDutyCalcNeeded($item, $address);
+		if ($item->getDiscountAmount()) {
+			$outData['merchandise_discount_code']      = $discountCode;
+			$outData['merchandise_discount_amount']    = $item->getDiscountAmount();
+			$outData['merchandise_discount_calc_duty'] = $isDutyCalcNeeded;
+		}
+
+		if ($address->getShippingDiscountAmount()){
+			$isDutyCalcNeeded = $this->_isDutyCalcNeeded($item, $address);
+			$outData['shipping_discount_code']      = $discountCode;
+			$outData['shipping_discount_amount']    = $address->getShippingDiscountAmount();
+			$outData['shipping_discount_calc_duty'] = $isDutyCalcNeeded;
+		}
+	}
+
+	/**
+	 * generate the code to identify a discount
+	 * @param  Mage_Sales_Model_Quote_Address $item
+	 * @param  Mage_Sales_Model_Quote_Address $address
+	 * @return string
+	 */
+	protected function _getDiscountCode(Mage_Sales_Model_Quote_Address $address)
+	{
+		return '_' . $address->getCouponCode();
+	}
+
+	/**
 	 * return false since we don't do any duty informaiton.
 	 */
 	protected function _isDutyCalcNeeded($item, $address)

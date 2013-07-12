@@ -17,6 +17,8 @@ class TrueAction_Eb2c_Tax_Model_Response_Quote extends Mage_Core_Model_Abstract
 		if ($tax) {
 			$xpath = new DOMXPath($tax->ownerDocument);
 			$xpath->registerNamespace('a', $tax->namespaceURI);
+			$this->setJurisdiction($xpath->evaluate('string(a:Jurisdiction)', $tax));
+			$this->setImposition($xpath->evaluate('string(a:Imposition)', $tax));
 			// get effective rate
 			$this->setEffectiveRate((float)$xpath->evaluate('string(a:EffectiveRate)', $tax));
 			// get taxable amount

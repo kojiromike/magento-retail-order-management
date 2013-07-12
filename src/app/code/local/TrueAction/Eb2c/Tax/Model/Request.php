@@ -110,15 +110,17 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * is a change.
 	 * @param  Mage_Sales_Model_Quote_Item_Abstract $item
 	 */
-	public function checkDiscounts(Mage_Sales_Model_Quote_Item_Abstract $item)
+	public function checkDiscounts($item)
 	{
-		if (!$this->_hasChanges && isset($this->_appliedRuleIds[$item->getId()])) {
-			$oldRuleIds = $this->_appliedRuleIds[$item->getId()];
-			$newRuleIds = $item->getAppliedRuleIds();
-			$this->_hasChanges = (bool)array_diff_assoc($oldRuleIds, $newRuleIds);
-		}
-		if ($this->_hasChanges) {
-			$this->invalidate();
+		if ($item) {
+			if (!$this->_hasChanges && isset($this->_appliedRuleIds[$item->getId()])) {
+				$oldRuleIds = $this->_appliedRuleIds[$item->getId()];
+				$newRuleIds = $item->getAppliedRuleIds();
+				$this->_hasChanges = (bool)array_diff_assoc($oldRuleIds, $newRuleIds);
+			}
+			if ($this->_hasChanges) {
+				$this->invalidate();
+			}
 		}
 	}
 

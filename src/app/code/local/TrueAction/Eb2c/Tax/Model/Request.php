@@ -26,7 +26,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 
 	/**
 	 * map skus to a quote item
-	 * @var array('string' => Mage_Sales_Model_Quote_Item)
+	 * @var array('string' => Mage_Sales_Model_Quote_Item_Abstract)
 	 */
 	protected $_skuItemMap = array();
 
@@ -253,12 +253,12 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	/**
 	 * add the data extracted from $item to the request and map it to the destination
 	 * data extracted from $address.
-	 * @param Mage_Sales_Model_Quote_Item|Mage_Sales_Model_Quote_Address_Item $item
-	 * @param Mage_Sales_Model_Quote_Address $address
+	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
+	 * @param Mage_Sales_Model_Quote_Address       $address
 	 * @param boolean                        $isVirtual
 	 */
 	protected function _addToDestination(
-		$item,
+		Mage_Sales_Model_Quote_Item_Abstract $item,
 		Mage_Sales_Model_Quote_Address $address,
 		$isVirtual = false
 	) {
@@ -371,7 +371,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	/**
 	 * get the tax class for the item's product.
 	 * NOTE: the taxCode should be set by the ItemMaster feed.
-	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract $item
 	 * @return string
 	 */
 	protected function _getItemTaxClass($item)
@@ -395,7 +395,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		if (is_null($newSku)){
 			$this->invalidate();
 			$message = sprintf(
-				'TaxDutyQuoteRequest: Mage_Sales_Model_Quote_Item id:%s has an invalid SKU:%s',
+				'TaxDutyQuoteRequest: Mage_Sales_Model_Quote_Item_Abstract id:%s has an invalid SKU:%s',
 				$item['id'],
 				$item['item_id']
 			);

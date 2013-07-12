@@ -28,6 +28,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_Feed_Item_InventoriesTest extends Eco
 	 * testing processFeeds method
 	 *
 	 * @test
+	 * @medium
 	 * @dataProvider providerProcessFeeds
 	 * @loadFixture loadConfig.yaml
 	 */

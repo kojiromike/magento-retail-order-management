@@ -103,6 +103,20 @@ class TrueAction_Eb2c_Core_Helper_Feed extends Mage_Core_Helper_Abstract
 			);
 		}
 
+		$destinationType = $headerXpath->query('//MessageHeader/DestinationData/DestinationType');
+		if (!$destinationType->length) {
+			// Destination Type wasn't found in the feed document.
+			$isValid = false;
+			Mage::log('Destination Type node was not found in the xml feed', Zend_Log::WARN);
+		} elseif(trim($this->_getCoreConfig()->feedDestinationType) !== trim($destinationType->item(0)->nodeValue)) {
+			// Destination Type doesn't match
+			$isValid = false;
+			Mage::log(
+				'Feed Destination Type "' . $destinationType->item(0)->nodeValue . '" do not matched config Destination Type "' . $this->_getCoreConfig()->feedDestinationType . '".',
+				Zend_Log::WARN
+			);
+		}
+
 		// log the entired feed header on any invalid mismatch
 		if (!$isValid) {
 			$feedHeaderContent = '';

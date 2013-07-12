@@ -20,6 +20,6 @@ class TrueAction_Eb2c_Core_Model_Config
 		'api_minor_version' => 'eb2ccore/api/minor_version',
 		'service_order_timeout' => 'eb2ccore/service/order/timeout',
 		'service_payment_timeout' => 'eb2ccore/service/payment/timeout',
+		'feed_destination_type' => 'eb2ccore/feed/destination_type',
 	);
-
 }

@@ -192,22 +192,26 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 */
 	public function getAppliedRatesForItem($item, $address)
 	{
-		$result = array('percent' => null, 'amount' => null);
+		$result = array();
 		$itemResponse = $this->_getItemResponse($item, $address);
 		if ($itemResponse) {
 			$taxQuotes = $itemResponse->getTaxQuotes();
 			$discountTaxQuotes = $itemResponse->getTaxQuoteDiscounts();
 			foreach ($taxQuotes as $index => $taxQuote) {
-				$rate['code']      = 'foo';
-				$rate['title']     = "tax_{$index}";
+				$code  = sprintf('%s-%s', $taxQuote->getJurisdiction(), $taxQuote->getImposition());
+				$rate['code']      = $code;
+				$rate['title']     = $code;
 				$rate['percent']   = $taxQuote->getEffectiveRate();
 				$rate['amount']    = $taxQuote->getCalculatedTax();
 				$rate['position']  = 1;
 				$rate['priority']  = 1;
-				$result['rates'][] =  $rate;
+
+				$group = isset($result[$code]) ? $result[$code] : array();
+				$group['rates'][]  =  $rate;
+				$result[$code] = $group;
 			}
 		}
-		return array($result);
+		return $result;
 	}
 
 	public function getAppliedRates($itemSelector)

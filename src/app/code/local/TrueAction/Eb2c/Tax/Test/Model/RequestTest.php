@@ -112,8 +112,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testIsValid()
 	{
-
-
 		$req = Mage::getModel('eb2ctax/request', array('quote' => $this->quoteWithVirtualProducts()));
 		$this->assertTrue($req->isValid());
 		$req->invalidate();
@@ -388,6 +386,75 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$virtualId = $quote->getBillingAddress()->getId() .
 			'_' . $quote->getBillingAddress()->getEmail();
 		$this->assertTrue(isset($destinations[$virtualId]));
+	}
+
+	public function testBuildDiscountNode()
+	{
+		$request = self::$cls->newInstance();
+		$fn = self::$cls->getMethod('_buildDiscountNode');
+		$fn->setAccessible(true);
+		$doc  = $request->getDocument();
+		$node = $doc->createElement('root', null, 'http:/www.example.com/foo'); // parent node
+		$doc->appendChild($node);
+		$xpath = new DOMXPath($doc);
+		$xpath->registerNamespace('a', $doc->documentElement->namespaceURI);
+		$discount = array(
+			'merchandise_discount_code'      => 'somediscount',
+			'merchandise_discount_calc_duty' => 0,
+			'merchandise_discount_amount'    => 10.0,
+			'shipping_discount_code'      => 'somediscount2',
+			'shipping_discount_calc_duty' => 1,
+			'shipping_discount_amount'    => 5.0,
+		);
+		$fn->invoke($request, $node, $discount);
+		$this->assertSame('somediscount', $xpath->evaluate('string(./a:Discount/@id)', $node));
+		$this->assertSame('0', $xpath->evaluate('string(./a:Discount/@calculateDuty)', $node));
+		$this->assertSame('10', $xpath->evaluate('string(./a:Discount/a:Amount)', $node));
+
+		$node = $doc->createElement('root', null, 'http:/www.example.com/foo'); // parent node
+		$doc->appendChild($node);
+		$fn->invoke($request, $node, $discount, false);
+		$this->assertSame('somediscount2', $xpath->evaluate('string(./a:Discount/@id)', $node));
+		$this->assertSame('1', $xpath->evaluate('string(./a:Discount/@calculateDuty)', $node));
+		$this->assertSame('5', $xpath->evaluate('string(./a:Discount/a:Amount)', $node));
+	}
+
+	public function testExtractItemDiscountData()
+	{
+		$request = self::$cls->newInstance();
+		$fn = self::$cls->getMethod('_extractItemDiscountData');
+		$fn->setAccessible(true);
+		$mockQuoteAddress = $this->getModelMock('sales/quote_address', array('getShippingDiscountAmount', 'getCouponCode'));
+		$mockQuoteAddress->expects($this->any())
+			->method('getCouponCode')
+			->will($this->returnValue('somecouponcode'));
+		$mockQuoteAddress->expects($this->any())
+			->method('getShippingDiscountAmount')
+			->will($this->returnValue(3));
+		$mockItem = $this->getModelMock('sales/quote_item', array('getDiscountAmount'));
+		$mockItem->expects($this->any())
+			->method('getDiscountAmount')
+			->will($this->returnValue(5));
+		$outData = array();
+		$fn->invoke($request, $mockItem, $mockQuoteAddress, &$outData);
+		$keys = array(
+			'merchandise_discount_code',
+			'merchandise_discount_amount',
+			'merchandise_discount_calc_duty',
+			'shipping_discount_code',
+			'shipping_discount_amount',
+			'shipping_discount_calc_duty',
+		);
+		foreach ($keys as $key)
+		{
+			$this->assertArrayHasKey($key, $outData);
+		}
+		$this->assertSame('_somecouponcode', $outData['merchandise_discount_code']);
+		$this->assertSame(5, $outData['merchandise_discount_amount']);
+		$this->assertSame(false, $outData['merchandise_discount_calc_duty']);
+		$this->assertSame('_somecouponcode', $outData['shipping_discount_code']);
+		$this->assertSame(3, $outData['shipping_discount_amount']);
+		$this->assertSame(false, $outData['shipping_discount_calc_duty']);
 	}
 
 	/**

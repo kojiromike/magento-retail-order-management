@@ -158,9 +158,12 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 				$tax += $this->_calcTaxAmount(
 					$amount,
 					$taxQuote->getEffectiveRate(),
-					$round
+					false
 				);
 			}
+		}
+		if ($round) {
+			$tax = $this->round($tax);
 		}
 		return $tax;
 	}

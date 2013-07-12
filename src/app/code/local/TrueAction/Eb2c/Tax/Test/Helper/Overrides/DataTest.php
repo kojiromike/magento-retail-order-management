@@ -57,7 +57,49 @@ class TrueAction_Eb2c_Tax_Test_Helper_Overrides_DataTest extends EcomDev_PHPUnit
 			'TrueAction_Eb2c_Tax_Model_Response',
 			$taxHelper->sendRequest($request)
 		);
+
+		// let cover getApiModel
+		$apiModel->setValue($taxHelper, null);
+		$this->assertInstanceOf(
+			'TrueAction_Eb2c_Core_Model_Api',
+			$taxHelper->getApiModel()
+		);
 	}
+
+	/**
+	 * @test
+	 * @expectedException Mage_Core_Exception
+	 */
+	public function testSendRequestWithExceptionThrown()
+	{
+		$request = $this->getModelMock('eb2ctax/request', array('getDocument'));
+		$request->expects($this->any())
+			->method('getDocument')
+			->will($this->returnValue(new TrueAction_Dom_Document()));
+
+		$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
+		$apiModelMock->expects($this->any())
+			->method('setUri')
+			->will($this->returnSelf());
+
+		$apiModelMock->expects($this->any())
+			->method('request')
+			->will(
+				$this->throwException(new Exception)
+			);
+
+		$taxHelper = Mage::helper('tax');
+		$taxReflector = new ReflectionObject($taxHelper);
+		$apiModel = $taxReflector->getProperty('_apiModel');
+		$apiModel->setAccessible(true);
+		$apiModel->setValue($taxHelper, $apiModelMock);
+
+		$this->assertInstanceOf(
+			'TrueAction_Eb2c_Tax_Model_Response',
+			$taxHelper->sendRequest($request)
+		);
+	}
+
 
 	/**
 	 * @test

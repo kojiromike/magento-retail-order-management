@@ -16,6 +16,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected $_shipAddressRef     = '';
 	protected $_emailAddressId     = '';
 	protected $_hasChanges         = false;
+	protected $_store              = null;
 	protected $_emailAddresses     = array();
 	protected $_destinations       = array();
 	protected $_orderItems         = array();
@@ -38,12 +39,22 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		$this->_helper  = Mage::helper('tax');
 		$this->setIsMultiShipping(0);
 		if ($quote) {
+			$this->_store = $quote->getStore();
 			$this->setBillingAddress($quote->getBillingAddress());
 			$this->setShippingAddress($quote->getShippingAddress());
 		}
 		if ($this->isValid()) {
 			$this->_processQuote();
 		}
+	}
+
+	/**
+	 * @see self::$_store
+	 * @codeCoverageIgnore
+	 */
+	public function getStore()
+	{
+		return $this->_store;
 	}
 
 	/**
@@ -398,7 +409,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $this->_checkLength(
 			Mage::getStoreConfig(
 				Mage_Tax_Model_Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-				$this->getQuote()->getStore()
+				$this->getStore()
 			),
 			1, 40
 		);
@@ -413,7 +424,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 				'Currency',
 				$this->getQuote()->getQuoteCurrencyCode()
 			)
-				->addChild('VATInclusivePricing', (int)$this->_helper->getVatInclusivePricingFlag())
+				->addChild('VATInclusivePricing', (int)$this->_helper->getVatInclusivePricingFlag($this->getStore()))
 				->addChild(
 					'CustomerTaxId',
 					$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)

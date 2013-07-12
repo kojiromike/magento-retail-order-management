@@ -123,8 +123,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 		$xpath = new DOMXPath($this->_doc);
 		$xpath->registerNamespace('a', $this->_namespaceUri);
 		$idRef = $xpath->evaluate('string(./a:DestinationTarget/@ref)', $shipGroup);
-		$idRefArray = explode('_', $idRef);
-		$id = $idRefArray[0];
+		list(, $id) = explode('_', $idRef);
 		$address = $this->_loadAddress($id);
 		if (!$address->getId()) {
 			$this->_isValid = false;
@@ -157,7 +156,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			$responseSkus = array();
 			// foreach item
 			$items = $xpath->query('./a:Items/a:OrderItem', $shipGroup);
-			if ($address->getId()) {
+			if ($address) {
 				// skip the shipgroup we can't get the address
 				foreach ($items as $item) {
 					$orderItem = Mage::getModel('eb2ctax/response_orderitem', array(

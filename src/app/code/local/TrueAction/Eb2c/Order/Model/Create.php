@@ -18,6 +18,8 @@
  */
 class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 {
+	const	GENDER_MALE = 1;
+
 	private $_o = null;					// Magento Order Object
 	private $_xmlRequest = null;		// Human readable XML
 	private $_xmlResponse = null;		// Human readable XML
@@ -137,7 +139,9 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 
 		$order->createChild('Locale', 'en_US');	// TODO: Is this region?
 
-		$order->CreateChild('OrderSource'); // TODO: Not sure what this means.
+		$orderSource = $order->CreateChild('OrderSource'); // TODO: Not sure what this means.
+		$orderSource->setAttribute('type','');	// TODO: Where should this come from? Doc says "Only to be used for Marketing and affiliate tracking,
+												// passed by entrypoint component in Webstore. Will be present only if referring url to website has values."
 
 		$order->createChild('OrderHistoryUrl', 
 			Mage::app()->getStore($this->_o->getStoreId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) .
@@ -159,7 +163,9 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 */
 	private function _buildCustomer(DomElement $customer)
 	{
-		$customer->setAttribute('customerId', $this->_o->getCustomerId());
+		if( $this->_o->getCustomerId() ) {
+			$customer->setAttribute('customerId', $this->_o->getCustomerId());
+		}
 
 		$name = $customer->createChild('Name');
 		$name->createChild('Honorific', $this->_o->getCustomerPrefix() );
@@ -167,17 +173,14 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 		$name->createChild('MiddleName', $this->_o->getCustomerMiddlename());
 		$name->createChild('FirstName', $this->_o->getCustomerFirstname());
 
-		// TODO: I don't trust this 100%, it depends on language used in the front end. Might have to be configurable.
 		if( $this->_o->getCustomerGender() ) {
-			$genderOpts = Mage::getResourceSingleton('customer/customer')->getAttribute('gender')->getSource()->getAllOptions();
-			$eb2cGender = '';
-			foreach( $genderOpts as $genderOpt ) {
-				if( $genderOpt['value'] == $this->_o->getCustomerGender() ) {
-					$eb2cGender = substr(ucfirst($genderOpt['label']),0,1);
-				}
-			}
+			// Previously tried to pull out the gender text, but that's probably worse, since one could change
+			// 	'Male' to 'Boys' (or 'Woman', for that matter) and an invalid or flat-out wrong value would be sent to GSI.
+			//	Let's just check the gender value/ option id. If it's 1, male, otherwise, female.
+			$eb2cGender = ($this->_o->getCustomerGender() == self::GENDER_MALE) ?  'M' : 'F';
 			$customer->createChild('Gender', $eb2cGender);
 		}
+
 		if( $this->_o->getCustomerDob() ) {
 			$customer->createChild('DateOfBirth', $this->_o->getCustomerDob());
 		}
@@ -216,6 +219,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 
 		$shippingMethod = $orderItem->createChild('ShippingMethod', '???');
 		$estDeliveryDate = $orderItem->createChild('EstimatedDeliveryDate');
+		$estDeliveryDate->createChild('MessageType', $item->getEb2cMessageType());
 
 		$deliveryWindow = $estDeliveryDate->createChild('DeliveryWindow');
 		$deliveryWindow->createChild('From', $item->getEb2cDeliveryWindowFrom());
@@ -411,7 +415,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 			}
 		}
 		else {
-			$thisPayment = $payments->createChild('PrepaidPaymentType');
+			$thisPayment = $payments->createChild('PrepaidCreditCard');
 			$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGrandTotal()));
 			
 		}
@@ -430,7 +434,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 		$context->createChild('TdlOrderTimestamp');
 		$context->createChild('SessionInfo');
 		$context->createChild('PayPalPayerInfo');
-		$context->createChild('CustomerAttributes');
+		$context->createChild('CustomAttributes');
 		return;
 	}
 

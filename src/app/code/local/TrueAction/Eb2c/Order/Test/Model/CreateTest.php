@@ -4,7 +4,6 @@
  */
 class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_Case
 {
-
 	/**
 	 * @test
 	 * @loadFixture
@@ -13,18 +12,13 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 	{
 		$status = null;
 
-		// Factory should be the same as new: 
-		$theClassItself = new TrueAction_Eb2c_Order_Model_Create();
-		$cr = Mage::getModel('eb2corder/create');
-		$this->assertSame(get_class($cr), get_class($theClassItself));
-
-		// Loop thru a collection, try creating order for last one
-		$salesModel = Mage::getModel('sales/order');
-		$orders = $salesModel->getCollection();
-		foreach( $orders as $order ) {
-			$testId = $order->getIncrementId();
-		}
+		// Create proper class:
 		$creator = Mage::getModel('eb2corder/create');
+		$this->assertInstanceOf('TrueAction_Eb2c_Order_Model_Create', $creator );
+
+		// Get a collection; try creating order for last one
+		$creator = Mage::getModel('eb2corder/create');
+		$testId = Mage::getModel('sales/order')->getCollection()->getLastItem()->getIncrementId();
 		try {
 			$status = $creator->create($testId);
 		} catch(Exception $e) {
@@ -55,9 +49,9 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 		// Exercise Event Observer Version. 
 		$incrementId = '100000002';
 		try {
-			$status = $cr->observerCreate($incrementId);
+			$status = $creator->observerCreate($incrementId);
 		} catch(Exception $e) {
-			$status = false;	
+			$status = false;
 		}
 		$this->assertSame($status, true);
 	} 

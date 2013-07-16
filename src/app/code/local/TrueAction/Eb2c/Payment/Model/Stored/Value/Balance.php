@@ -14,6 +14,7 @@ class TrueAction_Eb2c_Payment_Model_Stored_Value_Balance extends Mage_Core_Model
 	protected function _construct()
 	{
 		$this->_helper = $this->_getHelper();
+		return $this;
 	}
 
 	/**
@@ -102,18 +103,21 @@ class TrueAction_Eb2c_Payment_Model_Stored_Value_Balance extends Mage_Core_Model
 		$balanceData = array();
 		if (trim($storeValueBalanceReply) !== '') {
 			$doc = $this->_getHelper()->getDomDocument();
+			$doc->loadXML($storeValueBalanceReply);
 			$balanceXpath = new DOMXPath($doc);
-			$paymentAccountUniqueId = $balanceXpath->query('//PaymentAccountUniqueId');
+			$balanceXpath->registerNamespace('a', $this->_getHelper()->getXmlNs());
+
+			$paymentAccountUniqueId = $balanceXpath->query('//a:PaymentAccountUniqueId');
 			if ($paymentAccountUniqueId->length) {
-				$paymentData['paymentAccountUniqueId'] = $paymentAccountUniqueId->item(0)->nodeValue;
+				$balanceData['paymentAccountUniqueId'] = $paymentAccountUniqueId->item(0)->nodeValue;
 			}
 
-			$responseCode = $balanceXpath->query('//ResponseCode');
+			$responseCode = $balanceXpath->query('//a:ResponseCode');
 			if ($responseCode->length) {
 				$balanceData['responseCode'] = $responseCode->item(0)->nodeValue;
 			}
 
-			$balanceAmount = $balanceXpath->query('//BalanceAmount');
+			$balanceAmount = $balanceXpath->query('//a:BalanceAmount');
 			if ($balanceAmount->length) {
 				$balanceData['balanceAmount'] = $balanceAmount->item(0)->nodeValue;
 			}
@@ -140,5 +144,7 @@ class TrueAction_Eb2c_Payment_Model_Stored_Value_Balance extends Mage_Core_Model
 
             $quote->save();
 		}
+
+		return;
 	}
 }

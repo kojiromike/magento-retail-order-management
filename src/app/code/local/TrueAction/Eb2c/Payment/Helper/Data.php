@@ -20,7 +20,6 @@ class TrueAction_Eb2c_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 		$this->configModel = $this->getConfigModel(null);
 		$this->constantHelper = $this->getConstantHelper();
 		$constantHelper = $this->getConstantHelper();
-		$this->coreFeed = $this->getCoreFeed();
 		$this->_operation = array(
 			'get_gift_card_balance' => array(
 				'pro' => $constantHelper::OPT_STORED_VALUE_BALANCE,

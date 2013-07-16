@@ -58,14 +58,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 		}
 	}
 
-	public function salesEventDiscountItem(Varien_Event_Observer $observer)
-	{
-		Mage::log('salesEventDiscountItem');
-		$this->_getTaxHelper()->getCalculator()
-			->getTaxRequest()
-			->invalidate();
-	}
-
 	/**
 	 * Reset extra tax amounts on quote addresses before recollecting totals
 	 *

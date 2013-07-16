@@ -17,16 +17,19 @@ class TrueAction_Eb2c_Tax_Model_Response_Quote extends Mage_Core_Model_Abstract
 		if ($tax) {
 			$xpath = new DOMXPath($tax->ownerDocument);
 			$xpath->registerNamespace('a', $tax->namespaceURI);
-			$this->setJurisdiction($xpath->evaluate('string(a:Jurisdiction)', $tax));
-			$this->setImposition($xpath->evaluate('string(a:Imposition)', $tax));
+			$jurisdiction  = $xpath->evaluate('string(a:Jurisdiction)', $tax);
+			$imposition    = $xpath->evaluate('string(a:Imposition)', $tax);
+			$effectiveRate = $xpath->evaluate('string(a:EffectiveRate)', $tax);
+			$rateKey       = $jurisdiction && $imposition ?
+				$jurisdiction . '-' . $imposition :
+				$effectiveRate;
+			$this->setRateKey($rateKey);
+			// get situs
+			$this->setSitus($xpath->evaluate('string(a:Situs)', $tax));
 			// get effective rate
-			$this->setEffectiveRate((float)$xpath->evaluate('string(a:EffectiveRate)', $tax));
+			$this->setEffectiveRate((float)$effectiveRate);
 			// get taxable amount
 			$this->setTaxableAmount((float)$xpath->evaluate('string(a:TaxableAmount)', $tax));
-			// get taxexemptamunt
-			$this->setExemptAmount((float)$xpath->evaluate('string(a:ExemptAmount)', $tax));
-			// get nontaxableamount
-			$this->setNonTaxableAmount((float)$xpath->evaluate('string(a:NonTaxableAmount)', $tax));
 			// calculatedtax
 			$this->setCalculatedTax((float)$xpath->evaluate('string(a:CalculatedTax)', $tax));
 		}

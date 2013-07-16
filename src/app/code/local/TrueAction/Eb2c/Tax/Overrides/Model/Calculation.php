@@ -90,7 +90,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		return $this->getTaxforItem($itemSelector->getItem(), $itemSelector->getAddress());
 	}
 
-	public function getTaxForAmount(float $amount, Varien_Object $itemSelector, $round = true)
+	public function getTaxForAmount($amount, Varien_Object $itemSelector, $round = true)
 	{
 		return $this->getTaxforItemAmount($amount, $itemSelector->getItem(), $itemSelector->getAddress(), $round);
 	}

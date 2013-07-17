@@ -8,9 +8,13 @@ class TrueAction_Eb2c_Tax_Model_Response_OrderItem extends Mage_Core_Model_Abstr
 	 * orderitem node this instance represents
 	 * @var TrueAction_Dom_Element
 	 */
-	protected $_xpath           = null;
+	protected $_xpath             = null;
 
-	protected $_isValid         = true;
+	protected $_isValid           = true;
+
+	protected $_taxQuotes         = array();
+
+	protected $_taxQuoteDiscounts = array();
 
 	/**
 	 * @see self::$_isValid
@@ -19,6 +23,25 @@ class TrueAction_Eb2c_Tax_Model_Response_OrderItem extends Mage_Core_Model_Abstr
 	public function isValid()
 	{
 		return $this->_isValid;
+	}
+
+
+	/**
+	 * @see self::$_taxQuotes
+	 * @return array(TrueAction_Eb2c_Tax_Model_Response_Quote)
+	 */
+	public function getTaxQuotes()
+	{
+		return $this->_taxQuotes;
+	}
+
+	/**
+	 * @see self::$_taxQuoteDiscounts
+	 * @return array(TrueAction_Eb2c_Tax_Model_Response_Quote_Discount)
+	 */
+	public function getTaxQuoteDiscounts()
+	{
+		return $this->_taxQuoteDiscounts;
 	}
 
 	protected function _construct()
@@ -56,21 +79,62 @@ class TrueAction_Eb2c_Tax_Model_Response_OrderItem extends Mage_Core_Model_Abstr
 		// don't bother reading the tax data since the item is invalid
 		if ($this->_isValid) {
 			$this->_processTaxData($xpath, $itemNode);
+			$this->_processDiscountTaxData($xpath, $itemNode);
+		}
+	}
+
+	/**
+	 * parse the discount nodes into objects.
+	 * @param  DOMXPath $xpath
+	 * @param  TrueAction_Dom_Element $itemNode
+	 */
+	protected function _processDiscountTaxData($xpath, $itemNode)
+	{
+		$type = TrueAction_Eb2c_Tax_Model_Response_Quote::MERCHANDISE;
+		$taxNodes = $xpath->query('a:Pricing/a:Merchandise/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax', $itemNode);
+		foreach ($taxNodes as $taxNode) {
+			$this->_taxQuoteDiscounts[] = Mage::getModel(
+				'eb2ctax/response_quote_discount',
+				array(
+					'type'           => $type,
+					'node'           => $taxNode
+				)
+			);
+		}
+		$type = TrueAction_Eb2c_Tax_Model_Response_Quote::SHIPPING;
+		$taxNodes = $xpath->query('a:Pricing/a:Shipping/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax', $itemNode);
+		foreach ($taxNodes as $taxNode) {
+			$this->_taxQuoteDiscounts[] = Mage::getModel(
+				'eb2ctax/response_quote_discount',
+				array(
+					'type' => $type,
+					'node' => $taxNode
+				)
+			);
+		}
+		$type = TrueAction_Eb2c_Tax_Model_Response_Quote::DUTY;
+		$taxNodes = $xpath->query('a:Pricing/a:Duty/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax', $itemNode);
+		foreach ($taxNodes as $taxNode) {
+			$this->_taxQuoteDiscounts[] = Mage::getModel(
+				'eb2ctax/response_quote_discount',
+				array(
+					'type'           => $type,
+					'node'           => $taxNode
+				)
+			);
 		}
 	}
 
 	protected function _processTaxData($xpath, $itemNode)
 	{
-		$arr = array();
 		$type = TrueAction_Eb2c_Tax_Model_Response_Quote::MERCHANDISE;
 		$taxNodes = $xpath->query('a:Pricing/a:Merchandise/a:TaxData/a:Taxes/a:Tax', $itemNode);
 		foreach ($taxNodes as $taxNode) {
-			$arr[] = Mage::getModel(
+			$this->_taxQuotes[] = Mage::getModel(
 				'eb2ctax/response_quote',
 				array(
 					'type'           => $type,
-					'node'           => $taxNode,
-					'namspace_uri'   => $this->getNamespaceUri()
+					'node'           => $taxNode
 				)
 			);
 		}
@@ -78,12 +142,11 @@ class TrueAction_Eb2c_Tax_Model_Response_OrderItem extends Mage_Core_Model_Abstr
 		$taxNodes = $xpath->query('a:Pricing/a:Shipping/a:TaxData/a:Taxes/a:Tax', $itemNode);
 		foreach ($taxNodes as $taxNode) {
 			// foreach pricing/shipping/taxdata/
-			$arr[] = Mage::getModel(
+			$this->_taxQuotes[] = Mage::getModel(
 				'eb2ctax/response_quote',
 				array(
 					'type' => $type,
-					'node' => $taxNode,
-					'namspace_uri' => $this->getNamespaceUri()
+					'node' => $taxNode
 				)
 			);
 		}
@@ -91,16 +154,14 @@ class TrueAction_Eb2c_Tax_Model_Response_OrderItem extends Mage_Core_Model_Abstr
 		$taxNodes = $xpath->query('a:Pricing/a:Duty/a:TaxData/a:Taxes/a:Tax', $itemNode);
 		foreach ($taxNodes as $taxNode) {
 			// foreach pricing/shipping/taxdata/
-			$arr[] = Mage::getModel(
+			$this->_taxQuotes[] = Mage::getModel(
 				'eb2ctax/response_quote',
 				array(
 					'type'           => $type,
-					'node'           => $taxNode,
-					'namspace_uri'   => $this->getNamespaceUri()
+					'node'           => $taxNode
 				)
 			);
 		}
-		$this->setTaxQuotes($arr);
 	}
 
 	/**

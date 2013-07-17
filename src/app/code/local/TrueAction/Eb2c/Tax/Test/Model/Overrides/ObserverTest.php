@@ -30,7 +30,6 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_ObserverTest extends EcomDev_PHPU
 			'cartEventProductUpdated',
 			'salesEventItemRemoved',
 			'salesEventItemQtyUpdated',
-			'salesEventDiscountItem',
 			'quoteCollectTotalsBefore'
 		);
 		$this->observerMock = $this->getMock(
@@ -216,30 +215,6 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_ObserverTest extends EcomDev_PHPU
 	{
 		$this->assertNull(
 			$this->observer->salesEventItemQtyUpdated($observer)
-		);
-	}
-
-	public function providerSalesEventDiscountItem()
-	{
-		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
-		$observerMock->expects($this->any())
-			->method('getEvent')
-			->will($this->returnValue($this->getMockQuote()));
-		return array(
-			array($observerMock)
-		);
-	}
-
-	/**
-	 * Tesing salesEventDiscountItem observer method
-	 *
-	 * @test
-	 * @dataProvider providerSalesEventDiscountItem
-	 */
-	public function testSalesEventDiscountItem($observer)
-	{
-		$this->assertNull(
-			$this->observer->salesEventDiscountItem($observer)
 		);
 	}
 
@@ -432,6 +407,66 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_ObserverTest extends EcomDev_PHPU
 	{
 		$this->assertNotNull(
 			$this->observer->addTaxPercentToProductCollection($observer)
+		);
+	}
+
+	public function providerSalesRuleEventItemProcessed()
+	{
+		$itemMock = $this->getMock(
+			'Mage_Sales_Model_Quote_Item',
+			array('getId')
+		);
+		$itemMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+
+		$observerMock = $this->getMock(
+			'Varien_Event_Observer',
+			array('getEvent', 'getItem')
+		);
+		$observerMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnSelf());
+		$observerMock->expects($this->any())
+			->method('getItem')
+			->will($this->returnValue($itemMock));
+
+		$itemFakeMock = $this->getMock(
+			'Mage_Sales_Model_Quote',
+			array('getId')
+		);
+		$itemFakeMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+
+		$observerFakeMock = $this->getMock(
+			'Varien_Event_Observer',
+			array('getEvent', 'getItem')
+		);
+		$observerFakeMock->expects($this->any())
+			->method('getEvent')
+			->will($this->returnSelf());
+		$observerFakeMock->expects($this->any())
+			->method('getItem')
+			->will($this->returnValue($itemFakeMock));
+
+		return array(
+			array($observerMock),
+			array($observerFakeMock)
+		);
+	}
+
+	/**
+	 * Tesing salesRuleEventItemProcessed observer method
+	 *
+	 * @test
+	 * @dataProvider providerSalesRuleEventItemProcessed
+	 */
+	public function testSalesRuleEventItemProcessed($observer)
+	{
+		$this->assertInstanceOf(
+			'TrueAction_Eb2c_Tax_Overrides_Model_Observer',
+			$this->observer->salesRuleEventItemProcessed($observer)
 		);
 	}
 }

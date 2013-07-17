@@ -1,0 +1,15 @@
+0-334:
+  amount: 20.0
+  effective_rate: 0.06
+  taxable_amount: 20.0
+  calculated_tax: 1.2
+0-434:
+  amount: 5.0
+  effective_rate: 0.06
+  taxable_amount: 5.0
+  calculated_tax: .3
+0-534:
+  amount: 0.2
+  effective_rate: 0.06
+  taxable_amount: 0.2
+  calculated_tax: 0.01

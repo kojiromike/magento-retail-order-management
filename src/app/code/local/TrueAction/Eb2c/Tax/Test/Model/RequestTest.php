@@ -56,6 +56,55 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$this->app()->getRequest()->setBaseUrl($_baseUrl);
 	}
 
+	public function quoteWithVirtualProducts()
+	{
+		$mockQuoteAddress = $this->getModelMock('sales/quote_address', array('getId', 'getEmail'));
+		$mockQuoteAddress->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$mockQuoteAddress->expects($this->any())
+			->method('getEmail')
+			->will($this->returnValue('test@test.com'));
+
+		$mockProduct = $this->getModelMock('catalog/product', array('isVirtual'));
+		$mockProduct->expects($this->any())
+			->method('isVirtual')
+			->will($this->returnValue(true));
+
+		$mockItem = $this->getModelMock('sales/quote_item', array('getId', 'getProduct', 'getHasChildren', 'isChildrenCalculated', 'getChildren'));
+		$mockItem->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$mockItem->expects($this->any())
+			->method('getProduct')
+			->will($this->returnValue($mockProduct));
+		$mockItem->expects($this->any())
+			->method('getHasChildren')
+			->will($this->returnValue(true));
+		$mockItem->expects($this->any())
+			->method('isChildrenCalculated')
+			->will($this->returnValue(true));
+		$mockItem->expects($this->any())
+			->method('getChildren')
+			->will($this->returnValue(array($mockItem)));
+
+		$mockQuote = $this->getModelMock('sales/quote', array('getId', 'getItemsCount', 'getBillingAddress', 'getAllVisibleItems'));
+		$mockQuote->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$mockQuote->expects($this->any())
+			->method('getItemsCount')
+			->will($this->returnValue(1));
+		$mockQuote->expects($this->any())
+			->method('getBillingAddress')
+			->will($this->returnValue($mockQuoteAddress));
+		$mockQuote->expects($this->any())
+			->method('getAllVisibleItems')
+			->will($this->returnValue(array($mockItem)));
+
+		return $mockQuote;
+	}
+
 	/**
 	 * @test
 	 * @loadFixture base.yaml
@@ -63,22 +112,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testIsValid()
 	{
-		$this->markTestIncomplete('failing because of a missing variable error.');
-		$addr = $this->getModelMock('customer/address', array('getId'));
-		$addr->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(1));
-		$quote = $this->getModelMock('sales/quote', array('getId', 'getItemsCount', 'getBillingAddress'));
-		$quote->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(1));
-		$quote->expects($this->any())
-			->method('getItemsCount')
-			->will($this->returnValue(1));
-		$quote->expects($this->any())
-			->method('getBillingAddress')
-			->will($this->returnValue($addr));
-		$req = Mage::getModel('eb2ctax/request', array('quote' => $quote));
+		$req = Mage::getModel('eb2ctax/request', array('quote' => $this->quoteWithVirtualProducts()));
 		$this->assertTrue($req->isValid());
 		$req->invalidate();
 		$this->assertFalse($req->isValid());
@@ -95,7 +129,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$this->assertTrue($request->isValid());
 		$doc = $request->getDocument();
-		$this->markTestIncomplete('xsd validation fails even though the output xml looks good');
 		$this->assertTrue($doc->schemaValidate(self::$xsdFile));
 	}
 
@@ -106,7 +139,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testGetSkus()
 	{
-		$this->markTestIncomplete('According to mphang this is useless now. Leaving for code review.');
+		// REMINDER: According to mphang this is useless now. Leaving for code review.
 		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$result = $request->getSkus();
@@ -228,14 +261,50 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	/**
 	 * @test
 	 * @loadFixture base.yaml
-	 * @loadFixture singleShippingNotSameAsBilling.yaml
+	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
 	public function testVirtualPhysicalMix()
 	{
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(4);
+		$quote   = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$doc = $request->getDocument();
-		$this->markTestIncomplete('need to check wether the virtual item got assigned to the virtual destination');
+
+		$requestXpath = new DOMXPath($doc);
+		$requestXpath->registerNamespace('a', $doc->documentElement->namespaceURI);
+		$hasVirtualDestination = false;
+		$shipGroups = $requestXpath->query('//a:Shipping/a:ShipGroups/a:ShipGroup');
+		foreach ($shipGroups as $group) {
+			$id = $group->getAttribute('id');
+			$destinationTarget = $requestXpath->query('//a:Shipping/a:ShipGroups/a:ShipGroup[@id="' . $id . '"]/a:DestinationTarget');
+			$refAttribute = $destinationTarget->item(0)->getAttribute('ref');
+			if ($refAttribute && sizeof(explode('_', $refAttribute)) === 3) {
+				$hasVirtualDestination = true;
+			}
+		}
+
+		// Test when no virtual destination is set because our fixtures doesn't have any virtual product
+		$this->assertFalse($hasVirtualDestination);
+
+		// Let condition our quote to have virtual products
+		$quote   = $this->quoteWithVirtualProducts();
+		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
+		$doc = $request->getDocument();
+
+		$requestXpath = new DOMXPath($doc);
+		$requestXpath->registerNamespace('a', $doc->documentElement->namespaceURI);
+		$hasVirtualDestination = false;
+		$shipGroups = $requestXpath->query('//a:Shipping/a:ShipGroups/a:ShipGroup');
+		foreach ($shipGroups as $group) {
+			$id = $group->getAttribute('id');
+			$destinationTarget = $requestXpath->query('//a:Shipping/a:ShipGroups/a:ShipGroup[@id="' . $id . '"]/a:DestinationTarget');
+			$refAttribute = $destinationTarget->item(0)->getAttribute('ref');
+			if ($refAttribute && sizeof(explode('_', $refAttribute)) === 3) {
+				$hasVirtualDestination = true;
+			}
+		}
+
+		// Test when virtual destination is set
+		$this->assertTrue($hasVirtualDestination);
 	}
 
 	/**
@@ -245,7 +314,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testCheckItemQty()
 	{
-		$this->markTestIncomplete('missing fixtures?');
 		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(3);
 		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
 		$items = $quote->getAllVisibleItems();
@@ -256,7 +324,6 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$request->checkItemQty($item);
 		$this->assertFalse($request->isValid());
 	}
-
 
 	/**
 	 * @test
@@ -289,10 +356,11 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		// should not be found.
 		$ls = $x->query('//a:OrderItem/a:ItemId[.="123456789012345678901"]');
 		$this->assertSame(0, $ls->length);
-		$this->markTestIncomplete('the skus get trucated properly, but the below xpath query doesnt work');
+
 		$ls = $x->query('//a:OrderItem/a:ItemId[.="12345678901234567890"]');
+
 		// the sku should be truncated at 20 characters
-		$this->assertSame(1, $ls->length);
+		$this->assertSame(3, $ls->length);
 	}
 
 	/**
@@ -315,6 +383,140 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$this->assertTrue(isset($destinations[$quote->getBillingAddress()->getId()]));
 		$fn->invoke($request, $items[0], $quote->getBillingAddress(), true);
 		$destinations = $d->getValue($request);
-		$this->assertTrue(isset($destinations[$quote->getBillingAddress()->getEmail()]));
+		$virtualId = $quote->getBillingAddress()->getId() .
+			'_' . $quote->getBillingAddress()->getEmail();
+		$this->assertTrue(isset($destinations[$virtualId]));
+	}
+
+	public function testBuildDiscountNode()
+	{
+		$request = self::$cls->newInstance();
+		$fn = self::$cls->getMethod('_buildDiscountNode');
+		$fn->setAccessible(true);
+		$doc  = $request->getDocument();
+		$node = $doc->createElement('root', null, 'http:/www.example.com/foo'); // parent node
+		$doc->appendChild($node);
+		$xpath = new DOMXPath($doc);
+		$xpath->registerNamespace('a', $doc->documentElement->namespaceURI);
+		$discount = array(
+			'merchandise_discount_code'      => 'somediscount',
+			'merchandise_discount_calc_duty' => 0,
+			'merchandise_discount_amount'    => 10.0,
+			'shipping_discount_code'      => 'somediscount2',
+			'shipping_discount_calc_duty' => 1,
+			'shipping_discount_amount'    => 5.0,
+		);
+		$fn->invoke($request, $node, $discount);
+		$this->assertSame('somediscount', $xpath->evaluate('string(./a:Discount/@id)', $node));
+		$this->assertSame('0', $xpath->evaluate('string(./a:Discount/@calculateDuty)', $node));
+		$this->assertSame('10', $xpath->evaluate('string(./a:Discount/a:Amount)', $node));
+
+		$node = $doc->createElement('root', null, 'http:/www.example.com/foo'); // parent node
+		$doc->appendChild($node);
+		$fn->invoke($request, $node, $discount, false);
+		$this->assertSame('somediscount2', $xpath->evaluate('string(./a:Discount/@id)', $node));
+		$this->assertSame('1', $xpath->evaluate('string(./a:Discount/@calculateDuty)', $node));
+		$this->assertSame('5', $xpath->evaluate('string(./a:Discount/a:Amount)', $node));
+	}
+
+	public function testExtractItemDiscountData()
+	{
+		$request = self::$cls->newInstance();
+		$fn = self::$cls->getMethod('_extractItemDiscountData');
+		$fn->setAccessible(true);
+		$mockQuoteAddress = $this->getModelMock('sales/quote_address', array('getShippingDiscountAmount', 'getCouponCode'));
+		$mockQuoteAddress->expects($this->any())
+			->method('getCouponCode')
+			->will($this->returnValue('somecouponcode'));
+		$mockQuoteAddress->expects($this->any())
+			->method('getShippingDiscountAmount')
+			->will($this->returnValue(3));
+		$mockItem = $this->getModelMock('sales/quote_item', array('getDiscountAmount'));
+		$mockItem->expects($this->any())
+			->method('getDiscountAmount')
+			->will($this->returnValue(5));
+		$outData = array();
+		$fn->invoke($request, $mockItem, $mockQuoteAddress, &$outData);
+		$keys = array(
+			'merchandise_discount_code',
+			'merchandise_discount_amount',
+			'merchandise_discount_calc_duty',
+			'shipping_discount_code',
+			'shipping_discount_amount',
+			'shipping_discount_calc_duty',
+		);
+		foreach ($keys as $key)
+		{
+			$this->assertArrayHasKey($key, $outData);
+		}
+		$this->assertSame('_somecouponcode', $outData['merchandise_discount_code']);
+		$this->assertSame(5, $outData['merchandise_discount_amount']);
+		$this->assertSame(false, $outData['merchandise_discount_calc_duty']);
+		$this->assertSame('_somecouponcode', $outData['shipping_discount_code']);
+		$this->assertSame(3, $outData['shipping_discount_amount']);
+		$this->assertSame(false, $outData['shipping_discount_calc_duty']);
+	}
+
+	/**
+	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture singleShippingSameAsBilling.yaml
+	 */
+	public function testGetRateRequest()
+	{
+		$this->markTestIncomplete('needs to be updated');
+		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
+
+		$calc = new TrueAction_Eb2c_Tax_Overrides_Model_Calculation();
+		$request = $calc->getTaxRequest($quote);
+		$doc = $request->getDocument();
+		$xpath = new DOMXPath($doc);
+		$xpath->registerNamespace('a', $doc->documentElement->namespaceURI);
+		$node = $xpath->query('/a:TaxDutyQuoteRequest/a:Currency')->item(0);
+		$this->assertSame('USD', $node->textContent);
+		$node = $xpath->query('/a:TaxDutyQuoteRequest/a:VATInclusivePricing')->item(0);
+		$this->assertSame('0', $node->textContent);
+		$node = $xpath->query('/a:TaxDutyQuoteRequest/a:CustomerTaxId')->item(0);
+		$this->assertSame('', $node->textContent);
+		$node = $xpath->query('/a:TaxDutyQuoteRequest/a:BillingInformation')->item(0);
+		$this->assertSame('4', $node->getAttribute('ref'));
+		$parent = $xpath->query('/a:TaxDutyQuoteRequest/a:Shipping/a:Destinations/a:MailingAddress')->item(0);
+		$this->assertSame('4', $parent->getAttribute('id'));
+
+		// check the PersonName
+		$node = $xpath->query('PersonName/a:LastName', $parent)->item(0);
+		$this->assertSame('Guy', $node->textContent);
+		$node = $xpath->query('PersonName/a:FirstName', $parent)->item(0);
+		$this->assertSame('Test', $node->textContent);
+		$node = $xpath->query('PersonName/a:Honorific', $parent)->item(0);
+		$this->assertNull($node);
+		$node = $xpath->query('PersonName/a:MiddleName', $parent)->item(0);
+		$this->assertNull($node);
+
+		// verify the AddressNode
+		$node = $xpath->query('Address/a:Line1', $parent)->item(0);
+		$this->assertSame('1 RoseDale st', $node->textContent);
+		$node = $xpath->query('Address/a:Line2', $parent)->item(0);
+		$this->assertNull($node);
+		$node = $xpath->query('Address/a:Line3', $parent)->item(0);
+		$this->assertNull($node);
+		$node = $xpath->query('Address/a:Line4', $parent)->item(0);
+		$this->assertNull($node);
+		$node = $xpath->query('Address/a:City', $parent)->item(0);
+		$this->assertSame('BaltImore', $node->textContent);
+		$node = $xpath->query('Address/a:MainDivision', $parent)->item(0);
+		$this->assertSame('MD', $node->textContent);
+		$node = $xpath->query('Address/a:CountryCode', $parent)->item(0);
+		$this->assertSame('US', $node->textContent);
+		$node = $xpath->query('Address/a:PostalCode', $parent)->item(0);
+		$this->assertSame('21229', $node->textContent);
+
+		// verify the email address
+		$parent = $xpath->query('/a:TaxDutyQuoteRequest/a:Shipping/a:Destinations')->item(0);
+		$node = $xpath->query('Email', $parent)->item(0);
+		$this->assertSame('foo@example.com', $node->getAttribute('id'));
+
+		$node = $xpath->query('Email/a:EmailAddress', $parent)->item(0);
+		$this->assertSame('foo@example.com', $node->textContent);
 	}
 }

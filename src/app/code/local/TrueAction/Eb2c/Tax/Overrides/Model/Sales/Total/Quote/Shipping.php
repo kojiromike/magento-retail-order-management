@@ -31,7 +31,7 @@
  * @package     Mage_Tax
  * @author      Magento Core Team
  */
-class Mage_Tax_Model_Sales_Total_Quote_Shipping extends Mage_Sales_Model_Quote_Address_Total_Abstract
+class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Shipping extends Mage_Sales_Model_Quote_Address_Total_Abstract
 {
     /**
      * Tax calculation model

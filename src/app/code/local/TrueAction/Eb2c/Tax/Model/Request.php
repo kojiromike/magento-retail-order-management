@@ -16,16 +16,17 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected $_shipAddressRef     = '';
 	protected $_emailAddressId     = '';
 	protected $_hasChanges         = false;
+	protected $_store              = null;
 	protected $_emailAddresses     = array();
 	protected $_destinations       = array();
 	protected $_orderItems         = array();
 	protected $_shipGroups         = array();
-	protected $_discounts          = array();
+	protected $_appliedDiscountIds = array();
 	protected $_shipGroupIds       = array();
 
 	/**
 	 * map skus to a quote item
-	 * @var array('string' => Mage_Sales_Model_Quote_Item)
+	 * @var array('string' => Mage_Sales_Model_Quote_Item_Abstract)
 	 */
 	protected $_skuItemMap = array();
 
@@ -34,16 +35,27 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 */
 	protected function _construct()
 	{
+		$this->_namespaceUri = Mage::helper('tax')->getNamespaceUri($this->getStore());
 		$quote          = $this->getQuote();
 		$this->_helper  = Mage::helper('tax');
 		$this->setIsMultiShipping(0);
 		if ($quote) {
+			$this->_store = $quote->getStore();
 			$this->setBillingAddress($quote->getBillingAddress());
 			$this->setShippingAddress($quote->getShippingAddress());
 		}
 		if ($this->isValid()) {
 			$this->_processQuote();
 		}
+	}
+
+	/**
+	 * @see self::$_store
+	 * @codeCoverageIgnore
+	 */
+	public function getStore()
+	{
+		return $this->_store;
 	}
 
 	/**
@@ -70,8 +82,9 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$billAddressData = $this->_extractDestData($quoteBillingAddress);
 			$this->_hasChanges = (bool)array_diff_assoc($billingDestination, $billAddressData);
 			if (!$this->getIsMultiShipping() && $quote->hasVirtualItems()) {
-				$virtualDestination = isset($this->_destinations[$quoteBillingAddress->getEmail()]) ?
-					$this->_destinations[$quoteBillingAddress->getEmail()] : !($this->_hasChanges = true);
+				$virtualId = $this->_getVirtualId($quoteBillingAddress);
+				$virtualDestination = isset($this->_destinations[$virtualId]) ?
+					$this->_destinations[$virtualId] : !($this->_hasChanges = true);
 				$billAddressData = _extractDestData($this->getBillingAddress(), true);
 				$this->_hasChanges = (bool)array_diff_assoc($virtualDestination, $billAddressData);
 			}
@@ -91,6 +104,26 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->invalidate();
 		}
 	}
+
+	/**
+	 * check the discounts for the item and invalidate the quote if there
+	 * is a change.
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract $item
+	 */
+	public function checkDiscounts($item)
+	{
+		if ($item) {
+			if (!$this->_hasChanges && isset($this->_appliedRuleIds[$item->getId()])) {
+				$oldRuleIds = $this->_appliedRuleIds[$item->getId()];
+				$newRuleIds = $item->getAppliedRuleIds();
+				$this->_hasChanges = (bool)array_diff_assoc($oldRuleIds, $newRuleIds);
+			}
+			if ($this->_hasChanges) {
+				$this->invalidate();
+			}
+		}
+	}
+
 	/**
 	 * Determine if the request object has enough data to work with.
 	 * @return boolean
@@ -112,7 +145,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	public function getDocument()
 	{
 		if (!$this->_doc) {
-			$this->_namespaceUri = Mage::helper('tax')->getNamespaceUri();
 			$doc                 = new TrueAction_Dom_Document('1.0', 'UTF-8');
 			$this->_doc          = $doc;
 			if ($this->isValid()) {
@@ -228,16 +260,16 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	/**
 	 * add the data extracted from $item to the request and map it to the destination
 	 * data extracted from $address.
-	 * @param Mage_Sales_Model_Quote_Item|Mage_Sales_Model_Quote_Address_Item $item
-	 * @param Mage_Sales_Model_Quote_Address $address
+	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
+	 * @param Mage_Sales_Model_Quote_Address       $address
 	 * @param boolean                        $isVirtual
 	 */
 	protected function _addToDestination(
-		$item,
+		Mage_Sales_Model_Quote_Item_Abstract $item,
 		Mage_Sales_Model_Quote_Address $address,
 		$isVirtual = false
 	) {
-		$destinationId = ($isVirtual) ? $this->_getEmailFromAddress($address) : $address->getId();
+		$destinationId = ($isVirtual) ? $this->_getVirtualId($address) : $address->getId();
 		$id = $this->_addShipGroupId($address, $isVirtual);
 		if (!isset($this->_shipGroups[$destinationId])) {
 			$this->_shipGroups[$destinationId] = array();
@@ -259,7 +291,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	{
 		$rateKey = 'NONE';
 		$addressKey = $address->getId();
-		$addressKey = ($isVirtual) ? $this->_getEmailFromAddress($address) : $address->getId();
+		$addressKey = ($isVirtual) ? $this->_getVirtualId($address) : $address->getId();
 		if (!($address->getAddressType() === 'billing' || $isVirtual)) {
 			$groupedRates = $address->getGroupedAllShippingRates();
 			if ($groupedRates) {
@@ -279,14 +311,15 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $id;
 	}
 
-	protected function _getEmailFromAddress($address)
+	protected function _getVirtualId($address)
 	{
 		if ($address->getSameAsBilling() and !$address->getQuote()->getIsMultiShipping()) {
 			$email = $address->getQuote()->getBillingAddress()->getEmail();
 		} else {
 			$email = $address->getEmail();
 		}
-		return $email;
+		$id = $address->getId() . '_' . $email;
+		return $id;
 	}
 
 	protected function _extractDestData($address, $isVirtual = false)
@@ -338,13 +371,14 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			'shipping_amount' => $address->getShippingAmount(),
 			'shipping_tax_class' => $this->_getShippingTaxClass(),
 		);
+		$this->_extractItemDiscountData($item, $address, &$data);
 		return $data;
 	}
 
 	/**
 	 * get the tax class for the item's product.
 	 * NOTE: the taxCode should be set by the ItemMaster feed.
-	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract $item
 	 * @return string
 	 */
 	protected function _getItemTaxClass($item)
@@ -368,7 +402,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		if (is_null($newSku)){
 			$this->invalidate();
 			$message = sprintf(
-				'TaxDutyQuoteRequest: Mage_Sales_Model_Quote_Item id:%s has an invalid SKU:%s',
+				'TaxDutyQuoteRequest: Mage_Sales_Model_Quote_Item_Abstract id:%s has an invalid SKU:%s',
 				$item['id'],
 				$item['item_id']
 			);
@@ -386,7 +420,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $this->_checkLength(
 			Mage::getStoreConfig(
 				Mage_Tax_Model_Config::CONFIG_XML_PATH_SHIPPING_TAX_CLASS,
-				$this->getQuote()->getStore()
+				$this->getStore()
 			),
 			1, 40
 		);
@@ -401,24 +435,21 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 				'Currency',
 				$this->getQuote()->getQuoteCurrencyCode()
 			)
-				->addChild('VATInclusivePricing', (int)$this->_helper->getVatInclusivePricingFlag())
+				->addChild('VATInclusivePricing', (int)$this->_helper->getVatInclusivePricingFlag($this->getStore()))
 				->addChild(
 					'CustomerTaxId',
 					$this->_checkLength($this->getBillingAddress()->getTaxId(), 0, 40)
 				)
 				->createChild('BillingInformation');
+			$billingInformation->setAttribute('ref', '_' . $this->_billingInfoRef);
 			$shipping = $tdRequest->createChild('Shipping');
 			$this->_tdRequest    = $tdRequest;
 			$shipGroups   = $shipping->createChild('ShipGroups');
 			$destinations = $shipping->createChild('Destinations');
 			$this->_processAddresses($destinations, $shipGroups);
-			$billingInformation->setAttributeNs(
-				$this->_namespaceUri,
-				'ref',
-				$this->_billingInfoRef
-			);
 		} catch (Mage_Core_Exception $e) {
 			Mage::log('TaxDutyQuoteRequest Error: ' . $e->getMessage(), Zend_Log::WARN);
+			$this->invalidate();
 		}
 	}
 
@@ -435,10 +466,6 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			}
 		}
 		foreach ($this->_shipGroups as $destinationId => $itemList) {
-			$orderItemsFragment = $this->_doc->createDocumentFragment();
-			$orderItems = $orderItemsFragment->appendChild(
-				$this->_doc->createElement('Items')
-			);
 			$shipGroupInfo = $this->_shipGroupIds[$destinationId];
 			$shipGroupId   = $shipGroupInfo['group_id'];
 			$chargeType    = $shipGroupInfo['method'];
@@ -446,12 +473,18 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$shipGroup->addAttribute('id', $shipGroupId, true)
 				->addAttribute('chargeType', strtoupper($chargeType));
 			$destinationTarget = $shipGroup->createChild('DestinationTarget');
-			$destinationTarget->setAttribute('ref', $destinationId);
+			$destinationTarget->setAttribute('ref', '_' . $destinationId);
+
+			$orderItemsFragment = $this->_doc->createDocumentFragment();
+			$orderItems = $orderItemsFragment->appendChild(
+				$this->_doc->createElement('Items', null, $this->_namespaceUri)
+			);
 			foreach($itemList as $orderItemSku) {
 				$orderItem = $this->_orderItems[$orderItemSku];
 				$this->_addOrderItem($orderItem, $orderItems);
 			}
 			$shipGroup->appendChild($orderItemsFragment);
+
 		}
 	}
 
@@ -498,7 +531,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	) {
 		$this->_shipAddressRef = $address['id'];
 		$mailingAddress = $parent->createChild('MailingAddress');
-		$mailingAddress->setAttributeNs('', 'id', $this->_shipAddressRef);
+		$mailingAddress->setAttributeNs('', 'id', '_' . $this->_shipAddressRef);
 		$mailingAddress->setIdAttribute("id", true);
 		$personName = $mailingAddress->createChild('PersonName');
 		$this->_buildPersonName($personName, $address);
@@ -522,6 +555,26 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 			$this->_buildPersonName($email->createChild('Customer'), $address);
 			$email->createChild('EmailAddress', $emailStr);
 		}
+	}
+
+	/**
+	 * build a discount node as a child of $parent.
+	 * @param  TrueAction_Dom_Element $parent
+	 * @param  array                  $discount
+	 * @param  boolean                $isMerchandise
+	 */
+	protected function _buildDiscountNode(TrueAction_Dom_Element $parent, array $discount, $isMerchandise = true)
+	{
+		$type = $isMerchandise ? 'merchandise' : 'shipping';
+		$discountNode = $parent->createChild(
+			'Discount',
+			null,
+			array(
+				'id' => $discount["{$type}_discount_code"],
+				'calculateDuty' => $discount["{$type}_discount_calc_duty"]
+			)
+		);
+		$discountNode->createChild('Amount', $discount["{$type}_discount_amount"]);
 	}
 
 	/**
@@ -557,36 +610,55 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	 * @param TrueAction_Dom_Element         $parent
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
-	protected function _addOrderItem(array $item, TrueAction_Dom_Element $parent) {
-		$sku       = $this->_checkSku($item);
+	protected function _addOrderItem(array $item, TrueAction_Dom_Element $parent)
+	{
+		$sku = $this->_checkSku($item);
 		$orderItem = $parent->createChild('OrderItem')
 			->addAttribute('lineNumber', $this->_getLineNumber($item))
 			->addChild('ItemId', $sku)
 			->addChild('ItemDesc', $this->_checkLength($item['item_desc'], 0, 12))
-			->addChild('HTSCode', $this->_checkLength($item['hts_code'], 0, 12))
-			->addChild('Quantity', $item['quantity'])
-			->addChild('Pricing');
+			->addChild('HTSCode', $this->_checkLength($item['hts_code'], 0, 12));
+
+		$adminOrigin = $parent->createChild('AdminOrigin')
+			->addChild('Line1', 1)
+			->addChild('Line2', 2)
+			->addChild('Line3', 3)
+			->addChild('Line4', 4)
+			->addChild('City', 'optional')
+			->addChild('MainDivision', 'optional')
+			->addChild('CountryCode', 'optional')
+			->addChild('PostalCode', 'optional');
+
+		$origins = $parent->createChild('Origins');
+		$origins->appendChild($adminOrigin);
+
+		$shippingOrigin = $parent->createChild('ShippingOrigin')
+			->addChild('Line1', 1)
+			->addChild('Line2', 2)
+			->addChild('Line3', 3)
+			->addChild('Line4', 4)
+			->addChild('City', 'optional')
+			->addChild('MainDivision', 'optional')
+			->addChild('CountryCode', 'optional')
+			->addChild('PostalCode', 'optional');
+
+		$origins->appendChild($shippingOrigin);
+
+		$orderItem->appendChild($origins);
+		$orderItem->addChild('Quantity', $item['quantity']);
+
+		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
+
 		$merchandise = $orderItem->createChild('Pricing')
 			->createChild('Merchandise')
 			->addChild('Amount', $item['merchandise_amount'])
+			->addChild('TaxClass', $taxClass)
 			->addChild('UnitPrice', $item['merchandise_unit_price']);
-		// taxClass will be gotten from ItemMaster feed field "TaxCode"
-		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
-		if ($taxClass) {
-			$merchandise->createChild('TaxClass', $taxClass);
-		}
-		$shipping = $orderItem->createChild('Pricing')
-			->createChild('Shipping')
-			->addChild('Amount', $item['shipping_amount']);
-		$taxClass = $this->_checkLength($this->_getShippingTaxClass(), 1, 40);
-		if ($taxClass) {
-			$shipping->createChild('TaxClass', $taxClass);
-		}
 	}
 
 	/**
 	 * get an item's position in the order
-	 * @param Mage_Sales_Model_Quote_Item $item
+	 * @param array $item
 	 * @return int
 	 */
 	protected function _getLineNumber($item)
@@ -594,9 +666,50 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		return $item['id'];
 	}
 
+	/**
+     * gather discount information about an item.
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract    $item
+	 * @param  Mage_Sales_Model_Quote_Address $address
+	 * @param  array                          $data
+	 */
+	protected function _extractItemDiscountData(
+		Mage_Sales_Model_Quote_Item_Abstract $item,
+		Mage_Sales_Model_Quote_Address $address,
+		array &$outData
+	) {
+		$this->_appliedDiscountIds[$address->getId() . '_' . $item->getSku()] = $item->getAppliedRuledIds();
+		$discountCode = $this->_getDiscountCode($address);
+		$isDutyCalcNeeded = $this->_isDutyCalcNeeded($item, $address);
+		if ($item->getDiscountAmount()) {
+			$outData['merchandise_discount_code']      = $discountCode;
+			$outData['merchandise_discount_amount']    = $item->getDiscountAmount();
+			$outData['merchandise_discount_calc_duty'] = $isDutyCalcNeeded;
+		}
+
+		if ($address->getShippingDiscountAmount()){
+			$isDutyCalcNeeded = $this->_isDutyCalcNeeded($item, $address);
+			$outData['shipping_discount_code']      = $discountCode;
+			$outData['shipping_discount_amount']    = $address->getShippingDiscountAmount();
+			$outData['shipping_discount_calc_duty'] = $isDutyCalcNeeded;
+		}
+	}
+
+	/**
+	 * generate the code to identify a discount
+	 * @param  Mage_Sales_Model_Quote_Address $item
+	 * @param  Mage_Sales_Model_Quote_Address $address
+	 * @return string
+	 */
+	protected function _getDiscountCode(Mage_Sales_Model_Quote_Address $address)
+	{
+		return '_' . $address->getCouponCode();
+	}
+
+	/**
+	 * return false since we don't do any duty informaiton.
+	 */
 	protected function _isDutyCalcNeeded($item, $address)
 	{
-		// if calculate discounts before tax; then, return 1
-		// else return 0
+		return false;
 	}
 }

@@ -28,6 +28,12 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	protected $_responseItems = array();
 
 	/**
+	 * discount amounts parsed from the response.
+	 * @var array
+	 */
+	protected $_discounts     = array();
+
+	/**
 	 * skus of OrderItem elements that passed validation
 	 * @var array(string)
 	 */
@@ -54,7 +60,7 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			$this->_namespaceUri = $this->_doc->documentElement->namespaceURI;
 			$this->_extractResults();
 			// validate response
-			$this->_validateDestinations();
+			$this->_isValid = $this->_validateDestinations();
 		}
 	}
 
@@ -67,29 +73,31 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 */
 	protected function _loadAddress($addressId)
 	{
-		if (!$this->_address) {
+		if (!($this->_address && $addressId)) {
 			$this->_address = Mage::getModel('sales/quote_address');
 		}
 		return $this->_address->load($addressId);
 	}
 
 	/**
-	 * get the response for $item from the request.
+	 * get the response for the specified sku and address id.
 	 * return null if there is no valid response to retrieve.
-	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @param  string $sku
+	 * @param  int    $addressId
 	 * @return TrueAction_Eb2c_Tax_Model_Response_OrderItem
 	 */
-	public function getResponseForItem(Mage_Sales_Model_Quote_Item $item)
-	{
-		$sku = $item->getSku();
-		$orderItem = isset($this->_responseItems[$sku]) ?
-			$this->_responseItems[$sku] : null;
+	public function getResponseForItem($item, $address) {
+		// ensure the correct types to access the data
+		$addressId = (int)$address->getId();
+		$sku = (string)$item->getSku();
+		$orderItem = isset($this->_responseItems[$addressId][$sku]) ?
+			$this->_responseItems[$addressId][$sku] : null;
 		return $orderItem;
 	}
 
 	/**
 	 * get the result records of the request
-	 * @return array(TrueAction_Eb2c_Tax_Model_Tax)
+	 * @return array(TrueAction_Eb2c_Tax_Model_Response_OrderItem)
 	 */
 	public function getResponseItems()
 	{
@@ -107,15 +115,23 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 
 	/**
 	 * get the address using the value from the ref attribute.
-	 * @param  string $idRef
+	 * @param  TrueAction_Dom_Element $shipGroup
 	 * @return Mage_Sales_Model_Quote_Address
 	 */
-	protected function _getAddress($idRef)
+	protected function _getAddress(TrueAction_Dom_Element $shipGroup)
 	{
-		$address = $this->_loadAddress($idRef);
+		$xpath = new DOMXPath($this->_doc);
+		$xpath->registerNamespace('a', $this->_namespaceUri);
+		$idRef = $xpath->evaluate('string(./a:DestinationTarget/@ref)', $shipGroup);
+		$id = null;
+		if ($idRef) {
+			list(, $id) = explode('_', $idRef);
+		}
+		$address = $this->_loadAddress($id);
 		if (!$address->getId()) {
-			$message = "Address referenced by '$idRef' could not be verified in the original request";
-			Mage::log($message, Zend_Log::DEBUG);
+			$this->_isValid = false;
+			$message = "Address referenced by '$idRef' could not be loaded from the quote";
+			Mage::log($message, Zend_Log::WARN);
 			$address = null;
 		}
 		return $address;
@@ -139,18 +155,21 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 			$root
 		);
 		foreach ($shipGroups as $shipGroup) {
-			$address = $this->_getAddress($shipGroup->getAttribute('id'));
+			$address = $this->_getAddress($shipGroup);
 			$responseSkus = array();
 			// foreach item
-			$items = $xpath->query('//a:Items/a:OrderItem', $shipGroup);
-			foreach ($items as $item) {
-				$orderItem = Mage::getModel('eb2ctax/response_orderitem', array(
-					'node' => $item,
-					'namespace_uri' => $this->_namespaceUri
-				));
-				if ($orderItem->isValid()) {
-					$itemKey = $orderItem->getSku();
-					$this->_responseItems[$itemKey] = $orderItem;
+			$items = $xpath->query('./a:Items/a:OrderItem', $shipGroup);
+			if ($address) {
+				// skip the shipgroup we can't get the address
+				foreach ($items as $item) {
+					$orderItem = Mage::getModel('eb2ctax/response_orderitem', array(
+						'node' => $item,
+						'namespace_uri' => $this->_namespaceUri
+					));
+					if ($orderItem->isValid()) {
+						$itemKey = (string)$orderItem->getSku();
+						$this->_responseItems[$address->getId()][$itemKey] = $orderItem;
+					}
 				}
 			}
 		}
@@ -166,89 +185,92 @@ class TrueAction_Eb2c_Tax_Model_Response extends Mage_Core_Model_Abstract
 	 */
 	protected function _validateDestinations()
 	{
-		$valid = true;
-		$responseXpath = new DOMXPath($this->_doc);
-		$responseXpath->registerNamespace('a', $this->_namespaceUri);
+		$valid = false;
+		if ($this->getRequest()) {
+			// if we have a request, assume it's valid and look for violations.
+			$valid = true;
+			$responseXpath = new DOMXPath($this->_doc);
+			$responseXpath->registerNamespace('a', $this->_namespaceUri);
 
-		$requestXpath = new DOMXPath($this->getRequest()->getDocument());
-		$requestXpath->registerNamespace('a', $this->_namespaceUri);
+			$requestXpath = new DOMXPath($this->getRequest()->getDocument());
+			$requestXpath->registerNamespace('a', $this->_namespaceUri);
 
-		$mailingAddresses = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress');
-		foreach ($mailingAddresses as $address) {
-			$id = $address->getAttribute('id');
-			$responseFirstName = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:PersonName/a:FirstName');
-			$responseLastName = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:PersonName/a:LastName');
-			$responseLineAddress = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:Line1');
-			$responseCity = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:City');
-			$responseMainDivision = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:MainDivision');
-			$responseCountryCode = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:CountryCode');
-			$responsePostalCode = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:PostalCode');
+			$mailingAddresses = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress');
+			foreach ($mailingAddresses as $address) {
+				$id = $address->getAttribute('id');
+				$responseFirstName = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:PersonName/a:FirstName');
+				$responseLastName = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:PersonName/a:LastName');
+				$responseLineAddress = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:Line1');
+				$responseCity = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:City');
+				$responseMainDivision = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:MainDivision');
+				$responseCountryCode = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:CountryCode');
+				$responsePostalCode = $responseXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:PostalCode');
 
-			$requestFirstName = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:PersonName/a:FirstName');
-			$requestLastName = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:PersonName/a:LastName');
-			$requestLineAddress = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:Line1');
-			$requestCity = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:City');
-			$requestMainDivision = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:MainDivision');
-			$requestCountryCode = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:CountryCode');
-			$requestPostalCode = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:PostalCode');
+				$requestFirstName = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:PersonName/a:FirstName');
+				$requestLastName = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:PersonName/a:LastName');
+				$requestLineAddress = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:Line1');
+				$requestCity = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:City');
+				$requestMainDivision = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:MainDivision');
+				$requestCountryCode = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:CountryCode');
+				$requestPostalCode = $requestXpath->query('//a:Shipping/a:Destinations/a:MailingAddress[@id="' . $id . '"]/a:Address/a:PostalCode');
 
-			if (!$this->isSameNodelistElement($responseFirstName, $requestFirstName)) {
-				$valid = false;
-				Mage::log(
-					sprintf('%s: FirstName "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseFirstName->item(0)->nodeValue),
-					Zend_Log::DEBUG
-				);
-			}
+				if (!$this->isSameNodelistElement($responseFirstName, $requestFirstName)) {
+					$valid = false;
+					Mage::log(
+						sprintf('%s: FirstName "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseFirstName->item(0)->nodeValue),
+						Zend_Log::DEBUG
+					);
+				}
 
-			if (!$this->isSameNodelistElement($responseLastName, $requestLastName)) {
-				$valid = false;
-				Mage::log(
-					sprintf('%s: LastName "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseLastName->item(0)->nodeValue),
-					Zend_Log::DEBUG
-				);
-			}
+				if (!$this->isSameNodelistElement($responseLastName, $requestLastName)) {
+					$valid = false;
+					Mage::log(
+						sprintf('%s: LastName "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseLastName->item(0)->nodeValue),
+						Zend_Log::DEBUG
+					);
+				}
 
-			if (!$this->isSameNodelistElement($responseLineAddress, $requestLineAddress)) {
-				$valid = false;
-				Mage::log(
-					sprintf('%s: Address Line 1 "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseLineAddress->item(0)->nodeValue),
-					Zend_Log::DEBUG
-				);
-			}
+				if (!$this->isSameNodelistElement($responseLineAddress, $requestLineAddress)) {
+					$valid = false;
+					Mage::log(
+						sprintf('%s: Address Line 1 "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseLineAddress->item(0)->nodeValue),
+						Zend_Log::DEBUG
+					);
+				}
 
-			if (!$this->isSameNodelistElement($responseCity, $requestCity)) {
-				$valid = false;
-				Mage::log(
-					sprintf('%s: City "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseCity->item(0)->nodeValue),
-					Zend_Log::DEBUG
-				);
-			}
+				if (!$this->isSameNodelistElement($responseCity, $requestCity)) {
+					$valid = false;
+					Mage::log(
+						sprintf('%s: City "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseCity->item(0)->nodeValue),
+						Zend_Log::DEBUG
+					);
+				}
 
-			if (!$this->isSameNodelistElement($responseMainDivision, $requestMainDivision)) {
-				$valid = false;
-				Mage::log(
-					sprintf('%s: Main Division "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseMainDivision->item(0)->nodeValue),
-					Zend_Log::DEBUG
-				);
-			}
+				if (!$this->isSameNodelistElement($responseMainDivision, $requestMainDivision)) {
+					$valid = false;
+					Mage::log(
+						sprintf('%s: Main Division "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseMainDivision->item(0)->nodeValue),
+						Zend_Log::DEBUG
+					);
+				}
 
-			if (!$this->isSameNodelistElement($responseCountryCode, $requestCountryCode)) {
-				$valid = false;
-				Mage::log(
-					sprintf('%s: Country Code "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseCountryCode->item(0)->nodeValue),
-					Zend_Log::DEBUG
-				);
-			}
+				if (!$this->isSameNodelistElement($responseCountryCode, $requestCountryCode)) {
+					$valid = false;
+					Mage::log(
+						sprintf('%s: Country Code "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseCountryCode->item(0)->nodeValue),
+						Zend_Log::DEBUG
+					);
+				}
 
-			if (!$this->isSameNodelistElement($responsePostalCode, $requestPostalCode)) {
-				$valid = false;
-				Mage::log(
-					sprintf('%s: Postal Code "%s" not match in the request.', 'TaxDutyQuoteResponse', $responsePostalCode->item(0)->nodeValue),
-					Zend_Log::DEBUG
-				);
+				if (!$this->isSameNodelistElement($responsePostalCode, $requestPostalCode)) {
+					$valid = false;
+					Mage::log(
+						sprintf('%s: Postal Code "%s" not match in the request.', 'TaxDutyQuoteResponse', $responsePostalCode->item(0)->nodeValue),
+						Zend_Log::DEBUG
+					);
+				}
 			}
 		}
-
 		return $valid;
 	}
 

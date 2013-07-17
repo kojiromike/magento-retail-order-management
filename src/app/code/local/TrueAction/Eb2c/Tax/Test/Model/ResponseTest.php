@@ -358,4 +358,33 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 			$this->assertSame((float)$e->getCalculatedTax(), $d->getCalculatedTax());
 		}
 	}
+
+	public function testResponseQuote()
+	{
+		$xml = '<?xml version="1.0" encoding="UTF-8"?>
+ 			<Taxes xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
+				<Tax taxType="SELLER_USE" taxability="TAXABLE">
+					<Situs>DESTINATION</Situs>
+					<Jurisdiction jurisdictionLevel="STATE" jurisdictionId="31152">PENNSYLVANIA</Jurisdiction>
+					<Imposition impositionType="General Sales and Use Tax">Sales and Use Tax</Imposition>
+					<EffectiveRate>0.06</EffectiveRate>
+					<TaxableAmount>2.0</TaxableAmount>
+					<CalculatedTax>0.12</CalculatedTax>
+				</Tax>
+			</Taxes>';
+		$doc = new TrueAction_Dom_Document();
+		$doc->preserveWhiteSpace = false;
+		$doc->loadXML($xml);
+		$node = $doc->documentElement->firstChild;
+		$a = array(
+			'node'           => $node,
+			'rate_key'       => 'PENNSYLVANIA-Sales and Use Tax',
+			'situs'          => 'DESTINATION',
+			'effective_rate' => 0.06,
+			'taxable_amount' => 2.00,
+			'calculated_tax' => 0.12,
+		);
+		$obj = Mage::getModel('eb2ctax/response_quote', array('node' => $node));
+		$this->assertSame($a, $obj->getData());
+	}
 }

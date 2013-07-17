@@ -62,10 +62,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 			$address->setAppliedTaxes(array());
 		}
 
-		// alias for $address->getAllNonNominalItems()
-		// may need to use this in the request as well so that we are
-		// using the same list for sending/receiving
-		///////////////////////////////////////////////
 		$items = $this->_getAddressItems($address);
 		if (!count($items)) {
 			return $this;
@@ -75,12 +71,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 		// adds extra tax amounts to the address
 		$this->_addAmount($address->getExtraTaxAmount());
 		$this->_addBaseAmount($address->getBaseExtraTaxAmount());
-
-		// code in function can be moved out to here while rest goes to request
-		$this->_calculateShippingTax($address, $request);
-
-
-		$this->_processHiddenTaxes();
 
 		//round total amounts in address
 		$this->_roundTotals($address);

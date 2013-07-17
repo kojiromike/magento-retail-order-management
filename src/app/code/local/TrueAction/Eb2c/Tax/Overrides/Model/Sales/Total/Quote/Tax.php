@@ -102,6 +102,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 			if ($item->getParentItem()) {
 				continue;
 			}
+			$dummyRate = 0;
 			if ($item->getHasChildren() && $item->isChildrenCalculated()) {
 				foreach ($item->getChildren() as $child) {
 					$itemSelector->setItem($child);
@@ -111,7 +112,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 					$applied = $this->_calculator->getAppliedRates($itemSelector);
 
 					// need to come up with a similar concept (ie hasTaxes or some such)
-					if ($this->_calculator->getTaxforItem($child, $address) > 0) {
+					if (!empty($applied)) {
 						$itemTaxGroups[$child->getId()] = $applied;
 					}
 					$this->_saveAppliedTaxes(
@@ -119,7 +120,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 						$applied,
 						$child->getTaxAmount(),
 						$child->getBaseTaxAmount(),
-						$rateReplacemnt
+						$dummyRate
 					);
 					$child->setTaxRates($applied);
 				}
@@ -130,7 +131,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 				$this->_addAmount($item->getTaxAmount());
 				$this->_addBaseAmount($item->getBaseTaxAmount());
 				$applied = $this->_calculator->getAppliedRates($itemSelector);
-				if ($this->_calculator->getTaxforItem($item, $address) > 0) {
+				if (!empty($applied)) {
 					$itemTaxGroups[$item->getId()] = $applied;
 				}
 				$this->_saveAppliedTaxes(
@@ -138,7 +139,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 					$applied,
 					$item->getTaxAmount(),
 					$item->getBaseTaxAmount(),
-					$rateReplacemnt
+					$dummyRate
 				);
 				$item->setTaxRates($applied);
 			}

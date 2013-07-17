@@ -65,14 +65,14 @@
                     </tax>
                 </observers>
             </sales_quote_item_qty_set_after>
-            <sales_quote_address_discount_item>
+            <salesrule_validator_process>
                 <observers>
                     <tax>
                         <class>tax/observer</class>
-                        <method>salesEventDiscountItem</method>
+                        <method>salesRuleEventItemProcessed</method>
                     </tax>
                 </observers>
-            </sales_quote_address_discount_item>
+            </salesrule_validator_process>
         </events>
 	</global>
 	<default>

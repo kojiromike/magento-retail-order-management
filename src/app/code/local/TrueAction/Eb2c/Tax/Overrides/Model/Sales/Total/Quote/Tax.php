@@ -71,7 +71,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 			return $this;
 		}
 
-		$this->_rowBaseCalculation($address);
+		$this->_calcTaxForAddress($address);
 		// adds extra tax amounts to the address
 		$this->_addAmount($address->getExtraTaxAmount());
 		$this->_addBaseAmount($address->getBaseExtraTaxAmount());
@@ -94,10 +94,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 	 * @param   Varien_Object $taxRateRequest
 	 * @return  Mage_Tax_Model_Sales_Total_Quote
 	 */
-	protected function _rowBaseCalculation(
-		Mage_Sales_Model_Quote_Address $address,
-		$taxRateRequest = null
-	) {
+	protected function _calcTaxForAddress(Mage_Sales_Model_Quote_Address $address) {
 		$items          = $this->_getAddressItems($address);
 		$itemTaxGroups  = array();
 		$itemSelector   = new Varien_Object(array('address' => $address));
@@ -108,7 +105,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 			if ($item->getHasChildren() && $item->isChildrenCalculated()) {
 				foreach ($item->getChildren() as $child) {
 					$itemSelector->setItem($child);
-					$this->_calcRowTaxAmount($itemSelector);
+					$this->_calcTaxForItem($itemSelector);
 					$this->_addAmount($child->getTaxAmount());
 					$this->_addBaseAmount($child->getBaseTaxAmount());
 					$applied = $this->_calculator->getAppliedRates($itemSelector);
@@ -129,7 +126,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 				$this->_recalculateParent($item);
 			} else {
 				$itemSelector->setItem($item);
-				$this->_calcRowTaxAmount($itemSelector);
+				$this->_calcTaxForItem($itemSelector);
 				$this->_addAmount($item->getTaxAmount());
 				$this->_addBaseAmount($item->getBaseTaxAmount());
 				$applied = $this->_calculator->getAppliedRates($itemSelector);
@@ -161,7 +158,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 	 * @param   float $rate
 	 * @return  Mage_Tax_Model_Sales_Total_Quote
 	 */
-	protected function _calcRowTaxAmount($itemSelector, $rate = null)
+	protected function _calcTaxForItem($itemSelector, $rate = null)
 	{
 		$item           = $itemSelector->getItem();
 		$inclTax        = $item->getIsPriceInclTax();

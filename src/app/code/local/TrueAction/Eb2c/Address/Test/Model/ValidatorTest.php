@@ -86,12 +86,12 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	) {
 		$respMock = $this->getModelMock('eb2caddress/validation_response', array(
 			'setMessage', 'isAddressValid', 'getValidAddress', 'getOriginalAddress',
-			'hasSuggestions', 'getAddressSuggestions'));
+			'hasAddressSuggestions', 'getAddressSuggestions'));
 		$respMock->expects($this->any())
 			->method('isAddressValid')
 			->will($this->returnValue($isAddressValid));
 		$respMock->expects($this->any())
-			->method('hasSuggestions')
+			->method('hasAddressSuggestions')
 			->will($this->returnValue($hasSuggestions));
 		$respMock->expects($this->any())
 			->method('getOriginalAddress')
@@ -106,6 +106,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 			->method('setMessage')
 			->will($this->returnValue($respMock));
 		$this->replaceByMock('model', 'eb2caddress/validation_response', $respMock);
+		return $respMock;
 	}
 
 	/**
@@ -121,13 +122,15 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	 * Setup the session data with the supplied addresses.
 	 * @param Mage_Customer_Model_Address_Abstract $original
 	 * @param Mage_Customer_Model_Address_Abstract[] $suggestions
+	 * @param boolean $hasFreshSuggestions
 	 */
-	protected function _setupSessionWithSuggestions($original, $suggestions)
+	protected function _setupSessionWithSuggestions($original, $suggestions, $hasFreshSuggestions = true)
 	{
 		// populate the session with usable data - replaced with mock in setUp
 		$addresses = new TrueAction_Eb2c_Address_Model_Suggestion_Group();
 		$addresses->setOriginalAddress($original);
 		$addresses->setSuggestedAddresses($suggestions);
+		$addresses->setHasFreshSuggestions($hasFreshSuggestions);
 		$this->_getSession()
 			->setData(TrueAction_Eb2c_Address_Model_Validator::SESSION_KEY, $addresses);
 	}
@@ -142,7 +145,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 		$validator = Mage::getModel('eb2caddress/validator');
 		$this->assertNull($validator->getOriginalAddress());
 		$this->assertNull($validator->getSuggestedAddresses());
-		$this->assertNull($validator->getValidatedAddress('original_address'));
+		$this->assertNull($validator->getStashedAddressByKey('original_address'));
 		$this->assertFalse($validator->hasSuggestions());
 	}
 
@@ -335,14 +338,24 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 				'has_been_validated' => true,
 			)),
 		);
-		$mockResponse = $this->_mockValidationResponse(false, true, $origAddress, null, $suggestions);
+		$this->_mockValidationResponse(false, true, $origAddress, null, $suggestions);
 
 		$validator = Mage::getModel('eb2caddress/validator');
 		$errorMessage = $validator->validateAddress($address);
 
-		$this->assertTrue($address->getHasBeenValidated(), '"has_been_validated" data added to the address object.');
-		$this->assertSame($address->getPostcode(), $origAddress->getPostcode(), 'Corrected data in the "original_address" fields from EB2C should still be copied over.');
-		$this->assertSame($errorMessage, TrueAction_Eb2c_Address_Model_Validator::SUGGESTIONS_ERROR_MESSAGE, 'Invalid address with suggestions should have the appropriate message.');
+		$this->assertTrue(
+			$address->getHasBeenValidated(),
+			'"has_been_validated" data added to the address object.'
+		);
+		$this->assertSame(
+			$origAddress->getPostcode(),
+			$address->getPostcode(),
+			'Corrected data in the "original_address" fields from EB2C should still be copied over.');
+		$this->assertSame(
+			TrueAction_Eb2c_Address_Model_Validator::SUGGESTIONS_ERROR_MESSAGE,
+			$errorMessage,
+			'Invalid address with suggestions should have the appropriate message.'
+		);
 	}
 
 	/**
@@ -365,7 +378,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 		$errors = $validator->validateAddress($address);
 
 		$this->assertNull($errors, 'An address that is marked as already having been validated is assumed valid, hence no errors.');
-		$this->assertNull(Mage::getSingleton('customer/session')->getData(TrueAction_Eb2c_Address_Model_Validator::SESSION_KEY), 'Validating a validated address should also clear address validation session data.');
+		$this->assertInstanceOf('TrueAction_Eb2c_Address_Model_Suggestion_Group', $session->getData(TrueAction_Eb2c_Address_Model_Validator::SESSION_KEY));
 	}
 
 	/**
@@ -636,7 +649,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	 * the address back out of the address collection stored in the session.
 	 * @test
 	 */
-	public function getValidatedAddressByKey()
+	public function getStashedAddressByKeyByKey()
 	{
 		$originalAddress = $this->_createAddress(array(
 			'street' => '123 Main St',
@@ -672,11 +685,11 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 
 		$this->assertSame(
 			$originalAddress,
-			$validator->getValidatedAddress($originalAddress->getStashKey())
+			$validator->getStashedAddressByKey($originalAddress->getStashKey())
 		);
 		$this->assertSame(
 			$suggestions[1],
-			$validator->getValidatedAddress($suggestions[1]->getStashKey())
+			$validator->getStashedAddressByKey($suggestions[1]->getStashKey())
 		);
 	}
 
@@ -687,7 +700,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 	public function gettingValidatedAddressByUnknownKey()
 	{
 		$validator = Mage::getModel('eb2caddress/validator');
-		$this->assertNull($validator->getValidatedAddress('dont_know_about_this'), 'Unknown "stash_key" results in "null" response.');
+		$this->assertNull($validator->getStashedAddressByKey('dont_know_about_this'), 'Unknown "stash_key" results in "null" response.');
 	}
 
 	/**
@@ -761,11 +774,13 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 		);
 	}
 
-	public function testMergeCloneAddresses()
+	/**
+	 * Test copying name data form the source address to the destination address.
+	 * @test
+	 */
+	public function testCopyNameData()
 	{
 		$destData = array(
-			'firstname' => 'The',
-			'lastname' => 'Bar',
 			'street' => '123 Main St',
 			'city' => 'Fooville',
 			'region_code' => 'PA',
@@ -774,6 +789,8 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 		);
 		$destAddr = $this->_createAddress($destData);
 		$sourceData = array(
+			'firstname' => 'The',
+			'lastname' => 'Bar',
 			'street' => '555 Foo St',
 			'city' => 'Bartown',
 			'region_code' => 'NY',
@@ -784,36 +801,28 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 
 		$validator = Mage::getModel('eb2caddress/validator');
 		$reflection = new ReflectionClass('TrueAction_Eb2c_Address_Model_Validator');
-		$method = $reflection->getMethod('_cloneMerge');
+		$method = $reflection->getMethod('_copyAddressName');
 		$method->setAccessible(true);
 
 		$mergedClone = $method->invoke($validator, $destAddr, $sourceAddr);
-		// make sure a new object was returned, not a modified version of one of the merged objects
-		$this->assertNotSame($destAddr, $mergedClone, '_cloneMerge should return a new object.');
-		$this->assertNotSame($sourceAddr, $mergedClone, '_cloneMerge shoudl return a new object.');
-		// first name should have been preserved from the destination object
-		$this->assertSame(
-			$destAddr->getFirstname(),
-			$mergedClone->getFirstname(),
-			'Data on the destination object that is not on the source object should remain.');
-		// city should have been copied from the source object
-		$this->assertSame(
-			$sourceAddr->getCity(),
-			$mergedClone->getCity(),
-			'Data on the source object should replace data on the destination object.'
-		);
 
-		// make sure the original source and destination objects weren't modified
-		$this->assertSame(
-			$destAddr->getData(),
-			$destData,
-			'Original object\'s data should not be changed.'
-		);
-		$this->assertSame(
-			$sourceAddr->getData(),
-			$sourceData,
-			'Original object\'s data should not be changed.'
-		);
+		// first and last name should be copied to the dest address
+		$this->assertSame($sourceAddr->getFirstname(), $destAddr->getFirstname());
+		$this->assertSame($sourceAddr->getLastname(), $destAddr->getLastname());
+		// rest of the dest address should not have changed
+		$this->assertSame($destData['city'], $destAddr->getCity());
+		$this->assertSame($destData['postcode'], $destAddr->getPostcode());
+	}
+
+	/**
+	 * Test checking for fresh suggestions.
+	 * Really just a pass through to another object.
+	 * @test
+	 */
+	public function testCheckSessionFreshness()
+	{
+		$this->_setupSessionWithSuggestions(null, null, false);
+		$this->assertFalse(Mage::getModel('eb2caddress/validator')->hasFreshSuggestions());
 	}
 
 }

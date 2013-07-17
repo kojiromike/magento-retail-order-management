@@ -27,20 +27,48 @@ class TrueAction_Eb2c_Address_Test_Block_SuggestionsTest
 		return $sessionMock;
 	}
 
+	/**
+	 * Test set up - mock out customer session.
+	 */
 	public function setUp()
 	{
 		$this->_mockCustomerSession();
 	}
 
-	public function testShouldShowSuggestions()
+	/**
+	 * Test determining if suggestions should be shown
+	 * @dataProvider dataProvider
+	 * @test
+	 */
+	public function testShouldShowSuggestions($hasSuggestions, $hasFreshSuggestions)
 	{
-		$validator = $this->getModelMock('eb2caddress/validator', array('hasSuggestions'));
+		$validator = $this->getModelMock('eb2caddress/validator', array('hasSuggestions', 'hasFreshSuggestions'));
 		$validator->expects($this->once())
 			->method('hasSuggestions')
-			->will($this->returnValue(true));
+			->will($this->returnValue($hasSuggestions));
+		// when there are suggestions, the block should also ensure they are "fresh"
+		if ($hasSuggestions) {
+			$validator->expects($this->once())
+				->method('hasFreshSuggestions')
+				->will($this->returnValue($hasFreshSuggestions));
+		} else {
+			$validator->expects($this->never())
+				->method('hasFreshSuggestions');
+		}
 		$this->replaceByMock('model', 'eb2caddress/validator', $validator);
 
-		$this->assertTrue($this->_createSuggestionsBlock()->shouldShowSuggestions());
+		$block = $this->_createSuggestionsBlock();
+
+		$this->assertEquals(
+			($hasSuggestions && $hasFreshSuggestions),
+			$block->shouldShowSuggestions(),
+			'Suggestions should only be shown when there are suggestions and the suggestions are "fresh"'
+		);
+		$this->assertEquals(
+			($hasSuggestions && $hasFreshSuggestions),
+			$block->shouldShowSuggestions(),
+			'Calling shouldShowSuggestions multiple times should not re-call the validator methods'
+		);
 	}
 
 	public function testGetSuggestedAddresses()

@@ -35,6 +35,15 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 	 */
 	protected $_validator = null;
 
+	/**
+	 * Flag indicating if address suggestions should be shown.
+	 * Ensures that the block only ever asks the validator once as after
+	 * the block starts pulling address data from the validator, this would change
+	 * as the suggestions would no longer be "fresh".
+	 * @var boolean
+	 */
+	protected $_shouldShowSuggestions = null;
+
 	protected function _construct()
 	{
 		$this->_config = Mage::getModel('eb2ccore/config_registry')
@@ -44,10 +53,15 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 
 	/**
 	 * Determines if there are suggestions to display to the user.
+	 * @return boolean
 	 */
 	public function shouldShowSuggestions()
 	{
-		return $this->_validator->hasSuggestions();
+		if (is_null($this->_shouldShowSuggestions)) {
+			$this->_shouldShowSuggestions = $this->_validator->hasSuggestions()
+				&& $this->_validator->hasFreshSuggestions();
+		}
+		return $this->_shouldShowSuggestions;
 	}
 
 	/**
@@ -79,6 +93,17 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 					($this->getAddressFormat() ?: self::DEFAULT_ADDRESS_FORMAT_CONFIG)
 			))
 			->render($address);
+	}
+
+	/**
+	 * Get a JSON representation of the address data.
+	 * @param Mage_Customer_Model_Address_Abstract $address
+	 * @return string
+	 */
+	public function getAddressJSONData(Mage_Customer_Model_Address_Abstract $address)
+	{
+		$address->explodeStreetAddress();
+		return $address->toJson(array('street1', 'street2', 'street3', 'street4', 'city', 'region_id', 'country_id', 'postcode'));
 	}
 
 	/**

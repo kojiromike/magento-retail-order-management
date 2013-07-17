@@ -71,8 +71,8 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 * @return float
 	 */
 	public function getTaxforItem(
-		Mage_Sales_Model_Quote_Item $item,
-		Mage_Sales_Model_Quote_Address $address
+		Mage_Sales_Model_Quote_Item    $item    = null,
+		Mage_Sales_Model_Quote_Address $address = null
 	) {
 		$itemResponse = $this->_getItemResponse($item, $address);
 		$tax = 0.0;
@@ -102,8 +102,8 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 * @return
 	 */
 	protected function _getItemResponse(
-		Mage_Sales_Model_Quote_Item $item,
-		Mage_Sales_Model_Quote_Address $address
+		Mage_Sales_Model_Quote_Item $item = null,
+		Mage_Sales_Model_Quote_Address $address = null
 	) {
 		$response = $this->getTaxResponse();
 		$itemResponse = $response ?
@@ -199,19 +199,16 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 		$itemResponse = $this->_getItemResponse($item, $address);
 		if ($itemResponse) {
 			$taxQuotes = $itemResponse->getTaxQuotes();
-			$discountTaxQuotes = $itemResponse->getTaxQuoteDiscounts();
+			$group = array();
 			foreach ($taxQuotes as $index => $taxQuote) {
-				$code  = sprintf('%s-%s', $taxQuote->getJurisdiction(), $taxQuote->getImposition());
+				$code              = $taxQuote->getRateKey();
 				$rate['code']      = $code;
 				$rate['title']     = $code;
 				$rate['percent']   = $taxQuote->getEffectiveRate();
 				$rate['amount']    = $taxQuote->getCalculatedTax();
 				$rate['position']  = 1;
 				$rate['priority']  = 1;
-
-				$group = isset($result[$code]) ? $result[$code] : array();
-				$group['rates'][]  =  $rate;
-				$result[$code] = $group;
+				$result[$code]['rates'][] = $rate;
 			}
 		}
 		return $result;
@@ -219,13 +216,10 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 
 	public function getAppliedRates($itemSelector)
 	{
-		$appliedRates = array();
-		if ($itemSelector && $itemSelector->getItem() && $itemSelector->getAddress()) {
-			$appliedRates = $this->getAppliedRatesForItem(
-				$itemSelector->getItem(),
-				$itemSelector->getAddress()
-			);
-		}
+		$appliedRates = $this->getAppliedRatesForItem(
+			$itemSelector->getItem(),
+			$itemSelector->getAddress()
+		);
 		return $appliedRates;
 	}
 }

@@ -55,7 +55,7 @@ class TrueAction_Eb2c_Core_Helper_Feed extends Mage_Core_Helper_Abstract
 			// Header Version doesn't match
 			$isValid = false;
 			Mage::log(
-				'Feed Header Version "' . $headerVersion->item(0)->nodeValue . '" do not matched config Header Version "' . $versions['major'] . '".',
+				'Feed Header Version "' . $headerVersion->item(0)->nodeValue . '" do not matched expected Header Version "' . $versions['major'] . '".',
 				Zend_Log::WARN
 			);
 		}
@@ -69,7 +69,8 @@ class TrueAction_Eb2c_Core_Helper_Feed extends Mage_Core_Helper_Abstract
 			// Version Release Number doesn't match
 			$isValid = false;
 			Mage::log(
-				'Feed Version Release Number "' . $versionReleaseNumber->item(0)->nodeValue . '" do not matched config Version Release Number "' . $versions['minor'] . '".',
+				'Feed Version Release Number "' . $versionReleaseNumber->item(0)->nodeValue .
+				'" do not matched expected Version Release Number "' . $versions['minor'] . '".',
 				Zend_Log::WARN
 			);
 		}
@@ -98,7 +99,8 @@ class TrueAction_Eb2c_Core_Helper_Feed extends Mage_Core_Helper_Abstract
 			// DestinationId doesn't match
 			$isValid = false;
 			Mage::log(
-				'Feed DestinationId "' . $destinationId->item(0)->nodeValue . '" do not matched config DestinationId (client_id) "' . $this->_getCoreConfig()->clientId . '".',
+				'Feed DestinationId "' . $destinationId->item(0)->nodeValue .
+				'" do not matched config DestinationId (client_id) "' . $this->_getCoreConfig()->clientId . '".',
 				Zend_Log::WARN
 			);
 		}
@@ -112,7 +114,8 @@ class TrueAction_Eb2c_Core_Helper_Feed extends Mage_Core_Helper_Abstract
 			// Destination Type doesn't match
 			$isValid = false;
 			Mage::log(
-				'Feed Destination Type "' . $destinationType->item(0)->nodeValue . '" do not matched config Destination Type "' . $this->_getCoreConfig()->feedDestinationType . '".',
+				'Feed Destination Type "' . $destinationType->item(0)->nodeValue .
+				'" do not matched config Destination Type "' . $this->_getCoreConfig()->feedDestinationType . '".',
 				Zend_Log::WARN
 			);
 		}
@@ -148,7 +151,7 @@ class TrueAction_Eb2c_Core_Helper_Feed extends Mage_Core_Helper_Abstract
 			$versionArrSize = sizeof($versionArr);
 			if ($versionArrSize) {
 				$major = '';
-				for($i=0; $i < ($versionArrSize - 1); $i++){
+				for ($i = 0; $i < ($versionArrSize - 1); $i++) {
 					$major .= $versionArr[$i];
 					if ($i < ($versionArrSize - 2)){
 						$major .= '.';

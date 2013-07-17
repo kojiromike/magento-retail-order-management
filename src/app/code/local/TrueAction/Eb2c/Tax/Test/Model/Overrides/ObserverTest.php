@@ -30,7 +30,6 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_ObserverTest extends EcomDev_PHPU
 			'cartEventProductUpdated',
 			'salesEventItemRemoved',
 			'salesEventItemQtyUpdated',
-			'salesEventDiscountItem',
 			'quoteCollectTotalsBefore'
 		);
 		$this->observerMock = $this->getMock(
@@ -216,30 +215,6 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_ObserverTest extends EcomDev_PHPU
 	{
 		$this->assertNull(
 			$this->observer->salesEventItemQtyUpdated($observer)
-		);
-	}
-
-	public function providerSalesEventDiscountItem()
-	{
-		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
-		$observerMock->expects($this->any())
-			->method('getEvent')
-			->will($this->returnValue($this->getMockQuote()));
-		return array(
-			array($observerMock)
-		);
-	}
-
-	/**
-	 * Tesing salesEventDiscountItem observer method
-	 *
-	 * @test
-	 * @dataProvider providerSalesEventDiscountItem
-	 */
-	public function testSalesEventDiscountItem($observer)
-	{
-		$this->assertNull(
-			$this->observer->salesEventDiscountItem($observer)
 		);
 	}
 

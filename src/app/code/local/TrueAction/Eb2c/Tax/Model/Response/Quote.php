@@ -20,10 +20,10 @@ class TrueAction_Eb2c_Tax_Model_Response_Quote extends Mage_Core_Model_Abstract
 			$jurisdiction  = $xpath->evaluate('string(a:Jurisdiction)', $tax);
 			$imposition    = $xpath->evaluate('string(a:Imposition)', $tax);
 			$effectiveRate = $xpath->evaluate('string(a:EffectiveRate)', $tax);
-			$rateKey       = $jurisdiction && $imposition ?
+			$code          = $jurisdiction && $imposition ?
 				$jurisdiction . '-' . $imposition :
 				$effectiveRate;
-			$this->setRateKey($rateKey);
+			$this->setCode($code);
 			// get situs
 			$this->setSitus($xpath->evaluate('string(a:Situs)', $tax));
 			// get effective rate

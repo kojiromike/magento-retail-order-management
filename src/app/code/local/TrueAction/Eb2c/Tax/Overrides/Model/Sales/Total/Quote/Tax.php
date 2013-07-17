@@ -62,33 +62,158 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 			$address->setAppliedTaxes(array());
 		}
 
-		// alias for $address->getAllNonNominalItems()
-		// may need to use this in the request as well so that we are
-		// using the same list for sending/receiving
-		///////////////////////////////////////////////
 		$items = $this->_getAddressItems($address);
 		if (!count($items)) {
 			return $this;
 		}
 
-		$this->_rowBaseCalculation($address);
+		$this->_calcTaxForAddress($address);
 		// adds extra tax amounts to the address
 		$this->_addAmount($address->getExtraTaxAmount());
 		$this->_addBaseAmount($address->getBaseExtraTaxAmount());
-
-		// code in function can be moved out to here while rest goes to request
-		$this->_calculateShippingTax($address, $request);
-
-
-		$this->_processHiddenTaxes();
 
 		//round total amounts in address
 		$this->_roundTotals($address);
 		return $this;
 	}
 
-/// most of this function can be merged up into the collect function
-////////////////
+	/**
+	 * Calculate address total tax based on row total
+	 *
+	 * @param   Mage_Sales_Model_Quote_Address $address
+	 * @param   Varien_Object $taxRateRequest
+	 * @return  Mage_Tax_Model_Sales_Total_Quote
+	 */
+	protected function _calcTaxForAddress(Mage_Sales_Model_Quote_Address $address) {
+		$items          = $this->_getAddressItems($address);
+		$itemTaxGroups  = array();
+		$itemSelector   = new Varien_Object(array('address' => $address));
+		foreach ($items as $item) {
+			if ($item->getParentItem()) {
+				continue;
+			}
+			$dummyRate = 0;
+			if ($item->getHasChildren() && $item->isChildrenCalculated()) {
+				foreach ($item->getChildren() as $child) {
+					$itemSelector->setItem($child);
+					$this->_calcTaxForItem($itemSelector);
+					$this->_addAmount($child->getTaxAmount());
+					$this->_addBaseAmount($child->getBaseTaxAmount());
+					$applied = $this->_calculator->getAppliedRates($itemSelector);
+
+					// need to come up with a similar concept (ie hasTaxes or some such)
+					if (!empty($applied)) {
+						$itemTaxGroups[$child->getId()] = $applied;
+					}
+					$this->_saveAppliedTaxes(
+						$address,
+						$applied,
+						$child->getTaxAmount(),
+						$child->getBaseTaxAmount(),
+						$dummyRate
+					);
+					$child->setTaxRates($applied);
+				}
+				$this->_recalculateParent($item);
+			} else {
+				$itemSelector->setItem($item);
+				$this->_calcTaxForItem($itemSelector);
+				$this->_addAmount($item->getTaxAmount());
+				$this->_addBaseAmount($item->getBaseTaxAmount());
+				$applied = $this->_calculator->getAppliedRates($itemSelector);
+				if (!empty($applied)) {
+					$itemTaxGroups[$item->getId()] = $applied;
+				}
+				$this->_saveAppliedTaxes(
+					$address,
+					$applied,
+					$item->getTaxAmount(),
+					$item->getBaseTaxAmount(),
+					$dummyRate
+				);
+				$item->setTaxRates($applied);
+			}
+		}
+
+		if ($address->getQuote()->getTaxesForItems()) {
+			$itemTaxGroups += $address->getQuote()->getTaxesForItems();
+		}
+		$address->getQuote()->setTaxesForItems($itemTaxGroups);
+		return $this;
+	}
+
+	/**
+	 * Calculate item tax amount based on row total
+	 *
+	 * @param   Mage_Sales_Model_Quote_Item_Abstract $item
+	 * @param   float $rate
+	 * @return  Mage_Tax_Model_Sales_Total_Quote
+	 */
+	protected function _calcTaxForItem($itemSelector, $rate = null)
+	{
+		$item           = $itemSelector->getItem();
+		$inclTax        = $item->getIsPriceInclTax();
+		$subtotal       = $taxSubtotal     = $item->getTaxableAmount();
+		$baseSubtotal   = $baseTaxSubtotal = $item->getBaseTaxableAmount();
+		// default to 0 since there isn't any one rate
+		$item->setTaxPercent(0);
+		$hiddenTax      = null;
+		$baseHiddenTax  = null;
+
+		switch ($this->_helper->getCalculationSequence($this->_store)) {
+			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_EXCL:
+			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_INCL:
+				$rowTax     = $this->_calculator->getTaxForItem($itemSelector->getItem(), $itemSelector->getAddress());
+				$baseRowTax = $this->_calculator->getAmount($baseSubtotal, $itemSelector->getItem(), $itemSelector->getAddress());
+				break;
+			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_EXCL:
+			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_INCL:
+				// prices sent after adding discounts
+				// taxes received are already reduced due to discounted prices sent
+
+				$discountAmount           = $item->getDiscountAmount();
+				$baseDiscountAmount       = $item->getBaseDiscountAmount();
+
+				$rowTax                   = $this->_calculator->getTax($itemSelector);
+				$rowTaxDiscount           = 0;//$this->_calculator->getTaxDiscount($itemSelector);
+				$rowTaxBeforeDiscount     = $rowTax + $rowTaxDiscount;
+
+				$baseRowTax               = $this->_calculator->getTaxForItem($baseSubtotal, $itemSelector->getItem(), $itemSelector->getAddress());
+				$baseRowTaxDiscount       = 0;//$this->_calculator->getTaxDiscountAmount($baseDiscountAmount, $itemSelector->getItem(), $itemSelector->getAddress());
+				$baseRowTaxBeforeDiscount = $baseRowTax + $baseRowTaxDiscount;
+
+				$rowTax = $this->_calculator->round($rowTax);
+				$baseRowTax = $this->_calculator->round($baseRowTax);
+				if ($discountAmount > $subtotal) { // case with 100% discount on price incl. tax
+                    $hiddenTax      = $discountAmount - $subtotal;
+                    $baseHiddenTax  = $baseDiscountAmount - $baseSubtotal;
+                    $this->_hiddenTaxes[] = array(
+                        'rate_key'   => $rateKey,
+                        'qty'        => 1,
+                        'item'       => $item,
+                        'value'      => $hiddenTax,
+                        'base_value' => $baseHiddenTax,
+                        'incl_tax'   => $inclTax,
+                    );
+                }
+				break;
+		}
+
+		$item->setTaxAmount(max(0, $rowTax));
+		$item->setBaseTaxAmount(max(0, $baseRowTax));
+
+		$rowTotalInclTax = $item->getRowTotalInclTax();
+		if (!isset($rowTotalInclTax)) {
+			$taxCompensation = $item->getDiscountTaxCompensation() ? $item->getDiscountTaxCompensation() : 0;
+			$item->setRowTotalInclTax($subtotal + $rowTax + $taxCompensation);
+			$item->setBaseRowTotalInclTax($baseSubtotal + $baseRowTax + $item->getBaseDiscountTaxCompensation());
+		}
+
+		return $this;
+	}
+
+	/// most of this function can be merged up into the collect function
+	////////////////
 	/**
 	 * Tax caclulation for shipping price
 	 *
@@ -102,13 +227,14 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 		// $taxRateRequest->setProductClassId($this->_config->getShippingTaxClass($this->_store));
 
 		// dont need
+
 		// $rate           = $this->_calculator->getRate($taxRateRequest);
 
-//////////////////////////////////////////////////////////////////////////
-// figure out these as they may need to be moved to the request.
+		//////////////////////////////////////////////////////////////////////////
+		// figure out these as they may need to be moved to the request.
 		$shipping       = $address->getShippingTaxable();
 		$baseShipping   = $address->getBaseShippingTaxable();
-//////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////
 		//$rateKey        = (string)$rate;
 
 		$hiddenTax      = null;
@@ -139,19 +265,10 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 				break;
 		}
 
-		////// can be removed since all of the transforms take place
-		//     after the tax value is figured out
-		// if ($this->_config->getAlgorithm($this->_store) == Mage_Tax_Model_Calculation::CALC_TOTAL_BASE) {
-		//     $this->_addAmount(max(0, $tax));
-		//     $this->_addBaseAmount(max(0, $baseTax));
-		//     $tax        = $this->_deltaRound($tax, $rate, $inclTax);
-		//     $baseTax    = $this->_deltaRound($baseTax, $rate, $inclTax, 'base');
-		// } else {
 		//     $tax        = $this->_calculator->round($tax);
 		//     $baseTax    = $this->_calculator->round($baseTax);
 		//     $this->_addAmount(max(0, $tax));
 		//     $this->_addBaseAmount(max(0, $baseTax));
-		// }
 
 		//////// after taxes so can be removed
 		// if ($inclTax && !empty($discountAmount)) {
@@ -170,143 +287,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 		$address->setBaseShippingTaxAmount(max(0, $baseTax));
 		$applied = $this->_calculator->getAppliedRates($taxRateRequest);
 		$this->_saveAppliedTaxes($address, $applied, $tax, $baseTax, $rate);
-
-		return $this;
-	}
-
-	/**
-	 * Calculate address total tax based on row total
-	 *
-	 * @param   Mage_Sales_Model_Quote_Address $address
-	 * @param   Varien_Object $taxRateRequest
-	 * @return  Mage_Tax_Model_Sales_Total_Quote
-	 */
-	protected function _rowBaseCalculation(
-		Mage_Sales_Model_Quote_Address $address,
-		$taxRateRequest = null
-	) {
-		$items          = $this->_getAddressItems($address);
-		$itemTaxGroups  = array();
-		$itemSelector   = new Varien_Object(array('address' => $address));
-		foreach ($items as $item) {
-			if ($item->getParentItem()) {
-				continue;
-			}
-			if ($item->getHasChildren() && $item->isChildrenCalculated()) {
-				foreach ($item->getChildren() as $child) {
-					$itemSelector->setItem($child);
-					$this->_calcRowTaxAmount($itemSelector);
-					$this->_addAmount($child->getTaxAmount());
-					$this->_addBaseAmount($child->getBaseTaxAmount());
-					$applied = $this->_calculator->getAppliedRates($itemSelector);
-
-					// need to come up with a similar concept (ie hasTaxes or some such)
-					if ($this->_calculator->getTaxforItem($child, $address) > 0) {
-						$itemTaxGroups[$child->getId()] = $applied;
-					}
-					$this->_saveAppliedTaxes(
-						$address,
-						$applied,
-						$child->getTaxAmount(),
-						$child->getBaseTaxAmount(),
-						$rateReplacemnt
-					);
-					$child->setTaxRates($applied);
-				}
-				$this->_recalculateParent($item);
-			} else {
-				$itemSelector->setItem($item);
-				$this->_calcRowTaxAmount($itemSelector);
-				$this->_addAmount($item->getTaxAmount());
-				$this->_addBaseAmount($item->getBaseTaxAmount());
-				$applied = $this->_calculator->getAppliedRates($itemSelector);
-				if ($this->_calculator->getTaxforItem($item, $address) > 0) {
-					$itemTaxGroups[$item->getId()] = $applied;
-				}
-				$this->_saveAppliedTaxes(
-					$address,
-					$applied,
-					$item->getTaxAmount(),
-					$item->getBaseTaxAmount(),
-					$rateReplacemnt
-				);
-				$item->setTaxRates($applied);
-			}
-		}
-
-		if ($address->getQuote()->getTaxesForItems()) {
-			$itemTaxGroups += $address->getQuote()->getTaxesForItems();
-		}
-		$address->getQuote()->setTaxesForItems($itemTaxGroups);
-		return $this;
-	}
-
-	/**
-	 * Calculate item tax amount based on row total
-	 *
-	 * @param   Mage_Sales_Model_Quote_Item_Abstract $item
-	 * @param   float $rate
-	 * @return  Mage_Tax_Model_Sales_Total_Quote
-	 */
-	protected function _calcRowTaxAmount($itemSelector, $rate = null)
-	{
-		$item           = $itemSelector->getItem();
-		$inclTax        = $item->getIsPriceInclTax();
-		$subtotal       = $taxSubtotal     = $item->getTaxableAmount();
-		$baseSubtotal   = $baseTaxSubtotal = $item->getBaseTaxableAmount();
-		// default to 0 since there isn't any one rate
-		$item->setTaxPercent(0);
-		$hiddenTax      = null;
-		$baseHiddenTax  = null;
-
-		switch ($this->_helper->getCalculationSequence($this->_store)) {
-			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_EXCL:
-			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_INCL:
-				$rowTax     = $this->_calculator->getTaxForItem($itemSelector->getItem(), $itemSelector->getAddress());
-				$baseRowTax = $this->_calculator->getAmount($baseSubtotal, $itemSelector->getItem(), $itemSelector->getAddress());
-				break;
-			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_EXCL:
-			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_INCL:
-				// prices sent after adding discounts
-				// taxes received are already reduced due to discounted prices sent
-
-				$discountAmount           = $item->getDiscountAmount();
-				$baseDiscountAmount       = $item->getBaseDiscountAmount();
-
-				$rowTax                   = $this->_calculator->getTax($itemSelector);
-				$rowTaxDiscount           = 0//$this->_calculator->getTaxDiscount($itemSelector);
-				$rowTaxBeforeDiscount     = $rowTax + $rowTaxDiscount;
-
-				$baseRowTax               = $this->_calculator->getTaxForItem($baseSubtotal, $itemSelector->getItem(), $itemSelector->getAddress());
-				$baseRowTaxDiscount       = 0//$this->_calculator->getTaxDiscountAmount($baseDiscountAmount, $itemSelector->getItem(), $itemSelector->getAddress());
-				$baseRowTaxBeforeDiscount = $baseRowTax + $baseRowTaxDiscount;
-
-				$rowTax = $this->_calculator->round($rowTax);
-				$baseRowTax = $this->_calculator->round($baseRowTax);
-				if ($discountAmount > $subtotal) { // case with 100% discount on price incl. tax
-                    $hiddenTax      = $discountAmount - $subtotal;
-                    $baseHiddenTax  = $baseDiscountAmount - $baseSubtotal;
-                    $this->_hiddenTaxes[] = array(
-                        'rate_key'   => $rateKey,
-                        'qty'        => 1,
-                        'item'       => $item,
-                        'value'      => $hiddenTax,
-                        'base_value' => $baseHiddenTax,
-                        'incl_tax'   => $inclTax,
-                    );
-                }
-				break;
-		}
-
-		$item->setTaxAmount(max(0, $rowTax));
-		$item->setBaseTaxAmount(max(0, $baseRowTax));
-
-		$rowTotalInclTax = $item->getRowTotalInclTax();
-		if (!isset($rowTotalInclTax)) {
-			$taxCompensation = $item->getDiscountTaxCompensation() ? $item->getDiscountTaxCompensation() : 0;
-			$item->setRowTotalInclTax($subtotal + $rowTax + $taxCompensation);
-			$item->setBaseRowTotalInclTax($baseSubtotal + $baseRowTax + $item->getBaseDiscountTaxCompensation());
-		}
 
 		return $this;
 	}

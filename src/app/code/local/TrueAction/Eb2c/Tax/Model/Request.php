@@ -21,7 +21,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 	protected $_destinations       = array();
 	protected $_orderItems         = array();
 	protected $_shipGroups         = array();
-	protected $_appliedRuleIds     = array();
+	protected $_appliedDiscountIds = array();
 	protected $_shipGroupIds       = array();
 
 	/**
@@ -677,7 +677,7 @@ class TrueAction_Eb2c_Tax_Model_Request extends Mage_Core_Model_Abstract
 		Mage_Sales_Model_Quote_Address $address,
 		array &$outData
 	) {
-		$this->_appliedRuleIds[$item->getId()] = $item->getAppliedRuledIds();
+		$this->_appliedDiscountIds[$address->getId() . '_' . $item->getSku()] = $item->getAppliedRuledIds();
 		$discountCode = $this->_getDiscountCode($address);
 		$isDutyCalcNeeded = $this->_isDutyCalcNeeded($item, $address);
 		if ($item->getDiscountAmount()) {

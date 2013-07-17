@@ -378,7 +378,7 @@ class TrueAction_Eb2c_Tax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_C
 		$node = $doc->documentElement->firstChild;
 		$a = array(
 			'node'           => $node,
-			'rate_key'       => 'PENNSYLVANIA-Sales and Use Tax',
+			'code'           => 'PENNSYLVANIA-Sales and Use Tax',
 			'situs'          => 'DESTINATION',
 			'effective_rate' => 0.06,
 			'taxable_amount' => 2.00,

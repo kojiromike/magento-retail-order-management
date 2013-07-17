@@ -175,11 +175,11 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 				$baseDiscountAmount       = $item->getBaseDiscountAmount();
 
 				$rowTax                   = $this->_calculator->getTax($itemSelector);
-				$rowTaxDiscount           = 0//$this->_calculator->getTaxDiscount($itemSelector);
+				$rowTaxDiscount           = 0;//$this->_calculator->getTaxDiscount($itemSelector);
 				$rowTaxBeforeDiscount     = $rowTax + $rowTaxDiscount;
 
 				$baseRowTax               = $this->_calculator->getTaxForItem($baseSubtotal, $itemSelector->getItem(), $itemSelector->getAddress());
-				$baseRowTaxDiscount       = 0//$this->_calculator->getTaxDiscountAmount($baseDiscountAmount, $itemSelector->getItem(), $itemSelector->getAddress());
+				$baseRowTaxDiscount       = 0;//$this->_calculator->getTaxDiscountAmount($baseDiscountAmount, $itemSelector->getItem(), $itemSelector->getAddress());
 				$baseRowTaxBeforeDiscount = $baseRowTax + $baseRowTaxDiscount;
 
 				$rowTax = $this->_calculator->round($rowTax);

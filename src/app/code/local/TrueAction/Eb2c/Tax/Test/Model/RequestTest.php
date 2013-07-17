@@ -402,9 +402,9 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 			'merchandise_discount_code'      => 'somediscount',
 			'merchandise_discount_calc_duty' => 0,
 			'merchandise_discount_amount'    => 10.0,
-			'shipping_discount_code'      => 'somediscount2',
-			'shipping_discount_calc_duty' => 1,
-			'shipping_discount_amount'    => 5.0,
+			'shipping_discount_code'         => 'somediscount2',
+			'shipping_discount_calc_duty'    => 1,
+			'shipping_discount_amount'       => 5.0,
 		);
 		$fn->invoke($request, $node, $discount);
 		$this->assertSame('somediscount', $xpath->evaluate('string(./a:Discount/@id)', $node));

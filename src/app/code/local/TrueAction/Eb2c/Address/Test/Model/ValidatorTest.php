@@ -10,6 +10,7 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 		$this->_mockCoreHelper();
 		$this->_mockApiModel();
 		$this->_mockCustomerSession();
+		$this->_mockCheckoutSession();
 	}
 
 	/**
@@ -70,6 +71,20 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 			->setMethods(null) // Enables original methods usage, because by default it overrides all methods
 			->getMock();
 		$this->replaceByMock('singleton', 'customer/session', $sessionMock);
+		return $sessionMock;
+	}
+
+	/**
+	 * Replace the customer session object with a mock.
+	 * @return PHPUnit_Framework_MockObject_MockObject - the mock session model
+	 */
+	protected function _mockCheckoutSession()
+	{
+		$sessionMock = $this->getModelMockBuilder('checkout/session')
+			->disableOriginalConstructor() // This one removes session_start and other methods usage
+			->setMethods(null) // Enables original methods usage, because by default it overrides all methods
+			->getMock();
+		$this->replaceByMock('singleton', 'checkout/session', $sessionMock);
 		return $sessionMock;
 	}
 
@@ -383,41 +398,67 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 
 	/**
 	 * Test the session interactions of the validation.
+	 * Test for when - address does not need to be validated/has already been validated
+	 * and is a billing/use for shipping address.
+	 * @dataProvider dataProvider
 	 * @test
 	 */
-	public function testSessionInteractions()
+	public function testSessionInteractionsNoValidationNecessary($useForShipping)
 	{
-		/* Simulated response message
-		 * Result Code - C
-		 * Request Address:
-		 * -  Line1 - 1671 Clark Street Rd
-		 * -  City - Auburn
-		 * -  MainDivision - NY
-		 * -  CountryCode - US
-		 * -  PostalCode - 13025
-		 *
-		 * 2 Suggested Addresses
-		 * First Suggestion
-		 * -  Line1 - Suggestion 1 Line 1
-		 * -  City - Suggestion 1 City
-		 * -  MainDivision - NY
-		 * -  CountryCode - US
-		 * -  PostalCode - 13021-9876
-		 * Second Suggestion
-		 * -  Line1 - 1671 W Clark Street Rd
-		 * -  City - Auburn
-		 * -  MainDivision - NY
-		 * -  CountryCode - US
-		 * -  PostalCode - 13021-1234
-		 */
+		$address = $this->_createAddress(array(
+			'street' => '123 Main St',
+			'city' => 'Foo',
+			'region_id' => 51,
+			'country_id' => 'US',
+			'postcode' => '12345',
+			'address_type' => 'billing',
+			'has_been_validated' => true
+		));
 
+		$_POST['billing'] = array('use_for_shipping' => $useForShipping);
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$validator->validateAddress($address);
+
+		// inspect session to make sure everything that needed to get set was
+		// properly set
+		$session = $this->_getSession();
+		$group = $session->getData(TrueAction_Eb2c_Address_Model_Validator::SESSION_KEY);
+
+		$this->assertNotNull($group);
+
+		// as the address was not validated/already valid, there shouldn't be
+		// any address data on the group object
+		// make retrieving address/suggestions don't change the has_fresh_suggestions flag
+		$this->assertNull($group->getOriginalAddress(true));
+		$this->assertNull($group->getSuggestedAddresses(true));
+		$this->assertNull($group->getResponseMessage());
+		$this->assertFalse($group->getHasFreshSuggestions());
+
+		$this->assertInstanceOf('Mage_Customer_Model_Address_Abstract', $group->getValidatedAddress('billing'));
+		if ($useForShipping) {
+			$this->assertInstanceOf('Mage_Customer_Model_Address_Abstract', $group->getValidatedAddress('shipping'));
+		}
+
+	}
+
+	/**
+	 * Test session interaction.
+	 * Test for when - address is invalid
+	 * @test
+	 */
+	public function testSessionInteractionsInvalidAddress()
+	{
 		// address to feed to validator
 		$address = $this->_createAddress(array(
+			'firstname' => 'Foo',
+			'lastname' => 'Bar',
 			'street' => '1671 Clark Street Rd',
 			'city' => 'Auburn',
 			'region_code' => 'NY',
 			'country_id' => 'US',
 			'postcode' => '13025',
+			'address_type' => 'shipping'
 		));
 		// original address from response model
 		$origAddress = $this->_createAddress(array(
@@ -447,40 +488,45 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 				'has_been_validated' => true,
 			)),
 		);
-		$mockResponse = $this->_mockValidationResponse(false, true, $origAddress, null, $suggestions);
+
+		// invalid response, with suggestions, original address, no valid address and suggestions
+		$mockResponse = $this->_mockValidationResponse(
+			false, true, $origAddress, null, $suggestions
+		);
 
 		$validator = Mage::getModel('eb2caddress/validator');
 		$validator->validateAddress($address);
 
-		$mockSession = $this->_getSession();
-		$this->assertTrue($mockSession->hasData('address_validation_addresses'), 'Customer session should have "magic" address_validation_addresses data.');
-		$this->assertSame(
-			$mockSession->getData('address_validation_addresses'),
-			$validator->getAddressCollection(),
-			'Ensure session data looks the way we expect it to.'
-		);
+		$session = $this->_getSession();
+		$group = $session->getData(TrueAction_Eb2c_Address_Model_Validator::SESSION_KEY);
 
-		$this->assertTrue($validator->getAddressCollection()->hasData('original_address'), 'Address collection TrueAction_Eb2c_Address_Model_Suggestion_Group should have "original_address" data.');
-		$this->assertTrue($validator->getAddressCollection()->hasData('suggested_addresses'), 'Address collection TrueAction_Eb2c_Address_Model_Suggestion_Group should have "suggested_addresses" data.');
-		$this->assertSame(
-			count($validator->getAddressCollection()->getSuggestedAddresses()),
-			2,
-			'Ensure both suggested addresses are added to the address collection\'s suggested addresses.'
-		);
-		$this->assertSame(
-			$validator->getAddressCollection()->getOriginalAddress()->getStashKey(),
-			'original_address',
-			'Ensure the a "stash_key" has been added to the original address.'
-		);
-		$validatorSuggested = $validator->getAddressCollection()->getSuggestedAddresses();
-		$this->assertSame(
-			$validatorSuggested[0]->getStashKey(),
-			'suggested_addresses/0',
-			'Ensure a "stash_key" was added to the suggested addresses.');
-		$this->assertSame(
-			$validatorSuggested[1]->getStashKey(),
-			'suggested_addresses/1',
-			'Ensure a "stash_key" was added to the suggested addresses.');
+		$this->assertTrue($group->getHasFreshSuggestions());
+
+		$originalAddress = $group->getOriginalAddress(true);
+		$this->assertInstanceOf('Mage_Customer_Model_Address_Abstract', $originalAddress);
+		// ensure the stash key was added to the session object
+		$this->assertSame('original_address', $originalAddress->getStashKey());
+		// ensure name data was copied over to the address from the response
+		$this->assertSame($address->getName(), $originalAddress->getName());
+
+		$suggestions = $group->getSuggestedAddresses(true);
+		// should have 2 suggestions from the response
+		$this->assertEquals(2, count($suggestions));
+		// make sure stash keys were added
+		$this->assertSame('suggested_addresses/0', $suggestions[0]->getStashKey());
+		$this->assertSame('suggested_addresses/1', $suggestions[1]->getStashKey());
+		// make sure name data was all copied over
+		$this->assertSame($address->getName(), $suggestions[0]->getName());
+		$this->assertSame($address->getName(), $suggestions[1]->getName());
+
+		// the response message should have been added to the session in case it needs to
+		// be queried for address data again later
+		$this->assertSame($mockResponse, $group->getResponseMessage());
+
+		// make sure the validated address data was added to the session
+		// should have a shipping address but no billing address
+		$this->assertInstanceOf('Mage_Customer_Model_Address_Abstract', $group->getValidatedAddress('shipping'));
+		$this->assertNull($group->getValidatedAddress('billing'));
 	}
 
 	/**
@@ -816,13 +862,430 @@ class TrueAction_Eb2c_Address_Test_Model_ValidatorTest
 
 	/**
 	 * Test checking for fresh suggestions.
-	 * Really just a pass through to another object.
+	 * Really just a pass through to another object which is responsible for managing the flag.
 	 * @test
 	 */
 	public function testCheckSessionFreshness()
 	{
 		$this->_setupSessionWithSuggestions(null, null, false);
 		$this->assertFalse(Mage::getModel('eb2caddress/validator')->hasFreshSuggestions());
+	}
+
+	/**
+	 * Test the test for there to be suggestions.
+	 * @dataProvider dataProvider
+	 * @test
+	 */
+	public function testHasSuggestions($shouldHaveSuggestions)
+	{
+		// something to populate the Suggestion_Group suggestions with,
+		// anything not empty will produce a true result for hasSuggestions
+		$suggestions = ($shouldHaveSuggestions)
+			? array(Mage::getModel('customer/address'), Mage::getModel('customer/address'))
+			: array();
+		$group = $this->getModelMock('eb2caddress/suggestion_group',
+			array('getSuggestedAddresses'));
+		$group->expects($this->once())
+			->method('getSuggestedAddresses')
+			->with($this->equalTo(true))
+			->will($this->returnValue($suggestions));
+		$this->replaceByMock('model', 'eb2caddress/suggestion_group', $group);
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$this->assertEquals($shouldHaveSuggestions, $validator->hasSuggestions());
+	}
+
+	/**
+	 * Test the should validate method for addresses that have already been validated,
+	 * in particular, addresses that have had a 'has_been_validated' flag set,
+	 * e.g. addresses that have been extracted from the EB2C response message.
+	 * @test
+	 */
+	public function testShouldValidateFlaggedAsValidated()
+	{
+		$address = $this->getModelMock('customer/address', array('getHasBeenValidated'));
+		$address->expects($this->once())
+			->method('getHasBeenValidated')
+			->will($this->returnValue(true));
+		$validator = Mage::getModel('eb2caddress/validator');
+		$this->assertFalse($validator->shouldValidateAddress($address));
+	}
+
+	/**
+	 * Test the should validate method for addresses that have already been validated,
+	 * in particular addresses that match an address of the same type that has already
+	 * been validated. This check is primarilly used for detecting superflous calls
+	 * to the validateAddress method. Tests any scenarios that will result in a false response
+	 * indicating the address has already been validated and should not be validated.
+	 *
+	 * @dataProvider dataProvider
+	 * @test
+	 */
+	public function testShouldValidatedAlreadyValidatedAddress($addressType, $postBillingUseForShipping, $validatedType)
+	{
+		$address = $this->getModelMock('customer/address', array('getHasBeenValidated', 'getAddressType', 'getData'));
+		$address->expects($this->any())
+			->method('getHasBeenValidated')
+			->will($this->returnValue(false));
+		$address->expects($this->any())
+			->method('getAddressType')
+			->will($this->returnValue($addressType));
+		$addressData = array(
+			array('street',    null, '123 Main St'),
+			array('city',      null, 'Fooville'),
+			array('region_id', null, 51),
+		);
+		$address->expects($this->any())
+			->method('getData')
+			->will($this->returnValueMap($addressData));
+
+		// setup the POST data accordingly
+		if ($postBillingUseForShipping !== null) {
+			$_POST['billing'] = array('use_for_shipping' => $postBillingUseForShipping);
+		}
+
+		$group = $this->getModelMock('eb2caddress/suggestion_group', array('getValidatedAddress'));
+		$validatedAddress = $this->getModelMock('customer/address', array('getData'));
+		$validatedAddressData = array(
+			'street' => '123 Main St',
+			'city' => 'Fooville',
+			'region_id' => '51',
+			'address_type' => 'shipping',
+		);
+		$validatedAddress->expects($this->any())
+			->method('getData')
+			->will($this->returnValue($validatedAddressData));
+		$group->expects($this->any())
+			->method('getValidatedAddress')
+			->with($this->equalTo($validatedType))
+			->will($this->returnValue($validatedAddress));
+		$this->replaceByMock('model', 'eb2caddress/suggestion_group', $group);
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$this->assertFalse($validator->shouldValidateAddress($address));
+	}
+
+	/**
+	 * Test that an address should be validated when:
+	 * - not a checkout address
+	 * - and has not yet been validated.
+	 * @test
+	 */
+	public function testShouldValidateNonCheckouNotValidated()
+	{
+		$address = $this->getModelMock('customer/address', array('getHasBeenValidated', 'getAddressType', 'getData'));
+		$address->expects($this->any())
+			->method('getHasBeenValidated')
+			->will($this->returnValue(false));
+		$address->expects($this->any())
+			->method('getAddressType')
+			->will($this->returnValue('shipping'));
+		// any one of these being different from the validatedAddressData below
+		// will cause the comparison check fail
+		$addressData = array(
+			array('street',    null, 'Borg'),
+			array('city',      null, 'Barton'),
+			array('region_id', null, 41),
+		);
+		$address->expects($this->any())
+			->method('getData')
+			->will($this->returnValueMap($addressData));
+
+		$group = $this->getModelMock('eb2caddress/suggestion_group', array('getValidatedAddress'));
+		$validatedAddress = $this->getModelMock('customer/address', array('getData'));
+		$validatedAddressData = array(
+			'street' => '123 Main St',
+			'city' => 'Fooville',
+			'region_id' => '51',
+			'address_type' => 'shipping',
+		);
+		$validatedAddress->expects($this->any())
+			->method('getData')
+			->will($this->returnValue($validatedAddressData));
+		$group->expects($this->any())
+			->method('getValidatedAddress')
+			->will($this->returnValue($validatedAddress));
+		$this->replaceByMock('model', 'eb2caddress/suggestion_group', $group);
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$this->assertTrue($validator->shouldValidateAddress($address));
+	}
+
+	/**
+	 * Test detecting that an address is being used in checkout.
+	 * @test
+	 */
+	public function testDetectingACheckoutAddress()
+	{
+		$address = Mage::getModel('customer/address');
+		$address->addData(array(
+			'street' => '123 Main St',
+			'city' => 'Foo',
+			'region_id' => 41,
+			'country_id' => 'US',
+		));
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$reflection = new ReflectionClass('TrueAction_Eb2c_Address_Model_Validator');
+		$method = $reflection->getMethod('_isCheckoutAddress');
+		$method->setAccessible(true);
+
+		// checkout address will have a quote_id
+		$address->setData('quote_id', 12);
+		$this->assertTrue($method->invoke($validator, $address));
+
+		// non-checkout address will not
+		$address->unsetData('quote_id');
+		$this->assertFalse($method->invoke($validator, $address));
+	}
+
+	/**
+	 * Test that address being loaded from the address book are not validated when
+	 * used in checkout.
+	 * @dataProvider dataProvider
+	 * @test
+	 */
+	public function testAddressBookAddressShouldNotBeValidated($id, $customerId, $customerAddressId)
+	{
+		$address = $this->getModelMock('customer/address', array('hasData', 'getId', 'getCustomerId', 'getCustomerAddressId'));
+		// make sure this is a checkout address
+		$address->expects($this->any())
+			->method('hasData')
+			->with($this->matches('quote_id'))
+			->will($this->returnValue(1));
+		$address->expects($this->any())
+			->method('getId')
+			->will($this->returnValue($id));
+		$address->expects($this->any())
+			->method('getCustomerId')
+			->will($this->returnValue($customerId));
+		$address->expects($this->any())
+			->method('getCustomerAddressId')
+			->will($this->returnValue($customerAddressId));
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$this->assertEquals(
+			!($id && $customerId && $customerAddressId),
+			$validator->shouldValidateAddress($address)
+		);
+	}
+
+	/**
+	 * Check for an address that is marked to be saved in the users address book.
+	 * As address that are saved get validated, which is the normal case,
+	 * in order to ensure unique results for addresses being saved, we need to force
+	 * one other the other, non-validation triggers to catch. Most direct way is likely by
+	 * marking the order as a virtual order. As a result,
+	 * this also tests should validate for virtual orders.
+	 * @dataProvider dataProvider
+	 * @test
+	 */
+	public function testAddressBeingSavedInAddressBookAndIsVirtual($postType, $postFlag, $checkoutMethod)
+	{
+		$address = Mage::getModel('customer/address');
+		// address must be checkout address - have a quote_id,
+		// and not be from the address book - no id, customer_id or customer_address_id
+		$address->addData(array(
+			'quote_id' => 12,
+			'address_type' => 'shipping',
+		));
+
+		// set up the checkout session with a quote mock which will report
+		// it as being a virtual order
+		$quote = $this->getModelMock('sales/quote', array('isVirtual'));
+		$quote->expects($this->any())
+			->method('isVirtual')
+			->will($this->returnValue(true));
+
+		$checkout = $this->getModelMockBuilder('checkout/session')
+			->disableOriginalConstructor() // This one removes session_start and other methods usage
+			->setMethods(array('getQuote')) // Enables original methods usage, because by default it overrides all methods
+			->getMock();
+		$checkout->expects($this->any())
+			->method('getQuote')
+			->will($this->returnValue($quote));
+		$this->replaceByMock('singleton', 'checkout/session', $checkout);
+
+		// set up the post data necessary, there needs to be either a
+		// shipping[save_in_address_book] or billing[save_in_address_book] submitted
+		if ($postType === 'billing' || $postType === 'shipping') {
+			$_POST[$postType] = array('save_in_address_book' => $postFlag);
+		}
+
+		// set up the checkout type
+		$onepage = $this->getModelMock('checkout/type_onepage', array('getCheckoutMethod'));
+		$onepage->expects($this->once())
+			->method('getCheckoutMethod')
+			->will($this->returnValue($checkoutMethod));
+		$this->replaceByMock('singleton', 'checkout/type_onepage', $onepage);
+
+		$expectation = $this->expected('%s-%s-%s', $postType, $postFlag, $checkoutMethod);
+		$validator = Mage::getModel('eb2caddress/validator');
+		$this->assertSame(
+			$expectation->getShouldValidateAddress(),
+			$validator->shouldValidateAddress($address)
+		);
+	}
+
+	/**
+	 * When there is an order present, method should get the isVirtual result
+	 * from it, otherwise should return false.
+	 * @dataProvider dataProvider
+	 * @test
+	 */
+	public function testVirtualQuoteAddress($hasQuote, $isVirtual)
+	{
+		$quote = null;
+		if ($hasQuote) {
+			$quote = $this->getModelMock('sales/quote', array('isVirtual'));
+			$quote->expects($this->once())
+				->method('isVirtual')
+				->will($this->returnValue($isVirtual));
+		}
+		$sessionMock = $this->getModelMockBuilder('checkout/session')
+			->disableOriginalConstructor()
+			->setMethods(array('getQuote'))
+			->getMock();
+		$sessionMock->expects($this->once())
+			->method('getQuote')
+			->will($this->returnValue($quote));
+		$this->replaceByMock('singleton', 'checkout/session', $sessionMock);
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$reflection = new ReflectionClass('TrueAction_Eb2c_Address_Model_Validator');
+		$method = $reflection->getMethod('_isVirtualOrder');
+		$method->setAccessible(true);
+
+		$this->assertSame($isVirtual, $method->invoke($validator));
+	}
+
+	/**
+	 * Detect that an address is only used for billing and does not
+	 * need to be validated.
+	 * @dataProvider dataProvider
+	 * @test
+	 */
+	public function testShouldValidateBillingOnlyAddress($addressType, $hasBillingPost, $useForShipping)
+	{
+		$address = Mage::getModel('customer/address');
+		// must be checkout address - have quote_id
+		$address->addData(array(
+			'quote_id' => 1,
+			'address_type' => $addressType
+		));
+		if ($hasBillingPost) {
+			$_POST['billing'] = array('use_for_shipping' => $useForShipping);
+		}
+
+		$expectations = $this->expected('%s-%s-%s', $addressType, $hasBillingPost, $useForShipping);
+		$validator = Mage::getModel('eb2caddress/validator');
+		$this->assertSame(
+			$expectations->getShouldValidate(),
+			$validator->shouldValidateAddress($address)
+		);
+	}
+
+	/**
+	 * @todo - needs tests for:
+	 * - shipping address marked same as billing that is invalid, should no longer be same as billing
+	 * - making updates to the session after validation
+	 */
+
+	/**
+	 * When a shipping address is marked same_as_billing but is not valid, the
+	 * address should no longer be marked same_as_billing. This is part of the
+	 * means of preventing a non-validated billing only address from
+	 * being used as a shipping address and bypassing validation.
+	 *
+	 * @dataProvider dataProvider
+	 * @test
+	 */
+	public function testSetSameAsBillingFlagWhenAddressIsInvalid($isValid, $sameAsBilling)
+	{
+		// mock out necessary parts of the system
+		$api = $this->getModelMock('eb2ccore/api', array('setUri', 'request'));
+		$api->expects($this->any())
+			->method('setUri')
+			->will($this->returnSelf());
+		$api->expects($this->any())
+			->method('request')
+			->will($this->returnValue('<AddressValidationResponse></AddressValidationResponse>'));
+		$this->replaceByMock('model', 'eb2ccore/api', $api);
+
+		$response = $this->getModelMock(
+			'eb2caddress/validation_response',
+			array('setMessage', 'isAddressValid', 'getOriginalAddress', 'getAddressSuggestions')
+		);
+		$response->expects($this->any())
+			->method('setMessage')
+			->will($this->returnSelf());
+		$response->expects($this->any())
+			->method('getOriginalAddress')
+			->will($this->returnValue(Mage::getModel('customer/address')));
+		$response->expects($this->any())
+			->method('getAddressSuggestions')
+			->will($this->returnValue(array(Mage::getModel('customer/address'), Mage::getModel('customer/address'))));
+		$response->expects($this->any())
+			->method('isAddressValid')
+			->will($this->returnValue($isValid));
+		$this->replaceByMock('model', 'eb2caddress/validation_response', $response);
+
+		$address = $this->getModelMock('customer/address', array('getSameAsBilling', 'setSameAsBilling'));
+		// when valid, don't care about the same_as_billing flag so neither should be called
+		if ($isValid) {
+			$address->expects($this->never())
+				->method('getSameAsBilling');
+			$address->expects($this->never())
+				->method('setSameAsBilling');
+		} else {
+			// when invalid address, need to check if the address is marked same as billing
+			$address->expects($this->once())
+				->method('getSameAsBilling')
+				->will($this->returnValue($sameAsBilling));
+			// when same_as_billing is true, flag should be set to false
+			if ($sameAsBilling) {
+				$address->expects($this->once())
+					->method('setSameAsBilling')
+					->with($this->matches(false));
+			} else {
+				// when not the same, no attempt to change it should be made
+				$address->expects($this->never())
+					->method('setSameAsBilling');
+			}
+		}
+
+		$validator = Mage::getModel('eb2caddress/validator');
+		$validator->validateAddress($address);
+	}
+
+	/**
+	 * Test for the last response from EB2C address validation to have
+	 * contained a valid address.
+	 * @dataProvider dataProvider
+	 * @test
+	 */
+	public function testIsValid($hasResponse, $isValid)
+	{
+		$validator = Mage::getModel('eb2caddress/validator');
+		$group = $this->getModelMock('eb2caddress/suggestion_group', array('getResponseMessage'));
+		if ($hasResponse) {
+			$response = $this->getModelMock('eb2caddress/validation_response', array('isAddressValid'));
+			$response->expects($this->any())
+				->method('isAddressValid')
+				->will($this->returnValue($isValid));
+			$group->expects($this->any())
+				->method('getResponseMessage')
+				->will($this->returnValue($response));
+		} else {
+			$group->expects($this->any())
+				->method('getResponseMessage')
+				->will($this->returnValue(null));
+		}
+		$this->replaceByMock('model', 'eb2caddress/suggestion_group', $group);
+		$this->assertSame(
+			$this->expected('%s-%s', $hasResponse, $isValid)->getIsValid(),
+			$validator->isValid()
+		);
 	}
 
 }

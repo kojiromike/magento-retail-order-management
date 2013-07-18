@@ -78,10 +78,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 	 */
 	protected function _getCheckoutMethod()
 	{
-		if ($checkout = Mage::getSingleton('checkout/type_onepage')) {
-			return $checkout->getCheckoutMethod();
-		}
-		return null;
+		return Mage::getSingleton('checkout/type_onepage')->getCheckoutMethod();
 	}
 
 	/**
@@ -106,7 +103,6 @@ class TrueAction_Eb2c_Address_Model_Validator
 		}
 		return false;
 	}
-
 
 	/**
 	 * Is the address a billing address.
@@ -318,7 +314,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 		$validatedData = $validatedAddress->getData();
 		foreach ($validatedData as $key => $value) {
 			// skip a few keys we don't care about when comparing the addresses
-			if ($key === 'address_type' || $key === 'validation_skipped') {
+			if ($key === 'address_type') {
 				continue;
 			}
 			if ((string) $address->getData($key) !== (string) $value) {
@@ -344,7 +340,6 @@ class TrueAction_Eb2c_Address_Model_Validator
 			'country_id' => $address->getCountryId(),
 			'postcode'  => $address->getPostcode(),
 			'address_type' => $address->getAddressType(),
-			'validation_skipped' => $address->getValidationSkipped(),
 		));
 		return $validatedAddress;
 	}
@@ -400,6 +395,7 @@ class TrueAction_Eb2c_Address_Model_Validator
 			$addressCollection->setResponseMessage($response);
 			$addressCollection->setHasFreshSuggestions(true);
 		} else {
+			$addressCollection->setOriginalAddress(null);
 			$addressCollection->setSuggestedAddresses(null);
 			$addressCollection->setResponseMessage(null);
 			$addressCollection->setHasFreshSuggestions(false);
@@ -487,6 +483,19 @@ class TrueAction_Eb2c_Address_Model_Validator
 		// addresses has having been used
 		$suggestions = $this->getSuggestedAddresses(true);
 		return !empty($suggestions);
+	}
+
+	/**
+	 * Returns the result of validation from the response message.
+	 * When there is no response message in the session, consider the address valid.
+	 * When there is a response message in the session, it should accurately indicate
+	 * if the address being validated by the request is valid.
+	 * @return boolean
+	 */
+	public function isValid()
+	{
+		$response = $this->getAddressCollection()->getResponseMessage();
+		return !$response || $response->isAddressValid();
 	}
 
 	/**

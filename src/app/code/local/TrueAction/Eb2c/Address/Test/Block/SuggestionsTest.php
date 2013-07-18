@@ -40,34 +40,53 @@ class TrueAction_Eb2c_Address_Test_Block_SuggestionsTest
 	 * @dataProvider dataProvider
 	 * @test
 	 */
-	public function testShouldShowSuggestions($hasSuggestions, $hasFreshSuggestions)
+	public function testShouldShowSuggestions($hasFreshSuggestions, $hasSuggestions, $isValid)
 	{
-		$validator = $this->getModelMock('eb2caddress/validator', array('hasSuggestions', 'hasFreshSuggestions'));
+		$validator = $this->getModelMock('eb2caddress/validator', array('hasFreshSuggestions', 'hasSuggestions', 'isValid'));
 		$validator->expects($this->once())
-			->method('hasSuggestions')
-			->will($this->returnValue($hasSuggestions));
-		// when there are suggestions, the block should also ensure they are "fresh"
-		if ($hasSuggestions) {
+			->method('hasFreshSuggestions')
+			->will($this->returnValue($hasFreshSuggestions));
+
+		// when there are fresh suggestions, check further for there to be suggestions
+		// or validation errors
+		if ($hasFreshSuggestions) {
 			$validator->expects($this->once())
-				->method('hasFreshSuggestions')
-				->will($this->returnValue($hasFreshSuggestions));
+				->method('hasSuggestions')
+				->will($this->returnValue($hasSuggestions));
+
+			// if there aren't any suggestions, last step would be to check if the
+			// last recorded message was valid
+			if (!$hasSuggestions) {
+				$validator->expects($this->once())
+					->method('isValid')
+					->will($this->returnValue($isValid));
+			} else {
+				$validator->expects($this->never())
+					->method('isValid');
+			}
+
 		} else {
+			// if the suggestions/validation isn't fresh, it doesn't matter
+			// if there are suggestions or errors
 			$validator->expects($this->never())
-				->method('hasFreshSuggestions');
+				->method('hasSuggestions');
+			$validator->expects($this->never())
+				->method('isValid');
 		}
+
 		$this->replaceByMock('model', 'eb2caddress/validator', $validator);
 
 		$block = $this->_createSuggestionsBlock();
 
 		$this->assertEquals(
-			($hasSuggestions && $hasFreshSuggestions),
+			$this->expected('%s-%s-%s', $hasFreshSuggestions, $hasSuggestions, $isValid)->getShowSuggestions(),
 			$block->shouldShowSuggestions(),
 			'Suggestions should only be shown when there are suggestions and the suggestions are "fresh"'
 		);
 		$this->assertEquals(
-			($hasSuggestions && $hasFreshSuggestions),
+			$this->expected('%s-%s-%s', $hasFreshSuggestions, $hasSuggestions, $isValid)->getShowSuggestions(),
 			$block->shouldShowSuggestions(),
-			'Calling shouldShowSuggestions multiple times should not re-call the validator methods'
+			'Calling shouldShowSuggestions multiple times should not re-call the validator methods, hence everything still only called once.'
 		);
 	}
 
@@ -109,6 +128,44 @@ class TrueAction_Eb2c_Address_Test_Block_SuggestionsTest
 		$this->assertSame(
 			$address,
 			$this->_createSuggestionsBlock()->getOriginalAddress()
+		);
+	}
+
+	/**
+	 * Test getting JSON representation of an address object.
+	 * @test
+	 */
+	public function testAddressJson()
+	{
+		$address = Mage::getModel('customer/address');
+		$addressData = array(
+			'firstname' => 'Foo',
+			'lastname' => 'Bar',
+			'street' => "123 Main St\nSTE 6\nLine 3\nLine 4",
+			'city' => 'Fooville',
+			'region_id' => 51,
+			'region_code' => 'PA',
+			'country_id' => 'US',
+			'postcode' => '99999',
+		);
+		$address->addData($addressData);
+		$block = $this->_createSuggestionsBlock();
+		$jsonString = $block->getAddressJSONData($address);
+		$this->assertNotNull($jsonString);
+		$jsonData = Mage::helper('core')->jsonDecode($jsonString);
+		$this->assertEquals(
+			array(
+				'street1' => '123 Main St',
+				'street2' => 'STE 6',
+				'street3' => 'Line 3',
+				'street4' => 'Line 4',
+				'city' => 'Fooville',
+				'region_id' => 51,
+				'country_id' => 'US',
+				'postcode' => '99999'
+			),
+			$jsonData,
+			'JSON Data contains correct data for address.'
 		);
 	}
 

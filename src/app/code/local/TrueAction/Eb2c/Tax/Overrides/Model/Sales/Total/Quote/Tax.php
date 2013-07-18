@@ -89,7 +89,6 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 					$this->_addAmount($child->getTaxAmount());
 					$this->_addBaseAmount($child->getBaseTaxAmount());
 					$applied = $this->_calculator->getAppliedRates($itemSelector);
-
 					// need to come up with a similar concept (ie hasTaxes or some such)
 					if (!empty($applied)) {
 						$itemTaxGroups[$child->getId()] = $applied;
@@ -202,6 +201,17 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 		}
 
 		return $this;
+	}
+
+	/**
+	 * return true if using flat rate shipping to send items to $address; false otherwise.
+	 * @param  Mage_Sales_Model_Quote_Address $address
+	 * @return boolean
+	 */
+	protected function _isFlatShipping(Mage_Sales_Model_Quote_Address $address)
+	{
+		$flatrate = 'flatrate_flatrate';
+		return $address->getShippingMethod() === $flatrate;
 	}
 
 	/// most of this function can be merged up into the collect function

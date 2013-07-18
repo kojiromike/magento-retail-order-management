@@ -30,17 +30,6 @@
 class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_Model_Sales_Total_Quote_Tax
 {
 	/**
-	 * Class constructor
-	 */
-	public function __construct()
-	{
-		$this->setCode('tax');
-		$this->_helper      = Mage::helper('tax');
-		$this->_calculator  = Mage::getSingleton('tax/calculation');
-		$this->_config      = Mage::getSingleton('tax/config');
-	}
-
-	/**
 	 * Collect tax totals for quote address
 	 *
 	 * @param   Mage_Sales_Model_Quote_Address $address

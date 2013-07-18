@@ -66,7 +66,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 	 */
 	public function quoteCollectTotalsBefore(Varien_Event_Observer $observer)
 	{
-		Mage::log('quoteCollectTotalsBefore');
+		Mage::log('send tax request event');
 		/* @var $quote Mage_Sales_Model_Quote */
 		$quote = $observer->getEvent()->getQuote();
 		foreach ($quote->getAllAddresses() as $address) {

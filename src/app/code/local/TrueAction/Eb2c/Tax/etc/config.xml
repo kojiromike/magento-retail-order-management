@@ -33,6 +33,14 @@
 			</tax>
 		</helpers>
 		<events>
+            <eb2ctax_subtotal_collect_before>
+                <observers>
+                    <tax>
+                        <class>tax/observer</class>
+                        <method>quoteCollectTotalsBefore</method>
+                    </tax>
+                </observers>
+            </eb2ctax_subtotal_collect_before>
             <sales_quote_add_item>
                 <observers>
                     <tax>

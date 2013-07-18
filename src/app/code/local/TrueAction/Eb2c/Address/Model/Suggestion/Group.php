@@ -15,8 +15,18 @@ class TrueAction_Eb2c_Address_Model_Suggestion_Group
 	extends Varien_Object
 {
 
+	/**
+	 * Container for validated addresses. Addresses are stored by type.
+	 * Varien_Object instead of simple array for easier access.
+	 * @var Varien_Object
+	 */
 	protected $_validatedAddresses;
 
+	/**
+	 * Get the collection of validated addresses (a Varien_Object) if one exists
+	 * or create a new one and return it.
+	 * @return Varien_Object
+	 */
 	protected function _getValidatedAddresses()
 	{
 		if (is_null($this->_validatedAddresses)) {

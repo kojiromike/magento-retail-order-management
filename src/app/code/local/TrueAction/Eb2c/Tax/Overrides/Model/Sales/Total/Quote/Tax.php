@@ -160,12 +160,14 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 		$hiddenTax      = null;
 		$baseHiddenTax  = null;
 
-		switch ($this->_helper->getCalculationSequence($this->_store)) {
+		$calcTaxBefore = Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_INCL;
+		switch ($calcTaxBefore/*$this->_helper->getCalculationSequence($this->_store)*/) {
 			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_EXCL:
 			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_INCL:
 				$rowTax     = $this->_calculator->getTax($itemSelector);
 				$baseRowTax = $this->_calculator->getTaxForAmount($baseSubtotal, $itemSelector);
 				break;
+			// @codeCoverageIgnoreStart
 			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_EXCL:
 			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_INCL:
 				// prices sent after adding discounts
@@ -197,6 +199,7 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
                     );
                 }
 				break;
+			// @codeCoverageIgnoreEnd
 		}
 
 		$item->setTaxAmount(max(0, $rowTax));

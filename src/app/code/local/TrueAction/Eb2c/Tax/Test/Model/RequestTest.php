@@ -467,6 +467,8 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$request = self::$cls->newInstance();
 		$fn = self::$cls->getMethod('_extractItemDiscountData');
 		$fn->setAccessible(true);
+		$mockQuote = $this->getModelMock('sales/quote', array('getAppliedRuleIds'));
+		$request->setQuote($mockQuote);
 		$mockQuoteAddress = $this->getModelMock('sales/quote_address', array('getShippingDiscountAmount', 'getCouponCode'));
 		$mockQuoteAddress->expects($this->any())
 			->method('getCouponCode')
@@ -478,6 +480,9 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 		$mockItem->expects($this->any())
 			->method('getDiscountAmount')
 			->will($this->returnValue(5));
+		$mockItem->expects($this->any())
+			->method('getAppliedRuleIds')
+			->will($this->returnValue(''));
 		$outData = array();
 		$fn->invoke($request, $mockItem, $mockQuoteAddress, &$outData);
 		$keys = array(

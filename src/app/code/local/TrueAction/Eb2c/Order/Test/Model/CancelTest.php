@@ -10,20 +10,57 @@ class TrueAction_Eb2c_Order_Test_Model_CancelTest extends EcomDev_PHPUnit_Test_C
 	 */
 	public function testCancel()
 	{
-		$cr = Mage::getModel('eb2corder/cancel');
+		$status = null;
+		// Test build and send
+        $cancelor = $this->getMock('TrueAction_Eb2c_Order_Model_Cancel', array('sendRequest'));
+        $cancelor->expects($this->any())
+             ->method('sendRequest')
+             ->will($this->returnValue(true));
+
 		try {
-			$status = $cr->cancel( array(
+			$cancelor->buildRequest( array(
 					'order_id'=>'12345',
 					'order_type'=>'RETURN',
 					'reason_code'=>'TestReasonCode',
 					'reason'=>'Testing out a longish reason text right here',
 				)
 			);
+			$status = $cancelor->sendRequest();
 		}
 		catch( Exception $e ) {
 			$status = false;
 		}
-		$this->assertSame(get_class($cr), 'TrueAction_Eb2c_Order_Model_Cancel');
-		$this->assertSame($status,false);
+		$this->assertSame($status,true);
+
+		// Test class factory:	
+		$testFactoryCreator = Mage::getModel('eb2corder/cancel');
+		$this->assertInstanceOf('TrueAction_Eb2c_Order_Model_Cancel', $testFactoryCreator );
+	}
+
+	/**
+	 * @test
+	 * @loadFixture
+	 * This fixture was setup to fail with a syntactically correct URL that couldn't really answer us in any sensible way.
+	 */
+	public function testWithEb2cPaymentsEnabled()
+	{
+		$status = null;
+
+		$cancelor = Mage::getModel('eb2corder/cancel');
+		$incrementId = '100000003';
+		try {
+			$cancelor->buildRequest( array(
+					'order_id'=>'12345',
+					'order_type'=>'RETURN',
+					'reason_code'=>'TestReasonCode',
+					'reason'=>'Testing out a longish reason text right here',
+				)
+			);
+			$status = $cancelor->sendRequest();
+		}
+		catch(Exception $e) {
+			$status = false;
+		}
+		$this->assertSame($status, false);
 	}
 }

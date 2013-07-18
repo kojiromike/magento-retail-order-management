@@ -12,25 +12,31 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 	{
 		$status = null;
 
+        $creator = $this->getMock('TrueAction_Eb2c_Order_Model_Create', array('sendRequest'));
+        $creator->expects($this->any())
+             ->method('sendRequest')
+             ->will($this->returnValue(true));
+
 		// Create proper class:
-		$creator = Mage::getModel('eb2corder/create');
-		$this->assertInstanceOf('TrueAction_Eb2c_Order_Model_Create', $creator );
+		$testFactoryCreator = Mage::getModel('eb2corder/create');
+		$this->assertInstanceOf('TrueAction_Eb2c_Order_Model_Create', $testFactoryCreator );
 
 		// Get a collection; try creating order for last one
-		$creator = Mage::getModel('eb2corder/create');
 		$testId = Mage::getModel('sales/order')->getCollection()->getLastItem()->getIncrementId();
 		try {
-			$status = $creator->create($testId);
+			$creator->buildRequest($testId);
+			$status = $creator->sendRequest();
 		} catch(Exception $e) {
 			echo $e->getMessage();
-			$status = false;
 		}
 		$this->assertSame($status, true);
 
-		// Got 1 known order, create it ...
-		$incrementId = '100000003';
+		// Got one known order, create it ...
+		$status = null;
+		$incrementId = '100000002';
 		try {
-			$status = $creator->create($incrementId);
+			$creator->buildRequest($incrementId);
+			$status = $creator->sendRequest();
 		} catch(Exception $e) {
 			echo $e->getMessage();
 			$status = false;
@@ -38,23 +44,16 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 		$this->assertSame($status, true);
 
 		// Don't want to find this, handle exception correctly.
+		$status = null;
 		$incrementId = 'NO_CHANCE';
 		try {
-			$status = $creator->create($incrementId);
+			$creator->buildRequest($incrementId);
+			$status = $creator->sendRequest();
 		} catch(Exception $e) {
 			$status = false;
 		}
 		$this->assertSame($status, false);
-
-		// Exercise Event Observer Version. 
-		$incrementId = '100000002';
-		try {
-			$status = $creator->observerCreate($incrementId);
-		} catch(Exception $e) {
-			$status = false;
-		}
-		$this->assertSame($status, true);
-	} 
+	}
 	/**
 	 * @test
 	 * @loadFixture
@@ -67,7 +66,8 @@ class TrueAction_Eb2c_Order_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_C
 		$creator = Mage::getModel('eb2corder/create');
 		$incrementId = '100000003';
 		try {
-			$status = $creator->create($incrementId);
+			$creator->buildRequest($incrementId);
+			$status = $creator->sendRequest();
 		}
 		catch(Exception $e) {
 			$status = false;

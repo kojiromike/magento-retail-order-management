@@ -28,7 +28,7 @@ class TrueAction_Eb2c_Order_Model_Cancel extends Mage_Core_Model_Abstract
 	 *
 	 * @param args array of arguments keyed as: 'order_type', 'order_id', 'reason_code', 'reason'
 	 */
-	public function cancel(array $args)
+	public function buildRequest(array $args)
 	{
 		$consts = $this->_helper->getConstHelper();
 		$this->_domRequest = $this->_helper->getDomDocument();
@@ -40,7 +40,7 @@ class TrueAction_Eb2c_Order_Model_Cancel extends Mage_Core_Model_Abstract
 		$cancelRequest->createChild('Reason', $args['reason']);;
 
 		$this->_domRequest->formatOutput = true;
-		return $this->_transmit();
+		return;
 	}
 
 
@@ -49,7 +49,7 @@ class TrueAction_Eb2c_Order_Model_Cancel extends Mage_Core_Model_Abstract
 	 *	response or throws an exception if we can't get a valid response.
 	 *
 	 */
-	private function _transmit()
+	public function sendRequest()
 	{
 		$consts = $this->_helper->getConstHelper();
 		$uri = $this->_helper->getOperationUri($consts::CANCEL_OPERATION);
@@ -67,10 +67,7 @@ class TrueAction_Eb2c_Order_Model_Cancel extends Mage_Core_Model_Abstract
 			$status='';
 			$this->_domResponse = $this->_helper->getDomDocument();
 			$this->_domResponse->loadXML($response);
-			$elementSet = $this->_domResponse->getElementsByTagName('ResponseStatus');
-			foreach( $elementSet as $element ) {
-				$status = $element->nodeValue;
-			}
+			$status = $this->_domResponse->getElementsByTagName('ResponseStatus')->item(0)->nodeValue;
 		}
 		catch(Exception $e) {
 			Mage::throwException('Cancel request failed: ' . $e->getMessage());

@@ -37,32 +37,10 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	}
 
 	/**
-	 * An observer to create an eb2c order.
-	 *
-	 * @param orderId
-	 */
-	public function observerCreate($orderId)
-	{
-		$this->_buildRequest($orderId);
-		return $this->_transmit();
-	}
-
-	/**
-	 * Function to create an eb2c order.
-	 *
-	 * @param orderId
-	 */
-	public function create($orderId)
-	{
-		$this->_buildRequest($orderId);
-		return $this->_transmit();
-	}
-
-	/**
 	 * Transmit Order
 	 *
 	 */
-	private function _transmit()
+	public function sendRequest()
 	{
 		$consts = $this->_helper->getConstHelper();
 		$uri = $this->_helper->getOperationUri($consts::CREATE_OPERATION);
@@ -76,16 +54,13 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 								->setUri($uri)
 								->setTimeout($this->_helper->getConfig()->serviceOrderTimeout)
 								->request($this->_domRequest);
-			$status='';
+			$status = null;
 			$this->_domResponse = $this->_helper->getDomDocument();
 			$this->_domResponse->loadXML($response);
-			$elementSet = $this->_domResponse->getElementsByTagName('ResponseStatus');
-			foreach( $elementSet as $element ) {
-				$status = $element->nodeValue;
-			}
+			$status = $this->_domResponse->getElementsByTagName('ResponseStatus')->item(0)->nodeValue;
 		}
 		catch(Exception $e) {
-			Mage::throwException('Create Request Failed: ' . $e->getMessage());
+			Mage::throwException('Send Web Service Request Failed: ' . $e->getMessage());
 		}
 		
 		return strcmp($status,'Success') ? false : true;
@@ -97,7 +72,7 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 	 *
 	 * @param $orderId sting increment_id for the order we're building
 	 */
-	private function _buildRequest($orderId)
+	public function buildRequest($orderId)
 	{
 		$this->_o = Mage::getModel('sales/order')->loadByIncrementId($orderId);
 		if( !$this->_o->getId() ) {
@@ -252,20 +227,13 @@ class TrueAction_Eb2c_Order_Model_Create extends Mage_Core_Model_Abstract
 		// Shipping on the orderItem:
 		$shipping = $orderItem->createChild('Shipping');
 		$shipping->createChild('Amount');
-		// Tax on Shipping:
+
+		// Tax on Shipping: TODO: More than 1 tax?
 		$taxData = $shipping->createChild('TaxData');
-		$taxData->createChild('TaxClass', '????');
 		$taxes = $taxData->createChild('Taxes');
-		// TODO: More than 1 tax?
 		$tax = $taxes->createChild('Tax');
-		$tax->setAttribute('taxType', 'SELLER_USE');	// TODO: Fix where this comes from.
-		$tax->setAttribute('taxability', 'TAXABLE');		// TODO: Fix where this comes from.
-		$tax->createChild('Situs', 0);
-		$jurisdiction = $tax->createChild('Jurisdiction', '??Jurisdiction Name??');
-		$jurisdiction->setAttribute('jurisdictionLevel', '??State or County Level??');
-		$jurisdiction->setAttribute('jurisdictionId', '??Jurisidiction Id??');
+		$tax->createChild('Situs', 0);		//TODO: This is REQUIRED
 		$tax->createChild('EffectiveRate', 0);
-		$tax->createChild('TaxableAmount', sprintf('%.02f', 0));
 		$tax->createChild('CalculatedTax', sprintf('%.02f', 0)); 
 		// End Shipping
 		

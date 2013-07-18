@@ -195,31 +195,44 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 	 */
 	public function getAppliedRatesForItem($item, $address)
 	{
-		$result = array();
-		$itemResponse = $this->_getItemResponse($item, $address);
-		if ($itemResponse) {
-			$taxQuotes = $itemResponse->getTaxQuotes();
-			$group = array();
-			foreach ($taxQuotes as $index => $taxQuote) {
-				$code              = $taxQuote->getRateKey();
-				$rate['code']      = $code;
-				$rate['title']     = $code;
-				$rate['percent']   = $taxQuote->getEffectiveRate();
-				$rate['amount']    = $taxQuote->getCalculatedTax();
-				$rate['position']  = 1;
-				$rate['priority']  = 1;
-				$result[$code]['rates'][] = $rate;
-			}
-		}
-		return $result;
+		$appliedRates = $this->getAppliedRates(
+			new Varien_Object(array('item' => $item, 'address' => $address))
+		);
+		return $appliedRates;
 	}
 
 	public function getAppliedRates($itemSelector)
 	{
-		$appliedRates = $this->getAppliedRatesForItem(
-			$itemSelector->getItem(),
-			$itemSelector->getAddress()
-		);
-		return $appliedRates;
+		$item    = $itemSelector->getItem();
+		$address =  $itemSelector->getAddress();
+		$result  = array();
+		$itemResponse = $this->_getItemResponse($item, $address);
+		if ($itemResponse) {
+			$taxQuotes = $itemResponse->getTaxQuotes();
+			$nextId = 1;
+			foreach ($taxQuotes as $index => $taxQuote) {
+				$percent              = $taxQuote->getEffectiveRate();
+				$code                 = $taxQuote->getRateKey();
+				$id = $code . '-' . $percent;
+				if (isset($result[$id])) {
+					$group = $result[$id];
+				} else {
+					$group                = array();
+					$group['id']          = $id;
+					$group['percent']     = $percent;
+				}
+				$rate                = array();
+				$rate['code']        = $code;
+				$rate['title']       = $code;
+				$rate['amount']      = $taxQuote->getCalculatedTax();
+				// TODO: FIND A WAY TO POPULATE THIS
+				$rate['base_amount'] = 0;
+				$rate['position']    = 1;
+				$rate['priority']    = 1;
+				$group['rates'][]    = $rate;
+				$result[$code]       = $group;
+			}
+		}
+		return $result;
 	}
 }

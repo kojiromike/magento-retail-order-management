@@ -56,4 +56,113 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends
 			$this->assertEquals($e->getBaseRowTotalInclTax(), $item->getBaseRowTotalInclTax(), $message);
 		}
 	}
+
+	protected function _mockCalculator()
+	{
+		$calcMock = $this->getModelMock('tax/calculation', array('getAppliedRates', 'getTax', 'getTaxForAmount'));
+		$calcMock->expects($this->any())
+			->method('getTax')->will($this->returnValue(8.25));
+		$calcMock->expects($this->any())
+			->method('getTaxForAmount')->will($this->returnValue(8.25));
+		$calcMock->expects($this->any())
+			->method('getAppliedRates')->will($this->returnValue(array(
+				'jurisdiction-imposition' => array(
+					'rates' => array(
+						0 => array(
+							'code'     => 'jurisdiction-imposition',
+							'title'    => 'jurisdiction-imposition',
+							'percent'  => 8.25,
+							'position' => '1',
+							'priority' => '1',
+							'rule_id'  => '1',
+						),
+					),
+					'percent'     => 8.25,
+					'id'          => 'jurisdiction-imposition',
+					'process'     => 0,
+					'amount'      => 8.25,
+					'base_amount' => 8.25,
+				),
+			))
+		);
+		$this->replaceByMock('singleton', 'tax/calculation', $calcMock);
+		$this->replaceByMock('model', 'tax/calculation', $calcMock);
+	}
+
+
+	protected function _mockParentItem()
+	{
+		$methods = array('getParentItem', 'getQty', 'getCalculationPriceOriginal', 'getStore', 'getId', 'getProduct', 'getHasChildren', 'isChildrenCalculated', 'getChildren');
+		$itemMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$itemMock->expects($this->any())
+			->method('getProduct')
+			->will($this->returnValue($productMock));
+		$itemMock->expects($this->any())
+			->method('getHasChildren')
+			->will($this->returnValue(true));
+		$itemMock->expects($this->any())
+			->method('getCalculationPriceOriginal')
+			->will($this->returnValue(100));
+		$itemMock->expects($this->any())
+			->method('isChildrenCalculated')
+			->will($this->returnValue(true));
+		$itemMock->expects($this->any())
+			->method('getChildren')
+			->will(array($itemMock));
+		$itemMock->expects($this->any())
+			->method('getStore')
+			->will($this->returnValue(Mage::app()->getStore()));
+		$itemMock->expects($this->any())
+			->method('getQty')
+			->will($this->returnValue(1));
+	}
+
+	protected function _mockItem()
+	{
+		$methods = array('getParentItem', 'getQty', 'getCalculationPriceOriginal', 'getStore', 'getId', 'getProduct', 'getHasChildren', 'isChildrenCalculated', 'getChildren');
+		$itemMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$itemMock->expects($this->any())
+			->method('getProduct')
+			->will($this->returnValue($productMock));
+		$itemMock->expects($this->any())
+			->method('getHasChildren')
+			->will($this->returnValue(false));
+		$itemMock->expects($this->any())
+			->method('getCalculationPriceOriginal')
+			->will($this->returnValue(100));
+		// $itemMock->expects($this->any())
+		// 	->method('isChildrenCalculated')
+		// 	->will($this->returnValue(true));
+		// $itemMock->expects($this->any())
+		// 	->method('getChildren')
+		// 	->will(array($itemMock));
+		$itemMock->expects($this->any())
+			->method('getStore')
+			->will($this->returnValue(Mage::app()->getStore()));
+		$itemMock->expects($this->any())
+			->method('getQty')
+			->will($this->returnValue(1));
+	}
+
+	protected function _mockChildItem()
+	{
+		$methods = array('getParentItem', 'getQty', 'getCalculationPriceOriginal', 'getStore', 'getId', 'getProduct', 'getHasChildren', 'isChildrenCalculated', 'getChildren');
+		$itemMock = $this->getModelMock('sales/quote_item', $methods);
+		$itemMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$itemMock->expects($this->any())
+			->method('getParentItem')
+			->will($this->returnSelf());
+		$itemMock->expects($this->any())
+			->method('getProduct')
+			->will($this->returnValue($productMock));
+		$itemMock->expects($this->any())
+			->method('getStore')
+			->will($this->returnValue(Mage::app()->getStore()));
+	}
 }

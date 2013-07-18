@@ -1,6 +1,10 @@
-1-0:
+0-0:
+  id: PENNSYLVANIA-Seller And Use Tax-0.5
+  code: PENNSYLVANIA-Seller And Use Tax
   percent: 0.5
   amount: .38
-1-1:
+0-1:
+  id: PENNSYLVANIA-Random Tax-0.01
+  code: PENNSYLVANIA-Random Tax
   percent: 0.01
   amount: 10.60

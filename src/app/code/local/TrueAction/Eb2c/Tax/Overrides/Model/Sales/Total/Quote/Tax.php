@@ -291,6 +291,21 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax
 		return $this;
 	}
 
+
+    /**
+     * ensures the taxes are calculated chronologically after the discounts.
+     * see the tax and sales etc/config.xml
+     *
+     * @param   array $config
+     * @param   store $store
+     * @return  array
+     */
+    public function processConfigArray($config, $store)
+    {
+        $config['after'][] = 'discount';
+        return $config;
+    }
+
 	/**
 	 * Check if price include tax should be used for calculations.
 	 * We are using price include tax just in case when catalog prices are including tax

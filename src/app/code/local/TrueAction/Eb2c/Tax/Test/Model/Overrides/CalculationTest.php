@@ -20,10 +20,8 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 		$taxQuote2 = $this->_mockTaxQuote(0.01, 10.60, 'PENNSYLVANIA-Random Tax', 5);
 		$taxQuotes = array($taxQuote, $taxQuote2);
 
-		$this->orderItem = $this->getModelMock(
-			'eb2ctax/response_orderitem',
-			array('getTaxQuotes', 'getMerchandiseAmount')
-		);
+		$methods = array('getTaxQuotes', 'getMerchandiseAmount');
+		$this->orderItem = $this->getModelMock('eb2ctax/response_orderitem', $methods);
 		$this->orderItem->expects($this->any())
 			->method('getTaxQuotes')
 			->will($this->returnValue($taxQuotes));
@@ -33,6 +31,7 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 			->method('getResponseForItem')
 			->will($this->returnValue($this->orderItem));
 		$this->response = $response;
+
 		$item = $this->getModelMock('sales/quote_item', array('getSku'));
 		$item->expects($this->any())
 			->method('getSku')

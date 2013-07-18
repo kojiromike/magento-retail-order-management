@@ -57,9 +57,6 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends
 		}
 	}
 
-		Mage::helper('tax')->getCalculator()->setTaxResponse($response);
-	}
-
 	public function testCollect()
 	{
 		$this->markTestIncomplete('need to add some assertions');

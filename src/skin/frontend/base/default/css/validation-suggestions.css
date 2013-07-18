@@ -33,7 +33,9 @@
 	margin-bottom: 0.33em;
 	background: #eee;
 }
-
+.suggestion-fields .new {
+	clear: left;
+}
 .hide-new-address {
 	display: none;
 }

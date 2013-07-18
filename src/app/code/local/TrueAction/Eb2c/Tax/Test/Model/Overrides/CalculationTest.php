@@ -128,13 +128,21 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 		);
 		$a = $calc->getAppliedRates($itemSelector);
 		$this->assertNotEmpty($a);
-		foreach ($a as $key => $group) {
+		$i = 0;
+		foreach ($a as $group) {
+			$e = $this->expected('0-' . $i);
 			$this->assertNotEmpty($group);
-			foreach ($group['rates'] as $index => $rate) {
-				$expected = $this->expected('1-' . $index);
-				$this->assertSame((float)$expected->getPercent(), $rate['percent']);
-				$this->assertSame((float)$expected->getAmount(), $rate['amount']);
-			}
+			$this->assertSame($e->getId(), $group['id']);
+			$this->assertArrayHasKey('percent', $group);
+			$this->assertSame((float)$e->getPercent(), $group['percent']);
+			$this->assertArrayHasKey('rates', $group);
+			$this->assertNotEmpty($group['rates']);
+			$this->assertSame(1, count($group['rates']));
+			$rate = $group['rates'][0];
+			$this->assertSame($e->getCode(), $rate['code']);
+			$this->assertSame($e->getCode(), $rate['title']);
+			$this->assertSame((float)$e->getAmount(), $rate['amount']);
+			++$i;
 		}
 	}
 

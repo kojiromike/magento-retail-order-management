@@ -122,18 +122,5 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends
 
 		$tax = Mage::getModel('tax/sales_total_quote_tax');
 		$tax->collect($addressMock);
-		// assert the item->getTaxAmount is as expected.
 	}
-
-	public function testCalcRowTaxAmount()
-	{
-		$this->markTestIncomplete('Missing fixture – items array is empty.');
-		$calc  = Mage::helper('tax')->getCalculator();
-		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
-		$items = $quote->getShippingAddress()->getAllVisibleItems();
-		$item = $items[0];
-		$this->calcRowTaxAmount->invoke($this->tax, $item);
-		$this->assertEquals(0.0, $item->getTaxPercent());
-	}
-
 }

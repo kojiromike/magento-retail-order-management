@@ -194,6 +194,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	 * testing when eb2c quantity check is less than what shopper requested
 	 *
 	 * @test
+	 * @medium
 	 * @dataProvider providerCheckEb2cInventoryQuantity
 	 * @loadFixture loadConfig.yaml
 	 */

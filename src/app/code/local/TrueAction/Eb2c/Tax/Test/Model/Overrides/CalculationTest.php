@@ -105,7 +105,7 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 	 */
 	public function testGetTaxableForItem()
 	{
-		$this->markTestIncomplete('this is erroring out.')
+		$this->markTestIncomplete('this is erroring out.');
 		$calc = Mage::getModel('tax/calculation');
 		$this->orderItem->expects($this->any())
 			->method('getMerchandiseAmount')

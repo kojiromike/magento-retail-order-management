@@ -21,6 +21,42 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends
 		$this->address->setAccessible(true);
 	}
 
+	/**
+	 * @loadFixture base.yaml
+	 * @loadFixture singleShipNotBillVirt.yaml
+	 * @loadFixture calcTaxBefore.yaml
+	 * @loadExpectation taxtest.yaml
+	 */
+	public function testCalcTaxForItemBeforeDiscount()
+	{
+		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(4);
+		$responseXml = file_get_contents(substr(__FILE__, 0, -4) . '/fixtures/singleShipNotBillVirtRes.xml');
+		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
+		$response = Mage::getModel('eb2ctax/response', array('xml' => $responseXml, 'request' => $request));
+		Mage::helper('tax')->getCalculator()->setTaxResponse($response);
+		$address = $quote->getShippingAddress();
+		$items = $address->getAllNonNominalItems();
+		$itemSelector = new Varien_Object(array('address' => $address));
+		// precondition check
+		$this->assertSame(2, count($items), 'number of items (' . count($items) . ') is not 2');
+		foreach ($items as $item) {
+			$expectationPath = '0-' . $item->getId();
+			$e = $this->expected($expectationPath);
+
+			$itemSelector->setItem($item);
+			$this->calcTaxForItem->invoke($this->tax, $itemSelector);
+
+			$message = "$expectationPath: tax_amount didn't match expectation";
+			$this->assertEquals($e->getTaxAmount(), $item->getTaxAmount(), $message);
+			$message = "$expectationPath: base_tax_amount didn't match expectation";
+			$this->assertEquals($e->getBaseTaxAmount(), $item->getBaseTaxAmount(), $message);
+			$message = "$expectationPath: row_total_incl_tax didn't match expectation";
+			$this->assertEquals($e->getRowTotalInclTax(), $item->getRowTotalInclTax(), $message);
+			$message = "$expectationPath: base_row_total_incl_tax didn't match expectation";
+			$this->assertEquals($e->getBaseRowTotalInclTax(), $item->getBaseRowTotalInclTax(), $message);
+		}
+	}
+
 		Mage::helper('tax')->getCalculator()->setTaxResponse($response);
 	}
 

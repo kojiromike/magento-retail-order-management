@@ -20,6 +20,21 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 		$taxQuote2 = $this->_mockTaxQuote(0.01, 10.60, 'PENNSYLVANIA-Random Tax', 5);
 		$taxQuotes = array($taxQuote, $taxQuote2);
 
+		$discTaxQuoteMethods = array('getRateKey', 'getEffectiveRate', 'getCalculatedTax', 'getTaxableAmount');
+		$quoteDiscountMock   = $this->getModelMock('eb2ctax/response_quote_discount', $discTaxQuoteMethods);
+		$quoteDiscountMock->expects($this->any())
+			->method('getRateKey')
+			->will($this->returnValue('14_vc_virtual1'));
+		$quoteDiscountMock->expects($this->any())
+			->method('getEffectiveRate')
+			->will($this->returnValue(.2));
+		$quoteDiscountMock->expects($this->any())
+			->method('getCalculatedTax')
+			->will($this->returnValue(0.38));
+		$quoteDiscountMock->expects($this->any())
+			->method('getTaxableAmount')
+			->will($this->returnValue(10));
+
 		$methods = array('getTaxQuotes', 'getMerchandiseAmount');
 		$this->orderItem = $this->getModelMock('eb2ctax/response_orderitem', $methods);
 		$this->orderItem->expects($this->any())

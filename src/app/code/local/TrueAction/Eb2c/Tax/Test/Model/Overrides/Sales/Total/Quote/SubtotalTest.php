@@ -59,6 +59,13 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest ex
 	 */
 	public function testCollectWithBundle()
 	{
+		$mockObserver = $this->getModelMock('tax/observer', array('quoteCollectTotalsBefore'));
+		$mockObserver->expects($this->any())
+			->method('quoteCollectTotalsBefore')
+			->will($this->returnSelf());
+		$this->replaceByMock('singleton', 'tax/observer', $mockObserver);
+		$this->replaceByMock('model', 'tax/observer', $mockObserver);
+
 		$mockProduct = $this->getModelMock('catalog/product', array('isVirtual'));
 		$mockProduct->expects($this->any())
 			->method('isVirtual')

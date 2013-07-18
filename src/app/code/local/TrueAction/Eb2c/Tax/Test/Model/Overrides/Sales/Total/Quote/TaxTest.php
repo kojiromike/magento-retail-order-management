@@ -3,32 +3,24 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends
 {
 	public function setUp()
 	{
-        parent::setUp();
-        $_SESSION = array();
-        $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
-        $this->app()->getRequest()->setBaseUrl($_baseUrl);
+		parent::setUp();
+		$_SESSION = array();
+		$_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
+		$this->app()->getRequest()->setBaseUrl($_baseUrl);
 
-        $this->tax = Mage::getModel('tax/sales_total_quote_tax');
-        $this->calcRowTaxAmount = new ReflectionMethod($this->tax, '_calcRowTaxAmount');
-        $this->calcRowTaxAmount->setAccessible(true);
-		$taxQuote  = $this->getModelMock('eb2ctax/response_quote',
-			array('getEffectiveRate', 'getCalculatedTax'));
-		$taxQuote->expects($this->any())
-			->method('getEffectiveRate')
-			->will($this->returnValue(1.5));
-		$taxQuote->expects($this->any())
-			->method('getCalculatedTax')
-			->will($this->returnValue(0.38));
-		$taxQuotes = array($taxQuote);
-		$orderItem = $this->getModelMock('eb2ctax/response_orderitem', array('getTaxQuotes'));
-		$orderItem->expects($this->any())
-			->method('getTaxQuotes')
-			->will($this->returnValue($taxQuotes));
-		$orderItems = array($orderItem);
-		$response = $this->getModelMock('eb2ctax/response', array('getResponseForItem'));
-		$response->expects($this->any())
-			->method('getResponseForItem')
-			->will($this->returnValue($orderItem));
+		$this->tax = Mage::getModel('tax/sales_total_quote_tax');
+		// assertType is undefined.
+		$this->assertSame('TrueAction_Eb2c_Tax_Overrides_Model_Sales_Total_Quote_Tax', get_class($this->tax));
+		$this->calcTaxForItem = new ReflectionMethod($this->tax, '_calcTaxForItem');
+		$this->calcTaxForItem->setAccessible(true);
+		$this->calcTaxForAddress = new ReflectionMethod($this->tax, '_calcTaxForAddress');
+		$this->calcTaxForAddress->setAccessible(true);
+		$this->isFlatShipping = new ReflectionMethod($this->tax, '_isFlatShipping');
+		$this->isFlatShipping->setAccessible(true);
+		$this->address = new ReflectionProperty($this->tax, '_address');
+		$this->address->setAccessible(true);
+	}
+
 		Mage::helper('tax')->getCalculator()->setTaxResponse($response);
 	}
 

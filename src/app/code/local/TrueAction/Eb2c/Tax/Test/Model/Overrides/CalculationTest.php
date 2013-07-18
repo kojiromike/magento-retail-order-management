@@ -6,38 +6,18 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 {
 	public function setUp()
 	{
-        parent::setUp();
-        $_SESSION = array();
-        $_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
-        $this->app()->getRequest()->setBaseUrl($_baseUrl);
+		parent::setUp();
+		$_SESSION = array();
+		$_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
+		$this->app()->getRequest()->setBaseUrl($_baseUrl);
 
 		$this->addressMock = $this->getModelMock('sales/quote_address');
 		$this->addressMock->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(1));
 
-		$taxQuoteMethods = array('getEffectiveRate', 'getCalculatedTax', 'getTaxableAmount');
-		$taxQuote  = $this->getModelMock('eb2ctax/response_quote', $taxQuoteMethods);
-		$taxQuote->expects($this->any())
-			->method('getEffectiveRate')
-			->will($this->returnValue(.5));
-		$taxQuote->expects($this->any())
-			->method('getCalculatedTax')
-			->will($this->returnValue(0.38));
-		$taxQuote->expects($this->any())
-			->method('getTaxableAmount')
-			->will($this->returnValue(10));
-
-		$taxQuote2  = $this->getModelMock('eb2ctax/response_quote', $taxQuoteMethods);
-		$taxQuote2->expects($this->any())
-			->method('getEffectiveRate')
-			->will($this->returnValue(0.01));
-		$taxQuote2->expects($this->any())
-			->method('getCalculatedTax')
-			->will($this->returnValue(10.60));
-		$taxQuote2->expects($this->any())
-			->method('getTaxableAmount')
-			->will($this->returnValue(5));
+		$taxQuote = $this->_mockTaxQuote(0.5, 0.38, 'PENNSYLVANIA-Seller And Use Tax', 10);
+		$taxQuote2 = $this->_mockTaxQuote(0.01, 10.60, 'PENNSYLVANIA-Random Tax', 5);
 		$taxQuotes = array($taxQuote, $taxQuote2);
 
 		$this->orderItem = $this->getModelMock(

@@ -139,10 +139,4 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends
 		$this->assertEquals(0.0, $item->getTaxPercent());
 	}
 
-	public function testCollectWithDiscounts()
-	{
-		// need to create coupon code scenario
-		// assert tax amount is altered by discount amount in case where discount calc'd after tax.
-		$this->markTestIncomplete();
-	}
 }

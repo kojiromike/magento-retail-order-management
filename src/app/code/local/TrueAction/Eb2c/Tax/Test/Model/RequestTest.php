@@ -408,6 +408,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 
 	/**
 	 * @test
+	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingNotSameAsBilling.yaml
 	 */
 	public function testAddToDestination()

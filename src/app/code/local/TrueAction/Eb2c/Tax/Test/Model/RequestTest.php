@@ -493,8 +493,7 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 			'shipping_discount_amount',
 			'shipping_discount_calc_duty',
 		);
-		foreach ($keys as $key)
-		{
+		foreach ($keys as $key) {
 			$this->assertArrayHasKey($key, $outData);
 		}
 		$this->assertSame('_somecouponcode', $outData['merchandise_discount_code']);

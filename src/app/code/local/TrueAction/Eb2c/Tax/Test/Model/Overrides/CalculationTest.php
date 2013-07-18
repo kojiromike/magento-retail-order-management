@@ -159,16 +159,22 @@ class TrueAction_Eb2c_Tax_Test_Model_Overrides_CalculationTest extends EcomDev_P
 		}
 	}
 
-	/**
-	 * @test
-	 * @loadExpectation testGetAppliedRates
-	 */
-	public function testGetAppliedRatesEmptySelector()
+	protected function _mockTaxQuote($percent, $tax, $rateKey = '', $taxable = 0)
 	{
-		$calc = Mage::getModel('tax/calculation');
-		$calc->setTaxResponse($this->response);
-		$request = new Varien_Object();
-		$a = $calc->getAppliedRates($request);
-		$this->assertEmpty($a);
+		$taxQuoteMethods = array('getRateKey', 'getEffectiveRate', 'getCalculatedTax', 'getTaxableAmount');
+		$taxQuote  = $this->getModelMock('eb2ctax/response_quote', $taxQuoteMethods);
+		$taxQuote->expects($this->any())
+			->method('getEffectiveRate')
+			->will($this->returnValue($percent));
+		$taxQuote->expects($this->any())
+			->method('getCalculatedTax')
+			->will($this->returnValue($tax));
+		$taxQuote->expects($this->any())
+			->method('getTaxableAmount')
+			->will($this->returnValue($taxable));
+		$taxQuote->expects($this->any())
+			->method('getRateKey')
+			->will($this->returnValue($rateKey));
+		return $taxQuote;
 	}
 }

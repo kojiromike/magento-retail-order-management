@@ -366,6 +366,48 @@ class TrueAction_Eb2c_Tax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Ca
 	/**
 	 * @test
 	 * @loadFixture base.yaml
+	 * @loadFixture singleShippingSameAsBilling.yaml
+	 */
+	public function testCheckDiscounts()
+	{
+		$this->markTestIncomplete('there is an error in checkdiscounts');
+		$address = $this->getModelMock('sales/quote_address', array('getId'));
+		$address->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$quote = $this->getModelMock('sales/quote', array('getId', 'getItemsCount', 'getBillingAddress', 'getAllVisibleItems'));
+		$quote->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$quote->expects($this->any())
+			->method('getItemsCount')
+			->will($this->returnValue(1));
+		$quote->expects($this->any())
+			->method('getBillingAddress')
+			->will($this->returnValue($address));
+
+		$request = Mage::getModel('eb2ctax/request');
+		$request->setQuote($quote)
+			->setBillingAddress($address);
+		$this->assertTrue($request->isValid());
+		$request->checkDiscounts(array(1));
+		$this->assertFalse($request->isValid());
+
+		$appliedIds = self::$cls->getProperty('_appliedDiscountIds');
+		$appliedIds->setAccessible(true);
+
+		$request = Mage::getModel('eb2ctax/request');
+		$request->setQuote($quote)
+			->setBillingAddress($address);
+		$this->assertTrue($request->isValid());
+		$appliedIds->setValue($request, array('1'));
+		$request->checkDiscounts(array(1));
+		$this->assertTrue($request->isValid());
+	}
+
+
+	/**
+	 * @test
 	 * @loadFixture singleShippingNotSameAsBilling.yaml
 	 */
 	public function testAddToDestination()

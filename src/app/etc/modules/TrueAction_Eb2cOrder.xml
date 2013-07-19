@@ -1,0 +1,8 @@
+<config>
+	<modules>
+		<TrueAction_Eb2cOrder>
+			<active>true</active>
+			<codePool>local</codePool>
+		</TrueAction_Eb2cOrder>
+	</modules>
+</config>

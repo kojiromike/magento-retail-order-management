@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<config>
-	<modules>
-		<TrueAction_Eb2c_Core>
-			<active>true</active>
-			<codePool>local</codePool>
-		</TrueAction_Eb2c_Core>
-	</modules>
-</config>

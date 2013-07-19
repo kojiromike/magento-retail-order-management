@@ -69,11 +69,11 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 		Mage::log('send tax request event');
 		/* @var $quote Mage_Sales_Model_Quote */
 		$quote = $observer->getEvent()->getQuote();
-		foreach ($quote->getAllAddresses() as $address) {
-			$address->setExtraTaxAmount(0);
-			$address->setBaseExtraTaxAmount(0);
-		}
 		if (is_a($quote, 'Mage_Sales_Model_Quote')) {
+			foreach ($quote->getAllAddresses() as $address) {
+				$address->setExtraTaxAmount(0);
+				$address->setBaseExtraTaxAmount(0);
+			}
 			$this->_getTaxHelper()->getCalculator()
 				->getTaxRequest()
 				->checkAddresses($quote);

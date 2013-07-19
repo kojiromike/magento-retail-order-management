@@ -211,26 +211,29 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Calculation extends Mage_Tax_Model_Cal
 			$taxQuotes = $itemResponse->getTaxQuotes();
 			$nextId = 1;
 			foreach ($taxQuotes as $index => $taxQuote) {
-				$percent              = $taxQuote->getEffectiveRate();
-				$code                 = $taxQuote->getRateKey();
-				$id = $code . '-' . $percent;
+				$taxRate              = $taxQuote->getEffectiveRate();
+				$code                 = $taxQuote->getCode();
+				$id = $code . '-' . $taxRate;
 				if (isset($result[$id])) {
 					$group = $result[$id];
 				} else {
 					$group                = array();
 					$group['id']          = $id;
-					$group['percent']     = $percent;
+					$group['percent']     = $taxRate * 100.0;
+					$group['amount']      = 0;
 				}
 				$rate                = array();
 				$rate['code']        = $code;
-				$rate['title']       = $code;
+				$rate['title']       = Mage::helper('tax')->__($code);
 				$rate['amount']      = $taxQuote->getCalculatedTax();
+				$rate['percent']     = $taxRate * 100.0;
 				// TODO: FIND A WAY TO POPULATE THIS
 				$rate['base_amount'] = 0;
 				$rate['position']    = 1;
 				$rate['priority']    = 1;
 				$group['rates'][]    = $rate;
-				$result[$code]       = $group;
+				$group['amount']     += $rate['amount'];
+				$result[$id]       = $group;
 			}
 		}
 		return $result;

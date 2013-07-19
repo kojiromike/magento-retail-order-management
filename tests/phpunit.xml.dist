@@ -22,11 +22,11 @@
 		<include>
 			<group>TrueAction_Eb2cCore</group>
 			<group>TrueAction_Eb2cAddress</group>
-			<group>TrueAction_Eb2c_Inventory</group>
-			<group>TrueAction_Eb2c_Order</group>
-			<group>TrueAction_Eb2c_Payment</group>
-			<group>TrueAction_Eb2c_Product</group>
-			<group>TrueAction_Eb2c_Tax</group>
+			<group>TrueAction_Eb2cInventory</group>
+			<group>TrueAction_Eb2cOrder</group>
+			<group>TrueAction_Eb2cPayment</group>
+			<group>TrueAction_Eb2cProduct</group>
+			<group>TrueAction_Eb2cTax</group>
 		</include>
 	</groups>
 	<filter>

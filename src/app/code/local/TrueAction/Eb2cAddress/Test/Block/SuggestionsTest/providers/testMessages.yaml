@@ -1,0 +1,10 @@
+-
+  - getSuggestedAddressMessage
+-
+  - getSuggestionLabel
+-
+  - getOriginalAddressLabel
+-
+  - getNewAddressBoxMessage
+-
+  - getNewAddressLabel

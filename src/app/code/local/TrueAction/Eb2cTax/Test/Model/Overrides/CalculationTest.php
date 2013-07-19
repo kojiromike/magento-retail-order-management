@@ -163,7 +163,7 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_CalculationTest extends EcomDev_PH
 
 	protected function _mockTaxQuote($percent, $tax, $rateKey = '', $taxable = 0)
 	{
-		$taxQuoteMethods = array('getRateKey', 'getEffectiveRate', 'getCalculatedTax', 'getTaxableAmount');
+		$taxQuoteMethods = array('getCode', 'getEffectiveRate', 'getCalculatedTax', 'getTaxableAmount');
 		$taxQuote  = $this->getModelMock('eb2ctax/response_quote', $taxQuoteMethods);
 		$taxQuote->expects($this->any())
 			->method('getEffectiveRate')
@@ -175,7 +175,7 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_CalculationTest extends EcomDev_PH
 			->method('getTaxableAmount')
 			->will($this->returnValue($taxable));
 		$taxQuote->expects($this->any())
-			->method('getRateKey')
+			->method('getCode')
 			->will($this->returnValue($rateKey));
 		return $taxQuote;
 	}

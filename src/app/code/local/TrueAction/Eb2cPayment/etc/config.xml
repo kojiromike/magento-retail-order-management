@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ *
+ * @category    TrueAction
+ * @package     TrueAction_Eb2c
+ * @copyright   Copyright (c) 2013 True Action (http://www.trueaction.com)
+ */
+-->
+<config>
+	<modules>
+		<TrueAction_Eb2cPayment>
+			<version>1.0.0</version>
+		</TrueAction_Eb2cPayment>
+	</modules>
+	<global>
+		<models>
+			<eb2cpayment>
+				<class>TrueAction_Eb2cPayment_Model</class>
+			</eb2cpayment>
+		</models>
+		<helpers>
+			<eb2cpayment>
+				<class>TrueAction_Eb2cPayment_Helper</class>
+			</eb2cpayment>
+		</helpers>
+	</global>
+	<default>
+		<eb2c>
+			<payment>
+				<developer_mode>1</developer_mode>
+				<stored_value_balance_api_uri>http://eb2c.rgabriel.mage.tandev.net/eb2c/api/request/StoredValueBalanceReply.xml</stored_value_balance_api_uri>
+			</payment>
+		</eb2c>
+	</default>
+	<phpunit>
+		<suite>
+			<modules>
+				<TrueAction_Eb2cPayment />
+			</modules>
+		</suite>
+	</phpunit>
+</config>

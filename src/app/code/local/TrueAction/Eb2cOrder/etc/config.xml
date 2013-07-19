@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<TrueAction_Eb2cOrder>
+			<version>0.1.0</version>
+		</TrueAction_Eb2cOrder>
+	</modules>
+	<global>
+		<models>
+			<eb2corder>
+				<class>TrueAction_Eb2cOrder_Model</class>
+			</eb2corder>
+		</models>
+		<helpers>
+			<eb2corder>
+				<class>TrueAction_Eb2cOrder_Helper</class>
+			</eb2corder>
+		</helpers>
+	</global>
+	<frontend>
+		<events>
+			<checkout_type_onepage_save_order_after>
+				<observers>
+					<createrequest_observer>
+						<type>singleton</type>
+						<class>TrueAction_Eb2cOrder_Model_Create</class>
+						<method>observerCreate</method>
+					</createrequest_observer>
+				</observers>
+			</checkout_type_onepage_save_order_after>
+		</events>
+	</frontend>
+	<default>
+		<eb2c>
+			<order>
+				<developer_mode>1</developer_mode>
+					<!--
+					To view using dumbListener
+					<create_uri>http://virtbox.net:8080/</create_uri>
+					<cancel_uri>http://virtbox.net:8080/</cancel_uri>
+					-->
+				<developer_create_uri>http://virtbox.net/~mwest/fakeb2c/orderCreateRequest.php</developer_create_uri>
+				<developer_cancel_uri>http://virtbox.net/~mwest/fakeb2c/orderCancelRequest.php</developer_cancel_uri>
+				<payments_enabled>false</payments_enabled>
+			</order>
+		</eb2c>
+	</default>
+	<phpunit>
+		<suite>
+			<modules>
+				<TrueAction_Eb2cOrder />
+			</modules>
+		</suite>
+	</phpunit>
+</config>

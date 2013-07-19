@@ -21,7 +21,7 @@
 	<groups>
 		<include>
 			<group>TrueAction_Eb2c_Core</group>
-			<group>TrueAction_Eb2c_Address</group>
+			<group>TrueAction_Eb2cAddress</group>
 			<group>TrueAction_Eb2c_Inventory</group>
 			<group>TrueAction_Eb2c_Order</group>
 			<group>TrueAction_Eb2c_Payment</group>

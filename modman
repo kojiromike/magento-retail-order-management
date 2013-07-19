@@ -5,7 +5,7 @@
 
 # TrueAction_Eb2c_Core
 src/app/etc/modules/*.xml app/etc/modules/
-src/app/code/local/TrueAction/Eb2c app/code/local/TrueAction/Eb2c
+src/app/code/local/TrueAction/* app/code/local/TrueAction/
 
 # TrueAction_Eb2c_Address
 src/app/design/frontend/base/default/template/eb2c_address_frontend app/design/frontend/base/default/template/eb2c_address_frontend

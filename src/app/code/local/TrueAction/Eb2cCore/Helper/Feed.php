@@ -4,7 +4,7 @@
  * @package    TrueAction_Eb2c
  * @copyright  Copyright (c) 2013 True Action Network (http://www.trueaction.com)
  */
-class TrueAction_Eb2c_Core_Helper_Feed extends Mage_Core_Helper_Abstract
+class TrueAction_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 {
 	/**
 	 * hold instantiate core config registry model object

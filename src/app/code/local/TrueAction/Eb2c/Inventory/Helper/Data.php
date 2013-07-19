@@ -41,7 +41,7 @@ class TrueAction_Eb2c_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Get core helper instantiated object.
 	 *
-	 * @return TrueAction_Eb2c_Core_Helper_Data
+	 * @return TrueAction_Eb2cCore_Helper_Data
 	 */
 	public function getCoreHelper()
 	{

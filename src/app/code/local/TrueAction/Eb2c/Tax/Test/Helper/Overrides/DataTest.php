@@ -36,7 +36,7 @@ class TrueAction_Eb2c_Tax_Test_Helper_Overrides_DataTest extends EcomDev_PHPUnit
 			->method('getDocument')
 			->will($this->returnValue(new TrueAction_Dom_Document()));
 
-		$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
+		$apiModelMock = $this->getMock('TrueAction_Eb2cCore_Model_Api', array('setUri', 'request'));
 		$apiModelMock->expects($this->any())
 			->method('setUri')
 			->will($this->returnSelf());

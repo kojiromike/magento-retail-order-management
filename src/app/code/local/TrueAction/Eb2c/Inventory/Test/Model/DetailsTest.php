@@ -143,7 +143,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_DetailsTest extends EcomDev_PHPUnit_T
 	 */
 	public function testGetInventoryDetailsWithApiCallException($quote)
 	{
-		$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
+		$apiModelMock = $this->getMock('TrueAction_Eb2cCore_Model_Api', array('setUri', 'request'));
 		$apiModelMock->expects($this->any())
 			->method('setUri')
 			->will($this->returnSelf());

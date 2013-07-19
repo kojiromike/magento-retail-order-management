@@ -2,9 +2,9 @@
 
 /**
  * Test the abstract config model which does the majority of work implementing
- * the config model interface required by the TrueAction_Eb2c_Core_Helper_Config
+ * the config model interface required by the TrueAction_Eb2cCore_Helper_Config
  */
-class TrueAction_Eb2c_Core_Test_Model_ConfigTests extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2cCore_Test_Model_ConfigTests extends EcomDev_PHPUnit_Test_Case
 {
 
 	/**
@@ -36,7 +36,7 @@ class TrueAction_Eb2c_Core_Test_Model_ConfigTests extends EcomDev_PHPUnit_Test_C
  *
  * @codeCoverageIgnore
  */
-class ConfigStub extends TrueAction_Eb2c_Core_Model_Config_Abstract
+class ConfigStub extends TrueAction_Eb2cCore_Model_Config_Abstract
 {
 	protected $_configPaths = array('catalog_id' => 'eb2c/core/catalog_id');
 }

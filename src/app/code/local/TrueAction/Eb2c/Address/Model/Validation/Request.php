@@ -23,7 +23,7 @@ class TrueAction_Eb2c_Address_Model_Validation_Request
 
 	/**
 	 * Config helper with address validation config model loaded in.
-	 * @var TrueAction_Eb2c_Core_Helper_Config
+	 * @var TrueAction_Eb2cCore_Helper_Config
 	 */
 	protected $_config;
 

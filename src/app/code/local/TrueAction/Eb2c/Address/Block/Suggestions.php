@@ -21,7 +21,7 @@ class TrueAction_Eb2c_Address_Block_Suggestions extends Mage_Core_Block_Template
 	/**
 	 * config registry model, if populated, should be expected to have had
 	 * the necessary config models populated.
-	 * @var TrueAction_Eb2c_Core_Model_Config_Registry
+	 * @var TrueAction_Eb2cCore_Model_Config_Registry
 	 */
 	protected $_config = null;
 

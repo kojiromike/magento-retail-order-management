@@ -13,7 +13,7 @@ class TrueAction_Eb2c_Order_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Gets a combined configuration model from core and order
 	 *
-	 * @return 
+	 * @return
 	 */
 	public function getConfig()
 	{
@@ -41,7 +41,7 @@ class TrueAction_Eb2c_Order_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Instantiate and save assignment of Core helper
 	 *
-	 * @return TrueAction_Eb2c_Core_Helper
+	 * @return TrueAction_Eb2cCore_Helper
 	 */
 	public function getCoreHelper()
 	{

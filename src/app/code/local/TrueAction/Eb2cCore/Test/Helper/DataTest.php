@@ -4,7 +4,7 @@
  * @package   TrueAction_Eb2c
  * @copyright Copyright (c) 2013 True Action (http://www.trueaction.com)
  */
-class TrueAction_Eb2c_Core_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2cCore_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
 {
 	protected $_helper;
 
@@ -30,7 +30,7 @@ class TrueAction_Eb2c_Core_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Cas
 	/**
 	 * Get helper instantiated object.
 	 *
-	 * @return TrueAction_Eb2c_Core_Helper_Data
+	 * @return TrueAction_Eb2cCore_Helper_Data
 	 */
 	protected function _getHelper()
 	{

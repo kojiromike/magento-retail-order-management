@@ -108,7 +108,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	public function testCheckEb2cInventoryQuantity($observer)
 	{
 		try {
-			$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
+			$apiModelMock = $this->getMock('TrueAction_Eb2cCore_Model_Api', array('setUri', 'request'));
 			$apiModelMock->expects($this->any())
 				->method('setUri')
 				->will($this->returnSelf());
@@ -522,7 +522,7 @@ class TrueAction_Eb2c_Inventory_Test_Model_ObserverTest extends EcomDev_PHPUnit_
 	 */
 	public function testRollbackOnRemoveItemInReservedCart($observer)
 	{
-			$apiModelMock = $this->getMock('TrueAction_Eb2c_Core_Model_Api', array('setUri', 'request'));
+			$apiModelMock = $this->getMock('TrueAction_Eb2cCore_Model_Api', array('setUri', 'request'));
 			$apiModelMock->expects($this->any())
 				->method('setUri')
 				->will($this->returnSelf());

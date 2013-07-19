@@ -2,7 +2,7 @@
 /**
  * @package    TrueAction_Eb2c
  */
-class TrueAction_Eb2c_Order_Model_Config extends TrueAction_Eb2c_Core_Model_Config_Abstract
+class TrueAction_Eb2c_Order_Model_Config extends TrueAction_Eb2cCore_Model_Config_Abstract
 {
 	protected $_configPaths = array(
 		'developer_mode'		=> 'eb2c/order/developer_mode',

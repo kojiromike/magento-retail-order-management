@@ -8,7 +8,7 @@
  * - Multiple config classes can be used to look up paths
  * - When using multiple config models, the last one in takes precedence
  */
-class TrueAction_Eb2c_Core_Test_Model_ConfigRegistryTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2cCore_Test_Model_ConfigRegistryTest extends EcomDev_PHPUnit_Test_Case
 {
 
 	/**
@@ -16,7 +16,7 @@ class TrueAction_Eb2c_Core_Test_Model_ConfigRegistryTest extends EcomDev_PHPUnit
 	 */
 	protected function _createConfigStub()
 	{
-		$stub = $this->getMock('TrueAction_Eb2c_Core_Model_Config_Abstract');
+		$stub = $this->getMock('TrueAction_Eb2cCore_Model_Config_Abstract');
 
 		$keyMap = array(
 			array('catalog_id', true),
@@ -46,7 +46,7 @@ class TrueAction_Eb2c_Core_Test_Model_ConfigRegistryTest extends EcomDev_PHPUnit
 	 */
 	protected function _createAltConfigStub()
 	{
-		$stub = $this->getMock('TrueAction_Eb2c_Core_Model_Config_Abstract');
+		$stub = $this->getMock('TrueAction_Eb2cCore_Model_Config_Abstract');
 
 		$keyMap = array(
 			array('catalog_id', true),

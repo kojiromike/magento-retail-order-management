@@ -1,6 +1,6 @@
 <?php
 
-interface TrueAction_Eb2c_Core_Model_Config_Interface
+interface TrueAction_Eb2cCore_Model_Config_Interface
 {
 
 	/**

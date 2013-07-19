@@ -17,13 +17,13 @@ class TrueAction_Eb2c_Order_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Ca
 	}
 
 	/**
-	 * Make sure we get back an instance of TrueAction_Eb2c_Core_Helper_Data
+	 * Make sure we get back an instance of TrueAction_Eb2cCore_Helper_Data
 	 * @test
 	 */
 	public function testGetCoreHelper()
 	{
 		$coreHelper = $this->_helper->getCoreHelper();
-		$this->assertInstanceOf('TrueAction_Eb2c_Core_Helper_Data', $coreHelper);
+		$this->assertInstanceOf('TrueAction_Eb2cCore_Helper_Data', $coreHelper);
 	}
 
 
@@ -54,15 +54,15 @@ class TrueAction_Eb2c_Order_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Ca
 	}
 
 	/**
-	 * Make sure we get back a TrueAction_Eb2c_Core_Model_Config_Registry and that
-	 * we can see some sensible values in it. 
+	 * Make sure we get back a TrueAction_Eb2cCore_Model_Config_Registry and that
+	 * we can see some sensible values in it.
 	 * @test
 	 * @loadFixture basicTestConfig.yaml
 	 */
 	public function testGetConfig()
 	{
 		$config = $this->_helper->getConfig();
-		$this->assertSame(get_class($config), 'TrueAction_Eb2c_Core_Model_Config_Registry');
+		$this->assertSame(get_class($config), 'TrueAction_Eb2cCore_Model_Config_Registry');
 		$this->assertSame($config->apiRegion, 'na' );
 		$this->assertSame($config->clientId, 'TAN-CLI');
 	}

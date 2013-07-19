@@ -5,7 +5,7 @@
 			<active>true</active>
 			<codePool>local</codePool>
 			<depends>
-				<TrueAction_Eb2c_Core />
+				<TrueAction_Eb2cCore />
 			</depends>
 		</TrueAction_Eb2c_Address>
 	</modules>

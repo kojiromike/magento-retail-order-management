@@ -7,7 +7,7 @@
  * @prop string configVal The store config value represented by the key config_val
  * @prop bool configValFlag A boolean store config value represented by the key config_val
  */
-class TrueAction_Eb2c_Core_Model_Config_Registry
+class TrueAction_Eb2cCore_Model_Config_Registry
 {
 
 	/**
@@ -17,16 +17,16 @@ class TrueAction_Eb2c_Core_Model_Config_Registry
 	protected $_store = null;
 	/**
 	 * Array of registered config models used to associate config paths with keys.
-	 * @var TrueAction_Eb2c_Core_Model_Config_Interface[]
+	 * @var TrueAction_Eb2cCore_Model_Config_Interface[]
 	 */
 	protected $_configModels = array();
 
 	/**
 	 * Add a new config settings model to the collection and update the list of known config paths
-	 * @param TrueAction_Eb2c_Core_Model_Config_Interface $configModel
-	 * @return TrueAction_Eb2c_Core_Helper_Config $this
+	 * @param TrueAction_Eb2cCore_Model_Config_Interface $configModel
+	 * @return TrueAction_Eb2cCore_Helper_Config $this
 	 */
-	public function addConfigModel(TrueAction_Eb2c_Core_Model_Config_Interface $configModel) {
+	public function addConfigModel(TrueAction_Eb2cCore_Model_Config_Interface $configModel) {
 		array_unshift($this->_configModels, $configModel);
 		return $this;
 	}
@@ -34,7 +34,7 @@ class TrueAction_Eb2c_Core_Model_Config_Registry
 	/**
 	 * Set a default store to use when getting config values
 	 * @param null|string|bool|int|Mage_Core_Model_Store $store
-	 * @return TrueAction_Eb2c_Core_Helper_Config $this
+	 * @return TrueAction_Eb2cCore_Helper_Config $this
 	 */
 	public function setStore($store)
 	{

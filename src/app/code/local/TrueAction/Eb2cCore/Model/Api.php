@@ -4,7 +4,7 @@
  * @package    TrueAction_Eb2c
  * @copyright  Copyright (c) 2013 True Action Network (http://www.trueaction.com)
  */
-class TrueAction_Eb2c_Core_Model_Api extends Mage_Core_Helper_Abstract
+class TrueAction_Eb2cCore_Model_Api extends Mage_Core_Helper_Abstract
 {
 	private $_adapter = null;		// Set to self::DEFAULT_ADAPTER if not set by $this->setAdapter()
 	private $_httpClient = null;	// new Varien_Http_Client, or set by $this->setHttpClient()
@@ -12,7 +12,7 @@ class TrueAction_Eb2c_Core_Model_Api extends Mage_Core_Helper_Abstract
 	private $_uri = null;			// Must be set by setUri(), or nothing much will happen
 
 	/**
-	 * If _timeout is not set via $this->setApiTimeout() for request(), and the configuration does not contain one, 
+	 * If _timeout is not set via $this->setApiTimeout() for request(), and the configuration does not contain one,
 	 * this our default value.  This value is taken from Zend_Http_Client's default.
 	 */
 	const DEFAULT_TIMEOUT = 10;
@@ -75,7 +75,7 @@ class TrueAction_Eb2c_Core_Model_Api extends Mage_Core_Helper_Abstract
 	/**
 	 * Set the default timeout value for subsquent invocation of request().  *
 	 */
-	public function setTimeout( $timeoutIn ) 
+	public function setTimeout( $timeoutIn )
 	{
 		$timeout = (int)$timeoutIn;
 		if( !$timeout ) {
@@ -132,7 +132,7 @@ class TrueAction_Eb2c_Core_Model_Api extends Mage_Core_Helper_Abstract
 		return $this->_getAdapter();
 	}
 
-	
+
 	/**
 	 * Private methods used by request() to get the adapter
 	 */
@@ -168,7 +168,7 @@ class TrueAction_Eb2c_Core_Model_Api extends Mage_Core_Helper_Abstract
 	}
 
 
-	/** 
+	/**
 	 * Private method used by request() to set the URI
 	 */
 	private function _getUri()

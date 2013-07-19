@@ -37,7 +37,7 @@
                 <observers>
                     <tax>
                         <class>tax/observer</class>
-                        <method>quoteCollectTotalsBefore</method>
+                        <method>taxEventSendRequest</method>
                     </tax>
                 </observers>
             </eb2ctax_subtotal_collect_before>

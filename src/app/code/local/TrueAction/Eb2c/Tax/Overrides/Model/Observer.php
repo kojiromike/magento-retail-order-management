@@ -74,13 +74,35 @@ class TrueAction_Eb2c_Tax_Overrides_Model_Observer
 				$address->setExtraTaxAmount(0);
 				$address->setBaseExtraTaxAmount(0);
 			}
+		} else {
+			Mage::log(
+				'EB2C Tax Error: quoteCollectTotalsBefore: did not receive a Mage_Sales_Model_Quote object',
+				Zend_Log::WARN
+			);
+		}
+		return $this;
+	}
+
+
+	/**
+	 * send a tax request for the quote and set the reponse in the calculator.
+	 *
+	 * @param Varien_Event_Observer $observer
+	 * @return Mage_Tax_Model_Observer
+	 */
+	public function taxEventSendRequest(Varien_Event_Observer $observer)
+	{
+		Mage::log('send tax request event');
+		/* @var $quote Mage_Sales_Model_Quote */
+		$quote = $observer->getEvent()->getQuote();
+		if (is_a($quote, 'Mage_Sales_Model_Quote')) {
 			$this->_getTaxHelper()->getCalculator()
 				->getTaxRequest()
 				->checkAddresses($quote);
 			$this->_fetchTaxDutyInfo($quote);
 		} else {
 			Mage::log(
-				'EB2C Tax Error: quoteCollectTotalsBefore: did not receive a Mage_Sales_Model_Quote object',
+				'EB2C Tax Error: taxEventSendRequest: did not receive a Mage_Sales_Model_Quote object',
 				Zend_Log::WARN
 			);
 		}

@@ -1,8 +1,0 @@
-<config>
-	<modules>
-		<TrueAction_Eb2c_Tax>
-			<active>true</active>
-			<codePool>local</codePool>
-		</TrueAction_Eb2c_Tax>
-	</modules>
-</config>

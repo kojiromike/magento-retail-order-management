@@ -14,10 +14,10 @@ class TrueAction_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Template
 	 * @var array
 	 */
 	protected $_messages = array(
-		'suggested_address' => 'Please choose one of the suggestions below.',
-		'suggestion_label' => 'Use this address',
-		'original_label' => 'Use original address',
-		'new_label' => 'Use new address',
+		'suggested_address' => 'TrueAction_Eb2cAddress_Suggestions_Label',
+		'suggestion_label' => 'TrueAction_Eb2cAddress_Suggested_Address_Label',
+		'original_label' => 'TrueAction_Eb2cAddress_Original_Address_Label',
+		'new_label' => 'TrueAction_Eb2cAddress_New_Address_Label',
 	);
 
 	/**

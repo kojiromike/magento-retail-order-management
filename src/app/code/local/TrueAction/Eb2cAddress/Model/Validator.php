@@ -243,7 +243,6 @@ class TrueAction_Eb2cAddress_Model_Validator
 			TrueAction_Eb2cAddress_Model_Validation_Request::API_SERVICE,
 			TrueAction_Eb2cAddress_Model_Validation_Request::API_OPERATION)
 		);
-		$api->setUri('http://responses.svanbrug.mage.tandev.net/suggestions.xml');
 		try {
 			$apiResponse = $api->request(
 				Mage::getModel('eb2caddress/validation_request')->setAddress($address)->getMessage()

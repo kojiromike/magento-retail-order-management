@@ -30,17 +30,6 @@
 class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_Model_Sales_Total_Quote_Tax
 {
 	/**
-	 * Class constructor
-	 */
-	public function __construct()
-	{
-		$this->setCode('tax');
-		$this->_helper      = Mage::helper('tax');
-		$this->_calculator  = Mage::getSingleton('tax/calculation');
-		$this->_config      = Mage::getSingleton('tax/config');
-	}
-
-	/**
 	 * Collect tax totals for quote address
 	 *
 	 * @param   Mage_Sales_Model_Quote_Address $address
@@ -100,7 +89,6 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 					$this->_addAmount($child->getTaxAmount());
 					$this->_addBaseAmount($child->getBaseTaxAmount());
 					$applied = $this->_calculator->getAppliedRates($itemSelector);
-
 					// need to come up with a similar concept (ie hasTaxes or some such)
 					if (!empty($applied)) {
 						$itemTaxGroups[$child->getId()] = $applied;
@@ -160,12 +148,14 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 		$hiddenTax      = null;
 		$baseHiddenTax  = null;
 
-		switch ($this->_helper->getCalculationSequence($this->_store)) {
+		$calcTaxBefore = Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_INCL;
+		switch ($calcTaxBefore/*$this->_helper->getCalculationSequence($this->_store)*/) {
 			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_EXCL:
 			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_INCL:
-				$rowTax     = $this->_calculator->getTaxForItem($itemSelector->getItem(), $itemSelector->getAddress());
-				$baseRowTax = $this->_calculator->getAmount($baseSubtotal, $itemSelector->getItem(), $itemSelector->getAddress());
+				$rowTax     = $this->_calculator->getTax($itemSelector);
+				$baseRowTax = $this->_calculator->getTaxForAmount($baseSubtotal, $itemSelector);
 				break;
+			// @codeCoverageIgnoreStart
 			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_EXCL:
 			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_INCL:
 				// prices sent after adding discounts
@@ -185,18 +175,19 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 				$rowTax = $this->_calculator->round($rowTax);
 				$baseRowTax = $this->_calculator->round($baseRowTax);
 				if ($discountAmount > $subtotal) { // case with 100% discount on price incl. tax
-                    $hiddenTax      = $discountAmount - $subtotal;
-                    $baseHiddenTax  = $baseDiscountAmount - $baseSubtotal;
-                    $this->_hiddenTaxes[] = array(
-                        'rate_key'   => $rateKey,
-                        'qty'        => 1,
-                        'item'       => $item,
-                        'value'      => $hiddenTax,
-                        'base_value' => $baseHiddenTax,
-                        'incl_tax'   => $inclTax,
-                    );
-                }
+					$hiddenTax      = $discountAmount - $subtotal;
+					$baseHiddenTax  = $baseDiscountAmount - $baseSubtotal;
+					$this->_hiddenTaxes[] = array(
+						'rate_key'   => $rateKey,
+						'qty'        => 1,
+						'item'       => $item,
+						'value'      => $hiddenTax,
+						'base_value' => $baseHiddenTax,
+						'incl_tax'   => $inclTax,
+					);
+				}
 				break;
+			// @codeCoverageIgnoreEnd
 		}
 
 		$item->setTaxAmount(max(0, $rowTax));
@@ -211,6 +202,50 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 
 		return $this;
 	}
+
+    /**
+     * Collect applied tax rates information on address level
+     *
+     * @param   Mage_Sales_Model_Quote_Address $address
+     * @param   array $applied
+     * @param   float $amount
+     * @param   float $baseAmount
+     * @param   float $rate
+     */
+    protected function _saveAppliedTaxes(Mage_Sales_Model_Quote_Address $address,
+                                         $applied, $amount, $baseAmount, $rate)
+    {
+        $previouslyAppliedTaxes = $address->getAppliedTaxes();
+        $process = count($previouslyAppliedTaxes);
+
+        foreach ($applied as $row) {
+            if ($row['percent'] == 0) {
+                continue;
+            }
+            if (!isset($previouslyAppliedTaxes[$row['id']])) {
+                $row['process']     = $process;
+                $previouslyAppliedTaxes[$row['id']] = $row;
+            }
+
+            if (!$previouslyAppliedTaxes[$row['id']]['amount']) {
+                unset($previouslyAppliedTaxes[$row['id']]);
+            }
+        }
+        $address->setAppliedTaxes($previouslyAppliedTaxes);
+    }
+
+	/**
+	 * return true if using flat rate shipping to send items to $address; false otherwise.
+	 * @param  Mage_Sales_Model_Quote_Address $address
+	 * @return boolean
+	 */
+	protected function _isFlatShipping(Mage_Sales_Model_Quote_Address $address)
+	{
+		$flatrate = 'flatrate_flatrate';
+		return $address->getShippingMethod() === $flatrate;
+	}
+
+
 
 	/// most of this function can be merged up into the collect function
 	////////////////
@@ -289,6 +324,21 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 		$this->_saveAppliedTaxes($address, $applied, $tax, $baseTax, $rate);
 
 		return $this;
+	}
+
+
+	/**
+	 * ensures the taxes are calculated chronologically after the discounts.
+	 * see the tax and sales etc/config.xml
+	 *
+	 * @param   array $config
+	 * @param   store $store
+	 * @return  array
+	 */
+	public function processConfigArray($config, $store)
+	{
+		$config['after'][] = 'discount';
+		return $config;
 	}
 
 	/**

@@ -12,10 +12,10 @@ class TrueAction_Eb2cOrder_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_Ca
 	{
 		$status = null;
 
-        $creator = $this->getMock('TrueAction_Eb2cOrder_Model_Create', array('sendRequest'));
-        $creator->expects($this->any())
-             ->method('sendRequest')
-             ->will($this->returnValue(true));
+		$creator = $this->getMock('TrueAction_Eb2cOrder_Model_Create', array('sendRequest'));
+		$creator->expects($this->any())
+			->method('sendRequest')
+			->will($this->returnValue(true));
 
 		// Create proper class:
 		$testFactoryCreator = Mage::getModel('eb2corder/create');

@@ -71,8 +71,8 @@ class TrueAction_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_Calc
 	 * @return float
 	 */
 	public function getTaxforItem(
-		Mage_Sales_Model_Quote_Item $item,
-		Mage_Sales_Model_Quote_Address $address
+		Mage_Sales_Model_Quote_Item    $item    = null,
+		Mage_Sales_Model_Quote_Address $address = null
 	) {
 		$itemResponse = $this->_getItemResponse($item, $address);
 		$tax = 0.0;
@@ -102,8 +102,8 @@ class TrueAction_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_Calc
 	 * @return
 	 */
 	protected function _getItemResponse(
-		Mage_Sales_Model_Quote_Item $item,
-		Mage_Sales_Model_Quote_Address $address
+		Mage_Sales_Model_Quote_Item $item = null,
+		Mage_Sales_Model_Quote_Address $address = null
 	) {
 		$response = $this->getTaxResponse();
 		$itemResponse = $response ?
@@ -195,37 +195,47 @@ class TrueAction_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_Calc
 	 */
 	public function getAppliedRatesForItem($item, $address)
 	{
-		$result = array();
-		$itemResponse = $this->_getItemResponse($item, $address);
-		if ($itemResponse) {
-			$taxQuotes = $itemResponse->getTaxQuotes();
-			$discountTaxQuotes = $itemResponse->getTaxQuoteDiscounts();
-			foreach ($taxQuotes as $index => $taxQuote) {
-				$code  = sprintf('%s-%s', $taxQuote->getJurisdiction(), $taxQuote->getImposition());
-				$rate['code']      = $code;
-				$rate['title']     = $code;
-				$rate['percent']   = $taxQuote->getEffectiveRate();
-				$rate['amount']    = $taxQuote->getCalculatedTax();
-				$rate['position']  = 1;
-				$rate['priority']  = 1;
-
-				$group = isset($result[$code]) ? $result[$code] : array();
-				$group['rates'][]  =  $rate;
-				$result[$code] = $group;
-			}
-		}
-		return $result;
+		$appliedRates = $this->getAppliedRates(
+			new Varien_Object(array('item' => $item, 'address' => $address))
+		);
+		return $appliedRates;
 	}
 
 	public function getAppliedRates($itemSelector)
 	{
-		$appliedRates = array();
-		if ($itemSelector && $itemSelector->getItem() && $itemSelector->getAddress()) {
-			$appliedRates = $this->getAppliedRatesForItem(
-				$itemSelector->getItem(),
-				$itemSelector->getAddress()
-			);
+		$item    = $itemSelector->getItem();
+		$address =  $itemSelector->getAddress();
+		$result  = array();
+		$itemResponse = $this->_getItemResponse($item, $address);
+		if ($itemResponse) {
+			$taxQuotes = $itemResponse->getTaxQuotes();
+			$nextId = 1;
+			foreach ($taxQuotes as $index => $taxQuote) {
+				$taxRate              = $taxQuote->getEffectiveRate();
+				$code                 = $taxQuote->getCode();
+				$id = $code . '-' . $taxRate;
+				if (isset($result[$id])) {
+					$group = $result[$id];
+				} else {
+					$group                = array();
+					$group['id']          = $id;
+					$group['percent']     = $taxRate * 100.0;
+					$group['amount']      = 0;
+				}
+				$rate                = array();
+				$rate['code']        = $code;
+				$rate['title']       = Mage::helper('tax')->__($code);
+				$rate['amount']      = $taxQuote->getCalculatedTax();
+				$rate['percent']     = $taxRate * 100.0;
+				// TODO: FIND A WAY TO POPULATE THIS
+				$rate['base_amount'] = 0;
+				$rate['position']    = 1;
+				$rate['priority']    = 1;
+				$group['rates'][]    = $rate;
+				$group['amount']     += $rate['amount'];
+				$result[$id]       = $group;
+			}
 		}
-		return $appliedRates;
+		return $result;
 	}
 }

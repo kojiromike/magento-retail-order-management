@@ -99,7 +99,7 @@ class TrueAction_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function physicalAddressRegionId(DOMElement $physicalAddressXml)
 	{
-		return Mage::getModel('directory/region')
+		return (int) Mage::getModel('directory/region')
 			->loadByCode(
 				$this->getTextValueByXPath(self::REGION_PATH, $physicalAddressXml),
 				$this->physicalAddressCountryId($physicalAddressXml))

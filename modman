@@ -5,16 +5,11 @@
 
 # TrueAction_Eb2c_Core
 src/app/etc/modules/*.xml app/etc/modules/
-
-src/app/code/local/TrueAction/Eb2cAddress/			app/code/local/TrueAction/Eb2cAddress/
-src/app/code/local/TrueAction/Eb2cAddressFrontend/	app/code/local/TrueAction/Eb2cAddressFrontend/
-src/app/code/local/TrueAction/Eb2cCore/				app/code/local/TrueAction/Eb2cCore/
-src/app/code/local/TrueAction/Eb2cInventory/		app/code/local/TrueAction/Eb2cInventory/
-src/app/code/local/TrueAction/Eb2cOrder/			app/code/local/TrueAction/Eb2cOrder/
-src/app/code/local/TrueAction/Eb2cTax/				app/code/local/TrueAction/Eb2cTax/
+src/app/code/local/TrueAction/* app/code/local/TrueAction/
 
 # TrueAction_Eb2c_Address
-src/app/design/frontend/base/default/template/eb2c_address_frontend app/design/frontend/base/default/template/eb2c_address_frontend
-src/app/design/frontend/base/default/layout/eb2c_address_frontend.xml app/design/frontend/base/default/layout/eb2c_address_frontend.xml
-src/app/design/frontend/enterprise/default/template/eb2c_address_frontend app/design/frontend/enterprise/default/template/eb2c_address_frontend
+src/app/design/frontend/base/default/template/eb2caddress_frontend app/design/frontend/base/default/template/eb2caddress_frontend
+src/app/design/frontend/base/default/layout/eb2caddress_frontend.xml app/design/frontend/base/default/layout/eb2caddress_frontend.xml
+src/app/design/frontend/enterprise/default/template/eb2caddress_frontend app/design/frontend/enterprise/default/template/eb2caddress_frontend
 src/skin/frontend/base/default/css/* skin/frontend/base/default/css/
+src/skin/frontend/base/default/js/* skin/frontend/base/default/js/

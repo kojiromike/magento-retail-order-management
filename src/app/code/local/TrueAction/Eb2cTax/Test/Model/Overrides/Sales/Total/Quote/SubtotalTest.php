@@ -59,6 +59,13 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest ext
 	 */
 	public function testCollectWithBundle()
 	{
+		$mockObserver = $this->getModelMock('tax/observer', array('quoteCollectTotalsBefore'));
+		$mockObserver->expects($this->any())
+			->method('quoteCollectTotalsBefore')
+			->will($this->returnSelf());
+		$this->replaceByMock('singleton', 'tax/observer', $mockObserver);
+		$this->replaceByMock('model', 'tax/observer', $mockObserver);
+
 		$mockProduct = $this->getModelMock('catalog/product', array('isVirtual'));
 		$mockProduct->expects($this->any())
 			->method('isVirtual')
@@ -131,6 +138,7 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest ext
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 * @loadExpectation testApplyTaxes.yaml

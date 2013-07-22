@@ -1,0 +1,10 @@
+getSuggestedAddressMessage:
+  message: Please choose one of the suggestions below.
+getSuggestionLabel:
+  message: Use this address
+getOriginalAddressLabel:
+  message: Use original address
+getNewAddressBoxMessage:
+  message: Add a New Address
+getNewAddressLabel:
+  message: Use new address

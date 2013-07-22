@@ -39,9 +39,11 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Subtotal extends Mage
 	 */
 	public function collect(Mage_Sales_Model_Quote_Address $address)
 	{
+		Mage_Sales_Model_Quote_Address_Total_Abstract::collect($address);
+		$eventArgs = array('quote' => $address->getQuote());
+		Mage::dispatchEvent('eb2ctax_subtotal_collect_before', $eventArgs);
 		$this->_store   = $address->getQuote()->getStore();
 		$this->_address = $address;
-
 		$this->_subtotalInclTax     = 0;
 		$this->_baseSubtotalInclTax = 0;
 		$this->_subtotal            = 0;

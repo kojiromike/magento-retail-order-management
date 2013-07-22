@@ -134,7 +134,7 @@ class TrueAction_Eb2cAddress_Test_Helper_DataTest
 	{
 		$region = Mage::helper('eb2caddress')
 			->physicalAddressRegionId($this->_generatePhysicalAddressElement());
-		$this->assertSame($region, '51'); // 'PA' maps to region id '51' in Magento addreses
+		$this->assertSame($region, 51); // 'PA' maps to region id '51' in Magento addreses
 	}
 
 	/**

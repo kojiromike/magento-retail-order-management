@@ -48,7 +48,7 @@ class TrueAction_Eb2cTax_Model_Response_OrderItem extends Mage_Core_Model_Abstra
 	{
 		if ($this->getNode()) {
 			$xpath = new DOMXPath($this->getNode()->ownerDocument);
-			$xpath->registerNamespace('a', $this->getNamespaceUri());
+			$xpath->registerNamespace('a', $this->getNode()->namespaceURI);
 			$this->_xpath = $xpath;
 			$this->_extractData();
 		}

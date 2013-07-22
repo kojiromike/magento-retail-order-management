@@ -7,6 +7,8 @@ class TrueAction_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Template
 	const DEFAULT_ADDRESS_FORMAT_CONFIG = 'address_format_full';
 	const NEW_ADDRESS_SELECTION_VALUE = 'new_address';
 
+	protected $_template = "eb2caddress_frontend/customer/address/suggestions.phtml";
+
 	/**
 	 * mapping of messages used by this block
 	 * @var array
@@ -18,6 +20,7 @@ class TrueAction_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Template
 		'new_address_box' => 'Add a New Address',
 		'new_label' => 'Use new address',
 	);
+
 	/**
 	 * config registry model, if populated, should be expected to have had
 	 * the necessary config models populated.
@@ -25,18 +28,40 @@ class TrueAction_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Template
 	 */
 	protected $_config = null;
 
+	/**
+	 * An address validation validator model which will be used to look up
+	 * any necessary addresses/data related to address validation.
+	 * @var TrueAction_Eb2cAddress_Model_Validator
+	 */
+	protected $_validator = null;
+
+	/**
+	 * Flag indicating if address suggestions should be shown.
+	 * Ensures that the block only ever asks the validator once as after
+	 * the block starts pulling address data from the validator, this would change
+	 * as the suggestions would no longer be "fresh".
+	 * @var boolean
+	 */
+	protected $_shouldShowSuggestions = null;
+
 	protected function _construct()
 	{
 		$this->_config = Mage::getModel('eb2ccore/config_registry')
 			->addConfigModel(Mage::getSingleton('eb2caddress/config'));
+		$this->_validator = Mage::getModel('eb2caddress/validator');
 	}
 
 	/**
 	 * Determines if there are suggestions to display to the user.
+	 * @return boolean
 	 */
 	public function shouldShowSuggestions()
 	{
-		return Mage::getSingleton('eb2caddress/validator')->hasSuggestions();
+		if (is_null($this->_shouldShowSuggestions)) {
+			$this->_shouldShowSuggestions = $this->_validator->hasFreshSuggestions()
+				&& ($this->_validator->hasSuggestions() || !$this->_validator->isValid());
+		}
+		return $this->_shouldShowSuggestions;
 	}
 
 	/**
@@ -45,7 +70,7 @@ class TrueAction_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Template
 	 */
 	public function getSuggestedAddresses()
 	{
-		return Mage::getSingleton('eb2caddress/validator')->getSuggestedAddresses();
+		return $this->_validator->getSuggestedAddresses();
 	}
 
 	/**
@@ -54,7 +79,7 @@ class TrueAction_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Template
 	 */
 	public function getOriginalAddress()
 	{
-		return Mage::getSingleton('eb2caddress/validator')->getOriginalAddress();
+		return $this->_validator->getOriginalAddress();
 	}
 
 	/**
@@ -68,6 +93,17 @@ class TrueAction_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Template
 					($this->getAddressFormat() ?: self::DEFAULT_ADDRESS_FORMAT_CONFIG)
 			))
 			->render($address);
+	}
+
+	/**
+	 * Get a JSON representation of the address data.
+	 * @param Mage_Customer_Model_Address_Abstract $address
+	 * @return string
+	 */
+	public function getAddressJSONData(Mage_Customer_Model_Address_Abstract $address)
+	{
+		$address->explodeStreetAddress();
+		return $address->toJson(array('street1', 'street2', 'street3', 'street4', 'city', 'region_id', 'country_id', 'postcode'));
 	}
 
 	/**

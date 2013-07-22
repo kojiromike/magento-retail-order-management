@@ -66,13 +66,35 @@ class TrueAction_Eb2cTax_Overrides_Model_Observer
 	 */
 	public function quoteCollectTotalsBefore(Varien_Event_Observer $observer)
 	{
-		Mage::log('quoteCollectTotalsBefore');
+		Mage::log('send tax request event');
 		/* @var $quote Mage_Sales_Model_Quote */
 		$quote = $observer->getEvent()->getQuote();
-		foreach ($quote->getAllAddresses() as $address) {
-			$address->setExtraTaxAmount(0);
-			$address->setBaseExtraTaxAmount(0);
+		if (is_a($quote, 'Mage_Sales_Model_Quote')) {
+			foreach ($quote->getAllAddresses() as $address) {
+				$address->setExtraTaxAmount(0);
+				$address->setBaseExtraTaxAmount(0);
+			}
+		} else {
+			Mage::log(
+				'EB2C Tax Error: quoteCollectTotalsBefore: did not receive a Mage_Sales_Model_Quote object',
+				Zend_Log::WARN
+			);
 		}
+		return $this;
+	}
+
+
+	/**
+	 * send a tax request for the quote and set the reponse in the calculator.
+	 *
+	 * @param Varien_Event_Observer $observer
+	 * @return Mage_Tax_Model_Observer
+	 */
+	public function taxEventSendRequest(Varien_Event_Observer $observer)
+	{
+		Mage::log('send tax request event');
+		/* @var $quote Mage_Sales_Model_Quote */
+		$quote = $observer->getEvent()->getQuote();
 		if (is_a($quote, 'Mage_Sales_Model_Quote')) {
 			$this->_getTaxHelper()->getCalculator()
 				->getTaxRequest()
@@ -80,7 +102,7 @@ class TrueAction_Eb2cTax_Overrides_Model_Observer
 			$this->_fetchTaxDutyInfo($quote);
 		} else {
 			Mage::log(
-				'EB2C Tax Error: quoteCollectTotalsBefore: did not receive a Mage_Sales_Model_Quote object',
+				'EB2C Tax Error: taxEventSendRequest: did not receive a Mage_Sales_Model_Quote object',
 				Zend_Log::WARN
 			);
 		}

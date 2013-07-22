@@ -9,7 +9,7 @@
 		<layout>
 			<updates>
 				<eb2caddressfrontend>
-					<file>eb2c_address_frontend.xml</file>
+					<file>eb2caddress_frontend.xml</file>
 				</eb2caddressfrontend>
 			</updates>
 		</layout>

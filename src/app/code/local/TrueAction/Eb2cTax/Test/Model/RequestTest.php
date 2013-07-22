@@ -120,6 +120,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
@@ -134,6 +135,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
@@ -150,6 +152,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
@@ -167,6 +170,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
@@ -190,6 +194,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingNotSameAsBillingVirtual.yaml
 	 */
@@ -206,6 +211,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture multiShipNotSameAsBilling.yaml
 	 */
@@ -222,6 +228,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture multiShipNotSameAsBilling.yaml
 	 */
@@ -260,6 +267,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
@@ -309,6 +317,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingNotSameAsBilling.yaml
 	 */
@@ -327,6 +336,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBillingNullSku.yaml
 	 */
@@ -341,6 +351,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBillingLongSku.yaml
 	 */
@@ -365,6 +376,50 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture singleShippingSameAsBilling.yaml
+	 */
+	public function testCheckDiscounts()
+	{
+		$this->markTestIncomplete('there is an error in checkdiscounts');
+		$address = $this->getModelMock('sales/quote_address', array('getId'));
+		$address->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$quote = $this->getModelMock('sales/quote', array('getId', 'getItemsCount', 'getBillingAddress', 'getAllVisibleItems'));
+		$quote->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$quote->expects($this->any())
+			->method('getItemsCount')
+			->will($this->returnValue(1));
+		$quote->expects($this->any())
+			->method('getBillingAddress')
+			->will($this->returnValue($address));
+
+		$request = Mage::getModel('eb2ctax/request');
+		$request->setQuote($quote)
+			->setBillingAddress($address);
+		$this->assertTrue($request->isValid());
+		$request->checkDiscounts(array(1));
+		$this->assertFalse($request->isValid());
+
+		$appliedIds = self::$cls->getProperty('_appliedDiscountIds');
+		$appliedIds->setAccessible(true);
+
+		$request = Mage::getModel('eb2ctax/request');
+		$request->setQuote($quote)
+			->setBillingAddress($address);
+		$this->assertTrue($request->isValid());
+		$appliedIds->setValue($request, array('1'));
+		$request->checkDiscounts(array(1));
+		$this->assertTrue($request->isValid());
+	}
+
+
+	/**
+	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingNotSameAsBilling.yaml
 	 */
@@ -402,9 +457,9 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 			'merchandise_discount_code'      => 'somediscount',
 			'merchandise_discount_calc_duty' => 0,
 			'merchandise_discount_amount'    => 10.0,
-			'shipping_discount_code'      => 'somediscount2',
-			'shipping_discount_calc_duty' => 1,
-			'shipping_discount_amount'    => 5.0,
+			'shipping_discount_code'         => 'somediscount2',
+			'shipping_discount_calc_duty'    => 1,
+			'shipping_discount_amount'       => 5.0,
 		);
 		$fn->invoke($request, $node, $discount);
 		$this->assertSame('somediscount', $xpath->evaluate('string(./a:Discount/@id)', $node));
@@ -424,6 +479,8 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 		$request = self::$cls->newInstance();
 		$fn = self::$cls->getMethod('_extractItemDiscountData');
 		$fn->setAccessible(true);
+		$mockQuote = $this->getModelMock('sales/quote', array('getAppliedRuleIds'));
+		$request->setQuote($mockQuote);
 		$mockQuoteAddress = $this->getModelMock('sales/quote_address', array('getShippingDiscountAmount', 'getCouponCode'));
 		$mockQuoteAddress->expects($this->any())
 			->method('getCouponCode')
@@ -435,6 +492,9 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 		$mockItem->expects($this->any())
 			->method('getDiscountAmount')
 			->will($this->returnValue(5));
+		$mockItem->expects($this->any())
+			->method('getAppliedRuleIds')
+			->will($this->returnValue(''));
 		$outData = array();
 		$fn->invoke($request, $mockItem, $mockQuoteAddress, &$outData);
 		$keys = array(
@@ -445,8 +505,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 			'shipping_discount_amount',
 			'shipping_discount_calc_duty',
 		);
-		foreach ($keys as $key)
-		{
+		foreach ($keys as $key) {
 			$this->assertArrayHasKey($key, $outData);
 		}
 		$this->assertSame('_somecouponcode', $outData['merchandise_discount_code']);

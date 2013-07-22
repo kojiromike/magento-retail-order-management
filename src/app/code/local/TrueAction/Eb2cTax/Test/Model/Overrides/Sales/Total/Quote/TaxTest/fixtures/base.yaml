@@ -48,16 +48,10 @@ scope:
       name: Germany Store
       is_active: 1
 eav:
-  customer:
-    - entity_id: 5
-      email: foo@example.com
-      website_ids:
-        - usa_website
-      is_active: 1
   customer_address:
     - entity_id: 4
-      customer_id: 5
+      customer_id: 1
       is_active: 1
     - entity_id: 5
-      customer_id: 5
+      customer_id: 1
       is_active: 1

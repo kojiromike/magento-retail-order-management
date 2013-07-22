@@ -23,7 +23,6 @@ class TrueAction_Eb2cOrder_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_Ca
 	 */
 	public function testFactoryMethod()
 	{
-		// Create proper class:
 		$testFactoryCreator = Mage::getModel('eb2corder/create');
 		$this->assertInstanceOf('TrueAction_Eb2cOrder_Model_Create', $testFactoryCreator );
 	}
@@ -31,6 +30,7 @@ class TrueAction_Eb2cOrder_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_Ca
 
 	/**
 	 * @test
+	 * @medium
 	 * @loadFixture testOrderCreateScenarios.yaml
 	 * Get a collection; try creating order for last one
 	 */

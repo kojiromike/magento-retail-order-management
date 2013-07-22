@@ -138,6 +138,7 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest ext
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 * @loadExpectation testApplyTaxes.yaml

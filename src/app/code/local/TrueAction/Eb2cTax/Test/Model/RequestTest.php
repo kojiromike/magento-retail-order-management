@@ -120,6 +120,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
@@ -134,6 +135,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
@@ -150,6 +152,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
@@ -167,6 +170,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
@@ -190,6 +194,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingNotSameAsBillingVirtual.yaml
 	 */
@@ -206,6 +211,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture multiShipNotSameAsBilling.yaml
 	 */
@@ -222,6 +228,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture multiShipNotSameAsBilling.yaml
 	 */
@@ -260,6 +267,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
 	 */
@@ -309,6 +317,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingNotSameAsBilling.yaml
 	 */
@@ -327,6 +336,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBillingNullSku.yaml
 	 */
@@ -341,6 +351,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBillingLongSku.yaml
 	 */
@@ -408,6 +419,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingNotSameAsBilling.yaml
 	 */

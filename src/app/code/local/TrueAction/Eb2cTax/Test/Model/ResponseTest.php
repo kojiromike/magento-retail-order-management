@@ -49,6 +49,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 	 * Testing getResponseForItem method
 	 *
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
@@ -76,6 +77,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 	 * Testing getResponseItems method
 	 *
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
@@ -95,6 +97,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 	 * Testing isValid method
 	 *
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
@@ -111,6 +114,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 	 * Testing _construct method - valid request/response match xml
 	 *
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
@@ -143,6 +147,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 	 * Testing _construct method - invalid request/response match xml
 	 *
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
@@ -173,6 +178,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 	 * Testing _construct method - invalid request/response match xml because of MailingAddress[@id="2"] element is different
 	 *
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
@@ -202,6 +208,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
@@ -229,6 +236,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
@@ -261,6 +269,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
@@ -289,6 +298,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 */
@@ -328,6 +338,7 @@ class TrueAction_Eb2cTax_Test_Model_ResponseTest extends EcomDev_PHPUnit_Test_Ca
 
 	/**
 	 * @test
+	 * @large
 	 * @loadFixture base.yaml
 	 * @loadFixture testItemSplitAcrossShipGroups.yaml
 	 * @loadExpectation

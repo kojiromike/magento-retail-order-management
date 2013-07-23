@@ -233,7 +233,7 @@ class TrueAction_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_Calc
 				$rate['priority']    = 1;
 				$group['rates'][]    = $rate;
 				$group['amount']     += $rate['amount'];
-				$result[$id]       = $group;
+				$result[$id]         = $group;
 			}
 		}
 		return $result;

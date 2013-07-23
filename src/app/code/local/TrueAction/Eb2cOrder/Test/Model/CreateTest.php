@@ -30,7 +30,7 @@ class TrueAction_Eb2cOrder_Test_Model_CreateTest extends EcomDev_PHPUnit_Test_Ca
 
 	/**
 	 * @test
-	 * @medium
+	 * @long
 	 * @loadFixture testOrderCreateScenarios.yaml
 	 * Get a collection; try creating order for last one
 	 */

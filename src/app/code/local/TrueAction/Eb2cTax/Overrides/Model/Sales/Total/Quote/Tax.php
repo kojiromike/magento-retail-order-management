@@ -170,11 +170,9 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 				$baseRowTaxDiscount = $this->_calculator->getDiscountTaxForAmount($baseDiscountAmount, $itemSelector);
 				$this->_processHiddenTax($rowTaxDiscount, $baseRowTaxDiscount, $item);
 
-				// if we sent the price as the full price we would have to
-				// adjust the tax amounts due to the discounts. leaving this here as
-				// a reminder in case things change.
-				// $rowTax     = $rowTax - $rowTaxDiscount;
-				// $baseRowTax = $baseRowTax - $baseRowTaxDiscount;
+				// adjust the tax amounts due to the discounts.
+				$rowTax     = $rowTax - $rowTaxDiscount;
+				$baseRowTax = $baseRowTax - $baseRowTaxDiscount;
 				break;
 		}
 

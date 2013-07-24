@@ -148,8 +148,7 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 		$hiddenTax      = null;
 		$baseHiddenTax  = null;
 
-		$calcTaxBefore = Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_INCL;
-		switch ($calcTaxBefore/*$this->_helper->getCalculationSequence($this->_store)*/) {
+		switch ($this->_helper->getCalculationSequence($this->_store)) {
 			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_EXCL:
 			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_INCL:
 				$rowTax     = $this->_calculator->getTax($itemSelector);

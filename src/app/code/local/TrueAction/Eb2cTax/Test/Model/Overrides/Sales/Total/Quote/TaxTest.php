@@ -1,24 +1,14 @@
 <?php
-class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends EcomDev_PHPUnit_Test_Case
+class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends TrueAction_Eb2cTax_Test_Base
 {
 	public function setUp()
 	{
-		parent::setUp();
-		$_SESSION = array();
-		$_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
-		$this->app()->getRequest()->setBaseUrl($_baseUrl);
-
+		$this->_setupBaseUrl();
 		$this->tax = Mage::getModel('tax/sales_total_quote_tax');
 		// assertType is undefined.
 		$this->assertSame('TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax', get_class($this->tax));
-		$this->calcTaxForItem = new ReflectionMethod($this->tax, '_calcTaxForItem');
-		$this->calcTaxForItem->setAccessible(true);
-		$this->calcTaxForAddress = new ReflectionMethod($this->tax, '_calcTaxForAddress');
-		$this->calcTaxForAddress->setAccessible(true);
-		$this->isFlatShipping = new ReflectionMethod($this->tax, '_isFlatShipping');
-		$this->isFlatShipping->setAccessible(true);
-		$this->address = new ReflectionProperty($this->tax, '_address');
-		$this->address->setAccessible(true);
+		$this->calcTaxForItem = $this->_reflectMethod($this->tax, '_calcTaxForItem');
+		$this->calcTaxForAddress = $this->_reflectMethod($this->tax, '_calcTaxForAddress');
 	}
 
 	/**

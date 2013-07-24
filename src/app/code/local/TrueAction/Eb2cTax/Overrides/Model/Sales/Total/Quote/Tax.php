@@ -154,43 +154,28 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 
 		switch ($this->_helper->getCalculationSequence($this->_store)) {
 			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_EXCL:
-			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_INCL:
+			case Mage_Tax_Model_Calculation::CALC_TAX_BEFORE_DISCOUNT_ON_INCL: // tax the full itemprice
 				$rowTax     = $this->_calculator->getTax($itemSelector);
 				$baseRowTax = $this->_calculator->getTaxForAmount($baseSubtotal, $itemSelector);
 				break;
-			// @codeCoverageIgnoreStart
 			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_EXCL:
-			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_INCL:
+			case Mage_Tax_Model_Calculation::CALC_TAX_AFTER_DISCOUNT_ON_INCL:  // tax only what you pay
 				// prices sent after adding discounts
 				// taxes received are already reduced due to discounted prices sent
+				$rowTax             = $this->_calculator->getTax($itemSelector);
+				$rowTaxDiscount     = $this->_calculator->getDiscountTax($itemSelector);
 
-				$discountAmount           = $item->getDiscountAmount();
-				$baseDiscountAmount       = $item->getBaseDiscountAmount();
+				$baseRowTax         = $this->_calculator->getTaxForAmount($baseSubtotal, $itemSelector);
+                $baseDiscountAmount = $item->getBaseDiscountAmount();
+				$baseRowTaxDiscount = $this->_calculator->getDiscountTaxForAmount($baseDiscountAmount, $itemSelector);
+				$this->_processHiddenTax($rowTaxDiscount, $baseRowTaxDiscount, $item);
 
-				$rowTax                   = $this->_calculator->getTax($itemSelector);
-				$rowTaxDiscount           = 0;//$this->_calculator->getTaxDiscount($itemSelector);
-				$rowTaxBeforeDiscount     = $rowTax + $rowTaxDiscount;
-
-				$baseRowTax               = $this->_calculator->getTaxForItem($baseSubtotal, $itemSelector->getItem(), $itemSelector->getAddress());
-				$baseRowTaxDiscount       = 0;//$this->_calculator->getTaxDiscountAmount($baseDiscountAmount, $itemSelector->getItem(), $itemSelector->getAddress());
-				$baseRowTaxBeforeDiscount = $baseRowTax + $baseRowTaxDiscount;
-
-				$rowTax = $this->_calculator->round($rowTax);
-				$baseRowTax = $this->_calculator->round($baseRowTax);
-				if ($discountAmount > $subtotal) { // case with 100% discount on price incl. tax
-					$hiddenTax      = $discountAmount - $subtotal;
-					$baseHiddenTax  = $baseDiscountAmount - $baseSubtotal;
-					$this->_hiddenTaxes[] = array(
-						'rate_key'   => $rateKey,
-						'qty'        => 1,
-						'item'       => $item,
-						'value'      => $hiddenTax,
-						'base_value' => $baseHiddenTax,
-						'incl_tax'   => $inclTax,
-					);
-				}
+				// if we sent the price as the full price we would have to
+				// adjust the tax amounts due to the discounts. leaving this here as
+				// a reminder in case things change.
+				// $rowTax     = $rowTax - $rowTaxDiscount;
+				// $baseRowTax = $baseRowTax - $baseRowTaxDiscount;
 				break;
-			// @codeCoverageIgnoreEnd
 		}
 
 		$item->setTaxAmount(max(0, $rowTax));

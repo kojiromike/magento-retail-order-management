@@ -37,7 +37,11 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 	 */
 	public function collect(Mage_Sales_Model_Quote_Address $address)
 	{
+		// save the address and clear out the tax total fields
 		Mage_Sales_Model_Quote_Address_Total_Abstract::collect($address);
+		// clear out the hiddenTax related fields
+		$this->_resetHiddenTaxes($address);
+
 		$this->_roundingDeltas      = array();
 		$this->_baseRoundingDeltas  = array();
 		$this->_hiddenTaxes         = array();
@@ -234,16 +238,33 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
     }
 
 	/**
-	 * return true if using flat rate shipping to send items to $address; false otherwise.
+	 * zero out the totalamout, basetotalamount fields for hidden taxes.
 	 * @param  Mage_Sales_Model_Quote_Address $address
-	 * @return boolean
 	 */
-	protected function _isFlatShipping(Mage_Sales_Model_Quote_Address $address)
+	protected function _resetHiddenTaxes(Mage_Sales_Model_Quote_Address $address)
 	{
-		$flatrate = 'flatrate_flatrate';
-		return $address->getShippingMethod() === $flatrate;
+		$address->setTotalAmount('hidden_tax', 0);
+		$address->setBaseTotalAmount('hidden_tax', 0);
+		$address->setTotalAmount('shipping_hidden_tax', 0);
+		$address->setBaseTotalAmount('shipping_hidden_tax', 0);
 	}
 
+	/**
+	 * Process hidden taxes for items and shippings (in accordance with hidden tax type)
+	 *
+	 * @return void
+	 */
+	protected function _processHiddenTax($amount, $baseAmount, $item)
+	{
+		if ($amount || $baseAmount) {
+			$hiddenTax      = $this->_calculator->round($amount);
+			$baseHiddenTax  = $this->_calculator->round($baseAmount);
+			$item->setHiddenTaxAmount(max(0, $hiddenTax));
+			$item->setBaseHiddenTaxAmount(max(0, $baseHiddenTax));
+			$this->_getAddress()->addTotalAmount('hidden_tax', $item->getHiddenTaxAmount());
+			$this->_getAddress()->addBaseTotalAmount('hidden_tax', $item->getBaseHiddenTaxAmount());
+		}
+	}
 
 
 	/// most of this function can be merged up into the collect function

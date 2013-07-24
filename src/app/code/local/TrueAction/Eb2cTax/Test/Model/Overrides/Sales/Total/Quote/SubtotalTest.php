@@ -164,6 +164,7 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest ext
 	 * @test
 	 * @loadFixture base.yaml
 	 * @loadFixture singleShippingSameAsBilling.yaml
+	 * @large
 	 */
 	public function testCollect()
 	{

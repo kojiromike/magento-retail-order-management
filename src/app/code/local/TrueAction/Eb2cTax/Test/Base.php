@@ -14,6 +14,19 @@ class TrueAction_Eb2cTax_Test_Base extends EcomDev_PHPUnit_Test_Case {
 		return $p;
 	}
 
+	protected function _buildModelMock($alias, $methods, $initData = null)
+	{
+		$mock = $this->getModelMock($alias, array_keys($methods));
+		foreach ($methods as $name => $will) {
+			if (!is_null($will)) {
+				$mock->expects($this->any())
+					->method($name)
+					->will($will);
+			}
+		}
+		return $mock;
+	}
+
 	protected function _setupBaseUrl()
 	{
 		parent::setUp();

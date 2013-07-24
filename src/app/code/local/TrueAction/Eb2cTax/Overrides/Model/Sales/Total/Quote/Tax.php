@@ -206,36 +206,36 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 		return $this;
 	}
 
-    /**
-     * Collect applied tax rates information on address level
-     *
-     * @param   Mage_Sales_Model_Quote_Address $address
-     * @param   array $applied
-     * @param   float $amount
-     * @param   float $baseAmount
-     * @param   float $rate
-     */
-    protected function _saveAppliedTaxes(Mage_Sales_Model_Quote_Address $address,
-                                         $applied, $amount, $baseAmount, $rate)
-    {
-        $previouslyAppliedTaxes = $address->getAppliedTaxes();
-        $process = count($previouslyAppliedTaxes);
+	/**
+	 * Collect applied tax rates information on address level
+	 *
+	 * @param   Mage_Sales_Model_Quote_Address $address
+	 * @param   array $applied
+	 * @param   float $amount
+	 * @param   float $baseAmount
+	 * @param   float $rate
+	 */
+	protected function _saveAppliedTaxes(Mage_Sales_Model_Quote_Address $address,
+										 $applied, $amount, $baseAmount, $rate)
+	{
+		$previouslyAppliedTaxes = $address->getAppliedTaxes();
+		$process = count($previouslyAppliedTaxes);
 
-        foreach ($applied as $row) {
-            if ($row['percent'] == 0) {
-                continue;
-            }
-            if (!isset($previouslyAppliedTaxes[$row['id']])) {
-                $row['process']     = $process;
-                $previouslyAppliedTaxes[$row['id']] = $row;
-            }
+		foreach ($applied as $row) {
+			if ($row['percent'] == 0) {
+				continue;
+			}
+			if (!isset($previouslyAppliedTaxes[$row['id']])) {
+				$row['process']     = $process++;
+				$previouslyAppliedTaxes[$row['id']] = $row;
+			}
 
-            if (!$previouslyAppliedTaxes[$row['id']]['amount']) {
-                unset($previouslyAppliedTaxes[$row['id']]);
-            }
-        }
-        $address->setAppliedTaxes($previouslyAppliedTaxes);
-    }
+			if (!$previouslyAppliedTaxes[$row['id']]['amount']) {
+				unset($previouslyAppliedTaxes[$row['id']]);
+			}
+		}
+		$address->setAppliedTaxes($previouslyAppliedTaxes);
+	}
 
 	/**
 	 * zero out the totalamout, basetotalamount fields for hidden taxes.

@@ -744,5 +744,77 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends EcomDev_PHPUnit_Test_Cas
 		$this->assertNull(
 			$request->checkShippingOriginAddresses($quote)
 		);
+
+		// testing with invalid quote
+		$quoteAMock = $this->getMock('Mage_Sales_Model_Quote', array('getId'));
+		$quoteAMock->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(0)
+			);
+		$this->assertNull(
+			$request->checkShippingOriginAddresses($quoteAMock)
+		);
+
+		// testing when shippingOrigin has changed.
+		$requestReflector = new ReflectionObject($request);
+		$orderItemsProperty = $requestReflector->getProperty('_orderItems');
+		$orderItemsProperty->setAccessible(true);
+		$orderItemsProperty->setValue(
+			$request, array('1' => array(
+					'id' => 1,
+					'ShippingOrigin' => array(
+
+					'Line1' => '1075 First Avenue', 'Line2' => 'Line2', 'Line3' => 'Line3', 'Line4' => 'Line4', 'City' => 'King Of Prussia',
+					'MainDivision' => 'PA', 'CountryCode' => 'US', 'PostalCode' => '19406'
+				)
+			))
+		);
+		$this->assertNull(
+			$request->checkShippingOriginAddresses($quote)
+		);
+
+	}
+
+	/**
+	 * @test
+	 * @loadFixture base.yaml
+	 * @loadFixture singleShippingSameAsBilling.yaml
+	 */
+	public function testCheckAdminOriginAddresses()
+	{
+		$quote = Mage::getModel('sales/quote')->loadByIdWithoutStore(1);
+		$request = Mage::getModel('eb2ctax/request', array('quote' => $quote));
+
+		$this->assertNull(
+			$request->checkAdminOriginAddresses()
+		);
+
+		// testing when adminOrigin has changed.
+		$requestReflector = new ReflectionObject($request);
+		$orderItemsProperty = $requestReflector->getProperty('_orderItems');
+		$orderItemsProperty->setAccessible(true);
+		$orderItemsProperty->setValue(
+			$request, array('1' => array(
+					'id' => 1,
+					'AdminOrigin' => array(
+
+					'Line1' => 'This is not a test, it\'s difficulty', 'Line2' => 'Line2', 'Line3' => 'Line3', 'Line4' => 'Line4', 'City' => 'King Of Prussia',
+					'MainDivision' => 'PA', 'CountryCode' => 'US', 'PostalCode' => '19406'
+				)
+			))
+		);
+		$this->assertNull(
+			$request->checkAdminOriginAddresses()
+		);
+
+		// Testing the behavior of the checkAdminOriginAddresses method
+		// when the _hasChanged property is set from a previous process
+		$requestReflector = new ReflectionObject($request);
+		$hasChangesProperty = $requestReflector->getProperty('_hasChanges');
+		$hasChangesProperty->setAccessible(true);
+		$hasChangesProperty->setValue($request, true);
+		$this->assertNull(
+			$request->checkAdminOriginAddresses()
+		);
 	}
 }

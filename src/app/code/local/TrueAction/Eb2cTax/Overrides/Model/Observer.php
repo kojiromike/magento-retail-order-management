@@ -74,12 +74,18 @@ class TrueAction_Eb2cTax_Overrides_Model_Observer
 				$address->setExtraTaxAmount(0);
 				$address->setBaseExtraTaxAmount(0);
 			}
+			// checking address
 			$this->_getTaxHelper()->getCalculator()
 				->getTaxRequest()
 				->checkAddresses($quote);
+			// checking ShippingOrigin Address
 			$this->_getTaxHelper()->getCalculator()
 				->getTaxRequest()
 				->checkShippingOriginAddresses($quote);
+			// checking AdminOrigin Address
+			$this->_getTaxHelper()->getCalculator()
+				->getTaxRequest()
+				->checkAdminOriginAddresses();
 		} else {
 			Mage::log(
 				'EB2C Tax Error: quoteCollectTotalsBefore: did not receive a Mage_Sales_Model_Quote object',

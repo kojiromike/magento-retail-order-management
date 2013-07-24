@@ -835,4 +835,30 @@ class TrueAction_Eb2cTax_Model_Request extends Mage_Core_Model_Abstract
 			$this->invalidate();
 		}
 	}
+
+	/**
+	 * compare the adminOrigin to be sent in the request with the adminOrigin
+	 * in the specified quote.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 */
+	public function checkAdminOriginAddresses()
+	{
+		if (!$this->isValid()) {
+			// skip it if the request is bad in the first place or if the quote
+			// passed in is null.
+			return;
+		}
+
+		if (is_array($this->_orderItems)) {
+			foreach ($this->_orderItems as $key => $value) {
+				$adminData = $this->_extractAdminData();
+				$adminOrigin = $value['AdminOrigin'];
+				$this->_hasChanges = (bool) array_diff_assoc($adminData, $adminOrigin);
+			}
+		}
+
+		if ($this->_hasChanges) {
+			$this->invalidate();
+		}
+	}
 }

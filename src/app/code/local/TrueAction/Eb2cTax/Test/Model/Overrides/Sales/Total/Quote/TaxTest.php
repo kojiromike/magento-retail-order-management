@@ -26,7 +26,7 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends 
 		$address->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(15));
-		$items = $this->_mockItemsCalcTaxForItemBefore();
+		$items = $this->_mockItemsCalcTaxForItem();
 		$itemSelector = new Varien_Object(array('address' => $address));
 		// precondition check
 		$this->assertSame(2, count($items), 'number of items (' . count($items) . ') is not 2');
@@ -80,14 +80,14 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends 
 	 */
 	public function testCalcTaxForItemAfterDiscount()
 	{
-		$response = Mage::getModel('eb2ctax/response', array('xml' => self::$responseXml2));
+		$response = Mage::getModel('eb2ctax/response', array('xml' => self::$responseXml));
 		Mage::helper('tax')->getCalculator()->setTaxResponse($response);
 
 		$address = $this->getModelMock('sales/quote_address', array('getId'));
 		$address->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(15));
-		$items = $this->_mockItemsCalcTaxForItemAfter();
+		$items = $this->_mockItemsCalcTaxForItem();
 		$this->_reflectProperty($this->tax, '_address')
 			->setValue($this->tax, $address);
 		$itemSelector = new Varien_Object(array('address' => $address));
@@ -142,7 +142,7 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends 
 	 */
 	public function testCalcTaxForAddress()
 	{
-		$items = $this->_mockItemsCalcTaxForItemBefore();
+		$items = $this->_mockItemsCalcTaxForItem();
 		$quote = Mage::getModel('sales/quote');
 		$address = $this->_buildModelMock(
 			'sales/quote_address',
@@ -173,6 +173,39 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends 
 			$this->assertEquals($this->classicJeansAppliedRatesBefore, $item->getTaxRates());
 		}
 	}
+
+	public function testCollect()
+	{
+		$items = array(
+			$this->_mockItem(),
+		);
+
+		$addressMock = $this->_buildModelMock(
+			'sales/quote_address',
+			array(
+				'getId'                 => $this->returnValue(1),
+				'getAllNonNominalItems' => $this->returnValue($items),
+				'getQuote'              => null
+			)
+		);
+
+		$quoteMock = $this->getModelMock('sales/quote', array('getStore'));
+		$quoteMock->expects($this->any())
+			->method('getStore')
+			->will($this->returnValue(Mage::app()->getStore()));
+
+		$addressMock->expects($this->any())
+			->method('getQuote')
+			->will($this->returnValue($quoteMock));
+
+		$this->_mockCalculator();
+		// create the tax model after mocking the calculator so that it gets initialized with the
+		// mock
+		$tax = Mage::getModel('tax/sales_total_quote_tax');
+		$tax->collect($addressMock);
+		// assert the item->getTaxAmount is as expected.
+	}
+
 
 	public function testCollectChildItem()
 	{
@@ -328,10 +361,10 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends 
 		return $itemMock;
 	}
 
-	protected function _mockItemsCalcTaxForItemBefore()
+	protected function _mockItemsCalcTaxForItem()
 	{
 		$items = array();
-		$methods = array('getSku', 'getTaxableAmount', 'getBaseTaxableAmount', 'getIsPriceInclVat', 'getId');
+		$methods = array('getDiscountAmount', 'getBaseDiscountAmount', 'getSku', 'getTaxableAmount', 'getBaseTaxableAmount', 'getIsPriceInclVat', 'getId');
 		$itemMock = $this->getModelMock('sales/quote_item', $methods);
 		$itemMock->expects($this->any())
 			->method('getId')
@@ -345,42 +378,9 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends 
 		$itemMock->expects($this->any())
 			->method('getBaseTaxableAmount')
 			->will($this->returnValue(50.0));
-		$items[] = $itemMock;
-
-		$itemMock = $this->getModelMock('sales/quote_item', $methods);
 		$itemMock->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(7));
-		$itemMock->expects($this->any())
-			->method('getSku')
-			->will($this->returnValue('classic-jeans'));
-		$itemMock->expects($this->any())
-			->method('getTaxableAmount')
-			->will($this->returnValue(99.99));
-		$itemMock->expects($this->any())
-			->method('getBaseTaxableAmount')
-			->will($this->returnValue(99.99));
-		$items[] = $itemMock;
-		return $items;
-	}
-
-	protected function _mockItemsCalcTaxForItemAfter()
-	{
-		$items = array();
-		$methods = array('getBaseDiscountAmount', 'getSku', 'getTaxableAmount', 'getBaseTaxableAmount', 'getIsPriceInclVat', 'getId');
-		$itemMock = $this->getModelMock('sales/quote_item', $methods);
-		$itemMock->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(6));
-		$itemMock->expects($this->any())
-			->method('getSku')
-			->will($this->returnValue('gc_virtual1'));
-		$itemMock->expects($this->any())
-			->method('getTaxableAmount')
-			->will($this->returnValue(50.0));
-		$itemMock->expects($this->any())
-			->method('getBaseTaxableAmount')
-			->will($this->returnValue(50.0));
+			->method('getDiscountAmount')
+			->will($this->returnValue(0));
 		$itemMock->expects($this->any())
 			->method('getBaseDiscountAmount')
 			->will($this->returnValue(0));
@@ -395,17 +395,19 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends 
 			->will($this->returnValue('classic-jeans'));
 		$itemMock->expects($this->any())
 			->method('getTaxableAmount')
-			->will($this->returnValue(79.99));
+			->will($this->returnValue(99.99));
 		$itemMock->expects($this->any())
 			->method('getBaseTaxableAmount')
-			->will($this->returnValue(79.99));
+			->will($this->returnValue(99.99));
+		$itemMock->expects($this->any())
+			->method('getDiscountAmount')
+			->will($this->returnValue(20));
 		$itemMock->expects($this->any())
 			->method('getBaseDiscountAmount')
 			->will($this->returnValue(20));
 		$items[] = $itemMock;
 		return $items;
 	}
-
 
 	protected function _mockChildItem()
 	{
@@ -563,119 +565,6 @@ class TrueAction_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest extends 
                       <EffectiveRate>0.02</EffectiveRate>
                       <TaxableAmount>99.99</TaxableAmount>
                       <CalculatedTax>2.0</CalculatedTax>
-                    </Tax>
-                  </Taxes>
-                </TaxData>
-                <PromotionalDiscounts>
-                  <Discount calculateDuty="false" id="334">
-                    <Amount>20.00</Amount>
-                    <Taxes>
-                      <Tax taxType="SELLER_USE" taxability="TAXABLE">
-                        <Situs>DESTINATION</Situs>
-                        <Jurisdiction jurisdictionId="31152" jurisdictionLevel="STATE">PENNSYLVANIA</Jurisdiction>
-                        <Imposition impositionType="General Sales and Use Tax">Sales and Use Tax</Imposition>
-                        <EffectiveRate>0.06</EffectiveRate>
-                        <TaxableAmount>20.0</TaxableAmount>
-                        <CalculatedTax>1.2</CalculatedTax>
-                      </Tax>
-                      <Tax taxType="SELLER_USE" taxability="TAXABLE">
-                        <Situs>DESTINATION</Situs>
-                        <Jurisdiction jurisdictionId="31152" jurisdictionLevel="STATE">PENNSYLVANIA</Jurisdiction>
-                        <Imposition impositionType="Random Tax">Random Tax</Imposition>
-                        <EffectiveRate>0.02</EffectiveRate>
-                        <TaxableAmount>20.0</TaxableAmount>
-                        <CalculatedTax>0.4</CalculatedTax>
-                      </Tax>
-                    </Taxes>
-                  </Discount>
-                </PromotionalDiscounts>
-              </Merchandise>
-            </Pricing>
-          </OrderItem>
-        </Items>
-      </ShipGroup>
-    </ShipGroups>
-    <Destinations>
-      <MailingAddress id="_14">
-        <PersonName>
-          <LastName><![CDATA[guy]]></LastName>
-          <FirstName><![CDATA[extra]]></FirstName>
-        </PersonName>
-        <Address>
-          <Line1><![CDATA[1 Shields]]></Line1>
-          <City><![CDATA[davis]]></City>
-          <MainDivision><![CDATA[CA]]></MainDivision>
-          <CountryCode><![CDATA[US]]></CountryCode>
-          <PostalCode><![CDATA[90210]]></PostalCode>
-        </Address>
-      </MailingAddress>
-      <MailingAddress id="_15">
-        <PersonName>
-          <LastName><![CDATA[guy]]></LastName>
-          <FirstName><![CDATA[extra]]></FirstName>
-        </PersonName>
-        <Address>
-          <Line1><![CDATA[1 Shields]]></Line1>
-          <City><![CDATA[davis]]></City>
-          <MainDivision><![CDATA[CA]]></MainDivision>
-          <CountryCode><![CDATA[US]]></CountryCode>
-          <PostalCode><![CDATA[90210]]></PostalCode>
-        </Address>
-      </MailingAddress>
-    </Destinations>
-  </Shipping>
-</TaxDutyQuoteRequest>';
-
-	public static $responseXml2 = '<?xml version="1.0" encoding="UTF-8"?>
-<TaxDutyQuoteRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
-  <Currency><![CDATA[USD]]></Currency>
-  <VATInclusivePricing><![CDATA[0]]></VATInclusivePricing>
-  <CustomerTaxId/>
-  <BillingInformation ref="_14"/>
-  <Shipping>
-    <ShipGroups>
-      <ShipGroup id="shipGroup_15_FLATRATE" chargeType="FLATRATE">
-        <DestinationTarget ref="_15"/>
-        <Items>
-          <OrderItem lineNumber="6">
-            <ItemId><![CDATA[gc_virtual1]]></ItemId>
-            <ItemDesc><![CDATA[Virtual Gift]]></ItemDesc>
-            <HTSCode/>
-            <Quantity><![CDATA[1]]></Quantity>
-            <Pricing>
-              <Merchandise>
-                <Amount><![CDATA[50.0000]]></Amount>
-                <TaxClass><![CDATA[2]]></TaxClass>
-                <UnitPrice><![CDATA[50.0000]]></UnitPrice>
-              </Merchandise>
-            </Pricing>
-          </OrderItem>
-          <OrderItem lineNumber="7">
-            <ItemId><![CDATA[classic-jeans]]></ItemId>
-            <ItemDesc><![CDATA[Classic Jean]]></ItemDesc>
-            <HTSCode/>
-            <Quantity><![CDATA[1]]></Quantity>
-            <Pricing>
-              <Merchandise>
-                <Amount><![CDATA[79.9900]]></Amount>
-                <TaxData>
-                  <TaxClass>89000</TaxClass>
-                  <Taxes>
-                    <Tax taxType="SELLER_USE" taxability="TAXABLE">
-                      <Situs>DESTINATION</Situs>
-                      <Jurisdiction jurisdictionId="31152" jurisdictionLevel="STATE">PENNSYLVANIA</Jurisdiction>
-                      <Imposition impositionType="General Sales and Use Tax">Sales and Use Tax</Imposition>
-                      <EffectiveRate>0.06</EffectiveRate>
-                      <TaxableAmount>79.99</TaxableAmount>
-                      <CalculatedTax>4.8</CalculatedTax>
-                    </Tax>
-                    <Tax taxType="SELLER_USE" taxability="TAXABLE">
-                      <Situs>DESTINATION</Situs>
-                      <Jurisdiction jurisdictionId="31152" jurisdictionLevel="STATE">PENNSYLVANIA</Jurisdiction>
-                      <Imposition impositionType="Random Tax">Random Tax</Imposition>
-                      <EffectiveRate>0.02</EffectiveRate>
-                      <TaxableAmount>79.99</TaxableAmount>
-                      <CalculatedTax>1.6</CalculatedTax>
                     </Tax>
                   </Taxes>
                 </TaxData>

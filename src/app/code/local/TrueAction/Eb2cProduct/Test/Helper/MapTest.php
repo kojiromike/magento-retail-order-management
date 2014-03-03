@@ -481,4 +481,146 @@ class TrueAction_Eb2cProduct_Test_Helper_MapTest
 			));
 		}
 	}
+
+	/**
+	 * Test extractNameValue method for the following expectations
+	 * Expectation 1: when this test invoked the method TrueAction_Eb2cProduct_Helper_Map::extractNameValue with
+	 *                a DOMNodeList object and a Mage_Catalog_Model_Product object it will extract the title value
+	 *                and then return the value if the value is not empty
+	 */
+	public function testExtractNameValue()
+	{
+		$value = 'Simple Test Prduct';
+		$nodes = new DOMNodeList();
+
+		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
+			->disableOriginalConstructor()
+			->setMethods(array('extractNodeVal'))
+			->getMock();
+		$coreHelperMock->expects($this->once())
+			->method('extractNodeVal')
+			->with($this->identicalTo($nodes))
+			->will($this->returnValue($value));
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
+
+		$product = $this->getModelMockBuilder('catalog/product')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+
+		$map = Mage::helper('eb2cproduct/map');
+
+		$this->assertSame($value, $map->extractNameValue($nodes, $product));
+	}
+
+	/**
+	 * @see testExtractNameValue test, except this time we are testing when
+	 *      the extract value is empty and expect the getSku method to be called in the
+	 *      Mage_Catalog_Model_Product to ge called
+	 */
+	public function testExtractNameValueWithEmptyExtractedTitle()
+	{
+		$value = '';
+		$sku = 'HTC93844';
+		$newValue = 'Invalid Product: ' . $sku;
+		$nodes = new DOMNodeList();
+
+		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
+			->disableOriginalConstructor()
+			->setMethods(array('extractNodeVal'))
+			->getMock();
+		$coreHelperMock->expects($this->once())
+			->method('extractNodeVal')
+			->with($this->identicalTo($nodes))
+			->will($this->returnValue($value));
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
+
+		$product = $this->getModelMockBuilder('catalog/product')
+			->disableOriginalConstructor()
+			->setMethods(array('getSku'))
+			->getMock();
+		$product->expects($this->once())
+			->method('getSku')
+			->will($this->returnValue($sku));
+
+		$map = Mage::helper('eb2cproduct/map');
+
+		$this->assertSame($newValue, $map->extractNameValue($nodes, $product));
+	}
+
+	/**
+	 * Test extractUrlKeyValue method for the following expectations
+	 * Expectation 1: when this test invoked the method TrueAction_Eb2cProduct_Helper_Map::extractNameValue with
+	 *                a DOMNodeList object and a Mage_Catalog_Model_Product object it will extract the title value
+	 *                and then return the value concatenate with the store id in the product object
+	 */
+	public function testExtractUrlKeyValue()
+	{
+		$storeId = 7;
+		$value = 'Simple Test Prduct';
+		$nodes = new DOMNodeList();
+		$returnValue = $value . '-' . $storeId;
+
+		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
+			->disableOriginalConstructor()
+			->setMethods(array('extractNodeVal'))
+			->getMock();
+		$coreHelperMock->expects($this->once())
+			->method('extractNodeVal')
+			->with($this->identicalTo($nodes))
+			->will($this->returnValue($value));
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
+
+		$product = $this->getModelMockBuilder('catalog/product')
+			->disableOriginalConstructor()
+			->setMethods(array('getStoreId'))
+			->getMock();
+		$product->expects($this->once())
+			->method('getStoreId')
+			->will($this->returnValue($storeId));
+
+		$map = Mage::helper('eb2cproduct/map');
+
+		$this->assertSame($returnValue, $map->extractUrlKeyValue($nodes, $product));
+	}
+
+	/**
+	 * @see testExtractUrlKeyValue test except this test when the value extracted return empty title
+	 *      then this test expect the Mage_Catalog_Model_Product::getSku and getStoreId
+	 *      to be called once and the return value to be a combination of hard coded
+	 *      string concatenated with the sku and the store id
+	 */
+	public function testExtractUrlKeyValueWhenExtractedTitleIsEmpty()
+	{
+		$storeId = 7;
+		$value = '';
+		$sku = 'HTC993883';
+		$nodes = new DOMNodeList();
+		$returnValue = 'Invalid Product: ' . $sku .'-' . $storeId;
+
+		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
+			->disableOriginalConstructor()
+			->setMethods(array('extractNodeVal'))
+			->getMock();
+		$coreHelperMock->expects($this->once())
+			->method('extractNodeVal')
+			->with($this->identicalTo($nodes))
+			->will($this->returnValue($value));
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
+
+		$product = $this->getModelMockBuilder('catalog/product')
+			->disableOriginalConstructor()
+			->setMethods(array('getStoreId', 'getSku'))
+			->getMock();
+		$product->expects($this->once())
+			->method('getStoreId')
+			->will($this->returnValue($storeId));
+		$product->expects($this->once())
+			->method('getSku')
+			->will($this->returnValue($sku));
+
+		$map = Mage::helper('eb2cproduct/map');
+
+		$this->assertSame($returnValue, $map->extractUrlKeyValue($nodes, $product));
+	}
 }

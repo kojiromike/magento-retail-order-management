@@ -135,23 +135,25 @@ class TrueAction_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
 	 */
 	public function extractConfigurableAttributesData(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
 	{
-		$typeInstance = $product->getTypeInstance(true);
-		// making sure the right type instance is set on the product
-		if (!$typeInstance instanceof Mage_Catalog_Model_Product_Type_Configurable) {
-			$product->setTypeId(Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE)
-				->setTypeInstance(Mage_Catalog_Model_Product_Type::factory($product, true), true);
-		}
+		if ($product->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+			$typeInstance = $product->getTypeInstance(true);
+			// making sure the right type instance is set on the product
+			if (!$typeInstance instanceof Mage_Catalog_Model_Product_Type_Configurable) {
+				$product->setTypeId(Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE)
+					->setTypeInstance(Mage_Catalog_Model_Product_Type::factory($product, true), true);
+			}
 
-		$data = null; // purposely setting this to null just in cause all the attribute already exists
-		// we need to know which configurable attribute we already have for this product
-		// so that we don't try to create the same super attribute relationship which will
-		// cause unique key duplication sql constraint to be thrown
-		$existedData = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
-		foreach (explode(',', strtolower(Mage::helper('eb2ccore')->extractNodeVal($nodes))) as $attributeCode) {
-			// if we don't currently have a super attribute relationship then get the
-			// configurable attribute data
-			if (!$this->_isSuperAttributeExists($existedData, $attributeCode)) {
-				$data[] = $this->_getConfiguredAttributeData($attributeCode);
+			$data = null; // purposely setting this to null just in cause all the attribute already exists
+			// we need to know which configurable attribute we already have for this product
+			// so that we don't try to create the same super attribute relationship which will
+			// cause unique key duplication sql constraint to be thrown
+			$existedData = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
+			foreach (explode(',', strtolower(Mage::helper('eb2ccore')->extractNodeVal($nodes))) as $attributeCode) {
+				// if we don't currently have a super attribute relationship then get the
+				// configurable attribute data
+				if (!$this->_isSuperAttributeExists($existedData, $attributeCode)) {
+					$data[] = $this->_getConfiguredAttributeData($attributeCode);
+				}
 			}
 		}
 		return $data;

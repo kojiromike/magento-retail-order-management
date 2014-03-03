@@ -249,7 +249,8 @@ class TrueAction_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		$prodData = $this->_getProdTplt();
 		$prodData['name'] = $name ?: "Invalid Product: $sku";
-		$prodData['sku'] = $prodData['url_key'] = $sku;
+		$prodData['sku'] = $sku;
+		$prodData['url_key'] = $sku . '-' . Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
 		return $prod->addData($prodData);
 	}
 	/**

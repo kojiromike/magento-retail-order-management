@@ -398,9 +398,9 @@ class TrueAction_Eb2cProduct_Test_Helper_Map_AttributeTest
 
 		$product = $this->getModelMockBuilder('catalog/product')
 			->disableOriginalConstructor()
-			->setMethods(array('getTypeInstance', 'setTypeId', 'setTypeInstance'))
+			->setMethods(array('getTypeInstance', 'setTypeId', 'setTypeInstance', 'getTypeId'))
 			->getMock();
-		$product->expects($this->at(0))
+		$product->expects($this->at(1))
 			->method('getTypeInstance')
 			->with($this->identicalTo(true))
 			->will($this->returnValue($simpleTypeMock));
@@ -412,6 +412,9 @@ class TrueAction_Eb2cProduct_Test_Helper_Map_AttributeTest
 			->method('setTypeInstance')
 			->with($this->isInstanceOf('Mage_Catalog_Model_Product_Type_Abstract'), $this->identicalTo(true))
 			->will($this->returnSelf());
+		$product->expects($this->exactly(2))
+			->method('getTypeId')
+			->will($this->returnValue(Mage_catalog_Model_Product_Type::TYPE_CONFIGURABLE));
 
 		$existedConfAttrData = array();
 
@@ -424,7 +427,7 @@ class TrueAction_Eb2cProduct_Test_Helper_Map_AttributeTest
 			->with($this->identicalTo($product))
 			->will($this->returnValue($existedConfAttrData));
 
-		$product->expects($this->at(3))
+		$product->expects($this->at(5))
 			->method('getTypeInstance')
 			->with($this->identicalTo(true))
 			->will($this->returnValue($configurableTypeMock));

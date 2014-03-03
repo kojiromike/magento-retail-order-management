@@ -232,7 +232,7 @@ class TrueAction_Eb2cProduct_Test_Helper_DataTest
 		$prod = $applyDummyDataMethod->invoke($hlpr, Mage::getModel('catalog/product'), $sku, $name);
 		$this->assertSame($sku, $prod->getSku());
 		$this->assertSame($name ?: "Invalid Product: $sku", $prod->getName());
-		$this->assertSame($sku, $prod->getUrlKey());
+		$this->assertSame($sku . '-' . Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID, $prod->getUrlKey());
 	}
 	/**
 	 * Given a mapped array containing language, parse should return

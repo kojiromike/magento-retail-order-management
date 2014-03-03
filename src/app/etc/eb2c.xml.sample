@@ -404,9 +404,9 @@ Copy this file to eb2c.xml and configure the appropriate values below.
 				</msrp>
 				<url_key>
 					<class>eb2cproduct/map</class>
-					<type>disabled</type>
-					<method></method>
-					<xpath></xpath>
+					<type>helper</type>
+					<method>extractUrlKeyValue</method>
+					<xpath>BaseAttributes/Title</xpath>
 				</url_key>
 				<color>
 					<class>eb2cproduct/map_attribute</class>

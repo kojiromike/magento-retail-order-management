@@ -326,7 +326,7 @@
 				<name>
 					<class>eb2cproduct/map</class>
 					<type>helper</type>
-					<method>extractStringValue</method>
+					<method>extractNameValue</method>
 					<xpath>BaseAttributes/Title</xpath>
 				</name>
 				<description>

@@ -183,4 +183,34 @@ class TrueAction_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 			Mage::helper('eb2cproduct')->getConfigModel()->catalogId
 		);
 	}
+
+	/**
+	 * extract the value in the nodelist check if not an empty
+	 * string if it is return the default title otherwise return known
+	 * string concatenate with the sku
+	 * @param DOMNodeList $nodes
+	 * @param Mage_Catalog_Model_Product $product
+	 * @return string
+	 */
+	public function extractNameValue(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
+	{
+		$value = Mage::helper('eb2ccore')->extractNodeVal($nodes);
+		return ($value !== '')? $value : 'Invalid Product: ' . $product->getSku();
+	}
+
+	/**
+	 * extract the the title value from the DOMNodelist object if value not empty
+	 * simply append the store id and return the vlaue. if the value is empty
+	 * append the a know string string with the sku and the store id and return
+	 * @param DOMNodeList $nodes
+	 * @param Mage_Catalog_Model_Product $product
+	 * @return string
+	 */
+	public function extractUrlKeyValue(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
+	{
+		$urlKey = Mage::helper('eb2ccore')->extractNodeVal($nodes);
+		return ($urlKey !== '')?
+			$urlKey . '-' . $product->getStoreId() :
+			'Invalid Product: ' . $product->getSku() . '-' . $product->getStoreId();
+	}
 }

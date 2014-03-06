@@ -197,7 +197,6 @@ class TrueAction_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 		$value = Mage::helper('eb2ccore')->extractNodeVal($nodes);
 		return ($value !== '')? $value : 'Invalid Product: ' . $product->getSku();
 	}
-
 	/**
 	 * extract the the title value from the DOMNodelist object if value not empty
 	 * simply append the store id and return the vlaue. if the value is empty
@@ -213,4 +212,13 @@ class TrueAction_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 			$urlKey . '-' . $product->getStoreId() :
 			'Invalid Product: ' . $product->getSku() . '-' . $product->getStoreId();
 	}
+	/**
+	 * Always return false.
+	 * This is useful for clearing a value to have it fallback to a higher scope.
+	 */
+	public function extractFalse()
+	{
+		return false;
+	}
 }
+

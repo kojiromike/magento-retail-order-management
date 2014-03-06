@@ -15,9 +15,9 @@ class TrueAction_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	 */
 	protected $_feedTypeHeaderConf = array(
 		'ItemMaster' => 'eb2cproduct/item_master_feed/outbound/message_header',
-		'Content' => 'eb2cproduct/content_master_feed/outbound/message_header',
+		'ContentMaster' => 'eb2cproduct/content_master_feed/outbound/message_header',
 		'iShip' => 'eb2cproduct/i_ship_feed/outbound/message_header',
-		'Price' => 'eb2cproduct/item_pricing_feed/outbound/message_header',
+		'Pricing' => 'eb2cproduct/item_pricing_feed/outbound/message_header',
 		'ImageMaster' => 'eb2cproduct/image_master_feed/outbound/message_header',
 		'ItemInventories' => 'eb2cinventory/feed/outbound/message_header',
 	);
@@ -159,7 +159,7 @@ class TrueAction_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	 * getting eb2ccore default message header config in a composite array
 	 * merge with the given feed type message header config data
 	 * return an empty array if the given feed type is not in the class property _feedTypeHeaderConf
-	 * @param string $feedType known feed types are (ItemMaster, Content, iShip, Price, ImageMaster, ItemInventories)
+	 * @param string $feedType known feed types are (ItemMaster, ContentMaster, iShip, Pricing, ImageMaster, ItemInventories)
 	 * @return array
 	 */
 	public function getHeaderConfig($feedType)

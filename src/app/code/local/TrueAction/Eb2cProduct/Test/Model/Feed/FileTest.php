@@ -597,7 +597,7 @@ class TrueAction_Eb2cProduct_Test_Model_Feed_FileTest
 
 		$productCollectionMock->expects($this->any())
 			->method('addAttributeToSelect')
-			->with($this->equalTo(array('entity_id')))
+			->with($this->equalTo(array('*')))
 			->will($this->returnSelf());
 		$productCollectionMock->expects($this->any())
 			->method('addAttributeToFilter')

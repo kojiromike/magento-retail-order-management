@@ -70,11 +70,14 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	 * @param DOMNodeList $node DOM nodes extracted from the feed
 	 * @return int|null
 	 */
-	public function extractColorValue(DOMNodeList $nodeList)
+	public function extractColorValue(DOMNodeList $nodeList, $product)
 	{
-		$colorCode = Mage::helper('eb2ccore')->extractNodeVal($nodeList);
-		$optionId = $this->_getAttributeOptionId(self::COLOR, $colorCode);
-		return (!$optionId)? $this->_addNewOption(self::COLOR, $colorCode) : $optionId;
+		if ($this->_isAttributeInSet(self::COLOR, $product)) {
+			$colorCode = Mage::helper('eb2ccore')->extractNodeVal($nodeList);
+			$optionId = $this->_getAttributeOptionId(self::COLOR, $colorCode);
+			return (!$optionId) ? $this->_addNewOption(self::COLOR, $colorCode) : $optionId;
+		}
+		return null;
 	}
 
 	/**
@@ -150,11 +153,24 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 		foreach (explode(',', strtolower(Mage::helper('eb2ccore')->extractNodeVal($nodes))) as $attributeCode) {
 			// if we don't currently have a super attribute relationship then get the
 			// configurable attribute data
-			if (!$this->_isSuperAttributeExists($existedData, $attributeCode)) {
+			if (!$this->_isSuperAttributeExists($existedData, $attributeCode) && $this->_isAttributeInSet($attributeCode, $product)) {
 				$data[] = $this->_getConfiguredAttributeData($attributeCode);
 			}
 		}
 		return $data;
+	}
+
+	/**
+	 * return true if the is in a product's attribute set
+	 * @param  string  $attribute
+	 * @param  mixed   $value
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @return boolean
+	 */
+	protected function _isAttributeInSet($attributeCode, $product)
+	{
+		$attrs = $product->getTypeInstance(true)->getSetAttributes($product);
+		return array_key_exists($attributeCode, $attrs);
 	}
 
 	/**

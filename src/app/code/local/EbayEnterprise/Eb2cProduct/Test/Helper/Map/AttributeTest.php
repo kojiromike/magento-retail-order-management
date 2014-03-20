@@ -163,6 +163,8 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 			</root>'
 		);
 
+		$product = Mage::getModel('catalog/product');
+
 		$xpath = new DOMXPath($doc);
 
 		$nodeList = $xpath->query('Color/Code', $doc->documentElement);
@@ -182,7 +184,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 
 		$attributeHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
 			->disableOriginalConstructor()
-			->setMethods(array('_getAttributeOptionId', '_addNewOption'))
+			->setMethods(array('_getAttributeOptionId', '_addNewOption', '_isAttributeInSet'))
 			->getMock();
 		$attributeHelperMock->expects($this->once())
 			->method('_getAttributeOptionId')
@@ -198,8 +200,50 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 				$this->identicalTo($colorCode)
 			)
 			->will($this->returnValue($optionId));
+		$attributeHelperMock->expects($this->once())
+			->method('_isAttributeInSet')
+			->with(
+				$this->identicalTo(TrueAction_Eb2cProduct_Helper_Map_Attribute::COLOR),
+				$this->identicalTo($product)
+			)
+			->will($this->returnValue(true));
 
-		$this->assertSame($optionId, $attributeHelperMock->extractColorValue($nodeList));
+		$this->assertSame($optionId, $attributeHelperMock->extractColorValue($nodeList, $product));
+	}
+
+	/**
+	 * if the color attribute is not in the attribute set,
+	 * then return null
+	 */
+	public function testExtractColorValueNotInSet()
+	{
+		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$doc->loadXML(
+			'<root>
+				<Color>
+					<Code></Code><Code></Code>
+				</Color>
+			</root>'
+		);
+
+		$product = Mage::getModel('catalog/product');
+		$xpath = new DOMXPath($doc);
+		$nodeList = $xpath->query('Color/Code', $doc->documentElement);
+
+		$coreHelper = $this->getHelperMockBuilder('eb2ccore/data')
+			->disableOriginalConstructor()
+			->getMock();
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
+
+		$attributeHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
+			->disableOriginalConstructor()
+			->setMethods(array('_getAttributeOptionId', '_addNewOption', '_isAttributeInSet'))
+			->getMock();
+
+		$attributeHelperMock->expects($this->once())
+			->method('_isAttributeInSet')
+			->will($this->returnValue(false));
+		$this->assertNull($attributeHelperMock->extractColorValue($nodeList, $product));
 	}
 
 	/**
@@ -441,7 +485,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 
 		$attributeHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
 			->disableOriginalConstructor()
-			->setMethods(array('_getConfiguredAttributeData', '_isSuperAttributeExists'))
+			->setMethods(array('_getConfiguredAttributeData', '_isSuperAttributeExists', '_isAttributeInSet'))
 			->getMock();
 		$attributeHelperMock->expects($this->exactly(2))
 			->method('_getConfiguredAttributeData')
@@ -449,6 +493,9 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 				array($data[0], $result[0]),
 				array($data[1], $result[1]),
 			)));
+		$attributeHelperMock->expects($this->any())
+			->method('_isAttributeInSet')
+			->will($this->returnValue(true));
 		$attributeHelperMock->expects($this->exactly(2))
 			->method('_isSuperAttributeExists')
 			->will($this->returnValueMap(array(
@@ -457,6 +504,119 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 			)));
 
 		$this->assertSame($result, $attributeHelperMock->extractConfigurableAttributesData($nodeList, $product));
+	}
+
+	/**
+	 * Test extractConfigurableAttributesData method for the following expectations
+	 * Expectation 1: the size attribute will not be present in the result since it will not be in the
+	 *                attribute set.
+	 */
+	public function testExtractConfigurableAttributesDataNotInSet()
+	{
+		$confAttr = 'color,size';
+		$data = explode(',', $confAttr);
+		$result = array(array(
+			'id' => null,
+			'label' => 'color',
+			'position' => 0,
+			'values' => array(),
+			'attribute_id' => 922,
+			'attribute_code' => 'color',
+			'frontend_label' => 'color',
+		), array(
+			'id' => null,
+			'label' => 'size',
+			'position' => 0,
+			'values' => array(),
+			'attribute_id' => 923,
+			'attribute_code' => 'size',
+			'frontend_label' => 'size',
+		));
+
+		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$doc->loadXML(
+			'<root>
+				<CustomAttributes>
+					<Attribute name="ConfigurableAttributes">
+						<Value>color</Value>
+					</Attribute>
+				</CustomAttributes>
+			</root>'
+		);
+
+		$xpath = new DOMXPath($doc);
+
+		$nodeList = $xpath->query('CustomAttributes/Attribute[@name="ConfigurableAttributes"]/Value', $doc->documentElement);
+
+		$simpleTypeMock = $this->getModelMockBuilder('catalog/product_type_simple')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+
+		$product = $this->getModelMockBuilder('catalog/product')
+			->disableOriginalConstructor()
+			->setMethods(array('getTypeInstance', 'setTypeId', 'setTypeInstance'))
+			->getMock();
+		$product->expects($this->at(0))
+			->method('getTypeInstance')
+			->with($this->identicalTo(true))
+			->will($this->returnValue($simpleTypeMock));
+		$product->expects($this->once())
+			->method('setTypeId')
+			->with($this->identicalTo(Mage_catalog_Model_Product_Type::TYPE_CONFIGURABLE))
+			->will($this->returnSelf());
+		$product->expects($this->once())
+			->method('setTypeInstance')
+			->with($this->isInstanceOf('Mage_Catalog_Model_Product_Type_Abstract'), $this->identicalTo(true))
+			->will($this->returnSelf());
+
+		$existedConfAttrData = array();
+
+		$configurableTypeMock = $this->getModelMockBuilder('catalog/product_type_configurable')
+			->disableOriginalConstructor()
+			->setMethods(array('getConfigurableAttributesAsArray'))
+			->getMock();
+		$configurableTypeMock->expects($this->once())
+			->method('getConfigurableAttributesAsArray')
+			->with($this->identicalTo($product))
+			->will($this->returnValue($existedConfAttrData));
+
+		$product->expects($this->at(3))
+			->method('getTypeInstance')
+			->with($this->identicalTo(true))
+			->will($this->returnValue($configurableTypeMock));
+
+		$coreHelper = $this->getHelperMockBuilder('eb2ccore/data')
+			->disableOriginalConstructor()
+			->setMethods(array('extractNodeVal'))
+			->getMock();
+		$coreHelper->expects($this->once())
+			->method('extractNodeVal')
+			->with($this->identicalTo($nodeList))
+			->will($this->returnValue($confAttr));
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
+
+		$attributeHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
+			->disableOriginalConstructor()
+			->setMethods(array('_getConfiguredAttributeData', '_isSuperAttributeExists', '_isAttributeInSet'))
+			->getMock();
+		$attributeHelperMock->expects($this->exactly(1))
+			->method('_getConfiguredAttributeData')
+			->with($this->identicalTo($data[0]))
+			->will($this->returnValue($result[0]));
+		$attributeHelperMock->expects($this->any())
+			->method('_isAttributeInSet')
+			->will($this->returnValueMap(array(
+				array('color', $product, true),
+				array('size', $product, false),
+			)));
+		$attributeHelperMock->expects($this->exactly(2))
+			->method('_isSuperAttributeExists')
+			->will($this->returnValueMap(array(
+				array($existedConfAttrData, $data[0], false),
+				array($existedConfAttrData, $data[1], false),
+			)));
+		$this->assertSame(array($result[0]), $attributeHelperMock->extractConfigurableAttributesData($nodeList, $product));
 	}
 
 	/**
@@ -660,5 +820,39 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 				array($data['attributeData'], $data['attributeCode'])
 			));
 		}
+	}
+
+	public function provideAttributeCodes()
+	{
+		return array(
+			array('is_in_set', true),
+			array('not_in_set', false),
+		);
+	}
+	/**
+	 * return true if the attribute is in a product's attribute set
+	 * @test
+	 * @dataProvider provideAttributeCodes
+	 */
+	public function testIsInAttributeSet($attribute, $result)
+	{
+		$helper = Mage::helper('eb2cproduct/map_attribute');
+		$product = $this->getModelMock('catalog/product', array('getTypeInstance'));
+		$typeInstance = $this->getModelMockBuilder('catalog/product_type_abstract')
+			->disableOriginalConstructor()
+			->setMethods(array('getSetAttributes'))
+			->getMock();
+
+		$product->expects($this->any())
+			->method('getTypeInstance')
+			->will($this->returnValue($typeInstance));
+		$typeInstance->expects($this->any())
+			->method('getSetAttributes')
+			->will($this->returnValue(array('is_in_set' => new Varien_Object())));
+
+		$this->assertSame(
+			$result,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, '_isAttributeInSet', array($attribute, $product))
+		);
 	}
 }

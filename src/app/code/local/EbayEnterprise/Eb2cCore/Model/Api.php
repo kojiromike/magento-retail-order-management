@@ -46,12 +46,12 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	{
 		$cfg = Mage::getModel('eb2ccore/config_registry')
 			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
-		$this->schemaValidate($doc, $xsdName);
-		$xmlStr = $doc->C14N();
-		$client = $this->_setupClient($client, $cfg->apiKey, $uri, $xmlStr, $adapter, $timeout);
 		$log = Mage::helper('ebayenterprise_magelog');
-		$doc->formatOutput = true;
-		$log->logInfo("[ %s ] Sending request to %s:\n%s", array(__CLASS__, $uri, $doc->C14N()));
+		$xmlStr = $doc->C14N();
+		$log->logInfo("[ %s ] Validating request:\n%s", array(__CLASS__, $xmlStr));
+		$this->schemaValidate($doc, $xsdName);
+		$log->logInfo("[ %s ] Sending request to %s", array(__CLASS__, $uri));
+		$client = $this->_setupClient($client, $cfg->apiKey, $uri, $xmlStr, $adapter, $timeout);
 		try {
 			$response = $client->request(self::DEFAULT_METHOD);
 			return $this->_processResponse($response, $uri);

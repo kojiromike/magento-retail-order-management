@@ -6,6 +6,10 @@ class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 	// Form field name that will contain the name of the randomly selected JSC
 	// form field. Used to find the generated JSC data in the POST data
 	const JSC_FIELD_NAME = 'eb2cszyvl';
+	// format strings for working with Zend_Date
+	const MAGE_DATETIME_FORMAT = 'Y-m-d H:i:s';
+	const XML_DATETIME_FORMAT = "c";
+	const TIME_FORMAT = '%h:%I:%S';
 	/**
 	 * Combined Eb2c_Core and Eb2c_Fraud config model
 	 * @var EbayEnterprise_Eb2cCore_Model_Config
@@ -54,5 +58,41 @@ class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getJavaScriptFraudData($request)
 	{
 		return $request->getPost($request->getPost(static::JSC_FIELD_NAME, ''), '');
+	}
+	/**
+	 * return an array with data for the session info element
+	 * @return array
+	 */
+	public function getSessionInfo()
+	{
+		$session = Mage::getSingleton('customer/session');
+		$visitorLog = Mage::getModel('log/visitor')
+			->load($session->getEncryptedSessionId(), 'session_id');
+
+		$timeSpentOnSite = '';
+		$start = $visitorLog->getFirstVisitAt() ? date_create_from_format(self::MAGE_DATETIME_FORMAT, $visitorLog->getFirstVisitAt()) : null;
+		$end = $visitorLog->getLastVisitAt() ? date_create_from_format(self::MAGE_DATETIME_FORMAT, $visitorLog->getLastVisitAt()) : null;
+		if ($start && $end && $start < $end) {
+			$timeSpentOnSite = $end->diff($start)->format(self::TIME_FORMAT);
+		}
+		$password = '';
+		$lastLogin = '';
+		if ($session->isLoggedIn()) {
+			$customer = $session->getCustomer();
+			$password = $customer->decryptPassword($customer->getPassword());
+			$lastLogin = date_create_from_format(
+				self::MAGE_DATETIME_FORMAT,
+				Mage::getModel('log/customer')->load($visitorLog->getId(), 'visitor_id')->getLoginAt()
+			);
+			$lastLogin = $lastLogin->format(self::XML_DATETIME_FORMAT);
+		}
+		return array(
+			'TimeSpentOnSite' => $timeSpentOnSite,
+			'LastLogin' => $lastLogin,
+			'UserPassword' => $password,
+			'TimeOnFile' => '',
+			'RTCTransactionResponseCode' => '',
+			'RTCReasonCodes' => '',
+		);
 	}
 }

@@ -60,12 +60,18 @@ abstract class TrueAction_Eb2cCore_Test_Base
 			$valueMap[] = array($configPath, $configValue);
 		}
 
-		$mockConfig = $this->getModelMock(self::EB2CCORE_CONFIG_REGISTRY_MODEL, array('__get', 'setStore'));
+		$mockConfig = $this->getModelMock(
+			self::EB2CCORE_CONFIG_REGISTRY_MODEL,
+			array('__get', 'setStore', 'addConfigModel')
+		);
 		$mockConfig->expects($this->any())
 			->method('__get')
 			->will($this->returnValueMap($valueMap));
 		$mockConfig->expects($this->any())
 			->method('setStore')
+			->will($this->returnSelf());
+		$mockConfig->expects($this->any())
+			->method('addConfigModel')
 			->will($this->returnSelf());
 
 		return $mockConfig;

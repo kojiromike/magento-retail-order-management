@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://schema.gspt.net/token/1.0" xmlns="http://schema.gspt.net/token/1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:element name="TokenCreateResponse" nillable="false" type="TokenCreateResponseType"/>
+	<xsd:complexType name="TokenCreateResponseType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" name="Token" nillable="false" type="xsd:string"/>
+			<xsd:element maxOccurs="1" name="CreateTimestamp" nillable="false" type="xsd:dateTime"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

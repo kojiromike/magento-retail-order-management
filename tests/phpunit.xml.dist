@@ -23,6 +23,7 @@
 		<include>
 			<group>TrueAction_Eb2cAddress</group>
 			<group>TrueAction_Eb2cCore</group>
+			<group>TrueAction_Eb2cCustomerService</group>
 			<group>TrueAction_Eb2cFraud</group>
 			<group>TrueAction_Eb2cInventory</group>
 			<group>TrueAction_Eb2cOrder</group>

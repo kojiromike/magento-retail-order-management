@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+  attributeFormDefault="unqualified"
+  elementFormDefault="qualified"
+  targetNamespace="http://schema.gspt.net/token/1.0"
+  xmlns="http://schema.gspt.net/token/1.0"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<xsd:element name="TokenValidateRequest" nillable="false" type="TokenValidateRequestType"/>
+	<xsd:complexType name="TokenValidateRequestType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="1" name="Token" nillable="false" type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

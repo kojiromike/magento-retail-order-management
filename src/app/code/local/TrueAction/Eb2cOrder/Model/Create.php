@@ -201,9 +201,12 @@ class TrueAction_Eb2cOrder_Model_Create
 		$order->createChild('TaxHeader')->createChild('Error', 'false');
 		$order->createChild('Locale', 'en_US');
 		if (Mage::app()->getStore()->isAdmin()) {
-			$adminUser = Mage::getSingleton('admin/session')->getUser();
+			$adminSession = Mage::getSingleton('admin/session');
+			$adminUser = $adminSession->getUser();
 			if ($adminUser->getId()) {
-				$order->createChild('DashboardRepId', $adminUser->getUsername());
+				$csr = $adminSession->getCustomerServiceRep() ?: Mage::getModel('eb2ccsr/representative');
+				$repId = $csr->getRepId() ?: $adminUser->getUsername();
+				$order->createChild('DashboardRepId', $repId);
 			}
 		}
 		$orderSource = $this->_getSourceData();

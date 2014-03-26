@@ -1,7 +1,4 @@
 <?php
-/**
- * Tax totals calculation model
- */
 class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_Model_Sales_Total_Quote_Tax
 {
 	/**
@@ -12,16 +9,6 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 	 * running total of tax amount for the address.
 	 */
 	protected $_shippingTaxTotals = array();
-	/**
-	 * Class constructor
-	 */
-	public function __construct()
-	{
-		$this->setCode('tax');
-		$this->_calculator = Mage::getSingleton('tax/calculation');
-		$this->_config = Mage::getSingleton('tax/config');
-		$this->_weeeHelper = Mage::helper('weee');
-	}
 	/**
 	 * Collect tax totals for quote address
 	 * @param Mage_Sales_Model_Quote_Address $address
@@ -39,16 +26,15 @@ class TrueAction_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_
 		// zero amounts for the address.
 		$this->_store = $address->getQuote()->getStore();
 		$items = $this->_getAddressItems($address);
-		if (!count($items)) {
-			return $this;
+		if (count($items)) {
+			$this->_calcTaxForAddress($address);
+			// adds extra tax amounts to the address
+			$this->_addAmount($address->getExtraTaxAmount());
+			$this->_addBaseAmount($address->getBaseExtraTaxAmount());
+			$this->_calcShippingTaxes($address);
+			//round total amounts in address
+			$this->_roundTotals($address);
 		}
-		$this->_calcTaxForAddress($address);
-		// adds extra tax amounts to the address
-		$this->_addAmount($address->getExtraTaxAmount());
-		$this->_addBaseAmount($address->getBaseExtraTaxAmount());
-		$this->_calcShippingTaxes($address);
-		//round total amounts in address
-		$this->_roundTotals($address);
 		return $this;
 	}
 	/**

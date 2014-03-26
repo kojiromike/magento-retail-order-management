@@ -1,22 +1,13 @@
 <?php
-/**
- * tests the tax calculation class.
- */
 class TrueAction_Eb2cTax_Test_Model_ResponseTest extends TrueAction_Eb2cCore_Test_Base
 {
-	public static $respXml = '';
-	public static $cls;
-	public static $reqXml;
-	public $itemResults;
-	public $request;
-
+	protected static $_respXml;
+	protected static $_reqXml;
 	public static function setUpBeforeClass()
 	{
-		self::$cls = new ReflectionClass('TrueAction_Eb2cTax_Model_Response');
-		self::$respXml = file_get_contents(__DIR__ . '/ResponseTest/fixtures/response.xml');
-		self::$reqXml = file_get_contents(__DIR__ . '/ResponseTest/fixtures/request.xml');
+		self::$_respXml = file_get_contents(__DIR__ . '/ResponseTest/fixtures/response.xml');
+		self::$_reqXml = file_get_contents(__DIR__ . '/ResponseTest/fixtures/request.xml');
 	}
-
 	public function setUp()
 	{
 		$this->replaceByMock(
@@ -52,7 +43,6 @@ XML;
 		$fn = $this->_reflectMethod($response, '_getFaultLogMessage');
 		$this->assertSame($message, $fn->invoke($response, $document));
 	}
-
 	/**
 	 * verify xml parsing errors are properly formated to a log message.
 	 * 20 characters are displayed around the error location.
@@ -67,14 +57,12 @@ XML;
 		$warning->column  = 0;
 		$warning->line    = 1;
 		$warning->message = 'the warning message';
-
 		$error          = new libXMLError();
 		$error->level   = LIBXML_ERR_ERROR;
 		$error->code    = 'errorcode';
 		$error->column  = 30;
 		$error->line    = 1;
 		$error->message = 'the error message';
-
 		$xml = '.........1.........2.........3.........4';
 		$response = $this->getModelMockBuilder('eb2ctax/response')
 			->disableOriginalConstructor()
@@ -85,15 +73,9 @@ XML;
 			'XML Parser Error errorcode: the error message Line: 1 Column: 30: `.........2.........3.........4`';
 		$this->assertSame($expectedMessage, $message);
 	}
-
-	/**
-	 * Testing getResponseForItem method
-	 *
-	 */
 	public function testGetResponseForItem()
 	{
 		$response = $this->_mockResponse();
-
 		$item = $this->getModelMock('sales/quote_item', array('getSku'));
 		$item->expects($this->any())
 			->method('getSku')
@@ -106,22 +88,6 @@ XML;
 		$this->assertNotNull($responseItem);
 		$this->assertSame(3, count($responseItem->getTaxQuotes()));
 	}
-
-	/**
-	 * Testing getResponseItems method
-	 */
-	public function testGetResponseItems()
-	{
-		$response = Mage::getModel('eb2ctax/response', array(
-			'xml' => self::$respXml,
-			'request' => $this->request
-		));
-
-		$this->assertNotNull(
-			$response->getResponseItems()
-		);
-	}
-
 	/**
 	 * ensures the object is valid in only if all the parts of the.
 	 * @dataProvider dataProvider
@@ -142,7 +108,7 @@ XML;
 			->will($this->returnValue($validateResponseItems));
 		$response->expects($this->any())
 			->method('_checkXml')
-			->with($this->identicalTo(self::$respXml))
+			->with($this->identicalTo(self::$_respXml))
 			->will($this->returnValue($isDocOk));
 		$response->expects($this->any())
 			->method('_validateDestinations')
@@ -154,10 +120,9 @@ XML;
 			->method('_extractResults')
 			->will($this->returnSelf());
 		// setup initial data
-		$initData = array('xml' => self::$respXml, 'request' => $request);
-		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
-		$doc->preserveWhiteSpace = false;
-		$doc->loadXML(self::$respXml);
+		$initData = array('xml' => self::$_respXml, 'request' => $request);
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML(self::$_respXml);
 		$this->_reflectProperty($response, '_doc')->setValue($response, $doc);
 		$response->setData($initData);
 		// run the test
@@ -165,7 +130,6 @@ XML;
 		// check final result
 		$this->assertSame((bool) $e->getIsValid(), $response->isValid());
 	}
-
 	/**
 	 * Testing _construct method - valid request/response match xml
 	 *
@@ -174,28 +138,23 @@ XML;
 	public function testConstructValidRequestResponseMatch()
 	{
 		$response = Mage::getModel('eb2ctax/response', array(
-			'xml' => self::$respXml,
+			'xml' => self::$_respXml,
 			'request' => $this->_mockRequest()
 		));
-
 		$addressMock = $this->getModelMock('sales/quote_address', array('getId'));
 		$addressMock->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(1));
-
 		$responseReflector = new ReflectionObject($response);
 		$addressProperty = $responseReflector->getProperty('_address');
 		$addressProperty->setAccessible(true);
 		$addressProperty->setValue($response, $addressMock);
-
 		$constructMethod = $responseReflector->getMethod('_construct');
 		$constructMethod->setAccessible(true);
-
 		$this->assertNull(
 			$constructMethod->invoke($response)
 		);
 	}
-
 	/**
 	 * Testing _construct method - invalid request/response match xml
 	 *
@@ -205,19 +164,16 @@ XML;
 	{
 		$request = $this->_mockRequest(file_get_contents(dirname(__FILE__) . '/ResponseTest/fixtures/request-invalid.xml'));
 		$response = Mage::getModel('eb2ctax/response', array(
-			'xml' => self::$respXml,
+			'xml' => self::$_respXml,
 			'request' => $request
 		));
-
 		$responseReflector = new ReflectionObject($response);
 		$constructMethod = $responseReflector->getMethod('_construct');
 		$constructMethod->setAccessible(true);
-
 		$this->assertNull(
 			$constructMethod->invoke($response)
 		);
 	}
-
 	/**
 	 * Testing _construct method - invalid request/response match xml because of MailingAddress[@id="2"] element is different
 	 *
@@ -226,19 +182,16 @@ XML;
 	public function testConstructMailingAddressMisMatch()
 	{
 		$response = Mage::getModel('eb2ctax/response', array(
-			'xml' => self::$respXml,
-			'request' => $this->request
+			'xml' => self::$_respXml,
+			'request' => null,
 		));
-
 		$responseReflector = new ReflectionObject($response);
 		$constructMethod = $responseReflector->getMethod('_construct');
 		$constructMethod->setAccessible(true);
-
 		$this->assertNull(
 			$constructMethod->invoke($response)
 		);
 	}
-
 	/**
 	 * @dataProvider shipGroupXmlProvider
 	 */
@@ -259,16 +212,14 @@ XML;
 		$val = $fn->invoke($response, $doc->documentElement);
 		$this->assertSame($expected, $val);
 	}
-
 	/**
 	 * @test
 	 */
 	public function testItemSplitAcrossShipgroups()
 	{
-		$request  = $this->_mockRequest();
-		$xmlPath  = __DIR__ . '/ResponseTest/fixtures/responseSplitAcrossShipGroups.xml';
+		$request = $this->_mockRequest();
+		$xmlPath = __DIR__ . '/ResponseTest/fixtures/responseSplitAcrossShipGroups.xml';
 		$response = $this->_mockResponse(file_get_contents($xmlPath), $request);
-
 		$addressMockA = $this->getModelMock('sales/quote_address', array('getId'));
 		$addressMockA->expects($this->any())
 			->method('getId')
@@ -277,12 +228,10 @@ XML;
 		$addressMockB->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(2));
-
 		$itemMock = $this->getModelMock('sales/quote_item', array('getSku'));
 		$itemMock->expects($this->any())
 			->method('getSku')
 			->will($this->returnValue('gc_virtual1'));
-		$this->assertNotEmpty($response->getResponseItems());
 		$itemResponse = $response->getResponseForItem($itemMock, $addressMockA);
 		$this->assertNotNull($itemResponse);
 		$this->assertSame('1', $itemResponse->getLineNumber());
@@ -290,7 +239,6 @@ XML;
 		$this->assertNotNull($itemResponse);
 		$this->assertSame('2', $itemResponse->getLineNumber());
 	}
-
 	/**
 	 * @test
 	 * @loadExpectation
@@ -302,14 +250,12 @@ XML;
 		$itemMethods    = array('getSku');
 		$mockAddress    = $this->getModelMock('sales/quote_address', $addressMethods);
 		$mockItem       = $this->getModelMock('sales/quote_address_item', $itemMethods);
-
 		$mockAddress->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(1));
 		$mockItem->expects($this->any())
 			->method('getSku')
 			->will($this->returnValue('gc_virtual1'));
-
 		$ir = $response->getResponseForItem($mockItem, $mockAddress);
 		$ds = $ir->getTaxQuoteDiscounts();
 		$this->assertSame(3, count($ds));
@@ -321,7 +267,6 @@ XML;
 			$this->assertSame((float) $e->getCalculatedTax(), $d->getCalculatedTax());
 		}
 	}
-
 	public function testResponseQuote()
 	{
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>
@@ -357,7 +302,6 @@ XML;
 		$obj = Mage::getModel('eb2ctax/response_quote', array('node' => $node));
 		$this->assertSame($a, $obj->getData());
 	}
-
 	/**
 	 * verify the orderitem model will return null instead of NAN
 	 */
@@ -429,7 +373,6 @@ XML;
 		$this->assertNull($obj->getShippingAmount());
 		$this->assertNull($obj->getDutyAmount());
 	}
-
 	/**
 	 * Test the isSameNodelistElement method. Ensures that each node list has at least one item
 	 * and the first item in each list are case-insensitive equal
@@ -440,27 +383,24 @@ XML;
 	 */
 	public function testCompareNodelistElements($responseValue, $requestValue)
 	{
-		$dom = new TrueAction_Dom_Document();
+		$dom = Mage::helper('eb2ccore')->getNewDomDocument();
 		$dom->loadXML('<root><response>' .
 			(!is_null($responseValue) ? '<item>' . $responseValue . '</item>' : '') .
 			'</response><request>' .
 			(!is_null($requestValue) ? '<item>' . $requestValue . '</item>' : '') .
 			'</request></root>'
 		);
-
 		$responseNodelist = $dom->getElementsByTagName('response')->item(0)->childNodes;
 		$requestNodelist  = $dom->getElementsByTagName('request')->item(0)->childNodes;
-
+		$resp = Mage::getModel('eb2ctax/response');
+		$respRefl = new ReflectionClass($resp);
+		$isSameNodelistElement = $respRefl->getMethod('_isSameNodelistElement');
+		$isSameNodelistElement->setAccessible(true);
 		$this->assertSame(
 			$this->expected('set-%s-%s', $responseValue, $requestValue)->getSame(),
-			$this->getModelMockBuilder('eb2ctax/response')
-				->disableOriginalConstructor()
-				->setMethods(null)
-				->getMock()
-				->isSameNodelistElement($responseNodelist, $requestNodelist)
+			$isSameNodelistElement->invoke($resp, $responseNodelist, $requestNodelist)
 		);
 	}
-
 	public function shipGroupXmlProvider()
 	{
 		return array(
@@ -486,7 +426,6 @@ XML;
 				</ShipGroup>', null),
 		);
 	}
-
 	/**
 	 * @dataProvider xmlProviderForCheckXml
 	 */
@@ -496,7 +435,6 @@ XML;
 		$val = $this->_reflectMethod($response, '_checkXml')->invoke($response, $xml);
 		$this->assertSame($expected, $val);
 	}
-
 	public function testValidateResponseItemsWithEmptyDocs()
 	{
 		$response = $this
@@ -510,7 +448,6 @@ XML;
 		$val = $this->_reflectMethod($response, '_validateResponseItems')->invoke($response, $docA, $docB);
 		$this->assertSame(false, $val);
 	}
-
 	public function xmlProviderForCheckXml()
 	{
 		return array(
@@ -549,7 +486,6 @@ XML;
 			</div>', false),
 		);
 	}
-
 	public function xmlProviderForValidateResponseItems()
 	{
 		$basePath = __DIR__ . '/ResponseTest/fixtures';
@@ -563,7 +499,6 @@ XML;
 			array("{$basePath}/req7.xml", "{$basePath}/res7.xml", false),
 		);
 	}
-
 	/**
 	 * mock up a simple response object
 	 * @param  string $xml
@@ -572,7 +507,7 @@ XML;
 	 */
 	protected function _mockResponse($xml='', $request=null)
 	{
-		$xml     = $xml ? $xml : self::$respXml;
+		$xml     = $xml ? $xml : self::$_respXml;
 		$request = $request ? $request : $this->_mockRequest();
 		// initial data for the model
 		$initData = array('xml' => $xml, 'request' => $request);
@@ -591,7 +526,6 @@ XML;
 		$this->_reflectMethod($response, '_construct')->invoke($response);
 		return $response;
 	}
-
 	/**
 	 * mock up a simple request object
 	 * @param  string $xml
@@ -605,7 +539,7 @@ XML;
 		if ($xml) {
 			$doc->loadXML($xml);
 		} else {
-			$doc->loadXML(self::$reqXml);
+			$doc->loadXML(self::$_reqXml);
 		}
 		$request = $this->getModelMock('eb2ctax/request', array('isValid', 'getDocument'));
 		$request->expects($this->any())

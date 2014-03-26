@@ -1462,31 +1462,6 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends TrueAction_Eb2cCore_Test
 		$e = $this->expected($expectation);
 		$this->assertSame($e->getTaxCode(), $val);
 	}
-
-	/**
-	 * @test
-	 * @large
-	 */
-	public function testAddToDestination()
-	{
-		$fn      = $this->_reflectMethod('TrueAction_Eb2cTax_Model_Request', '_addToDestination');
-		$d       = $this->_reflectProperty('TrueAction_Eb2cTax_Model_Request', '_destinations');
-		$quote   = $this->_stubSingleShipSameAsBill();
-		$items   = $quote->getAllVisibleItems();
-		$request = Mage::getModel('eb2ctax/request');
-		$request->setQuote($quote);
-
-		$fn->invoke($request, $items[0], $quote->getBillingAddress());
-		$destinations  = $d->getValue($request);
-		$destinationId = '_' . $quote->getBillingAddress()->getId();
-		$this->assertArrayHasKey($destinationId, $destinations);
-
-		$fn->invoke($request, $items[0], $quote->getBillingAddress(), true);
-		$destinations = $d->getValue($request);
-		$virtualId    = '_' . $quote->getBillingAddress()->getId() . '_virtual';
-		$this->assertArrayHasKey($virtualId, $destinations);
-	}
-
 	public function testBuildDiscountNode()
 	{
 		$request = Mage::getModel('eb2ctax/request');
@@ -1879,16 +1854,27 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends TrueAction_Eb2cCore_Test
 	 */
 	public function testExtractItemData()
 	{
+		$countryId = 'US';
+		$htsCode = 'sample hts code';
+		$hlpr = $this->getHelperMock('eb2ccore/data', array('getProductHtsCodeByCountry'));
+		$prod = $this->getModelMock('catalog/product'); // stub
+		$address = $this->getModelMock('sales/quote_address', array('getCountryId'));
+		$address->expects($this->any())
+			->method('getCountryId')
+			->will($this->returnValue($countryId));
+		$hlpr->expects($this->any())
+			->method('getProductHtsCodeByCountry')
+			->with($this->identicalTo($prod), $this->identicalTo($countryId))
+			->will($this->returnValue($htsCode));
+		$this->replaceByMock('helper', 'eb2ccore', $hlpr);
 		$item = $this->_buildModelMock('sales/quote_item', array(
 			'getId' => $this->returnValue(1),
 			'getSku' => $this->returnValue('the_sku'),
 			'getName' => $this->returnValue('the item'),
-			'getHtsCode' => $this->returnValue('hts code'),
 			'getQty' => $this->returnValue(1),
 			'getBaseRowTotal' => $this->returnValue(50.0),
+			'getProduct' => $this->returnValue($prod),
 		));
-
-		$address = $this->getModelMock('sales/quote_address');
 		$request = $this->getModelMockBuilder('eb2ctax/request')
 			->setMethods(array(
 				'_getItemOriginalPrice',
@@ -1931,7 +1917,7 @@ class TrueAction_Eb2cTax_Test_Model_RequestTest extends TrueAction_Eb2cCore_Test
 			'line_number' => 0,
 			'item_id' => 'the_sku',
 			'item_desc' => 'the item',
-			'hts_code' => 'hts code',
+			'hts_code' => $htsCode,
 			'quantity' => 1,
 			'merchandise_amount' => 50.0,
 			'merchandise_unit_price' => 51.0,

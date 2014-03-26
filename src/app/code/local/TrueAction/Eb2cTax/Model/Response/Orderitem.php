@@ -12,7 +12,22 @@ class TrueAction_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	protected $_isValid           = true;
 	protected $_taxQuotes         = array();
 	protected $_taxQuoteDiscounts = array();
-
+	/**
+	 * pseudo-constant mapping of discount tax types to xpath expressions
+	 */
+	private static $_promoTaxMap = array(
+		TrueAction_Eb2cTax_Model_Response_Quote::MERCHANDISE => 'a:Pricing/a:Merchandise/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
+		TrueAction_Eb2cTax_Model_Response_Quote::SHIPPING => 'a:Pricing/a:Shipping/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
+		TrueAction_Eb2cTax_Model_Response_Quote::DUTY => 'a:Pricing/a:Duty/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
+	);
+	/**
+	 * pseudo-constant mapping of tax types to xpath expressions
+	 */
+	private static $_taxMap = array(
+		TrueAction_Eb2cTax_Model_Response_Quote::MERCHANDISE => 'a:Pricing/a:Merchandise/a:TaxData/a:Taxes/a:Tax',
+		TrueAction_Eb2cTax_Model_Response_Quote::SHIPPING => 'a:Pricing/a:Shipping/a:TaxData/a:Taxes/a:Tax',
+		TrueAction_Eb2cTax_Model_Response_Quote::DUTY => 'a:Pricing/a:Duty/a:TaxData/a:Taxes/a:Tax',
+	);
 	/**
 	 * get whether the response is valid or not.
 	 * @return boolean
@@ -101,10 +116,10 @@ class TrueAction_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 		));
 
 		$this->_validate();
-		// don't bother reading the tax data since the item is invalid
+		// Only bother reading the tax data if the item is valid.
 		if ($this->_isValid) {
-			$this->_processTaxData($xpath, $itemNode);
-			$this->_processDiscountTaxData($xpath, $itemNode);
+			$this->_taxQuotes = array_merge($this->_taxQuotes, $this->_processTaxData($xpath, $itemNode));
+			$this->_taxQuoteDiscounts = array_merge($this->_taxQuoteDiscounts, $this->_processTaxData($xpath, $itemNode, true));
 		}
 	}
 
@@ -133,84 +148,27 @@ class TrueAction_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 			return $result;
 		});
 	}
-
 	/**
-	 * parse the discount nodes into objects.
-	 * @param  DOMXPath $xpath
-	 * @param  TrueAction_Dom_Element $itemNode
+	 * Parse the discount nodes into objects.
+	 *
+	 * @param DOMXPath $xpath
+	 * @param TrueAction_Dom_Element $itemNode
+	 * @param bool $isDiscount Whether or not to use discount tax mappings
+	 * @return array the list of tax nodes
 	 */
-	protected function _processDiscountTaxData($xpath, $itemNode)
+	protected function _processTaxData($xpath, $itemNode, $isDiscount=false)
 	{
-		$type = TrueAction_Eb2cTax_Model_Response_Quote::MERCHANDISE;
-		$taxNodes = $xpath->query('a:Pricing/a:Merchandise/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax', $itemNode);
-		foreach ($taxNodes as $taxNode) {
-			$this->_taxQuoteDiscounts[] = Mage::getModel(
-				'eb2ctax/response_quote_discount',
-				array(
-					'type'           => $type,
-					'node'           => $taxNode
-				)
-			);
+		$taxTypes = array_map(function ($expr) use ($xpath, $itemNode) {
+			return $xpath->query($expr, $itemNode);
+		}, $isDiscount ? self::$_promoTaxMap : self::$_taxMap);
+		$modelFactory = 'eb2ctax/response_quote' . ($isDiscount ? '_discount' : '');
+		$taxQuote = array();
+		foreach ($taxTypes as $type => $nodeList) {
+			foreach ($nodeList as $taxNode) {
+				$taxQuote[] = Mage::getModel($modelFactory, array('type' => $type, 'node' => $taxNode));
+			}
 		}
-		$type = TrueAction_Eb2cTax_Model_Response_Quote::SHIPPING;
-		$taxNodes = $xpath->query('a:Pricing/a:Shipping/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax', $itemNode);
-		foreach ($taxNodes as $taxNode) {
-			$this->_taxQuoteDiscounts[] = Mage::getModel(
-				'eb2ctax/response_quote_discount',
-				array(
-					'type' => $type,
-					'node' => $taxNode
-				)
-			);
-		}
-		$type = TrueAction_Eb2cTax_Model_Response_Quote::DUTY;
-		$taxNodes = $xpath->query('a:Pricing/a:Duty/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax', $itemNode);
-		foreach ($taxNodes as $taxNode) {
-			$this->_taxQuoteDiscounts[] = Mage::getModel(
-				'eb2ctax/response_quote_discount',
-				array(
-					'type'           => $type,
-					'node'           => $taxNode
-				)
-			);
-		}
-	}
-
-	protected function _processTaxData($xpath, $itemNode)
-	{
-		$type = TrueAction_Eb2cTax_Model_Response_Quote::MERCHANDISE;
-		$taxNodes = $xpath->query('a:Pricing/a:Merchandise/a:TaxData/a:Taxes/a:Tax', $itemNode);
-		foreach ($taxNodes as $taxNode) {
-			$this->_taxQuotes[] = Mage::getModel(
-				'eb2ctax/response_quote',
-				array(
-					'type'           => $type,
-					'node'           => $taxNode
-				)
-			);
-		}
-		$type = TrueAction_Eb2cTax_Model_Response_Quote::SHIPPING;
-		$taxNodes = $xpath->query('a:Pricing/a:Shipping/a:TaxData/a:Taxes/a:Tax', $itemNode);
-		foreach ($taxNodes as $taxNode) {
-			$this->_taxQuotes[] = Mage::getModel(
-				'eb2ctax/response_quote',
-				array(
-					'type' => $type,
-					'node' => $taxNode
-				)
-			);
-		}
-		$type = TrueAction_Eb2cTax_Model_Response_Quote::DUTY;
-		$taxNodes = $xpath->query('a:Pricing/a:Duty/a:TaxData/a:Taxes/a:Tax', $itemNode);
-		foreach ($taxNodes as $taxNode) {
-			$this->_taxQuotes[] = Mage::getModel(
-				'eb2ctax/response_quote',
-				array(
-					'type'           => $type,
-					'node'           => $taxNode
-				)
-			);
-		}
+		return $taxQuote;
 	}
 
 	protected function _validate()

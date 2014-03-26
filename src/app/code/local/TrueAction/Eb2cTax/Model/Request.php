@@ -329,23 +329,21 @@ class TrueAction_Eb2cTax_Model_Request extends Varien_Object
 	 */
 	protected function _extractItemData(Mage_Sales_Model_Quote_Item_Abstract $item, Mage_Sales_Model_Quote_Address $address)
 	{
-		$data = array(
-			'id' => $item->getId(),
-			'line_number' => count($this->_orderItems),
-			'item_id' => $item->getSku(),
-			'item_desc' => $item->getName(),
-			'hts_code' => $item->getHtsCode(),
-			'quantity' => $item->getQty(),
-			// @todo this needs to be the right value when the item is a child
-			'merchandise_amount' => Mage::app()->getStore()->roundPrice($item->getBaseRowTotal()),
-			// @todo this needs to be the right value when the item is a child
-			'merchandise_unit_price' => Mage::app()->getStore()->roundPrice($this->_getItemOriginalPrice($item)),
-			'merchandise_tax_class' => $this->_getItemTaxClass($item),
-			'shipping_amount' => Mage::app()->getStore()->roundPrice($this->_getShippingAmount($address)),
-			'shipping_tax_class' => self::SHIPPING_TAX_CLASS,
-		);
+		$store = Mage::app()->getStore();
 		return array_merge(
-			$data,
+			array(
+				'hts_code' => Mage::helper('eb2ccore')->getProductHtsCodeByCountry($item->getProduct(), $address->getCountryId()),
+				'id' => $item->getId(),
+				'item_desc' => $item->getName(),
+				'item_id' => $item->getSku(),
+				'line_number' => count($this->_orderItems),
+				'merchandise_amount' => $store->roundPrice($item->getBaseRowTotal()),
+				'merchandise_tax_class' => $this->_getItemTaxClass($item),
+				'merchandise_unit_price' => $store->roundPrice($this->_getItemOriginalPrice($item)),
+				'quantity' => $item->getQty(),
+				'shipping_amount' => $store->roundPrice($this->_getShippingAmount($address)),
+				'shipping_tax_class' => self::SHIPPING_TAX_CLASS,
+			),
 			$this->_extractShippingData($item),
 			$this->_extractItemDiscountData($item, $address)
 		);

@@ -51,8 +51,7 @@ class TrueAction_Eb2cTax_Test_Model_Response_OrderItemTest
 	 *                TrueAction_Eb2cTax_Model_Response_Orderitem::_validate method will set the property to false if the magic method (getSku) is nll or empty string
 	 * Expectation 3: the magic method TrueAction_Eb2cTax_Model_Response_Orderitem::addData which is inherited from the extended class Varien_Object is mocked to
 	 *                show the extracted data from the response DomDocument element is then pass as an array of key values and the method return it self
-	 * Expectation 4: because the property class _isValid is set to know state of true, we know the mocked methods _processTaxData, and _processDiscountTaxData
-	 *                will run once and return null
+	 * Expectation 4: because the property class _isValid is set to know state of true, we know the mocked method _processTaxData will run once
 	 * Expectation 5: the TrueAction_Eb2cTax_Model_Response_Orderitem::_extractByType is mocked to be called exactly 2 time with parameter value map that show
 	 *                exactly what will be return when the expected parameters are pass to this mocked method
 	 * @mock TrueAction_Eb2cTax_Model_Response_Orderitem::getNode - this is a magic Varien_Object method
@@ -60,7 +59,6 @@ class TrueAction_Eb2cTax_Test_Model_Response_OrderItemTest
 	 * @mock TrueAction_Eb2cTax_Model_Response_Orderitem::_extractByType
 	 * @mock TrueAction_Eb2cTax_Model_Response_Orderitem::_validate
 	 * @mock TrueAction_Eb2cTax_Model_Response_Orderitem::_processTaxData
-	 * @mock TrueAction_Eb2cTax_Model_Response_Orderitem::_processDiscountTaxData
 	 * @param string $response the xml string content to be loaded into the DOMDocument object
 	 * @dataProvider dataProvider
 	 */
@@ -76,7 +74,7 @@ class TrueAction_Eb2cTax_Test_Model_Response_OrderItemTest
 
 		$orderitemModelMock = $this->getModelMockBuilder('eb2ctax/response_orderitem')
 			->disableOriginalConstructor()
-			->setMethods(array('getNode', 'addData', '_validate', '_processTaxData', '_processDiscountTaxData', '_extractByType'))
+			->setMethods(array('getNode', 'addData', '_validate', '_processTaxData', '_extractByType'))
 			->getMock();
 		$orderitemModelMock->expects($this->once())
 			->method('getNode')
@@ -135,15 +133,12 @@ class TrueAction_Eb2cTax_Test_Model_Response_OrderItemTest
 		$orderitemModelMock->expects($this->once())
 			->method('_validate')
 			->will($this->returnValue(true));
-		$orderitemModelMock->expects($this->once())
+		$orderitemModelMock->expects($this->exactly(2))
 			->method('_processTaxData')
-			->with($this->equalTo($xpath), $this->equalTo($itemNode))
-			->will($this->returnValue(null));
-		$orderitemModelMock->expects($this->once())
-			->method('_processDiscountTaxData')
-			->with($this->equalTo($xpath), $this->equalTo($itemNode))
-			->will($this->returnValue(null));
-
+			->will($this->returnValueMap(array(
+				array($xpath, $itemNode, false, array()),
+				array($xpath, $itemNode, true, array())
+			)));
 		// setting class property _xpath to a known state
 		$this->_reflectProperty($orderitemModelMock, '_xpath')->setValue($orderitemModelMock, $xpath);
 
@@ -161,7 +156,6 @@ class TrueAction_Eb2cTax_Test_Model_Response_OrderItemTest
 	 * @mock TrueAction_Eb2cTax_Model_Response_Orderitem::_extractByType
 	 * @mock TrueAction_Eb2cTax_Model_Response_Orderitem::_validate
 	 * @mock TrueAction_Eb2cTax_Model_Response_Orderitem::_processTaxData
-	 * @mock TrueAction_Eb2cTax_Model_Response_Orderitem::_processDiscountTaxData
 	 * @param string $response the xml string content to be loaded into the DOMDocument object
 	 * @dataProvider dataProvider
 	 */
@@ -177,7 +171,7 @@ class TrueAction_Eb2cTax_Test_Model_Response_OrderItemTest
 
 		$orderitemModelMock = $this->getModelMockBuilder('eb2ctax/response_orderitem')
 			->disableOriginalConstructor()
-			->setMethods(array('getNode', 'addData', '_validate', '_processTaxData', '_processDiscountTaxData', '_extractByType'))
+			->setMethods(array('getNode', 'addData', '_validate', '_processTaxData', '_extractByType'))
 			->getMock();
 		$orderitemModelMock->expects($this->once())
 			->method('getNode')
@@ -236,15 +230,12 @@ class TrueAction_Eb2cTax_Test_Model_Response_OrderItemTest
 		$orderitemModelMock->expects($this->once())
 			->method('_validate')
 			->will($this->returnValue(true));
-		$orderitemModelMock->expects($this->once())
+		$orderitemModelMock->expects($this->exactly(2))
 			->method('_processTaxData')
-			->with($this->equalTo($xpath), $this->equalTo($itemNode))
-			->will($this->returnValue(null));
-		$orderitemModelMock->expects($this->once())
-			->method('_processDiscountTaxData')
-			->with($this->equalTo($xpath), $this->equalTo($itemNode))
-			->will($this->returnValue(null));
-
+			->will($this->returnValueMap(array(
+				array($xpath, $itemNode, false, array()),
+				array($xpath, $itemNode, true, array()),
+			)));
 		// setting class property _xpath to a known state
 		$this->_reflectProperty($orderitemModelMock, '_xpath')->setValue($orderitemModelMock, $xpath);
 

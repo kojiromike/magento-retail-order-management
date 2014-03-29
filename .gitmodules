@@ -7,6 +7,4 @@
 [submodule "extensions/magento-log"]
 	path = extensions/magento-log
 	url = https://github.scm.corp.ebay.com/Cheetah/magento-log
-[submodule "extensions/pbridge"]
-	path = extensions/pbridge
-	url = https://github.scm.corp.ebay.com/Cheetah/trueaction_pbridge
+

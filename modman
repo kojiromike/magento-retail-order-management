@@ -1,7 +1,6 @@
 # Import these extensions via their own modman files.
 @import extensions/magento-file-transfer
 @import extensions/magento-log
-@import extensions/pbridge
 @import extensions/php-dom
 
 # Core

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<TrueAction_Pbridge>
+			<version>1.0.0</version>
+		</TrueAction_Pbridge>
+	</modules>
+	<global>
+		<models>
+			<trueaction_pbridge>
+				<class>TrueAction_Pbridge_Model</class>
+			</trueaction_pbridge>
+		</models>
+		<blocks>
+			<trueaction_pbridge>
+				<class>TrueAction_Pbridge_Block</class>
+			</trueaction_pbridge>
+		</blocks>
+		<helpers>
+			<trueaction_pbridge>
+				<class>TrueAction_Pbridge_Helper</class>
+			</trueaction_pbridge>
+		</helpers>
+	</global>
+	<default>
+		<payment>
+			<pbridge_eb2cpayment_cc module="trueaction_pbridge" translate="title">
+				<model>trueaction_pbridge/cc</model>
+				<title>eBay Enterprise Credit Card</title>
+				<active>0</active>
+				<using_pbridge>1</using_pbridge>
+				<payment_action>authorize</payment_action>
+			</pbridge_eb2cpayment_cc>
+		</payment>
+	</default>
+	<phpunit>
+		<suite>
+			<modules>
+				<TrueAction_Pbridge/>
+			</modules>
+		</suite>
+	</phpunit>
+</config>

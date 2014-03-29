@@ -30,6 +30,7 @@
 			<group>TrueAction_Eb2cPayment</group>
 			<group>TrueAction_Eb2cProduct</group>
 			<group>TrueAction_Eb2cTax</group>
+			<group>TrueAction_Pbridge</group>
 		</include>
 	</groups>
 	<filter>

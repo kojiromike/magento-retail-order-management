@@ -21,6 +21,7 @@ class TrueAction_Eb2cCustomerService_Model_System_Config_Source_Adminuser
 	 * and user id as the value.
 	 * @param  Mage_Admin_Model_User $user
 	 * @return array
+	 * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
 	 */
 	private function _userMap(Mage_Admin_Model_User $user)
 	{

@@ -2,8 +2,8 @@
 class TrueAction_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
 {
 	protected $_addressParts = array(
-		'line1'            => "123 Don't you wish you lived hére tøó at this place Ï like to call Mæn Street",
-		'line1_trimmed'    => "123 Don't you wish you lived hére tøó at this place Ï like to call Mæn",
+		'line1'            => "123 Don't you wish you lived here too at this place I like to call Main Street",
+		'line1_trimmed'    => "123 Don't you wish you lived here too at this place I like to call Mai",
 		'line2'            => '12345678901234567890123456789012345678901234567890123456789012345678901234567890',
 		'line2_trimmed'    => '1234567890123456789012345678901234567890123456789012345678901234567890',
 		'line3'            => '12345678901234567890123456789012345678901234567890123456789012345678901234567890',

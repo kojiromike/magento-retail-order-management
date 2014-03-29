@@ -20,7 +20,7 @@ class TrueAction_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	protected function _limit($str, $maxLen)
 	{
-		return mb_substr($str, 0, $maxLen, 'UTF-8');
+		return substr($str, 0, $maxLen);
 	}
 
 	/**

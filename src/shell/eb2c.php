@@ -12,7 +12,7 @@ class EbayEnterprise_Eb2c_Shell_Feed extends Mage_Shell_Abstract
 	 * Instantiate the core feed shell
 	 *
 	 */
-	public function _construct()
+	protected function _construct()
 	{
 		parent::_construct();
 		$this->_feedCore = Mage::getModel('eb2ccore/feed_shell');

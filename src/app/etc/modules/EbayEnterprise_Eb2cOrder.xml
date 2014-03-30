@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<modules>
+		<EbayEnterprise_Eb2cOrder>
+			<active>true</active>
+			<codePool>local</codePool>
+		</EbayEnterprise_Eb2cOrder>
+	</modules>
+</config>

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<EbayEnterprise_Pbridge>
+			<active>true</active>
+			<codePool>local</codePool>
+			<depends>
+				<Enterprise_Pbridge />
+			</depends>
+		</EbayEnterprise_Pbridge>
+	</modules>
+</config>

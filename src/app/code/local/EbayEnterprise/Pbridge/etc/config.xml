@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<config>
+	<modules>
+		<EbayEnterprise_Pbridge>
+			<version>1.0.0</version>
+		</EbayEnterprise_Pbridge>
+	</modules>
+	<global>
+		<models>
+			<ebayenterprise_pbridge>
+				<class>EbayEnterprise_Pbridge_Model</class>
+			</ebayenterprise_pbridge>
+		</models>
+		<blocks>
+			<ebayenterprise_pbridge>
+				<class>EbayEnterprise_Pbridge_Block</class>
+			</ebayenterprise_pbridge>
+		</blocks>
+		<helpers>
+			<ebayenterprise_pbridge>
+				<class>EbayEnterprise_Pbridge_Helper</class>
+			</ebayenterprise_pbridge>
+		</helpers>
+	</global>
+	<default>
+		<payment>
+			<pbridge_eb2cpayment_cc module="ebayenterprise_pbridge" translate="title">
+				<model>ebayenterprise_pbridge/cc</model>
+				<title>eBay Enterprise Credit Card</title>
+				<active>0</active>
+				<using_pbridge>1</using_pbridge>
+				<payment_action>authorize</payment_action>
+			</pbridge_eb2cpayment_cc>
+		</payment>
+	</default>
+	<phpunit>
+		<suite>
+			<modules>
+				<EbayEnterprise_Pbridge/>
+			</modules>
+		</suite>
+	</phpunit>
+</config>

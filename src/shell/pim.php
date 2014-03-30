@@ -4,7 +4,7 @@ require_once 'abstract.php';
 /**
  * Eb2c Feed Shell
  */
-class TrueAction_Eb2c_Shell_Pim extends Mage_Shell_Abstract
+class EbayEnterprise_Eb2c_Shell_Pim extends Mage_Shell_Abstract
 {
 	/**
 	 * The 'main' of a Mage Shell Script
@@ -17,5 +17,5 @@ class TrueAction_Eb2c_Shell_Pim extends Mage_Shell_Abstract
 	}
 }
 
-$feedProcessor = new TrueAction_Eb2c_Shell_Pim();
+$feedProcessor = new EbayEnterprise_Eb2c_Shell_Pim();
 exit($feedProcessor->run());

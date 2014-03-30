@@ -4,7 +4,7 @@ require_once 'abstract.php';
 /**
  * Eb2c Feed Shell
  */
-class TrueAction_Eb2c_Shell_Feed extends Mage_Shell_Abstract
+class EbayEnterprise_Eb2c_Shell_Feed extends Mage_Shell_Abstract
 {
 	private $_feedCore;
 
@@ -102,5 +102,5 @@ USAGE;
 	}
 }
 
-$feedProcessor = new TrueAction_Eb2c_Shell_Feed();
+$feedProcessor = new EbayEnterprise_Eb2c_Shell_Feed();
 exit($feedProcessor->run());

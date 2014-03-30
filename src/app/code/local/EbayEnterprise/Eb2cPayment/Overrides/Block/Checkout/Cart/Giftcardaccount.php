@@ -1,0 +1,5 @@
+<?php
+
+class EbayEnterprise_Eb2cPayment_Overrides_Block_Checkout_Cart_Giftcardaccount extends Enterprise_GiftCardAccount_Block_Checkout_Cart_Giftcardaccount
+{
+}

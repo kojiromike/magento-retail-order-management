@@ -19,7 +19,7 @@ The intended audience for this guide is System Integrators with extensive experi
 
 - The eBay Enterprise Exchange is compatible with Magento EE 1.13.1 and later. If you’re running an earlier version of EE, see [Upgrading to and Verifying Magento Community Edition 1.8 and Enterprise Edition 1.13&mdash;Part 1](http://www.magentocommerce.com/knowledge-base/entry/ce18-and-ee113-upgrading).
 - The extension requires [a patch](../deploy/address.validation.patch) to core Magento’s Address Model so that the address validation service can work effectively. If you do not have this patch, please contact eBay Enterprise.
-- In addition to [Magento’s standard system requirements](http://magento.com/resources/system-requirements) the eBay Enterprise Exchange Platform Magento Extension requires the XSL extension to PHP. (While [PHP documentation](http://www.php.net/manual/en/xsl.installation.php) states that PHP 5 includes the extension by default, our experience has been that it is not installed with php on many GNU/Linux systems such as Debian and Ubuntu.)
+- In addition to [Magento’s standard system requirements](http://magento.com/resources/system-requirements) the eBay Enterprise Exchange Platform Magento Extension requires the XSL and OpenSSL extensions to PHP. (These are often, but not always, enabled by default.)
 - The Magento Payment Bridge must be set up in a secure environment that is [Payment Application Data Security Standard (PA DSS) compliant](https://www.pcisecuritystandards.org/documents/pa-dss_v2.pdf)
 - The extension has been tested with PHP 5.3. 
 

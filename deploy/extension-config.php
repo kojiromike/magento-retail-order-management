@@ -35,7 +35,6 @@ $archiveName = 'ebay_enterprise_exchange.tar';
 $extensions = array(
 	'magento-file-transfer',
 	'magento-log',
-	'pbridge',
 	'php-dom',
 );
 _createArchive($tempDir, $archiveName, $extensions);

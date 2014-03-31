@@ -20,6 +20,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	const SHIPPING_CHARGE_TYPE_FLATRATE = 'FLATRATE';
 	const PAYPAL_TENDER_TYPE = 'PY';
+	const BACKEND_ORDER_SOURCE = 'phone';
+	const FRONTEND_ORDER_SOURCE = 'web';
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -641,17 +643,29 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildBrowserData(DomElement $browserData)
 	{
-		$browserData->addChild('HostName', Mage::helper('core/http')->getHttpHost(true))
-			->addChild('IPAddress', Mage::helper('core/http')->getServerAddr())
+		$http = Mage::helper('core/http');
+		$browserData->addChild('HostName', $http->getHttpHost(true))
+			->addChild('IPAddress', $http->getServerAddr())
 			->addChild('SessionId', Mage::getSingleton('core/session')->getSessionId())
-			->addChild('UserAgent', Mage::helper('core/http')->getHttpUserAgent(true))
+			->addChild('UserAgent', $http->getHttpUserAgent(true))
 			->addChild('JavascriptData', $this->_o->getEb2cFraudJavascriptData())
-			->addChild('Referrer', Mage::helper('core/http')->getHttpReferer(true));
+			->addChild('Referrer', $this->_getOrderSource());
+
 		$httpAcceptData = $browserData->createChild('HTTPAcceptData');
 		$httpAcceptData->addChild('ContentTypes', $_SERVER['HTTP_ACCEPT'])
 			->addChild('Encoding', $_SERVER['HTTP_ACCEPT_ENCODING'])
-			->addChild('Language', Mage::helper('core/http')->getHttpAcceptLanguage(true))
-			->addChild('CharSet', Mage::helper('core/http')->getHttpAcceptCharset(true));
+			->addChild('Language', $http->getHttpAcceptLanguage(true))
+			->addChild('CharSet', $http->getHttpAcceptCharset(true));
+	}
+	/**
+	 * getting the referrer value as self::BACKEND_ORDER_SOURCE when the order is placed via admin
+	 * otherwise theis order is being placed in the frontend return this constant value self::FRONTEND_ORDER_SOURCE
+	 * @return string
+	 */
+	protected function _getOrderSource()
+	{
+		return (Mage::helper('eb2ccore')->getCurrentStore()->isAdmin())? self::BACKEND_ORDER_SOURCE:
+			self::FRONTEND_ORDER_SOURCE;
 	}
 	/**
 	 * Get globally unique request identifier

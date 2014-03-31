@@ -4,9 +4,9 @@ require_once 'abstract.php';
 /**
  * Eb2c XSL Test
  */
-class TrueAction_Eb2c_Xslt_Test extends Mage_Shell_Abstract
+class EbayEnterprise_Eb2c_Xslt_Test extends Mage_Shell_Abstract
 {
-	const DEFAULT_XSLT_SHEET = '/var/www/mage_2014_02_18/src/.modman/eb2c/src/app/code/local/TrueAction/Eb2cProduct/xslt/default-language-template.xsl';
+	const DEFAULT_XSLT_SHEET = '/var/www/mage_2014_02_18/src/.modman/eb2c/src/app/code/local/EbayEnterprise/Eb2cProduct/xslt/default-language-template.xsl';
 
 	public function xslCallBack(DOMDocument $xslDoc, array $siteFilter)
 	{
@@ -29,7 +29,7 @@ class TrueAction_Eb2c_Xslt_Test extends Mage_Shell_Abstract
 			$xmlDoc = Mage::helper('eb2ccore')->getNewDomDocument();
 			$xmlDoc->load('/home/mwest/SampleData/eb2c-proof-and-subset-feeds/Data/CleanSubsetXml/ItemMaster_MultiSite.xml');
 			$transformed = Mage::helper('eb2cproduct')
-				->splitDomByXslt($xmlDoc, self::DEFAULT_XSLT_SHEET, 
+				->splitDomByXslt($xmlDoc, self::DEFAULT_XSLT_SHEET,
 					array('lang_code' => $website['lang_code']),
 					array($this, 'xslCallBack'),
 					$website);
@@ -47,11 +47,11 @@ class TrueAction_Eb2c_Xslt_Test extends Mage_Shell_Abstract
 	public function usageHelp()
 	{
 		$scriptName = basename(__FILE__);
-		return 
+		return
 "Usage: php -f $scriptName -- [options]
   help This help\n";
 	}
 }
 
-$tester = new TrueAction_Eb2c_Xslt_Test();
+$tester = new EbayEnterprise_Eb2c_Xslt_Test();
 $tester->run();

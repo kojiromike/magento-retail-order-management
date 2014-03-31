@@ -1,8 +1,0 @@
-getSuggestedAddressMessage:
-  message: TrueAction_Eb2cAddress_Suggestions_Label
-getSuggestionLabel:
-  message: TrueAction_Eb2cAddress_Suggested_Address_Label
-getOriginalAddressLabel:
-  message: TrueAction_Eb2cAddress_Original_Address_Label
-getNewAddressLabel:
-  message: TrueAction_Eb2cAddress_New_Address_Label

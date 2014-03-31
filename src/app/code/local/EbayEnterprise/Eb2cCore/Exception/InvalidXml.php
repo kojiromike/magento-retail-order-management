@@ -1,0 +1,3 @@
+<?php
+class EbayEnterprise_Eb2cCore_Exception_InvalidXml extends EbayEnterprise_Eb2cCore_Exception_Critical
+{}

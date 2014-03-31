@@ -1,3 +1,0 @@
-<?php
-class TrueAction_Eb2cCore_Exception_InvalidXml extends TrueAction_Eb2cCore_Exception_Critical
-{}

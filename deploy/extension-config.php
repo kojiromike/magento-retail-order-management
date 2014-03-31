@@ -19,7 +19,7 @@ function _createTempDir() {
 function _createArchive($location, $archiveName, array $extensions) {
 	$path = $location . DIRECTORY_SEPARATOR . $archiveName;
 	echo "Creating archive @ $path\n";
-	$cmdPat = "cd '%s' && tar --exclude 'TrueAction/*/Test' --exclude='order_id_init.php' -rpf '$path' .";
+	$cmdPat = "cd '%s' && tar --exclude 'EbayEnterprise/*/Test' --exclude='order_id_init.php' -rpf '$path' .";
 	shell_exec(sprintf($cmdPat, 'src'));
 	foreach($extensions as $dir) {
 		shell_exec(sprintf($cmdPat, "extensions/$dir/src"));
@@ -35,7 +35,6 @@ $archiveName = 'ebay_enterprise_exchange.tar';
 $extensions = array(
 	'magento-file-transfer',
 	'magento-log',
-	'pbridge',
 	'php-dom',
 );
 _createArchive($tempDir, $archiveName, $extensions);

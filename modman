@@ -1,12 +1,11 @@
 # Import these extensions via their own modman files.
 @import extensions/magento-file-transfer
 @import extensions/magento-log
-@import extensions/pbridge
 @import extensions/php-dom
 
 # Core
 connect/ebay_enterprise_exchange.xml var/connect/ebay_enterprise_exchange.xml
-src/app/code/local/TrueAction/* app/code/local/TrueAction/
+src/app/code/local/EbayEnterprise/* app/code/local/EbayEnterprise/
 src/app/etc/exchangeplatform.xml.sample app/etc/exchangeplatform.xml.sample
 src/app/etc/productexport.xml.sample app/etc/productexport.xml.sample
 src/app/etc/productimport.xml.sample app/etc/productimport.xml.sample
@@ -16,7 +15,7 @@ src/app/locale/en_US/* app/locale/en_US/
 src/shell/* shell/
 
 # Fraud
-src/js/trueaction_eb2cfraud		js/trueaction_eb2cfraud
+src/js/ebayenterprise_eb2cfraud		js/ebayenterprise_eb2cfraud
 src/app/design/frontend/base/default/layout/eb2cfraud.xml app/design/frontend/base/default/layout/eb2cfraud.xml
 src/app/design/frontend/base/default/template/eb2cfraud app/design/frontend/base/default/template/eb2cfraud
 

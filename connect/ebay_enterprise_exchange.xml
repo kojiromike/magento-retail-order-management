@@ -104,11 +104,11 @@
 		</target>
 		<path>
 			<path/>
-			<path>TrueAction</path>
-			<path>TrueAction</path>
-			<path>TrueAction</path>
+			<path>EbayEnterprise</path>
+			<path>EbayEnterprise</path>
+			<path>EbayEnterprise</path>
 			<path>shell/eb2c.php</path>
-			<path>js/trueaction_eb2cfraud</path>
+			<path>js/ebayenterprise_eb2cfraud</path>
 			<path>frontend/base/default/template/eb2corder_frontend</path>
 			<path>frontend/base/default/layout/eb2corder_frontend.xml</path>
 			<path>frontend/base/default/template/eb2caddress_frontend</path>
@@ -119,19 +119,19 @@
 			<path>frontend/base/default/js/validation-suggestions.js</path>
 			<path>frontend/enterprise/default/template/eb2cpayment</path>
 			<path>frontend/enterprise/default/layout/eb2cpayment.xml</path>
-			<path>modules/TrueAction_Eb2cAddress.xml</path>
-			<path>modules/TrueAction_Eb2cAddressFrontend.xml</path>
-			<path>modules/TrueAction_Eb2cCore.xml</path>
-			<path>modules/TrueAction_Eb2cFraud.xml</path>
-			<path>modules/TrueAction_Eb2cInventory.xml</path>
-			<path>modules/TrueAction_Eb2cOrder.xml</path>
-			<path>modules/TrueAction_Eb2cPayment.xml</path>
-			<path>modules/TrueAction_Eb2cProduct.xml</path>
-			<path>modules/TrueAction_Eb2cTax.xml</path>
-			<path>modules/TrueAction_Pbridge.xml</path>
-			<path>modules/TrueAction_MageLog.xml</path>
-			<path>modules/TrueAction_ActiveConfig.xml</path>
-			<path>modules/TrueAction_FileTransfer.xml</path>
+			<path>modules/EbayEnterprise_Eb2cAddress.xml</path>
+			<path>modules/EbayEnterprise_Eb2cAddressFrontend.xml</path>
+			<path>modules/EbayEnterprise_Eb2cCore.xml</path>
+			<path>modules/EbayEnterprise_Eb2cFraud.xml</path>
+			<path>modules/EbayEnterprise_Eb2cInventory.xml</path>
+			<path>modules/EbayEnterprise_Eb2cOrder.xml</path>
+			<path>modules/EbayEnterprise_Eb2cPayment.xml</path>
+			<path>modules/EbayEnterprise_Eb2cProduct.xml</path>
+			<path>modules/EbayEnterprise_Eb2cTax.xml</path>
+			<path>modules/EbayEnterprise_Pbridge.xml</path>
+			<path>modules/EbayEnterprise_MageLog.xml</path>
+			<path>modules/EbayEnterprise_ActiveConfig.xml</path>
+			<path>modules/EbayEnterprise_FileTransfer.xml</path>
 			<path>eb2c.xml.sample</path>
 			<path>en_US</path>
 		</path>
@@ -199,7 +199,7 @@
 			<include/>
 			<include/>
 			<include/>
-			<include>#TrueAction_Eb2c.*#</include>
+			<include>#EbayEnterprise_Eb2c.*#</include>
 		</include>
 		<ignore>
 			<ignore>#[Tt]est#</ignore>

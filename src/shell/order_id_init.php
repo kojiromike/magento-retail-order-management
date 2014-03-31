@@ -4,7 +4,7 @@ require_once 'abstract.php';
 /**
  * Set the initial order number.
  */
-class TrueAction_Eb2c_Shell_Increment extends Mage_Shell_Abstract
+class EbayEnterprise_Eb2c_Shell_Increment extends Mage_Shell_Abstract
 {
 	/**
 	 * getting default store id
@@ -74,5 +74,5 @@ USAGE;
 	}
 }
 
-$IncrementProcessor = new TrueAction_Eb2c_Shell_Increment();
+$IncrementProcessor = new EbayEnterprise_Eb2c_Shell_Increment();
 exit($IncrementProcessor->run());

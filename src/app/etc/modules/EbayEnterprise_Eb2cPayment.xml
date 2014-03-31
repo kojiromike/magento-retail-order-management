@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<modules>
+		<EbayEnterprise_Eb2cPayment>
+			<active>true</active>
+			<codePool>local</codePool>
+			<depends>
+				<Enterprise_GiftCardAccount />
+				<Mage_Paypal />
+			</depends>
+		</EbayEnterprise_Eb2cPayment>
+	</modules>
+</config>

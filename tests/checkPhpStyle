@@ -51,7 +51,7 @@ checkStyle() {
 	phpcs -p \
 		--report-checkstyle=build/checkstyle.xml \
 		--standard=build/codeAnalysis/php-code-checker/TrueAction \
-		--ignore=src/js/trueaction_eb2cfraud/ \
+		--ignore=src/js/ebayenterprise_eb2cfraud/ \
 		"$@"
 }
 

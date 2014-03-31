@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<modules>
+		<EbayEnterprise_Eb2cAddressFrontend>
+			<active>true</active>
+			<codePool>local</codePool>
+			<depends>
+				<EbayEnterprise_Eb2cAddress/>
+			</depends>
+		</EbayEnterprise_Eb2cAddressFrontend>
+	</modules>
+</config>

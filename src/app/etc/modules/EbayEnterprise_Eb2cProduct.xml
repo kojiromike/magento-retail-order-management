@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<modules>
+		<EbayEnterprise_Eb2cProduct>
+			<active>true</active>
+			<codePool>local</codePool>
+			<depends>
+				<Mage_Eav/>
+				<Mage_Catalog/>
+			</depends>
+		</EbayEnterprise_Eb2cProduct>
+	</modules>
+</config>

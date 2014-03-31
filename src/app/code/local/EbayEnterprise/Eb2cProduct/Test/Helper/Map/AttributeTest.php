@@ -203,7 +203,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 		$attributeHelperMock->expects($this->once())
 			->method('_isAttributeInSet')
 			->with(
-				$this->identicalTo(TrueAction_Eb2cProduct_Helper_Map_Attribute::COLOR),
+				$this->identicalTo(EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::COLOR),
 				$this->identicalTo($product)
 			)
 			->will($this->returnValue(true));
@@ -217,7 +217,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 	 */
 	public function testExtractColorValueNotInSet()
 	{
-		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
 		$doc->loadXML(
 			'<root>
 				<Color>
@@ -533,7 +533,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 			'frontend_label' => 'size',
 		));
 
-		$doc = new TrueAction_Dom_Document('1.0', 'UTF-8');
+		$doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
 		$doc->loadXML(
 			'<root>
 				<CustomAttributes>

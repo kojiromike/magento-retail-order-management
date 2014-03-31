@@ -16,17 +16,17 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	 * pseudo-constant mapping of discount tax types to xpath expressions
 	 */
 	private static $_promoTaxMap = array(
-		TrueAction_Eb2cTax_Model_Response_Quote::MERCHANDISE => 'a:Pricing/a:Merchandise/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
-		TrueAction_Eb2cTax_Model_Response_Quote::SHIPPING => 'a:Pricing/a:Shipping/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
-		TrueAction_Eb2cTax_Model_Response_Quote::DUTY => 'a:Pricing/a:Duty/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE => 'a:Pricing/a:Merchandise/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING => 'a:Pricing/a:Shipping/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::DUTY => 'a:Pricing/a:Duty/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
 	);
 	/**
 	 * pseudo-constant mapping of tax types to xpath expressions
 	 */
 	private static $_taxMap = array(
-		TrueAction_Eb2cTax_Model_Response_Quote::MERCHANDISE => 'a:Pricing/a:Merchandise/a:TaxData/a:Taxes/a:Tax',
-		TrueAction_Eb2cTax_Model_Response_Quote::SHIPPING => 'a:Pricing/a:Shipping/a:TaxData/a:Taxes/a:Tax',
-		TrueAction_Eb2cTax_Model_Response_Quote::DUTY => 'a:Pricing/a:Duty/a:TaxData/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE => 'a:Pricing/a:Merchandise/a:TaxData/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING => 'a:Pricing/a:Shipping/a:TaxData/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::DUTY => 'a:Pricing/a:Duty/a:TaxData/a:Taxes/a:Tax',
 	);
 	/**
 	 * get whether the response is valid or not.
@@ -153,7 +153,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	 * Parse the discount nodes into objects.
 	 *
 	 * @param DOMXPath $xpath
-	 * @param TrueAction_Dom_Element $itemNode
+	 * @param EbayEnterprise_Dom_Element $itemNode
 	 * @param bool $isDiscount Whether or not to use discount tax mappings
 	 * @return array the list of tax nodes
 	 */

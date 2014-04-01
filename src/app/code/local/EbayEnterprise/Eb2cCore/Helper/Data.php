@@ -393,9 +393,11 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getProductHtsCodeByCountry(Mage_Catalog_Model_Product $product, $countryCode)
 	{
 		$htsCodes = unserialize($product->getHtsCodes());
-		foreach ($htsCodes as $htsCode) {
-			if ($countryCode === $htsCode['destination_country']) {
-				return $htsCode['hts_code'];
+		if ($htsCodes) {
+			foreach ($htsCodes as $htsCode) {
+				if ($countryCode === $htsCode['destination_country']) {
+					return $htsCode['hts_code'];
+				}
 			}
 		}
 

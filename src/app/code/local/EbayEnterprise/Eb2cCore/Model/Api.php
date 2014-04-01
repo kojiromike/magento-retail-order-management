@@ -44,14 +44,14 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	 */
 	public function request(DOMDocument $doc, $xsdName, $uri, $timeout=self::DEFAULT_TIMEOUT, $adapter=self::DEFAULT_ADAPTER, Zend_Http_Client $client=null)
 	{
+		$log = Mage::helper('ebayenterprise_magelog');
 		$cfg = Mage::getModel('eb2ccore/config_registry')
 			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$log->logDebug("[ %s ] Validating xsd %s:\n%s", array(__CLASS__, $xsdName, $doc->C14N()));
 		$this->schemaValidate($doc, $xsdName);
 		$xmlStr = $doc->C14N();
 		$client = $this->_setupClient($client, $cfg->apiKey, $uri, $xmlStr, $adapter, $timeout);
-		$log = Mage::helper('ebayenterprise_magelog');
-		$doc->formatOutput = true;
-		$log->logInfo("[ %s ] Sending request to %s:\n%s", array(__CLASS__, $uri, $doc->C14N()));
+		$log->logInfo("[ %s ] Sending request to %s", array(__CLASS__, $uri));
 		try {
 			$response = $client->request(self::DEFAULT_METHOD);
 			return $this->_processResponse($response, $uri);

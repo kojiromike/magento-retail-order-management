@@ -329,10 +329,15 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 */
 	protected function _extractItemData(Mage_Sales_Model_Quote_Item_Abstract $item, Mage_Sales_Model_Quote_Address $address)
 	{
-		$store = Mage::app()->getStore();
+		$store       = Mage::app()->getStore();
+		$mageProduct = Mage::getModel('catalog/product')->load($item->getProduct()->getId());
 		return array_merge(
 			array(
-				'hts_code' => Mage::helper('eb2ccore')->getProductHtsCodeByCountry($item->getProduct(), $address->getCountryId()),
+				'hts_code' => 
+						Mage::helper('eb2ccore')->getProductHtsCodeByCountry(
+								$mageProduct,
+								$address->getCountryId()
+							),
 				'id' => $item->getId(),
 				'item_desc' => $item->getName(),
 				'item_id' => $item->getSku(),
@@ -613,6 +618,13 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		$origins->appendChild($this->_buildAdminOriginNode($parent, $item['AdminOrigin']));
 		$origins->appendChild($this->_buildShippingOriginNode($parent, $item['ShippingOrigin']));
 
+		$mageProductId = Mage::getModel('catalog/product')->getIdBySku(trim($item['item_id']));
+		$mageProduct = Mage::getModel('catalog/product')->load($mageProductId);
+		$countryOfManufacture = $mageProduct->getCountryOfManufacture();
+		if ($countryOfManufacture) {
+			$origins->addChild('ManufacturingCountryCode', $countryOfManufacture);
+		}
+
 		$orderItem->appendChild($origins);
 		$orderItem->addChild('Quantity', $item['quantity']);
 
@@ -629,7 +641,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
 		if ($taxClass) {
-			$taxClassNode = $parent->ownerDocument->createElementNs($parent->namespaceURI, 'TaxClass', $taxClass);
+			$taxClassNode = $pareont->ownerDocument->createElementNs($parent->namespaceURI, 'TaxClass', $taxClass);
 			$unitPriceNode->parentNode->insertBefore($taxClassNode, $unitPriceNode);
 		}
 	}

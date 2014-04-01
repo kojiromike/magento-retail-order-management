@@ -946,4 +946,144 @@ INVALID_XML;
 
 		$this->assertSame('', EbayEnterprise_Eb2cOrder_Model_Create::getOrderGiftCardPan($orderMock));
 	}
+
+	/**
+	 * Test EbayEnterprise_Eb2cOrder_Model_Create::_buildBrowserData  method for the following expectations
+	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cOrder_Model_Create::_buildBrowserData given
+	 *                a DOMElement mocked object in the method DOMElement::addChild will be called 10 time given
+	 *                various parameter to build the browser data node
+	 *                various method from Mage_Core_Helper_Http class, Mage_Core_Model_Session class, Mage_Sales_Model_Order
+	 *                class and the $_SERVER variale were explictly mocked and set to a know value to be passed to the
+	 *                DOMElement::addChild and createChild methods
+	 */
+	public function testBuildBrowserData()
+	{
+		$_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+		$_SERVER['HTTP_ACCEPT_ENCODING'] = 'gzip, deflate';
+		$host = 'test.example.com';
+		$serverAddr = '0.0.0.0';
+		$userAgent = 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:20.0) Gecko/20100101 Firefox/20.0';
+		$language = 'en-US,en;q=0.5';
+		$charset = 'UTF-8';
+		$sessId = '83889284884849333';
+		$jsData = '<script type="text/javascript"></script>';
+		$orderSource = EbayEnterprise_Eb2cOrder_Model_Create::BACKEND_ORDER_SOURCE;
+
+		$httpMock = $this->getHelperMockBuilder('core/http')
+			->disableOriginalConstructor()
+			->setMethods(array('getHttpHost', 'getServerAddr', 'getHttpUserAgent', 'getHttpAcceptLanguage', 'getHttpAcceptCharset'))
+			->getMock();
+		$httpMock->expects($this->once())
+			->method('getHttpHost')
+			->with($this->identicalTo(true))
+			->will($this->returnValue($host));
+		$httpMock->expects($this->once())
+			->method('getServerAddr')
+			->will($this->returnValue($serverAddr));
+		$httpMock->expects($this->once())
+			->method('getHttpUserAgent')
+			->with($this->identicalTo(true))
+			->will($this->returnValue($userAgent));
+		$httpMock->expects($this->once())
+			->method('getHttpAcceptLanguage')
+			->with($this->identicalTo(true))
+			->will($this->returnValue($language));
+		$httpMock->expects($this->once())
+			->method('getHttpAcceptCharset')
+			->with($this->identicalTo(true))
+			->will($this->returnValue($charset));
+		$this->replaceByMock('helper', 'core/http', $httpMock);
+
+		$sessionMock = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(array('getSessionId'))
+			->getMock();
+		$sessionMock->expects($this->once())
+			->method('getSessionId')
+			->will($this->returnValue($sessId));
+		$this->replaceByMock('singleton', 'core/session', $sessionMock);
+
+		$orderMock = $this->getModelMockBuilder('sales/order')
+			->disableOriginalConstructor()
+			->setMethods(array('getEb2cFraudJavascriptData'))
+			->getMock();
+		$orderMock->expects($this->once())
+			->method('getEb2cFraudJavascriptData')
+			->will($this->returnValue($jsData));
+
+		$createMock = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->setMethods(array('_getOrderSource'))
+			->getMock();
+		$createMock->expects($this->once())
+			->method('_getOrderSource')
+			->will($this->returnValue($orderSource));
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($createMock, '_o', $orderMock);
+
+		$elementMock = $this->getMockBuilder('DOMElement')
+			->disableOriginalConstructor()
+			->setMethods(array('addChild', 'createChild'))
+			->getMock();
+		$elementMock->expects($this->exactly(10))
+			->method('addChild')
+			->will($this->returnValueMap(array(
+				array('HostName', $host, $elementMock),
+				array('IPAddress', $serverAddr, $elementMock),
+				array('SessionId', $sessId, $elementMock),
+				array('UserAgent', $userAgent, $elementMock),
+				array('JavascriptData', $jsData, $elementMock),
+				array('Referrer', $orderSource, $elementMock),
+				array('ContentTypes', $_SERVER['HTTP_ACCEPT'], $elementMock),
+				array('Encoding', $_SERVER['HTTP_ACCEPT_ENCODING'], $elementMock),
+				array('Language', $language, $elementMock),
+				array('CharSet', $charset, $elementMock),
+			)));
+		$elementMock->expects($this->once())
+			->method('createChild')
+			->with($this->identicalTo('HTTPAcceptData'))
+			->will($this->returnSelf());
+
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($createMock, '_buildBrowserData', array($elementMock));
+	}
+
+	/**
+	 * Test EbayEnterprise_Eb2cOrder_Model_Create::_getOrderSource method for the following expectations
+	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cOrder_Model_Create::_getOrderSource and expects
+	 *                the method EbayEnterprise_Eb2cCore_Helper_Data::getCurrentStore to be invoked and return a mocked
+	 *                of Mage_Core_Model_Store object, then the method Mage_Core_Model_Store::isAdmin is called where
+	 *                true to indicate this order was created in admin which will return the class constant
+	 *                EbayEnterprise_Eb2cOrder_Model_Create::BACKEND_ORDER_SOURCE
+	 */
+	public function testGetOrderSource()
+	{
+		$orderSource = EbayEnterprise_Eb2cOrder_Model_Create::BACKEND_ORDER_SOURCE;
+		$isAdmin = true;
+
+		$storeMock = $this->getModelMockBuilder('core/store')
+			->disableOriginalConstructor()
+			->setMethods(array('isAdmin'))
+			->getMock();
+		$storeMock->expects($this->once())
+			->method('isAdmin')
+			->will($this->returnValue($isAdmin));
+
+		$helperMock = $this->getHelperMockBuilder('eb2ccore/data')
+			->disableOriginalConstructor()
+			->setMethods(array('getCurrentStore'))
+			->getMock();
+		$helperMock->expects($this->once())
+			->method('getCurrentStore')
+			->will($this->returnValue($storeMock));
+		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
+
+		$createMock = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+
+		$this->assertSame($orderSource, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$createMock, '_getOrderSource', array()
+		));
+	}
 }

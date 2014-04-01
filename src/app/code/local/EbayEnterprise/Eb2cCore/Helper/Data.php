@@ -444,4 +444,14 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		trigger_error($message, E_USER_ERROR);
 	}
+
+	/**
+	 * abstracting getting an instance of the current store
+	 * @return Mage_Core_Model_Store
+	 * @codeCoverageIgnore
+	 */
+	public function getCurrentStore()
+	{
+		return Mage::app()->getStore();
+	}
 }

@@ -383,46 +383,6 @@ INVALID_XML;
 		);
 	}
 	/**
-	 * Building out the customer XML for a given order
-	 * @param array $customerData Customer data for the given order
-	 * @test
-	 * @dataProvider dataProvider
-	 */
-	public function testBuildingCustomerNodes($customerData)
-	{
-		$this->replaceCoreConfigRegistry(array(
-			'clientCustomerIdPrefix' => '12345',
-		));
-		$order = Mage::getModel('sales/order', $customerData);
-		$create = Mage::getModel('eb2corder/create');
-		$orderProp = $this->_reflectProperty($create, '_o');
-		$orderProp->setValue($create, $order);
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$customer = $doc->appendChild($doc->createElement('root', null))->appendChild($doc->createElement('Customer', null));
-		$buildCustomerMethod = $this->_reflectMethod($create, '_buildCustomer');
-		$buildCustomerMethod->invoke($create, $customer);
-		$this->assertSame('12345' . $customerData['customer_id'], $customer->getAttribute('customerId'));
-		$this->assertSame($customerData['customer_prefix'], $customer->getElementsByTagName('Honorific')->item(0)->nodeValue);
-		$lastname = (isset($customerData['customer_suffix']) && !empty($customerData['customer_suffix']))
-			? $customerData['customer_lastname'] . ' ' . $customerData['customer_suffix']
-			: $customerData['customer_lastname'];
-		$this->assertSame($lastname, $customer->getElementsByTagName('LastName')->item(0)->nodeValue);
-		$this->assertSame($customerData['customer_firstname'], $customer->getElementsByTagName('FirstName')->item(0)->nodeValue);
-		if (isset($customerData['customer_dob'])) {
-			$this->assertSame($customerData['customer_dob'], $customer->getElementsByTagName('DateOfBirth')->item(0)->nodeValue);
-		} else {
-			$this->assertSame(0, $customer->getElementsByTagName('DateOfBirth')->length);
-		}
-		if (isset($customerData['customer_gender'])) {
-			$this->assertSame(
-				($customerData['customer_gender'] === 1) ? 'M' : 'F',
-				$customer->getElementsByTagName('Gender')->item(0)->nodeValue
-			);
-		}
-		$this->assertSame($customerData['customer_email'], $customer->getElementsByTagName('EmailAddress')->item(0)->nodeValue);
-		$this->assertSame($customerData['customer_taxvat'], $customer->getElementsByTagName('CustomerTaxId')->item(0)->nodeValue);
-	}
-	/**
 	 * Building the XML nodes for a given order item
 	 * @todo This method should really be broken down into some smaller chunks to make this test less complicated
 	 * @param array $itemData Order item object data
@@ -1084,6 +1044,119 @@ INVALID_XML;
 
 		$this->assertSame($orderSource, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$createMock, '_getOrderSource', array()
+		));
+	}
+
+	/**
+	 * Test EbayEnterprise_Eb2cOrder_Model_Create::_buildCustomer method for the following expectations
+	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cOrder_Model_Create::_buildCustomer given
+	 *                a mocked EbayEnterprise_Dom_Element object, the following method
+	 *                EbayEnterprise_Eb2cCore_Model_Config_Registry::addConfigModel given a EbayEnterprise_Eb2cCore_Model_Config
+	 *                object, the test continue to expect the following methods (getCustomerId,getCustomerPrefix,getCustomerLastname,
+	 *                getCustomerSuffix,getCustomerMiddlename, getCustomerGender, getCustomerDob, getCustomerEmail, getCustomerTaxvat)
+	 *                on the mocked class Mage_Sales_Model_Order, the value from the calling the method
+	 *                Mage_Sales_Model_Order::getCustomerId is expected to be concatenate with the value from mocked config
+	 *                registry magic class property 'clientCustomerIdPrefix' and pass as the second paremeter to the
+	 *                EbayEnterprise_Dom_Element::setAttribute and the first parameter is passed as a know literal,
+	 *                the method EbayEnterprise_Dom_Element::createChild is expected to be call 9 time with various parameters
+	 */
+	public function testBuildCustomer()
+	{
+		$ccPrefix = '04';
+		$customerId = '93';
+		$honorific = 'Mr.';
+		$lastName = 'Doe';
+		$suffix = 'K.';
+		$middleName = '';
+		$firstName = 'John';
+		$gender = EbayEnterprise_Eb2cOrder_Model_Create::GENDER_MALE;
+		$gMap = array($gender => 'M');
+		$dob = '1985-04-19 00:00:00';
+		$newDob = '1985-04-19';
+		$email = 'customer@example.com';
+		$taxId = '89';
+
+		$this->replaceCoreConfigRegistry(array('clientCustomerIdPrefix' => $ccPrefix));
+
+		$helperMock = $this->getHelperMockBuilder('eb2ccore/data')
+			->disableOriginalConstructor()
+			->setMethods(array('createDate'))
+			->getMock();
+		$helperMock->expects($this->once())
+			->method('createDate')
+			->with($this->identicalTo($dob), $this->identicalTo('Y-m-d'))
+			->will($this->returnValue($newDob));
+		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
+
+		$orderMock = $this->getModelMockBuilder('sales/order')
+			->disableOriginalConstructor()
+			->setMethods(array(
+				'getCustomerId', 'getCustomerPrefix', 'getCustomerLastname', 'getCustomerSuffix', 'getCustomerMiddlename',
+				'getCustomerFirstname', 'getCustomerGender', 'getCustomerDob', 'getCustomerEmail', 'getCustomerTaxvat'
+			))
+			->getMock();
+		$orderMock->expects($this->once())
+			->method('getCustomerId')
+			->will($this->returnValue($customerId));
+		$orderMock->expects($this->once())
+			->method('getCustomerPrefix')
+			->will($this->returnValue($honorific));
+		$orderMock->expects($this->once())
+			->method('getCustomerLastname')
+			->will($this->returnValue($lastName));
+		$orderMock->expects($this->once())
+			->method('getCustomerSuffix')
+			->will($this->returnValue($suffix));
+		$orderMock->expects($this->once())
+			->method('getCustomerMiddlename')
+			->will($this->returnValue($middleName));
+		$orderMock->expects($this->once())
+			->method('getCustomerFirstname')
+			->will($this->returnValue($firstName));
+		$orderMock->expects($this->exactly(2))
+			->method('getCustomerGender')
+			->will($this->returnValue($gender));
+		$orderMock->expects($this->exactly(2))
+			->method('getCustomerDob')
+			->will($this->returnValue($dob));
+		$orderMock->expects($this->once())
+			->method('getCustomerEmail')
+			->will($this->returnValue($email));
+		$orderMock->expects($this->once())
+			->method('getCustomerTaxvat')
+			->will($this->returnValue($taxId));
+
+		$elementMock = $this->getMockBuilder('EbayEnterprise_Dom_Element')
+			->disableOriginalConstructor()
+			->setMethods(array('setAttribute', 'createChild'))
+			->getMock();
+		$elementMock->expects($this->once())
+			->method('setAttribute')
+			->with($this->identicalTo('customerId'), $this->identicalTo($ccPrefix . $customerId))
+			->will($this->returnSelf());
+		$elementMock->expects($this->exactly(9))
+			->method('createChild')
+			->will($this->returnValueMap(array(
+				array('Name', null, null, null, $elementMock),
+				array('Honorific', $honorific, null, null, $elementMock),
+				array('LastName', $lastName . ' ' . $suffix, null, null, $elementMock),
+				array('MiddleName', $middleName, null, null, $elementMock),
+				array('FirstName', $firstName, null, null, $elementMock),
+				array('Gender', $gMap[$gender], null, null, $elementMock),
+				array('DateOfBirth', $newDob, null, null, $elementMock),
+				array('EmailAddress', $email, null, null, $elementMock),
+				array('CustomerTaxId', $taxId, null, null, $elementMock),
+			)));
+
+		$createMock = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($createMock, '_o', $orderMock);
+
+		$this->assertSame($createMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$createMock, '_buildCustomer', array($elementMock)
 		));
 	}
 }

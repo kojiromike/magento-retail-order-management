@@ -239,7 +239,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	/**
 	 * Build customer information node
 	 * @param DomElement customer	where to place customer info
-	 * @return void
+	 * @return self
 	 */
 	protected function _buildCustomer(DomElement $customer)
 	{
@@ -259,10 +259,12 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$customer->createChild('Gender', $genderToSend);
 		}
 		if ($this->_o->getCustomerDob()) {
-			$customer->createChild('DateOfBirth', $this->_o->getCustomerDob());
+			$customer->createChild('DateOfBirth', Mage::helper('eb2ccore')->createDate($this->_o->getCustomerDob(), 'Y-m-d'));
 		}
 		$customer->createChild('EmailAddress', $this->_o->getCustomerEmail());
 		$customer->createChild('CustomerTaxId', $this->_o->getCustomerTaxvat());
+
+		return $this;
 	}
 	/**
 	 * Builds a single Order Item node inside the Order Items array

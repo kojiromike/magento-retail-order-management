@@ -233,6 +233,12 @@
 					<method>extractCategoryIds</method>
 					<xpath>CategoryLinks/CategoryLink[@import_mode!="Delete"]/Name</xpath>
 				</category_ids>
+				<country_of_manufacture>
+					<class>eb2cproduct/map</class>
+					<type>helper</type>
+					<method>extractStringValue</method>
+					<xpath>ExtendedAttributes/CountryOfOrigin</xpath>
+				</country_of_manufacture>
 				<is_clean>
 					<class>eb2cproduct/map</class>
 					<type>helper</type>

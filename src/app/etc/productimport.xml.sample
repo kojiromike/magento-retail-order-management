@@ -123,12 +123,6 @@ Copy this file to productimport.xml and configure the appropriate values below.
 					<method>extractBoolValue</method>
 					<xpath></xpath>
 				</use_config_gift_message_available>
-				<country_of_manufacture>
-					<class>eb2cproduct/map</class>
-					<type>disabled</type>
-					<method>extractStringValue</method>
-					<xpath></xpath>
-				</country_of_manufacture>
 				<gift_card_tender_code>
 					<class>eb2cproduct/map</class>
 					<type>disabled</type>

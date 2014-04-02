@@ -464,16 +464,4 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::app()->getStore();
 	}
-
-	/**
-	 * abstracting creating date
-	 * @param string $date
-	 * @param string $format
-	 * @return string | null the date null when the given date is empty
-	 * @codeCoverageIgnore
-	 */
-	public function createDate($date, $format='c')
-	{
-		return !empty($date)? date_format(date_create($date), $format) : null;
-	}
 }

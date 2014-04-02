@@ -259,7 +259,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$customer->createChild('Gender', $genderToSend);
 		}
 		if ($this->_o->getCustomerDob()) {
-			$customer->createChild('DateOfBirth', Mage::helper('eb2ccore')->createDate($this->_o->getCustomerDob(), 'Y-m-d'));
+			$customer->createChild('DateOfBirth', date_format(date_create($this->_o->getCustomerDob()), 'c'));
 		}
 		$customer->createChild('EmailAddress', $this->_o->getCustomerEmail());
 		$customer->createChild('CustomerTaxId', $this->_o->getCustomerTaxvat());

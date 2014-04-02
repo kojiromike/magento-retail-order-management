@@ -1078,16 +1078,6 @@ INVALID_XML;
 
 		$this->replaceCoreConfigRegistry(array('clientCustomerIdPrefix' => $ccPrefix));
 
-		$helperMock = $this->getHelperMockBuilder('eb2ccore/data')
-			->disableOriginalConstructor()
-			->setMethods(array('createDate'))
-			->getMock();
-		$helperMock->expects($this->once())
-			->method('createDate')
-			->with($this->identicalTo($dob), $this->identicalTo('Y-m-d'))
-			->will($this->returnValue($newDob));
-		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
-
 		$orderMock = $this->getModelMockBuilder('sales/order')
 			->disableOriginalConstructor()
 			->setMethods(array(

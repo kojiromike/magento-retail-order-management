@@ -149,6 +149,18 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
+	 * remove the client id found in a given sku {item_id}
+	 * @param  string $itemId    Product item/style/client/whatevs id
+	 * @param  string $catalogId Product catalog id
+	 * @return string            Normalized style id
+	 */
+	public function denormalizeSku($itemId, $catalogId)
+	{
+		return (!empty($itemId) && strpos($itemId, $catalogId . '-') === 0)?
+			str_replace($catalogId . '-', '', $itemId) : $itemId;
+	}
+
+	/**
 	 * Get value of node specified for query. In accordance with existing local custom here,
 	 * named 'extract', and calls extractNodeValue to ensure consistency.
 	 * @param DOMXpath xpath object
@@ -443,5 +455,15 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	public function triggerError($message)
 	{
 		trigger_error($message, E_USER_ERROR);
+	}
+
+	/**
+	 * abstracting getting an instance of the current store
+	 * @return Mage_Core_Model_Store
+	 * @codeCoverageIgnore
+	 */
+	public function getCurrentStore()
+	{
+		return Mage::app()->getStore();
 	}
 }

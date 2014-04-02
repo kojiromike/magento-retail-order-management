@@ -353,28 +353,28 @@
 						<_gsi_client_id>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getGsiClientId</method>
+							<method>passGsiClientId</method>
 							<xml_dest>@gsi_client_id</xml_dest> <!-- Always relative to the item node. Never starts with /. -->
 							<translate>0</translate>
 						</_gsi_client_id>
 						<_operation_type>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getOperationType</method>
+							<method>passOperationType</method>
 							<xml_dest>@operation_type</xml_dest>
 							<translate>0</translate>
 						</_operation_type>
 						<_catalog_id>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getCatalogId</method>
+							<method>passCatalogId</method>
 							<xml_dest>@catalog_id</xml_dest>
 							<translate>0</translate>
 						</_catalog_id>
 						<sku>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getTextAsNode</method>
+							<method>passSKU</method>
 							<xml_dest>ItemId/ClientItemId</xml_dest>
 							<translate>0</translate>
 						</sku>
@@ -391,21 +391,21 @@
 						<_gsi_client_id>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getGsiClientId</method>
+							<method>passGsiClientId</method>
 							<xml_dest>@gsi_client_id</xml_dest>
 							<translate>0</translate>
 						</_gsi_client_id>
 						<_catalog_id>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getCatalogId</method>
+							<method>passCatalogId</method>
 							<xml_dest>@catalog_id</xml_dest>
 							<translate>0</translate>
 						</_catalog_id>
 						<sku>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getTextAsNode</method>
+							<method>passSKU</method>
 							<xml_dest>UniqueId</xml_dest>
 							<translate>0</translate>
 						</sku>
@@ -417,36 +417,85 @@
 					<item_node>PricePerItem</item_node>
 					<event_type>Pricing</event_type>
 					<schema_location>PriceEventV11.xsd</schema_location>
-					<is_validate>false</is_validate>
+					<is_validate>true</is_validate>
 					<mappings>
 						<_gsi_client_id>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getGsiClientId</method>
+							<method>passGsiClientId</method>
 							<xml_dest>@gsi_client_id</xml_dest>
 							<translate>0</translate>
 						</_gsi_client_id>
 						<_catalog_id>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getCatalogId</method>
+							<method>passCatalogId</method>
 							<xml_dest>@catalog_id</xml_dest>
 							<translate>0</translate>
 						</_catalog_id>
 						<_gsi_store_id>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getStoreId</method>
+							<method>passStoreId</method>
 							<xml_dest>@gsi_store_id</xml_dest>
 							<translate>0</translate>
 						</_gsi_store_id>
 						<sku>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>getTextAsNode</method>
+							<method>passSKU</method>
 							<xml_dest>ClientItemId</xml_dest>
 							<translate>0</translate>
 						</sku>
+						<price_event_number>
+							<class>eb2cproduct/pim_price</class>
+							<type>helper</type>
+							<method>passPriceEventNumber</method>
+							<xml_dest>Event/EventNumber</xml_dest>
+							<translate>0</translate>
+						</price_event_number>
+						<price>
+							<class>eb2cproduct/pim_price</class>
+							<type>helper</type>
+							<method>passPrice</method>
+							<xml_dest>Event/Price</xml_dest>
+							<translate>0</translate>
+						</price>
+						<msrp>
+							<class>eb2cproduct/pim_price</class>
+							<type>helper</type>
+							<method>passMsrp</method>
+							<xml_dest>Event/MSRP</xml_dest>
+							<translate>0</translate>
+						</msrp>
+						<alternate_price1>
+							<class>eb2cproduct/pim_price</class>
+							<type>helper</type>
+							<method>passAlternatePrice</method>
+							<xml_dest>Event/AlternatePrice1</xml_dest>
+							<translate>0</translate>
+						</alternate_price1>
+						<special_from_date>
+							<class>eb2cproduct/pim_price</class>
+							<type>helper</type>
+							<method>passPriceDateFrom</method>
+							<xml_dest>Event/StartDate</xml_dest>
+							<translate>0</translate>
+						</special_from_date>
+						<special_to_date>
+							<class>eb2cproduct/pim_price</class>
+							<type>helper</type>
+							<method>passPriceDateTo</method>
+							<xml_dest>Event/EndDate</xml_dest>
+							<translate>0</translate>
+						</special_to_date>
+						<price_vat_inclusive>
+							<class>eb2cproduct/pim_price</class>
+							<type>helper</type>
+							<method>passPriceVatInclusive</method>
+							<xml_dest>Event/PriceVatInclusive</xml_dest>
+							<translate>0</translate>
+						</price_vat_inclusive>
 					</mappings>
 				</price_map>
 			</feed_pim_mapping>

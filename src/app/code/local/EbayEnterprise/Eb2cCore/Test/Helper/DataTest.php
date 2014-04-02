@@ -239,6 +239,30 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 	}
 
 	/**
+	 * Test EbayEnterprise_Eb2cCore_Helper_Data::denormalizeSku method for the following expectations
+	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cCore_Helper_Data::denormalizeSku given a sku
+	 *                with sku and a catalog id to denormalize the sku
+	 */
+	public function testDenormalizeSku()
+	{
+		$catalogId = '54';
+		$testData = array(
+			array(
+				'sku' => '54-49392002',
+				'expect' => '49392002'
+			),
+			array(
+				'sku' => '9484884',
+				'expect' => '9484884'
+			)
+		);
+
+		foreach ($testData as $data) {
+			$this->assertSame($data['expect'], Mage::helper('eb2ccore')->denormalizeSku($data['sku'], $catalogId));
+		}
+	}
+
+	/**
 	 * Testing the extractQueryNodeValue method
 	 * @test
 	 * @loadFixture

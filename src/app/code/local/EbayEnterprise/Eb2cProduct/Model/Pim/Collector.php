@@ -70,6 +70,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Collector
 	{
 		$collection = Mage::getResourceModel('catalog/product_collection');
 		$collection->addAttributeToSelect('entity_id');
+		$this->_cutoffDate = null;
 		if ($this->_cutoffDate) {
 			$collection->addFieldToFilter('updated_at', array('gteq' => $this->_cutoffDate));
 		}

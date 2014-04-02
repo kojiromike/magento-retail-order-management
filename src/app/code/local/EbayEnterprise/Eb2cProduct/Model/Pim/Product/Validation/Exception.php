@@ -1,0 +1,5 @@
+<?php
+class EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception
+	extends Mage_Core_Exception
+{
+}

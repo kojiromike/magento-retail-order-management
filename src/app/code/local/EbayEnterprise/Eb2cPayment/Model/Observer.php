@@ -51,43 +51,34 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 	}
 
 	/**
-	 * RedeemVoid any gift card when 'eb2c_event_dispatch_after_inventory_allocation' event is dispatched
-	 *
+	 * Void any redeemed gift cards in the case that an order cannot be placed.
+	 * Observes the 'eb2c_order_creation_failure'
+	 * @see EbayEnterprise_Eb2cCore_Model_Observer::rollbackExchangePlatformOrder
 	 * @param Varien_Event_Observer $observer
-	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
 	 * @return void
 	 */
 	public function redeemVoidGiftCard($observer)
 	{
 		$quote = $observer->getEvent()->getQuote();
 		$giftCard = unserialize($quote->getGiftCards());
-
-		if ($giftCard) {
-			foreach ($giftCard as $card) {
-				if (isset($card['ba']) && isset($card['pan']) && isset($card['pin'])) {
-					// We have a valid record, let's RedeemVoid gift card in eb2c.
-					$storeValueRedeemVoidReply = Mage::getModel('eb2cpayment/storedvalue_redeem_void')
-						->getRedeemVoid($card['pan'], $card['pin'], $quote->getId(), $quote->getGiftCardsAmountUsed());
-					if ($storeValueRedeemVoidReply) {
-						$redeemVoidData = Mage::getModel('eb2cpayment/storedvalue_redeem_void')->parseResponse($storeValueRedeemVoidReply);
-						if ($redeemVoidData) {
-							// making sure we have the right data
-							if (isset($redeemVoidData['responseCode']) && strtoupper(trim($redeemVoidData['responseCode'])) === 'SUCCESS') {
-								// removed gift card from the shopping cart
-								Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->loadByPanPin($card['pan'], $card['pin'])
-									->removeFromCart();
-								Mage::getSingleton('checkout/session')->addSuccess(
-									Mage::helper('enterprise_giftcardaccount')->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_REMOVED, Mage::helper('core')->escapeHtml($card['pan']))
-								);
-
-								Mage::throwException(
-									Mage::helper('enterprise_giftcardaccount')->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_NOT_REDEEMABLE)
-								);
-								// @codeCoverageIgnoreStart
-							}
-							// @codeCoverageIgnoreEnd
-						}
-					}
+		// When gift card data isn't an array of gift card data, don't even try
+		// to work with the data.
+		if (!is_array($giftCard)) {
+			return;
+		}
+		$voidRequest = Mage::getModel('eb2cpayment/storedvalue_redeem_void');
+		foreach ($giftCard as $card) {
+			if (isset($card['ba']) && isset($card['pan']) && isset($card['pin'])) {
+				// We have a valid record, let's RedeemVoid gift card in eb2c.
+				$responseData = $voidRequest->voidCardRedemption(
+					$card['pan'], $card['pin'], $quote->getId(), $quote->getGiftCardsAmountUsed()
+				);
+				// The best we can do if the void request fails is log a warning.
+				if (empty($responseData) || strtoupper($responseData['responseCode']) === 'FAIL') {
+					Mage::helper('ebayenterprise_magelog')->logWarn(
+						'[%s] Could not void stored value card redemption',
+						array(__CLASS__)
+					);
 				}
 			}
 		}
@@ -131,6 +122,24 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 			$supressor->disableNonEb2CPaymentMethods();
 		}
 
+		return $this;
+	}
+	/**
+	 * Void any payments when the order creation has failed.
+	 * Observes the 'eb2c_order_creation_failure' event
+	 * @see EbayEnterprise_Eb2cCore_Model_Observer::rollbackExchangePlatformOrder
+	 * @param  Varien_Event_Observer $observer Contains order that failed and quote used to create it
+	 * @return self
+	 */
+	public function voidPayments($observer)
+	{
+		$order = $observer->getEvent()->getOrder();
+		if ($order->canVoidPayment()) {
+			$payment = $order->getPayment();
+			// The `$order->canVoid` check wrapping this should prevent this method
+			// from ever throwing the exception as we'll already know it can be voided.
+			$payment->void($payment);
+		}
 		return $this;
 	}
 }

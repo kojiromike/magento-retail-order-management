@@ -2,15 +2,27 @@
 class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem_Void
 {
 	/**
-	 * Get gift card redeem void from eb2c.
-	 *
+	 * Void the SVC redemption and return the parsed response data.
 	 * @param string $pan either a raw PAN or a token representing a PAN
 	 * @param string $pin personal identification number or code associated with a gift card or gift certificate
 	 * @param string $entityId sales/quote entity_id value
 	 * @param string $amount amount to redeem void
 	 * @return string eb2c response to the request
 	 */
-	public function getRedeemVoid($pan, $pin, $entityId, $amount)
+	public function voidCardRedemption($pan, $pin, $quoteId, $amount)
+	{
+		return $this->_parseResponse($this->_makeVoidRequest(
+			$pan, $this->_buildRequest($pan, $pin, $quoteId, $amount)
+		));
+	}
+	/**
+	 * Get gift card redeem void from eb2c.
+	 *
+	 * @param string $pan either a raw PAN or a token representing a PAN
+	 * @param DOMDocument $requestMessage message to send
+	 * @return string eb2c response to the request
+	 */
+	protected function _makeVoidRequest($pan, DOMDocument $requestMessage)
 	{
 		$hlpr = Mage::helper('eb2cpayment');
 		$uri = $hlpr->getSvcUri('get_gift_card_redeem_void', $pan);
@@ -21,7 +33,7 @@ class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem_Void
 		return Mage::getModel('eb2ccore/api')
 			->setStatusHandlerPath(EbayEnterprise_Eb2cPayment_Helper_Data::STATUS_HANDLER_PATH)
 			->request(
-				$this->buildStoredValueRedeemVoidRequest($pan, $pin, $entityId, $amount),
+				$requestMessage,
 				$hlpr->getConfigModel()->xsdFileStoredValueVoidRedeem,
 				$uri
 			);
@@ -34,7 +46,7 @@ class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem_Void
 	 * @param string $amount, the amount to Redeem Void
 	 * @return DOMDocument The xml document, to be sent as request to eb2c.
 	 */
-	public function buildStoredValueRedeemVoidRequest($pan, $pin, $entityId, $amount)
+	protected function _buildRequest($pan, $pin, $entityId, $amount)
 	{
 		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
 		$storedValueRedeemVoidRequest = $domDocument->addElement('StoredValueRedeemVoidRequest', null, Mage::helper('eb2cpayment')->getXmlNs())->firstChild;
@@ -63,10 +75,10 @@ class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem_Void
 	 * @param string $storeValueRedeemVoidReply the xml response from eb2c
 	 * @return array, an associative array of response data
 	 */
-	public function parseResponse($storeValueRedeemVoidReply)
+	protected function _parseResponse($storeValueRedeemVoidReply)
 	{
 		$redeemVoidData = array();
-		if (trim($storeValueRedeemVoidReply) !== '') {
+		if ($storeValueRedeemVoidReply) {
 			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 			$doc->loadXML($storeValueRedeemVoidReply);
 			$redeemVoidXpath = new DOMXPath($doc);

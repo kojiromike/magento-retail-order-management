@@ -24,10 +24,14 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const FRONTEND_ORDER_SOURCE = 'web';
 	const COOKIES_DELIMITER = ';';
 
-	const SUCCESS_MESSAGE = '[ %s ]: updating order (%s) state to processing after successfully creating order from eb2c';
-	const FAILURE_MESSAGE = '[ %s ]: the following order (%s) received fail response from eb2c but the order state was already new.';
 	const RETRY_BEGIN_MESSAGE = '[ %s ]: Begin order retry now: %s. Found %s new order to be retried';
 	const RETRY_END_MESSAGE = '[ %s ]: Order retried finish at: %s';
+	// Response status reported by OrderCreateResponse message orders successfully created
+	const RESPONSE_SUCCESS_STATUS = 'SUCCESS';
+	// Response status reported by OrderCreateResponse message orders that filed to be created
+	const RESPONSE_FAILURE_STATUS = 'FAIL';
+	// Translation key for message to show to user when the order create request fails
+	const ORDER_CREATE_FAIL_MESSAGE = 'EbayEnterprise_Eb2cOrder_Order_Create_Fail_Message';
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -89,18 +93,31 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		return $this->_processResponse($response);
 	}
 	/**
-	 * extract the response status from the reponse xml string
+	 * Extract the response status from the response xml string. When the service
+	 * indicates a success, assume the order has been received by the OMS and
+	 * is being processed - place the order in "STATE_PROCESSING". When the
+	 * service explicitly indicates a failure, assume the order cannot be placed
+	 * into the OMS and cannot be created - throw exception to prevent order
+	 * creation. Under any other circumstances, assume some transient error has
+	 * prevented the OMS from receiving the order so keep the order to be retried
+	 * later - place the order in "STATE_NEW".
 	 * @param string $response, the response string xml from eb2c request
 	 * @return string, Mage_Sales_Model_Order::STATE_PROCESSING | Mage_Sales_Model_Order::STATE_NEW
+	 * @throws EbayEnterprise_Eb2cOrder_Exception_Order_Create_Fail if the response indicates a failure
 	 */
 	protected function _extractResponseState($response)
 	{
 		if (trim($response) !== '') {
 			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 			$doc->loadXML($response);
-			$status = $doc->getElementsByTagName('ResponseStatus')->item(0);
-			if ($status && strtoupper(trim($status->nodeValue)) === 'SUCCESS') {
+			$statusEle = $doc->getElementsByTagName('ResponseStatus')->item(0);
+			$status = $statusEle ? strtoupper(trim($statusEle->nodeValue)) : '';
+			if ($status === static::RESPONSE_SUCCESS_STATUS) {
 				return Mage_Sales_Model_Order::STATE_PROCESSING;
+			} elseif ($status === static::RESPONSE_FAILURE_STATUS) {
+				throw new EbayEnterprise_Eb2cOrder_Exception_Order_Create_Fail(
+					Mage::helper('eb2corder')->__(static::ORDER_CREATE_FAIL_MESSAGE)
+				);
 			}
 		}
 		return Mage_Sales_Model_Order::STATE_NEW;
@@ -116,19 +133,14 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _processResponse($response)
 	{
-		$logger = Mage::helper('ebayenterprise_magelog');
 		$state = $this->_extractResponseState($response);
-		if ($state !== $this->_o->getState()) {
-			$this->_o->setState($state);
-			$logger->logDebug(self::SUCCESS_MESSAGE, array(__METHOD__, $this->_o->getIncrementId()));
-			Mage::dispatchEvent('eb2c_order_create_succeeded', array('order' => $this->_o));
-		} else {
-			// If the response status is not success, but the order is already new, we should log it
-			$logger->logWarn(self::FAILURE_MESSAGE, array(__METHOD__, $this->_o->getIncrementId()));
-		}
-
-		$this->_o->setEb2cOrderCreateRequest($this->_domRequest->saveXML())->save();
-
+		$this->_o->setState($state, true);
+		Mage::helper('ebayenterprise_magelog')->logDebug(
+			'[%s] setting order (%s) state to %s',
+			array(__METHOD__, $this->_o->getIncrementId(), $state)
+		);
+		Mage::dispatchEvent('eb2c_order_create_succeeded', array('order' => $this->_o));
+		$this->_o->setEb2cOrderCreateRequest($this->_domRequest->saveXML());
 		return $this;
 	}
 	/**
@@ -734,6 +746,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$this->_loadRequest($order->getEb2cOrderCreateRequest())
 				->sendRequest();
 		}
+		$orders->save();
+
 		$newDate = Mage::getModel('core/date')->date('m/d/Y H:i:s');
 		$logger->logDebug(self::RETRY_END_MESSAGE, array(__METHOD__, $newDate));
 	}

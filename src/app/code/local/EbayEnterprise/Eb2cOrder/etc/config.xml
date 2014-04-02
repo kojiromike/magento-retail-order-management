@@ -49,7 +49,7 @@
 			</eb2corder_setup>
 		</resources>
 		<events>
-			<checkout_submit_all_after>
+			<sales_order_place_after>
 				<observers>
 					<createrequest_observer>
 						<type>singleton</type>
@@ -57,7 +57,7 @@
 						<method>observerCreate</method>
 					</createrequest_observer>
 				</observers>
-			</checkout_submit_all_after>
+			</sales_order_place_after>
 			<filetransfer_import_complete>
 				<observers>
 					<eb2c_order_process_feeds>
@@ -86,7 +86,27 @@
 				</ebayenterprise_eb2corder>
 			</updates>
 		</layout>
+		<translate>
+			<modules>
+				<EbayEnterprise_Eb2cOrder>
+					<files>
+						<default>EbayEnterprise_Eb2cOrder.csv</default>
+					</files>
+				</EbayEnterprise_Eb2cOrder>
+			</modules>
+		</translate>
 	</frontend>
+	<adminhtml>
+		<translate>
+			<modules>
+				<EbayEnterprise_Eb2cOrder>
+					<files>
+						<default>EbayEnterprise_Eb2cOrder.csv</default>
+					</files>
+				</EbayEnterprise_Eb2cOrder>
+			</modules>
+		</translate>
+	</adminhtml>
 	<default>
 		<eb2ccore>
 			<email>

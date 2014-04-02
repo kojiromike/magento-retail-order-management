@@ -64,20 +64,8 @@
 			</eb2cfraud>
 		</blocks>
 		<events>
-			<adminhtml_sales_order_create_process_data>
-				<observers>
-					<capture_order_context>
-						<type>model</type>
-						<class>eb2cfraud/observer</class>
-						<method>captureAdminOrderContext</method>
-					</capture_order_context>
-				</observers>
-			</adminhtml_sales_order_create_process_data>
-		</events>
-	</global>
-	<frontend>
-		<events>
-			<eb2c_onepage_save_order_before>
+			<!-- Capture browser context data for the order create message -->
+			<sales_model_service_quote_submit_before>
 				<observers>
 					<capture_order_context>
 						<type>model</type>
@@ -85,8 +73,10 @@
 						<method>captureOrderContext</method>
 					</capture_order_context>
 				</observers>
-			</eb2c_onepage_save_order_before>
+			</sales_model_service_quote_submit_before>
 		</events>
+	</global>
+	<frontend>
 		<layout>
 			<updates>
 				<eb2cfraud>
@@ -95,19 +85,6 @@
 			</updates>
 		</layout>
 	</frontend>
-	<test>
-		<events>
-			<eb2c_onepage_save_order_before>
-				<observers>
-					<capture_order_context>
-						<type>model</type>
-						<class>eb2cfraud/observer</class>
-						<method>captureOrderContext</method>
-					</capture_order_context>
-				</observers>
-			</eb2c_onepage_save_order_before>
-		</events>
-	</test>
 	<phpunit>
 		<suite>
 			<modules>

@@ -20,7 +20,22 @@ This is a fine mess ollie.
 INVALID_XML;
 
 	const SAMPLE_PBRIDGE_ADDITIONAL_DATA = 'a:1:{s:12:"pbridge_data";a:5:{s:23:"original_payment_method";s:22:"pbridge_eb2cpayment_cc";s:5:"token";s:32:"aee4b59993ceffaa5de7b154f9e494a3";s:8:"cc_last4";s:4:"0101";s:7:"cc_type";s:2:"VI";s:8:"x_params";s:4:"null";}}';
-
+	/**
+	 * Disable events for these tests to prevent unwanted event based side effects.
+	 */
+	public function setUp()
+	{
+		Mage::app()->disableEvents();
+		parent::setUp();
+	}
+	/**
+	 * Re-enable events disabled in setUp
+	 */
+	public function tearDown()
+	{
+		Mage::app()->enableEvents();
+		parent::tearDown();
+	}
 	/**
 	 * Test getPbridgeData returns format we can consume
 	 */
@@ -394,18 +409,6 @@ INVALID_XML;
 		$create->sendRequest();
 	}
 	/**
-	 * Data provider of sample XML responses and the status reported in each
-	 * @return array Argument arrays of xml string and status code string
-	 */
-	public function providerServiceResponses()
-	{
-		return array(
-			array(self::SAMPLE_SUCCESS_XML, 'success'),
-			array(self::SAMPLE_FAILED_XML, 'failed'),
-			array('', 'failed'), // when the xml is empty, there will be no status but the 'failed' here is used as a signal to the test
-		);
-	}
-	/**
 	 * Building the XML nodes for a given order item
 	 * @todo This method should really be broken down into some smaller chunks to make this test less complicated
 	 * @param array $itemData Order item object data
@@ -601,92 +604,56 @@ INVALID_XML;
 		);
 	}
 	/**
-	 * Test EbayEnterprise_Eb2cOrder_Model_Create::_processResponse method for the following expectations
-	 * Expectation 1: the method EbayEnterprise_Eb2cOrder_Model_Create::_processResponse will be invoked two time by this
-	 *                test where first invocation of the method will be given an xml string containing a response status
-	 *                of 'Success' which will allow the method method Mage_Sales_Model_Order::setState to be called and given
-	 *                the constant value of Mage_Sales_Model_Order::STATE_PROCESSING and the other methods such as
-	 *                EbayEnterprise_Eb2cOrder_Model_Create::_extractResponseState will be invoked for each iteration of the
-	 *                test given the response xml string in which it will extract the response status matching magento order status
-	 *                this status will be compare to the order state if it does match  it will logged a warning message in system log
-	 *                file and then proceed to call the method Mage_Sales_Model_Order::setEb2cOrderCreateRequest withe the
-	 *                order create request xml file in the class property EbayEnterprise_Eb2cOrder_Model_Create::_domRequest
-	 *                and then invoked the method Mage_Sales_Model_Order::save to save the order
+	 * Test updating a quote based on the response from the Exchange Platform
+	 * service call. Should update the order state based on the success/failure
+	 * of the response as well as store the original request message with the
+	 * order.
 	 * @test
-	 * @dataProvider dataProvider
 	 */
-	public function testProcessResponse($response, $xml, $state)
+	public function testProcessResponse()
 	{
-		$incrementId = '0005400000000001';
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML($xml);
-		// this may look a little strange but that's the only way I can make the assertion that the value that
-		// get pass to the Mage_Sales_Model_Order::setEb2cOrderCreateRequest will match exactly the value
-		// that get returned from the EbayEnterprise_Dom_Element::saveXML method
-		$xml = $doc->saveXML();
+		$mockRequestMessage = '<MockRequest/>';
+		$mockResponseMessage = '<MockResponse/>';
+		$expectedState = 'NEW';
 
-		$logHelperMock = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
-			->disableOriginalConstructor()
-			->setMethods(array('logDebug', 'logWarn'))
-			->getMock();
-		if ($state === 'process') {
-			$logHelperMock->expects($this->once())
-				->method('logDebug')
-				->with(
-					$this->identicalTo(EbayEnterprise_Eb2cOrder_Model_Create::SUCCESS_MESSAGE),
-					$this->identicalTo(array('EbayEnterprise_Eb2cOrder_Model_Create::_processResponse',$incrementId))
-				)
-				->will($this->returnSelf());
-		} else {
-			$logHelperMock->expects($this->once())
-				->method('logWarn')
-				->with(
-					$this->identicalTo(EbayEnterprise_Eb2cOrder_Model_Create::FAILURE_MESSAGE),
-					$this->identicalTo(array('EbayEnterprise_Eb2cOrder_Model_Create::_processResponse',$incrementId))
-				)
-				->will($this->returnSelf());
-		}
-		$this->replaceByMock('helper', 'ebayenterprise_magelog', $logHelperMock);
-
-		$orderModelMock = $this->getModelMockBuilder('sales/order')
-			->disableOriginalConstructor()
-			->setMethods(array('getState', 'setState', 'save', 'getIncrementId'))
-			->getMock();
-		$orderModelMock->expects($this->once())
-			->method('getState')
-			->will($this->returnValue(Mage_Sales_Model_Order::STATE_NEW));
-		if ($state === 'process') {
-			$orderModelMock->expects($this->once())
-				->method('setState')
-				->with($this->equalTo(Mage_Sales_Model_Order::STATE_PROCESSING))
-				->will($this->returnSelf());
-		}
-		$orderModelMock->expects($this->once())
-			->method('save')
-			->will($this->returnSelf());
-		$orderModelMock->expects($this->once())
-			->method('getIncrementId')
-			->will($this->returnValue($incrementId));
-
-		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
+		$orderCreate = $this->getModelMockBuilder('eb2corder/create')
 			->disableOriginalConstructor()
 			->setMethods(array('_extractResponseState'))
 			->getMock();
-		$createModelMock->expects($this->once())
+		$order = $this->getModelMock('sales/order', array('setState', 'setEb2cOrderCreateRequest'));
+		$requestDom = new DOMDocument();
+		$requestDom->loadXML($mockRequestMessage);
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
+			$orderCreate, '_o', $order
+		);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
+			$orderCreate, '_domRequest', $requestDom
+		);
+
+		$order->expects($this->once())
+			->method('setState')
+			->with($this->identicalTo($expectedState))
+			->will($this->returnSelf());
+		$order->expects($this->once())
+			->method('setEb2cOrderCreateRequest')
+			->with($this->identicalTo($requestDom->saveXML()))
+			->will($this->returnSelf());
+
+		$orderCreate->expects($this->once())
 			->method('_extractResponseState')
-			->with($this->equalTo($response))
-			->will($this->returnValue(
-				($state === 'process')? Mage_Sales_Model_Order::STATE_PROCESSING : Mage_Sales_Model_Order::STATE_NEW
-			));
+			->with($this->identicalTo($mockResponseMessage))
+			->will($this->returnValue($expectedState));
 
-		$this->_reflectProperty($createModelMock, '_o')->setValue($createModelMock, $orderModelMock);
-		$this->_reflectProperty($createModelMock, '_domRequest')->setValue($createModelMock, $doc);
 
-		$this->assertSame($createModelMock, $this->_reflectMethod($createModelMock, '_processResponse')->invoke(
-			$createModelMock, $response
-		));
-
-		$this->assertSame($xml, $orderModelMock->getEb2cOrderCreateRequest());
+		$this->assertSame(
+			$orderCreate,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				$orderCreate,
+				'_processResponse',
+				array($mockResponseMessage)
+			)
+		);
 	}
 	/**
 	 * If the response XML exists and has a ResponseStatus node with a value of 'success' in any capitalization,
@@ -696,6 +663,11 @@ INVALID_XML;
 	 */
 	public function testExtractResponseState()
 	{
+		// stub out the order helper used for translating the failure message
+		$translateHelper = $this->getHelperMock('eb2corder/data', array('__'));
+		$translateHelper->expects($this->any())->method('__')->will($this->returnArgument(0));
+		$this->replaceByMock('helper', 'eb2corder', $translateHelper);
+
 		$create = Mage::getModel('eb2corder/create');
 		$crRefl = new ReflectionClass($create);
 		$extRespSt = $crRefl->getMethod('_extractResponseState');
@@ -710,6 +682,8 @@ INVALID_XML;
 			Mage_Sales_Model_Order::STATE_PROCESSING,
 			$extRespSt->invoke($create, '<_><ResponseStatus>sUcCeSs</ResponseStatus></_>')
 		);
+		$this->setExpectedException('EbayEnterprise_Eb2cOrder_Exception_Order_Create_Fail');
+		$extRespSt->invoke($create, '<_><ResponseStatus>fail</ResponseStatus></_>');
 	}
 	/**
 	 * Test _buildItems method
@@ -1379,10 +1353,24 @@ INVALID_XML;
 	{
 		$dateTime = '04/10/2014 06:32:56';
 		$orderCreateRequest = '<OrderCreateRequest/>';
-		$collection = Mage::getResourceModel('sales/order_collection');
-		$collection->addItem(Mage::getModel('sales/order')->addData(array(
-			'eb2c_order_create_request' => $orderCreateRequest
-		)));
+		$order = Mage::getModel(
+			'sales/order', array('eb2c_order_create_request' => $orderCreateRequest)
+		);
+		$collection = $this->getResourceModelMock(
+			'sales/order_collection',
+			// mock out methods that will cause DB interactions that we don't want here
+			array('save', 'load')
+		);
+		$collection->addItem($order);
+
+		// Ensure the collection is saved so any changes to orders based upon the
+		// request retries get saved
+		$collection->expects($this->once())
+			->method('save')
+			->will($this->returnSelf());
+		$collection->expects($this->any())
+			->method('load')
+			->will($this->returnSelf());
 
 		$logHelperMock = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
 			->disableOriginalConstructor()

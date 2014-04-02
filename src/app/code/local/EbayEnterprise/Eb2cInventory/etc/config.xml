@@ -116,6 +116,23 @@
 					</inventory>
 				</observers>
 			</sales_quote_item_qty_set_after>
+			<!-- Inventory Allocation Events -->
+			<eb2c_allocate_inventory>
+				<observers>
+					<eb2cinventory_allocate_inventory>
+						<class>eb2cinventory/observer</class>
+						<method>processAllocation</method>
+					</eb2cinventory_allocate_inventory>
+				</observers>
+			</eb2c_allocate_inventory>
+			<eb2c_order_creation_failure>
+				<observers>
+					<eb2cinventory_rollback_allocation>
+						<class>eb2cinventory/observer</class>
+						<method>rollbackAllocation</method>
+					</eb2cinventory_rollback_allocation>
+				</observers>
+			</eb2c_order_creation_failure>
 			<filetransfer_import_complete>
 				<observers>
 					<eb2c_inventory_process_feeds>
@@ -137,42 +154,6 @@
 				</EbayEnterprise_Eb2cInventory>
 			</modules>
 		</translate>
-		<routers>
-			<ebayenterprise_eb2cinventory>
-				<use>standard</use>
-				<args>
-					<module>EbayEnterprise_Eb2cInventory</module>
-					<frontName>eb2c</frontName>
-				</args>
-			</ebayenterprise_eb2cinventory>
-			<checkout>
-				<args>
-					<modules>
-						<EbayEnterprise_Eb2cInventory before="Mage_Checkout">EbayEnterprise_Eb2cInventory_Override_Checkout</EbayEnterprise_Eb2cInventory>
-					</modules>
-				</args>
-			</checkout>
-		</routers>
-		<events>
-			<eb2c_allocation_onepage_save_order_action_before>
-				<observers>
-					<EbayEnterprise_Eb2cInventory_observer>
-						<type>singleton</type>
-						<class>EbayEnterprise_Eb2cInventory_Model_Observer</class>
-						<method>processEb2cAllocation</method>
-					</EbayEnterprise_Eb2cInventory_observer>
-				</observers>
-			</eb2c_allocation_onepage_save_order_action_before>
-			<checkout_type_onepage_save_order>
-				<observers>
-					<EbayEnterprise_Eb2cInventory_observer>
-						<type>singleton</type>
-						<class>EbayEnterprise_Eb2cInventory_Model_Observer</class>
-						<method>processEb2cAllocation</method>
-					</EbayEnterprise_Eb2cInventory_observer>
-				</observers>
-			</checkout_type_onepage_save_order>
-		</events>
 	</frontend>
 	<adminhtml>
 		<translate>

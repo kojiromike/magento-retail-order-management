@@ -138,138 +138,96 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 			$this->_observer->redeemGiftCard($observer)
 		);
 	}
-
-	public function providerRedeemVoidGiftCard()
+	/**
+	 * Provide response data from the redeemvoid service calls and whether the
+	 * response should be considered a success (true) or a failure (false).
+	 * @return array
+	 */
+	public function provideRedeemVoidFailureData()
 	{
-		$quoteMock = $this->getMock(
-			'Mage_Sales_Model_Quote',
-			array('getId', 'getGiftCards')
-		);
-		$quoteMock->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(1)
-			);
-		$quoteMock->expects($this->any())
-			->method('getGiftCards')
-			->will($this->returnValue(
-				serialize(array(array(
-					'i' => 1, 'c' => '4111111ak4idq1111', 'a' => 50.00, 'ba' => 150.00, 'pan' => '4111111ak4idq1111', 'pin' => '5344'
-				)))
-			));
-
-		$eventMock = $this->getMock(
-			'Varien_Event',
-			array('getQuote')
-		);
-		$eventMock->expects($this->any())
-			->method('getQuote')
-			->will($this->returnValue($quoteMock));
-
-		$observerMock = $this->getMock(
-			'Varien_Event_Observer',
-			array('getEvent')
-		);
-		$observerMock->expects($this->any())
-			->method('getEvent')
-			->will($this->returnValue($eventMock));
-
 		return array(
-			array($observerMock)
+			array(array(), false),
+			array(array('responseCode' => 'Fail'), false),
+			array(array('responseCode' => 'Success'), true),
 		);
 	}
-
 	/**
-	 * testing RedeemVoiding gifcard observer method - with successful response from eb2c
-	 *
+	 * Test scenarios of the SVC void request. When the request fails,
+	 * a warning should be logged. When it succeeds, nothing should happen.
+	 * @param  array $response Response data
+	 * @param  boolean $isSuccess Was the request successful
 	 * @test
-	 * @dataProvider providerRedeemVoidGiftCard
-	 * @loadFixture loadConfig.yaml
-	 * @expectedException Mage_Core_Exception
+	 * @dataProvider provideRedeemVoidFailureData
 	 */
-	public function testRedeemVoidGiftCard($observer)
+	public function testRedeemVoidGiftCard($response, $isSuccess)
 	{
+		$pan = '123456';
+		$pin = '4321';
+		$ba = 500.00;
+		$usedAmt = 50.00;
+		$quoteId = 2;
+		// set up a quote to use
+		$quote = Mage::getModel('sales/quote', array(
+			'gift_cards' => serialize(array(array('pan' => $pan, 'pin' => $pin, 'ba' => $ba))),
+			'gift_cards_amount_used' => $usedAmt,
+		));
+		$quote->setId($quoteId);
 
-		$redeemVoidMock = $this->getModelMockBuilder('eb2cpayment/storedvalue_redeem_void')
-			->setMethods(array('getRedeemVoid', 'parseResponse'))
-			->getMock();
+		$voidRequest = $this->getModelMock(
+			'eb2cpayment/storedvalue_redeem_void',
+			array('voidCardRedemption')
+		);
+		$voidRequest->expects($this->once())
+			->method('voidCardRedemption')
+			->with($this->identicalTo($pan), $this->identicalTo($pin), $this->identicalTo($quoteId), $this->identicalTo($usedAmt))
+			->will($this->returnValue($response));
+		$this->replaceByMock('model', 'eb2cpayment/storedvalue_redeem_void', $voidRequest);
 
-		$redeemVoidMock->expects($this->any())
-			->method('getRedeemVoid')
-			->will($this->returnValue('<foo></foo>')
-			);
-		$redeemVoidMock->expects($this->any())
-			->method('parseResponse')
-			->will($this->returnValue(array('responseCode' => 'success', 'pan' => '4111111ak4idq1111', 'pin' => '5344'))
-			);
+		// when the request fails, make sure a WARN message is logged
+		if (!$isSuccess) {
+			$logger = $this->getHelperMock('ebayenterprise_magelog/data', array('logWarn'));
+			$logger->expects($this->once())
+				->method('logWarn')
+				->will($this->returnSelf());
+			$this->replaceByMock('helper', 'ebayenterprise_magelog', $logger);
+		}
 
-		$this->replaceByMock('model', 'eb2cpayment/storedvalue_redeem_void', $redeemVoidMock);
-
-		// let's mock the enterprise gift card class so that removeFromCart method don't thrown an exception
-		$giftCardAccountMock = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
-			->setMethods(array('loadByPanPin', 'removeFromCart'))
-			->getMock();
-
-		$giftCardAccountMock->expects($this->any())
-			->method('loadByPanPin')
-			->will($this->returnSelf()
-			);
-		$giftCardAccountMock->expects($this->any())
-			->method('removeFromCart')
-			->will($this->returnSelf()
-			);
-
-		$this->replaceByMock('model', 'enterprise_giftcardaccount/giftcardaccount', $giftCardAccountMock);
-
-		$this->assertNull(
-			$this->_observer->redeemVoidGiftCard($observer)
+		Mage::getSingleton('eb2cpayment/observer')->redeemVoidGiftCard(
+			new Varien_Event_Observer(
+				array('event' => new Varien_Event(
+					array('quote' => $quote, 'order' => Mage::getModel('sales/order'))
+				))
+			)
 		);
 	}
-
 	/**
-	 * testing RedeemVoiding gifcard observer method - with fialure response from eb2c
-	 *
+	 * Test that when the quote contains invalid gift card data, no attempt to
+	 * void the data is made.
 	 * @test
-	 * @dataProvider providerRedeemVoidGiftCard
-	 * @loadFixture loadConfig.yaml
 	 */
-	public function testRedeemVoidGiftCardWithfailureResponseFromEb2c($observer)
+	public function testRedeemVoidInvalidGiftCardData()
 	{
-		$redeemVoidMock = $this->getModelMockBuilder('eb2cpayment/storedvalue_redeem_void')
-			->setMethods(array('getRedeemVoid', 'parseResponse'))
-			->getMock();
+		$quote = Mage::getModel(
+			'sales/quote',
+			// throw some junk data in the gift cards field
+			array('gift_cards' => serialize('this is not the data you are looking for'))
+		);
+		$voidRequest = $this->getModelMock(
+			'eb2cpayment/storedvalue_redeem_void',
+			array('voidCardRedemption')
+		);
+		$voidRequest->expects($this->never())
+			->method('voidCardRedemption');
+		$this->replaceByMock('model', 'eb2cpayment/storedvalue_redeem_void', $voidRequest);
 
-		$redeemVoidMock->expects($this->any())
-			->method('getRedeemVoid')
-			->will($this->returnValue('<foo></foo>')
-			);
-		$redeemVoidMock->expects($this->any())
-			->method('parseResponse')
-			->will($this->returnValue(array('responseCode' => 'fail', 'pan' => '4111111ak4idq1111', 'pin' => '5344'))
-			);
-
-		$this->replaceByMock('model', 'eb2cpayment/storedvalue_redeem_void', $redeemVoidMock);
-
-		// let's mock the enterprise gift card class so that removeFromCart method don't thrown an exception
-		$giftCardAccountMock = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
-			->setMethods(array('loadByPanPin', 'removeFromCart'))
-			->getMock();
-
-		$giftCardAccountMock->expects($this->any())
-			->method('loadByPanPin')
-			->will($this->returnSelf()
-			);
-		$giftCardAccountMock->expects($this->any())
-			->method('removeFromCart')
-			->will($this->returnSelf()
-			);
-
-		$this->replaceByMock('model', 'enterprise_giftcardaccount/giftcardaccount', $giftCardAccountMock);
-
-		$this->assertNull(
-			$this->_observer->redeemVoidGiftCard($observer)
+		Mage::getSingleton('eb2cpayment/observer')->redeemVoidGiftCard(
+			new Varien_Event_Observer(
+				array('event' => new Varien_Event(
+					array('quote' => $quote, 'order' => Mage::getModel('sales/order'))
+				))
+			)
 		);
 	}
-
 	/**
 	 * Test EbayEnterprise_Eb2cPayment_Model_Observer::suppressPaymentModule method for the following expectations
 	 * Expectation 1: the method EbayEnterprise_Eb2cPayment_Model_Observer::suppressPaymentModule will be invoked by this
@@ -433,5 +391,37 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 			->getMock();
 
 		$this->assertSame($oMock, $oMock->suppressPaymentModule($observerMock));
+	}
+	/**
+	 * Test voiding order payments when the order create fails.
+	 * @param  PHPUnit_Framework_MockObject_Stub $voidResult Stub results of the void call
+	 * @test
+	 * @dataProvider provideTrueFalse
+	 */
+	public function testVoidPayments($canVoid)
+	{
+		$observer = Mage::getSingleton('eb2cpayment/observer');
+		$order = $this->getModelMock('sales/order', array('getPayment', 'canVoidPayment'));
+		$payment = $this->getModelMock('payment/method_abstract', array('void'));
+		$order->expects($this->any())
+			->method('getPayment')
+			->will($this->returnValue($payment));
+		$order->expects($this->once())
+			->method('canVoidPayment')
+			->will($this->returnValue($canVoid));
+
+		if ($canVoid) {
+			$payment->expects($this->once())
+				->method('void')
+				->with($this->identicalTo($payment))
+				->will($this->returnSelf());
+		} else {
+			$payment->expects($this->never())
+				->method('void');
+		}
+
+		$observer->voidPayments(new Varien_Event_Observer(
+			array('event' => new Varien_Event(array('order' => $order)))
+		));
 	}
 }

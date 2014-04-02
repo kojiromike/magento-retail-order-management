@@ -229,291 +229,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 		// Validate the request message matches the expected message
 		$this->assertSame($response, $testModel->allocateQuoteItems($quote));
 	}
-	public function providerProcessAllocation()
-	{
-		$allocationData = array(
-			array(
-				'lineId' => 1,
-				'reservation_id' => 'TAN_DEV_CLI-ABC-44',
-				'reserved_at' => '2013-06-20 15:02:20',
-				'qty' => 0,
-			)
-		);
 
-		return array(
-			array($this->buildQuoteMock(), $allocationData)
-		);
-	}
-
-	/**
-	 * testing processing allocation data
-	 *
-	 * @test
-	 * @dataProvider providerProcessAllocation
-	 * @loadFixture loadConfig.yaml
-	 */
-	public function testProcessAllocation($quote, $allocationData)
-	{
-		$this->assertSame(
-			array(Mage::helper('eb2cinventory')->__(EbayEnterprise_Eb2cInventory_Model_Allocation::ALLOCATION_QTY_OUT_STOCK_MESSAGE)),
-			$this->_allocation->processAllocation($quote, $allocationData)
-		);
-	}
-
-	public function providerUpdateQuoteWithEb2cAllocation()
-	{
-		$stockItemMock = $this->getMock(
-			'Mage_CatalogInventory_Model_Stock_Item',
-			array('getManageStock')
-		);
-
-		$stockItemMock->expects($this->any())
-			->method('getManageStock')
-			->will($this->returnValue(true)
-			);
-
-		$productMock = $this->getMock(
-			'Mage_Catalog_Model_Product',
-			array('getStockItem')
-		);
-
-		$productMock->expects($this->any())
-			->method('getStockItem')
-			->will($this->returnValue($stockItemMock)
-			);
-
-		$itemMock = $this->getMock(
-			'Mage_Sales_Model_Quote_Item',
-			array(
-				'getQty', 'getId', 'getSku', 'getItemId', 'getQuote', 'save', 'setQty', 'setEb2cReservationId',
-				'setEb2cReservedAt', 'setEb2cQtyReserved', 'getProduct', 'getIsVirtual'
-			)
-		);
-		$itemMock->expects($this->any())
-			->method('getQty')
-			->will($this->returnValue(2)
-			);
-		$itemMock->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(1)
-			);
-		$itemMock->expects($this->any())
-			->method('getSku')
-			->will($this->returnValue('SKU-1234')
-			);
-		$itemMock->expects($this->any())
-			->method('getItemId')
-			->will($this->returnValue(1)
-			);
-		$itemMock->expects($this->any())
-			->method('save')
-			->will($this->returnSelf()
-			);
-		$itemMock->expects($this->any())
-			->method('getQuote')
-			->will($this->returnValue($this->buildQuoteMock())
-			);
-		$itemMock->expects($this->any())
-			->method('setQty')
-			->will($this->returnSelf()
-			);
-		$itemMock->expects($this->any())
-			->method('setEb2cReservationId')
-			->will($this->returnSelf()
-			);
-		$itemMock->expects($this->any())
-			->method('setEb2cReservedAt')
-			->will($this->returnSelf()
-			);
-		$itemMock->expects($this->any())
-			->method('setEb2cQtyReserved')
-			->will($this->returnSelf()
-			);
-		$itemMock->expects($this->any())
-			->method('getProduct')
-			->will($this->returnValue($productMock));
-		$itemMock->expects($this->any())
-			->method('getIsVirtual')
-			->will($this->returnValue(false)
-			);
-
-		$quoteData = array(
-			'lineId' => 1,
-			'reservation_id' => 'TAN_DEV_CLI-ABC-44',
-			'reserved_at' => '2013-06-20 15:02:20',
-			'qty' => 1,
-		);
-
-		return array(
-			array($itemMock, $quoteData)
-		);
-	}
-
-	/**
-	 * testing _updateQuoteWithEb2cAllocation method
-	 *
-	 * @test
-	 * @dataProvider providerUpdateQuoteWithEb2cAllocation
-	 * @loadFixture loadConfig.yaml
-	 */
-	public function testUpdateQuoteWithEb2cAllocation($quoteItem, $quoteData)
-	{
-		$allocationReflector = new ReflectionObject($this->_allocation);
-		$updateQuoteWithAllocation = $allocationReflector->getMethod('_updateQuoteWithEb2cAllocation');
-		$updateQuoteWithAllocation->setAccessible(true);
-		$this->assertSame(
-			Mage::helper('eb2cinventory')->__(EbayEnterprise_Eb2cInventory_Model_Allocation::ALLOCATION_QTY_LIMITED_STOCK_MESSAGE),
-			$updateQuoteWithAllocation->invoke($this->_allocation, $quoteItem, $quoteData)
-		);
-	}
-
-	public function providerRollbackAllocation()
-	{
-		return array(
-			array($this->buildQuoteMock())
-		);
-	}
-
-	/**
-	 * testing rollbackAllocation method
-	 *
-	 * @test
-	 * @loadFixture loadConfig.yaml
-	 */
-	public function testRollbackAllocation()
-	{
-		$customerMock = $this->getModelMockBuilder('customer/customer')
-			->disableOriginalConstructor()
-			->setMethods(array('getGroupId'))
-			->getMock();
-		$customerMock->expects($this->any())
-			->method('getGroupId')
-			->will($this->returnValue(1));
-
-		$customerSessionMock = $this->getModelMockBuilder('customer/session')
-			->disableOriginalConstructor()
-			->setMethods(array('getCustomer'))
-			->getMock();
-		$customerSessionMock->expects($this->any())
-			->method('getCustomer')
-			->will($this->returnValue($customerMock));
-		$this->replaceByMock('singleton', 'customer/session', $customerSessionMock);
-
-		$checkoutSessionMock = $this->getModelMockBuilder('checkout/session')
-			->disableOriginalConstructor()
-			->setMethods(array())
-			->getMock();
-		$this->replaceByMock('singleton', 'checkout/session', $checkoutSessionMock);
-
-		// The address to use in the quote for the shipping address
-		$address = $this->_createAddressObject();
-
-		// Group of products to assign to each item. All but one will have managed stock (test filtering)
-		$products = array();
-		for ($i = 0; $i < 4; $i++) {
-			$products[] = Mage::getModel('catalog/product', array(
-				'website_id' => 1,
-				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
-					// first three items should all be managed stock
-					'manage_stock' => $i !== 3,
-				)),
-			));
-		}
-
-		// Items for each of the products. One of these will be a virtual product (test filtering)
-		$items = array();
-		foreach ($products as $idx => $product) {
-			$items[] = Mage::getModel('sales/quote_item', array(
-				'product' => $product,
-				// third item will be virtual, rest will not be
-				'is_virtual' => $idx === 2,
-				'sku' => sprintf('item%s', $idx),
-				'qty' => $idx + 1,
-			));
-		}
-
-		// Create the quote to allocate
-		$quote = Mage::getModel('sales/quote');
-		$quote->setShippingAddress($address);
-		$quote->setEntityId(self::QUOTE_ENTITY_ID);
-		// Add each item to the quote.
-		foreach ($items as $idx => $item) {
-			$quote->addItem($item);
-			// Give the item in id, this normally happens when saving the quote, which
-			// would have happened by now, but as this is being avoided here it needs to be
-			// manually assigned.
-			$item->setId($idx);
-		}
-
-		// Set eb2c allocation data on the inventoried items (the first two from the provider)
-		// This data should be unset when rolling back the allocation.
-		$items = $quote->getAllItems();
-
-		for ($i = 0; $i < 2; $i++) {
-			$items[$i]->addData(array(
-				'eb2c_reservation_id' => 'some data',
-				'eb2c_reserved_at' => 'some data',
-				'eb2c_qty_reserved' => 'some data',
-			));
-		}
-
-		$invHelper = $this->getHelperMock('eb2cinventory/data', array('getRequestId', 'getReservationId'));
-		$invHelper->expects($this->once())
-			->method('getRequestId')
-			->with($this->identicalTo(self::QUOTE_ENTITY_ID))
-			->will($this->returnValue(self::REQUEST_ID));
-		$invHelper->expects($this->once())
-			->method('getReservationId')
-			->with($this->identicalTo(self::QUOTE_ENTITY_ID))
-			->will($this->returnValue(self::RESERVATION_ID));
-		$this->replaceByMock('helper', 'eb2cinventory', $invHelper);
-
-		// Canned response from the API. Should be what finally gets returned
-		// from the allocateQuoteItems method when successful.
-		$response = '<What>Ever</What>';
-
-		$request = Mage::helper('eb2ccore')->getNewDomDocument();
-		$request->loadXML(
-			'<RollbackAllocationRequestMessage requestId="' .
-			self::REQUEST_ID . '" reservationId="' .
-			self::RESERVATION_ID .
-			'" xmlns="http://api.gsicommerce.com/schema/checkout/1.0"/>'
-		);
-
-		// Mock the API to verify the request is made with the proper request
-		$api = $this->getModelMockBuilder('eb2ccore/api')
-			->disableOriginalConstructor()
-			->setMethods(array('request'))
-			->getMock();
-		// Validate the request message matches the expected message
-		$api->expects($this->once())
-			->method('request')
-			->with($this->callback(function ($arg) use ($request) {
-					// compare the canonicalized XML of the EbayEnterprise_Dom_Document
-					// passed to the request method to the expected XML for this quote
-					return $request->C14N() === $arg->C14N();
-				}))
-			->will($this->returnValue($response));
-		$this->replaceByMock('model', 'eb2ccore/api', $api);
-
-		// pre-test to ensure items that should have eb2c allocation data do
-		for ($i = 0; $i < 2; $i++) {
-			$this->assertSame('some data', $quote->getItemById($i)->getEb2cReservationId());
-			$this->assertSame('some data', $quote->getItemById($i)->getEb2cReservedAt());
-			$this->assertSame('some data', $quote->getItemById($i)->getEb2cQtyReserved());
-		}
-		// make sure the api response is returned when successful
-		$this->assertSame(
-			$response,
-			$this->_allocation->rollbackAllocation($quote)
-		);
-		// none of the quote items should have eb2c allocation data anymore
-		foreach ($quote->getAllItems() as $item) {
-			$this->assertNull($item->getEb2cReservationId());
-			$this->assertNull($item->getEb2cReservedAt());
-			$this->assertNull($item->getEb2cQtyReserved());
-		}
-	}
 	public function providerHasAllocation()
 	{
 		$stockItemMock = $this->getMock(
@@ -571,7 +287,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	 *
 	 * @test
 	 * @dataProvider providerHasAllocation
-	 * @loadFixture loadConfig.yaml
 	 */
 	public function testHasAllocation($quote)
 	{
@@ -648,7 +363,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	 *
 	 * @test
 	 * @dataProvider providerIsExpired
-	 * @loadFixture loadConfig.yaml
 	 */
 	public function testIsExpired($quote)
 	{
@@ -657,41 +371,190 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 		$isExpired = $this->expected($quote->getId())->getEb2cIsExpired();
 		$this->assertSame($isExpired, $this->_allocation->isExpired($quote));
 	}
-
-	public function providerParseResponse()
-	{
-		return array(
-			array(file_get_contents(__DIR__ . '/AllocationTest/fixtures/AllocationResponseMessage.xml', FILE_USE_INCLUDE_PATH))
-		);
-	}
-
 	/**
 	 * testing parseResponse
 	 *
 	 * @test
-	 * @loadFixture loadConfig.yaml
-	 * @dataProvider providerParseResponse
 	 */
-	public function testParseResponse($allocationResponseMessage)
+	public function testParseResponse()
 	{
+		$allocationResponseMessage = '<?xml version="1.0" encoding="utf-8"?>
+<AllocationResponseMessage xmlns="http://api.gsicommerce.com/schema/checkout/1.0" reservationId="TAN_DEV_CLI-ABC-44">
+	<AllocationResponse lineId="106" itemId="8525 PDA">
+		<AmountAllocated>1</AmountAllocated>
+	</AllocationResponse>
+</AllocationResponseMessage>';
 		$mageDate = $this->getModelMock('core/date', array('date'));
 		$mageDate->expects($this->any())
 			->method('date')
 			->will($this->returnValue('flub'));
 		$this->replaceByMock('model', 'core/date', $mageDate);
 		$parsedResponse = $this->_allocation->parseResponse($allocationResponseMessage);
-		$itemResponse = $parsedResponse[0]; // Expecting a nested array with one array in it.
 
-		$expected = array(
+		$expected = array(array(
 			'lineId' => '106',
 			'itemId' => '8525 PDA',
 			'qty' => 1,
 			'reservation_id' => 'TAN_DEV_CLI-ABC-44',
 			'reserved_at' => Mage::getModel('core/date')->date('Y-m-d H:i:s')
-		);
-		$this->assertSame($expected, $itemResponse);
+		));
+		$this->assertSame($expected, $parsedResponse);
 	}
+	/**
+	 * When an allocation is made with 0 quantity, assume the product is not
+	 * available and remove it from the cart. This should result in a message
+	 * being returned indicating that the item was removed.
+	 * @test
+	 */
+	public function testUpdateQuoteWithZeroQuantityAllocation()
+	{
+		// when the allocation qty is 0, none of the other data matters
+		$allocationData = array('qty' => 0);
+		$resultMessage = 'translated message';
+		$sku = '45-123abc';
 
+		$quote = $this->getModelMock('sales/quote', array('deleteItem', 'save'));
+		$quoteItem = $this->getModelMock('sales/quote_item', array('save'));
+		$inventoryHelper = $this->getHelperMock('eb2cinventory/data', array('__'));
+		$this->replaceByMock('helper', 'eb2cinventory', $inventoryHelper);
+
+		// populate the quote item with data needed by the method
+		$quoteItem->addData(array('qty' => 1, 'sku' => $sku));
+		$quoteItem->setQuote($quote);
+
+		$quote->expects($this->once())
+			->method('deleteItem')
+			->with($this->identicalTo($quoteItem))
+			->will($this->returnSelf());
+
+		// Due to timing of the event updating the quote, there's no reason to
+		// ever save the quote or quote item during this method.
+		$quote->expects($this->never())
+			->method('save')
+			->will($this->returnSelf());
+		$quoteItem->expects($this->never())
+			->method('save')
+			->will($this->returnSelf());
+
+		$inventoryHelper->expects($this->once())
+			->method('__')
+			->with(
+				$this->identicalTo('EbayEnterprise_Eb2cInventory_Allocation_Qty_Out_Stock_Message'),
+				$this->identicalTo($sku)
+			)
+			->will($this->returnValue($resultMessage));
+
+		$this->assertSame(
+			$resultMessage,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				$this->_allocation,
+				'_updateQuoteWithEb2cAllocation',
+				array($quoteItem, $allocationData)
+			)
+		);
+	}
+	/**
+	 * When the quantity of an item allocated is less than the quantity requested
+	 * but still greater than 0, the item quantity should be set to the quantity
+	 * allocated and a message indicating the quantity has been changed should
+	 * be returned.
+	 * @test
+	 */
+	public function testUpdateQuoteWithInsufficientQuantity()
+	{
+		$sku = '45-abc123';
+		$resultMessage = 'translated message';
+		$requestQty = 3;
+		$allocatedQty = 2;
+		$quote = $this->getModelMock('sales/quote', array('save'));
+		$quoteItem = $this->getModelMock('sales/quote_item', array('save'));
+		$quoteItem->setData(array('qty' => $requestQty, 'sku' => $sku));
+		$quoteItem->setQuote($quote);
+		$allocationData = array(
+			'qty' => $allocatedQty,
+			'reservation_id' => 'RES-ID-2',
+			'reserved_at' => '2014-01-01 11:11:11'
+		);
+		$inventoryHelper = $this->getHelperMock('eb2cinventory/data', array('__'));
+		$this->replaceByMock('helper', 'eb2cinventory', $inventoryHelper);
+
+		// Due to timing of the event updating the quote, there's no reason to
+		// ever save the quote or quote item during this method.
+		$quote->expects($this->never())
+			->method('save')
+			->will($this->returnSelf());
+		$quoteItem->expects($this->never())
+			->method('save')
+			->will($this->returnSelf());
+		$inventoryHelper->expects($this->once())
+			->method('__')
+			->with(
+				$this->identicalTo('EbayEnterprise_Eb2cInventory_Allocation_Qty_Limited_Stock_Message'),
+				$this->identicalTo($allocatedQty),
+				$this->identicalTo($sku)
+			)
+			->will($this->returnValue($resultMessage));
+
+		$this->assertSame(
+			$resultMessage,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				$this->_allocation,
+				'_updateQuoteWithEb2cAllocation',
+				array($quoteItem, $allocationData)
+			)
+		);
+		// make sure the quote item was updated with allocation data
+		$this->assertSame($allocationData['reservation_id'], $quoteItem->getEb2cReservationId());
+		$this->assertSame($allocationData['reserved_at'], $quoteItem->getEb2cReservedAt());
+		$this->assertSame($allocationData['qty'], $quoteItem->getEb2cQtyReserved());
+		// quote item quantity should have been updated to match the reserved quantity
+		$this->assertEquals($allocatedQty, $quoteItem->getQty());
+	}
+	/**
+	 * When an item was successfully allocated, allocated qty is greater than or
+	 * equal to the requested quantity, the item should be updated with allocation
+	 * data and the quote and item saved. An empty response/error message should
+	 * be returned as no errors were encountered.
+	 * @test
+	 */
+	public function testUpdateQuoteWithAllocation()
+	{
+		$sku = '45-abc123';
+		$origItemQuantity = 2;
+		$allocatedQty = 3;
+
+		$quote = $this->getModelMock('sales/quote', array('save'));
+		$quoteItem = $this->getModelMock('sales/quote_item', array('save'));
+		$quoteItem->setData(array('qty' => $origItemQuantity, 'sku' => $sku));
+		$quoteItem->setQuote($quote);
+		$allocationData = array(
+			'qty' => $allocatedQty,
+			'reservation_id' => 'RES-ID-2',
+			'reserved_at' => '2014-01-01 11:11:11'
+		);
+		// Due to timing of the event updating the quote, there's no reason to
+		// ever save the quote or quote item during this method.
+		$quote->expects($this->never())
+			->method('save')
+			->will($this->returnSelf());
+		$quoteItem->expects($this->never())
+			->method('save')
+			->will($this->returnSelf());
+
+		$this->assertSame(
+			'',
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				$this->_allocation,
+				'_updateQuoteWithEb2cAllocation',
+				array($quoteItem, $allocationData)
+			)
+		);
+		// make sure the quote item was updated with allocation data
+		$this->assertSame($allocationData['reservation_id'], $quoteItem->getEb2cReservationId());
+		$this->assertSame($allocationData['reserved_at'], $quoteItem->getEb2cReservedAt());
+		$this->assertSame($allocationData['qty'], $quoteItem->getEb2cQtyReserved());
+		$this->assertSame($origItemQuantity, $quoteItem->getQty());
+	}
 	/**
 	 * Create a stub quote that will return the given array of items
 	 * @param  Mage_Sales_Model_Quote_Item[] $items

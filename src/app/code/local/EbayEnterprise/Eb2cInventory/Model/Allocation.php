@@ -90,26 +90,23 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation extends EbayEnterprise_Eb2cI
 	public function parseResponse($allocationResponseMessage)
 	{
 		$allocationData = array();
-		if (trim($allocationResponseMessage) !== '') {
+		if ($allocationResponseMessage) {
 			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 
 			// load response string XML from eb2c
 			$doc->loadXML($allocationResponseMessage);
-			$i = 0;
 			$allocationResponse = $doc->getElementsByTagName('AllocationResponse');
-			$allocationMessage = $doc->getElementsByTagName('AllocationResponseMessage');
+			$reservationId = $doc->getElementsByTagName('AllocationResponseMessage')->item(0)->getAttribute('reservationId');
 			foreach ($allocationResponse as $response) {
 				$allocationData[] = array(
 					'lineId' => $response->getAttribute('lineId'),
 					'itemId' => $response->getAttribute('itemId'),
-					'qty' => (int) $allocationResponse->item($i)->nodeValue,
-					'reservation_id' => $allocationMessage->item(0)->getAttribute('reservationId'),
+					'qty' => (int) $response->nodeValue,
+					'reservation_id' => $reservationId,
 					'reserved_at' => Mage::getModel('core/date')->date('Y-m-d H:i:s'),
 				);
-				$i++;
 			}
 		}
-
 		return $allocationData;
 	}
 
@@ -196,36 +193,32 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation extends EbayEnterprise_Eb2cI
 	 * Update quote with allocation response data.
 	 *
 	 * @param Mage_Sales_Model_Quote_Item $quoteItem the item to be updated with eb2c data
-	 * @param array $quoteData the data from eb2c for the quote item
-	 *
+	 * @param array $allocationData the data from eb2c for the quote item
 	 * @return string, the allocation error message for that particular inventory
 	 */
-	protected function _updateQuoteWithEb2cAllocation(Mage_Sales_Model_Quote_Item $quoteItem, $quoteData)
+	protected function _updateQuoteWithEb2cAllocation(Mage_Sales_Model_Quote_Item $quoteItem, $allocationData)
 	{
 		$results = '';
-
-		// get quote from quote-item
 		$quote = $quoteItem->getQuote();
-
-		// Set the message allocation failure, adjust quote with quantity reserved.
-		if ($quoteData['qty'] > 0 && $quoteItem->getQty() > $quoteData['qty']) {
-			// save reservation data to inventory detail
-			$quoteItem->setQty($quoteData['qty'])
-				->setEb2cReservationId($quoteData['reservation_id'])
-				->setEb2cReservedAt($quoteData['reserved_at'])
-				->setEb2cQtyReserved($quoteData['qty'])
-				->save();
-
-			// save the quote
-			$quote->save();
-
-			$results = sprintf(Mage::helper('eb2cinventory')->__(self::ALLOCATION_QTY_LIMITED_STOCK_MESSAGE), $quoteData['qty'], $quoteItem->getSku());
-		} elseif ($quoteData['qty'] <= 0) {
-			// removed the out of stock allocated item
+		// If the item is OOS (0 qty allocated), the item cannot be sold. Remove
+		// it from the quote and return an error message.
+		if ($allocationData['qty'] === 0) {
 			$quote->deleteItem($quoteItem);
-			$results = sprintf(Mage::helper('eb2cinventory')->__(self::ALLOCATION_QTY_OUT_STOCK_MESSAGE), $quoteItem->getSku());
+			return Mage::helper('eb2cinventory')->__(self::ALLOCATION_QTY_OUT_STOCK_MESSAGE, $quoteItem->getSku());
 		}
 
+		$quoteItem->addData(array(
+			'eb2c_reservation_id' => $allocationData['reservation_id'],
+			'eb2c_reserved_at' => $allocationData['reserved_at'],
+			'eb2c_qty_reserved' => $allocationData['qty'],
+		));
+		// If the requested quantity could not be allocated, it cannot be ordered.
+		// Update the quote to the available quantity allocated and return a
+		// user message.
+		if ($quoteItem->getQty() > $allocationData['qty']) {
+			$quoteItem->setQty($allocationData['qty']);
+			$results = Mage::helper('eb2cinventory')->__(self::ALLOCATION_QTY_LIMITED_STOCK_MESSAGE, $allocationData['qty'], $quoteItem->getSku());
+		}
 		return $results;
 	}
 

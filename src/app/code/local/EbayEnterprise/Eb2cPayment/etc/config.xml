@@ -90,6 +90,29 @@
 					</payment_suppression_observer>
 				</observers>
 			</admin_system_config_changed_section_eb2ccore>
+			<eb2c_redeem_giftcard>
+				<observers>
+					<eb2cpayment_redeem_giftcard>
+						<type>singleton</type>
+						<class>eb2cpayment/observer</class>
+						<method>redeemGiftCard</method>
+					</eb2cpayment_redeem_giftcard>
+				</observers>
+			</eb2c_redeem_giftcard>
+			<eb2c_order_creation_failure>
+				<observers>
+					<eb2cpayment_redeem_void_giftcard>
+						<type>singleton</type>
+						<class>eb2cpayment/observer</class>
+						<method>redeemVoidGiftCard</method>
+					</eb2cpayment_redeem_void_giftcard>
+					<eb2cpayment_void_payments>
+						<type>singleton</type>
+						<class>eb2cpayment/observer</class>
+						<method>voidPayments</method>
+					</eb2cpayment_void_payments>
+				</observers>
+			</eb2c_order_creation_failure>
 		</events>
 	</global>
 	<frontend>
@@ -125,26 +148,6 @@
 				</ebayenterprise_eb2cpayment>
 			</updates>
 		</layout>
-		<events>
-			<eb2c_event_dispatch_after_inventory_allocation>
-				<observers>
-					<EbayEnterprise_Eb2cPayment_observer>
-						<type>singleton</type>
-						<class>EbayEnterprise_Eb2cPayment_Model_Observer</class>
-						<method>redeemGiftCard</method>
-					</EbayEnterprise_Eb2cPayment_observer>
-				</observers>
-			</eb2c_event_dispatch_after_inventory_allocation>
-			<eb2corder_order_creation_failure>
-				<observers>
-					<EbayEnterprise_Eb2cPayment_observer>
-						<type>singleton</type>
-						<class>EbayEnterprise_Eb2cPayment_Model_Observer</class>
-						<method>redeemVoidGiftCard</method>
-					</EbayEnterprise_Eb2cPayment_observer>
-				</observers>
-			</eb2corder_order_creation_failure>
-		</events>
 	</frontend>
 	<adminhtml>
 		<translate>

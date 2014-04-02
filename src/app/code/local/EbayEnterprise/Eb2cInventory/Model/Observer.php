@@ -80,12 +80,11 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	}
 	/**
 	 * Processing e2bc allocation, triggering eb2c_allocation_onepage_save_order_action_before event will run this method.
-	 *
 	 * @param Varien_Event_Observer $observer
-	 *
-	 * @return void
+	 * @return self
+	 * @throws EbayEnterprise_Eb2cInventory_Model_Allocation_Exception if quote not fully allocated
 	 */
-	public function processEb2cAllocation($observer)
+	public function processAllocation($observer)
 	{
 		// get the quote from the event observer
 		$quote = $observer->getEvent()->getQuote();
@@ -107,22 +106,29 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 				// Got an allocation failure
 				if (!empty($allocatedErr)) {
 					$isAllocated = false;
-					foreach ($allocatedErr as $error) {
-						Mage::getSingleton('checkout/session')->addError($error);
-					}
 				}
 			}
 
 			if (!$isAllocated) {
 				throw new EbayEnterprise_Eb2cInventory_Model_Allocation_Exception(
-					Mage::helper('eb2cinventory')->__(self::ALLOCATION_ERROR_MESSAGE)
+					Mage::helper('eb2cinventory')->__(self::ALLOCATION_ERROR_MESSAGE, implode(" ", $allocatedErr))
 				);
-				// @codeCoverageIgnoreStart
 			}
-			// @codeCoverageIgnoreEnd
 		}
-
-		// if we get to this point therefore, allocation was successful, then let dispatch an event for stored value gift card processing
-		Mage::dispatchEvent('eb2c_event_dispatch_after_inventory_allocation', array('quote' => $quote));
+		return $this;
+	}
+	/**
+	 * Rollback allocations for the quote/order when the order could not be created.
+	 * @param  Varien_Event_Observer $observer Contains the quote and order
+	 * @return self
+	 */
+	public function rollbackAllocation($observer)
+	{
+		// Don't rollback if the session has been flagged to retain the allocation.
+		// Pass true to clear the flag after getting it.
+		if (!Mage::getSingleton('checkout/session')->getRetainAllocation(true)) {
+			Mage::helper('eb2cinventory/quote')->rollbackAllocation($observer->getEvent()->getQuote());
+		}
+		return $this;
 	}
 }

@@ -3,35 +3,70 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	/**
-	 * Test getRedeemVoid method
+	 * Test voiding a card redemption - use the pan, pin, quote id and amount
+	 * to build a request message, send it to the service and return the data
+	 * extracted from the response message.
 	 * @test
 	 */
-	public function testGetRedeemVoid()
+	public function testVoidCardRedemption()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML(
-			'<StoredValueRedeemVoidRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0" requestId="1">
-				<PaymentContext>
-					<OrderId>1</OrderId>
-					<PaymentAccountUniqueId isToken="false">80000000000000</PaymentAccountUniqueId>
-				</PaymentContext>
-				<Pin>1234</Pin>
-				<Amount currencyCode="USD">1.00</Amount>
-			</StoredValueRedeemVoidRequest>'
-		);
+		$pan = '123456789';
+		$pin = '4321';
+		$quoteId = 3;
+		$amt = 50.50;
 
+		$requestMessage = new DOMDocument();
+		$responseMessage = '<MockResponse/>';
+		$responseData = array();
+
+		$voidRequest = $this->getModelMock(
+			'eb2cpayment/storedvalue_redeem_void',
+			array('_parseResponse', '_buildRequest', '_makeVoidRequest')
+		);
+		$voidRequest->expects($this->once())
+			->method('_parseResponse')
+			->with($this->identicalTo($responseMessage))
+			->will($this->returnValue($responseData));
+		$voidRequest->expects($this->once())
+			->method('_makeVoidRequest')
+			->with($this->identicalTo($pan), $this->identicalTo($requestMessage))
+			->will($this->returnValue($responseMessage));
+		$voidRequest->expects($this->once())
+			->method('_buildRequest')
+			->with($this->identicalto($pan, $pin, $quoteId, $amt))
+			->will($this->returnValue($requestMessage));
+		$this->assertSame(
+			$responseData,
+			$voidRequest->voidCardRedemption($pan, $pin, $quoteId, $amt)
+		);
+	}
+	/**
+	 * Test making the void request. Get the endpoint uri using the existing
+	 * eb2cpayment/data helper's getSvcUri method. Make sure the API model is
+	 * conifigured to use the proper status handler and then make the request
+	 * using the given request message, xsd file set in config and the URI from
+	 * the helper method.
+	 * @test
+	 */
+	public function testMakeVoidRequest()
+	{
+		$requestUri = 'https://example.com/endpoint';
+		$xsdFile = 'stored_valid_xsd_file.xsd';
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$responseMessage = '<MockResponse/>';
+		$pan = '123412341234';
 		$paymentHelperMock = $this->getHelperMockBuilder('eb2cpayment/data')
 			->disableOriginalConstructor()
 			->setMethods(array('getSvcUri', 'getConfigModel'))
 			->getMock();
 		$paymentHelperMock->expects($this->once())
 			->method('getSvcUri')
-			->with($this->equalTo('get_gift_card_redeem_void'), $this->equalTo('80000000000000'))
-			->will($this->returnValue('https://api.example.com/vM.m/stores/storeId/payments/storedvalue/redeemvoid/GS.xml'));
+			->with($this->equalTo('get_gift_card_redeem_void'), $this->equalTo($pan))
+			->will($this->returnValue($requestUri));
 		$paymentHelperMock->expects($this->once())
 			->method('getConfigModel')
 			->will($this->returnValue((object) array(
-				'xsdFileStoredValueVoidRedeem' => 'Payment-Service-StoredValueRedeemVoid-1.0.xsd'
+				'xsdFileStoredValueVoidRedeem' => $xsdFile
 			)));
 		$this->replaceByMock('helper', 'eb2cpayment', $paymentHelperMock);
 
@@ -45,47 +80,19 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 		$apiModelMock->expects($this->once())
 			->method('request')
 			->with(
-				$this->isInstanceOf('EbayEnterprise_Dom_Document'),
-				'Payment-Service-StoredValueRedeemVoid-1.0.xsd',
-				'https://api.example.com/vM.m/stores/storeId/payments/storedvalue/redeemvoid/GS.xml'
-			)->will($this->returnValue(
-				'<StoredValueRedeemVoidReply xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
-					<PaymentContext>
-						<OrderId>1</OrderId>
-						<PaymentAccountUniqueId isToken="false">80000000000000</PaymentAccountUniqueId>
-					</PaymentContext>
-					<ResponseCode>Success</ResponseCode>
-				</StoredValueRedeemVoidReply>'
-			));
+				$this->identicalTo($doc),
+				$this->identicalTo($xsdFile),
+				$this->identicalTo($requestUri)
+			)->will($this->returnValue($responseMessage));
 		$this->replaceByMock('model', 'eb2ccore/api', $apiModelMock);
 
-		$redeemVoidModelMock = $this->getModelMockBuilder('eb2cpayment/storedvalue_redeem_void')
-			->setMethods(array('buildStoredValueRedeemVoidRequest'))
-			->getMock();
-		$redeemVoidModelMock->expects($this->once())
-			->method('buildStoredValueRedeemVoidRequest')
-			->with($this->equalTo('80000000000000'), $this->equalTo('1234'), $this->equalTo(1), $this->equalTo(1.0))
-			->will($this->returnValue($doc));
-
-		$testData = array(
-			array(
-				'expect' => '<StoredValueRedeemVoidReply xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
-					<PaymentContext>
-						<OrderId>1</OrderId>
-						<PaymentAccountUniqueId isToken="false">80000000000000</PaymentAccountUniqueId>
-					</PaymentContext>
-					<ResponseCode>Success</ResponseCode>
-				</StoredValueRedeemVoidReply>',
-				'pan' => '80000000000000',
-				'pin' => '1234',
-				'entityId' => 1,
-				'amount' => 1.0
-			),
+		$this->assertSame($responseMessage,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				Mage::getModel('eb2cpayment/storedvalue_redeem_void'),
+				'_makeVoidRequest',
+				array($pan, $doc)
+			)
 		);
-
-		foreach ($testData as $data) {
-			$this->assertSame($data['expect'], $redeemVoidModelMock->getRedeemVoid($data['pan'], $data['pin'], $data['entityId'], $data['amount']));
-		}
 	}
 	/**
 	 * Test getRedeemVoid method, where getSvcUri return an empty url
@@ -94,20 +101,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 	public function testGetRedeemVoidWithEmptyUrl()
 	{
 		$pan = '00000000000000';
-		$pin = '1234';
-		$entityId = 1;
-		$amount = 1.0;
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML(
-			"<StoredValueRedeemVoidRequest xmlns='http://api.gsicommerce.com/schema/checkout/1.0' requestId='1'>
-				<PaymentContext>
-					<OrderId>$entityId</OrderId>
-					<PaymentAccountUniqueId isToken='false'>$pan</PaymentAccountUniqueId>
-				</PaymentContext>
-				<Pin>$pin</Pin>
-				<Amount currencyCode='USD'>$amount</Amount>
-			</StoredValueRedeemVoidRequest>"
-		);
 		$payHelper = $this->getHelperMockBuilder('eb2cpayment/data')
 			->disableOriginalConstructor()
 			->setMethods(array('getSvcUri'))
@@ -117,7 +111,15 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 			->with($this->equalTo('get_gift_card_redeem_void'), $this->equalTo($pan))
 			->will($this->returnValue(''));
 		$this->replaceByMock('helper', 'eb2cpayment', $payHelper);
-		$this->assertSame('', Mage::getModel('eb2cpayment/storedvalue_redeem_void')->getRedeemVoid($pan, $pin, $entityId, $amount));
+
+		$this->assertSame(
+			'',
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				Mage::getModel('eb2cpayment/storedvalue_redeem_void'),
+				'_makeVoidRequest',
+				array($pan, $doc)
+			)
+		);
 	}
 	/**
 	 * testing parseResponse method
@@ -135,29 +137,75 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 				'paymentAccountUniqueId' => '4111111ak4idq1111',
 				'responseCode'           => 'Success',
 			),
-			Mage::getModel('eb2cpayment/storedvalue_redeem_void')->parseResponse($storeValueRedeemVoidReply)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				Mage::getModel('eb2cpayment/storedvalue_redeem_void'),
+				'_parseResponse',
+				array($storeValueRedeemVoidReply)
+			)
 		);
 	}
-
 	/**
+	 * When given an empty response message, should just return an empty array.
 	 * @test
-	 * @dataProvider dataProvider
-	 * @loadFixture loadConfig.yaml
 	 */
-	public function testBuildStoredValueVoidRequest($pan, $pin, $entityId, $amount)
+	public function testParseEmptyResponse()
 	{
 		$this->assertSame(
-			preg_replace('/[ ]{2,}|[\t]/', '', str_replace(array("\r\n", "\r", "\n"), '',
-				'<StoredValueRedeemVoidRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0" requestId="clientId-storeId-1">
-					<PaymentContext>
-						<OrderId>1</OrderId>
-						<PaymentAccountUniqueId isToken="false">4111111ak4idq1111</PaymentAccountUniqueId>
-					</PaymentContext>
-					<Pin>1234</Pin>
-					<Amount currencyCode="USD">50.00</Amount>
-				</StoredValueRedeemVoidRequest>'
-			)),
-			trim(Mage::getModel('eb2cpayment/storedvalue_redeem_void')->buildStoredValueRedeemVoidRequest($pan, $pin, $entityId, $amount)->C14N())
+			array(),
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				Mage::getModel('eb2cpayment/storedvalue_redeem_void'),
+				'_parseResponse',
+				array('')
+			)
+		);
+	}
+	/**
+	 * Test building a request message for a given quote id, PAN, PIN and amount.
+	 * @test
+	 */
+	public function testBuildStoredValueVoidRequest()
+	{
+		$pan = '4111111ak4idq1111';
+		$pin = '1234';
+		$entityId = 1;
+		$amount = 50.00;
+		$xmlNs = 'http://api.example.com/ns';
+		$requestId = 'request-id-1';
+
+		$paymentHelper = $this->getHelperMock(
+			'eb2cpayment/data',
+			array('getXmlNs', 'getRequestId')
+		);
+		$paymentHelper->expects($this->any())
+			->method('getXmlNs')
+			->will($this->returnValue($xmlNs));
+		$paymentHelper->expects($this->once())
+			->method('getRequestId')
+			->with($this->identicalTo($entityId))
+			->will($this->returnValue($requestId));
+		$this->replaceByMock('helper', 'eb2cpayment', $paymentHelper);
+
+		$expected = new DOMDocument();
+		// Do not preserve whitespace in the XML being compared to the XML the
+		// method is generating, otherwise the whitespace used to make the expected
+		// XML readable will cause the test to fail.
+		$expected->preserveWhiteSpace = false;
+		$expected->loadXML(sprintf('<StoredValueRedeemVoidRequest xmlns="%s" requestId="%s">
+	<PaymentContext>
+		<OrderId>%s</OrderId>
+		<PaymentAccountUniqueId isToken="false">%s</PaymentAccountUniqueId>
+	</PaymentContext>
+	<Pin>%s</Pin>
+	<Amount currencyCode="USD">%s</Amount>
+</StoredValueRedeemVoidRequest>', $xmlNs, $requestId, $entityId, $pan, $pin, $amount));
+
+		$this->assertSame(
+			$expected->C14N(),
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				Mage::getModel('eb2cpayment/storedvalue_redeem_void'),
+				'_buildRequest',
+				array($pan, $pin, $entityId, $amount)
+			)->C14N()
 		);
 	}
 }

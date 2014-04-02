@@ -12,7 +12,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 		EcomDev_PHPUnit_Test_Case_Config::assertEventObserverDefined(
 			$area,
 			$eventName,
-			'EbayEnterprise_Eb2cInventory_Model_Observer',
+			'eb2cinventory/observer',
 			$method
 		);
 	}
@@ -285,209 +285,94 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 		$this->assertSame($response , $method->invoke($observer, $request, $quote, $quoteDiff));
 	}
 	/**
-	 * Data provider for testing allocation methods.
-	 * @return array Args array containing Varien_Event_Observer passed to the allocation observer method
-	 */
-	public function providerProcessEb2cAllocation()
-	{
-		$addressMock = $this->getModelMock(
-			'sales/quote_address',
-			array('getShippingMethod', 'getStreet', 'getCity', 'getRegion', 'getCountryId', 'getPostcode', 'getAllItems')
-		);
-		$addressMock->expects($this->any())
-			->method('getShippingMethod')
-			->will($this->returnValue('USPS: 3 Day Select')
-			);
-		$addressMock->expects($this->any())
-			->method('getStreet')
-			->will($this->returnValue(array('1938 Some Street'))
-			);
-		$addressMock->expects($this->any())
-			->method('getCity')
-			->will($this->returnValue('King of Prussia')
-			);
-		$addressMock->expects($this->any())
-			->method('getRegion')
-			->will($this->returnValue('Pennsylvania')
-			);
-		$addressMock->expects($this->any())
-			->method('getCountryId')
-			->will($this->returnValue('US')
-			);
-		$addressMock->expects($this->any())
-			->method('getPostcode')
-			->will($this->returnValue('19726')
-			);
-
-		$productMock = $this->getModelMockBuilder('catalog/product')
-			->disableOriginalConstructor()
-			->getMock();
-
-		$itemMock = $this->getModelMock(
-			'sales/quote_item',
-			array('getQty', 'getId', 'getSku', 'save', 'getProduct')
-		);
-		$itemMock->expects($this->any())
-			->method('getQty')
-			->will($this->returnValue(1)
-			);
-		$itemMock->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(1)
-			);
-		$itemMock->expects($this->any())
-			->method('getSku')
-			->will($this->returnValue('SKU-1234')
-			);
-		$itemMock->expects($this->any())
-			->method('save')
-			->will($this->returnValue(1)
-			);
-		$itemMock->expects($this->any())
-			->method('getProduct')
-			->will($this->returnValue($productMock));
-
-		$addressMock->expects($this->any())
-			->method('getAllItems')
-			->will($this->returnValue(array($itemMock))
-			);
-
-		$quoteMock = $this->getModelMock(
-			'sales/quote',
-			array('getAllItems', 'getShippingAddress', 'getItemById', 'getAllAddresses')
-		);
-		$quoteMock->expects($this->any())
-			->method('getAllItems')
-			->will($this->returnValue(array($itemMock))
-			);
-		$quoteMock->expects($this->any())
-			->method('getShippingAddress')
-			->will($this->returnValue($addressMock)
-			);
-		$quoteMock->expects($this->any())
-			->method('getItemById')
-			->will($this->returnValue($itemMock)
-			);
-		$quoteMock->expects($this->any())
-			->method('getAllAddresses')
-			->will($this->returnValue(array($addressMock))
-			);
-		$eventMock = $this->getMock(
-			'Varien_Event',
-			array('getQuote')
-		);
-		$eventMock->expects($this->any())
-			->method('getQuote')
-			->will($this->returnValue($quoteMock));
-
-		$observerMock = $this->getMock(
-			'Varien_Event_Observer',
-			array('getEvent')
-		);
-		$observerMock->expects($this->any())
-			->method('getEvent')
-			->will($this->returnValue($eventMock));
-		return array(
-			array($observerMock)
-		);
-	}
-
-	/**
-	 * testing processing allocation observer
-	 *
-	 * @test
-	 * @dataProvider providerProcessEb2cAllocation
-	 * @loadFixture loadConfig.yaml
-	 */
-	public function testProcessEb2cAllocation($observer)
-	{
-		$allocationMock = $this->getModelMockBuilder('eb2cinventory/allocation')
-			->disableOriginalConstructor()
-			->setMethods(array('requiresAllocation', 'processAllocation', 'filterInventoriedItems', 'allocateQuoteItems'))
-			->getMock();
-		$allocationMock->expects($this->any())
-			->method('requiresAllocation')
-			->will($this->returnValue(true));
-		$allocationMock->expects($this->any())
-			->method('processAllocation')
-			->will($this->returnValue(array()));
-		$allocationMock->expects($this->any())
-			->method('filterInventoriedItems')
-			->will($this->returnValue(true));
-		$allocationMock->expects($this->any())
-			->method('allocateQuoteItems')
-			->will($this->returnValue('<foo></foo>'));
-
-		$this->replaceByMock('model', 'eb2cinventory/allocation', $allocationMock);
-
-		$this->assertNull(
-			Mage::getModel('eb2cinventory/observer')->processEb2cAllocation($observer)
-		);
-	}
-
-	/**
-	 * What happens when a quantity can not be allocated for a quote?
-	 *
-	 * @test
-	 * @expectedException EbayEnterprise_Eb2cInventory_Model_Allocation_Exception
-	 * @dataProvider providerProcessEb2cAllocation
-	 * @loadFixture loadConfig.yaml
-	 */
-	public function testProcessEb2cAllocationError($observer)
-	{
-		$sessionMock = $this->getModelMockBuilder('checkout/session')
-			->disableOriginalConstructor()
-			->setMethods(array('addError'))
-			->getMock();
-		$sessionMock->expects($this->any())
-			->method('addError')
-			->will($this->returnSelf());
-		$this->replaceByMock('singleton', 'checkout/session', $sessionMock);
-
-		$allocationMock = $this->getModelMockBuilder('eb2cinventory/allocation')
-			->disableOriginalConstructor()
-			->setMethods(array('requiresAllocation', 'processAllocation', 'allocateQuoteItems', 'filterInventoriedItems'))
-			->getMock();
-		$allocationMock->expects($this->any())
-			->method('requiresAllocation')
-			->will($this->returnValue(true));
-		$allocationMock->expects($this->any())
-			->method('processAllocation')
-			->will($this->returnValue(array(array('Sorry, item "2610" out of stock.'))));
-		$allocationMock->expects($this->any())
-			->method('allocateQuoteItems')
-			->will($this->returnValue('<foo></foo>'));
-		$allocationMock->expects($this->any())
-			->method('filterInventoriedItems')
-			->will($this->returnValue(true));
-
-		$this->replaceByMock('model', 'eb2cinventory/allocation', $allocationMock);
-
-		$this->assertNull(
-			Mage::getModel('eb2cinventory/observer')->processEb2cAllocation($observer)
-		);
-	}
-
-	/**
 	 * When a quote does not have any items that have managed stock, no allocation
 	 * request should be made.
 	 * @param  Varien_Event_Observer $observer
 	 * @test
-	 * @dataProvider providerProcessEb2cAllocation
 	 */
-	public function testNoAllocationRequestWhenNotRequired($observer)
+	public function testNoAllocationRequestWhenNotRequired()
 	{
+		$mockQuote = $this->getModelMock('sales/quote');
+		$eventObserver = new Varien_Event_Observer(
+			array('event' => new Varien_Event(
+				array('quote' => $mockQuote)
+			))
+		);
 		$allocationMock = $this->getModelMock('eb2cinventory/allocation', array('requiresAllocation', 'allocateQuoteItems'));
 		// make requiresAllocation fail
 		$allocationMock->expects($this->once())
 			->method('requiresAllocation')
-			->with($this->identicalTo($observer->getEvent()->getQuote()))
+			->with($this->identicalTo($mockQuote))
 			->will($this->returnValue(false));
 		// ensure allocateQuoteItems is not called
 		$allocationMock->expects($this->never())
 			->method('allocateQuoteItems');
 		$this->replaceByMock('model', 'eb2cinventory/allocation', $allocationMock);
-		Mage::getModel('eb2cinventory/observer')->processEb2cAllocation($observer);
+		Mage::getModel('eb2cinventory/observer')->processAllocation($eventObserver);
 	}
+	/**
+	 * Test rolling back an allocation - should retrieve the quote the allocation
+	 * was made from from the event observer and pass it through to the
+	 * eb2cinventory/quote helper's rollbackAllocation method.
+	 * @test
+	 */
+	public function testRollbackAllocation()
+	{
+		$session = $this->getModelMockBuilder('checkout/session')
+			->disableOriginalConstructor()
+			->getMock();
+		$this->replaceByMock('model', 'checkout/session', $session);
+		$quote = Mage::getModel('sales/quote');
+		$helper = $this->getHelperMock('eb2cinventory/quote', array('rollbackAllocation'));
+		$helper->expects($this->once())
+			->method('rollbackAllocation')
+			->with($this->identicalTo($quote))
+			->will($this->returnSelf());
+		$this->replaceByMock('helper', 'eb2cinventory/quote', $helper);
+		$observer = Mage::getModel('eb2cinventory/observer');
+		$this->assertSame(
+			$observer,
+			$observer->rollbackAllocation(
+				new Varien_Event_Observer(array('event' => new Varien_Event(array('quote' => $quote))))
+			)
+		);
+	}
+	/**
+	 * When the session contains a flag indicating the allocation should not be
+	 * rolled back, such as in the case that a quote could not be fully allocated,
+	 * do cause the allocation rollback request to be made.
+	 * @test
+	 */
+	public function testRetainAllocationNoRollback()
+	{
+		$session = $this->getModelMockBuilder('checkout/session')
+			->disableOriginalConstructor()
+			->setMethods(array('getRetainAllocation'))
+			->getMock();
+		// Get the flag value from the session and ensure it gets cleared
+		$session->expects($this->once())
+			->method('getRetainAllocation')
+			->with($this->isTrue())
+			->will($this->returnValue(true));
+		$this->replaceByMock('model', 'checkout/session', $session);
 
+		$helper = $this->getHelperMock('eb2cinventory/quote', array('rollbackAllocation'));
+		// When the session indicates we should retain the allocation, don't
+		// roll it back.
+		$helper->expects($this->never())
+			->method('rollbackAllocation');
+		$this->replaceByMock('helper', 'eb2cinventory/quote', $helper);
+
+		$observer = Mage::getModel('eb2cinventory/observer');
+		$this->assertSame(
+			$observer,
+			$observer->rollbackAllocation(
+				new Varien_Event_Observer(
+					array('event' => new Varien_Event(
+						array('quote' => Mage::getModel('sales/quote'))
+					))
+				)
+			)
+		);
+	}
 }

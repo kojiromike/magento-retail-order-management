@@ -333,7 +333,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		$mageProduct = Mage::getModel('catalog/product')->load($item->getProduct()->getId());
 		return array_merge(
 			array(
-				'hts_code' => 
+				'hts_code' =>
 						Mage::helper('eb2ccore')->getProductHtsCodeByCountry(
 								$mageProduct,
 								$address->getCountryId()

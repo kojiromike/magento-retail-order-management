@@ -114,7 +114,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_AttributeTest
 	{
 		return array(
 			array(array(), 'User Error: EbayEnterprise_Eb2cProduct_Model_Pim_Attribute::__construct missing arguments: destination_xpath, sku, value are required'),
-			array(array('destination_xpath' => 'Some/Xpath', 'sku' => '45-12345', 'value' => 'Not a DOMNode'), 'User Error: EbayEnterprise_Eb2cProduct_Model_Pim_Attribute::__construct called with invalid value argument. Must be DOMNode'),
 		);
 	}
 	/**

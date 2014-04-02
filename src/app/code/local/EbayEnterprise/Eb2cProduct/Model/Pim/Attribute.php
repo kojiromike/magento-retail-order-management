@@ -52,11 +52,6 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Attribute
 			// @codeCoverageIgnoreStart
 		}
 		// @codeCoverageIgnoreEnd
-		if (!$initParams['value'] instanceof DOMNode) {
-			Mage::helper('eb2ccore')->triggerError(sprintf(self::ERROR_INVALID_VALUE, __METHOD__));
-			// @codeCoverageIgnoreStart
-		}
-		// @codeCoverageIgnoreEnd
 		$this->destinationXpath = $initParams['destination_xpath'];
 		$this->sku = $initParams['sku'];
 		$this->language = isset($initParams['language']) ? $initParams['language'] : null;

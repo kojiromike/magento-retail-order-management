@@ -208,7 +208,6 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 		$fragment = $this->_docs[$key]->createDocumentFragment();
 		$itemNode = $fragment->appendChild($this->_docs[$key]->createElement($childNode));
 		$attributes = $pimProduct->getPimAttributes();
-		sort($attributes, SORT_STRING);
 		foreach (array_unique($attributes) as $pimAttribute) {
 			$this->_appendAttributeValue($itemNode, $pimAttribute, $key);
 		}

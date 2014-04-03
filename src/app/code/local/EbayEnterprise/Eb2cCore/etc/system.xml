@@ -19,6 +19,7 @@
 			<groups>
 				<general translate="label">
 					<label>General</label>
+					<comment>eBay Enterprise will provide these values</comment>
 					<frontend_type>text</frontend_type>
 					<sort_order>5</sort_order>
 					<show_in_default>1</show_in_default>
@@ -27,7 +28,6 @@
 					<fields>
 						<catalog_id translate="label comment">
 							<label>Catalog Id</label>
-							<comment>The two-digit code that precedes all SKUs in this catalog.</comment>
 							<sort_order>10</sort_order>
 							<frontend_type>text</frontend_type>
 							<validate>validate-alphanum</validate>
@@ -35,9 +35,8 @@
 							<show_in_website>0</show_in_website>
 							<show_in_store>0</show_in_store>
 						</catalog_id>
-						<client_id>
+						<client_id translate="label">
 							<label>Client Id</label>
-							<comment>The three-to-five letter code that identifies the client. Usually uppercase.</comment>
 							<sort_order>20</sort_order>
 							<frontend_type>text</frontend_type>
 							<validate>validate-alphanum</validate>
@@ -45,9 +44,8 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
 						</client_id>
-						<store_id>
+						<store_id translate="label">
 							<label>Store Id</label>
-							<comment>The three-to-five letter code that identifies the store. May be the same as Client Id.</comment>
 							<sort_order>30</sort_order>
 							<frontend_type>text</frontend_type>
 							<validate>validate-alphanum</validate>
@@ -55,20 +53,18 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
 						</store_id>
-						<language_code>
+						<language_code translate="label">
 							<label>Store Language Code</label>
-							<comment>Language Code matching incoming feeds Language Codes</comment>
 							<sort_order>40</sort_order>
 							<frontend_type>text</frontend_type>
-                            <backend_model>eb2ccore/system_config_backend_language_code</backend_model>
+							<backend_model>eb2ccore/system_config_backend_language_code</backend_model>
 							<validate>validate-xml-identifier</validate>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</language_code>
-						<client_order_id_prefix>
+						<client_order_id_prefix translate="label">
 							<label>Client Order Id</label>
-							<comment>A five digit integer to be prepended to order increment id.</comment>
 							<sort_order>50</sort_order>
 							<frontend_type>text</frontend_type>
 							<validate>validate-number</validate>
@@ -76,9 +72,8 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
 						</client_order_id_prefix>
-						<client_customer_id_prefix>
+						<client_customer_id_prefix translate="label">
 							<label>Client Customer Id</label>
-							<comment>A five digit integer to be prepended to Customer id.</comment>
 							<sort_order>60</sort_order>
 							<frontend_type>text</frontend_type>
 							<validate>validate-number</validate>
@@ -88,7 +83,7 @@
 						</client_customer_id_prefix>
 					</fields>
 				</general>
-				<api>
+				<api translate="label">
 					<label>Web Services</label>
 					<frontend_type>text</frontend_type>
 					<sort_order>6</sort_order>
@@ -96,9 +91,8 @@
 					<show_in_website>1</show_in_website>
 					<show_in_store>0</show_in_store>
 					<fields>
-						<key>
+						<key translate="label">
 							<label>API Key</label>
-							<comment>The API key for the Exchange Platform web services</comment>
 							<sort_order>70</sort_order>
 							<frontend_type>obscure</frontend_type>
 							<validate>required-entry</validate>
@@ -107,7 +101,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
 						</key>
-						<timeout>
+						<timeout translate="label">
 							<label>API Timeout</label>
 							<comment>Time in milliseconds</comment>
 							<sort_order>80</sort_order>
@@ -117,16 +111,16 @@
 							<show_in_website>0</show_in_website>
 							<show_in_store>0</show_in_store>
 						</timeout>
-						<hostname>
+						<hostname translate="label">
 							<label>API Hostname</label>
 							<frontend_type>text</frontend_type>
 							<show_in_default>1</show_in_default>
 							<show_in_website>0</show_in_website>
 							<show_in_store>0</show_in_store>
 						</hostname>
-						<inventory_expiration>
+						<inventory_expiration translate="label">
 							<label>Inventory Expiration</label>
-							<comment>Time in minutes before inventory data received from an inventory service call expires.</comment>
+							<comment>Time in minutes to cache inventory quantity during persistent cart.</comment>
 							<frontend_type>text</frontend_type>
 							<sort_order>100</sort_order>
 							<show_in_default>1</show_in_default>
@@ -137,7 +131,7 @@
 						</inventory_expiration>
 					</fields>
 				</api>
-				<feed>
+				<feed translate="label">
 					<label>Batch Feeds</label>
 					<frontend_type>text</frontend_type>
 					<sort_order>7</sort_order>
@@ -164,18 +158,17 @@
 							<show_in_default>0</show_in_default>
 							<show_in_website>0</show_in_website>
 						</filetransfer_sftp_remote_path>
-						<filetransfer_sftp_username>
+						<filetransfer_sftp_username translate="label">
 							<label>SFTP User Name</label>
-							<comment>The user name for authenticating to the feeds service.</comment>
 							<validate>validate-required</validate>
 						</filetransfer_sftp_username>
-						<filetransfer_sftp_password>
+						<filetransfer_sftp_password translate="label">
 							<label>SFTP Key</label>
 							<comment>The private key for authenticating to the feeds service. (The feeds service must be provided a corresponding public key.)</comment>
 							<validate>required-entry</validate>
 						</filetransfer_sftp_password>
 						<!-- END HACK -->
-						<sftp_location>
+						<sftp_location translate="label">
 							<label>SFTP Location</label>
 							<comment>The sftp url to the feeds service. (sftp://host.gsipartners.com/path)</comment>
 							<validate>validate-required</validate>

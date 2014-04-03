@@ -30,6 +30,8 @@ class EbayEnterprise_Eb2cFraud_Model_Observer
 	 */
 	public function captureAdminOrderContext($observer)
 	{
+		// the request field in the event data is just an array and doesn't
+		// have the action name, so we specially get the full request object instead.
 		$request = $this->_getRequest();
 		if ($request->getActionName() === 'save') {
 			$this->captureOrderContext(new Varien_Event_Observer(
@@ -43,7 +45,7 @@ class EbayEnterprise_Eb2cFraud_Model_Observer
 	}
 
 	/**
-	 * get the current request object.
+	 * get the request object in a way that can be stubbed in tests.
 	 * @return Mage_Core_Controller_Request_Http
 	 * @codeCoverageIgnore
 	 */

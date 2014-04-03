@@ -138,8 +138,6 @@ class EbayEnterprise_Eb2cFraud_Test_Model_ObserverTest extends EcomDev_PHPUnit_T
 		return array(
 			array('save'),
 			array('foo'),
-			array(''),
-			array(null),
 		);
 	}
 	/**

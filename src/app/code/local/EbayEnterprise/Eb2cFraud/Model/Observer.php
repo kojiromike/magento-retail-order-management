@@ -22,5 +22,33 @@ class EbayEnterprise_Eb2cFraud_Model_Observer
 			'eb2c_fraud_session_id'      => $sess->getEncryptedSessionId(),
 			'eb2c_fraud_javascript_data' => Mage::helper('eb2cfraud')->getJavaScriptFraudData($rqst),
 		))->save();
+		return $this;
+	}
+
+	/**
+	 * call captureOrderContext when creating an order in the backend.
+	 */
+	public function captureAdminOrderContext($observer)
+	{
+		$request = $this->_getRequest();
+		if ($request->getActionName() === 'save') {
+			$this->captureOrderContext(new Varien_Event_Observer(
+				array('event' => new Varien_Event(array(
+				'quote' => $observer->getEvent()->getOrderCreateModel()->getQuote(),
+				'request' => $request,
+				)))
+			));
+		}
+		return $this;
+	}
+
+	/**
+	 * get the current request object.
+	 * @return Mage_Core_Controller_Request_Http
+	 * @codeCoverageIgnore
+	 */
+	protected function _getRequest()
+	{
+		return Mage::app()->getRequest();
 	}
 }

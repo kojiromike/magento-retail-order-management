@@ -132,4 +132,67 @@ class EbayEnterprise_Eb2cFraud_Test_Model_ObserverTest extends EcomDev_PHPUnit_T
 		$this->replaceByMock('singleton', $classAlias, $mock);
 		return $mock;
 	}
+
+	public function provideActionNames()
+	{
+		return array(
+			array('save'),
+			array('foo'),
+			array(''),
+			array(null),
+		);
+	}
+	/**
+	 * when the action is 'save' run the method to capture the fraud data.
+	 * @test
+	 * @dataProvider provideActionNames
+	 */
+	public function testCaptureAdminOrderContext($actionName)
+	{
+		$observer = $this->getModelMock('eb2cfraud/observer', array('captureOrderContext', '_getRequest'));
+		$request = $this->getMockBuilder('Mage_Core_Controller_Request_Http')
+			->disableOriginalConstructor()
+			->setMethods(array('getActionName'))
+			->getMock();
+		$adminOrderCreate = $this->getModelMockBuilder('adminhtml/sales_order_create')
+			->disableOriginalConstructor()
+			->setMethods(array('getQuote'))
+			->getMock();
+		$quote = $this->getModelMockBuilder('sales/quote')
+			->disableOriginalConstructor()
+			->getMock();
+		$eventObserver = new Varien_Event_Observer(array('event' => new Varien_event(array(
+			'order_create_model' => $adminOrderCreate,
+			'request' => $request,
+		))));
+
+		$request->expects($this->any())
+			->method('getActionName')
+			->will($this->returnValue($actionName));
+		$adminOrderCreate->expects($this->any())
+			->method('getQuote')
+			->will($this->returnValue($quote));
+		$observer->expects($this->any())
+			->method('_getRequest')
+			->will($this->returnValue($request));
+
+		$testCase = $this;
+		if ($actionName == 'save') {
+			$observer->expects($this->once())
+				->method('captureOrderContext')
+				->with($this->callback(
+					function($e) use ($testCase, $quote, $request) {
+						$testCase->assertSame($quote, $e->getEvent()->getQuote());
+						$testCase->assertSame($request, $e->getEvent()->getRequest());
+						return true;
+					}
+				))
+				->will($this->returnSelf());
+		} else {
+			$observer->expects($this->never())
+				->method('captureOrderContext');
+		}
+
+		$observer->captureAdminOrderContext($eventObserver);
+	}
 }

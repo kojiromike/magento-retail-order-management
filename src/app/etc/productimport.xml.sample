@@ -123,12 +123,6 @@ Copy this file to productimport.xml and configure the appropriate values below.
 					<method>extractBoolValue</method>
 					<xpath></xpath>
 				</use_config_gift_message_available>
-				<country_of_manufacture>
-					<class>eb2cproduct/map</class>
-					<type>disabled</type>
-					<method>extractStringValue</method>
-					<xpath></xpath>
-				</country_of_manufacture>
 				<gift_card_tender_code>
 					<class>eb2cproduct/map</class>
 					<type>disabled</type>
@@ -511,62 +505,4 @@ Copy this file to productimport.xml and configure the appropriate values below.
 			</feed_attribute_mappings>
 		</eb2cproduct>
 	</default>
-	<global>
-		<!--
-		Here you can customize which of the enhanced Exchange Platform attributes you
-		wish to have imported into your Magento instance. These attributes will be created
-		for you by this extension. They are then imported according to the feed_attribute_mappings
-		listed above.
-		 -->
-		<eb2cproduct_attributes>
-			<default>
-				<is_drop_shipped>
-					<scope>Website</scope>
-					<label>Is Drop Shipped</label>
-					<group>Exchange Platform</group>
-					<input_type>boolean</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-					<default>N</default>
-					<backend_type>int</backend_type>
-				</is_drop_shipped>
-				<drop_ship_supplier_name>
-					<scope>Website</scope>
-					<label>Drop Ship Supplier Name</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-					<default/>
-				</drop_ship_supplier_name>
-				<drop_ship_supplier_number>
-					<scope>Website</scope>
-					<label>Drop Ship Supplier Number</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-					<default/>
-				</drop_ship_supplier_number>
-				<drop_ship_supplier_part>
-					<scope>Website</scope>
-					<label>Drop Ship Supplier Part Number</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-					<default/>
-				</drop_ship_supplier_part>
-				<item_type>
-					<scope>Website</scope>
-					<label>eBay Enterprise Item Type</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<default></default>
-				</item_type>
-			</default>
-		</eb2cproduct_attributes>
-	</global>
 </config>

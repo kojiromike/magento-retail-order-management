@@ -201,26 +201,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	public function passUnitCost($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
 		$fragment = $doc->createDocumentFragment();
-		/* With createElement, mapping to ExtendedAttributes/UnitCost, I end up with this:
-    	 * <ExtendedAttributes>
-		 *  <!-- ... other extended attributes ... -->
-		 *   <UnitCost>
-		 *		<UnitCost currency_code="USD"><![CDATA[200]]></UnitCost>
-		 *	  </UnitCost>
-    	 * </ExtendedAttributes>
-		 * Which is to be expected, I'm create a 'UnitCost' here, AND mapping it to UnitCost.
-		 * 
-		 * Or, If I map to just ExtendedAttributes, I get 'extra' ExtendedAttributes:
-		 * 
-		 * <ExtendedAttributes>
-		 *  <!-- All the other extended attributes are here -->
-		 * </ExtendedAttributes>
-		 * <ExtendedAttributes>
-		 *	<UnitCost currency_code="USD"><![CDATA[200]]></UnitCost>
-		 * </ExtendedAttributes>
-		 */
 		$unitCostNode = $doc->createElement('UnitCost', Mage::getModel('core/store')->roundPrice($attrValue));
-//		$unitCostNode = $this->createStringNode(Mage::getModel('core/store')->roundPrice($attrValue), $doc);
 		if (!$unitCostNode) {
 			return null;
 		}

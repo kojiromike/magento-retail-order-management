@@ -4,88 +4,75 @@
  */
 class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 {
-	/**
-	 * Return configuration registry
-	 * @return eb2ccore/config_registry
-	 */
-	protected function _getConfig() {
-		return Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2cproduct/image_export_config'))
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
-	}
+	const XML_TEMPLATE = '<%1$s imageDomain="%2$s" clientId="%3$s" timestamp="%4$s">%5$s</%1$s>';
+	const ROOT_NODE = 'ItemImages';
+	const ID_PLACE_HOLDER = '{current_store_id}';
+	const FRONTEND_INPUT = 'media_image';
+	const FILTER_OUT_VALUE = 'no_selection';
 
 	/**
-	 * Returns an array of store Ids
-	 * @return array
-	 */
-	protected function _getAllStoreIds()
-	{
-		$stores = array();
-		foreach (Mage::app()->getStores(true) as $store) {
-			$stores[] = $store->getStoreId();
-		}
-		return $stores;
-	}
-
-	/**
-	 * Get a single store
-	 * @return store
-	 */
-	protected function _getStoreUrl($storeId)
-	{
-		return Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
-	}
-
-	/**
-	 * Set the current store context
-	 * @return self
-	 */
-	protected function _setCurrentStore($storeId)
-	{
-		Mage::app()->setCurrentStore($storeId);
-		return self;
-	}
-
-	/**
-	 * Builds the Image Export DOM - creates the export file, validates the schema,  and then sends it.
-	 * @param sourceStoredId a store id, or null for all stores
+	 * Builds the Image Export DOM - creates the export file, validates the schema, and then sends it.
 	 * @return Number of Stores examined for images
 	 */
-	public function buildExport($sourceStoreId=null)
+	public function process()
 	{
-		$stores = array();
-
-		$numberOfStoresProcessed = 0;
-
-		if ($sourceStoreId !== null ) {
-			$stores[0] = $sourceStoreId;
-		} else {
-			$stores = $this->_getAllStoreIds();
+		return array_reduce(
+			array_keys(Mage::helper('eb2cproduct')->getStores()),
+			array($this, '_buildExport')
+		);
+	}
+	/**
+	 * build image feed per store
+	 * @param int $processed
+	 * @param int $storeId
+	 * @return int
+	 */
+	protected function _buildExport($processed=0, $storeId)
+	{
+		$processed += 1;
+		$imageData = $this->_getImageData($storeId);
+		if (!empty($imageData)) {
+			$helper = Mage::helper('eb2cproduct');
+			$helper->setCurrentStore($storeId);
+			$this->_buildItemImages($this->_loadDom($storeId), $storeId, $imageData);
+			$helper->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
 		}
+		return $processed;
+	}
+	/**
+	 * load the preliminary data into EbayEnterprise_Dom_Document object and then return
+	 * a EbayEnterprise_Dom_Document object
+	 * @param int $storeId
+	 * @return EbayEnterprise_Dom_Document
+	 */
+	protected function _loadDom($storeId)
+	{
+		$pHelper = Mage::helper('eb2cproduct');
+		$cHelper = Mage::helper('eb2ccore');
+		$cfg = $pHelper->getConfigModel();
+		$doc = $cHelper->getNewDomDocument();
+		$doc->formatOutput = true;
+		$doc->loadXml(sprintf(
+			self::XML_TEMPLATE,
+			self::ROOT_NODE,
+			$this->_getCurrentHostName($storeId),
+			$cfg->clientId,
+			Mage::getModel('core/date')->date('c'),
+			$pHelper->generateMessageHeader($cfg->imageFeedEventType),
+			$cHelper->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA)
+		));
 
-		foreach ($stores as $storeId) {
-			$this->_setCurrentStore($storeId);
-			$dom = Mage::helper('eb2ccore')->getNewDomDocument();
-			$dom->formatOutput = true;
-
-			$domainParts = parse_url($this->_getStoreUrl($storeId));
-			$itemImages = $dom->addElement('ItemImages', null, $this->_getConfig()->apiXmlNs)->firstChild;
-			$itemImages->setAttribute('imageDomain', $domainParts['host']);
-			$itemImages->setAttribute('clientId', $this->_getConfig()->clientId);
-			$itemImages->setAttribute('timestamp', date('H:i:s'));
-
-			$this->_buildMessageHeader($itemImages->createChild('MessageHeader'));
-
-			if ($this->_buildItemImages($itemImages) > 0) {
-				Mage::getModel('eb2ccore/api')->schemaValidate($dom, $this->_getConfig()->xsdFileImageExport);
-				$this->_createFileFromDom($dom, $storeId);
-			}
-
-			$dom = null;
-			$this->_setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
-			$numberOfStoresProcessed++;
-		}
-		return $numberOfStoresProcessed;
+		return $doc;
+	}
+	/**
+	 * get the current host name
+	 * @param int $storeId
+	 * @return string
+	 */
+	protected function _getCurrentHostName($storeId)
+	{
+		$domainParts = parse_url(Mage::helper('eb2cproduct')->getStoreUrl($storeId));
+		return $domainParts['host'];
 	}
 	/**
 	 * Create a file from the dom, and return its full path.
@@ -96,100 +83,167 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	 */
 	protected function _createFileFromDom(EbayEnterprise_Dom_Document $dom, $storeId)
 	{
-		$coreFeed = Mage::getModel('eb2ccore/feed',
-			array(
-				'dir_config' => $this->_getConfig()->imageFeedDirectoryConfig
-			)
-		);
-		$filename = $coreFeed->getLocalDirectory() . DS . date($this->_getConfig()->filenameFormat) . "_$storeId.xml";
+		$filename = $this->_generateFilePath($storeId);
 		$dom->save($filename);
 		return $filename;
 	}
-
+	/**
+	 * generate image feed file name
+	 * @param string $storeId
+	 * @return string
+	 */
+	protected function _generateFilePath($storeId)
+	{
+		$helper = Mage::helper('eb2cproduct');
+		$cfg = $helper->getConfigModel();
+		$coreFeed = Mage::getModel('eb2ccore/feed', array('feed_config' => $cfg->imageFeed));
+		return $coreFeed->getLocalDirectory() . DS . str_replace(
+			self::ID_PLACE_HOLDER,
+			$storeId,
+			$helper->generateFileName($cfg->imageFeedEventType, $cfg->imageExportFilenameFormat)
+		);
+	}
 	/**
 	 * Build an item's worth of images
-	 * @param DOMelement node into which itemImages are placed
+	 * @param EbayEnterprise_Dom_Document node into which itemImages are placed
+	 * @param int $storeId
+	 * @param array $imageData
 	 * @return int number of images for all products in this store
 	 */
-	protected function _buildItemImages(EbayEnterprise_Dom_Element $itemImages)
+	protected function _buildItemImages(EbayEnterprise_Dom_Document $doc, $storeId, array $imageData)
 	{
-		$numberOfImages = 0;
-		foreach (Mage::getModel('catalog/product')->getCollection() as $mageProduct) {
-			if ($mageProduct->load($mageProduct->getId())) {
-				if ($mageProduct->getMediaGalleryImages()->count()) {
-					$mageImageViewMap = $this->_getMageImageViewMap($mageProduct);
-					$item = $itemImages->createChild('Item');
-					$item->setAttribute('id', $mageProduct->getSku());
+		$this->_buildXmlNodes($doc, $imageData)
+			->_validateXml($doc)
+			->_createFileFromDom($doc, $storeId);
 
-					$images = $item->createChild('Images');
+		return count($imageData);
+	}
+	/**
+	 * validate the dom xml
+	 * @param EbayEnterprise_Dom_Document $doc
+	 * @return self
+	 */
+	protected function _validateXml(EbayEnterprise_Dom_Document $doc)
+	{
+		Mage::getModel('eb2ccore/api')->schemaValidate(
+			$doc, Mage::helper('eb2cproduct')->getConfigModel()->imageExportXsd
+		);
 
-					foreach( $mageProduct->getMediaGalleryImages() as $mageImage ) {
-						$hasNamedView = false;
-						// A single image can be used for more than 1 'named view'
-						foreach( array_keys($mageImageViewMap, $mageImage->getFile()) as $imageViewName ) {
-							$hasNamedView = true;
-							$this->_populateImageNode($images->createChild('Image'), $mageImage, $imageViewName);
-						}
-						// You can have images that do not have a 'named view' - they're just part of the Media Gallery.
-						if (!$hasNamedView) {
-							$this->_populateImageNode($images->createChild('Image'), $mageImage, '');
-						}
-						$numberOfImages++;
-					}
-				}
+		return $this;
+	}
+	/**
+	 * build the xml node base on the image data given and the DOMDocument object given
+	 * @param EbayEnterprise_Dom_Document
+	 * @param array $imageData
+	 * @return self
+	 */
+	protected function _buildXmlNodes(EbayEnterprise_Dom_Document $doc, array $imageData)
+	{
+		$itemImages = Mage::helper('eb2ccore')->getDomElement($doc);
+		foreach ($imageData as $data){
+			$this->_buildImagesNodes(
+				$itemImages->createChild('Item', null, array('id' => $data['id'])),
+				$data['image_data']
+			);
+		}
+		return $this;
+	}
+	/**
+	 * build images/image nodes
+	 * @param EbayEnterprise_Dom_Element $item
+	 * @param array $imageData
+	 * @return self
+	 */
+	protected function _buildImagesNodes(EbayEnterprise_Dom_Element $item, array $imageData)
+	{
+		$images = $item->createChild('Images');
+		foreach ($imageData as $image) {
+			$images->createChild('Image', null, array(
+				'imageview' => $image['view'],
+				'imagename' => $image['name'],
+				'imageurl' => $image['url'],
+				'imagewidth' => $image['width'],
+				'imageheight' => $image['height']
+			));
+		}
+		return $this;
+	}
+	/**
+	 * get product image data
+	 * @param int $storeId
+	 * @return array
+	 */
+	protected function _getImageData($storeId)
+	{
+		$data = array();
+		foreach ($this->_getProductCollection($storeId) as $product) {
+			$data[] = $this->_extractImageData($product->load($product->getId()));
+		}
+		return array_filter($data);
+	}
+	/**
+	 * extracting image data from a given Mage_Catalog_Model_Product object
+	 * @param Mage_Catalog_Model_Product $product
+	 * @return array | null
+	 */
+	protected function _extractImageData(Mage_Catalog_Model_Product $product)
+	{
+		$media = $product->getMediaGalleryImages();
+
+		return ($media && $media->count())?
+			array(
+				'id' => $product->getSku(),
+				'image_data' => $this->_getMediaData($media, $product)
+			) : null;
+	}
+	/**
+	 * extracting image data from a given Mage_Catalog_Model_Product object
+	 * @param Varien_Data_Collection $media
+	 * @param Mage_Catalog_Model_Product $product
+	 * @return array
+	 */
+	protected function _getMediaData(Varien_Data_Collection $media, Mage_Catalog_Model_Product $product)
+	{
+		$mData = array();
+		$imageViews = $this->_filterImageViews($this->_getMageImageViewMap($product));
+		foreach ($media as $mageImage) {
+			$dimension = $this->_getImageDimension($mageImage);
+			foreach ($imageViews as $view) {
+				$mData[] = array(
+					'view' => $view,
+					'name' => $mageImage->getLabel(),
+					'url' => $mageImage->getUrl(),
+					'width' => $dimension->getWidth(),
+					'height' => $dimension->getHeight()
+				);
 			}
 		}
-		return $numberOfImages;
+		return $mData;
 	}
-
 	/**
-	 * Populates a single image node within an images node. All of the values are stored as attributes.
-	 * @param type image node
-	 * @param type mageImage Magento Image
-	 * @param type viewName Name of the View
-	 * @return self
+	 * get image demensions
+	 * @param Varien_Object $image
+	 * @return Varien_Object
 	 */
-	protected function _populateImageNode($image, $mageImage, $viewName)
+	protected function _getImageDimension(Varien_Object $mageImage)
 	{
-		list($w, $h) = getimagesize( (file_exists($mageImage->getPath())) ? $mageImage->getPath() : $mageImage->getUrl() );
-		$image->setAttribute('imageview', $viewName);
-		$image->setAttribute('imagename', $mageImage->getLabel());
-		$image->setAttribute('imageurl', $mageImage->getUrl());
-		$image->setAttribute('imagewidth', $w);
-		$image->setAttribute('imageheight', $h);
-
-		return $this;
+		list($w, $h) = getimagesize(
+			(file_exists($mageImage->getPath())) ? $mageImage->getPath() : $mageImage->getUrl()
+		);
+		return new Varien_Object(array('width' => $w, 'height' => $h));
 	}
-
 	/**
-	 * Build Message Header from configuration into the passed DOMElement
-	 * @param DOMElement node in which to place Header
-	 * @return self
+	 * get a collection of product per store
+	 * @param int $storeId
+	 * @return Mage_Catalog_Model_Resource_Product_Collection
 	 */
-	protected function _buildMessageHeader(DOMElement $header)
+	protected function _getProductCollection($storeId)
 	{
-		$header->createChild('Standard', $this->_getConfig()->standard);
-		$header->createChild('HeaderVersion', $this->_getConfig()->headerVersion);
-
-		$sourceData = $header->createChild('SourceData');
-		$sourceData->createChild('SourceId', $this->_getConfig()->sourceId);
-		$sourceData->createChild('SourceType', $this->_getConfig()->sourceType);
-
-		$destinationData = $header->createChild('DestinationData');
-		$destinationData->createChild('DestinationId', $this->_getConfig()->destinationId);
-		$destinationData->createChild('DestinationType', $this->_getConfig()->destinationType);
-
-		$header->createChild('EventType', $this->_getConfig()->eventType);
-
-		$messageData = $header->createChild('MessageData');
-		$messageData->createChild('MessageId', $this->_getConfig()->messageId);
-		$messageData->createChild('CorrelationId', $this->_getConfig()->correlationId);
-
-		$header->createChild('CreateDateAndTime', date('m/d/y H:i:s'));
-
-		return $this;
+		return Mage::getResourceModel('catalog/product_collection')
+			->addAttributeToSelect(array('*'))
+			->addStoreFilter($storeId)
+			->load();
 	}
-
 	/**
 	 * Searchs for all media_image type attributes for this product's attribute set, and creates a hash matching
 	 * the attribute code to its value, which is a media path. The attribute code is used as the
@@ -198,13 +252,26 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	 */
 	protected function _getMageImageViewMap($mageProduct)
 	{
-		$imageViewMap = array();
 		$attributes = $mageProduct->getAttributes();
-		foreach ($attributes as $attribute) {
-			if (!strcmp($attribute->getFrontendInput(), 'media_image')) {
-				$imageViewMap[$attribute->getAttributeCode()] = $mageProduct->getData($attribute->getAttributeCode());
+		return array_reduce(array_keys($attributes), function($result=array(), $key) use($attributes, $mageProduct) {
+			if (!strcmp($attributes[$key]->getFrontendInput(), EbayEnterprise_Eb2cProduct_Model_Image_Export::FRONTEND_INPUT)) {
+				$result[$key] = $mageProduct->getData($key);
 			}
-		}
-		return $imageViewMap;
+			return $result;
+		});
+	}
+	/**
+	 * given an array of image view filter out any key with value self::FILTER_OUT_VALUE
+	 * return any key without self::FILTER_OUT_VALUE value if empty return an array with one empty string element
+	 * @param array $imageViews
+	 * @return array
+	 */
+	protected function _filterImageViews(array $imageViews)
+	{
+		$views = array_filter(array_keys($imageViews), function($key) use ($imageViews) {
+			return ($imageViews[$key] !== EbayEnterprise_Eb2cProduct_Model_Image_Export::FILTER_OUT_VALUE);
+		});
+
+		return !empty($views)? $views : array('');
 	}
 }

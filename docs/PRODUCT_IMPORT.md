@@ -322,3 +322,7 @@ The ItemMaster Feed Need The Following Nodes In Order To Import Giftcard:
 	</Item>
 </ItemMaster>
 ```
+
+# How to Import Image Feeds
+
+This feature is not yet supported, however, you can checkout [How to Export Image Feeds](PRODUCT_EXPORT.md#how-to-export-image-feeds) documentation.

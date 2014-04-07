@@ -186,6 +186,7 @@
 			<api_return_format>xml</api_return_format>
 			<image_master_feed>
 				<xsd>CombinedProduct.xsd</xsd>
+				<filename_format>{client_id}_{store_id}_{feed_type}_{time_stamp}_{current_store_id}.xml</filename_format>
 				<outbound>
 					<message_header>
 						<event_type>ImageMaster</event_type>
@@ -521,6 +522,11 @@
 					<model>eb2cproduct/pim_collector::runExport</model>
 				</run>
 			</eb2cproduct_pim_export_feed>
+			<eb2cproduct_image_export_feed>
+				<run>
+					<model>eb2cproduct/image_export::process</model>
+				</run>
+			</eb2cproduct_image_export_feed>
 		</jobs>
 	</crontab>
 	<phpunit>

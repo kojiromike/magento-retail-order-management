@@ -154,7 +154,7 @@ Image Feed Files will be generated per store configured in Magento in the /Excha
 ```xml
 <ItemImages imageDomain="example.com" clientId="TST" timestamp="2014-04-07T11:42:27+00:00">
 	<MessageHeader>...</MessageHeader>
-		<Item id="54-E491B455-Ite">
+	<Item id="54-E491B455-Ite">
 		<Images>
 			<Image imageview="image" imagename="This is a test label" imageurl="http://example.com/media/catalog/product/e/a/earth.png" imagewidth="700" imageheight="700"/>
 			<Image imageview="small_image" imagename="This is a test label" imageurl="http://example.com/media/catalog/product/e/a/earth.png" imagewidth="700" imageheight="700"/>

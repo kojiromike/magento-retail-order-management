@@ -32,6 +32,113 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		return $this->createStringNode(substr($attrValue, 0, self::STRING_LIMIT), $doc);
 	}
 	/**
+	 * Pass the string if it has a value.
+	 * which will either return DOMNode object or a null value.
+	 * @param  string                              $attrValue
+	 * @param  string                              $attribute
+	 * @param  Mage_Catalog_Model_Product          $product
+	 * @param  DOMDocument         $doc
+	 * @return DOMNode|null
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passStringIf($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		if (!empty($attrValue)) {
+			return $this->passString($attrValue, $attribute, $product, $doc);
+		}
+		return null;
+	}
+	/**
+	 * Translate an inventory_manage_stock field.
+	 * which will return DOMNode object
+	 * @param  string                              $attrValue
+	 * @param  string                              $attribute
+	 * @param  Mage_Catalog_Model_Product          $product
+	 * @param  DOMDocument         $doc
+	 * @return DOMNode
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passSalesClass($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		$enum = 'advanceOrderOpen';
+		if (!empty($attrValue)) {
+			$enum = 'stock';
+		}
+		return $this->passString($enum, $attribute, $product, $doc);
+	}
+	/**
+	 * Translate a hierarchy_dept_number into DeptNum
+	 * which will return DOMNode object
+	 * @param  string                              $attrValue
+	 * @param  string                              $attribute
+	 * @param  Mage_Catalog_Model_Product          $product
+	 * @param  DOMDocument         $doc
+	 * @return DOMNode|
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passDeptNumber($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		$value = '000';
+		if (!empty($attrValue)) {
+			$value = $attrValue;
+		}
+		return $this->passString($value, $attribute, $product, $doc);
+	}
+	/**
+	 * Translate a status into ItemStatus
+	 * which will return DOMNode object
+	 * @param  string                              $attrValue
+	 * @param  string                              $attribute
+	 * @param  Mage_Catalog_Model_Product          $product
+	 * @param  DOMDocument         $doc
+	 * @return DOMNode|
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passItemStatus($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		$value = 'Active';
+		if ($attrValue == Mage_Catalog_Model_Product_Status::STATUS_DISABLED) {
+			$value = 'Inactive';
+		}
+		return $this->passString($value, $attribute, $product, $doc);
+	}
+	/**
+	 * Translate an item_type field.
+	 * which will return DOMNode object
+	 * @param  string                              $attrValue
+	 * @param  string                              $attribute
+	 * @param  Mage_Catalog_Model_Product          $product
+	 * @param  DOMDocument         $doc
+	 * @return DOMNode
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passItemType($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		$itemType = 'Merch';
+		if (!empty($attrValue)) {
+			$itemType = $attrValue;
+		}
+		return $this->passString($itemType, $attribute, $product, $doc);
+	}
+	/**
+	 * Translate a visbility into CatalogClass
+	 * which will return DOMNode object
+	 * @param  string                              $attrValue
+	 * @param  string                              $attribute
+	 * @param  Mage_Catalog_Model_Product          $product
+	 * @param  DOMDocument         $doc
+	 * @return DOMNode
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passCatalogClass($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		$value = 'regular';
+		if ($attrValue == Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE) {
+			$value = 'nosale';
+		}
+		return $this->passString($value, $attribute, $product, $doc);
+	}
+	/**
 	 * De-normalized a given sku by calling EbayEnterprise_Eb2cCore_Helper_Data::denormalizeSku method and then calling
 	 * the self::createStringNode method given the de-normalize sku and the given DOMDocument object in which
 	 * will return a DOMNode object

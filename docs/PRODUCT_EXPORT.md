@@ -135,3 +135,12 @@ If two store views with the same client id, store code and language have differe
 
 This is harmless and Sterling Integrator will normalize the input.
 
+##Available Magento Attributes for Pricing Feed
+
+- sku
+- msrp
+- special_price
+- special_from_date
+- special_to_date
+- price
+

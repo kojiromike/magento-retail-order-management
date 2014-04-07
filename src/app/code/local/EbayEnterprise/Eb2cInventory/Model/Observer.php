@@ -7,7 +7,7 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	 * Validate the quote against inventory service calls. When items or item quantities in the quote
 	 * have changed, this method will trigger a new inventory quantity service call and have the quote
 	 * updated with the results. When shipping or item/item quantity changes are detected, a new
-	 * inventory details request should be made.
+	 * inventory details request should be made only if the the quote shipping address has the required data.
 	 *
 	 * Failures in related methods, those actually making the inventory service calls
 	 * and updating the quote, can signal for the process to be interrupted which will
@@ -15,7 +15,7 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	 * @param Varien_Event_Observer $observer
 	 * @return self
 	 * @throws EbayEnterprise_Eb2cInventory_Exception_Cart_Interrupt If any of the service calls fail with a blocking
-	 *         							                         status
+	 *         status
 	 * @throws EbayEnterprise_Eb2cInventory_Exception_Cart If any of the service calls fail with a non-blocking status
 	 */
 	public function checkInventory($observer)
@@ -30,7 +30,7 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 			if ($qtyRequired) {
 				$this->_updateQuantity($quote);
 			}
-			if ($dtsRequired) {
+			if ($dtsRequired && Mage::helper('eb2cinventory')->hasRequiredShippingDetail($quote->getShippingAddress())) {
 				$this->_updateDetails($quote);
 			}
 		}

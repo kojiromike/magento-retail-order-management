@@ -196,4 +196,22 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 			Mage::helper('eb2cinventory')->getInventoriedItems($items)
 		);
 	}
+
+	/**
+	 * Test EbayEnterprise_Eb2cInventory_Helper_Data::hasRequiredShippingDetail method for the following expectations
+	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cInventory_Helper_Data::hasRequiredShippingDetail
+	 *                twice given Mage_Sales_Model_Quote_Address object load with data from the provider, first time the
+	 *                test run the provider data will be an array with key value map to test data and the testCase parameter
+	 *                will be the key passing to the expected method of this test which will have the expected result
+	 *                the second time the test run the provider data parameter will be an array keys map to empty null
+	 *                values and the testcase provider prameter will get an expectation result
+	 * @dataProvider dataProvider
+	 * @loadExpectation
+	 */
+	public function testHasRequiredShippingDetail($data, $testCase)
+	{
+		$result = $this->expected($testCase)->getResult();
+		$address = Mage::getModel('sales/quote_address')->addData($data);
+		$this->assertSame($result, Mage::helper('eb2cinventory')->hasRequiredShippingDetail($address));
+	}
 }

@@ -50,9 +50,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 		$request->expects($this->at(0))
 			->method('C14N')
 			->will($this->returnValue($requestText));
-		$request->expects($this->at(1))
-			->method('C14N')
-			->will($this->returnValue($formattedRequest));
 
 		$httpClient->expects($this->once())
 			->method('setHeaders')
@@ -82,9 +79,12 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 			->with($this->identicalTo('POST'))
 			->will($this->returnValue($httpResponse));
 
-		$helper->expects($this->once())
+		$helper->expects($this->exactly(2))
 			->method('logInfo')
-			->with($this->identicalTo("[ %s ] Sending request to %s:\n%s"), $this->identicalTo(array('EbayEnterprise_Eb2cCore_Model_Api', $apiUri, $formattedRequest)))
+			->with($this->logicalOr(
+				$this->identicalTo("[ %s ] Validating request:\n%s"), $this->identicalTo(array('EbayEnterprise_Eb2cCore_Model_Api', $apiUri, $formattedRequest)),
+				$this->identicalTo("[ %s ] Sending request to %s"), $this->identicalTo(array('EbayEnterprise_Eb2cCore_Model_Api', $apiUri, $formattedRequest))
+			))
 			->will($this->returnSelf());
 
 		$api->expects($this->once())

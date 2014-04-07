@@ -94,4 +94,20 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return array_filter($quoteItems, array($this, 'isItemInventoried'));
 	}
+	/**
+	 * given a Mage_Sales_Model_Quote_Address object determine if it has the required
+	 * shipping data to make an inventory detail request
+	 * @param Mage_Sales_Model_Quote_Address $address the address object to get data from
+	 * @return bool true has the required data otherwise false
+	 */
+	public function hasRequiredShippingDetail(Mage_Sales_Model_Quote_Address $address)
+	{
+		return (
+			(trim($address->getStreet(1)) !== '') &&
+			(trim($address->getCity()) !== '') &&
+			(trim($address->getRegionCode()) !== '') &&
+			(trim($address->getCountryId()) !== '') &&
+			(trim($address->getPostCode()) !== '')
+		);
+	}
 }

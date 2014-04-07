@@ -59,7 +59,19 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	 */
 	public function testCheckInventory($isQtyUpdated, $isDetailsUpdated)
 	{
-		$quote = $this->getModelMock('sales/quote');
+		$address = Mage::getModel('sales/quote_address')->addData(array(
+			'street' => array('Some Street'),
+			'city' => 'some city',
+			'region_code' => 'Pa',
+			'country_id' => 'US',
+			'post_code' => '19406'
+		));
+
+		$quote = $this->getModelMockBuilder('sales/quote')
+			->disableOriginalConstructor()
+			->setMethods(array('getShippingAddress'))
+			->getMock();
+
 		$session = $this->getModelMockBuilder('eb2ccore/session')
 			->disableOriginalConstructor()
 			->setMethods(array('isQuantityUpdateRequired', 'isDetailsUpdateRequired'))
@@ -88,12 +100,29 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 		// if quantity or details are being checked/updated, rollback any existing allocations
 		// as something has changed so the allocation would no longer be any good
 		if ($isQtyUpdated || $isDetailsUpdated) {
+			$quote->expects($this->once())
+				->method('getShippingAddress')
+				->will($this->returnValue($address));
+
+			$helperMock = $this->getHelperMockBuilder('eb2cinventory/data')
+				->disableOriginalConstructor()
+				->setMethods(array('hasRequiredShippingDetail'))
+				->getMock();
+			$helperMock->expects($this->once())
+				->method('hasRequiredShippingDetail')
+				->with($this->identicalTo($address))
+				->will($this->returnValue(true));
+			$this->replaceByMock('helper', 'eb2cinventory', $helperMock);
+
 			$helper
 				->expects($this->once())
 				->method('rollbackAllocation')
 				->with($this->identicalTo($quote))
 				->will($this->returnSelf());
 		} else {
+			$quote->expects($this->never())
+				->method('getShippingAddress');
+
 			$helper
 				->expects($this->never())
 				->method('rollbackAllocation');

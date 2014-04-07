@@ -22,6 +22,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const PAYPAL_TENDER_TYPE = 'PY';
 	const BACKEND_ORDER_SOURCE = 'phone';
 	const FRONTEND_ORDER_SOURCE = 'web';
+	const COOKIES_DELIMITER = ';';
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -259,7 +260,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$customer->createChild('Gender', $genderToSend);
 		}
 		if ($this->_o->getCustomerDob()) {
-			$customer->createChild('DateOfBirth', Mage::helper('eb2ccore')->createDate($this->_o->getCustomerDob(), 'Y-m-d'));
+			$customer->createChild('DateOfBirth', date_format(date_create($this->_o->getCustomerDob()), 'Y-m-d'));
 		}
 		$customer->createChild('EmailAddress', $this->_o->getCustomerEmail());
 		$customer->createChild('CustomerTaxId', $this->_o->getCustomerTaxvat());
@@ -635,7 +636,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildContext(DomElement $context)
 	{
+		$checkout = Mage::getSingleton('checkout/session');
 		$this->_buildBrowserData($context->createChild('BrowserData'));
+		$context->addChild('TdlOrderTimestamp', $this->_xsdString($checkout->getEb2cFraudTimestamp()));
+		$this->_buildSessionInfo($checkout->getEb2cFraudSessionInfo(), $context);
 		return $this;
 	}
 	/**
@@ -645,19 +649,25 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildBrowserData(DomElement $browserData)
 	{
-		$http = Mage::helper('core/http');
-		$browserData->addChild('HostName', $http->getHttpHost(true))
-			->addChild('IPAddress', $http->getServerAddr())
-			->addChild('SessionId', Mage::getSingleton('core/session')->getSessionId())
-			->addChild('UserAgent', $http->getHttpUserAgent(true))
-			->addChild('JavascriptData', $this->_o->getEb2cFraudJavascriptData())
-			->addChild('Referrer', $this->_getOrderSource());
-
-		$httpAcceptData = $browserData->createChild('HTTPAcceptData');
-		$httpAcceptData->addChild('ContentTypes', $_SERVER['HTTP_ACCEPT'])
-			->addChild('Encoding', $_SERVER['HTTP_ACCEPT_ENCODING'])
-			->addChild('Language', $http->getHttpAcceptLanguage(true))
-			->addChild('CharSet', $http->getHttpAcceptCharset(true));
+		$checkout = Mage::getSingleton('checkout/session');
+		$browserData->addChild('HostName', $this->_xsdString($this->_o->getEb2cFraudHostName(), 50))
+			->addChild('IPAddress', $this->_xsdString($this->_o->getEb2cFraudIpAddress()))
+			->addChild('SessionId', $this->_xsdString($this->_o->getEb2cFraudSessionId(), 255))
+			->addChild('UserAgent', $this->_xsdString($this->_o->getEb2cFraudUserAgent(), 255))
+			->addChild('Connection', $this->_xsdString($checkout->getEb2cFraudConnection(), 25));
+		$cookieArr = (array) $checkout->getEb2cFraudCookies();
+		$cookieStr = implode(self::COOKIES_DELIMITER, array_map(function($name) use ($cookieArr) {
+			return "$name={$cookieArr[$name]}";
+		}, array_keys($cookieArr)));
+		$this->_addElementIfNotEmpty('Cookies', $cookieStr, $browserData, 50);
+		$browserData->addChild('JavascriptData', $this->_o->getEb2cFraudJavascriptData())
+			->addChild('Referrer', $this->_xsdString($this->_getOrderSource(), 1024));
+		// start the HTTPAcceptData subtree
+		$browserData->createChild('HTTPAcceptData')
+			->addChild('ContentTypes', $this->_xsdString($this->_o->getEb2cFraudContentTypes(), 1024))
+			->addChild('Encoding', $this->_xsdString($this->_o->getEb2cFraudEncoding(), 50))
+			->addChild('Language', $this->_xsdString($this->_o->getEb2cFraudLanguage(), 255))
+			->addChild('CharSet', $this->_xsdString($this->_o->getEb2cFraudCharSet()));
 	}
 	/**
 	 * getting the referrer value as self::BACKEND_ORDER_SOURCE when the order is placed via admin
@@ -666,8 +676,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _getOrderSource()
 	{
-		return (Mage::helper('eb2ccore')->getCurrentStore()->isAdmin())? self::BACKEND_ORDER_SOURCE:
-			self::FRONTEND_ORDER_SOURCE;
+		return (Mage::helper('eb2ccore')->getCurrentStore()->isAdmin()) ? self::BACKEND_ORDER_SOURCE:
+			$this->_o->getEb2cFraudReferrer() ?: self::FRONTEND_ORDER_SOURCE;
 	}
 	/**
 	 * Get globally unique request identifier
@@ -744,5 +754,52 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		$pBridgeArray = unserialize($pBridgeData);
 		return $pBridgeArray['pbridge_data'];
+	}
+	/**
+	 * build session info elements if data exists.
+	 * @param  array      $data
+	 * @param  DOMElement $context
+	 * @return self
+	 */
+	protected function _buildSessionInfo(array $data, DOMElement $context)
+	{
+		$doc = $context->ownerDocument;
+		$frag = $doc->createDocumentFragment();
+		foreach ($data as $element => $value) {
+			if ($value) {
+				$frag->appendChild($doc->createElement($element, $value, $this->_config->apiXmlNs));
+			}
+		}
+		if ($frag->hasChildNodes()) {
+			$context->createChild('SessionInfo')
+				->appendChild($doc->importNode($frag));
+		}
+	}
+	/**
+	 * truncate a $str if it is longer than $maxLength.
+	 * if $str evaluates to false, return $default
+	 * @param  string $str
+	 * @param  int    $maxLength
+	 * @param  string $default
+	 * @return string
+	 */
+	protected function _xsdString($str, $maxLength=0, $default='null')
+	{
+		return ($maxLength ? substr($str, 0, $maxLength) : $str) ?: $default;
+	}
+	/**
+	 * create an child element of $parent if the value is not empty.
+	 * @param string  $element
+	 * @param string  $value
+	 * @param DOMNode $parent
+	 * @param int     $maxLength
+	 */
+	protected function _addElementIfNotEmpty($element, $value, DOMNode $parent, $maxLength=null)
+	{
+		$val = $this->_xsdString($value, $maxLength, '');
+		if ($val) {
+			$parent->createChild($element, $val);
+		}
+		return $this;
 	}
 }

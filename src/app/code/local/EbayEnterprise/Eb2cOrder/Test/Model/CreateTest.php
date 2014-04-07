@@ -907,106 +907,14 @@ INVALID_XML;
 		$this->assertSame('', EbayEnterprise_Eb2cOrder_Model_Create::getOrderGiftCardPan($orderMock));
 	}
 
-	/**
-	 * Test EbayEnterprise_Eb2cOrder_Model_Create::_buildBrowserData  method for the following expectations
-	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cOrder_Model_Create::_buildBrowserData given
-	 *                a DOMElement mocked object in the method DOMElement::addChild will be called 10 time given
-	 *                various parameter to build the browser data node
-	 *                various method from Mage_Core_Helper_Http class, Mage_Core_Model_Session class, Mage_Sales_Model_Order
-	 *                class and the $_SERVER variale were explictly mocked and set to a know value to be passed to the
-	 *                DOMElement::addChild and createChild methods
-	 */
-	public function testBuildBrowserData()
+	public function provideForTestGetOrderSource()
 	{
-		$_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
-		$_SERVER['HTTP_ACCEPT_ENCODING'] = 'gzip, deflate';
-		$host = 'test.example.com';
-		$serverAddr = '0.0.0.0';
-		$userAgent = 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:20.0) Gecko/20100101 Firefox/20.0';
-		$language = 'en-US,en;q=0.5';
-		$charset = 'UTF-8';
-		$sessId = '83889284884849333';
-		$jsData = '<script type="text/javascript"></script>';
-		$orderSource = EbayEnterprise_Eb2cOrder_Model_Create::BACKEND_ORDER_SOURCE;
-
-		$httpMock = $this->getHelperMockBuilder('core/http')
-			->disableOriginalConstructor()
-			->setMethods(array('getHttpHost', 'getServerAddr', 'getHttpUserAgent', 'getHttpAcceptLanguage', 'getHttpAcceptCharset'))
-			->getMock();
-		$httpMock->expects($this->once())
-			->method('getHttpHost')
-			->with($this->identicalTo(true))
-			->will($this->returnValue($host));
-		$httpMock->expects($this->once())
-			->method('getServerAddr')
-			->will($this->returnValue($serverAddr));
-		$httpMock->expects($this->once())
-			->method('getHttpUserAgent')
-			->with($this->identicalTo(true))
-			->will($this->returnValue($userAgent));
-		$httpMock->expects($this->once())
-			->method('getHttpAcceptLanguage')
-			->with($this->identicalTo(true))
-			->will($this->returnValue($language));
-		$httpMock->expects($this->once())
-			->method('getHttpAcceptCharset')
-			->with($this->identicalTo(true))
-			->will($this->returnValue($charset));
-		$this->replaceByMock('helper', 'core/http', $httpMock);
-
-		$sessionMock = $this->getModelMockBuilder('core/session')
-			->disableOriginalConstructor()
-			->setMethods(array('getSessionId'))
-			->getMock();
-		$sessionMock->expects($this->once())
-			->method('getSessionId')
-			->will($this->returnValue($sessId));
-		$this->replaceByMock('singleton', 'core/session', $sessionMock);
-
-		$orderMock = $this->getModelMockBuilder('sales/order')
-			->disableOriginalConstructor()
-			->setMethods(array('getEb2cFraudJavascriptData'))
-			->getMock();
-		$orderMock->expects($this->once())
-			->method('getEb2cFraudJavascriptData')
-			->will($this->returnValue($jsData));
-
-		$createMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
-			->setMethods(array('_getOrderSource'))
-			->getMock();
-		$createMock->expects($this->once())
-			->method('_getOrderSource')
-			->will($this->returnValue($orderSource));
-
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($createMock, '_o', $orderMock);
-
-		$elementMock = $this->getMockBuilder('DOMElement')
-			->disableOriginalConstructor()
-			->setMethods(array('addChild', 'createChild'))
-			->getMock();
-		$elementMock->expects($this->exactly(10))
-			->method('addChild')
-			->will($this->returnValueMap(array(
-				array('HostName', $host, $elementMock),
-				array('IPAddress', $serverAddr, $elementMock),
-				array('SessionId', $sessId, $elementMock),
-				array('UserAgent', $userAgent, $elementMock),
-				array('JavascriptData', $jsData, $elementMock),
-				array('Referrer', $orderSource, $elementMock),
-				array('ContentTypes', $_SERVER['HTTP_ACCEPT'], $elementMock),
-				array('Encoding', $_SERVER['HTTP_ACCEPT_ENCODING'], $elementMock),
-				array('Language', $language, $elementMock),
-				array('CharSet', $charset, $elementMock),
-			)));
-		$elementMock->expects($this->once())
-			->method('createChild')
-			->with($this->identicalTo('HTTPAcceptData'))
-			->will($this->returnSelf());
-
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($createMock, '_buildBrowserData', array($elementMock));
+		return array(
+			array(true, "don't care", EbayEnterprise_Eb2cOrder_Model_Create::BACKEND_ORDER_SOURCE),
+			array(false, 'a referrer', 'a referrer'),
+			array(false, '', EbayEnterprise_Eb2cOrder_Model_Create::FRONTEND_ORDER_SOURCE),
+		);
 	}
-
 	/**
 	 * Test EbayEnterprise_Eb2cOrder_Model_Create::_getOrderSource method for the following expectations
 	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cOrder_Model_Create::_getOrderSource and expects
@@ -1014,11 +922,18 @@ INVALID_XML;
 	 *                of Mage_Core_Model_Store object, then the method Mage_Core_Model_Store::isAdmin is called where
 	 *                true to indicate this order was created in admin which will return the class constant
 	 *                EbayEnterprise_Eb2cOrder_Model_Create::BACKEND_ORDER_SOURCE
+	 * @test
+	 * @dataProvider provideForTestGetOrderSource
 	 */
-	public function testGetOrderSource()
+	public function testGetOrderSource($isAdmin, $fraudReferrer, $expected)
 	{
-		$orderSource = EbayEnterprise_Eb2cOrder_Model_Create::BACKEND_ORDER_SOURCE;
-		$isAdmin = true;
+		$orderMock = $this->getModelMockBuilder('sales/order')
+			->disableOriginalConstructor()
+			->setMethods(array('getEb2cFraudReferrer'))
+			->getMock();
+		$orderMock->expects($this->any())
+			->method('getEb2cFraudReferrer')
+			->will($this->returnValue($fraudReferrer));
 
 		$storeMock = $this->getModelMockBuilder('core/store')
 			->disableOriginalConstructor()
@@ -1042,7 +957,8 @@ INVALID_XML;
 			->setMethods(null)
 			->getMock();
 
-		$this->assertSame($orderSource, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($createMock, '_o', $orderMock);
+		$this->assertSame($expected, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$createMock, '_getOrderSource', array()
 		));
 	}
@@ -1077,16 +993,6 @@ INVALID_XML;
 		$taxId = '89';
 
 		$this->replaceCoreConfigRegistry(array('clientCustomerIdPrefix' => $ccPrefix));
-
-		$helperMock = $this->getHelperMockBuilder('eb2ccore/data')
-			->disableOriginalConstructor()
-			->setMethods(array('createDate'))
-			->getMock();
-		$helperMock->expects($this->once())
-			->method('createDate')
-			->with($this->identicalTo($dob), $this->identicalTo('Y-m-d'))
-			->will($this->returnValue($newDob));
-		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$orderMock = $this->getModelMockBuilder('sales/order')
 			->disableOriginalConstructor()
@@ -1158,5 +1064,242 @@ INVALID_XML;
 		$this->assertSame($createMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$createMock, '_buildCustomer', array($elementMock)
 		));
+	}
+	/**
+	 * The context element should be built up from data fetched by the fraud module.
+	 * @test
+	 */
+	public function testBuildContext()
+	{
+		$order = $this->getModelMockBuilder('sales/order')
+			->disableOriginalConstructor()
+			->setMethods(array('none'))
+			->getMock();
+		$create = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->setMethods(array('_buildSessionInfo', '_getOrderSource'))
+			->getMock();
+		$checkout = $this->getModelMockBuilder('checkout/session')
+			->disableOriginalConstructor()
+			->setMethods(array('getEb2cFraudCookies', 'getEb2cFraudConnection', 'getEb2cFraudSessionInfo', 'getEb2cFraudTimestamp'))
+			->getMock();
+
+		$this->replaceByMock('singleton', 'checkout/session', $checkout);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+
+		$expect = Mage::helper('eb2ccore')->getNewDomDocument();
+		$expect->preserveWhiteSpace = false;
+		$expect->formatOutput = true;
+		$expect->loadXML('
+		<root>
+			<BrowserData>
+				<HostName><![CDATA[some.h.ost]]></HostName>
+				<IPAddress><![CDATA[1.0.0.1]]></IPAddress>
+				<SessionId><![CDATA[sessionid]]></SessionId>
+				<UserAgent><![CDATA[the name\'s fox. fire fox. i have a license - gpl]]></UserAgent>
+				<Connection><![CDATA[close]]></Connection>
+				<Cookies><![CDATA[cookie1=dacookies;cookie2=dacookiespartdeux]]></Cookies>
+				<JavascriptData><![CDATA[data stuff n things]]></JavascriptData>
+				<Referrer><![CDATA[this is the order_source]]></Referrer>
+				<HTTPAcceptData>
+					<ContentTypes><![CDATA[text/test]]></ContentTypes>
+					<Encoding><![CDATA[holy encoded text, batman]]></Encoding>
+					<Language><![CDATA[ebonicode]]></Language>
+					<CharSet><![CDATA[some charset]]></CharSet>
+				</HTTPAcceptData>
+			</BrowserData>
+			<TdlOrderTimestamp><![CDATA[2014-01-01T10:05:01]]></TdlOrderTimestamp>
+			<SessionInfo><![CDATA[this is session data]]></SessionInfo>
+		</root>'
+		);
+
+		$order->setData(array(
+			'eb2c_fraud_char_set'        => 'some charset',
+			'eb2c_fraud_content_types'   => 'text/test',
+			'eb2c_fraud_encoding'        => 'holy encoded text, batman',
+			'eb2c_fraud_host_name'       => 'some.h.ost',
+			'eb2c_fraud_user_agent'      => 'the name\'s fox. fire fox. i have a license - gpl',
+			'eb2c_fraud_language'        => 'ebonicode',
+			'eb2c_fraud_ip_address'      => '1.0.0.1',
+			'eb2c_fraud_session_id'      => 'sessionid',
+			'eb2c_fraud_javascript_data' => 'data stuff n things',
+		));
+
+		$checkout->expects($this->any())
+			->method('getEb2cFraudConnection')
+			->will($this->returnValue('close'));
+		$checkout->expects($this->any())
+			->method('getEb2cFraudCookies')
+			->will($this->returnValue(array(
+				'cookie1' => 'dacookies',
+				'cookie2' => 'dacookiespartdeux'
+			)));
+		$checkout->expects($this->any())
+			->method('getEb2cFraudTimestamp')
+			->will($this->returnValue('2014-01-01T10:05:01'));
+		$checkout->expects($this->any())
+			->method('getEb2cFraudSessionInfo')
+			->will($this->returnValue(array('this is session data')));
+
+		$create->expects($this->any())
+			->method('_buildSessionInfo')
+			->with($this->identicalTo(array('this is session data')),  $this->isInstanceOf('DOMNode'))
+			->will($this->returnCallback(
+				function($a, $node) use ($create) {
+					$node->appendChild($node->ownerDocument->createElement('SessionInfo', $a[0]));
+					return $create;
+				}
+			));
+		$create->expects($this->any())
+			->method('_getOrderSource')
+			->will($this->returnValue('this is the order_source'));
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->formatOutput = true;
+		$doc->loadXML('<root/>');
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildContext', array($doc->documentElement));
+		$this->assertSame($expect->saveXML(), $doc->saveXML());
+	}
+
+	/**
+	 * The context element should be built up from data in the order's quote.
+	 * @test
+	 */
+	public function testBuildSessionInfo()
+	{
+		$create = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->setMethods(array('none'))
+			->getMock();
+		$order = $this->getModelMockBuilder('sales/order')
+			->disableOriginalConstructor()
+			->setMethods(array('none'))
+			->getMock();
+
+		$config = $this->buildCoreConfigRegistry(array(
+			'apiXmlNs' => 'http://namespace/foo',
+		));
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_config', $config);
+
+		$expect = Mage::helper('eb2ccore')->getNewDomDocument();
+		$expect->preserveWhiteSpace = false;
+		$expect->formatOutput = true;
+		$expect->loadXML('
+			<root xmlns="http://namespace/foo">
+				<SessionInfo>
+					<TimeSpentOnSite><![CDATA[1:00:00]]></TimeSpentOnSite>
+					<LastLogin><![CDATA[2014-01-01T09:05:01]]></LastLogin>
+					<UserPassword><![CDATA[password]]></UserPassword>
+					<TimeOnFile><![CDATA[milliseconds]]></TimeOnFile>
+				</SessionInfo>
+			</root>
+		');
+		$sessionInfoData = array(
+			'TimeSpentOnSite' => '1:00:00',
+			'LastLogin' => '2014-01-01T09:05:01',
+			'UserPassword' => 'password',
+			'TimeOnFile' => 'milliseconds',
+			'RTCTransactionResponseCode' => '',
+			'RTCReasonCodes' => '',
+		);
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root xmlns="http://namespace/foo"/>');
+		$doc->formatOutput = true;
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildSessionInfo', array($sessionInfoData, $doc->documentElement));
+		$this->assertSame($expect->C14N(), $doc->C14N());
+	}
+
+	/**
+	 * ensure the hostname and charset nodes do not have empty values
+	 * @test
+	 */
+	public function testBuildBrowserDataMissingValues()
+	{
+		$order = $this->getModelMockBuilder('sales/order')
+			->disableOriginalConstructor()
+			->setMethods(array('none'))
+			->getMock();
+		$create = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->setMethods(array('_buildSessionInfo'))
+			->getMock();
+		$checkout = $this->getModelMockBuilder('checkout/session')
+			->disableOriginalConstructor()
+			->setMethods(array('getEb2cFraudCookies', 'getEb2cFraudConnection', 'getEb2cFraudSessionInfo', 'getEb2cFraudTimestamp'))
+			->getMock();
+
+		$checkout->expects($this->any())
+			->method('getEb2cFraudSessionInfo')
+			->will($this->returnValue(array()));
+
+		$this->replaceByMock('singleton', 'checkout/session', $checkout);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root/>');
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildBrowserData', array($doc->documentElement));
+		$xml = $doc->saveXML();
+		$this->assertContains('<HostName><![CDATA[null]]></HostName>', $xml);
+		$this->assertContains('<CharSet><![CDATA[null]]></CharSet>', $xml);
+		$this->assertNotContains('<Cookies>', $xml);
+	}
+
+	public function provideForTestXsdStringLength()
+	{
+		return array(
+			array('', 10, 'thedefault', 'thedefault'),
+			array('abc', 1, 'thedefault', 'a'),
+			array('abc', 0, 'thedefault', 'abc'),
+		);
+	}
+	/**
+	 * truncate a $str if it is longer than $maxLength.
+	 * if $str evaluates to false, return $default
+	 * @test
+	 * @dataProvider provideForTestXsdStringLength
+	 */
+	public function testXsdStringLength($input, $length, $default, $expected)
+	{
+		$create = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->setMethods(array('none'))
+			->getMock();
+		$args = array($input, $length, $default);
+		$this->assertSame(
+			$expected,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_xsdString', $args)
+		);
+	}
+	public function provideForTestAddElementIfNotEmpty()
+	{
+		return array(
+			array('', 10, true),
+			array('abc', null, false),
+		);
+	}
+	/**
+	 * add element only if the value is not empty
+	 * @test
+	 * @dataProvider provideForTestAddElementIfNotEmpty
+	 */
+	public function testAddElementIfNotEmpty($input, $length, $expected)
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root/>');
+		$create = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->setMethods(array('none'))
+			->getMock();
+
+		$args = array('SomeNode', $input, $doc->documentElement, $length);
+		$this->assertSame(
+			$create,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_addElementIfNotEmpty', $args)
+		);
+		$xpath = new DOMXPath($doc);
+		$this->assertSame($expected, is_null($xpath->query('//SomeNode')->item(0)));
 	}
 }

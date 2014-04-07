@@ -63,6 +63,17 @@
 				<class>EbayEnterprise_Eb2cFraud_Block</class>
 			</eb2cfraud>
 		</blocks>
+		<events>
+			<adminhtml_sales_order_create_process_data>
+				<observers>
+					<capture_order_context>
+						<type>model</type>
+						<class>eb2cfraud/observer</class>
+						<method>captureAdminOrderContext</method>
+					</capture_order_context>
+				</observers>
+			</adminhtml_sales_order_create_process_data>
+		</events>
 	</global>
 	<frontend>
 		<events>

@@ -237,7 +237,7 @@
 					<class>eb2cproduct/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
-					<xpath>ExtendedAttributes/CountryOfOrigin</xpath>
+					<xpath>ExtendedAttributes/CountryOfOrigin|BaseAttributes/CountryOfOrigin</xpath>
 				</country_of_manufacture>
 				<is_clean>
 					<class>eb2cproduct/map</class>

@@ -72,9 +72,10 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<method>passString</method>
 							<xml_dest>ExtendedAttributes/ItemDimension/Display/Packaging/Height</xml_dest>
 							<translate>0</translate>
-						</packaging_height> -->
-				</mappings>
-			</item_map>
+						</packaging_height>
+					</mappings>
+				</item_map>
+			</feed_pim_mapping>
 		</eb2cproduct>
 	</default>
 </config>

@@ -9,6 +9,7 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	const ID_PLACE_HOLDER = '{current_store_id}';
 	const FRONTEND_INPUT = 'media_image';
 	const FILTER_OUT_VALUE = 'no_selection';
+	const SKU_MAX_LENGTH = 15;
 
 	/**
 	 * Builds the Image Export DOM - creates the export file, validates the schema, and then sends it.
@@ -76,13 +77,12 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	 * 'protected' so we can test around it.
 	 * @param EbayEnterprise_Dom_Document dom
 	 * @param storeId
-	 * @return string File name
+	 * @return self
 	 */
 	protected function _createFileFromDom(EbayEnterprise_Dom_Document $dom, $storeId)
 	{
-		$filename = $this->_generateFilePath($storeId);
-		$dom->save($filename);
-		return $filename;
+		$dom->save($this->_generateFilePath($storeId));
+		return $this;
 	}
 	/**
 	 * generate image feed file name
@@ -105,7 +105,7 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	 * @param EbayEnterprise_Dom_Document node into which itemImages are placed
 	 * @param int $storeId
 	 * @param array $imageData
-	 * @return int number of images for all products in this store
+	 * @return self
 	 */
 	protected function _buildItemImages(EbayEnterprise_Dom_Document $doc, $storeId, array $imageData)
 	{
@@ -113,7 +113,7 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 			->_validateXml($doc)
 			->_createFileFromDom($doc, $storeId);
 
-		return count($imageData);
+		return $this;
 	}
 	/**
 	 * validate the dom xml
@@ -166,7 +166,7 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 		return $this;
 	}
 	/**
-	 * get product image data
+	 * get product image data for product that doesn't exceed the self::SKU_MAX_LENGTH
 	 * @param int $storeId
 	 * @return array
 	 * Example: array(
@@ -190,7 +190,9 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	{
 		$data = array();
 		foreach ($this->_getProductCollection($storeId) as $product) {
-			$data[] = $this->_extractImageData($product->load($product->getId()));
+			if (strlen($product->getSku()) <= self::SKU_MAX_LENGTH) {
+				$data[] = $this->_extractImageData($product->load($product->getId()));
+			}
 		}
 		return array_filter($data);
 	}
@@ -236,7 +238,7 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	/**
 	 * get image dimensions
 	 * @param Varien_Object $image
-	 * @return Varien_Object
+	 * @return array
 	 */
 	protected function _getImageDimension(Varien_Object $mageImage)
 	{
@@ -260,9 +262,10 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	 * Searches for all media_image type attributes for this product's attribute set, and creates a hash matching
 	 * the attribute code to its value, which is a media path. The attribute code is used as the
 	 * image 'view', and we use array_search to match based on media path.
+	 * @param Mage_Catalog_Model_Product $mageProduct
 	 * @return array of view_names => image_paths
 	 */
-	protected function _getMageImageViewMap($mageProduct)
+	protected function _getMageImageViewMap(Mage_Catalog_Model_Product $mageProduct)
 	{
 		$attributes = $mageProduct->getAttributes();
 		return array_reduce(array_keys($attributes), function($result=array(), $key) use($attributes, $mageProduct) {

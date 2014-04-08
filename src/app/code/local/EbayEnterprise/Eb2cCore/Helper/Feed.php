@@ -19,7 +19,7 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 		'ContentMaster' => 'eb2ccore/feed/filetransfer_imports/content_master/outbound/message_header',
 		'iShip' => 'eb2ccore/feed/filetransfer_imports/i_ship/outbound/message_header',
 		'Pricing' => 'eb2ccore/feed/filetransfer_imports/item_pricing/outbound/message_header',
-		'ImageMaster' => 'eb2ccore/feed/filetransfer_imports/image_master/outbound/message_header',
+		'ImageMaster' => 'eb2ccore/feed/outbound/message_header',
 		'ItemInventories' => 'eb2ccore/feed/filetransfer_imports/inventory/outbound/message_header',
 		'PIMExport' => 'eb2cproduct/pim_export_feed/outbound/message_header',
 	);

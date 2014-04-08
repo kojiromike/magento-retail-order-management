@@ -85,6 +85,23 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 		return Mage::app()->getLocale()->getLocaleCode();
 	}
 	/**
+	 * Get the base url for a given store
+	 * @return string the store base url
+	 */
+	public function getStoreUrl($storeId)
+	{
+		return Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
+	}
+	/**
+	 * Set the current store context
+	 * @return self
+	 */
+	public function setCurrentStore($storeId)
+	{
+		Mage::app()->setCurrentStore($storeId);
+		return $this;
+	}
+	/**
 	 * @return string the default locale language code
 	 */
 	public function getDefaultLanguageCode()
@@ -323,7 +340,9 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	public function generateMessageHeader($feedType)
 	{
 		$cfg = $this->getConfigModel(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID);
-		return $this->mapPattern(Mage::helper('eb2ccore/feed')->getHeaderConfig($feedType), $cfg->feedHeaderTemplate);
+		$map = Mage::helper('eb2ccore/feed')->getHeaderConfig($feedType);
+		$map['event_type'] = $feedType;
+		return $this->mapPattern($map, $cfg->feedHeaderTemplate);
 	}
 
 	/**
@@ -374,7 +393,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getStores()
 	{
-		return Mage::app()->getStores();
+		return Mage::app()->getStores(true);
 	}
 
 	/**

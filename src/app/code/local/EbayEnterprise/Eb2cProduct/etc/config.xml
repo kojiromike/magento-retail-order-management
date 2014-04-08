@@ -29,15 +29,6 @@
 		</resources>
 		<eb2cproduct_attributes>
 			<default>
-				<tax_code>
-					<scope>Website</scope>
-					<label>Tax Code</label>
-					<group>Prices</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<default/>
-				</tax_code>
 				<size>
 					<scope>Website</scope>
 					<label>Size</label>
@@ -86,47 +77,72 @@
 					<default></default>
 					<backend_type>text</backend_type>
 				</hts_codes>
-				<!-- { Attributes Required when We Are an EXPORT mode instance -->
-				<drop_shipped>
-					<scope>Website</scope>
-					<label>Drop Shipped</label>
-					<group>Exchange Platform</group>
-					<input_type>boolean</input_type>
-					<unique>N</unique>
-					<required>Y</required>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-					<default>N</default>
-					<backend_type>int</backend_type>
-				</drop_shipped>
-				<item_type>
-					<scope>Website</scope>
-					<label>Item Type</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>Y</required>
-					<product_types>All</product_types>
-					<default>Merch</default>
-				</item_type>
 				<tax_code>
 					<scope>Website</scope>
 					<label>Tax Code</label>
 					<group>Prices</group>
 					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>Y</required>
-					<product_types>All</product_types>
-					<default></default>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
 				</tax_code>
+				<!-- { Attributes Required when We Are an EXPORT mode instance -->
+				<item_type>
+					<scope>Website</scope>
+					<label>Item Type</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					<default_value>Merch</default_value>
+				</item_type>
+				<drop_shipped>
+					<scope>Website</scope>
+					<label>Drop Shipped</label>
+					<group>Exchange Platform</group>
+					<input_type>boolean</input_type>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+					<default_value>N</default_value>
+					<backend_type>int</backend_type>
+				</drop_shipped>
+				<drop_ship_supplier_name>
+					<scope>Website</scope>
+					<label>Drop Ship Supplier Name</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+				</drop_ship_supplier_name>
+				<drop_ship_supplier_number>
+					<scope>Website</scope>
+					<label>Drop Ship Supplier Number</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+				</drop_ship_supplier_number>
+				<drop_ship_supplier_part_number>
+					<scope>Website</scope>
+					<label>Drop Ship Supplier Part Number</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+				</drop_ship_supplier_part_number>
 				<hierarchy_dept_number>
 					<scope>Website</scope>
 					<label>Hierarchy Department Number</label>
 					<group>Exchange Platform</group>
 					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>Y</required>
-					<product_types>All</product_types>
-					<default></default>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
 					<frontend_class>validate-digits</frontend_class>
 				</hierarchy_dept_number>
 				<hierarchy_dept_description>
@@ -134,20 +150,18 @@
 					<label>Hierarchy Department Description</label>
 					<group>Exchange Platform</group>
 					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>N</required>
-					<product_types>All</product_types>
-					<default></default>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
 				</hierarchy_dept_description>
 				<hierarchy_subdept_number>
 					<scope>Website</scope>
 					<label>Hierarchy Subdepartment Number</label>
 					<group>Exchange Platform</group>
 					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>Y</required>
-					<product_types>All</product_types>
-					<default></default>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
 					<frontend_class>validate-digits</frontend_class>
 				</hierarchy_subdept_number>
 				<hierarchy_subdept_description>
@@ -155,20 +169,18 @@
 					<label>Hierarchy Subdepartment Description</label>
 					<group>Exchange Platform</group>
 					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>N</required>
-					<product_types>All</product_types>
-					<default></default>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
 				</hierarchy_subdept_description>
 				<hierarchy_class_number>
 					<scope>Website</scope>
 					<label>Hierarchy Class Number</label>
 					<group>Exchange Platform</group>
 					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>Y</required>
-					<product_types>All</product_types>
-					<default></default>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
 					<frontend_class>validate-digits</frontend_class>
 				</hierarchy_class_number>
 				<hierarchy_class_description>
@@ -176,20 +188,18 @@
 					<label>Hierarchy Class Description</label>
 					<group>Exchange Platform</group>
 					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>N</required>
-					<product_types>All</product_types>
-					<default></default>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
 				</hierarchy_class_description>
 				<hierarchy_subclass_number>
 					<scope>Website</scope>
 					<label>Hierarchy Subclass Number</label>
 					<group>Exchange Platform</group>
 					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>Y</required>
-					<product_types>All</product_types>
-					<default></default>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
 					<frontend_class>validate-digits</frontend_class>
 				</hierarchy_subclass_number>
 				<hierarchy_subclass_description>
@@ -197,41 +207,10 @@
 					<label>Hierarchy Subclass Description</label>
 					<group>Exchange Platform</group>
 					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>N</required>
-					<product_types>All</product_types>
-					<default></default>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
 				</hierarchy_subclass_description>
-				<drop_ship_supplier_name>
-					<scope>Website</scope>
-					<label>Drop Ship Supplier Name</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>N</required>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-					<default></default>
-				</drop_ship_supplier_name>
-				<drop_ship_supplier_number>
-					<scope>Website</scope>
-					<label>Drop Ship Supplier Number</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>N</required>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-					<default></default>
-				</drop_ship_supplier_number>
-				<drop_ship_supplier_part_number>
-					<scope>Website</scope>
-					<label>Drop Ship Supplier Number</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<required>N</required>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-					<default></default>
-				</drop_ship_supplier_part_number>
 				<!-- } End Attributes Required when We Are an EXPORT mode instance -->
 			</default>
 		</eb2cproduct_attributes>
@@ -534,7 +513,7 @@
 						</sku>
 <!-- { Begin US8588 --> 
 						<visibility>
-							<class>eb2cproduct/pim</class>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
 							<method>passCatalogClass</method>
 							<xml_dest>BaseAttributes/CatalogClass</xml_dest>
@@ -555,82 +534,33 @@
 							<translate>0</translate>
 						</name>
 						<item_type>
-							<class>eb2cproduct/pim</class>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
 							<method>passItemType</method>
 							<xml_dest>BaseAttributes/ItemType</xml_dest>
 							<translate>0</translate>
 						</item_type>
 						<status>
-							<class>eb2cproduct/pim</class>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
 							<method>passItemStatus</method>
 							<xml_dest>BaseAttributes/ItemStatus</xml_dest>
 							<translate>0</translate>
 						</status>
 						<tax_code>
-							<class>eb2cproduct/pim</class>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
-							<method>passString</method>
+							<method>passTaxCode</method>
 							<xml_dest>BaseAttributes/TaxCode</xml_dest>
 							<translate>0</translate>
 						</tax_code>
-						<hierarchy_dept_number>
-							<class>eb2cproduct/pim</class>
+						<hierarchy>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
-							<method>passDeptNumber</method>
-							<xml_dest>BaseAttributes/Hierarchy/DeptNumber</xml_dest>
+							<method>passHierarchy</method>
+							<xml_dest>BaseAttributes/Hierarchy/</xml_dest>
 							<translate>0</translate>
-						</hierarchy_dept_number>
-						<hierarchy_dept_description>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>BaseAttributes/Hierarchy/DeptDescription</xml_dest>
-							<translate>0</translate>
-						</hierarchy_dept_description>
-						<hierarchy_dept_subdept_number>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passStringIf</method>
-							<xml_dest>BaseAttributes/Hierarchy/SubDeptNumber</xml_dest>
-							<translate>0</translate>
-						</hierarchy_dept_subdept_number>
-						<hierarchy_dept_subdept_description>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passStringIf</method>
-							<xml_dest>BaseAttributes/Hierarchy/SubDeptDescription</xml_dest>
-							<translate>0</translate>
-						</hierarchy_dept_subdept_description>
-						<hierarchy_class_number>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passStringIf</method>
-							<xml_dest>BaseAttributes/Hierarchy/ClassNumber</xml_dest>
-							<translate>0</translate>
-						</hierarchy_class_number>
-						<hierarchy_class_description>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passStringIf</method>
-							<xml_dest>BaseAttributes/Hierarchy/ClassDescription</xml_dest>
-							<translate>0</translate>
-						</hierarchy_class_description>
-						<hierarchy_subclass_number>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passStringIf</method>
-							<xml_dest>BaseAttributes/Hierarchy/SubClass</xml_dest>
-							<translate>0</translate>
-						</hierarchy_subclass_number>
-						<hierarchy_subclass_description>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passStringIf</method>
-							<xml_dest>BaseAttributes/Hierarchy/SubClassDescription</xml_dest>
-							<translate>0</translate>
-						</hierarchy_subclass_description>
+						</hierarchy>
 						<drop_ship_supplier_name>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
@@ -660,17 +590,10 @@
 							<translate>0</translate>
 						</gift_message_available>
 						<color>
-							<class>eb2cproduct/pim</class>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/ColorAttributes/Color/Code</xml_dest>
-							<translate>0</translate>
-						</color>
-						<color>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/ColorAttributes/Color/Description</xml_dest>
+							<method>passColorMaster</method>
+							<xml_dest>ExtendedAttributes/ColorAttributes/Color/</xml_dest>
 							<translate>0</translate>
 						</color>
 						<country_of_manufacture>
@@ -680,20 +603,13 @@
 							<xml_dest>ExtendedAttributes/CountryOfOrigin</xml_dest>
 							<translate>0</translate>
 						</country_of_manufacture>
-						<giftcard_type>
-							<class>eb2cproduct/pim</class>
+						<giftcard>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/GiftCardFacing</xml_dest>
+							<method>passGiftCard</method>
+							<xml_dest>ExtendedAttributes/</xml_dest>
 							<translate>0</translate>
-						</giftcard_type>
-						<gift_card_tender_code>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/GiftCardTenderCode</xml_dest>
-							<translate>0</translate>
-						</gift_card_tender_code>
+						</giftcard>
 						<manufacturer>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
@@ -702,84 +618,33 @@
 							<translate>0</translate>
 						</manufacturer>
 						<manage_stock>
-							<class>eb2cproduct/pim</class>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
 							<method>passSalesClass</method>
 							<xml_dest>ExtendedAttributes/SalesClass</xml_dest>
 							<translate>0</translate>
 						</manage_stock>
-						<style_id>
-							<class>eb2cproduct/pim</class>
+						<style>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/Style/StyleID</xml_dest>
+							<method>passStyle</method>
+							<xml_dest>ExtendedAttributes/Style/</xml_dest>
 							<translate>0</translate>
-						</style_id>
-						<style_description>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/Style/StyleDescription</xml_dest>
-							<translate>0</translate>
-						</style_description>
+						</style>
 						<cost>
-							<class>eb2cproduct/pim</class>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
 							<method>passUnitCost</method>
 							<xml_dest>ExtendedAttributes/</xml_dest>
 							<translate>0</translate>
 						</cost>
-<!--
-						<image_type>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>EB2C/ItemImageURLs/ItemImageURL@type</xml_dest>
-							<translate>0</translate>
-						</image_type>
-						<image_type>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>EB2C/ItemImageURLs/ItemImageURL@view</xml_dest>
-							<translate>0</translate>
-						</image_type>
-						<image_type>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>EB2C/ItemImageURLs/ItemImageURL@height</xml_dest>
-							<translate>0</translate>
-						</image_type>
-						<image_type>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>EB2C/ItemImageURLs/ItemImageURL@width</xml_dest>
-							<translate>0</translate>
-						</image_type>
-						<image_type>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>EB2C/ItemImageURLs/ItemImageURL</xml_dest>
-							<translate>0</translate>
-						</image_type>
-						<item_url_type>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>EB2C/ItemURLs/ItemURL@type</xml_dest>
-							<translate>0</translate>
-						</item_url_type>
 						<item_url>
-							<class>eb2cproduct/pim</class>
+							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>EB2C/ItemURLs/ItemURL</xml_dest>
+							<method>passItemURL</method>
+							<xml_dest>EB2C/ItemURLs/</xml_dest>
 							<translate>0</translate>
 						</item_url>
- -->
 <!-- } End US8588 --> 
 					</mappings>
 				</item_map>

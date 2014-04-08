@@ -32,7 +32,30 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		return $this->createStringNode(substr($attrValue, 0, self::STRING_LIMIT), $doc);
 	}
 	/**
-	 * Pass the string if it has a value.
+	 * De-normalized a given sku by calling EbayEnterprise_Eb2cCore_Helper_Data::denormalizeSku method and then calling
+	 * the self::createStringNode method given the de-normalize sku and the given DOMDocument object in which
+	 * will return a DOMNode object
+	 * @param  string                              $attrValue
+	 * @param  string                              $attribute
+	 * @param  Mage_Catalog_Model_Product          $product
+	 * @param  DOMDocument             $doc
+	 * @throws EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception
+	 * @return DOMNode|null
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passSKU($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		$catalogId = Mage::helper('eb2cproduct')->getConfigModel()->catalogId;
+		$sku       = Mage::helper('eb2ccore')->denormalizeSku($attrValue, $catalogId);
+		if (strlen($sku) > self::MAX_SKU_LENGTH) {
+			throw new EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception(
+				sprintf('%s SKU \'%s\' Exceeds max length.', __FUNCTION__, $sku)
+			);
+		}
+		return $this->createStringNode($sku, $doc);
+	}
+	/**
+	 * Pass the string IF it has a value.
 	 * which will either return DOMNode object or a null value.
 	 * @param  string                              $attrValue
 	 * @param  string                              $attribute
@@ -47,118 +70,6 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 			return $this->passString($attrValue, $attribute, $product, $doc);
 		}
 		return null;
-	}
-	/**
-	 * Translate an inventory_manage_stock field.
-	 * which will return DOMNode object
-	 * @param  string                              $attrValue
-	 * @param  string                              $attribute
-	 * @param  Mage_Catalog_Model_Product          $product
-	 * @param  DOMDocument         $doc
-	 * @return DOMNode
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function passSalesClass($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
-	{
-		$enum = 'advanceOrderOpen';
-		if (!empty($attrValue)) {
-			$enum = 'stock';
-		}
-		return $this->passString($enum, $attribute, $product, $doc);
-	}
-	/**
-	 * Translate a hierarchy_dept_number into DeptNum
-	 * which will return DOMNode object
-	 * @param  string                              $attrValue
-	 * @param  string                              $attribute
-	 * @param  Mage_Catalog_Model_Product          $product
-	 * @param  DOMDocument         $doc
-	 * @return DOMNode|
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function passDeptNumber($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
-	{
-		$value = '000';
-		if (!empty($attrValue)) {
-			$value = $attrValue;
-		}
-		return $this->passString($value, $attribute, $product, $doc);
-	}
-	/**
-	 * Translate a status into ItemStatus
-	 * which will return DOMNode object
-	 * @param  string                              $attrValue
-	 * @param  string                              $attribute
-	 * @param  Mage_Catalog_Model_Product          $product
-	 * @param  DOMDocument         $doc
-	 * @return DOMNode|
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function passItemStatus($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
-	{
-		$value = 'Active';
-		if ($attrValue == Mage_Catalog_Model_Product_Status::STATUS_DISABLED) {
-			$value = 'Inactive';
-		}
-		return $this->passString($value, $attribute, $product, $doc);
-	}
-	/**
-	 * Translate an item_type field.
-	 * which will return DOMNode object
-	 * @param  string                              $attrValue
-	 * @param  string                              $attribute
-	 * @param  Mage_Catalog_Model_Product          $product
-	 * @param  DOMDocument         $doc
-	 * @return DOMNode
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function passItemType($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
-	{
-		$itemType = 'Merch';
-		if (!empty($attrValue)) {
-			$itemType = $attrValue;
-		}
-		return $this->passString($itemType, $attribute, $product, $doc);
-	}
-	/**
-	 * Translate a visbility into CatalogClass
-	 * which will return DOMNode object
-	 * @param  string                              $attrValue
-	 * @param  string                              $attribute
-	 * @param  Mage_Catalog_Model_Product          $product
-	 * @param  DOMDocument         $doc
-	 * @return DOMNode
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function passCatalogClass($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
-	{
-		$value = 'regular';
-		if ($attrValue == Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE) {
-			$value = 'nosale';
-		}
-		return $this->passString($value, $attribute, $product, $doc);
-	}
-	/**
-	 * De-normalized a given sku by calling EbayEnterprise_Eb2cCore_Helper_Data::denormalizeSku method and then calling
-	 * the self::createStringNode method given the de-normalize sku and the given DOMDocument object in which
-	 * will return a DOMNode object
-	 * @param  string                              $attrValue
-	 * @param  string                              $attribute
-	 * @param  Mage_Catalog_Model_Product          $product
-	 * @param  DOMDocument             $doc
-	 * @return DOMNode|null
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function passSKU($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
-	{
-		$catalogId = Mage::helper('eb2cproduct')->getConfigModel()->catalogId;
-		$sku       = Mage::helper('eb2ccore')->denormalizeSku($attrValue, $catalogId);
-		if (strlen($sku) > self::MAX_SKU_LENGTH) {
-			throw new EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception(
-				sprintf('%s SKU \'%s\' Exceeds max length.', __FUNCTION__, $sku)
-			);
-		}
-		return $this->createStringNode($sku, $doc);
 	}
 	/**
 	 * round the attrValue to two decimal point by calling the method Mage_Core_Model_Store::roundPrice given the attrValue
@@ -295,30 +206,6 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		$domAttribute = $this->_getDomAttr($doc, $attribute);
 		$domAttribute->value = Mage::helper('eb2ccore/feed')->getStoreId();
 		return $domAttribute;
-	}
-	/**
-	 * return a DOMNode object containing cost value.
-	 * @param  string                              $attrValue
-	 * @param  string                              $attribute
-	 * @param  Mage_Catalog_Model_Product          $product
-	 * @param  DOMDocument         $doc
-	 * @return DOMNode|null
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function passUnitCost($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
-	{
-		$fragment = $doc->createDocumentFragment();
-		$unitCostNode = $doc->createElement('UnitCost', Mage::getModel('core/store')->roundPrice($attrValue));
-		if (!$unitCostNode) {
-			return null;
-		}
-		$currencyCodeAttr = $doc->createAttribute('currency_code');
-		$currencyCodeAttr->value = 'USD';
-		if (!$unitCostNode->appendChild($currencyCodeAttr)) {
-			$x = $fragment->ownerDocument->saveXML();
-		}
-		$fragment->appendChild($unitCostNode);
-		return $fragment;
 	}
 	/**
 	 * given a DOMDocument and attribute name normalize the attribute create a DONAttr

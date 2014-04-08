@@ -12,7 +12,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Image_ExportTest
 	 */
 	public function testProccess()
 	{
-		$processed = 1;
 		$storeId = 5;
 		$stores = array($storeId => Mage::getModel('core/store'));
 
@@ -31,10 +30,10 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Image_ExportTest
 			->getMock();
 		$exportMock->expects($this->once())
 			->method('_buildExport')
-			->with($this->identicalTo(null), $this->identicalTo($storeId))
-			->will($this->returnValue($processed));
+			->with($this->identicalTo($storeId))
+			->will($this->returnSelf());
 
-		$this->assertSame($processed, $exportMock->process());
+		$exportMock->process();
 	}
 
 	/**
@@ -53,7 +52,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Image_ExportTest
 	 */
 	public function testBuildExport()
 	{
-		$processed = 0;
 		$storeId = 5;
 		$imageData = array(array());
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
@@ -87,8 +85,8 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Image_ExportTest
 			->with($this->identicalTo($doc), $this->identicalTo($storeId), $imageData)
 			->will($this->returnValue(count($imageData)));
 
-		$this->assertSame($processed + 1, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$exportMock, '_buildExport', array($processed, $storeId)
+		$this->assertSame($exportMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$exportMock, '_buildExport', array($storeId)
 		));
 	}
 

@@ -12,24 +12,22 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 
 	/**
 	 * Builds the Image Export DOM - creates the export file, validates the schema, and then sends it.
-	 * @return Number of Stores examined for images
+	 * @return void
 	 */
 	public function process()
 	{
-		return array_reduce(
-			array_keys(Mage::helper('eb2cproduct')->getStores()),
-			array($this, '_buildExport')
-		);
+		foreach (array_keys(Mage::helper('eb2cproduct')->getStores()) as $storeId) {
+			$this->_buildExport($storeId);
+		}
 	}
 	/**
 	 * build image feed per store
 	 * @param int $processed
 	 * @param int $storeId
-	 * @return int
+	 * @return self
 	 */
-	protected function _buildExport($processed=0, $storeId)
+	protected function _buildExport($storeId)
 	{
-		$processed += 1;
 		$imageData = $this->_getImageData($storeId);
 		if (!empty($imageData)) {
 			$helper = Mage::helper('eb2cproduct');
@@ -37,7 +35,7 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 			$this->_buildItemImages($this->_loadDom($storeId), $storeId, $imageData);
 			$helper->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
 		}
-		return $processed;
+		return $this;
 	}
 	/**
 	 * load the preliminary data into EbayEnterprise_Dom_Document object and then return
@@ -51,7 +49,6 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 		$cHelper = Mage::helper('eb2ccore');
 		$cfg = $pHelper->getConfigModel();
 		$doc = $cHelper->getNewDomDocument();
-		$doc->formatOutput = true;
 		$doc->loadXml(sprintf(
 			self::XML_TEMPLATE,
 			self::ROOT_NODE,
@@ -172,6 +169,22 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	 * get product image data
 	 * @param int $storeId
 	 * @return array
+	 * Example: array(
+	 *   array(
+	 *      'id' => 'Some Product Sku'
+	 *      'image_data' => array(
+	 *         array(
+	 *           'view' => 'small',
+	 *           'name' => 'Some image label',
+	 *           'url' => 'http://example.com/media/catalog/small.jpg',
+	 *           'width' => 500,
+	 *           'height' => 500
+	 *         )
+	 *         ...
+	 *       )
+	 *   )
+	 *   ...
+	 * )
 	 */
 	protected function _getImageData($storeId)
 	{
@@ -213,24 +226,23 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 					'view' => $view,
 					'name' => $mageImage->getLabel(),
 					'url' => $mageImage->getUrl(),
-					'width' => $dimension->getWidth(),
-					'height' => $dimension->getHeight()
+					'width' => $dimension['width'],
+					'height' => $dimension['height']
 				);
 			}
 		}
 		return $mData;
 	}
 	/**
-	 * get image demensions
+	 * get image dimensions
 	 * @param Varien_Object $image
 	 * @return Varien_Object
 	 */
 	protected function _getImageDimension(Varien_Object $mageImage)
 	{
-		list($w, $h) = getimagesize(
-			(file_exists($mageImage->getPath())) ? $mageImage->getPath() : $mageImage->getUrl()
-		);
-		return new Varien_Object(array('width' => $w, 'height' => $h));
+		return array_combine(array('width', 'height'), array_slice(getimagesize(
+			file_exists($mageImage->getPath()) ? $mageImage->getPath() : $mageImage->getUrl()
+		), 0, 2));
 	}
 	/**
 	 * get a collection of product per store
@@ -245,7 +257,7 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 			->load();
 	}
 	/**
-	 * Searchs for all media_image type attributes for this product's attribute set, and creates a hash matching
+	 * Searches for all media_image type attributes for this product's attribute set, and creates a hash matching
 	 * the attribute code to its value, which is a media path. The attribute code is used as the
 	 * image 'view', and we use array_search to match based on media path.
 	 * @return array of view_names => image_paths

@@ -256,20 +256,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 		$this->assertInstanceOf('Varien_Object', $dummyObject);
 		$this->assertSame($dummyObject, $attrData);
 	}
-	/**
-	 * verify the default config in the config.xml can be overridden by another xml file.
-	 * @loadExpectation attributesConfig.yaml
-	 * @dataProvider provideOverrideXmlVfsStructure
-	 */
-	public function testLoadDefaultAttributesConfig($expectation)
-	{
-		$model  = Mage::getModel('eb2cproduct/attributes');
-		$config = $this->_reflectMethod($model, '_loadDefaultAttributesConfig')->invoke($model);
-		$this->assertInstanceOf('Mage_Core_Model_Config', $config);
-		$e           = $this->expected($expectation);
-		$configArray = $config->getNode('default')->asArray();
-		$this->assertSame($e->getData('tax_code'), $configArray['tax_code']);
-	}
 
 	public function provideOverrideXmlVfsStructure()
 	{

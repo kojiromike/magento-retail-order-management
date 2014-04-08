@@ -169,7 +169,8 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	protected function _processProductCollection(
 		Mage_Catalog_Model_Resource_Product_Collection $products,
 		EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts, $key
-	) {
+	)
+	{
 		$config = Mage::helper('eb2cproduct')->getConfigModel($products->getStoreId());
 		$clientId = $config->clientId;
 		$catalogId = $config->catalogId;
@@ -181,8 +182,16 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 				));
 				$pimProducts->addItem($pimProduct);
 			}
-
-			$pimProduct->loadPimAttributesByProduct($product, $this->_docs[$key], $key, $this->_getFeedAttributes($key));
+			try {
+				$pimProduct->loadPimAttributesByProduct($product, $this->_docs[$key],
+					$key, $this->_getFeedAttributes($key));
+			} catch(EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception $e) {
+				Mage::helper('ebayenterprise_magelog')->logWarn(
+					'[ %s ] Product excluded from export (%s)',
+					 array( __METHOD__, $e->getMessage())
+				);
+				$pimProducts->deleteItem($pimProduct);
+			}
 		}
 		return $pimProducts;
 	}

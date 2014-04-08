@@ -29,15 +29,6 @@
 		</resources>
 		<eb2cproduct_attributes>
 			<default>
-				<tax_code>
-					<scope>Website</scope>
-					<label>Tax Code</label>
-					<group>Prices</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<default/>
-				</tax_code>
 				<size>
 					<scope>Website</scope>
 					<label>Size</label>
@@ -86,84 +77,219 @@
 					<default></default>
 					<backend_type>text</backend_type>
 				</hts_codes>
+				<tax_code>
+					<scope>Website</scope>
+					<label>Tax Code</label>
+					<group>Prices</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+				</tax_code>
+				<!-- { Attributes Required when We Are an EXPORT mode instance -->
+				<item_type>
+					<scope>Website</scope>
+					<label>Item Type</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					<default_value>Merch</default_value>
+				</item_type>
+				<drop_shipped>
+					<scope>Website</scope>
+					<label>Drop Shipped</label>
+					<group>Exchange Platform</group>
+					<input_type>boolean</input_type>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+					<default_value>N</default_value>
+					<backend_type>int</backend_type>
+				</drop_shipped>
+				<drop_ship_supplier_name>
+					<scope>Website</scope>
+					<label>Drop Ship Supplier Name</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+				</drop_ship_supplier_name>
+				<drop_ship_supplier_number>
+					<scope>Website</scope>
+					<label>Drop Ship Supplier Number</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+				</drop_ship_supplier_number>
+				<drop_ship_supplier_part_number>
+					<scope>Website</scope>
+					<label>Drop Ship Supplier Part Number</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+				</drop_ship_supplier_part_number>
+				<hierarchy_dept_number>
+					<scope>Website</scope>
+					<label>Hierarchy Department Number</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					<frontend_class>validate-digits</frontend_class>
+				</hierarchy_dept_number>
+				<hierarchy_dept_description>
+					<scope>Website</scope>
+					<label>Hierarchy Department Description</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+				</hierarchy_dept_description>
+				<hierarchy_subdept_number>
+					<scope>Website</scope>
+					<label>Hierarchy Subdepartment Number</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					<frontend_class>validate-digits</frontend_class>
+				</hierarchy_subdept_number>
+				<hierarchy_subdept_description>
+					<scope>Website</scope>
+					<label>Hierarchy Subdepartment Description</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+				</hierarchy_subdept_description>
+				<hierarchy_class_number>
+					<scope>Website</scope>
+					<label>Hierarchy Class Number</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					<frontend_class>validate-digits</frontend_class>
+				</hierarchy_class_number>
+				<hierarchy_class_description>
+					<scope>Website</scope>
+					<label>Hierarchy Class Description</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+				</hierarchy_class_description>
+				<hierarchy_subclass_number>
+					<scope>Website</scope>
+					<label>Hierarchy Subclass Number</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>1</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					<frontend_class>validate-digits</frontend_class>
+				</hierarchy_subclass_number>
+				<hierarchy_subclass_description>
+					<scope>Website</scope>
+					<label>Hierarchy Subclass Description</label>
+					<group>Exchange Platform</group>
+					<input_type>text</input_type>
+					<unique>0</unique>
+					<is_required>0</is_required>
+					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+				</hierarchy_subclass_description>
+				<!-- } End Attributes Required when We Are an EXPORT mode instance -->
 			</default>
 		</eb2cproduct_attributes>
-		<events>
-			<product_feed_processing_complete>
-				<observers>
-					<eb2c_reindex_all>
-						<class>eb2ccore/indexer</class>
-						<method>reindexAll</method>
-					</eb2c_reindex_all>
-				</observers>
-			</product_feed_processing_complete>
-			<product_feed_complete_error_confirmation>
-				<observers>
-					<eb2c_error_confirmations>
-						<class>eb2cproduct/error_confirmations</class>
-						<method>process</method>
-					</eb2c_error_confirmations>
-				</observers>
-			</product_feed_complete_error_confirmation>
-			<product_feed_process_operation_type_error_confirmation>
-				<observers>
-					<eb2c_error_confirmations_operation>
-						<class>eb2cproduct/error_confirmations</class>
-						<method>processByOperationType</method>
-					</eb2c_error_confirmations_operation>
-				</observers>
-			</product_feed_process_operation_type_error_confirmation>
-			<filetransfer_import_complete>
-				<observers>
-					<eb2c_product_run_imports>
-						<class>eb2cproduct/feed</class>
-						<method>processFeeds</method>
-						<type>model</type>
-					</eb2c_product_run_imports>
-				</observers>
-			</filetransfer_import_complete>
-		</events>
-	</global>
-	<default>
-		<eb2ccore>
-			<feed>
-				<filetransfer_imports>
-					<item_master>
-						<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
-						<event_type>ItemMaster</event_type>
-						<header_version>2.3.0</header_version>
-						<outbound>
-							<message_header>
-								<event_type>ItemMaster</event_type>
-							</message_header>
-						</outbound>
-					</item_master>
-					<content_master>
-						<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
-						<event_type>ContentMaster</event_type>
-						<header_version>2.3.0</header_version>
-						<outbound>
-							<message_header>
-								<event_type>ContentMaster</event_type>
-							</message_header>
-						</outbound>
-					</content_master>
-					<i_ship>
-						<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
-						<event_type>iShip</event_type>
-						<header_version>2.3.0</header_version>
-						<outbound>
-							<message_header>
-								<event_type>iShip</event_type>
-							</message_header>
-						</outbound>
-					</i_ship>
-					<item_pricing>
-						<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
-						<event_type>Pricing</event_type>
-						<header_version>2.3.0</header_version>
-						<outbound>
-							<message_header>
+			<events>
+				<product_feed_processing_complete>
+					<observers>
+						<eb2c_reindex_all>
+							<class>eb2ccore/indexer</class>
+							<method>reindexAll</method>
+						</eb2c_reindex_all>
+					</observers>
+				</product_feed_processing_complete>
+				<product_feed_complete_error_confirmation>
+					<observers>
+						<eb2c_error_confirmations>
+							<class>eb2cproduct/error_confirmations</class>
+							<method>process</method>
+						</eb2c_error_confirmations>
+					</observers>
+				</product_feed_complete_error_confirmation>
+				<product_feed_process_operation_type_error_confirmation>
+					<observers>
+						<eb2c_error_confirmations_operation>
+							<class>eb2cproduct/error_confirmations</class>
+							<method>processByOperationType</method>
+						</eb2c_error_confirmations_operation>
+					</observers>
+				</product_feed_process_operation_type_error_confirmation>
+				<filetransfer_import_complete>
+					<observers>
+						<eb2c_product_run_imports>
+							<class>eb2cproduct/feed</class>
+							<method>processFeeds</method>
+							<type>model</type>
+						</eb2c_product_run_imports>
+					</observers>
+				</filetransfer_import_complete>
+			</events>
+		</global>
+		<default>
+			<eb2ccore>
+				<feed>
+					<filetransfer_imports>
+						<item_master>
+							<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
+							<event_type>ItemMaster</event_type>
+							<header_version>2.3.0</header_version>
+							<outbound>
+								<message_header>
+									<event_type>ItemMaster</event_type>
+								</message_header>
+							</outbound>
+						</item_master>
+						<content_master>
+							<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
+							<event_type>ContentMaster</event_type>
+							<header_version>2.3.0</header_version>
+							<outbound>
+								<message_header>
+									<event_type>ContentMaster</event_type>
+								</message_header>
+							</outbound>
+						</content_master>
+						<i_ship>
+							<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
+							<event_type>iShip</event_type>
+							<header_version>2.3.0</header_version>
+							<outbound>
+								<message_header>
+									<event_type>iShip</event_type>
+								</message_header>
+							</outbound>
+						</i_ship>
+						<item_pricing>
+							<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
+							<event_type>Pricing</event_type>
+							<header_version>2.3.0</header_version>
+							<outbound>
+								<message_header>
 								<event_type>Pricing</event_type>
 							</message_header>
 						</outbound>
@@ -186,6 +312,7 @@
 			<api_return_format>xml</api_return_format>
 			<image_master_feed>
 				<xsd>CombinedProduct.xsd</xsd>
+				<filename_format>{client_id}_{store_id}_{feed_type}_{time_stamp}_{current_store_id}.xml</filename_format>
 				<outbound>
 					<message_header>
 						<event_type>ImageMaster</event_type>
@@ -237,7 +364,7 @@
 					<class>eb2cproduct/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
-					<xpath>ExtendedAttributes/CountryOfOrigin</xpath>
+					<xpath>ExtendedAttributes/CountryOfOrigin|BaseAttributes/CountryOfOrigin</xpath>
 				</country_of_manufacture>
 				<is_clean>
 					<class>eb2cproduct/map</class>
@@ -349,7 +476,7 @@
 					<item_node>Item</item_node>
 					<event_type>ItemMaster</event_type>
 					<schema_location>ItemMasterV11.xsd</schema_location>
-					<is_validate>false</is_validate>
+					<is_validate>true</is_validate>
 					<mappings>
 							<!--
 							These nodes describe how we relate product information in magento to data in the feed files.
@@ -384,6 +511,141 @@
 							<xml_dest>ItemId/ClientItemId</xml_dest>
 							<translate>0</translate>
 						</sku>
+<!-- { Begin US8588 --> 
+						<visibility>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passCatalogClass</method>
+							<xml_dest>BaseAttributes/CatalogClass</xml_dest>
+							<translate>0</translate>
+						</visibility>
+						<drop_shipped>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passYesNoToBool</method>
+							<xml_dest>BaseAttributes/IsDropShipped</xml_dest>
+							<translate>0</translate>
+						</drop_shipped>
+						<name>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passString</method>
+							<xml_dest>BaseAttributes/ItemDescription</xml_dest>
+							<translate>0</translate>
+						</name>
+						<item_type>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passItemType</method>
+							<xml_dest>BaseAttributes/ItemType</xml_dest>
+							<translate>0</translate>
+						</item_type>
+						<status>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passItemStatus</method>
+							<xml_dest>BaseAttributes/ItemStatus</xml_dest>
+							<translate>0</translate>
+						</status>
+						<tax_code>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passTaxCode</method>
+							<xml_dest>BaseAttributes/TaxCode</xml_dest>
+							<translate>0</translate>
+						</tax_code>
+						<hierarchy>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passHierarchy</method>
+							<xml_dest>BaseAttributes/Hierarchy/</xml_dest>
+							<translate>0</translate>
+						</hierarchy>
+						<drop_ship_supplier_name>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passStringIf</method>
+							<xml_dest>DropShipSupplierInformation/SupplierName</xml_dest>
+							<translate>0</translate>
+						</drop_ship_supplier_name>
+						<drop_ship_supplier_number>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passStringIf</method>
+							<xml_dest>DropShipSupplierInformation/SupplierNumber</xml_dest>
+							<translate>0</translate>
+						</drop_ship_supplier_number>
+						<drop_ship_supplier_part_number>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passStringIf</method>
+							<xml_dest>DropShipSupplierInformation/SupplierPartNumber</xml_dest>
+							<translate>0</translate>
+						</drop_ship_supplier_part_number>
+						<gift_message_available>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passYesNoToBool</method>
+							<xml_dest>ExtendedAttributes/AllowGiftMessage</xml_dest>
+							<translate>0</translate>
+						</gift_message_available>
+						<color>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passColorMaster</method>
+							<xml_dest>ExtendedAttributes/ColorAttributes/Color/</xml_dest>
+							<translate>0</translate>
+						</color>
+						<country_of_manufacture>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passStringIf</method>
+							<xml_dest>ExtendedAttributes/CountryOfOrigin</xml_dest>
+							<translate>0</translate>
+						</country_of_manufacture>
+						<giftcard>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passGiftCard</method>
+							<xml_dest>ExtendedAttributes/</xml_dest>
+							<translate>0</translate>
+						</giftcard>
+						<manufacturer>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passString</method>
+							<xml_dest>ExtendedAttributes/Manufacturer/Name</xml_dest>
+							<translate>0</translate>
+						</manufacturer>
+						<manage_stock>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passSalesClass</method>
+							<xml_dest>ExtendedAttributes/SalesClass</xml_dest>
+							<translate>0</translate>
+						</manage_stock>
+						<style>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passStyle</method>
+							<xml_dest>ExtendedAttributes/Style/</xml_dest>
+							<translate>0</translate>
+						</style>
+						<cost>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passUnitCost</method>
+							<xml_dest>ExtendedAttributes/</xml_dest>
+							<translate>0</translate>
+						</cost>
+						<item_url>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passItemURL</method>
+							<xml_dest>EB2C/ItemURLs/</xml_dest>
+							<translate>0</translate>
+						</item_url>
+<!-- } End US8588 --> 
 					</mappings>
 				</item_map>
 				<content_map>
@@ -521,6 +783,11 @@
 					<model>eb2cproduct/pim_collector::runExport</model>
 				</run>
 			</eb2cproduct_pim_export_feed>
+			<eb2cproduct_image_export_feed>
+				<run>
+					<model>eb2cproduct/image_export::process</model>
+				</run>
+			</eb2cproduct_image_export_feed>
 		</jobs>
 	</crontab>
 	<phpunit>

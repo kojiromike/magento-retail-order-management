@@ -32,6 +32,13 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection
 		);
 	}
 	/**
+	 * Remove this product
+	 */
+	public function deleteItem(Varien_Object $item)
+	{
+		return $this->removeItemByKey($this->_getItemId($item));
+	}
+	/**
 	 * Get an item in the collection for the given product using the sku
 	 * of the product and the configured client id and catalog id for the store
 	 * the product was loaded within the context of.

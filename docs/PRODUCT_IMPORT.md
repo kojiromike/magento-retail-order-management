@@ -322,3 +322,5 @@ The ItemMaster Feed Need The Following Nodes In Order To Import Giftcard:
 	</Item>
 </ItemMaster>
 ```
+
+Please checkout [How to Export Image Feeds](PRODUCT_EXPORT.md#how-to-export-image-feeds) documentation. Image export is imperative regardless of importing or exporting products. It is essential in order to make images available to such services as eBay Enterprise Marketing Solutions Email and marketplace integrations.

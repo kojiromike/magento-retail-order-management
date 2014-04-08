@@ -2,7 +2,8 @@
 class EbayEnterprise_Eb2cProduct_Helper_Pim
 {
 	const DEFAULT_OPERATION_TYPE = 'Change';
-	const STRING_LIMIT = 4000;
+	const MAX_SKU_LENGTH         = 15;
+	const STRING_LIMIT           = 4000;
 	/**
 	 * return a cdata node from a given string value.
 	 * @param  string                              $attrValue
@@ -38,13 +39,37 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	 * @param  string                              $attribute
 	 * @param  Mage_Catalog_Model_Product          $product
 	 * @param  DOMDocument             $doc
+	 * @throws EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception
 	 * @return DOMNode|null
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function passSKU($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
 		$catalogId = Mage::helper('eb2cproduct')->getConfigModel()->catalogId;
-		return $this->createStringNode(Mage::helper('eb2ccore')->denormalizeSku($attrValue, $catalogId), $doc);
+		$sku       = Mage::helper('eb2ccore')->denormalizeSku($attrValue, $catalogId);
+		if (strlen($sku) > self::MAX_SKU_LENGTH) {
+			throw new EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception(
+				sprintf('%s SKU \'%s\' Exceeds max length.', __FUNCTION__, $sku)
+			);
+		}
+		return $this->createStringNode($sku, $doc);
+	}
+	/**
+	 * Pass the string IF it has a value.
+	 * which will either return DOMNode object or a null value.
+	 * @param  string                              $attrValue
+	 * @param  string                              $attribute
+	 * @param  Mage_Catalog_Model_Product          $product
+	 * @param  DOMDocument         $doc
+	 * @return DOMNode|null
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passStringIf($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		if (!empty($attrValue)) {
+			return $this->passString($attrValue, $attribute, $product, $doc);
+		}
+		return null;
 	}
 	/**
 	 * round the attrValue to two decimal point by calling the method Mage_Core_Model_Store::roundPrice given the attrValue

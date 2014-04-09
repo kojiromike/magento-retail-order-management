@@ -393,17 +393,20 @@ XML;
 			(!is_null($requestValue) ? '<item>' . $requestValue . '</item>' : '') .
 			'</request></root>'
 		);
+
 		$responseNodelist = $dom->getElementsByTagName('response')->item(0)->childNodes;
 		$requestNodelist  = $dom->getElementsByTagName('request')->item(0)->childNodes;
-		$resp = Mage::getModel('eb2ctax/response');
-		$respRefl = new ReflectionClass($resp);
-		$isSameNodelistElement = $respRefl->getMethod('_isSameNodelistElement');
-		$isSameNodelistElement->setAccessible(true);
+
 		$this->assertSame(
 			$this->expected('set-%s-%s', $responseValue, $requestValue)->getSame(),
-			$isSameNodelistElement->invoke($resp, $responseNodelist, $requestNodelist)
+			$this->getModelMockBuilder('eb2ctax/response')
+				->disableOriginalConstructor()
+				->setMethods(null)
+				->getMock()
+				->isSameNodelistElement($responseNodelist, $requestNodelist)
 		);
 	}
+
 	public function shipGroupXmlProvider()
 	{
 		return array(

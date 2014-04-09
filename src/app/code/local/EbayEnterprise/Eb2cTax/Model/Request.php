@@ -641,7 +641,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
 		if ($taxClass) {
-			$taxClassNode = $pareont->ownerDocument->createElementNs($parent->namespaceURI, 'TaxClass', $taxClass);
+			$taxClassNode = $parent->ownerDocument->createElementNs($parent->namespaceURI, 'TaxClass', $taxClass);
 			$unitPriceNode->parentNode->insertBefore($taxClassNode, $unitPriceNode);
 		}
 	}

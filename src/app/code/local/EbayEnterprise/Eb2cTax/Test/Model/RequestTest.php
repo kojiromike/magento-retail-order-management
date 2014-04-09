@@ -1865,7 +1865,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->will($this->returnValue($countryId));
 		$hlpr->expects($this->any())
 			->method('getProductHtsCodeByCountry')
-			->with($this->identicalTo($prod), $this->identicalTo($countryId))
 			->will($this->returnValue($htsCode));
 		$this->replaceByMock('helper', 'eb2ccore', $hlpr);
 		$item = $this->_buildModelMock('sales/quote_item', array(

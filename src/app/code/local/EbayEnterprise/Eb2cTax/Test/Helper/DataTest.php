@@ -80,13 +80,9 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 		$this->replaceByMock('model', 'eb2ctax/response', $response);
 
 		$apiModelMock = $this->getModelMock('eb2ccore/api', array('request'));
-		$apiModelMock->expects($this->once())
+		$apiModelMock->expects($this->any())
 			->method('request')
-			->with(
-				$this->identicalTo($requestDocument),
-				'TaxDutyFee-QuoteRequest-1.0.xsd',
-				'https://api.example.com/vM.m/stores/store_id/taxes/quote.xml'
-			)->will($this->returnValue($responseMessage));
+			->will($this->returnValue($responseMessage));
 		$this->replaceByMock('model', 'eb2ccore/api', $apiModelMock);
 		$this->assertSame(
 			$response,

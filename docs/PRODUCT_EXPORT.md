@@ -147,7 +147,7 @@ This is harmless and Sterling Integrator will normalize the input.
 =======
 ## How to Export Image Feeds
 
-1.	Go to **System > Scheduler > Schedule Configuration* in the Admin.
+1.	Go to **System > Scheduler > Schedule Configuration** in the Admin.
 2.	Click the checkbox next to eb2cproduct_image_export_feed.
 3.	Select run now from the actions drop down.
 4.	Click submit button.

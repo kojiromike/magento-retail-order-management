@@ -193,3 +193,33 @@ Image Feed Files will be generated per store configured in Magento in the /Excha
 
 
 *NOTE: if the products in Magento have no image data then the image export will not generate any feed files.*
+
+=======
+##ItemMaster Export
+
+### Exchange Platform Attributes
+These attributes are added to the Magento Installation to support ItemMaster Export. Any required attribute that does not have a value will cause that product to be excluded from the export. The product SKU and an appropriate messages are logged at a WARN level to the system log.
+
+| Attribute                         | Req? |
+|-----------------------------------|------|
+| drop_ship_supplier_name           |  -   |
+| drop_ship_supplier_number         |  -   |
+| drop_ship_supplier_part_number    |  -   |
+| drop_shipped                      |  Y   |
+| hierarchy_class_description       |  -   |
+| hierarchy_class_number            |  Y   |
+| hierarchy_dept_description        |  -   |
+| hierarchy_dept_number             |  Y   |
+| hierarchy_subclass_description    |  -   |
+| hierarchy_subclass_number         |  Y   |
+| hierarchy_subdept_description     |  -   |
+| hierarchy_subdept_number          |  Y   |
+| item_type                         |  -   |
+| tax_code                          |  Y   |
+
+### Magento System Attributes
+Any product with a sku attribute longer than 15 characters is excluded from the export. The product SKU is logged at a WARN level to the system log.
+
+### Complete Mapping Details
+Are specified in Confluence: [http://confluence.tools.us.gspt.net/display/v11dev/Product+Export+Mappings]
+

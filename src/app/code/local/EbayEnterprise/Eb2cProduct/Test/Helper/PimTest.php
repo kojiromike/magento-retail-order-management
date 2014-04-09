@@ -692,7 +692,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cProduct_Helper_Pim::createBool given a
 	 *                string value and expect the return value to be string representing a boolean value
 	 */
-	public function testcreateBool()
+	public function testCreateBool()
 	{
 		$value = 'yes';
 		$result	= 'true';
@@ -703,5 +703,289 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 			->getMock();
 
 		$this->assertSame($result, $pimHelperMock->createBool($value));
+	}
+
+	/**
+	 * Expectations:
+	 *  call passSKU on the product if it is configurable.
+	 *  call passSKU on the parent of the product if it is not configurable and has a parent.
+	 * @param  boolean $isConfigurable
+	 * @param  boolean $hasParent
+	 * @test
+	 * @dataProvider provideTrueFalse
+	 */
+	public function testPassStyleId($isConfigurable)
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root/>');
+		$attribute = 'sku';
+		$pimHelper = $this->getHelperMock('eb2cproduct/pim', array('passSKU'));
+		$product = $this->getModelMock('catalog/product', array('isConfigurable', 'getId'));
+		$parentIds = array(1);
+		$parentProduct = $this->getModelMock('catalog/product', array('load'));
+		$configurableType = $this->getResourceModelMockBuilder('catalog/product_type_configurable')
+			->disableOriginalConstructor()
+			->setMethods(array('getParentIdsByChild'))
+			->getMock();
+
+		$product->expects($this->any())
+			->method('isConfigurable')
+			->will($this->returnValue($isConfigurable));
+		$product->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(2));
+
+		$configurableType->expects($this->any())
+			->method('getParentIdsByChild')
+			->will($this->returnValue($parentIds));
+
+		$parentProduct->expects($this->any())
+			->method('load')
+			->with($parentIds[0])
+			->will($this->returnSelf());
+
+		$pimHelper->expects($this->once())
+			->method('passSKU')
+			->with(
+				$this->anything(),
+				$this->identicalTo($attribute),
+				$this->identicalTo($isConfigurable ? $product : $parentProduct),
+				$this->identicalTo($doc)
+			)
+			->will($this->returnValue('result of passSKU'));
+
+		$this->replaceByMock('model', 'catalog/product', $parentProduct);
+		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $configurableType);
+
+		$result = $pimHelper->passStyleId('dontcare', 'dontcare', $product, $doc);
+		$this->assertSame('result of passSKU', $result);
+	}
+	/**
+	 * if the product is not a gift card null should be returned.
+	 * @test
+	 */
+	public function testPassGiftCardNotGiftCard()
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root/>');
+		$pimHelper = $this->getHelperMock('eb2cproduct/pim', array('none'));
+		$product = $this->getModelMock('catalog/product', array('none'));
+		$product->setType('notgiftcard');
+
+		$result = $pimHelper->passGiftCard('dontcare', 'dontcare', $product, $doc);
+		$this->assertNull($result);
+	}
+	public function provideGiftCardFlags()
+	{
+		return array(
+			array('0', '1', '0', Enterprise_GiftCard_Model_Giftcard::TYPE_VIRTUAL, true),
+			array('1', '0', '1', Enterprise_GiftCard_Model_Giftcard::TYPE_PHYSICAL, true),
+			array('0', '0', '0', Enterprise_GiftCard_Model_Giftcard::TYPE_PHYSICAL, false),
+		);
+	}
+	/**
+	 * return a fragment that contains the giftcard subtree
+	 * if the giftcard is virtual, the Digital element will contain 'false'
+	 * @test
+	 * @dataProvider provideGiftCardFlags
+	 */
+	public function testPassGiftCard($useConfig, $prodAllowMessage, $configAllowMessage, $isVirtual, $allowMessage)
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root/>');
+		$name = 'the giftcard name';
+		$pimHelper = $this->getHelperMock('eb2cproduct/pim', array('passString'));
+		$coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigData'));
+		$product = $this->getModelMock('catalog/product', array('none'));
+		$typeModel = $this->getModelMock('enterprise_giftcard/catalog_product_type_giftcard');
+
+		$coreHelper->expects($this->any())
+			->method('getConfigData')
+			->will($this->returnValueMap(array(
+				array(Enterprise_GiftCard_Model_Giftcard::XML_PATH_ALLOW_MESSAGE, $configAllowMessage),
+				array(Enterprise_GiftCard_Model_Giftcard::XML_PATH_MESSAGE_MAX_LENGTH, 10),
+			)));
+
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
+
+		$product->addData(array(
+			'use_config_allow_message' => $useConfig,
+			'allow_message' => $prodAllowMessage,
+			'name' => $name,
+			'type_id' => Enterprise_GiftCard_Model_Catalog_Product_Type_Giftcard::TYPE_GIFTCARD,
+			'gift_card_type' => $isVirtual,
+		));
+
+		$result = $pimHelper->passGiftCard('dontcare', 'dontcare', $product, $doc);
+		$doc->documentElement->appendChild($result);
+		$messageMaxLen = $allowMessage ? '10' : '0';
+		$digitalField = $isVirtual === Enterprise_GiftCard_Model_Giftcard::TYPE_VIRTUAL ? 'true' : 'false';
+		$expected = Mage::helper('eb2ccore')->getNewDomDocument();
+		$expected->preserveWhiteSpace = false;
+		$expected->loadXML(sprintf('
+			<root>
+				<Digital><![CDATA[%s]]></Digital>
+				<MessageMaxLength><![CDATA[%s]]></MessageMaxLength>
+				<CardFacingDisplayName><![CDATA[%s]]></CardFacingDisplayName>
+			</root>',
+			$digitalField,
+			$messageMaxLen,
+			$name
+		));
+		$this->assertSame($expected->saveXML(), $doc->saveXML());
+	}
+	protected function _newDocument($xml=null)
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->preserveWhiteSpace = false;
+		$doc->formatOutput = true;
+		if ($xml) {
+			$doc->loadXML($xml);
+		}
+		return $doc;
+	}
+	/**
+	 * verify a fragment is returned containing the product links
+	 * @param  bool   $allowMessage
+	 * @param  bool   $isVirtual
+	 * @test
+	 */
+	public function testPassProductLinks()
+	{
+		$doc = $this->_newDocument('<root/>');
+		$pimHelper = $this->getHelperMock('eb2cproduct/pim', array('passString', 'passSKU'));
+		$product = $this->getModelMock('catalog/product', array('getRelatedProducts', 'getCrossSellProducts', 'getUpSellProducts'));
+
+		$linked1 = $this->getModelMock('catalog/product', array('getSku'));
+		$linked2 = $this->getModelMock('catalog/product', array('getSku'));
+		$linked3 = $this->getModelMock('catalog/product', array('getSku'));
+
+		$product->expects($this->any())
+			->method('getRelatedProducts')
+			->will($this->returnValue(array($linked1)));
+		$product->expects($this->any())
+			->method('getUpSellProducts')
+			->will($this->returnValue(array($linked2)));
+		$product->expects($this->any())
+			->method('getCrossSellProducts')
+			->will($this->returnValue(array($linked3)));
+
+		$linked1->expects($this->any())
+			->method('getSku')
+			->will($this->returnValue('linked1'));
+		$linked2->expects($this->any())
+			->method('getSku')
+			->will($this->returnValue('linked2'));
+		$linked3->expects($this->any())
+			->method('getSku')
+			->will($this->returnValue('linked3'));
+
+		$pimHelper->expects($this->any())
+			->method('passSKU')
+			->will($this->returnCallback(
+				function ($a, $b, $product, $doc) {
+					return $doc->createCDataSection($product->getSku());
+				}
+			));
+
+		$result = $pimHelper->passProductLinks('dontcare', 'dontcare', $product, $doc);
+		$doc->documentElement->appendChild($result);
+
+		$expected = $this->_newDocument('
+			<root>
+				<ProductLink link_type="ES_Accessory" operation_type="Add" position="1">
+					<LinkToUniqueID><![CDATA[linked1]]></LinkToUniqueID>
+				</ProductLink>
+				<ProductLink link_type="ES_UpSelling" operation_type="Add" position="1">
+					<LinkToUniqueID><![CDATA[linked2]]></LinkToUniqueID>
+				</ProductLink>
+				<ProductLink link_type="ES_CrossSelling" operation_type="Add" position="1">
+					<LinkToUniqueID><![CDATA[linked3]]></LinkToUniqueID>
+				</ProductLink>
+			</root>'
+		);
+		$this->assertSame($expected->saveXML(), $doc->saveXML());
+	}
+	/**
+	 * verify a fragment is returned containing the nodes for the category links
+	 * @test
+	 */
+	public function testPassCategoryLinks()
+	{
+		$doc = $this->_newDocument('<root/>');
+		$pimHelper = $this->getHelperMock('eb2cproduct/pim', array('none'));
+		$product = $this->getModelMock('catalog/product', array('getCategoryCollection'));
+		$collection = $this->getResourceModelMockBuilder('catalog/category_collection')
+			->disableOriginalConstructor()
+			->setMethods(array('getItemById', 'load', 'addAttributeToSelect'))
+			->getMock();
+		$category = $this->getModelMock('catalog/category', array('getPath', 'getName', 'getId'));
+		$category2 = $this->getModelMock('catalog/category', array('getPath', 'getName', 'getId'));
+
+		$product->expects($this->any())
+			->method('getCategoryCollection')
+			->will($this->returnValue($collection));
+		$category->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(1));
+		$category->expects($this->any())
+			->method('getPath')
+			->will($this->returnValue('1'));
+		$category->expects($this->any())
+			->method('getName')
+			->will($this->returnValue('parent'));
+		$category2->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(18));
+		$category2->expects($this->any())
+			->method('getPath')
+			->will($this->returnValue('1/18'));
+		$category2->expects($this->any())
+			->method('getName')
+			->will($this->returnValue('child'));
+		$collection->expects($this->any())
+			->method('getItemById')
+			->will($this->returnValueMap(array(
+				array(1, $category),
+				array(18, $category2),
+			)));
+		$collection->expects($this->any())
+			->method('addAttributeToSelect')
+			->will($this->returnSelf());
+		$collection->expects($this->any())
+			->method('load')
+			->will($this->returnSelf());
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($collection, '_items', array($category, $category2));
+		$this->replaceByMock('resource_model', 'catalog/category_collection', $collection);
+
+		$result = $pimHelper->passCategoryLinks('dontcare', 'dontcare', $product, $doc);
+		$this->assertNotNull($result);
+		$doc->documentElement->appendChild($result);
+
+		$expected = $this->_newDocument('
+			<root>
+				<CategoryLink import_mode="Replace">
+					<Name><![CDATA[parent]]></Name>
+				</CategoryLink>
+				<CategoryLink import_mode="Replace">
+					<Name><![CDATA[parent-child]]></Name>
+				</CategoryLink>
+			</root>'
+		);
+		$this->assertSame($expected->saveXML(), $doc->saveXML());
+	}
+	public function testPassGiftWrap()
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root/>');
+		$pimHelper = $this->getHelperMock('eb2cproduct/pim', array('createStringNode'));
+		$product = $this->getModelMock('catalog/product', array('getColor'));
+
+		$pimHelper->expects($this->any())
+			->method('createStringNode')
+			->will($this->returnArgument(0));
+		$this->assertSame('Y', $pimHelper->passGiftWrap(true, 'gift_wrap', $product, $doc));
+		$this->assertSame('N', $pimHelper->passGiftWrap(false, 'gift_wrap', $product, $doc));
 	}
 }

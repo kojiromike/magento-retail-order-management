@@ -571,7 +571,11 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 			->method('addAttributes')
 			->with($this->identicalTo(array('xml:lang' => $languageCode)));
 
-		$pim = $this->getModelMockBuilder('eb2cproduct/pim')->disableOriginalConstructor()->setMethods(null)->getMock();
+		$pim = $this->getModelMockBuilder('eb2cproduct/pim')->disableOriginalConstructor()->setMethods(array('_clumpWithSimilar'))->getMock();
+		$pim->expects($this->once())
+			->method('_clumpWithSimilar')
+			->will($this->returnValue($attributeNode));
+
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($pim, '_docs', $docs);
 		$this->assertSame(
 			$pim,
@@ -635,7 +639,11 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 
 		$docs = array($key => $doc);
 
-		$pim = $this->getModelMockBuilder('eb2cproduct/pim')->disableOriginalConstructor()->setMethods(null)->getMock();
+		$pim = $this->getModelMockBuilder('eb2cproduct/pim')->disableOriginalConstructor()->setMethods(array('_clumpWithSimilar'))->getMock();
+		$pim->expects($this->once())
+			->method('_clumpWithSimilar')
+			->will($this->returnValue($attributeNode));
+
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($pim, '_docs', $docs);
 		$this->assertSame(
 			$pim,
@@ -962,5 +970,33 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 		$this->assertSame($attributes, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$pimModelMock, '_getFeedAttributes', array($key)
 		));
+	}
+	/**
+	 * verify a node is moved before a previously existing node
+	 * with the same tag name.
+	 * @test
+	 */
+	public function testClumpWithSimilar()
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$pim = $this->getModelMockBuilder('eb2cproduct/pim')
+			->disableOriginalConstructor()
+			->setMethods(array('none'))
+			->getMock();
+
+		$doc->loadXML('
+			<a>
+				<c lang="en-us"><![CDATA[thevalue1]]></c>
+				<b lang="en-us"><![CDATA[thevalue1]]></b>
+				<c lang="de-de"><![CDATA[thevalue1]]></c>
+			</a>'
+		);
+
+		$x = new DOMXPath($doc);
+		$ls = $x->query('c[2]');
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($pim, '_clumpWithSimilar', array($ls->item(0)));
+
+		$ls = $x->query('c[1]');
+		$this->assertSame('c', $ls->item(0)->nextSibling->nodeName);
 	}
 }

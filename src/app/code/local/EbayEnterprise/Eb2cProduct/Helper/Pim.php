@@ -271,4 +271,102 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	{
 		return (strtolower($value) === 'yes')? 'true' : 'false';
 	}
+	/**
+	 * if $product is configurable return the result of passSKU
+	 * @param  string                     $attrValue
+	 * @param  string                     $attribute
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @param  DOMDocument                $doc
+	 * @return mixed
+	 */
+	public function passStyleId($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		if ($product->isConfigurable()) {
+			return $this->passSKU($product->getSku(), 'sku', $product, $doc);
+		}
+		// check if the product has a parent configurable product, use the first available parent.
+		$parentId = current(Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($product->getId()));
+		$parentProduct = Mage::getModel('catalog/product')->load($parentId);
+		return $this->passSKU($parentProduct->getSku(), 'sku', $parentProduct, $doc);
+	}
+	public function passGiftCard($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		if ($product->getTypeId() !== Enterprise_GiftCard_Model_Catalog_Product_Type_Giftcard::TYPE_GIFTCARD) {
+			return null;
+		}
+		$coreHelper = Mage::helper('eb2ccore');
+		$allowMessage = $product->getUseConfigAllowMessage() ?
+			$coreHelper->getConfigData(Enterprise_GiftCard_Model_Giftcard::XML_PATH_ALLOW_MESSAGE) :
+			$product->getAllowMessage();
+		$MessageMaxLength = $allowMessage ?
+			(int) $coreHelper->getConfigData(Enterprise_GiftCard_Model_Giftcard::XML_PATH_MESSAGE_MAX_LENGTH) :
+			0;
+		$isDigital = $product->getGiftCardType() === Enterprise_GiftCard_Model_Giftcard::TYPE_VIRTUAL ? 'true' : 'false';
+		$namespaceUri = $doc->documentElement->namespaceURI;
+		$frag = $doc->createDocumentFragment();
+		$frag->appendChild($doc->createElement('Digital', $isDigital, $namespaceUri));
+		$frag->appendChild($doc->createElement('MessageMaxLength', $MessageMaxLength, $namespaceUri));
+		$frag->appendChild($doc->createElement('CardFacingDisplayName', (string) $product->getName(), $namespaceUri));
+		return $frag;
+	}
+	public function passProductLinks($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		$frag = $doc->createDocumentFragment();
+		$products = $product->getRelatedProducts();
+		$index = 0;
+		foreach ($products as $rProduct) {
+			$index++;
+			$this->_addProductLink($frag, 'ES_Accessory', $index, $this->passSKU($rProduct->getSku(), '', $rProduct, $doc));
+		}
+		$products = $product->getUpSellProducts();
+		$index = 0;
+		foreach ($products as $rProduct) {
+			$index++;
+			$this->_addProductLink($frag, 'ES_UpSelling', $index, $this->passSKU($rProduct->getSku(), '', $rProduct, $doc));
+		}
+		$products = $product->getCrossSellProducts();
+		$index = 0;
+		foreach ($products as $rProduct) {
+			$index++;
+			$this->_addProductLink($frag, 'ES_CrossSelling', $index, $this->passSKU($rProduct->getSku(), '', $rProduct, $doc));
+		}
+		return $frag->hasChildNodes() ? $frag : null;
+	}
+	protected function _addProductLink(DOMDocumentFragment $frag, $type, $position, DOMNode $value)
+	{
+		$frag->appendChild($frag->ownerDocument->createElement('ProductLink'))
+			->addAttributes(array(
+				'link_type' => $type,
+				'operation_type' => 'Add',
+				'position' => $position,
+			))
+			->createChild('LinkToUniqueID')
+			->appendChild($value);
+		return $frag;
+	}
+	public function passCategoryLinks($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		$frag = $doc->createDocumentFragment();
+		$categories = $product->getCategoryCollection();
+		$all = Mage::getResourceModel('catalog/category_collection')
+			->addAttributeToSelect('name');
+		foreach ($categories as $category) {
+			$pathArr = explode('/', $category->getPath());
+			array_walk($pathArr, function(&$val, $i) use ($all) {
+				$part = $all->getItemById((int) $val);
+				$val = $part ? $part->getName() : null;
+			});
+		  $catString = implode('-', array_filter($pathArr));
+		  if ($catString) {
+		  	$frag->appendChild($doc->createElement('CategoryLink'))
+		  		->addAttributes(array('import_mode' => 'Replace'))
+		  		->addChild('Name', $catString);
+		  }
+		}
+		return $frag->hasChildNodes() ? $frag : null;
+	}
+	public function passGiftWrap($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		return $this->createStringNode($attrValue ? 'Y' : 'N', $doc);
+	}
 }

@@ -511,7 +511,7 @@
 							<xml_dest>ItemId/ClientItemId</xml_dest>
 							<translate>0</translate>
 						</sku>
-<!-- { Begin US8588 --> 
+<!-- { Begin US8588 -->
 						<visibility>
 							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
@@ -645,16 +645,17 @@
 							<xml_dest>EB2C/ItemURLs/</xml_dest>
 							<translate>0</translate>
 						</item_url>
-<!-- } End US8588 --> 
+<!-- } End US8588 -->
 					</mappings>
 				</item_map>
 				<content_map>
-					<file_pattern>Export_{feed_type}_{client_id}_{catalog_id}_{store_id}_{time_stamp}.xml</file_pattern>
+					<!-- <file_pattern>Export_{feed_type}_{client_id}_{catalog_id}_{store_id}_{time_stamp}.xml</file_pattern> -->
+					<file_pattern>Export_{feed_type}_{client_id}_{catalog_id}_{store_id}.xml</file_pattern>
 					<root_node>ContentMaster</root_node>
 					<item_node>Content</item_node>
 					<event_type>ContentMaster</event_type>
 					<schema_location>ContentFeedV11.xsd</schema_location>
-					<is_validate>false</is_validate>
+					<is_validate>true</is_validate>
 					<mappings>
 						<_gsi_client_id>
 							<class>eb2cproduct/pim</class>
@@ -674,9 +675,86 @@
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
 							<method>passSKU</method>
-							<xml_dest>UniqueId</xml_dest>
+							<xml_dest>UniqueID</xml_dest>
 							<translate>0</translate>
 						</sku>
+						<_style_id>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passStyleId</method>
+							<xml_dest>StyleID</xml_dest>
+							<translate>0</translate>
+						</_style_id>
+						<_product_links>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passProductLinks</method>
+							<xml_dest>ProductLinks</xml_dest>
+							<translate>0</translate>
+						</_product_links>
+						<_category_links>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passCategoryLinks</method>
+							<xml_dest>CategoryLinks</xml_dest>
+							<translate>0</translate>
+						</_category_links>
+						<name>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passString</method>
+							<xml_dest>BaseAttributes/Title</xml_dest>
+							<translate>1</translate>
+						</name>
+						<color>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passColorMaster</method>
+							<xml_dest>ExtendedAttributes/ColorAttributes/Color/</xml_dest>
+							<translate>0</translate>
+						</color>
+						<country_of_manufacture>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passString</method>
+							<xml_dest>ExtendedAttributes/DisplayCountryOfOrigin</xml_dest>
+							<translate>0</translate>
+						</country_of_manufacture>
+						<gift_wrap>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passGiftWrap</method>*
+							<xml_dest>ExtendedAttributes/GiftWrap</xml_dest>
+							<translate>0</translate>
+						</gift_wrap>
+						<description>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passString</method>
+							<xml_dest>ExtendedAttributes/LongDescription</xml_dest>
+							<translate>1</translate>
+						</description>
+						<meta_keyword>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passString</method>
+							<xml_dest>ExtendedAttributes/SearchKeywords</xml_dest>
+							<translate>1</translate>
+						</meta_keyword>
+						<short_description>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passString</method>
+							<xml_dest>ExtendedAttributes/ShortDescription</xml_dest>
+							<translate>1</translate>
+						</short_description>
+						<_giftcard>
+							<class>eb2cproduct/pim</class>
+							<type>disabled</type>
+							<method>passString</method>
+							<xml_dest>ExtendedAttributes/GiftCard</xml_dest>
+							<translate>0</translate>
+						</_giftcard>
 					</mappings>
 				</content_map>
 				<price_map>

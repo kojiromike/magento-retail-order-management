@@ -242,6 +242,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 			if ($pimAttribute->language) {
 				$attributeNode->addAttributes(array('xml:lang' => $pimAttribute->language));
 			}
+			$this->_clumpWithSimilar($attributeNode);
 		}
 		return $this;
 	}
@@ -252,6 +253,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 */
 	protected function _validateDocument($key)
 	{
+		Mage::helper('ebayenterprise_magelog')->logInfo("[ %s ] Validating document:\n%s", array(__METHOD__, $this->_docs[$key]->saveXML()));
 		Mage::getModel('eb2ccore/api')
 			->schemaValidate($this->_docs[$key], Mage::helper('eb2cproduct')->getConfigModel()->pimExportXsd);
 		return $this;
@@ -295,5 +297,25 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 			));
 		}
 		return $this;
+	}
+	/**
+	 * move the specified element to be the immediately preceding sibling of the
+	 * first existing element with the same tag name.
+	 * NOTE: order of similar elements within a clump is not guaranteed.
+	 * WARNING: any operations on $attributeNode must be done using the instance
+	 *          returned by this function.
+	 * @param  DOMElement $attributeNode
+	 * @return DOMElement
+	 */
+	protected function _clumpWithSimilar(DOMElement $attributeNode)
+	{
+			// if the value  element and a same-named element already exists,
+			// insert the value element before the exigent one instead of appending.
+			$xpath = new DOMXPath($attributeNode->ownerDocument);
+			$nodeList = $xpath->query($attributeNode->tagName, $attributeNode->parentNode);
+			if ($nodeList->length > 1) {
+				$attributeNode = $attributeNode->parentNode->insertBefore($attributeNode, $nodeList->item(0));
+			}
+			return $attributeNode;
 	}
 }

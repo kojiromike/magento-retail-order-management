@@ -75,6 +75,24 @@ Copy this file to productexport.xml and configure the appropriate values below.
 						</packaging_height>
 					</mappings>
 				</item_map>
+				<content_map>
+					<mappings>
+						<news_from_date>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passCustomAttribute</method>
+							<xml_dest>CustomAttributes/</xml_dest>
+							<translate>0</translate>
+						</news_from_date>
+						<news_to_date>
+							<class>eb2cproduct/pim</class>
+							<type>helper</type>
+							<method>passCustomAttribute</method>
+							<xml_dest>CustomAttributes/</xml_dest>
+							<translate>0</translate>
+						</news_to_date>
+					</mappings>
+				</content_map>
 			</feed_pim_mapping>
 		</eb2cproduct>
 	</default>

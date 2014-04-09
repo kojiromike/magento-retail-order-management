@@ -174,6 +174,17 @@
 			</checkout_type_onepage_save_order>
 		</events>
 	</frontend>
+	<adminhtml>
+		<translate>
+			<modules>
+				<EbayEnterprise_Eb2cInventory>
+					<files>
+						<default>EbayEnterprise_Eb2cInventory.csv</default>
+					</files>
+				</EbayEnterprise_Eb2cInventory>
+			</modules>
+		</translate>
+	</adminhtml>
 	<default>
 		<eb2ccore>
 			<feed>

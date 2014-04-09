@@ -44,7 +44,8 @@ class EbayEnterprise_Eb2cInventory_Helper_Quote
 		return $xpath;
 	}
 	/**
-	 * Add a notice to the checkout session. Assume any messages already translated via _getCartMessage.
+	 * Add a notice to the front-end checkout session or backend adminhtml quote session.
+	 * Assume any messages already translated via _getCartMessage.
 	 * @param Mage_Sales_Model_Quote $quote     Quote the message applied to
 	 * @param string                 $message   Message to add as a notice to the checkout session
 	 * @param string                 $errorCode Error code for the message
@@ -53,7 +54,11 @@ class EbayEnterprise_Eb2cInventory_Helper_Quote
 	public function addCartNotice(Mage_Sales_Model_Quote $quote, $message, $errorCode)
 	{
 		$quote->addErrorInfo(self::ERROR_TYPE, self::ERROR_ORIGIN, $errorCode, $message);
-		Mage::getSingleton('checkout/session')->addNotice($message);
+		if (!Mage::helper('eb2ccore')->getCurrentStore()->isAdmin()) {
+			Mage::getSingleton('checkout/session')->addNotice($message);
+		} else {
+			Mage::getSingleton('adminhtml/session_quote')->addNotice($message);
+		}
 		return $this;
 	}
 	/**

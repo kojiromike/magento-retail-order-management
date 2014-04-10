@@ -23,6 +23,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const BACKEND_ORDER_SOURCE = 'phone';
 	const FRONTEND_ORDER_SOURCE = 'web';
 	const COOKIES_DELIMITER = ';';
+
+	const SUCCESS_MESSAGE = '[ %s ]: updating order (%s) state to processing after successfully creating order from eb2c';
+	const FAILURE_MESSAGE = '[ %s ]: the following order (%s) received fail response from eb2c but the order state was already new.';
+	const RETRY_BEGIN_MESSAGE = '[ %s ]: Begin order retry now: %s. Found %s new order to be retried';
+	const RETRY_END_MESSAGE = '[ %s ]: Order retried finish at: %s';
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -101,27 +106,29 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		return Mage_Sales_Model_Order::STATE_NEW;
 	}
 	/**
-	 * processing the request response from eb2c
-	 * @param string $response, the response string xml from eb2c request
+	 * processing the request response from eb2c by extracting the response message if the current state of the order
+	 * doesn't match the extracted state simply set the order state to the extracted state otherwise don't set the state
+	 * of the order, then proceed to set the new order custom field 'eb2c_order_create_request' to the xml
+	 * OrderCreateRequest message in the EbayEnterprise_Dom_Element object in the class property self::_domRequest,
+	 * and then save the order
+	 * @param string $response the response string xml from eb2c request
 	 * @return self
 	 */
 	protected function _processResponse($response)
 	{
+		$logger = Mage::helper('ebayenterprise_magelog');
 		$state = $this->_extractResponseState($response);
 		if ($state !== $this->_o->getState()) {
-			$this->_o->setState($state)->save();
-			Mage::log(
-				sprintf('[ %s ]: updating order (%s) state to processing after successfully creating order from eb2c', __METHOD__, $this->_o->getIncrementId()),
-				Zend_Log::DEBUG
-			);
+			$this->_o->setState($state);
+			$logger->logDebug(self::SUCCESS_MESSAGE, array(__METHOD__, $this->_o->getIncrementId()));
 			Mage::dispatchEvent('eb2c_order_create_succeeded', array('order' => $this->_o));
 		} else {
 			// If the response status is not success, but the order is already new, we should log it
-			Mage::log(
-				sprintf('[ %s ]: the following order (%s) received fail response from eb2c but the order state was already new.', __METHOD__, $this->_o->getIncrementId()),
-				Zend_Log::WARN
-			);
+			$logger->logWarn(self::FAILURE_MESSAGE, array(__METHOD__, $this->_o->getIncrementId()));
 		}
+
+		$this->_o->setEb2cOrderCreateRequest($this->_domRequest->saveXML())->save();
+
 		return $this;
 	}
 	/**
@@ -227,7 +234,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		$this->_o = $orderObject;
 		$this->_domRequest = Mage::helper('eb2ccore')->getNewDomDocument();
-		$this->_domRequest->formatOutput = true;
 		$orderCreateRequest = $this->_buildOrderCreateRequest();
 		$order = $this->_buildOrder($orderCreateRequest);
 		$this->_buildItems($order)
@@ -709,29 +715,40 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		}
 	}
 	/**
-	 * This method will be trigger via cron, in which it will fetch all magento order
-	 * with a state status of 'new' and then loop through them and then run code create eb2c orders
-	 * same event to resend them to eb2c to create
+	 * This method will be triggered via a CRONJOB and resend the stored OrderCreateRequest message
+	 * for each orders with a state of 'new'
 	 * @return void
 	 */
 	public function retryOrderCreate()
 	{
 		// first get all order with state equal to 'new'
 		$orders = $this->_getNewOrders();
-		$currentDate = date('m/d/Y H:i:s', Mage::getModel('core/date')->timestamp(time()));
-		Mage::log(
-			sprintf('[ %s ]: Begin order retry now: %s. Found %s new order to be retried',
-				__METHOD__, $currentDate, $orders->count()
-			),
-			Zend_Log::DEBUG
-		);
+
+		$logger = Mage::helper('ebayenterprise_magelog');
+		$currentDate = Mage::getModel('core/date')->date('m/d/Y H:i:s');
+		$logger->logDebug(self::RETRY_BEGIN_MESSAGE, array(__METHOD__, $currentDate, $orders->count()));
+
 		foreach ($orders as $order) {
 			// running same code to send request create eb2c orders
-			$this->buildRequest($order)
+			$this->_o = $order;
+			$this->_loadRequest($order->getEb2cOrderCreateRequest())
 				->sendRequest();
 		}
-		$newDate = date('m/d/Y H:i:s', Mage::getModel('core/date')->timestamp(time()));
-		Mage::log(sprintf('[ %s ]: Order retried finish at: %s', __METHOD__, $newDate), Zend_Log::DEBUG);
+		$newDate = Mage::getModel('core/date')->date('m/d/Y H:i:s');
+		$logger->logDebug(self::RETRY_END_MESSAGE, array(__METHOD__, $newDate));
+	}
+	/**
+	 * given a string of order create request xml message, assigned an EbayEnterprise_Dom_Document instantiated class
+	 * object to the class property self::_domRequest and then loaded the order create request xml to the
+	 * EbayEnterprise_Dom_Document object
+	 * @param string $requestMessage the order create request xml message and a magento order object
+	 * @return self
+	 */
+	protected function _loadRequest($requestMessage)
+	{
+		$this->_domRequest = Mage::helper('eb2ccore')->getNewDomDocument();
+		$this->_domRequest->loadXML($requestMessage);
+		return $this;
 	}
 	/**
 	 * fetch all order with state new
@@ -744,7 +761,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			->addFieldToFilter('state', array('eq' => 'new'))
 			->load();
 	}
-
 	/**
 	 * Parse the credit card expiration date from a pbridge payment
 	 * @param string of php-serialized pbridge_data

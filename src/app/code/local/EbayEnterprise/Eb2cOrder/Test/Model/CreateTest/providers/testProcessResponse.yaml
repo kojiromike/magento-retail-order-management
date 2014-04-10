@@ -1,0 +1,9 @@
+-
+  - <OrderCreateResponse><ResponseStatus>Success</ResponseStatus></OrderCreateResponse>
+  - <?xml version="1.0"?><OrderCreateRequest/>
+  - process
+-
+  - <OrderCreateResponse><ResponseStatus>Failure</ResponseStatus></OrderCreateResponse>
+  - <?xml version="1.0"?><OrderCreateRequest/>
+  - new
+

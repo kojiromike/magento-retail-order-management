@@ -219,6 +219,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 			'getId',
 			'getItemByQuoteItemId',
 			'setAppliedTaxIsSaved',
+			'hasQuote'
 		));
 		$order->expects($this->any())
 			->method('getConvertingFromQuote')
@@ -242,6 +243,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 			->method('setAppliedTaxIsSaved')
 			->with($this->equalTo(true))
 			->will($this->returnSelf());
+		$order->expects($this->any())
+			->method('hasQuote')
+			->will($this->returnValue(true));
 		return $order;
 	}
 
@@ -688,5 +692,59 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 		$observer->expects($this->never())
 			->method('_fetchTaxUpdate');
 		$this->assertSame($observer, $observer->taxEventSubtotalCollectBefore($eventObserver));
+	}
+
+	/**
+	 * @see self::testSalesEventOrderAfterSave where assumption is made that the order has been converted and therefore
+	 *      has a quote on it
+	 * Test EbayEnterprise_Eb2cTax_Overrides_Model_Observer::salesEventOrderAfterSave method with the following expectations
+	 * Expecation 1: the method EbayEnterprise_Eb2cTax_Overrides_Model_Observer::salesEventOrderAfterSave will be called
+	 *               by this test given a mocked Varien_Event_Observer object in which the parent
+	 *               Mage_Tax_Model_Observer::salesEventOrderAfterSave will be invoked and called the method
+	 *               Mage_Sales_Model_Order::getConvertingFromQuote which will return false making it return void
+	 *               then inside of the override class EbayEnterprise_Eb2cTax_Overrides_Model_Observer the method
+	 *               Varien_Event_Observer::getEvent will be invoked and return a mocked Varien_Event object
+	 *               then the method Varien_Event::getOrder will be called and return a mocked Mage_Sales_Model_Order object
+	 *               and then the method Mage_Sales_Model_Order::hasQuote will be called and return false which will
+	 *               make the tested method return null so we asserted that the next code will never run for this test
+	 */
+	public function testSalesEventOrderAfterSaveOrderHasNoQuoteOnIt()
+	{
+		$orderMock = $this->getModelMockBuilder('sales/order')
+			->disableOriginalConstructor()
+			->setMethods(array('getConvertingFromQuote', 'hasQuote'))
+			->getMock();
+		$orderMock->expects($this->once())
+			->method('getConvertingFromQuote')
+			->will($this->returnValue(false));
+		$orderMock->expects($this->once())
+			->method('hasQuote')
+			->will($this->returnValue(false));
+
+		$eventMock = $this->getMockBuilder('Varien_Event')
+			->disableOriginalConstructor()
+			->setMethods(array('getOrder'))
+			->getMock();
+		$eventMock->expects($this->exactly(2))
+			->method('getOrder')
+			->will($this->returnValue($orderMock));
+
+		$observerMock = $this->getMockBuilder('Varien_Event_Observer')
+			->disableOriginalConstructor()
+			->setMethods(array('getEvent'))
+			->getMock();
+		$observerMock->expects($this->exactly(2))
+			->method('getEvent')
+			->will($this->returnValue($eventMock));
+
+		$helperMock = $this->getHelperMockBuilder('tax/data')
+			->disableOriginalConstructor()
+			->setMethods(array('getCalculator'))
+			->getMock();
+		$helperMock->expects($this->never())
+			->method('getCalculator');
+		$this->replaceByMock('helper', 'tax', $helperMock);
+
+		Mage::getModel('tax/observer')->salesEventOrderAfterSave($observerMock);
 	}
 }

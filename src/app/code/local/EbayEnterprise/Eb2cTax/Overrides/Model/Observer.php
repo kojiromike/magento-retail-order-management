@@ -35,31 +35,51 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 	{
 		parent::salesEventOrderAfterSave($observer);
 		$order = $observer->getEvent()->getOrder();
+		if (!$order->hasQuote()) {
+			return;
+		}
 		// save all of the response quote and response quote discount objects
-		if ($response = Mage::helper('tax')->getCalculator()->getTaxResponse()) {
+		$response = Mage::helper('tax')->getCalculator()->getTaxResponse();
+		if ($response) {
 			foreach ($order->getQuote()->getAllAddresses() as $address) {
 				foreach ($address->getAllVisibleItems() as $item) {
-					if ($responseItem = $response->getResponseForItem($item, $address)) {
-						foreach ($responseItem->getTaxQuotes() as $taxQuote) {
-							if ($taxQuote->getId()) {
-								continue;
-							}
-							$taxQuote->setQuoteItemId($item->getId())
-								->setQuoteAddressId($address->getId())
-								->save();
-						}
-						foreach ($responseItem->getTaxQuoteDiscounts() as $taxDiscount) {
-							if ($taxDiscount->getId()) {
-								continue;
-							}
-							$taxDiscount->setQuoteItemId($item->getId())
-								->setQuoteAddressId($address->getId())
-								->save();
-						}
-					}
+					$this->_saveResponseQuote($item, $address, $response->getResponseForItem($item, $address));
 				}
 			}
 			$response->storeResponseData();
+		}
+		return $this;
+	}
+	/**
+	 * saving reponse data into response_quote table
+	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
+	 * @param Mage_Sales_Model_Quote_Address $address
+	 * @param EbayEnterprise_Eb2cTax_Model_Response_Orderitem $responseItem
+	 * @return self
+	 */
+	protected function _saveResponseQuote(
+		Mage_Sales_Model_Quote_Item_Abstract $item,
+		Mage_Sales_Model_Quote_Address $address,
+		EbayEnterprise_Eb2cTax_Model_Response_Orderitem $responseItem=null
+	)
+	{
+		if ($responseItem) {
+			foreach ($responseItem->getTaxQuotes() as $taxQuote) {
+				if ($taxQuote->getId()) {
+					continue;
+				}
+				$taxQuote->setQuoteItemId($item->getId())
+					->setQuoteAddressId($address->getId())
+					->save();
+			}
+			foreach ($responseItem->getTaxQuoteDiscounts() as $taxDiscount) {
+				if ($taxDiscount->getId()) {
+					continue;
+				}
+				$taxDiscount->setQuoteItemId($item->getId())
+					->setQuoteAddressId($address->getId())
+					->save();
+			}
 		}
 		return $this;
 	}

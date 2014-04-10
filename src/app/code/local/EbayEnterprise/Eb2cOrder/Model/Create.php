@@ -210,7 +210,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		if (Mage::app()->getStore()->isAdmin()) {
 			$adminSession = Mage::getSingleton('admin/session');
 			$adminUser = $adminSession->getUser();
-			if ($adminUser->getId()) {
+			if ($adminUser && $adminUser->getId()) {
 				$csr = $adminSession->getCustomerServiceRep() ?: Mage::getModel('eb2ccsr/representative');
 				$repId = $csr->getRepId() ?: $adminUser->getUsername();
 				$order->createChild('DashboardRepId', $repId);
@@ -454,7 +454,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 				$duty->createChild('Amount', $dutyTotal);
 				$dutyTax = $this->_buildTaxDataNodes($dutyQuotes, $item);
 				if ($dutyTax->hasChildNodes()) {
-					$duty->addChild($dutyTax);
+					$duty->appendChild($dutyTax);
 				}
 			}
 		}

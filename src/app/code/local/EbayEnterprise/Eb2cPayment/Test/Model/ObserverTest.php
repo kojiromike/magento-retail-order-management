@@ -40,29 +40,26 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 
 	public function providerRedeemGiftCard()
 	{
-		$quote = $this->getModelMock('sales/quote', array('getId', 'save'));
-		$quote
-			->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(1));
-		$quote->setGiftCards(serialize(array(array(
-			'a' => 50.00,
-			'ba' => 150.00,
-			'c' => '4111111ak4idq1111',
-			'i' => 1,
-			'pan' => '4111111ak4idq1111',
-			'pin' => '5344',
-		))));
-		$eventMock = $this->getMock('Varien_Event', array('getQuote'));
-		$eventMock->expects($this->any())
-			->method('getQuote')
-			->will($this->returnValue($quote));
-		$observerMock = $this->getMock('Varien_Event_Observer', array('getEvent'));
-		$observerMock->expects($this->any())
-			->method('getEvent')
-			->will($this->returnValue($eventMock));
+		$quote = Mage::getModel('sales/quote', array(
+			'gift_cards' => serialize(array(array(
+				'a' => 50.00, 'ba' => 150.00, 'c' => '4111111ak4idq1111', 'i' => 1,
+				'pan' => '4111111ak4idq1111', 'pin' => '5344',
+			)))
+		));
+		$order = Mage::getModel('sales/order', array(
+			'increment_id' => '10000101010',
+			'gift_cards' => serialize(array(array(
+				'a' => 50.00, 'ba' => 150.00, 'c' => '4111111ak4idq1111', 'i' => 1,
+				'pan' => '4111111ak4idq1111', 'pin' => '5344',
+			))),
+		));
+		$observer = new Varien_Event_Observer(
+			array('event' => new Varien_Event(
+				array('quote' => $quote, 'order' => $order)
+			))
+		);
 		return array(
-			array($observerMock)
+			array($observer)
 		);
 	}
 	/**
@@ -70,7 +67,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	 *
 	 * @test
 	 * @dataProvider providerRedeemGiftCard
-	 * @loadFixture loadConfig.yaml
 	 */
 	public function testRedeemGiftCard($observer)
 	{
@@ -80,7 +76,8 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 		$redeemReply = '<foo></foo>';
 		$redeemMock->expects($this->any())
 			->method('getRedeem')
-			->with($this->identicalTo('4111111ak4idq1111'), $this->identicalTo('5344'), $this->identicalTo(1))
+			// these values all come from data setup in the provider
+			->with($this->identicalTo('4111111ak4idq1111'), $this->identicalTo('5344'), $this->identicalTo('10000101010'))
 			->will($this->returnValue($redeemReply));
 		$expectedPanToken = 'panToken123';
 		$redeemMock->expects($this->any())
@@ -88,7 +85,9 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 			->with($this->identicalTo($redeemReply))
 			->will($this->returnValue(array('responseCode' => 'Success', 'pan' => '4111111ak4idq1111', 'pin' => '5344', 'paymentAccountUniqueId' => $expectedPanToken)));
 		$this->replaceByMock('model', 'eb2cpayment/storedvalue_redeem', $redeemMock);
+
 		$this->_observer->redeemGiftCard($observer);
+
 		// use getData to override mock.
 		$allResultGiftCards = unserialize($observer->getEvent()->getQuote()->getGiftCards());
 		$firstResultGiftCard = array_shift($allResultGiftCards);
@@ -99,7 +98,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	 *
 	 * @test
 	 * @dataProvider providerRedeemGiftCard
-	 * @loadFixture loadConfig.yaml
 	 * @expectedException Mage_Core_Exception
 	 */
 	public function testRedeemGiftCardFailReponse($observer)
@@ -163,15 +161,13 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	{
 		$pan = '123456';
 		$pin = '4321';
-		$ba = 500.00;
 		$usedAmt = 50.00;
-		$quoteId = 2;
-		// set up a quote to use
-		$quote = Mage::getModel('sales/quote', array(
-			'gift_cards' => serialize(array(array('pan' => $pan, 'pin' => $pin, 'ba' => $ba))),
-			'gift_cards_amount_used' => $usedAmt,
+		$orderId = '012340012';
+		// set up a order to use
+		$order = Mage::getModel('sales/order', array(
+			'gift_cards' => serialize(array(array('pan' => $pan, 'pin' => $pin, 'ba' => $usedAmt))),
+			'increment_id' => $orderId,
 		));
-		$quote->setId($quoteId);
 
 		$voidRequest = $this->getModelMock(
 			'eb2cpayment/storedvalue_redeem_void',
@@ -179,7 +175,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 		);
 		$voidRequest->expects($this->once())
 			->method('voidCardRedemption')
-			->with($this->identicalTo($pan), $this->identicalTo($pin), $this->identicalTo($quoteId), $this->identicalTo($usedAmt))
+			->with($this->identicalTo($pan), $this->identicalTo($pin), $this->identicalTo($orderId), $this->identicalTo($usedAmt))
 			->will($this->returnValue($response));
 		$this->replaceByMock('model', 'eb2cpayment/storedvalue_redeem_void', $voidRequest);
 
@@ -195,7 +191,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 		Mage::getSingleton('eb2cpayment/observer')->redeemVoidGiftCard(
 			new Varien_Event_Observer(
 				array('event' => new Varien_Event(
-					array('quote' => $quote, 'order' => Mage::getModel('sales/order'))
+					array('order' => $order, 'quote' => Mage::getModel('sales/quote'))
 				))
 			)
 		);

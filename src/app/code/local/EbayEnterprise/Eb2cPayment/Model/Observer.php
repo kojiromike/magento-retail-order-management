@@ -5,26 +5,24 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_WRONG_ACCOUNT = 'EbayEnterprise_Eb2cPayment_GiftCard_Wrong_Account';
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_NOT_REDEEMABLE = 'EbayEnterprise_Eb2cPayment_GiftCard_Not_Redeemable';
 	/**
-	 * Redeem any gift card when 'eb2c_event_dispatch_after_inventory_allocation' event is dispatched
-	 *
+	 * Redeem any gift card when 'eb2c_redeem_giftcard' event is dispatched
 	 * @param Varien_Event_Observer $observer
 	 * @return void
 	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
 	 */
 	public function redeemGiftCard($observer)
 	{
-		$quote = $observer->getEvent()->getQuote();
-		$giftCard = unserialize($quote->getGiftCards());
+		$order = $observer->getEvent()->getOrder();
+		$giftCard = unserialize($order->getGiftCards());
 		if ($giftCard) {
 			foreach ($giftCard as $idx => $card) {
 				if (isset($card['ba']) && isset($card['pan']) && isset($card['pin'])) {
 					// We have a valid record, let's redeem gift card in eb2c.
 					$svRedeem = Mage::getModel('eb2cpayment/storedvalue_redeem');
-					$storeValueRedeemReply = $svRedeem->getRedeem($card['pan'], $card['pin'], $quote->getId(), $quote->getGiftCardsAmountUsed());
+					$storeValueRedeemReply = $svRedeem->getRedeem($card['pan'], $card['pin'], $order->getIncrementId(), $card['ba']);
 					if ($storeValueRedeemReply) {
 						$redeemData = $svRedeem->parseResponse($storeValueRedeemReply);
 						if ($redeemData) {
-							$quote->save();
 							// making sure we have the right data
 							if (isset($redeemData['responseCode']) && strtoupper(trim($redeemData['responseCode'])) === 'FAIL') {
 								// removed gift card from the shopping cart
@@ -45,8 +43,9 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 					}
 				}
 			}
-			// Re-store the cards with panToken to the quote.
-			$quote->setGiftCards(serialize($giftCard))->save();
+			// Re-store the cards with panToken to the quote and order.
+			$order->setGiftCards(serialize($giftCard));
+			$observer->getEvent()->getQuote()->setGiftCards(serialize($giftCard));
 		}
 	}
 
@@ -59,8 +58,8 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 	 */
 	public function redeemVoidGiftCard($observer)
 	{
-		$quote = $observer->getEvent()->getQuote();
-		$giftCard = unserialize($quote->getGiftCards());
+		$order = $observer->getEvent()->getOrder();
+		$giftCard = unserialize($order->getGiftCards());
 		// When gift card data isn't an array of gift card data, don't even try
 		// to work with the data.
 		if (!is_array($giftCard)) {
@@ -71,7 +70,7 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 			if (isset($card['ba']) && isset($card['pan']) && isset($card['pin'])) {
 				// We have a valid record, let's RedeemVoid gift card in eb2c.
 				$responseData = $voidRequest->voidCardRedemption(
-					$card['pan'], $card['pin'], $quote->getId(), $quote->getGiftCardsAmountUsed()
+					$card['pan'], $card['pin'], $order->getIncrementId(), $card['ba']
 				);
 				// The best we can do if the void request fails is log a warning.
 				if (empty($responseData) || strtoupper($responseData['responseCode']) === 'FAIL') {

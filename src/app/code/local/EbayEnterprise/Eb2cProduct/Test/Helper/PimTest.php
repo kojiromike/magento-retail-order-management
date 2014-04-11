@@ -797,7 +797,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 		$pimHelper = $this->getHelperMock('eb2cproduct/pim', array('passString'));
 		$coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigData'));
 		$product = $this->getModelMock('catalog/product', array('none'));
-		$typeModel = $this->getModelMock('enterprise_giftcard/catalog_product_type_giftcard');
 
 		$coreHelper->expects($this->any())
 			->method('getConfigData')
@@ -849,6 +848,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 * @param  bool   $allowMessage
 	 * @param  bool   $isVirtual
 	 * @test
+	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
 	 */
 	public function testPassProductLinks()
 	{
@@ -975,6 +975,11 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 		);
 		$this->assertSame($expected->saveXML(), $doc->saveXML());
 	}
+	/**
+	 * verify Y/N is returned when the value evaluates to
+	 * true/false respectively.
+	 * @test
+	 */
 	public function testPassGiftWrap()
 	{
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();

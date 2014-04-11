@@ -278,6 +278,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	 * @param  Mage_Catalog_Model_Product $product
 	 * @param  DOMDocument                $doc
 	 * @return mixed
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function passStyleId($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
@@ -289,6 +290,16 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		$parentProduct = Mage::getModel('catalog/product')->load($parentId);
 		return $this->passSKU($parentProduct->getSku(), 'sku', $parentProduct, $doc);
 	}
+	/**
+	 * if $product is a giftcard, return fragment with the child nodes
+	 * of the GiftCard Element
+	 * @param  string                     $attrValue
+	 * @param  string                     $attribute
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @param  DOMDocument                $doc
+	 * @return mixed
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
 	public function passGiftCard($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
 		if ($product->getTypeId() !== Enterprise_GiftCard_Model_Catalog_Product_Type_Giftcard::TYPE_GIFTCARD) {
@@ -309,6 +320,16 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		$frag->appendChild($doc->createElement('CardFacingDisplayName', (string) $product->getName(), $namespaceUri));
 		return $frag;
 	}
+	/**
+	 * return a fragment containing a product link element for each
+	 * linked product.
+	 * @param  string                     $attrValue
+	 * @param  string                     $attribute
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @param  DOMDocument                $doc
+	 * @return mixed
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
 	public function passProductLinks($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
 		$frag = $doc->createDocumentFragment();
@@ -332,6 +353,13 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		}
 		return $frag->hasChildNodes() ? $frag : null;
 	}
+	/**
+	 * build out a product link subtree
+	 * @param DOMDocumentFragment $frag
+	 * @param string              $type
+	 * @param int                 $position
+	 * @param DOMNode             $value
+	 */
 	protected function _addProductLink(DOMDocumentFragment $frag, $type, $position, DOMNode $value)
 	{
 		$frag->appendChild($frag->ownerDocument->createElement('ProductLink'))
@@ -344,6 +372,16 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 			->appendChild($value);
 		return $frag;
 	}
+	/**
+	 * return a fragment containing the nodes for the product's category links
+	 * or null if there are none.
+	 * @param  string                     $attrValue
+	 * @param  string                     $attribute
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @param  DOMDocument                $doc
+	 * @return mixed
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
 	public function passCategoryLinks($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
 		$frag = $doc->createDocumentFragment();
@@ -352,7 +390,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 			->addAttributeToSelect('name');
 		foreach ($categories as $category) {
 			$pathArr = explode('/', $category->getPath());
-			array_walk($pathArr, function(&$val, $i) use ($all) {
+			array_walk($pathArr, function(&$val) use ($all) {
 				$part = $all->getItemById((int) $val);
 				$val = $part ? $part->getName() : null;
 			});
@@ -365,6 +403,15 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		}
 		return $frag->hasChildNodes() ? $frag : null;
 	}
+	/**
+	 * return Y/N when the value evaluates to true/false respectively.
+	 * @param  string                     $attrValue
+	 * @param  string                     $attribute
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @param  DOMDocument                $doc
+	 * @return mixed
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
 	public function passGiftWrap($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
 		return $this->createStringNode($attrValue ? 'Y' : 'N', $doc);

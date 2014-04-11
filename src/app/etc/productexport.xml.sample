@@ -198,48 +198,6 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<xml_dest>EB2C/ItemURLs/</xml_dest>
 							<translate>0</translate>
 						</item_url>
-						<weight_uom>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/ItemDimension/Display/Mass@unit_of_measure</xml_dest>
-							<translate>0</translate>
-						</weight_uom>
-						<weight>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/ItemDimension/Display/Mass/Weight</xml_dest>
-							<translate>0</translate>
-						</weight>
-						<packaging_uom>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/ItemDimension/Display/Packaging@unit_of_measure</xml_dest>
-							<translate>0</translate>
-						</packaging_uom>
-						<packaging_width>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/ItemDimension/Display/Packaging/Width</xml_dest>
-							<translate>0</translate>
-						</packaging_width>
-						<packaging_length>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/ItemDimension/Display/Packaging/Length</xml_dest>
-							<translate>0</translate>
-						</packaging_length>
-						<packaging_height>
-							<class>eb2cproduct/pim</class>
-							<type>helper</type>
-							<method>passString</method>
-							<xml_dest>ExtendedAttributes/ItemDimension/Display/Packaging/Height</xml_dest>
-							<translate>0</translate>
-						</packaging_height>
 					</mappings>
 				</item_map>
 				<content_map>

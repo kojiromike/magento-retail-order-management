@@ -274,6 +274,58 @@ INVALID_XML;
 		$this->assertSame('UNIT_TEST_CLASS', $taxFragment->firstChild->firstChild->nodeValue);
 	}
 	/**
+	 * Build Duty: given a Duty Quote, ensure we'll get a DOMNode back from buildDuty.
+	 * My rationale here is: that's the only thing it should do. Validation is the test
+	 * of whether the node is correctly constructed. I just need to be sure it's a node.
+	 * @test
+	 */
+	public function testBuildDutyMethod()
+	{
+		$dutyQuotes[] = Mage::getModel(
+			'eb2ctax/response_quote',
+			array(
+				'id'                 => EbayEnterprise_Eb2cTax_Model_Response_Quote::DUTY,
+				'quote_item_id'      => '15',
+				'type'               => '0',
+				'tax_type'           => 'VAT',
+				'taxability'         => 'TAXABLE',
+				'jurisdiction'       => 'QUEBEC',
+				'jurisdiction_id'    => '44906',
+				'jurisdiction_level' => 'PROVINCE',
+				'imposition'         => 'Sales and Use Tax',
+				'imposition_type'    => 'Goods and Services',
+				'situs'              => 'DESTINATION',
+				'effective_rate'     => 1.23,
+				'taxable_amount'     => 2.34,
+				'calculated_tax'     => 3.45,
+			)
+		);
+		$create = $this->getModelMockBuilder('eb2corder/create')
+			->setMethods(array('getItemTaxQuotes'))
+			->getMock();
+		$dutyQuotesCollection = $this->getModelMockBuilder('eb2ctax/resource_response_quote_collection')
+			->disableOriginalConstructor()
+			->setMethods(array('getIterator', 'count'))
+			->getMock();
+		$dutyQuotesCollection->expects($this->any())
+			->method('getIterator')
+			->will($this->returnValue(new ArrayIterator($dutyQuotes)));
+		$dutyQuotesCollection->expects($this->any())
+			->method('count')
+			->will($this->returnValue(1));
+		$create->expects($this->once())
+			->method('getItemTaxQuotes')
+			->will($this->returnValue($dutyQuotesCollection));
+		$fakeDom = Mage::helper('eb2ccore')->getNewDomDocument();
+		$request = $this->_reflectProperty($create, '_domRequest');
+		$request->setValue($create, $fakeDom);
+
+		$dutyFragment = $this
+			->_reflectMethod($create, '_buildDuty')
+			->invoke($create, Mage::getModel('sales/order_item'));
+		$this->assertInstanceOf('DOMNode',$dutyFragment);
+	}
+	/**
 	 * When the observer triggers, the create model should build a new request
 	 * and send it.
 	 * @test

@@ -10,6 +10,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Quote extends Mage_Core_Model_Abstra
 	const MERCHANDISE = 0;
 	const SHIPPING    = 1;
 	const DUTY        = 2;
+	const ERROR       = 3;
 
 	protected function _construct()
 	{

@@ -255,9 +255,10 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 */
 	protected function _validateDocument($key)
 	{
-		Mage::helper('ebayenterprise_magelog')->logInfo("[ %s ] Validating document:\n%s", array(__METHOD__, $this->_docs[$key]->saveXML()));
+		Mage::helper('ebayenterprise_magelog')->logInfo("[ %s ] Validating document:\n%s", array(__METHOD__, $this->_docs[$key]->C14N()));
+		$config = $this->_getFeedsMap();
 		Mage::getModel('eb2ccore/api')
-			->schemaValidate($this->_docs[$key], Mage::helper('eb2cproduct')->getConfigModel()->pimExportXsd);
+			->schemaValidate($this->_docs[$key], $config[$key][self::KEY_SCHEMA_LOCATION]);
 		return $this;
 	}
 	/**

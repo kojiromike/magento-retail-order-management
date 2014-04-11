@@ -15,7 +15,13 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	 */
 	public function getValueAsDefault($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
-		return $doc->createElement('Value', $attrValue);
+		if ($attrValue) {
+			$frag = $doc->createDocumentFragment();
+			$frag->appendChild($doc->createElement('Value'))
+				->appendChild($this->passString($attrValue, $attribute, $product, $doc));
+			return $frag;
+		}
+		return null;
 	}
 	/**
 	 * call self::createStringNode passing it string truncate to on self::STRING_LIMIT and pass the given DOMDocument

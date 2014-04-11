@@ -95,9 +95,11 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 		$feedFilePath = array();
 		foreach (array_keys($this->_getFeedsMap()) as $key) {
 			$feedDataSet = $this->_createFeedDataSet($productIds, $key);
-			$feedDoc = $this->_createDomFromFeedData($feedDataSet, $key);
-			$feedFilePath[$key] = $this->_getFeedFilePath($key);
-			$feedDoc->save($feedFilePath[$key]);
+			if ($feedDataSet->count()) {
+				$feedDoc = $this->_createDomFromFeedData($feedDataSet, $key);
+				$feedFilePath[$key] = $this->_getFeedFilePath($key);
+				$feedDoc->save($feedFilePath[$key]);
+			}
 		}
 		return $feedFilePath;
 	}

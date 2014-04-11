@@ -132,8 +132,11 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 
 		$feedData = $this->getModelMockBuilder('eb2cproduct/pim_product_collection')
 			->disableOriginalConstructor()
-			->setMethods(null)
+			->setMethods(array('count'))
 			->getMock();
+		$feedData->expects($this->once())
+			->method('count')
+			->will($this->returnValue(1));
 
 		$feedDoc = $this->getMockBuilder('EbayEnterprise_Dom_Document')
 			->disableOriginalConstructor()
@@ -163,6 +166,45 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 			->method('_getFeedFilePath')
 			->with($this->identicalTo($key))
 			->will($this->returnValue($pathToFile[$key]));
+
+		$this->assertSame($pathToFile, $pim->buildFeed($productIds));
+	}
+	/**
+	 * @see self::testBuildFeed except this test is to prove that when the method EbayEnterprise_Eb2cProduct_Model_Pim::buildFeed
+	 *      is invoked by this test it will call a mocked EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection class object
+	 *      method EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection::count that return zero which will prevent
+	 *      the EbayEnterprise_Eb2cProduct_Model_Pim::_createDomFromFeedData method to never be invoked
+	 */
+	public function testBuildFeedNoPimProductData()
+	{
+		$key = 'item_map';
+		$map = array($key => array());
+		$pathToFile = array();
+		$productIds = array();
+
+		$feedData = $this->getModelMockBuilder('eb2cproduct/pim_product_collection')
+			->disableOriginalConstructor()
+			->setMethods(array('count'))
+			->getMock();
+		$feedData->expects($this->once())
+			->method('count')
+			->will($this->returnValue(0));
+
+		$pim = $this->getModelMockBuilder('eb2cproduct/pim')
+			->disableOriginalConstructor()
+			->setMethods(array('_getFeedsMap', '_createFeedDataSet', '_createDomFromFeedData', '_getFeedFilePath'))
+			->getMock();
+		$pim->expects($this->once())
+			->method('_getFeedsMap')
+			->will($this->returnValue($map));
+		$pim->expects($this->once())
+			->method('_createFeedDataSet')
+			->with($this->identicalTo($productIds), $this->identicalTo($key))
+			->will($this->returnValue($feedData));
+		$pim->expects($this->never())
+			->method('_createDomFromFeedData');
+		$pim->expects($this->never())
+			->method('_getFeedFilePath');
 
 		$this->assertSame($pathToFile, $pim->buildFeed($productIds));
 	}

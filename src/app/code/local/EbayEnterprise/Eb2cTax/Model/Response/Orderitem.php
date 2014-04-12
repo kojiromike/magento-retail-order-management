@@ -100,21 +100,31 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	{
 		$xpath = $this->_xpath;
 		$itemNode = $this->getNode();
-		$this->addData(array_merge(
-			$this->_extractByType($itemNode, $xpath, array(
-				'sku' => 'string(./a:ItemId)',
-				'line_number' => 'string(./@lineNumber)',
-				'item_desc' => 'string(./a:ItemDesc)',
-				'hts_code' => 'string(./a:HTSCode)'
-			), 'string'),
-			$this->_extractByType($itemNode, $xpath, array(
+		$strings = $this->_extractByType(
+			$itemNode,
+			$xpath,
+			array(
+				'error_duty'        => 'string(a:Pricing/a:Duty/a:CalculationError)',
+				'error_merchandise' => 'string(a:Pricing/a:Merchandise/a:CalculationError)',
+				'error_shipping'    => 'string(a:Pricing/a:Shipping/a:CalculationError)',
+				'hts_code'          => 'string(./a:HTSCode)',
+				'item_desc'         => 'string(./a:ItemDesc)',
+				'line_number'       => 'string(./@lineNumber)',
+				'sku'               => 'string(./a:ItemId)',
+			),
+			'string'
+		);
+		$floats = $this->_extractByType(
+			$itemNode,
+			$xpath,
+			array(
 				'merchandise_amount' => 'number(a:Pricing/a:Merchandise/a:Amount)',
-				'unit_price' => 'number(a:Pricing/a:Merchandise/a:UnitPrice)',
-				'shipping_amount' => 'number(a:Pricing/a:Shipping/a:Amount)',
-				'duty_amount' => 'number(a:Pricing/a:Duty/a:Amount)'
-			), 'float')
-		));
-
+				'unit_price'         => 'number(a:Pricing/a:Merchandise/a:UnitPrice)',
+				'shipping_amount'    => 'number(a:Pricing/a:Shipping/a:Amount)',
+				'duty_amount'        => 'number(a:Pricing/a:Duty/a:Amount)'
+			), 'float'
+		);
+		$this->addData(array_merge($strings, $floats));
 		$this->_validate();
 		// Only bother reading the tax data if the item is valid.
 		if ($this->_isValid) {
@@ -127,11 +137,9 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	 * extract all the map key from the map argument and return
 	 * an array of extracted value cast by the type pass to the method
 	 * @param DomElement $itemNode
-	 * @param DOMXPath $xpath
+	 * @param DOMXPath $xpath 
 	 * @param array $map
-	 * @param string $type (string, float)
-	 * @return array
-	 */
+	 * @param string $type (string, float) * @return array */
 	protected function _extractByType(DomElement $itemNode, DOMXPath $xpath, array $map, $type='string')
 	{
 		return array_reduce(array_keys($map), function($result=array(), $key) use ($itemNode, $xpath, $map, $type) {
@@ -163,13 +171,56 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 			return $xpath->query($expr, $itemNode);
 		}, $isDiscount ? self::$_promoTaxMap : self::$_taxMap);
 		$modelFactory = 'eb2ctax/response_quote' . ($isDiscount ? '_discount' : '');
-		$taxQuote = array();
+
+		$taxQuote                  = array();
+		$calculationErrorResponses = $this->_collectErrorResponseTypes();
+		$calculationError          = count($calculationErrorResponses) ? true : false;
+		// For each type with correct tax nodes, record the response.
 		foreach ($taxTypes as $type => $nodeList) {
 			foreach ($nodeList as $taxNode) {
-				$taxQuote[] = Mage::getModel($modelFactory, array('type' => $type, 'node' => $taxNode));
+				$taxQuote[] = Mage::getModel(
+					$modelFactory,
+					array(
+						'type'              => $type,
+						'node'              => $taxNode,
+						'calculation_error' => $calculationError,
+					)
+				);
 			}
 		}
+		// For each type that had CalculationError set, add an empty response indicating error and the type
+		foreach( $calculationErrorResponses as $errorResponseType) {
+			$taxQuote[] = Mage::getModel(
+				$modelFactory,
+				array(
+					'type'              => $errorResponseType,
+					'node'              => null,
+					'calculation_error' => true,
+				)
+			);
+		}
 		return $taxQuote;
+	}
+	/**
+	 * Check each quote type for Errors
+	 * @return array a list of types for which a CalculationError was returned
+	 */
+	protected function _collectErrorResponseTypes()
+	{
+		$errorTypes = array();
+		$dutyError  = $this->getErrorDuty();
+		if (!empty($dutyError)) {
+			$errorTypes[] = EbayEnterprise_Eb2cTax_Model_Response_Quote::DUTY;
+		}
+		$merchError = $this->getErrorMerchandise();
+		if( !empty($merchError)) {
+			$errorTypes[] = EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE;
+		}
+		$shipError  = $this->getErrorShipping();
+		if( !empty($shipError)) {
+			$errorTypes[] = EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING;
+		}
+		return $errorTypes; 
 	}
 
 	protected function _validate()

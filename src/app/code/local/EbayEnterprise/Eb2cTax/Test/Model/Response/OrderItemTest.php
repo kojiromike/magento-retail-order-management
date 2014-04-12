@@ -91,7 +91,10 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 				'merchandise_amount' => 200.00,
 				'unit_price' => 100.00,
 				'shipping_amount' => 10.00,
-				'duty_amount' => 2.00
+				'duty_amount' => 2.00,
+				'error_duty'        => '',
+				'error_merchandise' => '',
+				'error_shipping'    => '',
 			)))
 			->will($this->returnSelf());
 		$orderitemModelMock->expects($this->exactly(2))
@@ -101,17 +104,24 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 					$itemNode,
 					$xpath,
 					array(
-						'sku' => 'string(./a:ItemId)',
-						'line_number' => 'string(./@lineNumber)',
-						'item_desc' => 'string(./a:ItemDesc)',
-						'hts_code' => 'string(./a:HTSCode)'
+						'error_duty'        => 'string(a:Pricing/a:Duty/a:CalculationError)',
+						'error_merchandise' => 'string(a:Pricing/a:Merchandise/a:CalculationError)',
+						'error_shipping'    => 'string(a:Pricing/a:Shipping/a:CalculationError)',
+						'hts_code'          => 'string(./a:HTSCode)',
+						'item_desc'         => 'string(./a:ItemDesc)',
+						'line_number'       => 'string(./@lineNumber)',
+						'sku'               => 'string(./a:ItemId)',
 					),
 					'string',
 					array(
-						'sku' => 'gc_virtual1',
-						'line_number' => '1',
-						'item_desc' => 'Test Item 1',
-						'hts_code' => 'duty code'
+
+						'error_duty'        => '',
+						'error_merchandise' => '',
+						'error_shipping'    => '',
+						'hts_code'          => 'duty code',
+						'item_desc'         => 'Test Item 1',
+						'line_number'       => '1',
+						'sku'               => 'gc_virtual1',
 					)
 				),
 				array(
@@ -189,7 +199,10 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 				'merchandise_amount' => null,
 				'unit_price' => null,
 				'shipping_amount' => null,
-				'duty_amount' => null
+				'duty_amount' => null,
+				'error_duty'        => '',
+				'error_merchandise' => '',
+				'error_shipping'    => '',
 			)))
 			->will($this->returnSelf());
 		$orderitemModelMock->expects($this->exactly(2))
@@ -199,17 +212,23 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 					$itemNode,
 					$xpath,
 					array(
-						'sku' => 'string(./a:ItemId)',
-						'line_number' => 'string(./@lineNumber)',
-						'item_desc' => 'string(./a:ItemDesc)',
-						'hts_code' => 'string(./a:HTSCode)'
+						'error_duty'        => 'string(a:Pricing/a:Duty/a:CalculationError)',
+						'error_merchandise' => 'string(a:Pricing/a:Merchandise/a:CalculationError)',
+						'error_shipping'    => 'string(a:Pricing/a:Shipping/a:CalculationError)',
+						'hts_code'          => 'string(./a:HTSCode)',
+						'item_desc'         => 'string(./a:ItemDesc)',
+						'line_number'       => 'string(./@lineNumber)',
+						'sku'               => 'string(./a:ItemId)',
 					),
 					'string',
 					array(
-						'sku' => 'gc_virtual1',
-						'line_number' => '1',
-						'item_desc' => 'Test Item 1',
-						'hts_code' => 'duty code'
+						'error_duty'        => '',
+						'error_merchandise' => '',
+						'error_shipping'    => '',
+						'hts_code'          => 'duty code',
+						'item_desc'         => 'Test Item 1',
+						'line_number'       => '1',
+						'sku'               => 'gc_virtual1',
 					)
 				),
 				array(

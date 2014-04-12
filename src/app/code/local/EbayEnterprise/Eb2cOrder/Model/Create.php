@@ -37,6 +37,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected $_o;
 	/**
+	 * @var boolean TaxHeaderError - if set on any tax node at all, this is set to true
+	 */
+	protected $_taxHeaderError = false;
+
+	/**
 	 * @var EbayEnterprise_Dom_Document, DOM Object
 	 */
 	protected $_domRequest;
@@ -217,7 +222,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _buildAdditionalOrderNodes(EbayEnterprise_Dom_Element $order)
 	{
 		$order->createChild('Currency', $this->_o->getOrderCurrencyCode());
-		$order->createChild('TaxHeader')->createChild('Error', 'false');
+		$order->createChild('TaxHeader')->createChild('Error', ($this->_taxHeaderError == true) ? 'true':'false');
 		$order->createChild('Locale', 'en_US');
 		if (Mage::app()->getStore()->isAdmin()) {
 			$adminSession = Mage::getSingleton('admin/session');
@@ -414,6 +419,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$taxes = $taxData->createChild('Taxes');
 			$calc = Mage::getModel('tax/calculation');
 			foreach ($taxQuotes as $taxQuote) {
+				if ($this->_taxHeaderError == false && $taxQuote->getTaxHeaderError() == true) {
+					$this->_taxHeaderError = true;
+				}
 				$taxNode = $taxes->createChild('Tax');
 				// need to actually get these value from somewhere
 				$taxNode->setAttribute('taxType', $taxQuote->getTaxType());

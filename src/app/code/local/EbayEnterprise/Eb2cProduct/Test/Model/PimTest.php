@@ -740,8 +740,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	public function testValidateDocument()
 	{
 		$key = 'item_map';
-		$configRegistry = $this->buildCoreConfigRegistry(array('pimExportXsd' => 'CommonProduct.xsd'));
-		$helper = $this->getHelperMock('eb2cproduct/data', array('getConfigModel'));
+		$configData = array($key => array('schema_location' => 'CommonProduct.xsd'));
 		$doc = $this->getMockBuilder('EbayEnterprise_Dom_Document')
 			->disableOriginalConstructor()
 			->getMock();
@@ -751,19 +750,19 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 
 		$pim = $this->getModelMockBuilder('eb2cproduct/pim')
 			->disableOriginalConstructor()
-			->setMethods(null)
+			->setMethods(array('_getFeedsMap'))
 			->getMock();
+
+		$pim->expects($this->once())
+			->method('_getFeedsMap')
+			->will($this->returnValue($configData));
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($pim, '_docs', $docs);
 
-		$helper->expects($this->once())
-			->method('getConfigModel')
-			->will($this->returnValue($configRegistry));
 		$api->expects($this->once())
 			->method('schemaValidate')
 			->with($this->identicalTo($doc), $this->identicalTo('CommonProduct.xsd'))
 			->will($this->returnSelf());
 
-		$this->replaceByMock('helper', 'eb2cproduct', $helper);
 		$this->replaceByMock('model', 'eb2ccore/api', $api);
 
 		$this->assertSame(

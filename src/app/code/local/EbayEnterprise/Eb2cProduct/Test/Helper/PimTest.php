@@ -18,9 +18,13 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$result = Mage::helper('eb2cproduct/pim')
 			->getValueAsDefault($attrValue, $attribute, $product, $doc);
-		$this->assertInstanceOf('DOMNode', $result);
-		$doc->appendChild($result);
-		$this->assertSame(sprintf('<Value>%s</Value>', $attrValue), $doc->C14N());
+		if ($attrValue) {
+			$this->assertInstanceOf('DOMNode', $result);
+			$doc->appendChild($result);
+			$this->assertSame(sprintf('<Value>%s</Value>', $attrValue), $doc->C14N());
+		} else {
+			$this->assertNull($result);
+		}
 	}
 
 	/**

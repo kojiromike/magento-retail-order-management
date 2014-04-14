@@ -400,6 +400,8 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 	 */
 	public function testExtractConfigurableAttributesData()
 	{
+		$sku = '54-HTSC883399';
+		$styleId = $sku;
 		$confAttr = 'color,size';
 		$data = explode(',', $confAttr);
 		$result = array(array(
@@ -442,9 +444,9 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 
 		$product = $this->getModelMockBuilder('catalog/product')
 			->disableOriginalConstructor()
-			->setMethods(array('getTypeInstance', 'setTypeId', 'setTypeInstance'))
+			->setMethods(array('getTypeInstance', 'setTypeId', 'setTypeInstance', 'getSku', 'getStyleId'))
 			->getMock();
-		$product->expects($this->at(0))
+		$product->expects($this->at(2))
 			->method('getTypeInstance')
 			->with($this->identicalTo(true))
 			->will($this->returnValue($simpleTypeMock));
@@ -456,6 +458,12 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 			->method('setTypeInstance')
 			->with($this->isInstanceOf('Mage_Catalog_Model_Product_Type_Abstract'), $this->identicalTo(true))
 			->will($this->returnSelf());
+		$product->expects($this->once())
+			->method('getSku')
+			->will($this->returnValue($sku));
+		$product->expects($this->once())
+			->method('getStyleId')
+			->will($this->returnValue($styleId));
 
 		$existedConfAttrData = array();
 
@@ -468,7 +476,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 			->with($this->identicalTo($product))
 			->will($this->returnValue($existedConfAttrData));
 
-		$product->expects($this->at(3))
+		$product->expects($this->at(5))
 			->method('getTypeInstance')
 			->with($this->identicalTo(true))
 			->will($this->returnValue($configurableTypeMock));
@@ -513,6 +521,8 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 	 */
 	public function testExtractConfigurableAttributesDataNotInSet()
 	{
+		$sku = '54-HTSC883399';
+		$styleId = $sku;
 		$confAttr = 'color,size';
 		$data = explode(',', $confAttr);
 		$result = array(array(
@@ -555,9 +565,9 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 
 		$product = $this->getModelMockBuilder('catalog/product')
 			->disableOriginalConstructor()
-			->setMethods(array('getTypeInstance', 'setTypeId', 'setTypeInstance'))
+			->setMethods(array('getTypeInstance', 'setTypeId', 'setTypeInstance', 'getSku', 'getStyleId'))
 			->getMock();
-		$product->expects($this->at(0))
+		$product->expects($this->at(2))
 			->method('getTypeInstance')
 			->with($this->identicalTo(true))
 			->will($this->returnValue($simpleTypeMock));
@@ -569,6 +579,12 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 			->method('setTypeInstance')
 			->with($this->isInstanceOf('Mage_Catalog_Model_Product_Type_Abstract'), $this->identicalTo(true))
 			->will($this->returnSelf());
+		$product->expects($this->once())
+			->method('getSku')
+			->will($this->returnValue($sku));
+		$product->expects($this->once())
+			->method('getStyleId')
+			->will($this->returnValue($styleId));
 
 		$existedConfAttrData = array();
 
@@ -581,7 +597,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 			->with($this->identicalTo($product))
 			->will($this->returnValue($existedConfAttrData));
 
-		$product->expects($this->at(3))
+		$product->expects($this->at(5))
 			->method('getTypeInstance')
 			->with($this->identicalTo(true))
 			->will($this->returnValue($configurableTypeMock));
@@ -617,6 +633,28 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 				array($existedConfAttrData, $data[1], false),
 			)));
 		$this->assertSame(array($result[0]), $attributeHelperMock->extractConfigurableAttributesData($nodeList, $product));
+	}
+
+	/**
+	 * @see self::testExtractConfigurableAttributesData test, however this test will be focusing on the scenario where
+	 *      given Mage_Catalog_Model_Product::getSku method don't match the Mage_Catalog_Model_Product::getStyleId and we
+	 *      expect method Mage_Catalog_Model_Product::getTypeInstance to never be called and we expect the return value
+	 *      to be null
+	 */
+	public function testExtractConfigurableAttributesDataWhenChildProductIsFound()
+	{
+		$sku = '54-HTSC883399';
+		$styleId = '54-OHS3323';
+
+		$nodeList = new DOMNodeList();
+		$product = Mage::getModel('catalog/product')->addData(array('sku' => $sku, 'style_id' => $styleId));
+
+		$attributeHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+
+		$this->assertSame(null, $attributeHelperMock->extractConfigurableAttributesData($nodeList, $product));
 	}
 
 	/**

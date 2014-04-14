@@ -134,10 +134,18 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	 * a product of type configurable and then extract the configurable attribute from the node list
 	 * then get the configurable attribute array for each configured attributes
 	 * @param DOMNOdeList $nodes the node with configurableAttributes data
-	 * @return array|null an array of configurable attribute data if the given product is configurable otherwise null
+	 * @return array | null an array of configurable attribute data if the given product is configurable otherwise null
 	 */
 	public function extractConfigurableAttributesData(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
 	{
+		// when a product sku is not equal to style id that's when we know for sure we have a child for a configurable parent
+		// product and since the 'ConfigurableAttributes' node can be in both ContentMaster and ItemMaster feed for
+		// both parent configurable product type and child simple product type we don't want to accidentally make a child
+		// product a configurable product so we must first see if the condition sku and style not match to proceed with
+		// determining configurable attributes for the parent configurable product
+		if ($product->getSku() !== $product->getStyleId()) {
+			return null;
+		}
 		$typeInstance = $product->getTypeInstance(true);
 		// making sure the right type instance is set on the product
 		if (!$typeInstance instanceof Mage_Catalog_Model_Product_Type_Configurable) {
@@ -148,7 +156,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 		$data = null; // purposely setting this to null just in cause all the attribute already exists
 		// we need to know which configurable attribute we already have for this product
 		// so that we don't try to create the same super attribute relationship which will
-		// cause unique key duplication sql constraint to be thrown
+		// cause unique key duplication SQL constraint to be thrown
 		$existedData = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
 		foreach (explode(',', strtolower(Mage::helper('eb2ccore')->extractNodeVal($nodes))) as $attributeCode) {
 			// if we don't currently have a super attribute relationship then get the

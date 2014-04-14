@@ -138,11 +138,9 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	 */
 	public function extractConfigurableAttributesData(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
 	{
-		// when a product sku is not equal to style id that's when we know for sure we have a child for a configurable parent
-		// product and since the 'ConfigurableAttributes' node can be in both ContentMaster and ItemMaster feed for
-		// both parent configurable product type and child simple product type we don't want to accidentally make a child
-		// product a configurable product so we must first see if the condition sku and style not match to proceed with
-		// determining configurable attributes for the parent configurable product
+		// We are ensuring that the given product is a parent configurable product by first checking if the product sku
+		// doesn't match the product style id. If this condition is met then we know we have a child product and we won't
+		// proceed otherwise we know we have a parent product and proceed continue.
 		if ($product->getSku() !== $product->getStyleId()) {
 			return null;
 		}

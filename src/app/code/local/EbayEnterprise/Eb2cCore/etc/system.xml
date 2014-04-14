@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
 	<tabs>
-		<eb2c translate="label" module="eb2ccore">
+		<ebayenterprise translate="label" module="eb2ccore">
 			<label>eBay Enterprise</label>
 			<sort_order>550</sort_order>
-		</eb2c>
+		</ebayenterprise>
 	</tabs>
 	<sections>
 		<eb2ccore translate="label" module="eb2ccore">
 			<class>separator-top</class>
 			<label>Exchange Platform</label>
-			<tab>eb2c</tab>
+			<tab>ebayenterprise</tab>
 			<frontend_type>text</frontend_type>
 			<sort_order>550</sort_order>
 			<show_in_default>1</show_in_default>

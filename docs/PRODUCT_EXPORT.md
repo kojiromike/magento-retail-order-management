@@ -1,33 +1,115 @@
 # Magento as a Product Information Management System
 
-Magento shall be the system of record for product information (except for inventory management). The implementation should consist mostly of filter, dump and transform operations on the Magento flat products table to provide the expected XML output for Sterling Integrator.
+When Magento is to be the system of record for product information (except for inventory management), the extension enables the system to be configured to export product data as XML files. The implementation should consist mostly of filter, dump and transform operations on the Magento flat products table to provide the expected XML output for Sterling Integrator.
 
-## Combined Feed
+## XML Feeds
 
-The outbound product feed is defined by a unified schema with elements similar to those of the inbound ItemMaster, ContentMaster, PriceEvent and iShip feeds.
+Products are exported to XML formats that closely mirror the inbound ItemMaster, ContentMaster, PriceEvent, and iShip feeds. Each outbound feed file shall validate to the same XML schema of the respective inbound feed.
 
 ## Mappings
 
-Attribute codes in Magento shall be mapped using a config.xml definition similar to Magento event observers:
+Mappings are located in the app/etc directory of the Magento root in an XML configuration file named productexport.xml.sample. This file must be copied or renamed to productexport.xml in order for exports to function.
+
+	__WARNING:__ Be careful when modifying this file. Invalid Changes can cause schema validation errors which may prevent feed files from being generated.
+
+The basic structure of the mapping configuration is as follows:
 
 ```xml
-<eb2cproduct_feed_pim_mappings>
-	<mage_attribute_code> <!-- The attribute code for this attribute in Magento -->
-		<class>eb2cproduct/pim</class> <!-- Magento object factory string -->
-		<type>(disabled|model|helper|singleton)</type> <!-- Add helper to what dispatchEvent handles -->
-		<method>takeAction</method> <!-- Any public method -->
-		<xml_dest>Explicit/Relative/Path/To/Node</xml_dest> <!-- Subset-of-xpath expression describing how to create the destination node. -->
-		<translate>1</translate> <!-- Whether the resultant xml can contain more than one node differentiated by a `xml:lang` attribute or only a single node with no `xml:lang` -->
-	</mage_attribute_code>
-	...
-</eb2cproduct_feed_pim_mappings>
+<config>
+	<default>
+		<eb2cproduct>
+			<feed_pim_mapping>
+				<feed_mapping_name> <!-- A unique name for the mapping.
+										 In the sample, we use item_map for ItemMaster and
+										 content_map for ContentMaster, etc
+									-->
+					<mappings>
+						... <!-- individual attribute code configuration goes here -->
+					</mappings>
+				<feed_mapping_name>
+			</feed_pim_mapping>
+		</eb2cproduct>
+	</default>
+</config>
 ```
 
-The `xml_dest` node takes its syntax from XPath, but must unambiguously describe a single destination node, so essentially can only consist of element and attribute nodenames separated by slashes. Ambiguous `xml_dest` values and `xml_dest` values with leading slashes, starting with `..` or ending with a slash should result in a fatal exception. The leftmost node of the xpath is expected to be one of BaseAttributes, ExtendedAttributes or CustomAttributes, but it is not explicitly forbidden for it to be something else.
+### Attribute Code Configuration
 
-If `type` is `disabled`, the attribute should not be sent to Sterling Integrator. This is useful if you want to specify that an attribute should never be sent such that it cannot be overridden.
+Attribute codes in Magento are mapped using an ordered list of xml structures that relate a Magento product attribute code to a method. The method should transform the data into an appropriate xml representation. The result is added as a child of the element specified in the config. The method declarations are similar to Magento's observer configuration.
+
+```xml
+<mage_attribute_code> <!-- The attribute code for an attribute in Magento -->
+	<class>eb2cproduct/pim</class> <!-- Magento object factory string -->
+	<type>(disabled|model|helper|singleton)</type> <!-- Add helper to what dispatchEvent handles -->
+	<method>takeAction</method> <!-- Any public method -->
+	<xml_dest>Explicit/Relative/Path/To/Node</xml_dest> <!-- Subset-of-xpath expression describing how to create the destination node. -->
+	<translate>(0|1)</translate> <!-- Whether the resultant xml can contain more than one node differentiated by a `xml:lang` attribute or only a single node with no `xml:lang` -->
+</mage_attribute_code>
+...
+```
+
+If `type` is `disabled`, the attribute will not be built into the outbound file.
+
+The `xml_dest` specifies the element that will be the parent of the transformed data. Its value is a string that takes its syntax from XPath. The path shall unambiguously describe a single destination node and consist of elements separated by slashes.
+
+A fatal exception will be thrown in the following cases:
+
+1. Ambiguous `xml_dest` paths
+1. Paths with leading slashes
+1. Paths starting with `..`
+
+The element referenced by the final part of the path will always be created as a new element even if an element with the same tag name exists. A trailing '/' at the end of the path overrides this feature and instead attaches the method results as the children of the existing element.
+
+Note: no nodes are overwritten.
+
+The first element of the `xml_dest` path is expected to be one of BaseAttributes, ExtendedAttributes or CustomAttributes, but it is not explicitly forbidden for it to be something else. Please refer to the XML schema for more information.
+
+There is limited support for element attributes using a subset of XPath predicate syntax.
+For example, the path `foo/bar/c[@attr="attrvalue"]` will result in the following xml output:
+
+```xml
+	<foo>
+		<bar>
+			<c attr="attrvalue">
+				<!-- result of method -->
+			</c>
+		</bar>
+	</foo>
+```
 
 To send a hard-coded value regardless of the actual attribute value for the product, create a method that returns that value. (Ideally, the method would fetch a hard-coded value from some other reasonable config.xml node, but if we really want to be idealistic we should not send hard-coded values.)
+
+### Special Attribute Configurations
+
+There are cases where data is not stored as a product attribute or calculated from other sources. Prepending the "attribute code" element's tag name with an underscore will tell the export module to not attempt to retrieve the value from the product, but still execute the method. The result, if any, will be added to the document.
+
+```xml
+<_name_of_attribute_or_concept> <!-- prepend the xml tag name with an "_" -->
+	<class>...</class>
+	<type>(disabled|model|helper|singleton)</type>
+	<method>...</method>
+	<xml_dest>...</xml_dest>
+	<translate>(0|1)</translate>
+</_name_of_attribute_or_concept>
+```
+
+This is useful when arbitrary data should be in the document but is not a product attribute.
+
+
+Attributes that are not specified in the XML schema can be added as custom attributes. This example demonstrates usage of the builtin method for handling custom attributes.
+
+```xml
+<name_of_attribute>
+	<class>eb2cproduct/pim</class>
+	<type>helper</type>
+	<method>getValueAsDefault</method>
+	<xml_dest>CustomAttributes/Attribute[@name="name_of_attribute"]</xml_dest>
+	<translate>1</translate>
+</name_of_attribute>
+```
+
+As long as the resultant xml validates according to the schema (see xsd subdirectory of the Eb2cCore module), you can customize this mapping however you like, including writing your own mapping methods.
+
 
 ### Built-in methods
 
@@ -100,7 +182,8 @@ Once you have acquired an attribute node with a language, apply the value to all
 And assuming this configuration:
 
 ```xml
-<eb2cproduct_feed_pim_mappings>
+...
+<mappings>
 	<name>
 		<class>eb2cproduct/pim</class>
 		<type>helper</type>
@@ -109,7 +192,7 @@ And assuming this configuration:
 		<translate>1</translate>
 	</name>
 	...
-</eb2cproduct_feed_pim_mappings>
+</mappings>
 ```
 
 The resultant XML would look like:

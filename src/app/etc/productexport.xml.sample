@@ -300,7 +300,6 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<translate>0</translate>
 						</_giftcard>
 						<news_from_date>
-							<after>_giftcard</after>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
 							<method>getValueAsDefault</method>

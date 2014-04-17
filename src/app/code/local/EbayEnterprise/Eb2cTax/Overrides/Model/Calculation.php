@@ -119,9 +119,13 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 				->processAddress($address);
 		}
 		$response = $this->getTaxResponse();
-		// NOTE: this method operates under the assumption that the 'tax_response' data element should
-		//       never be set if there is no request.
-		return $response ? $response->getRequest() : Mage::getModel('eb2ctax/request');
+		if ($response) {
+			$request = $response->getRequest();
+			if ($request) {
+				return $request;
+			}
+		}
+		return Mage::getModel('eb2ctax/request');
 	}
 	/**
 	 * store the tax response from eb2c

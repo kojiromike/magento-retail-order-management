@@ -463,8 +463,9 @@
 				</stock_data>
 			</feed_attribute_mappings>
 			<feed_pim_mapping>
+				<!-- http://confluence.tools.us.gspt.net/display/v11dev/Outbound+Inbound+File+Naming+Convention -->
 				<item_map>
-					<file_pattern>Export_{feed_type}_{client_id}_{catalog_id}_{store_id}_{time_stamp}.xml</file_pattern>
+					<file_pattern>{client_id}_{catalog_id}_{feed_type}_{time_stamp}.xml</file_pattern>
 					<root_node>ItemMaster</root_node>
 					<item_node>Item</item_node>
 					<event_type>ItemMaster</event_type>
@@ -472,7 +473,7 @@
 					<is_validate>true</is_validate>
 				</item_map>
 				<content_map>
-					<file_pattern>Export_{feed_type}_{client_id}_{catalog_id}_{store_id}_{time_stamp}.xml</file_pattern>
+					<file_pattern>{client_id}_{catalog_id}_{feed_type}_{time_stamp}.xml</file_pattern>
 					<root_node>ContentMaster</root_node>
 					<item_node>Content</item_node>
 					<event_type>ContentMaster</event_type>
@@ -480,7 +481,7 @@
 					<is_validate>true</is_validate>
 				</content_map>
 				<price_map>
-					<file_pattern>Export_{feed_type}_{client_id}_{catalog_id}_{store_id}.xml</file_pattern>
+					<file_pattern>{client_id}_{store_id}_{catalog_id}_{feed_type}_{time_stamp}.xml</file_pattern>
 					<root_node>Prices</root_node>
 					<item_node>PricePerItem</item_node>
 					<event_type>Pricing</event_type>

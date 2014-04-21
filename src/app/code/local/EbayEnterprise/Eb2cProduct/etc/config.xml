@@ -481,7 +481,8 @@
 					<is_validate>true</is_validate>
 				</content_map>
 				<price_map>
-					<file_pattern>{client_id}_{store_id}_{catalog_id}_{feed_type}_{time_stamp}.xml</file_pattern>
+					<!-- Event Type is Pricing, but file name has Price. Double-checked. -->
+					<file_pattern>{client_id}_{store_id}_{catalog_id}_Price_{time_stamp}.xml</file_pattern>
 					<root_node>Prices</root_node>
 					<item_node>PricePerItem</item_node>
 					<event_type>Pricing</event_type>

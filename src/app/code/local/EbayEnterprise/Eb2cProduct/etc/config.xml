@@ -473,7 +473,8 @@
 					<is_validate>true</is_validate>
 				</item_map>
 				<content_map>
-					<file_pattern>{client_id}_{catalog_id}_{feed_type}_{time_stamp}.xml</file_pattern>
+					<!-- Event Type is ContentMaster, but file name has Content. -->
+					<file_pattern>{client_id}_{catalog_id}_Content_{time_stamp}.xml</file_pattern>
 					<root_node>ContentMaster</root_node>
 					<item_node>Content</item_node>
 					<event_type>ContentMaster</event_type>

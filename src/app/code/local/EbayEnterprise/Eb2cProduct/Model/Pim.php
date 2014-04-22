@@ -106,7 +106,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 				$skuLength = EbayEnterprise_Eb2cProduct_Helper_Pim::MAX_SKU_LENGTH;
 				Mage::helper('ebayenterprise_magelog')->logWarn(
 					static::WARNING_CANNOT_GENERATE_FEED,
-					 array( __METHOD__, basename($fileName), $skuLength)
+					array( __METHOD__, basename($fileName), $skuLength)
 				);
 			}
 		}

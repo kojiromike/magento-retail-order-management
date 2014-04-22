@@ -178,6 +178,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	public function testBuildFeedNoPimProductData()
 	{
 		$key = 'item_map';
+		$filePath = 'path/to/where/0555_8873_ItemMaster.xml';
 		$map = array($key => array());
 		$pathToFile = array();
 		$productIds = array();
@@ -203,8 +204,10 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 			->will($this->returnValue($feedData));
 		$pim->expects($this->never())
 			->method('_createDomFromFeedData');
-		$pim->expects($this->never())
-			->method('_getFeedFilePath');
+		$pim->expects($this->once())
+			->method('_getFeedFilePath')
+			->with($this->identicalTo($key))
+			->will($this->returnValue($filePath));
 
 		$this->assertSame($pathToFile, $pim->buildFeed($productIds));
 	}

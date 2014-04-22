@@ -20,6 +20,8 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	const ERROR_INVALID_DOC = '%s called with invalid doc. Must be instance of EbayEnterprise_Dom_Document';
 	const ERROR_INVALID_CORE_FEED = '%s called with invalid core feed. Must be instance of EbayEnterprise_Eb2cCore_Model_Feed';
 
+	const WARNING_CANNOT_GENERATE_FEED = '[ %s ] %s could not be generated because of missing required product data or the sku exceeded %d characters.';
+
 	/**
 	 * document object used when building the feed contents
 	 * @var array of EbayEnterprise_Dom_Document
@@ -95,10 +97,17 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 		$feedFilePath = array();
 		foreach (array_keys($this->_getFeedsMap()) as $key) {
 			$feedDataSet = $this->_createFeedDataSet($productIds, $key);
+			$fileName = $this->_getFeedFilePath($key);
 			if ($feedDataSet->count()) {
 				$feedDoc = $this->_createDomFromFeedData($feedDataSet, $key);
-				$feedFilePath[$key] = $this->_getFeedFilePath($key);
+				$feedFilePath[$key] = $fileName;
 				$feedDoc->save($feedFilePath[$key]);
+			} else {
+				$skuLength = EbayEnterprise_Eb2cProduct_Helper_Pim::MAX_SKU_LENGTH;
+				Mage::helper('ebayenterprise_magelog')->logWarn(
+					static::WARNING_CANNOT_GENERATE_FEED,
+					 array( __METHOD__, basename($fileName), $skuLength)
+				);
 			}
 		}
 		return $feedFilePath;

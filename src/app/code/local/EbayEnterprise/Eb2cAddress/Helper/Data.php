@@ -54,7 +54,13 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 			$frag->appendChild($doc->createElement('Line' . ($idx + 1), $this->_limit($line, 70), $nsUri));
 		}
 		$frag->appendChild($doc->createElement('City', $this->_limit($address->getCity(), 35), $nsUri));
-		$frag->appendChild($doc->createElement('MainDivision', $this->_limit($address->getRegionCode(), 35), $nsUri));
+		$regionCode = $address->getRegionCode();
+		// Excluding the 'MainDivision' node when there's no region code.
+		if (trim($regionCode) !== '') {
+			$frag->appendChild($doc->createElement(
+				'MainDivision', $this->_limit($regionCode, 35), $nsUri
+			));
+		}
 		$frag->appendChild($doc->createElement('CountryCode', $this->_limit($address->getCountry(), 40), $nsUri));
 		$frag->appendChild($doc->createElement('PostalCode', $this->_limit($address->getPostcode(), 15), $nsUri));
 		return $frag;

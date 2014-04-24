@@ -185,20 +185,20 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	 */
 	public function testBuildOrderItemXml()
 	{
-		$item = $this->getModelMock('sales/quote_item', array('getSku', 'getQty'));
-		$item
-			->expects($this->once())
-			->method('getSku')
-			->will($this->returnValue('sku'));
-		$item
-			->expects($this->once())
-			->method('getQty')
-			->will($this->returnValue(1));
+		$idx = 0;
+		$sku = 'sku';
+		$qty = 1;
+		$shipmentXml = '<ShipmentDetails/>';
+		$item = Mage::getModel('sales/quote_item', array('sku' => $sku, 'qty' => $qty));
+
 		$deets = Mage::getModel('eb2cinventory/details');
-		$this->assertSame(
-			'<OrderItem lineId="item0" itemId="sku"><Quantity>1</Quantity><ShipmentDetails/></OrderItem>',
-			$this->_invokeProt($deets, '_buildOrderItemXml', array($item, '<ShipmentDetails/>', 0))
+		$results = sprintf(
+			EbayEnterprise_Eb2cInventory_Model_Details::ORDER_ITEM_XML_TEMPLATE,
+			$idx, $sku, $qty, $shipmentXml
 		);
+		$this->assertSame($results, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$deets, '_buildOrderItemXml', array($item, $shipmentXml, $idx)
+		));
 	}
 	/**
 	 * Test that buildShipmentDetailsXml takes a quote address and returns a string.
@@ -206,47 +206,44 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	 */
 	public function testBuildShipmentDetailsXml()
 	{
+		$shippingMethod = 'method';
+		$transalteMethod = 'mapped';
+		$lines = array('street 1', 'street 2', 'street 3', 'street 4');
+		$city = 'city';
+		$state = 'state';
+		$country = 'country';
+		$zipCode = 'zip';
+
 		$helper = $this->getHelperMock('eb2ccore/data', array('lookupShipMethod'));
-		$helper
-			->expects($this->once())
+		$helper->expects($this->once())
 			->method('lookupShipMethod')
-			->with($this->equalTo('method'))
-			->will($this->returnValue('mapped'));
+			->with($this->equalTo($shippingMethod))
+			->will($this->returnValue($transalteMethod));
 		$this->replaceByMock('helper', 'eb2ccore', $helper);
-		$address = $this->getModelMock(
-			'sales/quote_address',
-			array('getShippingMethod', 'getStreet', 'getCity', 'getRegionCode', 'getCountryId', 'getPostcode')
-		);
-		$address
-			->expects($this->once())
-			->method('getShippingMethod')
-			->will($this->returnValue('method'));
-		$address
-			->expects($this->atLeastOnce())
-			->method('getStreet')
-			->with($this->isType('int'))
-			->will($this->returnValue('street'));
-		$address
-			->expects($this->once())
-			->method('getCity')
-			->will($this->returnValue('city'));
-		$address
-			->expects($this->once())
-			->method('getRegionCode')
-			->will($this->returnValue('state'));
-		$address
-			->expects($this->once())
-			->method('getCountryId')
-			->will($this->returnValue('country'));
-		$address
-			->expects($this->once())
-			->method('getPostcode')
-			->will($this->returnValue('zip'));
+
+		$address = Mage::getModel('sales/quote_address', array(
+			'shipping_method' => $shippingMethod,
+			'street' => $lines,
+			'city' => $city,
+			'region_code' => $state,
+			'country_id' => $country,
+			'postcode' => $zipCode
+		));
+
 		$deets = Mage::getModel('eb2cinventory/details');
-		$this->assertSame(
-			'<ShipmentDetails><ShippingMethod>mapped</ShippingMethod><ShipToAddress><Line1>street</Line1><Line2>street</Line2><Line3>street</Line3><Line4>street</Line4><City>city</City><MainDivision>state</MainDivision><CountryCode>country</CountryCode><PostalCode>zip</PostalCode></ShipToAddress></ShipmentDetails>',
-			$this->_invokeProt($deets, '_buildShipmentDetailsXml', array($address))
+
+		$streetLines = array_reduce(array_keys($lines), function ($result, $i) use ($lines){
+			$result .= sprintf(EbayEnterprise_Eb2cInventory_Model_Details::LINE_TEMPLATE, $i+1, $lines[$i]);
+			return $result;
+		});
+		$results = sprintf(
+			EbayEnterprise_Eb2cInventory_Model_Details::SHIPMENT_DETAILS_XML_TEMPLATE,
+			$transalteMethod, $streetLines, $city, $state, $country, $zipCode
 		);
+
+		$this->assertSame($results, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$deets, '_buildShipmentDetailsXml', array($address)
+		));
 	}
 
 	/*****************************************************************************

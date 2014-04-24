@@ -3,6 +3,23 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	extends EbayEnterprise_Eb2cInventory_Model_Request_Abstract
 {
 
+	const SHIPMENT_DETAILS_XML_TEMPLATE =
+		'<ShipmentDetails>
+			<ShippingMethod>%s</ShippingMethod>
+			<ShipToAddress>%s
+				<City>%s</City>
+				<MainDivision>%s</MainDivision>
+				<CountryCode>%s</CountryCode>
+				<PostalCode>%s</PostalCode>
+			</ShipToAddress>
+		</ShipmentDetails>';
+	const LINE_TEMPLATE = '<Line%1$d>%2$s</Line%1$d>';
+	const ORDER_ITEM_XML_TEMPLATE =
+		'<OrderItem lineId="item%s" itemId="%s">
+			<Quantity>%d</Quantity>%s
+		</OrderItem>';
+	const SHIPPING_METHOD_WARNING_MESSAGE =
+		'[%s] Unable to translate ship method %s to Exchange Platform';
 	// Key used by the eb2cinventory/data helper to identify the URI for this request
 	const OPERATION_KEY = 'get_inventory_details';
 	// Config key used to identify the xsd file used to validate the request message
@@ -20,8 +37,9 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	 */
 	protected function _canMakeRequestWithQuote(Mage_Sales_Model_Quote $quote)
 	{
-		return parent::_canMakeRequestWithQuote($quote) &&
-			$quote->getShippingAddress() && $quote->getShippingAddress()->getShippingMethod();
+		return $quote->getShippingAddress() &&
+			$quote->getShippingAddress()->getShippingMethod() &&
+			parent::_canMakeRequestWithQuote($quote);
 	}
 	/**
 	 * Take a quote address and interpolate it into a ShipmentDetails xml node string.
@@ -30,24 +48,46 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	 */
 	protected function _buildShipmentDetailsXml(Mage_Sales_Model_Quote_Address $address)
 	{
-		// Address line data
-		$lines = '';
-		for ($i = 1; $i <= 4; $i++) {
-			$st = $address->getStreet($i);
-			if ($st) {
-				$lines .= sprintf('<Line%d>%s</Line%d>', $i, $st, $i);
-			}
-		}
-		$xmlStr = sprintf(
-			'<ShipmentDetails><ShippingMethod>%s</ShippingMethod><ShipToAddress>%s<City>%s</City><MainDivision>%s</MainDivision><CountryCode>%s</CountryCode><PostalCode>%s</PostalCode></ShipToAddress></ShipmentDetails>',
-			Mage::helper('eb2ccore')->lookupShipMethod($address->getShippingMethod()),
-			$lines,
+		return sprintf(
+			static::SHIPMENT_DETAILS_XML_TEMPLATE,
+			$this->_translateShippingMethod($address->getShippingMethod()),
+			$this->_buildStreetLineXml($address),
 			$address->getCity(),
 			$address->getRegionCode(),
 			$address->getCountryId(),
 			$address->getPostcode()
 		);
-		return $xmlStr;
+	}
+	/**
+	 * build street line nodes xml string
+	 * @param Mage_Sales_Model_Quote_Address $address the address object to get data from
+	 * @return string
+	 */
+	protected function _buildStreetLineXml(Mage_Sales_Model_Quote_Address $address)
+	{
+		return array_reduce(range(1, 4), function ($result, $index) use ($address){
+			$street = $address->getStreet($index);
+			$result .= ($street)?
+				sprintf(EbayEnterprise_Eb2cInventory_Model_Details::LINE_TEMPLATE, $index, $street) : '';
+			return $result;
+		});
+	}
+	/**
+	 * Translate the shipping method and log a warning when the translated shipping
+	 * method is empty
+	 * @param string $shippingMethod
+	 * @return string
+	 */
+	protected function _translateShippingMethod($shippingMethod)
+	{
+		$translatedShipMethod = Mage::helper('eb2ccore')->lookupShipMethod($shippingMethod);
+		if (empty($translatedShipMethod)) {
+			Mage::helper('trueaction_magelog')->logWarn(
+				static::SHIPPING_METHOD_WARNING_MESSAGE,
+				array(__METHOD__, $shippingMethod)
+			);
+		}
+		return $translatedShipMethod;
 	}
 	/**
 	 * Take a single quote item and shipment details xml node string.
@@ -60,7 +100,7 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	protected function _buildOrderItemXml(Mage_Sales_Model_Quote_Item $item, $shipDet, $idx)
 	{
 		return sprintf(
-			'<OrderItem lineId="item%s" itemId="%s"><Quantity>%d</Quantity>%s</OrderItem>',
+			static::ORDER_ITEM_XML_TEMPLATE,
 			$idx,
 			$item->getSku(),
 			$item->getQty(),

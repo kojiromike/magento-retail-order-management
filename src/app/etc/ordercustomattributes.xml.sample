@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding="utf-8" ?>
+<!--
+Magento to Exchange Platform Order Custom Attribute Mappings
+-->
+<config>
+	<default>
+		<eb2corder>
+			<!--
+			This is the place where you will be able to map costum attributes for
+			an order create request for each levels: order, order item and order context
+			 -->
+			<custom_attribute_mappings>
+				<order_level>
+					<increment_id>
+						<class>eb2corder/map</class>
+						<type>helper</type>
+						<method>getAttributeValue</method>
+					</increment_id>
+				</order_level>
+				<order_item_level>
+					<sku>
+						<class>eb2corder/map</class>
+						<type>helper</type>
+						<method>getAttributeValue</method>
+					</sku>
+				</order_item_level>
+				<order_context_level>
+					<name>
+						<class>eb2corder/map</class>
+						<type>helper</type>
+						<method>getAttributeValue</method>
+					</name>
+				</order_context_level>
+			</custom_attribute_mappings>
+		</eb2corder>
+	</default>
+</config>

@@ -1196,22 +1196,6 @@ INVALID_XML;
 	 */
 	public function testBuildContext()
 	{
-		$order = $this->getModelMockBuilder('sales/order')
-			->disableOriginalConstructor()
-			->setMethods(array('none'))
-			->getMock();
-		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
-			->setMethods(array('_buildSessionInfo', '_getOrderSource'))
-			->getMock();
-		$checkout = $this->getModelMockBuilder('checkout/session')
-			->disableOriginalConstructor()
-			->setMethods(array('getEb2cFraudCookies', 'getEb2cFraudConnection', 'getEb2cFraudSessionInfo', 'getEb2cFraudTimestamp'))
-			->getMock();
-
-		$this->replaceByMock('singleton', 'checkout/session', $checkout);
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
-
 		$expect = Mage::helper('eb2ccore')->getNewDomDocument();
 		$expect->preserveWhiteSpace = false;
 		$expect->formatOutput = true;
@@ -1238,7 +1222,12 @@ INVALID_XML;
 		</root>'
 		);
 
-		$order->setData(array(
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->formatOutput = true;
+		$doc->loadXML('<root/>');
+		$element = $doc->documentElement;
+
+		$order = Mage::getModel('sales/order', array(
 			'eb2c_fraud_char_set'        => 'some charset',
 			'eb2c_fraud_content_types'   => 'text/test',
 			'eb2c_fraud_encoding'        => 'holy encoded text, batman',
@@ -1250,6 +1239,10 @@ INVALID_XML;
 			'eb2c_fraud_javascript_data' => 'data stuff n things',
 		));
 
+		$checkout = $this->getModelMockBuilder('checkout/session')
+			->disableOriginalConstructor()
+			->setMethods(array('getEb2cFraudCookies', 'getEb2cFraudConnection', 'getEb2cFraudSessionInfo', 'getEb2cFraudTimestamp'))
+			->getMock();
 		$checkout->expects($this->any())
 			->method('getEb2cFraudConnection')
 			->will($this->returnValue('close'));
@@ -1265,10 +1258,15 @@ INVALID_XML;
 		$checkout->expects($this->any())
 			->method('getEb2cFraudSessionInfo')
 			->will($this->returnValue(array('this is session data')));
+		$this->replaceByMock('singleton', 'checkout/session', $checkout);
 
+		$create = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->setMethods(array('_buildSessionInfo', '_getOrderSource', '_buildCustomAttributesByLevel'))
+			->getMock();
 		$create->expects($this->any())
 			->method('_buildSessionInfo')
-			->with($this->identicalTo(array('this is session data')),  $this->isInstanceOf('DOMNode'))
+			->with($this->identicalTo(array('this is session data')), $this->identicalTo($element))
 			->will($this->returnCallback(
 				function($a, $node) use ($create) {
 					$node->appendChild($node->ownerDocument->createElement('SessionInfo', $a[0]));
@@ -1276,13 +1274,19 @@ INVALID_XML;
 				}
 			));
 		$create->expects($this->any())
+			->method('_buildCustomAttributesByLevel')
+			->with(
+				$this->identicalTo(EbayEnterprise_Eb2cOrder_Model_Create::CONTEXT_LEVEL),
+				$this->identicalTo($element),
+				$this->identicalTo($order)
+			)
+			->will($this->returnSelf());
+		$create->expects($this->any())
 			->method('_getOrderSource')
 			->will($this->returnValue('this is the order_source'));
 
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->formatOutput = true;
-		$doc->loadXML('<root/>');
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildContext', array($doc->documentElement));
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildContext', array($element));
 		$this->assertSame($expect->saveXML(), $doc->saveXML());
 	}
 
@@ -1548,5 +1552,42 @@ INVALID_XML;
 		$this->assertSame($createMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$createMock, '_loadRequest', array($xml)
 		));
+	}
+	/**
+	 * Test that EbayEnterprise_Eb2cOrder_Model_Create::_buildCustomAttributesByLevel
+	 * will return itself and that the pass EbayEnterprise_Dom_Element will contain
+	 * the 'CustomAttributes'  node
+	 * @test
+	 */
+	public function testBuildCustomAttributesByLevel()
+	{
+		$result = '<_><CustomAttributes><Attribute><Key>increment_id</Key><Value>00003884</Value></Attribute><Attribute><Key>grand_total</Key><Value>281.77</Value></Attribute></CustomAttributes></_>';
+		$level = EbayEnterprise_Eb2cOrder_Model_Create::ORDER_LEVEL;
+		$data = array(
+			'increment_id' => '00003884',
+			'grand_total' => '281.77'
+		);
+
+		$xml = '<_></_>';
+		$doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
+		$doc->loadXML($xml);
+
+		$order = Mage::getModel('sales/order');
+		$customAttributeOrder = $this->getModelMock('eb2corder/custom_attribute_order', array(
+			'extractData'
+		));
+		$customAttributeOrder->expects($this->once())
+			->method('extractData')
+			->with($this->identicalTo($order))
+			->will($this->returnValue($data));
+		$this->replaceByMock('model', 'eb2corder/custom_attribute_order', $customAttributeOrder);
+
+		$create = Mage::getModel('eb2corder/create');
+
+		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$create, '_buildCustomAttributesByLevel', array($level, $doc->documentElement, $order)
+		));
+
+		$this->assertSame($result, $doc->C14N());
 	}
 }

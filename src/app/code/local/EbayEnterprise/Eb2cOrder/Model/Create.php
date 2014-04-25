@@ -34,6 +34,15 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const RESPONSE_FAILURE_STATUS = 'FAIL';
 	// Translation key for message to show to user when the order create request fails
 	const ORDER_CREATE_FAIL_MESSAGE = 'EbayEnterprise_Eb2cOrder_Order_Create_Fail_Message';
+
+	const CUSTOM_ATTRIBUTE_NODE = 'CustomAttributes';
+	const ATTRIBUTE_NODE = 'Attribute';
+	const VALUE_NODE = 'Value';
+	const KEY_NODE = 'Key';
+
+	const ORDER_LEVEL = 'order';
+	const ITEM_LEVEL = 'item';
+	const CONTEXT_LEVEL = 'context';
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -262,6 +271,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 				$order->createChild('DashboardRepId', $repId);
 			}
 		}
+		// according to the XSD the 'CustomAttributes' node at the order level
+		// must be after the 'DashboardRepId'
+		$this->_buildCustomAttributesByLevel(static::ORDER_LEVEL, $order, $this->_o);
+
 		$orderSource = $this->_getSourceData();
 		if (!empty($orderSource)) {
 			$orderSourceNode = $order->createChild('OrderSource', $orderSource['source']);
@@ -324,7 +337,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * @param DomElement orderItem
 	 * @param Mage_Sales_Model_Order_Item item
 	 * @param integer webLineId	identifier to indicate the line item's sequence within the order
-	 * @return void
+	 * @return self
 	 */
 	protected function _buildOrderItem(DomElement $orderItem, Mage_Sales_Model_Order_Item $item, $webLineId)
 	{
@@ -378,8 +391,15 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		// End Duty
 		$orderItem->createChild('ShippingMethod', Mage::helper('eb2ccore')->lookupShipMethod($order->getShippingMethod()));
 		$this->_buildEstimatedDeliveryDate($orderItem, $item);
+
 		$this->_buildGifting($orderItem, $item);
+
+		// According to the XSD the 'CustomAttributes' node at the order item level
+		// must be inserted before the 'ReservationId' node.
+		$this->_buildCustomAttributesByLevel(static::ITEM_LEVEL, $orderItem, $item);
+
 		$orderItem->createChild('ReservationId', $reservationId);
+		return $this;
 	}
 	/**
 	 * build an EstimatedDeliveryDate node.
@@ -697,6 +717,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$this->_buildBrowserData($context->createChild('BrowserData'));
 		$context->addChild('TdlOrderTimestamp', $this->_xsdString($checkout->getEb2cFraudTimestamp()));
 		$this->_buildSessionInfo($checkout->getEb2cFraudSessionInfo(), $context);
+		// According to the XSD the 'CustomAttributes' node at the order context
+		// level must be inserted as the last node just after the 'PayPalPayerInfo' node
+		$this->_buildCustomAttributesByLevel(static::CONTEXT_LEVEL, $context, $this->_o);
 		return $this;
 	}
 	/**
@@ -870,5 +893,60 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$parent->createChild($element, $val);
 		}
 		return $this;
+	}
+	/**
+	 * Build custom attribute node for the pass in level.
+	 * There are three order levels and they are defined in the class constants as
+	 * (static::ORDER_LEVEL, static::ITEM_LEVEL, and static::CONTEXT_LEVEL), when
+	 * a known level is given a concrete custom attribute class will be instantiate
+	 * with an extractData method that know which custom attribute level to extract
+	 * data from. The extracted Data will be used to construct the 'Key' and 'Value'
+	 * node inside the 'CustomAttributes' outer node.
+	 * @param  string $level (static::ORDER_LEVEL, static::ITEM_LEVEL, or static::CONTEXT_LEVEL)
+	 * @param  EbayEnterprise_Dom_Element $orderElement
+	 * @param  Varien_Object $item can in object that inherited the Varien_Object
+	 * @return self
+	 */
+	protected function _buildCustomAttributesByLevel(
+		$level, EbayEnterprise_Dom_Element $element, Varien_Object $item
+	)
+	{
+		$levelObject = $this->_getCustomAttributeInstance($level);
+		if ($levelObject instanceof EbayEnterprise_Eb2cOrder_Model_Custom_Attribute) {
+			$data = $levelObject->extractData($item);
+			if (!empty($data)) {
+				$customAttributeNode = $element->createChild(static::CUSTOM_ATTRIBUTE_NODE);
+				foreach ($data as $key => $value) {
+					$attributeNode = $customAttributeNode->createChild(static::ATTRIBUTE_NODE);
+					$attributeNode->addChild(static::KEY_NODE, $key)
+						->addChild(static::VALUE_NODE, $value);
+				}
+			}
+		}
+
+		return $this;
+	}
+	/**
+	 * Take a custom attribute level and return an instance of a class that's inherited
+	 * from the EbayEnterprise_Eb2cOrder_Model_Custom_Attribute class or null
+	 * when the level is not one of the expected ones
+	 * @param string $level
+	 * @return EbayEnterprise_Eb2cOrder_Model_Custom_Attribute | null
+	 */
+	protected function _getCustomAttributeInstance($level)
+	{
+		$class = null;
+		switch ($level) {
+			case static::ORDER_LEVEL:
+				$class = 'eb2corder/custom_attribute_order';
+				break;
+			case static::ITEM_LEVEL:
+				$class = 'eb2corder/custom_attribute_item';
+				break;
+			case static::CONTEXT_LEVEL:
+				$class = 'eb2corder/custom_attribute_context';
+				break;
+		}
+		return !is_null($class)?Mage::getModel($class):$class;
 	}
 }

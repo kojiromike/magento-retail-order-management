@@ -180,7 +180,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 
 		$abstractFeed->expects($this->once())
 			->method('_loadDom')
-			->with($this->identicalTo($processingDetails))
+			->with($this->identicalTo($fileDetails))
 			->will($this->returnValue($feedDom));
 		$abstractFeed->expects($this->once())
 			->method('processDom')
@@ -209,25 +209,22 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 		$processingFile = '/Mage/var/processing/file.xml';
 		$archiveFile = '/Mage/var/archive/file.xml';
 		$fileDetails = array('local_file' => $localFile, 'core_feed' => $coreFeed);
-		$processingFileDetails = array('local_file' => $processingFile, 'core_feed' => $coreFeed);
-
-		$coreFeed->expects($this->once())
-			->method('mvToProcessingDirectory')
-			->with($this->identicalTo($localFile))
-			->will($this->returnValue($processingFile));
-		$coreFeed->expects($this->once())
-			->method('acknowledgeReceipt')
-			->with($this->identicalTo($localFile))
-			->will($this->returnSelf());
-		$coreFeed->expects($this->once())
-			->method('mvToImportArchive')
-			->with($this->identicalTo($processingFile))
-			->will($this->returnValue($archiveFile));
 
 		$abstractFeed->expects($this->once())
 			->method('_loadDom')
-			->with($this->identicalTo($processingFileDetails))
+			->with($this->identicalTo($fileDetails))
 			->will($this->returnValue(null));
+
+		$coreFeed->expects($this->never())
+			->method('mvToProcessingDirectory')
+			->will($this->returnValue($processingFile));
+		$coreFeed->expects($this->never())
+			->method('acknowledgeReceipt')
+			->will($this->returnSelf());
+		$coreFeed->expects($this->once())
+			->method('mvToImportArchive')
+			->with($this->identicalTo($localFile))
+			->will($this->returnValue($archiveFile));
 		$abstractFeed->expects($this->never())
 			->method('processDom');
 

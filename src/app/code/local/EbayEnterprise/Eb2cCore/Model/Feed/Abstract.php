@@ -120,10 +120,10 @@ abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 		// the 'local_file' path to the new location of the file in the
 		// processing directory
 		Mage::log(sprintf('[%s] Processing file %s', __CLASS__, $fileDetail['local_file']), Zend_Log::DEBUG);
-		$fileDetail['local_file'] = $fileDetail['core_feed']
-			->acknowledgeReceipt($fileDetail['local_file'])
-			->mvToProcessingDirectory($fileDetail['local_file']);
 		if ($dom = $this->_loadDom($fileDetail)) {
+			$fileDetail['local_file'] = $fileDetail['core_feed']
+				->acknowledgeReceipt($fileDetail['local_file'])
+				->mvToProcessingDirectory($fileDetail['local_file']);
 			$this->processDom($dom, $fileDetail);
 		}
 		$fileDetail['core_feed']->mvToImportArchive($fileDetail['local_file']);

@@ -2,9 +2,7 @@
 
 ## Assumption
 
-We made the assumption that any order level fields, order context level fields or order item level fields that the SI configured in the custom attributes map will exist in magento through
-some other independent module plug-ins. This configuration assume that the these field already exists in Magento **sales_flat_order** database table or the **sales_flat_order_item** database table via
-some other independent module plug-ins installation scripts.
+We made the assumption that any order level fields, order context level fields or order item level fields that the SI configured in the custom attributes map will exist in magento through some other independent module plug-ins. This configuration assumes that these data can be retrieved using the get magic method on any concrete class instances that extended a **Varien_Object** class.
 
 ## How to configure order custom attributes by order levels:
 
@@ -14,18 +12,18 @@ There are three levels to configure for custom attributes
 - Order Item Level
 
 ## XML Configuration
-The order custom attribute xml will exists in **app/etc/ordercustomattributes.xml.sample**
+The order custom attribute xml will exist in **app/etc/ordercustomattributes.xml.sample**
 ```xml
 <custom_attribute_mappings>
 	<order_level>
-		<increment_id> <!-- A known field that exists in the sales_flat_order database table-->
+		<increment_id> <!-- A known data that can be retrieved via 'get' magic method on any concrete class instance that extend Varien_Object class-->
 			<class>eb2corder/map</class>
 			<type>helper</type>
 			<method>getAttributeValue</method>
 		</increment_id>
 	</order_level>
-	<order_item_level> <!-- A known field that exists in the sales_flat_order_item database table-->
-		<sku>
+	<order_item_level>
+		<sku> <!-- A known data that can be retrieved via 'get' magic method on any concrete class instance that extend Varien_Object class-->
 			<class>eb2corder/map</class>
 			<type>helper</type>
 			<method>getAttributeValue</method>

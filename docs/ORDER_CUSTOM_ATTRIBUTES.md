@@ -2,9 +2,9 @@
 
 ## Assumption
 
-We made the assumption that any order level fields, order context level fields or order item level fields that the SI configured in the custom attributes map will exist in magento through some other independent module plug-ins. This configuration assumes that these data can be retrieved using the get magic method on any concrete class instances that extended a **Varien_Object** class.
+Any order level fields, order context level fields or order item level fields that the SI configured in the custom attributes map will exist in magento through some other independent module plug-ins. This configuration assumes that these data can be retrieved using the get magic method on any concrete class instances that extended a **Varien_Object** class.
 
-## How to configure order custom attributes by order levels:
+## How to configure order custom attributes:
 
 There are three levels to configure for custom attributes
 - Order Level
@@ -16,14 +16,14 @@ The order custom attribute xml will exist in **app/etc/ordercustomattributes.xml
 ```xml
 <custom_attribute_mappings>
 	<order_level>
-		<increment_id> <!-- A known data that can be retrieved via 'get' magic method on any concrete class instance that extend Varien_Object class-->
+		<increment_id> <!-- A known value that can be retrieved via 'get' magic method or an actual public method call on any concrete class instance that extend Varien_Object class-->
 			<class>eb2corder/map</class>
 			<type>helper</type>
 			<method>getAttributeValue</method>
 		</increment_id>
 	</order_level>
 	<order_item_level>
-		<sku> <!-- A known data that can be retrieved via 'get' magic method on any concrete class instance that extend Varien_Object class-->
+		<sku> <!-- A known value that can be retrieved via 'get' magic method or an actual public method call on any concrete class instance that extend Varien_Object class-->
 			<class>eb2corder/map</class>
 			<type>helper</type>
 			<method>getAttributeValue</method>
@@ -41,7 +41,7 @@ The order custom attribute xml will exist in **app/etc/ordercustomattributes.xml
 
 ## The 'CustomAttributes' node at order level in the OrderCreateRequest Sample:
 
-When an SI configured the custom attributes at the order level the configuration should look like the example below:
+When an SI configures the custom attributes at the order level the configuration should look like the example below:
 
 ```xml
 <custom_attribute_mappings>
@@ -83,7 +83,7 @@ The OrderCreateRequest xml will look like the example below:
 
 ## The 'CustomAttributes' node at order item level in the OrderCreateRequest Sample:
 
-When an SI configured the custom attributes at the order item level the configuration should look like the example below:
+When an SI configures the custom attributes at the order item level the configuration should look like the example below:
 
 ```xml
 <custom_attribute_mappings>
@@ -103,7 +103,7 @@ The OrderCreateRequest xml will look like the example below:
 <OrderCreateRequest>
 	<Order>
 		<Customer>...</Customer>
-		<CreateTime...</CreateTime>
+		<CreateTime>...</CreateTime>
 		<OrderItems>
 			<OrderItem>
 				<ItemId>...</ItemId>
@@ -116,6 +116,21 @@ The OrderCreateRequest xml will look like the example below:
 					<Attribute>
 						<Key>sku</Key>
 						<Value>45-HTCT60</Value>
+					</Attribute>
+				</CustomAttributes>
+				<ReservationId>...</ReservationId>
+			</OrderItem>
+			<OrderItem>
+				<ItemId>...</ItemId>
+				<Quantity>5</Quantity>
+				<Description>...</Description>
+				<Pricing>...</Pricing>
+				<ShippingMethod>...</ShippingMethod>
+				<EstimatedDeliveryDate>...</EstimatedDeliveryDate>
+				<CustomAttributes>
+					<Attribute>
+						<Key>sku</Key>
+						<Value>45-413332</Value>
 					</Attribute>
 				</CustomAttributes>
 				<ReservationId>...</ReservationId>
@@ -135,7 +150,7 @@ The OrderCreateRequest xml will look like the example below:
 
 ## The 'CustomAttributes' node at order context level in the OrderCreateRequest Sample:
 
-When an SI configured the custom attributes at the order context level the configuration should look like the example below:
+When an SI configures the custom attributes at the order context level the configuration should look like the example below:
 
 ```xml
 <custom_attribute_mappings>

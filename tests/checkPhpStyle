@@ -37,7 +37,7 @@ getCsStandard() {
 	(
 		mkdir -p build/codeAnalysis
 		if cd build/codeAnalysis; then
-			git clone --depth 0 git@bitbucket.org:trueaction/codeAnalysis . 2>/dev/null;
+			git clone https://github.scm.corp.ebay.com/Cheetah/php-code-sniffer-ruleset . ||
 			git pull
 		else
 			echo "$PWD"
@@ -50,9 +50,10 @@ getCsStandard() {
 checkStyle() {
 	phpcs -p \
 		--report-checkstyle=build/checkstyle.xml \
-		--standard=build/codeAnalysis/php-code-checker/TrueAction \
+		--standard=build/codeAnalysis/php-code-checker/EbayEnterprise \
 		--ignore=src/js/ebayenterprise_eb2cfraud/ \
 		"$@"
 }
 
 . tests/utils
+

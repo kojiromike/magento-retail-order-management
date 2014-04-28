@@ -24,6 +24,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const FRONTEND_ORDER_SOURCE = 'web';
 	const COOKIES_DELIMITER = ';';
 
+	const GIFT_MESSAGE_PRINTED_CARD_NODE = 'GiftCard';
+	const GIFT_MESSAGE_PACKSLIP_NODE = 'Packslip';
 	const RETRY_BEGIN_MESSAGE = '[ %s ]: Begin order retry now: %s. Found %s new order to be retried';
 	const RETRY_END_MESSAGE = '[ %s ]: Order retried finish at: %s';
 	// Response status reported by OrderCreateResponse message orders successfully created
@@ -215,6 +217,33 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		return $this;
 	}
 	/**
+	 * Build the "Gifting" nodes for the order or an order item. The $item
+	 * Varien_Object will typically be a Mage_Sales_Model_Order or
+	 * Mage_Sales_Model_Order_Item, but any Varien_Object could suffice - really
+	 * just needs a `getGiftMessageId` method. When applicable, the Gifting
+	 * node will be appended to the given DOMElement.
+	 * @param  DOMElement    $node
+	 * @param  Varien_Object $item
+	 * @return self
+	 */
+	protected function _buildGifting(DOMElement $node, Varien_Object $item)
+	{
+		$messageId = $item->getGiftMessageId();
+		if (!$messageId) {
+			return $this;
+		}
+		$giftMessage = Mage::getModel('giftmessage/message')->load($messageId);
+		$type = $this->_o->getGwAddCard() ? self::GIFT_MESSAGE_PRINTED_CARD_NODE : self::GIFT_MESSAGE_PACKSLIP_NODE;
+
+		$gifting = $node->createChild('Gifting');
+		$messageNode = $gifting->createChild($type);
+		$messageNode->createChild('Message')
+			->addChild('To', strip_tags($giftMessage->getSender()))
+			->addChild('From', strip_tags($giftMessage->getRecipient()))
+			->addChild('Message', strip_tags($giftMessage->getMessage()));
+		return $this;
+	}
+	/**
 	 * Build DOM additonal node
 	 * @param EbayEnterprise_Dom_Element $order
 	 * @return self
@@ -349,6 +378,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		// End Duty
 		$orderItem->createChild('ShippingMethod', Mage::helper('eb2ccore')->lookupShipMethod($order->getShippingMethod()));
 		$this->_buildEstimatedDeliveryDate($orderItem, $item);
+		$this->_buildGifting($orderItem, $item);
 		$orderItem->createChild('ReservationId', $reservationId);
 	}
 	/**
@@ -495,6 +525,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$shipItem = $orderItems->createChild('Item');
 			$shipItem->setAttribute('ref', $orderItemRef);
 		}
+		$this->_buildGifting($shipGroup, $this->_o);
 	}
 	/**
 	 * Builds the Shipping Node for order

@@ -748,6 +748,98 @@ INVALID_XML;
 		);
 	}
 	/**
+	 * Provide gift message id and if the message should include a printed card.
+	 * @return array
+	 */
+	public function provideGiftMessage()
+	{
+		return array(
+			array(12, true),
+			array(12, false),
+			array(null, null),
+		);
+	}
+	/**
+	 * Test building out the gifting nodes for an order item. The order item
+	 * could just as well be an order as the interface for getting a gift message
+	 * from the order is exactly the same as an order item. Given an order or
+	 * order item, should look for a gift message associated with the order
+	 * or order item. If present, should add the appripriate "Gifting" nodes to
+	 * the a given node.
+	 * @param int|null $giftMessageId ID of the related message if one is expected to exist
+	 * @param bool|null $addCard If the order should include a printed card
+	 * @test
+	 * @dataProvider provideGiftMessage
+	 */
+	public function testBuildGiftingNodes($giftMessageId, $addCard)
+	{
+		$sender = 'John<b/> Doe';
+		$cleanSender = 'John Doe';
+		$recipient = 'Jane <i>Doe</i>';
+		$cleanRecipient = 'Jane Doe';
+		$message = 'Who <s>are</s> you?';
+		$cleanMessage = 'Who are you?';
+		// Expect this DOMDocument to be modified to include the appropriate nodes
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root></root>');
+
+		// Order item to get gift message data from. May just as well be an order
+		// object as means of getting related gift messages is the same for both
+		// types of objects.
+		$orderItem = Mage::getModel(
+			'sales/order_item',
+			array('gift_message_id' => $giftMessageId)
+		);
+		// Order object being processed - order create model's "_o" property.
+		// Whether the object being processed is an order item or order, only the
+		// order in the "_o" property should be checked for the printed card.
+		$order = Mage::getModel(
+			'sales/order',
+			array('gw_add_card' => $addCard)
+		);
+
+		// Related gift message
+		$giftMessage = $this->getModelMock(
+			'giftmessage/message',
+			array('load'),
+			false,
+			array(array('sender' => $sender, 'recipient' => $recipient, 'message' => $message, 'id' => $giftMessageId))
+		);
+		$this->replaceByMock('model', 'giftmessage/message', $giftMessage);
+		// If there is a message id on the order, load the gift message with that id
+		if ($giftMessageId) {
+			$giftMessage->expects($this->once())
+				->method('load')
+				->with($this->identicalTo($giftMessageId))
+				->will($this->returnSelf());
+		}
+
+		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->getMock();
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($createModelMock, '_o', $order);
+
+		EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$createModelMock,
+			'_buildGifting',
+			array($doc->documentElement, $orderItem)
+		);
+
+		// When $addCard is true, should use the GiftCard node, otherwise the Packslip node
+		$giftingType = $addCard ? 'GiftCard' : 'Packslip';
+		// When there is a related gift message, should inject this XML. When there
+		// isn't a related gift message, shouldn't insert any additional XML.
+		$giftingNode = $giftMessageId ?
+			"<Gifting><{$giftingType}><Message><To>{$cleanSender}</To><From>{$cleanRecipient}</From><Message>{$cleanMessage}</Message></Message></{$giftingType}></Gifting>" :
+			"";
+
+		$this->assertSame(
+			"<root>{$giftingNode}</root>",
+			$doc->C14N()
+		);
+	}
+	/**
 	 * Test buildRequest method
 	 * @test
 	 */

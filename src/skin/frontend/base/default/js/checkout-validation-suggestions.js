@@ -1,7 +1,7 @@
 document.observe('dom:loaded', function() {
 	/**
 	 * Replacement for the onepage Billing and Shipping methods.
-	 * Need to ensure the original method is called as well as the additinal steps
+	 * Need to ensure the original method is called as well as the additional steps
 	 * to insert the suggestions. This means some steps are duplicated but
 	 * also helps to reduce the risk of the overridden method diverging too far from
 	 * its replacement.
@@ -43,27 +43,45 @@ document.observe('dom:loaded', function() {
 		}
 
 		return success;
-	}
+	};
 
 	if (window.Billing) {
-		// replace the original nextStep method with the override
-		var origNext = window.Billing.prototype.nextStep;
+		// replace the original nextStep method with the override, wrapping the
+		// original function with added handling for address validation suggestions
+		var origBillNext = window.Billing.prototype.nextStep;
 		window.Billing.prototype.nextStep = function (transport) {
-			return nextWithSuggestions.call(this, origNext, transport);
+			return nextWithSuggestions.call(this, origBillNext, transport);
 		};
 	}
-	if (window.billing) {
+	/*
+	 * If billing.onSave has been defined as a function, must assume it will call
+	 * Billing.nextStep. This is necessary as:
+	 * Wrapping the existing method with another that will certainly call
+	 * Billing.nextStep may duplicate the call if the original method is already
+	 * calling it.
+	 * Replacing the method with a call to Billing.nextStep may remove other
+	 * necessary actions taken by the already defined function.
+	 * If the function has not yet been defined, define it as simply calling
+	 * Billing.nextStep, properly bound as an event listener.
+	 */
+	if (typeof(window.billing.onSave) !== 'function') {
 		window.billing.onSave = window.Billing.prototype.nextStep.bindAsEventListener(window.billing);
 	}
 
 	if (window.Shipping) {
-		// replace the original nextStep method with the override
-		var origNext = window.Shipping.prototype.nextStep;
+		// replace the original nextStep method with the override, wrapping the
+		// original function with added handling for address validation suggestions
+		var origShipNext = window.Shipping.prototype.nextStep;
 		window.Shipping.prototype.nextStep = function (transport) {
-			return nextWithSuggestions.call(this, origNext, transport);
+			return nextWithSuggestions.call(this, origShipNext, transport);
 		};
 	}
-	if (window.shipping) {
+	/*
+	 * Same as billing.onSave. If defined, must assume it will call
+	 * Shipping.nextStep. Otherwise, define it as Shipping.nextStep bound as an
+	 * event listener.
+	 */
+	if (typeof(window.shipping.onSave) !== 'function') {
 		window.shipping.onSave = window.Shipping.prototype.nextStep.bindAsEventListener(window.shipping);
 	}
 

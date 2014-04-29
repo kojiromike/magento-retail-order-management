@@ -8,7 +8,17 @@
  */
 class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 {
-
+	// Name of the magic data property used product ids need to be updated in
+	// to keep the list of used product ids for a configurable product up-to-date
+	// throughout the cleaning process.
+	const USED_PRODUCT_IDS_PROPERTY = '_cache_instance_product_ids';
+	/**
+	 * Collection of products that will be used by the cleaner. Includes any
+	 * products that need to be cleaned as well as any products that will be
+	 * used by products being cleaned.
+	 * @var Mage_Catalog_Model_Resource_Product_Collection
+	 */
+	protected $_products;
 	// map eb2c link types to Magento product link data attribute
 	protected $_linkTypes = array(
 		'related' => array(
@@ -24,26 +34,74 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 			'linked_products_getter_method' => 'getCrossSellProducts',
 		),
 	);
-
+	/**
+	 * Set up collection of products that will be used by the cleaner. The
+	 * collection of products to clean may be passed in as a "products" key in
+	 * the args array. If passed in, the collection must be a
+	 * Mage_Catalog_Model_Resource_Product_Collection or an error will be triggered.
+	 * @param array $args Use single args array to work with Magento factory methods.
+	 */
+	public function __construct($args)
+	{
+		// If a collection of products is supplied, use it as long as it is at least
+		// a Varien_Data_Collection. More strictly checking for a
+		// Mage_Catalog_Model_Resource_Product_Collection may be useful but is probably
+		// also more strict than need be.
+		if (isset($args['products'])) {
+			if (!$args['products'] instanceof Mage_Catalog_Model_Resource_Product_Collection) {
+				// treat this as if it had been a type mismatch for an argument to this method
+				trigger_error(sprintf(
+					'"products" must be an instance of Mage_Catalog_Model_Resource_Product_Collection. %s given.', gettype($args['products'])
+				), E_RECOVERABLE_ERROR);
+			}
+			$this->_products = $args['products'];
+		} else {
+			$this->_products = $this->_getProducts();
+		}
+	}
 	/**
 	 * Go through all products that need to be cleaned and clean them.
 	 * @return $this object
 	 */
 	public function cleanAllProducts()
 	{
-		$productsToClean = $this->getProductsToClean();
-		Mage::log(sprintf('[ %s ]: Cleaning %d products.', __CLASS__, $productsToClean->count()));
+		// Get all products that need cleaning - due to loose comparison of column
+		// values by the collection, any products that do not include an 'is_clean'
+		// column will be included.
+		$productsToClean = $this->_products->getItemsByColumnValue('is_clean', false);
+		Mage::log(sprintf('[ %s ]: Cleaning %d products.', __CLASS__, count($productsToClean)), Zend_Log::INFO);
 		foreach ($productsToClean as $product) {
 			$this->cleanProduct($product);
 		}
+		// save all the products that may have been modified while cleaning products
+		$this->_products->save();
 		return $this;
 	}
-
+	/**
+	 * Get all products that will be needed by the cleaner. This includes all
+	 * products that need to be cleaned as well as any products that may be
+	 * affected by the cleaning process - linked products, parent configurable
+	 * products or simple products used by a config product.
+	 * @return Mage_Catalog_Model_Resource_Product_Collection
+	 */
+	protected function _getProducts()
+	{
+		$productsToClean = $this->_getProductsToClean();
+		$affectedProducts = Mage::getModel('catalog/product')->getCollection()
+			->addAttributeToFilter('sku', array('in' => $this->_getAffectedSkus($productsToClean)))
+			->addAttributeToSelect('*');
+		foreach ($affectedProducts as $product) {
+			if (!$productsToClean->getItemById($product->getId())) {
+				$productsToClean->addItem($product);
+			}
+		}
+		return $productsToClean;
+	}
 	/**
 	 * Get a collection of products that need to be cleaned.
 	 * @return Mage_Catalog_Model_Resource_Product_Collection Collection of "dirty" products.
 	 */
-	public function getProductsToClean()
+	protected function _getProductsToClean()
 	{
 		return Mage::getModel('catalog/product')->getCollection()
 			// @todo - order products are processed may be optimizable
@@ -51,7 +109,114 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 			// @todo - trim this down to only the necessary attributes
 			->addAttributeToSelect('*');
 	}
-
+	/**
+	 * Get all skus that will be needed to resolve product links or configurable
+	 * product relationships.
+	 * @param  Mage_Catalog_Model_Resource_Product_Collection $productCollection
+	 * @return array
+	 */
+	protected function _getAffectedSkus($productCollection)
+	{
+		// Double flip will reduce the array to unique values - substantially
+		// more efficient than array_unique due to array_unique's sort which isn't
+		// necessary in this scenario. Useful here as this list of skus could
+		// get rather large, especially when doing the initial import which could
+		// result in an entire catalog's worth of skus.
+		return array_flip(array_flip(array_merge(
+			$this->_getAllLinkedSkus($productCollection),
+			$this->_getAllParentConfigurableSkus($productCollection),
+			$this->_getAllUsedProductSkus($productCollection)
+		)));
+	}
+	/**
+	 * Get all skus mentioned by the unresolved product links in the collection
+	 * of products to be cleaned.
+	 * @param  Varien_Data_Collection $productCollection
+	 * @return array
+	 */
+	protected function _getAllLinkedSkus(Varien_Data_Collection $productCollection)
+	{
+		return array_reduce(
+			array_map(
+				array($this, '_getAllUnresolvedProductLinks'),
+				$productCollection->getItems()
+			),
+			array($this, '_reduceLinksToSkus'),
+			array() // initial empty array for the reduce
+		);
+	}
+	/**
+	 * Get the skus of all potential configurable products that a simple product
+	 * within the collection of products to be cleaned may need to be linked to.
+	 * @param  Varien_Data_Collection $productCollection
+	 * @return array
+	 */
+	protected function _getAllParentConfigurableSkus(Varien_Data_Collection $productCollection)
+	{
+		return array_map(
+			function ($product) { return $product->getStyleId(); },
+			array_filter(
+				$productCollection->getItems(),
+				array($this, '_filterProductWithConfigParent')
+			)
+		);
+	}
+	/**
+	 * Get an array of skus for all simple products that should be linked to a
+	 * configurable product included in the collection of products to be cleaned.
+	 * @param  Varien_Data_Collection $productCollection
+	 * @return array
+	 */
+	protected function _getAllUsedProductSkus(Varien_Data_Collection $productCollection)
+	{
+		$configSkus = array_map(
+			function ($product) { return $product->getSku(); },
+			$productCollection->getItemsByColumnValue('type_id', Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE)
+		);
+		return Mage::getModel('catalog/product')->getCollection()
+			->addAttributeToFilter('style_id', array('in' => $configSkus))
+			->addAttributeToFilter('type_id', Mage_Catalog_Model_Product_Type::TYPE_SIMPLE)
+			->getColumnValues('sku');
+	}
+	/**
+	 * Get the unresolved product links for a product
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @return array
+	 */
+	protected function _getAllUnresolvedProductLinks(Mage_Catalog_Model_Product $product)
+	{
+		$unresolvedLinks = unserialize($product->getUnresolvedProductLinks());
+		return is_array($unresolvedLinks) ? $unresolvedLinks : array();
+	}
+	/**
+	 * Add all related skus in the list of product links to the list of skus. List
+	 * of SKUs represented as keys in the array to make
+	 * @param  array $skus Current list of skus
+	 * @param  array $productLinks Maps of product link data
+	 * @return array Update list of skus
+	 */
+	protected function _reduceLinksToSkus($skus, $productLinks)
+	{
+		foreach ($productLinks as $link) {
+			if (isset($link['link_to_unique_id'])) {
+				$skus[] = $link['link_to_unique_id'];
+			}
+		}
+		return $skus;
+	}
+	/**
+	 * Filter used to get only products that are used by a configurable parent.
+	 * Currently, this means only simple products with a style_id that differs
+	 * from the sku.
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @return boolean True if product is expected to have a parent configurable product, false otherwise.
+	 */
+	protected function _filterProductWithConfigParent(Mage_Catalog_Model_Product $product)
+	{
+		return $product->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_SIMPLE &&
+			$product->getStyleId() &&
+			$product->getStyleId() !== $product->getSku();
+	}
 	/**
 	 * Update any product links.
 	 * @param  Mage_Catalog_Model_Product $product [description]
@@ -68,7 +233,6 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 			$this->_addToConfigurableProduct($product);
 		}
 		$this->markProductClean($product);
-		$product->save();
 		return $this;
 	}
 
@@ -135,7 +299,8 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 		$missingLinks = array();
 		$idsToAdd = array();
 		foreach ($addSkus as $sku) {
-			$id = Mage::getModel('catalog/product')->getIdBySku($sku);
+			$linkProduct = $this->_products->getItemByColumnValue('sku', $sku);
+			$id = $linkProduct ? $linkProduct->getId() : null;
 			if ($id) {
 				$idsToAdd[] = $id;
 			} else {
@@ -183,29 +348,39 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 	 */
 	protected function _addUsedProducts(Mage_Catalog_Model_Product $product)
 	{
-		// look up used products by style_id, will match sku of configurable product
-		$addProductIds = Mage::getModel('catalog/product')->getCollection()
-			->addAttributeToSelect('*')
-			->addFieldToFilter('style_id', array('eq' => $product->getSku()))
-			->addFieldToFilter('entity_id', array('neq' => $product->getId()))
-			->getAllIds();
+		$addProductIds = array();
+		foreach ($this->_products as $collectionProduct) {
+			// used product must be simple and have a style id that matches the
+			// configurable product's sku
+			if (
+				$collectionProduct->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_SIMPLE &&
+				$collectionProduct->getStyleId() === $product->getSku()
+			) {
+				$addProductIds[] = $collectionProduct->getId();
+			}
+		}
+
 		// merge the found products with any existing links, filtering out any duplicates
 		$existingIds = $product->getTypeInstance()->getUsedProductIds();
 		$usedProductIds = array_unique(array_merge($existingIds, $addProductIds));
 
-		// sorting both addProductIds and existingIds just to make sure their indices match
-		asort($addProductIds);
-		asort($existingIds);
-
 		// only update used products when there are new products to add to the list
 		// update used product when there are addProductIds that are not in existingIds.
 		if (array_diff($addProductIds, $existingIds)) {
+			// save the configurable product links
 			Mage::getResourceModel('catalog/product_type_configurable')
-				->saveProducts($product, array_unique($usedProductIds));
+				->saveProducts($product, $usedProductIds);
 			$product
+				// Need to set the added product ids in this magic data property so
+				// future attempts at getting the used product ids will include the
+				// updated data. Otherwise, if the product is encountered again in
+				// the same cleaning process, the added links will have been lost and
+				// it may attempt to re-add the same links, causing a SQL integrity
+				// constraint violation.
+				// @see Mage_Catalog_Model_Product_Type_Configurable::getUsedProductIds
+				->setData(self::USED_PRODUCT_IDS_PROPERTY, $usedProductIds)
 				->setStatus(Mage_Catalog_Model_Product_Status::STATUS_ENABLED)
-				->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
-				->save();
+				->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
 		} elseif (empty($usedProductIds)) {
 			Mage::log(
 				sprintf('[ %s ]: Expected to find products to use for configurable product %s but found none.', __CLASS__, $product->getSku()),
@@ -222,25 +397,38 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 	 */
 	protected function _addToConfigurableProduct(Mage_Catalog_Model_Product $product)
 	{
-		$configurableProduct = Mage::helper('eb2cproduct')->loadProductBySku($product->getStyleId());
-		if ($configurableProduct->getId()) {
+		$configurableProduct = null;
+		$styleId = $product->getStyleId();
+		foreach ($this->_products as $collectionProduct) {
+			if ($collectionProduct->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE &&
+				$collectionProduct->getSku() === $styleId
+			) {
+				$configurableProduct = $collectionProduct;
+				break;
+			}
+		}
+		if ($configurableProduct) {
 			$usedProductIds   = $configurableProduct->getTypeInstance()->getUsedProductIds();
 			$usedProductIds[] = $product->getId();
+			// save the configurable product links
 			Mage::getResourceModel('catalog/product_type_configurable')
 				->saveProducts($configurableProduct, array_unique($usedProductIds));
-			// @todo: Could this be done more efficiently? Test if it's not already enabled?
 			$configurableProduct
+				// Need to set the added product ids in this magic data property so
+				// future attempts at getting the used product ids will include the
+				// updated data. Otherwise, if the product is encountered again in
+				// the same cleaning process, the added links will have been lost and
+				// it may attempt to re-add the same links, causing a SQL integrity
+				// constraint violation.
+				// @see Mage_Catalog_Model_Product_Type_Configurable::getUsedProductIds
+				->setData(self::USED_PRODUCT_IDS_PROPERTY, $usedProductIds)
 				->setStatus(Mage_Catalog_Model_Product_Status::STATUS_ENABLED)
-				->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH)
-				->save();
+				->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
 		} else {
-			Mage::log(
-				sprintf(
-					'[ %s ]: Expected to find configurable product with sku %s to add product with sku %s to but no such product found',
-					__CLASS__, $product->getStyleId(), $product->getSku()
-				),
-				Zend_Log::DEBUG
-			);
+			Mage::log(sprintf(
+				'[ %s ]: Expected to find configurable product with sku %s to add product with sku %s to but no such product found',
+				__CLASS__, $product->getStyleId(), $product->getSku()
+			), Zend_Log::DEBUG);
 		}
 		return $this;
 	}

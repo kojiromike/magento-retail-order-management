@@ -229,7 +229,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * Build the "Gifting" nodes for the order or an order item. The $item
 	 * Varien_Object will typically be a Mage_Sales_Model_Order or
 	 * Mage_Sales_Model_Order_Item, but any Varien_Object could suffice - really
-	 * just needs a `getGiftMessageId` method. When applicable, the Gifting
+	 * just needs `getGiftMessageId` and `getGwId` methods. When applicable, the Gifting
 	 * node will be appended to the given DOMElement.
 	 * @param  DOMElement    $node
 	 * @param  Varien_Object $item
@@ -238,18 +238,33 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _buildGifting(DOMElement $node, Varien_Object $item)
 	{
 		$messageId = $item->getGiftMessageId();
-		if (!$messageId) {
+		$wrapId = $item->getGwId();
+		// if the item has neither a message nor gift wrapping, do nothing
+		if (!$messageId && !$wrapId) {
 			return $this;
 		}
-		$giftMessage = Mage::getModel('giftmessage/message')->load($messageId);
-		$type = $this->_o->getGwAddCard() ? self::GIFT_MESSAGE_PRINTED_CARD_NODE : self::GIFT_MESSAGE_PACKSLIP_NODE;
 
 		$gifting = $node->createChild('Gifting');
-		$messageNode = $gifting->createChild($type);
-		$messageNode->createChild('Message')
-			->addChild('To', strip_tags($giftMessage->getSender()))
-			->addChild('From', strip_tags($giftMessage->getRecipient()))
-			->addChild('Message', strip_tags($giftMessage->getMessage()));
+		// type of card to add, printed gift card or on the packslip
+		$type = $this->_o->getGwAddCard() ? self::GIFT_MESSAGE_PRINTED_CARD_NODE : self::GIFT_MESSAGE_PACKSLIP_NODE;
+
+		// To signal gift wrapping, the 'GiftCard' node needs to be included. When
+		// the message type is a gift card, this node will be added as part of the
+		// gift message xml, so no need to add it separately. When the type is
+		// not gift card or there is no message, the node needs to be added
+		// in separately.
+		if ($wrapId && !($messageId && $type === self::GIFT_MESSAGE_PRINTED_CARD_NODE)) {
+			$gifting->addChild('GiftCard');
+		}
+
+		if ($messageId) {
+			$giftMessage = Mage::getModel('giftmessage/message')->load($messageId);
+			$messageNode = $gifting->createChild($type);
+			$messageNode->createChild('Message')
+				->addChild('To', strip_tags($giftMessage->getSender()))
+				->addChild('From', strip_tags($giftMessage->getRecipient()))
+				->addChild('Message', strip_tags($giftMessage->getMessage()));
+		}
 		return $this;
 	}
 	/**

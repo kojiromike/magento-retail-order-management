@@ -748,15 +748,19 @@ INVALID_XML;
 		);
 	}
 	/**
-	 * Provide gift message id and if the message should include a printed card.
+	 * Provide gift message id, if the message should include a printed card
+	 * and the gift wrapping id.
 	 * @return array
 	 */
 	public function provideGiftMessage()
 	{
 		return array(
-			array(12, true),
-			array(12, false),
-			array(null, null),
+			array(12, true, null, 'message-card-nowrap'),
+			array(12, true, 3, 'message-card-wrap'),
+			array(12, false, null, 'message-pack-nowrap'),
+			array(12, false, 3, 'message-pack-wrap'),
+			array(null, null, 3, 'nomessage-wrap'),
+			array(null, null, null, 'nomessage-nowrap'),
 		);
 	}
 	/**
@@ -768,10 +772,12 @@ INVALID_XML;
 	 * the a given node.
 	 * @param int|null $giftMessageId ID of the related message if one is expected to exist
 	 * @param bool|null $addCard If the order should include a printed card
+	 * @param int|null $giftWrapId ID of the gift wrapping to apply if gift wrapping was added
+	 * @param string $expectationKey Expectation key for the scenario
 	 * @test
 	 * @dataProvider provideGiftMessage
 	 */
-	public function testBuildGiftingNodes($giftMessageId, $addCard)
+	public function testBuildGiftingNodes($giftMessageId, $addCard, $giftWrapId, $expectationKey)
 	{
 		$sender = 'John<b/> Doe';
 		$cleanSender = 'John Doe';
@@ -788,7 +794,7 @@ INVALID_XML;
 		// types of objects.
 		$orderItem = Mage::getModel(
 			'sales/order_item',
-			array('gift_message_id' => $giftMessageId)
+			array('gift_message_id' => $giftMessageId, 'gw_id' => $giftWrapId)
 		);
 		// Order object being processed - order create model's "_o" property.
 		// Whether the object being processed is an order item or order, only the
@@ -826,13 +832,12 @@ INVALID_XML;
 			array($doc->documentElement, $orderItem)
 		);
 
-		// When $addCard is true, should use the GiftCard node, otherwise the Packslip node
-		$giftingType = $addCard ? 'GiftCard' : 'Packslip';
 		// When there is a related gift message, should inject this XML. When there
 		// isn't a related gift message, shouldn't insert any additional XML.
-		$giftingNode = $giftMessageId ?
-			"<Gifting><{$giftingType}><Message><To>{$cleanSender}</To><From>{$cleanRecipient}</From><Message>{$cleanMessage}</Message></Message></{$giftingType}></Gifting>" :
-			"";
+		$giftingNode = sprintf(
+			$this->expected($expectationKey)->getXml(),
+			$cleanSender, $cleanRecipient, $cleanMessage
+		);
 
 		$this->assertSame(
 			"<root>{$giftingNode}</root>",

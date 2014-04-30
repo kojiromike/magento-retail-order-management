@@ -1,0 +1,12 @@
+'message-card-nowrap':
+	'xml': '<Gifting><GiftCard><Message><To>%1$s</To><From>%2$s</From><Message>%3$s</Message></Message></GiftCard></Gifting>'
+'message-card-wrap':
+	'xml': '<Gifting><GiftCard><Message><To>%1$s</To><From>%2$s</From><Message>%3$s</Message></Message></GiftCard></Gifting>'
+'message-pack-nowrap':
+	'xml': '<Gifting><Packslip><Message><To>%1$s</To><From>%2$s</From><Message>%3$s</Message></Message></Packslip></Gifting>'
+'message-pack-wrap':
+	'xml': '<Gifting><GiftCard></GiftCard><Packslip><Message><To>%1$s</To><From>%2$s</From><Message>%3$s</Message></Message></Packslip></Gifting>'
+'nomessage-wrap':
+	'xml': '<Gifting><GiftCard></GiftCard></Gifting>'
+'nomessage-nowrap':
+	'xml': ''

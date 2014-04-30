@@ -5,7 +5,7 @@ class EbayEnterprise_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Templ
 	const DEFAULT_ADDRESS_FORMAT_CONFIG = 'address_format_full';
 	const NEW_ADDRESS_SELECTION_VALUE   = 'new_address';
 
-	protected $_template = 'eb2caddress_frontend/customer/address/suggestions.phtml';
+	protected $_template = 'eb2caddress/customer/address/suggestions.phtml';
 
 	/**
 	 * mapping of messages used by this block

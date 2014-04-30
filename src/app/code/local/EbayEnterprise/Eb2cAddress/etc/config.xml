@@ -23,6 +23,13 @@
 		</blocks>
 	</global>
 	<frontend>
+		<layout>
+			<updates>
+				<eb2caddress>
+					<file>eb2caddress.xml</file>
+				</eb2caddress>
+			</updates>
+		</layout>
 		<translate>
 			<modules>
 				<EbayEnterprise_Eb2cAddress>

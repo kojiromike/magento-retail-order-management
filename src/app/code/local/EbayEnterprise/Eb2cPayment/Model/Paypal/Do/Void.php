@@ -1,5 +1,6 @@
 <?php
 class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Void
+	extends EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 {
 	/**
 	 * Do paypal void from eb2c.
@@ -60,6 +61,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Void
 			$checkoutXpath->registerNamespace('a', Mage::helper('eb2cpayment')->getXmlNs());
 			$nodeOrderId = $checkoutXpath->query('//a:OrderId');
 			$nodeResponseCode = $checkoutXpath->query('//a:ResponseCode');
+			$this->_blockIfRequestFailed($nodeResponseCode->item(0)->nodeValue, $checkoutXpath);
+
 			$checkoutObject = new Varien_Object(
 				array(
 					'order_id' => ($nodeOrderId->length)? (int) $nodeOrderId->item(0)->nodeValue : 0,

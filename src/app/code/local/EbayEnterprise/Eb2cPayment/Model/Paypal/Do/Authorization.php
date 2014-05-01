@@ -1,5 +1,6 @@
 <?php
 class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Authorization
+	extends EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 {
 	/**
 	 * Do paypal Authorization from eb2c.
@@ -62,6 +63,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Authorization
 			$checkoutXpath->registerNamespace('a', Mage::helper('eb2cpayment')->getXmlNs());
 			$nodeOrderId = $checkoutXpath->query('//a:OrderId');
 			$nodeResponseCode = $checkoutXpath->query('//a:ResponseCode');
+			$this->_blockIfRequestFailed($nodeResponseCode->item(0)->nodeValue, $checkoutXpath);
+
 			$nodePaymentStatus = $checkoutXpath->query('//a:AuthorizationInfo/a:PaymentStatus');
 			$nodePendingReason = $checkoutXpath->query('//a:AuthorizationInfo/a:PendingReason');
 			$nodeReasonCode = $checkoutXpath->query('//a:AuthorizationInfo/a:ReasonCode');

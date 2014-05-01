@@ -42,7 +42,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest
 	}
 
 	/**
-	 * an exception should be thrown iff the ResponseCode field is not 'SUCCESS'
+	 * an exception should be thrown if the ResponseCode field is not 'SUCCESS'
 	 * @test
 	 */
 	public function testBlockIfRequestFailed()

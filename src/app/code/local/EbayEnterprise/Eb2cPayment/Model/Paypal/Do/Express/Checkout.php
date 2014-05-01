@@ -5,6 +5,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 	const URI_KEY = 'get_paypal_do_express_checkout';
 	const XSD_FILE = 'xsd_file_paypal_do_express';
 	const STORED_FIELD = 'transaction_id';
+	const ERROR_MESSAGE_ELEMENT = '//a:ErrorMessage';
+
 	/**
 	 * Build PaypalDoExpressCheckout request.
 	 *
@@ -60,6 +62,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 			$nodeOrderId = $checkoutXpath->query('//a:OrderId');
 			$nodeResponseCode = $checkoutXpath->query('//a:ResponseCode');
 			$nodeTransactionID = $checkoutXpath->query('//a:TransactionID');
+			$this->_blockIfRequestFailed($nodeResponseCode->item(0)->nodeValue, $checkoutXpath);
+
 			$nodePaymentStatus = $checkoutXpath->query('//a:PaymentInfo/a:PaymentStatus');
 			$nodePendingReason = $checkoutXpath->query('//a:PaymentInfo/a:PendingReason');
 			$nodeReasonCode = $checkoutXpath->query('//a:PaymentInfo/a:ReasonCode');

@@ -1,0 +1,29 @@
+<?php
+class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Test
+	extends EbayEnterprise_Eb2cCore_Test_Base
+{
+	public function provideModelAliases()
+	{
+		return array(
+			array('paypal_do_authorization', file_get_contents(__DIR__ . '/Do/AuthorizationTest/fixtures/PayPalDoAuthorizationReply.xml', true)),
+			array('paypal_do_void', file_get_contents(__DIR__ . '/Do/VoidTest/fixtures/PayPalDoVoidReply.xml')),
+			array('paypal_do_express_checkout', file_get_contents(__DIR__ . '/Do/Express/CheckoutTest/fixtures/PayPalDoExpressCheckoutReply.xml')),
+			array('paypal_get_express_checkout', file_get_contents(__DIR__ . '/Get/Express/CheckoutTest/fixtures/PayPalGetExpressCheckoutReply.xml')),
+			array('paypal_set_express_checkout', file_get_contents(__DIR__ . '/Set/Express/CheckoutTest/fixtures/PayPalSetExpressCheckoutReply.xml')),
+		);
+	}
+	/**
+	 * ensure the parse response method is being called.
+	 *
+	 * @test
+	 * @dataProvider provideModelAliases
+	 */
+	public function testParseResponseCallsFailureHandler($alias, $responseMessage)
+	{
+		$testModel = $this->getModelMock("eb2cpayment/{$alias}", array('_blockIfRequestFailed'));
+		$testModel->expects($this->once())
+			->method('_blockIfRequestFailed')
+			->with($this->isType('string'), $this->isInstanceOf('DOMXPath'));
+		$testModel->parseResponse($responseMessage);
+	}
+}

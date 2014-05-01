@@ -5,6 +5,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 	const URI_KEY = 'get_paypal_set_express_checkout';
 	const XSD_FILE = 'xsd_file_paypal_set_express';
 	const STORED_FIELD = 'token';
+	const ERROR_MESSAGE_ELEMENT = '//a:ErrorMessage';
+
 	/**
 	 * Build PaypalSetExpressCheckout request.
 	 *
@@ -80,6 +82,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 			$checkoutXpath->registerNamespace('a', Mage::helper('eb2cpayment')->getXmlNs());
 			$nodeOrderId = $checkoutXpath->query('//a:OrderId');
 			$nodeResponseCode = $checkoutXpath->query('//a:ResponseCode');
+			$this->_blockIfRequestFailed($nodeResponseCode->item(0)->nodeValue, $checkoutXpath);
+
 			$nodeToken = $checkoutXpath->query('//a:Token');
 			$checkoutObject->setData(array(
 				'order_id' => ($nodeOrderId->length)? (int) $nodeOrderId->item(0)->nodeValue : 0,

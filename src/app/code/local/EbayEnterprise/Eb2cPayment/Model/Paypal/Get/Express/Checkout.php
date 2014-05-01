@@ -46,6 +46,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Get_Express_Checkout extends EbayE
 			$checkoutXpath->registerNamespace('a', Mage::helper('eb2cpayment')->getXmlNs());
 			$nodeOrderId = $checkoutXpath->query('//a:OrderId');
 			$nodeResponseCode = $checkoutXpath->query('//a:ResponseCode');
+			$this->_blockIfRequestFailed($nodeResponseCode->item(0)->nodeValue, $checkoutXpath);
+
 			$nodePayerEmail = $checkoutXpath->query('//a:PayerEmail');
 			$nodePayerId = $checkoutXpath->query('//a:PayerId');
 			$nodePayerStatus = $checkoutXpath->query('//a:PayerStatus');

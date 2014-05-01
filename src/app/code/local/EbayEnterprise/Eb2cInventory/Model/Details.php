@@ -67,7 +67,7 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	{
 		return array_reduce(range(1, 4), function ($result, $index) use ($address){
 			$street = $address->getStreet($index);
-			$result .= ($street)?
+			$result .= $street?
 				sprintf(EbayEnterprise_Eb2cInventory_Model_Details::LINE_TEMPLATE, $index, $street) : '';
 			return $result;
 		});

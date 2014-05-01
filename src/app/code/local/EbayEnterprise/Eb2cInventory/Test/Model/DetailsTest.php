@@ -207,7 +207,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	public function testBuildShipmentDetailsXml()
 	{
 		$shippingMethod = 'method';
-		$transalteMethod = 'mapped';
+		$translateMethod = 'mapped';
 		$lines = array('street 1', 'street 2', 'street 3', 'street 4');
 		$city = 'city';
 		$state = 'state';
@@ -218,7 +218,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 		$helper->expects($this->once())
 			->method('lookupShipMethod')
 			->with($this->equalTo($shippingMethod))
-			->will($this->returnValue($transalteMethod));
+			->will($this->returnValue($translateMethod));
 		$this->replaceByMock('helper', 'eb2ccore', $helper);
 
 		$address = Mage::getModel('sales/quote_address', array(
@@ -238,7 +238,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 		});
 		$results = sprintf(
 			EbayEnterprise_Eb2cInventory_Model_Details::SHIPMENT_DETAILS_XML_TEMPLATE,
-			$transalteMethod, $streetLines, $city, $state, $country, $zipCode
+			$translateMethod, $streetLines, $city, $state, $country, $zipCode
 		);
 
 		$this->assertSame($results, EcomDev_Utils_Reflection::invokeRestrictedMethod(

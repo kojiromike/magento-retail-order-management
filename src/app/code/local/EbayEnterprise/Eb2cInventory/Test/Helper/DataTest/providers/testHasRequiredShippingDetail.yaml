@@ -5,7 +5,7 @@
     city: some city
     region_code: Pa
     country_id:US
-    post_code: '19406'
+    postcode: '19406'
   - return-true
 -
   -
@@ -13,5 +13,5 @@
     city:
     region_code: null
     country_id: null
-    post_code: null
+    postcode: null
   - return-false

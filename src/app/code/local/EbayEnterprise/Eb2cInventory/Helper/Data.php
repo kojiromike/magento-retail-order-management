@@ -107,7 +107,7 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 			(trim($address->getCity()) !== '') &&
 			(trim($address->getRegionCode()) !== '') &&
 			(trim($address->getCountryId()) !== '') &&
-			(trim($address->getPostCode()) !== '')
+			(trim($address->getPostcode()) !== '')
 		);
 	}
 }

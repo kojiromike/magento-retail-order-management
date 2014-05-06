@@ -33,8 +33,118 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest
 			->will($this->returnSelf());
 		$this->replaceByMock('model', 'eb2cpayment/paypal', $paypal);
 		$abstract = new EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest_Stub();
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($abstract, '_savePaymentData', array($checkoutObject, $quote));
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($abstract, '_savePaymentData', array(
+			$checkoutObject,
+			$quote
+		));
 		$this->assertSame($quoteId, $paypal->getQuoteId());
 		$this->assertSame($transId, $paypal->getEb2cPaypalSomeField());
+	}
+
+	/**
+	 * an exception should be thrown iff the ResponseCode field is not 'SUCCESS'
+	 * @test
+	 */
+	public function testBlockIfRequestFailed()
+	{
+		$responseCode = 'FAILURE';
+		$translatedMessage = 'this is the translated error message';
+		$errorMessage1 = 'errorcode1:paypal error message 1';
+		$errorMessage2 = 'errorcode2:paypal error message 2';
+		$translateKey = EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract::PAYPAL_REQUEST_FAILED_TRANSLATE_KEY;
+		$errorMessages = "{$errorMessage1} {$errorMessage2}";
+
+		$helper = $this->getHelperMock('eb2cpayment/data', array('__'));
+		$abstract = $this->getModelMock('eb2cpayment/paypal_abstract', array('_extractMessages'), true);
+
+		$abstract->expects($this->once())
+			->method('_extractMessages')
+			->with($this->isType('string'), $this->isInstanceOf('DOMXPath'))
+			->will($this->returnValue($errorMessages));
+
+		$helper->expects($this->once())
+			->method('__')
+			->with($this->identicalTo($translateKey), $this->identicalTo($errorMessages))
+			->will($this->returnValue($translatedMessage));
+
+		$this->replaceByMock('helper', 'eb2cpayment', $helper);
+		$this->setExpectedException('EbayEnterprise_Eb2cPayment_Model_Paypal_Exception', $translatedMessage);
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($abstract, '_blockIfRequestFailed', array(
+			$responseCode,
+			new DOMXPath($doc)
+		));
+	}
+
+	/**
+	 * messages should be logged
+	 * @test
+	 */
+	public function testBlockIfRequestFailedOkWithWarnings()
+	{
+		$responseCode = EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract::SUCCESSWITHWARNINGS;
+		$logErrorMessages = 'code1:errormessage1 code2:errormessage2';
+
+		$helper = $this->getHelperMock('ebayenterprise_magelog/data', array('logWarn'));
+		$abstract = $this->getModelMock('eb2cpayment/paypal_abstract', array('_extractMessages'), true);
+
+		$helper->expects($this->never())
+			->method('__');
+		$abstract->expects($this->once())
+			->method('_extractMessages')
+			->will($this->returnValue($logErrorMessages));
+
+		$this->replaceByMock('helper', 'ebayenterprise_magelog', $helper);
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($abstract, '_blockIfRequestFailed', array(
+			$responseCode,
+			new DOMXPath($doc)
+		));
+	}
+
+	/**
+	 * no exception will be thrown
+	 * @test
+	 */
+	public function testBlockIfRequestFailedWithSuccess()
+	{
+		$responseCode = EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract::SUCCESS;
+		$abstract = $this->getModelMock('eb2cpayment/paypal_abstract', array('_extractMessages'), true);
+
+		$abstract->expects($this->never())
+			->method('_extractMessages');
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$obj = EcomDev_Utils_Reflection::invokeRestrictedMethod($abstract, '_blockIfRequestFailed', array(
+			$responseCode,
+			new DOMXPath($doc)
+		));
+		$this->assertNull($obj);
+	}
+
+	/**
+	 * extract message strings from the response
+	 * @test
+	 */
+	public function testExtractMessages()
+	{
+		$errorMessage1 = 'errorcode1:paypal error message 1';
+		$errorMessage2 = 'errorcode2:paypal error message 2';
+		$errorMessages = "{$errorMessage1} {$errorMessage2}";
+		$errorPath = '//ErrorMessage';
+
+		$abstract = $this->getModelMock('eb2cpayment/paypal_abstract', array('none'), true);
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML(
+			"<t><ErrorMessage>{$errorMessage1}</ErrorMessage><ErrorMessage>{$errorMessage2}</ErrorMessage></t>"
+		);
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($abstract, '_extractMessages', array(
+			$errorPath,
+			new DOMXPath($doc)
+		));
+		$this->assertSame($errorMessages, $result);
 	}
 }

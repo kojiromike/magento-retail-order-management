@@ -2,6 +2,12 @@
 abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 {
 	const STORED_FIELD_PREFIX = 'eb2c_paypal';
+	const PAYPAL_REQUEST_FAILED_TRANSLATE_KEY = 'EbayEnterprise_Eb2cPayment_Paypal_Request_Failed';
+	const PAYPAL_REQUEST_WARNING_FORMAT = "Request succeeded with warnings.\n%s";
+	const SUCCESS = 'SUCCESS';
+	const SUCCESSWITHWARNINGS = 'SUCCESSWITHWARNINGS';
+	const ERROR_MESSAGE_ELEMENT = '';
+
 	/**
 	 * Do paypal express checkout from eb2c.
 	 *
@@ -42,5 +48,51 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 				->save();
 		}
 		return null;
+	}
+
+	/**
+	 * extract error messages from the response and return them as a single
+	 * string
+	 * @param  string   $errorPath
+	 * @param  DOMXPath $xpath
+	 * @return string
+	 */
+	protected function _extractMessages($errorPath, DOMXPath $xpath)
+	{
+		$delim = '';
+		$messages = '';
+		$errorMessages = $xpath->query($errorPath) ?: new NodeList();
+		foreach($errorMessages as $node) {
+			$messages .= $delim . (string) $node->nodeValue;
+			$delim = ' ';
+		}
+		return $messages;
+	}
+
+	/**
+	 * prevent the checkout process from moving forward if the response code indicates
+	 * the request failed
+	 * @param  string   $responseCode
+	 * @param  DOMXPath $xpath
+	 * @throws EbayEnterprise_Eb2cPayment_Model_Paypal_Exception if PayPal returns a failure response
+	 */
+	protected function _blockIfRequestFailed($responseCode, DOMXPath $xpath)
+	{
+		$responseCode = strtoupper($responseCode);
+		if ($responseCode !== static::SUCCESS) {
+			$messages = $this->_extractMessages(static::ERROR_MESSAGE_ELEMENT, $xpath);
+			if ($responseCode === static::SUCCESSWITHWARNINGS) {
+				Mage::helper('ebayenterprise_magelog')
+					->logWarn(static::PAYPAL_REQUEST_WARNING_FORMAT, array($messages));
+			} else {
+				$e = new EbayEnterprise_Eb2cPayment_Model_Paypal_Exception(
+					Mage::helper('eb2cpayment')
+						->__(static::PAYPAL_REQUEST_FAILED_TRANSLATE_KEY, $messages)
+				);
+				// this exception is logged when caught in
+				// Mage_Paypal_Controller_Express_Abstract::placeOrderAction
+				throw $e;
+			}
+		}
 	}
 }

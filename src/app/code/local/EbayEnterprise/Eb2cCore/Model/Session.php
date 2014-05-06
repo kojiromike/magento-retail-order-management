@@ -100,6 +100,25 @@ class EbayEnterprise_Eb2cCore_Model_Session
 			array();
 	}
 	/**
+	 * Extract quote amounts from each address.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 * @return array
+	 */
+	protected function _extractQuoteAmounts(Mage_Sales_Model_Quote $quote)
+	{
+		return array_map(
+			function ($address) {
+				return array(
+					'subtotal' => round($address->getSubtotal(), 4) ?: 0.0000,
+					'discount' => round($address->getDiscountAmount(), 4) ?: 0.0000,
+					'ship_amount' => round($address->getShippingAmount(), 4) ?: 0.0000,
+					'ship_discount' => round($address->getShippingDiscountAmount(), 4) ?: 0.0000,
+				);
+			},
+			$quote->getAllShippingAddresses()
+		);
+	}
+	/**
 	 * Extract coupon, shipping and sku/quantity data from a quote. Should return an array (map)
 	 * keys: 'coupon' containing the current coupon code in use, 'shipping' containing
 	 * all shipping addresses and methods, 'billing' containing the current billing address,
@@ -107,12 +126,14 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	 * @param  Mage_Sales_Model_Quote $quote object to extract data from
 	 * @return array                         extracted quote data
 	 */
-	protected function _extractQuoteData(Mage_Sales_Model_Quote $quote) {
+	protected function _extractQuoteData(Mage_Sales_Model_Quote $quote)
+	{
 		return array(
 			'billing' => $this->_extractQuoteBillingData($quote),
 			'coupon' => $this->_extractQuoteCouponData($quote),
 			'shipping' => $this->_extractQuoteShippingData($quote),
 			'skus' => $this->_extractQuoteSkuData($quote),
+			'amounts' => $this->_extractQuoteAmounts($quote),
 		);
 	}
 	/**
@@ -176,6 +197,16 @@ class EbayEnterprise_Eb2cCore_Model_Session
 		return $skuDiff ? array('skus' => $skuDiff) : $skuDiff;
 	}
 	/**
+	 * Diff the quote amounts between the old items and new items.
+	 * @param  array $oldAmounts
+	 * @param  array $newAmounts
+	 * @return array
+	 */
+	protected function _diffAmounts($oldAmounts, $newAmounts)
+	{
+		return ($oldAmounts !== $newAmounts) ? array('amounts' => $newAmounts) : array();
+	}
+	/**
 	 * Diff the new quote to the old quote. May contain keys for 'billing', 'coupon', 'shipping'
 	 * and 'skus'. For more details on the type of changes detected for each key, see the
 	 * responsible methods for diffing those sets of data.
@@ -191,7 +222,8 @@ class EbayEnterprise_Eb2cCore_Model_Session
 		return $this->_diffBilling($oldQuote['billing'], $newQuote['billing']) +
 			$this->_diffCoupon($oldQuote['coupon'], $newQuote['coupon']) +
 			$this->_diffShipping($oldQuote['shipping'], $newQuote['shipping']) +
-			$this->_diffSkus($oldQuote['skus'], $newQuote['skus']);
+			$this->_diffSkus($oldQuote['skus'], $newQuote['skus']) +
+			$this->_diffAmounts($oldQuote['amounts'], $newQuote['amounts']);
 	}
 	/**
 	 * Check the set of items to have an item with the given key set to a
@@ -254,16 +286,19 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	 * - billing address changes for a quote with virtual items
 	 * - shipping address changes
 	 * - item quantities change
+	 * - quote amounts change
 	 * @param  array $quoteData Array of data extracted from the newest quote object
 	 * @param  array $quoteDiff Array of changes made to the quote
 	 * @return boolean true iff a tax request should be made
 	 */
-	protected function _changeRequiresTaxUpdate($quoteData, $quoteDiff) {
+	protected function _changeRequiresTaxUpdate($quoteData, $quoteDiff)
+	{
 		return (isset($quoteData['skus'])) && (
 			(isset($quoteDiff['skus'])) ||
 			(isset($quoteDiff['shipping'])) ||
 			(isset($quoteDiff['coupon'])) ||
-			(isset($quoteDiff['billing']) && $this->_itemsIncludeVirtualItem($quoteData['skus']))
+			(isset($quoteDiff['billing']) && $this->_itemsIncludeVirtualItem($quoteData['skus'])) ||
+			(isset($quoteDiff['amounts']))
 		);
 	}
 	/**
@@ -375,7 +410,8 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	 * @param  Mage_Sales_Model_Quote $quote New quote object
 	 * @return self
 	 */
-	public function updateWithQuote(Mage_Sales_Model_Quote $quote) {
+	public function updateWithQuote(Mage_Sales_Model_Quote $quote)
+	{
 		$oldData = $this->getCurrentQuoteData();
 		$newData = $this->_extractQuoteData($quote);
 		// Copy over the last_updated timestamp from the old quote data. This will
@@ -395,7 +431,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 				->setQuantityUpdateRequiredFlag($this->_changeRequiresQuantityUpdate($newData, $quoteDiff))
 				->setDetailsUpdateRequiredFlag($this->_changeRequiresDetailsUpdate($newData, $quoteDiff))
 				->setCurrentQuoteData($newData);
-		};
+		}
 		// always update the changes - could go from having changes to no changes
 		$this->setQuoteChanges($quoteDiff);
 

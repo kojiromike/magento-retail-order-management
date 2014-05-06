@@ -51,6 +51,7 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 	public function isRequestForAddressRequired(Mage_Sales_Model_Quote_Address $address)
 	{
 		$session = Mage::getSingleton('eb2ccore/session');
+		$session->updateWithQuote($address->getQuote());
 		return $session->isTaxUpdateRequired() &&
 			!$session->getHaveTaxRequestsFailed() &&
 			$address->getAllVisibleItems();

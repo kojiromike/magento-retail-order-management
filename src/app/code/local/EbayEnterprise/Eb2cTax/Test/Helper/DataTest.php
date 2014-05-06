@@ -151,13 +151,16 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 	}
 	public function provideIsRequestForAddressRequired()
 	{
-		$addressWithItems = $this->getModelMock('sales/quote_address', array('getAllItems'));
-		$addressNoItems = $this->getModelMock('sales/quote_address', array('getAllItems'));
+		$quote = Mage::getModel('sales/quote');
+		$addressWithItems = $this->getModelMock('sales/quote_address', array('getAllItems', 'getQuote'));
+		$addressNoItems = $this->getModelMock('sales/quote_address', array('getAllItems', 'getQuote'));
 
+		$addressWithItems->expects($this->any())->method('getQuote')->will($this->returnValue($quote));
 		$addressWithItems
 			->expects($this->any())
 			->method('getAllItems')
 			->will($this->returnValue(array(Mage::getModel('sales/quote_item'))));
+		$addressNoItems->expects($this->any())->method('getQuote')->will($this->returnValue($quote));
 		$addressNoItems
 			->expects($this->any())
 			->method('getAllItems')
@@ -185,12 +188,16 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 	{
 		$session = $this->getModelMockBuilder('eb2ccore/session')
 			->disableOriginalConstructor()
-			->setMethods(array('isTaxUpdateRequired', 'getHaveTaxRequestsFailed'))
+			->setMethods(array('isTaxUpdateRequired', 'getHaveTaxRequestsFailed', 'updateWithQuote'))
 			->getMock();
 		$this->replaceByMock('model', 'eb2ccore/session', $session);
 
 		$session->expects($this->any())->method('isTaxUpdateRequired')->will($this->returnValue($sessionFlag));
 		$session->expects($this->any())->method('getHaveTaxRequestsFailed')->will($this->returnValue($requestFailFlag));
+		$session->expects($this->once())
+			->method('updateWithQuote')
+			->with($this->identicalTo($address->getQuote()))
+			->will($this->returnSelf());
 
 		$this->assertSame($isRequired, Mage::helper('eb2ctax')->isRequestForAddressRequired($address));
 

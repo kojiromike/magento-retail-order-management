@@ -252,6 +252,48 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 		$this->assertSame($extractedData, $method->invoke($session, $quote));
 	}
 	/**
+	 * Test extracting quote amounts from a quote object. Should return an array
+	 * of key/value pairs for amounts to be extracted and the data in the quote.
+	 * @test
+	 */
+	public function testExtractQuoteAmounts()
+	{
+		$subtotal = 50.00;
+		$discount = -10.00;
+		$shipAmt = 15.00;
+		$shipDiscount = 5.00;
+
+		$quoteAddress = Mage::getModel(
+			'sales/quote_address',
+			array(
+				'subtotal' => $subtotal, 'discount_amount' => $discount,
+				'shipping_discount_amount' => $shipDiscount, 'shipping_amount' => $shipAmt
+			)
+		);
+
+		$quote = $this->getModelMock('sales/quote', array('getAllShippingAddresses'));
+		$quote->expects($this->any())
+			->method('getAllShippingAddresses')
+			->will($this->returnValue(array($quoteAddress)));
+
+		$session = $this->getModelMockBuilder('eb2ccore/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+
+		$this->assertSame(
+			array(array(
+				'subtotal' => $subtotal, 'discount' => $discount,
+				'ship_amount' => $shipAmt, 'ship_discount' => $shipDiscount
+			)),
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				$session,
+				'_extractQuoteAmounts',
+				array($quote)
+			)
+		);
+	}
+	/**
 	 * @test
 	 * @dataProvider providerExtractBillingData
 	 */
@@ -260,21 +302,32 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 		$quote = $this->getModelMock('sales/quote');
 		$session = $this->getModelMockBuilder('eb2ccore/session')
 			->disableOriginalConstructor()
-			->setMethods(array('_extractQuoteCouponData', '_extractQuoteBillingData', '_extractQuoteShippingData', '_extractQuoteSkuData'))
+			->setMethods(array(
+				'_extractQuoteCouponData', '_extractQuoteBillingData', '_extractQuoteShippingData',
+				'_extractQuoteSkuData', '_extractQuoteAmounts'
+			))
 			->getMock();
 		$couponData = 'coupon-code-123';
 		$shipData = array(array('method' => 'flatrate', 'address' => array('street' => array('630 Allendale Rd'), 'city' => 'King of Prussia')));
 		$billData = array('street' => array('1075 1st Ave'), 'city' => 'King of Prussia');
 		$skuData = array('45-123' => array('managed' => true, 'virtual' => false, 'qty' => 3));
+		$amountData = array('grand_total' => 55.00);
 
 		$session->expects($this->once())->method('_extractQuoteBillingData')->with($this->identicalTo($quote))->will($this->returnValue($billData));
 		$session->expects($this->once())->method('_extractQuoteCouponData')->with($this->identicalTo($quote))->will($this->returnValue($couponData));
 		$session->expects($this->once())->method('_extractQuoteShippingData')->with($this->identicalTo($quote))->will($this->returnValue($shipData));
 		$session->expects($this->once())->method('_extractQuoteSkuData')->with($this->identicalTo($quote))->will($this->returnValue($skuData));
+		$session->expects($this->once())->method('_extractQuoteAmounts')->with($this->identicalTo($quote))->will($this->returnValue($amountData));
 
 		$method = $this->_reflectMethod($session, '_extractQuoteData');
 		$this->assertSame(
-			array('billing' => $billData, 'coupon' => $couponData, 'shipping' => $shipData, 'skus' => $skuData),
+			array(
+				'billing' => $billData,
+				'coupon' => $couponData,
+				'shipping' => $shipData,
+				'skus' => $skuData,
+				'amounts' => $amountData,
+			),
 			$method->invoke($session, $quote)
 		);
 	}
@@ -442,22 +495,58 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 		$method = $this->_reflectMethod($session, '_diffSkus');
 		$this->assertSame($diff, $method->invoke($session, $old, $new));
 	}
+	/**
+	 * Provide old and new quote amounts and the expected diff of the two
+	 * @return array Array with old data, new data and expected diff
+	 */
+	public function provideQuoteAmounts()
+	{
+		return array(
+			array(array(array('subtotal' => 22.22)), array(array('subtotal' => 22.22)), array()),
+			array(array(array('subtotal' => 10.00)), array(array('subtotal' => 20.00)), array('amounts' => array(array('subtotal' => 20.00)))),
+			array(array(), array(array('subtotal' => 15.00)), array('amounts' => array(array('subtotal' => 15.00)))),
+		);
+	}
+	/**
+	 * Test checking for differences in quote amounts. If any amounts are
+	 * different, the new amount should be included in the results.
+	 * @param array $old Old quote data
+	 * @param array $new New quote data
+	 * @param array $diff Expected diff
+	 * @test
+	 * @dataProvider provideQuoteAmounts
+	 */
+	public function testDiffAmounts($old, $new, $diff)
+	{
+		$session = $this->getModelMockBuilder('eb2ccore/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$method = $this->_reflectMethod($session, '_diffAmounts');
+		$this->assertSame($diff, $method->invoke($session, $old, $new));
+	}
+
 	public function providerDiffQuoteData()
 	{
 		$empty = array();
-		$old = array('billing' => array(), 'coupon' => null, 'shipping' => array(), 'skus' => array());
-		$new = array('billing' => array(), 'coupon' => 'free-lewt', 'shipping' => array(), 'skus' => array());
+		// Old and new data, just used as a source for mock method matches
+		$old = array('billing' => array(), 'coupon' => null, 'shipping' => array(), 'skus' => array(), 'amounts' => 12.23);
+		$new = array('billing' => array(), 'coupon' => 'free-lewt', 'shipping' => array(), 'skus' => array(), 'amounts' => 12.23);
 
+		// expected diffs for each diff method
 		$billDiff = array('billing' => array('street' => array('630 Allendale Rd')));
 		$couponDiff = array('coupon' => 'zomg');
 		$shipDiff = array('shipping' => array(array('method' => 'flatrate')));
 		$itemDiff = array('skus' => array('45-123' => array('managed' => true, 'virtual' => false, 'qty' => 3)));
+		$amountsDiff = array('grand_total' => 55.55);
+
 		return array(
-			//    old     new   bill       coupon       shipping   items      final
-			array($old,   $new, $billDiff, $empty,      $empty,    $empty,    $billDiff),
-			array($old,   $new, $billDiff, $couponDiff, $empty,    $empty,    $billDiff + $couponDiff),
-			array($old,   $new, $empty,    $couponDiff, $shipDiff, $empty,    $couponDiff + $shipDiff),
-			array($old,   $new, $billDiff, $couponDiff, $shipDiff, $itemDiff, $billDiff + $couponDiff + $shipDiff + $itemDiff),
+			//    old     new   bill       coupon       shipping   items      amounts       final
+			array($old,   $new, $billDiff, $empty,      $empty,    $empty,    $empty,       $billDiff),
+			array($old,   $new, $billDiff, $couponDiff, $empty,    $empty,    $empty,       $billDiff + $couponDiff),
+			array($old,   $new, $empty,    $couponDiff, $shipDiff, $empty,    $empty,       $couponDiff + $shipDiff),
+			array($old,   $new, $billDiff, $couponDiff, $shipDiff, $itemDiff, $empty,       $billDiff + $couponDiff + $shipDiff + $itemDiff),
+			array($old,   $new, $billDiff, $couponDiff, $shipDiff, $itemDiff, $amountsDiff, $billDiff + $couponDiff + $shipDiff + $itemDiff + $amountsDiff),
 		);
 	}
 	/**
@@ -469,15 +558,19 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  array $coupon   Diff of coupon data
 	 * @param  array $shipping Diff of shipping data
 	 * @param  array $items    Diff of item data
+	 * @param  array $amounts  Diff of the quote amounts
 	 * @param  array $final    Expected diff of full qoute
 	 * @test
 	 * @dataProvider providerDiffQuoteData
 	 */
-	public function testDiffQuoteData($old, $new, $billing, $coupon, $shipping, $items, $final)
+	public function testDiffQuoteData($old, $new, $billing, $coupon, $shipping, $items, $amounts, $final)
 	{
 		$session = $this->getModelMockBuilder('eb2ccore/session')
 			->disableOriginalConstructor()
-			->setMethods(array('_hasInventoryExpired', '_diffBilling', '_diffCoupon', '_diffShipping', '_diffSkus'))
+			->setMethods(array(
+				'_hasInventoryExpired', '_diffBilling', '_diffCoupon', '_diffShipping',
+				'_diffSkus', '_diffAmounts'
+			))
 			->getMock();
 		// assume none of the data has expired for now
 		$session->expects($this->any())->method('_hasInventoryExpired')->will($this->returnValue(false));
@@ -501,6 +594,11 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->method('_diffSkus')
 			->with($this->identicalTo($old['skus']), $this->identicalTo($new['skus']))
 			->will($this->returnValue($items));
+		$session
+			->expects($this->any())
+			->method('_diffAmounts')
+			->with($this->identicalTo($old['amounts']), $this->identicalTo($new['amounts']))
+			->will($this->returnValue($amounts));
 
 		$method = $this->_reflectMethod($session, '_diffQuoteData');
 		$this->assertSame($final, $method->invoke($session, $old, $new));
@@ -866,7 +964,9 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	public function providerQuoteDiffs()
 	{
 		$quoteData = array('skus' => array('45-123' => array('managed' => true, 'virtual' => false, 'qty' => 3)));
+		// various quote diffs to be tested against
 		$coupon = array('coupon' => 'zomg-deelz');
+		$amount = array('amounts' => array('grand_total' => 22.22));
 		$billing = array('billing' => array('street' => array('123 Main St'), 'city' => 'King of Prussia'));
 		$shipping = array('shipping' => array(array('method' => 'flatrate')));
 		$managed = array('skus' => array('45-123' => array('managed' => true, 'virtual' => false, 'qty' => 5)));
@@ -881,6 +981,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			array($quoteData, $shipping,  false,      false,    true,  false, false),
 			array($quoteData, $managed,   false,      true,     true,  true,  true),
 			array($quoteData, $noManaged, true,       false,    true,  false, false),
+			array($quoteData, $amount,    false,      false,    true,  false, false),
 		);
 	}
 	/**
@@ -894,9 +995,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @dataProvider providerQuoteDiffs
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function testChangeRequiresTaxUpdate(
-		$quoteData, $diffData, $hasVirtual, $hasManaged, $flagTax, $flagQty, $flagDeets
-	) {
+	public function testChangeRequiresTaxUpdate($quoteData, $diffData, $hasVirtual, $hasManaged, $flagTax)
+	{
 		$session = $this->getModelMockBuilder('eb2ccore/session')
 			->disableOriginalConstructor()
 			->setMethods(array('_itemsIncludeVirtualItem', '_itemsIncludeManagedItem'))

@@ -8,6 +8,14 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	const EMAIL_MAX_LENGTH         = 70;
 	const NUM_STREET_LINES         = 4;
 	const SHIPPING_TAX_CLASS       = 93000;
+	const CALCULATE_DUTY           = 0;
+
+	const PROMOTIONAL_DISCOUNT_NODE = 'PromotionalDiscounts';
+	const DISCOUNT_NODE             = 'Discount';
+	const AMOUNT_NODE               = 'Amount';
+	const ID_ATTRIBUTE              = 'id';
+	const CALCULATE_DUTY_ATTRIBUTE  = 'calculateDuty';
+
 	protected $_xml                = '';
 	protected $_doc                = null;
 	protected $_tdRequest          = null;
@@ -28,7 +36,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * true if the request is valid; false otherwise
 	 * @var boolean
 	 */
-	protected $_isValid            = false;
+	protected $_isValid = false;
 	/**
 	 * map skus to a quote item
 	 * @var array('string' => Mage_Sales_Model_Quote_Item_Abstract)
@@ -87,7 +95,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * @param  Mage_Sales_Model_Quote_Addres $address The address the item ships to
 	 * @return self
 	 */
-	public function _processItem($item, $address)
+	protected function _processItem($item, $address)
 	{
 		if ($item->getHasChildren() && $item->isChildrenCalculated()) {
 			foreach ($item->getChildren() as $child) {
@@ -331,13 +339,13 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	{
 		$store       = Mage::app()->getStore();
 		$mageProduct = Mage::getModel('catalog/product')->load($item->getProduct()->getId());
+		$quote = $item->getQuote();
 		return array_merge(
 			array(
-				'hts_code' =>
-						Mage::helper('eb2ccore')->getProductHtsCodeByCountry(
-								$mageProduct,
-								$address->getCountryId()
-							),
+				'hts_code' => Mage::helper('eb2ccore')->getProductHtsCodeByCountry(
+					$mageProduct,
+					$address->getCountryId()
+				),
 				'id' => $item->getId(),
 				'item_desc' => $item->getName(),
 				'item_id' => $item->getSku(),
@@ -348,6 +356,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 				'quantity' => $item->getQty(),
 				'shipping_amount' => $store->roundPrice($this->_getShippingAmount($address)),
 				'shipping_tax_class' => self::SHIPPING_TAX_CLASS,
+				'coupon_code' => $quote->getCouponCode(),
+				'discount_amount' => $item->getDiscountAmount()
 			),
 			$this->_extractShippingData($item),
 			$this->_extractItemDiscountData($item, $address)
@@ -551,23 +561,24 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	}
 
 	/**
-	 * build a discount node as a child of $parent.
-	 * @param  EbayEnterprise_Dom_Element $parent
-	 * @param  array                  $discount
-	 * @param  boolean                $isMerchandise
+	 * build 'OrderItem/Pricing/Merchandise/PromotionalDiscounts' node and its
+	 * inner nested child nodes.
+	 * @param  EbayEnterprise_Dom_Element $merchandiseNode
+	 * @param  array                      $quoteItem
+	 * @return self
 	 */
-	protected function _buildDiscountNode(EbayEnterprise_Dom_Element $parent, array $discount, $isMerchandise=true)
+	protected function _buildDiscountNode(
+		EbayEnterprise_Dom_Element $merchandiseNode,
+		array $quoteItem
+	)
 	{
-		$type = $isMerchandise ? 'merchandise' : 'shipping';
-		$discountNode = $parent->createChild(
-			'Discount',
-			null,
-			array(
-				'id' => $discount["{$type}_discount_code"],
-				'calculateDuty' => $discount["{$type}_discount_calc_duty"]
-			)
-		);
-		$discountNode->createChild('Amount', Mage::app()->getStore()->roundPrice($discount["{$type}_discount_amount"]));
+		$merchandiseNode->createChild(static::PROMOTIONAL_DISCOUNT_NODE)
+			->createChild(static::DISCOUNT_NODE, null, array(
+				static::ID_ATTRIBUTE => Mage::helper('eb2ccore')->getDiscountId($quoteItem['coupon_code']),
+				static::CALCULATE_DUTY_ATTRIBUTE => static::CALCULATE_DUTY
+			))
+			->addChild(static::AMOUNT_NODE, Mage::app()->getStore()->roundPrice($quoteItem['discount_amount']));
+		return $this;
 	}
 
 	/**
@@ -603,7 +614,6 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * build and append an orderitem node to the parent node.
 	 * @param array    $item
 	 * @param EbayEnterprise_Dom_Element         $parent
-	 * @param Mage_Sales_Model_Quote_Address $address
 	 */
 	protected function _buildOrderItem(array $item, EbayEnterprise_Dom_Element $parent)
 	{
@@ -630,14 +640,28 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 		$pricingNode = $orderItem->createChild('Pricing');
 
-		$unitPriceNode = $pricingNode
+		$merchandiseNode = $pricingNode
 			->createChild('Merchandise')
-			->addChild('Amount', Mage::app()->getStore()->roundPrice($item['merchandise_amount'] - $item['merchandise_discount_amount']))
-			->createChild('UnitPrice', Mage::app()->getStore()->roundPrice($item['merchandise_unit_price']));
+			->addChild('Amount', Mage::app()->getStore()->roundPrice($item['merchandise_amount']));
 
-		$pricingNode->createChild('Shipping')
+		if ($item['discount_amount']) {
+			$this->_buildDiscountNode($merchandiseNode, $item);
+		}
+
+		$unitPriceNode = $merchandiseNode->createChild(
+			'UnitPrice', Mage::app()->getStore()->roundPrice($item['merchandise_unit_price'])
+		);
+
+		$shippingNode = $pricingNode->createChild('Shipping')
 			->addChild('Amount', Mage::app()->getStore()->roundPrice($item['shipping_amount']))
 			->addChild('TaxClass', $item['shipping_tax_class']);
+
+		if ($item['shipping_discount_amount']) {
+			$this->_buildDiscountNode($shippingNode, array(
+				'coupon_code' => $item['coupon_code'],
+				'discount_amount' => $item['shipping_discount_amount']
+			));
+		}
 
 		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
 		if ($taxClass) {
@@ -713,7 +737,12 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		$data = array(
 			'AdminOrigin' => $this->_extractAdminData(),
 			'ShippingOrigin' => array(
-				'Lines'        => array_map(function ($n) use ($item) { $m = "getEb2cShipFromAddressLine$n"; return trim($item->$m()); }, array(1, 2, 3, 4)),
+				'Lines' => array_map(function ($n) use ($item) {
+						$m = "getEb2cShipFromAddressLine$n";
+						return trim($item->$m());
+						},
+					array(1, 2, 3, 4)
+				),
 				'City'         => trim($item->getEb2cShipFromAddressCity()),
 				'MainDivision' => trim($item->getEb2cShipFromAddressMainDivision()),
 				'CountryCode'  => trim($item->getEb2cShipFromAddressCountryCode()),

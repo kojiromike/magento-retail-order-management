@@ -1465,32 +1465,34 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 	public function testBuildDiscountNode()
 	{
+		$discountId = 'storeid-2';
+		$code = 'disocount';
+
+		$helper = $this->getHelperMock('eb2ccore/data', array('getDiscountId'));
+		$helper->expects($this->once())
+			->method('getDiscountId')
+			->with($this->identicalTo($code))
+			->will($this->returnValue($discountId));
+		$this->replaceByMock('helper', 'eb2ccore', $helper);
+
 		$request = Mage::getModel('eb2ctax/request');
 		$fn = $this->_reflectMethod($request, '_buildDiscountNode');
 		$doc = $request->getDocument();
-		$node = $doc->createElement('root', null, 'http://example.com/foo');
-		$doc->appendChild($node);
+		$doc->loadXML('<root xmlns="http://example.com/foo"></root>');
+		$node = $doc->documentElement;
+
+		$discount = array(
+			'coupon_code' => $code,
+			'discount_amount' => 10.0
+		);
+
+		$fn->invoke($request, $node, $discount);
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('a', $doc->documentElement->namespaceURI);
-		$discount = array(
-			'merchandise_discount_code'      => 'somediscount',
-			'merchandise_discount_calc_duty' => 0,
-			'merchandise_discount_amount'    => 10.0,
-			'shipping_discount_code'         => 'somediscount2',
-			'shipping_discount_calc_duty'    => 1,
-			'shipping_discount_amount'       => 5.0,
-		);
-		$fn->invoke($request, $node, $discount);
-		$this->assertSame('somediscount', $xpath->evaluate('string(./a:Discount/@id)', $node));
-		$this->assertSame('0', $xpath->evaluate('string(./a:Discount/@calculateDuty)', $node));
-		$this->assertSame('10', $xpath->evaluate('string(./a:Discount/a:Amount)', $node));
 
-		$node = $doc->createElement('root', null, 'http://example.com/foo'); // parent node
-		$doc->appendChild($node);
-		$fn->invoke($request, $node, $discount, false);
-		$this->assertSame('somediscount2', $xpath->evaluate('string(./a:Discount/@id)', $node));
-		$this->assertSame('1', $xpath->evaluate('string(./a:Discount/@calculateDuty)', $node));
-		$this->assertSame('5', $xpath->evaluate('string(./a:Discount/a:Amount)', $node));
+		$this->assertSame($discountId, $xpath->evaluate('string(./a:PromotionalDiscounts/a:Discount/@id)', $node));
+		$this->assertSame('0', $xpath->evaluate('string(./a:PromotionalDiscounts/a:Discount/@calculateDuty)', $node));
+		$this->assertSame('10', $xpath->evaluate('string(./a:PromotionalDiscounts/a:Discount/a:Amount)', $node));
 	}
 
 	public function testExtractItemDiscountData()
@@ -1867,6 +1869,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->method('getProductHtsCodeByCountry')
 			->will($this->returnValue($htsCode));
 		$this->replaceByMock('helper', 'eb2ccore', $hlpr);
+		$coupon = 'Buy1Get1Free';
+		$quote = Mage::getModel('sales/quote', array('coupon_code' => $coupon));
+
 		$item = $this->_buildModelMock('sales/quote_item', array(
 			'getId' => $this->returnValue(1),
 			'getSku' => $this->returnValue('the_sku'),
@@ -1874,6 +1879,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'getQty' => $this->returnValue(1),
 			'getBaseRowTotal' => $this->returnValue(50.0),
 			'getProduct' => $this->returnValue($prod),
+			'getQuote' => $this->returnValue($quote)
 		));
 		$request = $this->getModelMockBuilder('eb2ctax/request')
 			->setMethods(array(
@@ -1927,6 +1933,8 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'AdminOrigin' => 'the admin data',
 			'ShippingOrigin' => 'ship from data',
 			'some_discount_thing' => 'this is discount data',
+			'coupon_code' => 'Buy1Get1Free',
+			'discount_amount' => null
 		);
 		$this->assertEquals($itemData, $result);
 	}
@@ -2139,7 +2147,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			$mockObject->expects($this->any())
 				->method($name)
 				->will($action instanceOf PHPUnit_Framework_MockObject_Stub ?
-						$action : $this->returnValue($action)
+					$action : $this->returnValue($action)
 				);
 		}
 	}

@@ -441,7 +441,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 * @see Mage::getBaseUrl
 	 * @codeCoverageIgnore
 	 */
-	public function getBaseUrl($type = Mage_Core_Model_Store::URL_TYPE_LINK, $secure = null)
+	public function getBaseUrl($type=Mage_Core_Model_Store::URL_TYPE_LINK, $secure=null)
 	{
 		return Mage::getBaseUrl($type, $secure);
 	}
@@ -465,5 +465,20 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getCurrentStore()
 	{
 		return Mage::app()->getStore();
+	}
+	/**
+	 * Expect a coupon code string to be passed in order to determine
+	 * the 'PromotionalDiscounts/Discount/Id'. load the coupon code to
+	 * the Mage_SalesRule_Model_Coupon model and then return a
+	 * concatenate string of the configured store id with a
+	 * dash and the coupon primary key.
+	 * @return string
+	 */
+	public function getDiscountId($couponCode)
+	{
+		$cfg = Mage::getModel('eb2ccore/config_registry')
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$coupon = Mage::getModel('salesrule/coupon')->loadByCode($couponCode);
+		return $cfg->storeId . '-' . (int) $coupon->getId();
 	}
 }

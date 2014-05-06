@@ -16,9 +16,9 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	 * pseudo-constant mapping of discount tax types to xpath expressions
 	 */
 	private static $_promoTaxMap = array(
-		EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE => 'a:Pricing/a:Merchandise/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
-		EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING => 'a:Pricing/a:Shipping/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
-		EbayEnterprise_Eb2cTax_Model_Response_Quote::DUTY => 'a:Pricing/a:Duty/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE_PROMOTION => 'a:Pricing/a:Merchandise/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING_PROMOTION => 'a:Pricing/a:Shipping/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::DUTY_PROMOTION => 'a:Pricing/a:Duty/a:PromotionalDiscounts/a:Discount/a:Taxes/a:Tax',
 	);
 	/**
 	 * pseudo-constant mapping of tax types to xpath expressions
@@ -77,12 +77,10 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 
 	public function getOrderItemData()
 	{
-		$quoteData = array_map(
-			function($obj)
-			{
+		$quoteData = array_map(function($obj) {
 				return $obj->unsNode()->getData();
 			},
-			$this->_taxQuotes
+			array_merge($this->_taxQuotes, $this->_taxQuoteDiscounts)
 		);
 		return $this
 			->setTaxQuotes($quoteData)
@@ -137,7 +135,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	 * extract all the map key from the map argument and return
 	 * an array of extracted value cast by the type pass to the method
 	 * @param DomElement $itemNode
-	 * @param DOMXPath $xpath 
+	 * @param DOMXPath $xpath
 	 * @param array $map
 	 * @param string $type (string, float) * @return array */
 	protected function _extractByType(DomElement $itemNode, DOMXPath $xpath, array $map, $type='string')
@@ -220,7 +218,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 		if( !empty($shipError)) {
 			$errorTypes[] = EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING;
 		}
-		return $errorTypes; 
+		return $errorTypes;
 	}
 
 	protected function _validate()

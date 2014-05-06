@@ -43,6 +43,7 @@ class EbayEnterprise_Eb2cProduct_Model_Config extends EbayEnterprise_Eb2cCore_Mo
 		'processor_update_batch_size'         => 'eb2cproduct/processor_update_batch_size',
 
 		'attributes_code_list'                => 'eb2cproduct/attributes_code_list',
+		'read_only_attributes'                => 'eb2cproduct/readonly_attributes',
 
 		'ext_keys'                            => 'eb2cproduct/feed/map/ext_keys',
 		'ext_keys_bool'                       => 'eb2cproduct/feed/map/ext_keys_bool',

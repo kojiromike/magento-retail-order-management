@@ -16,6 +16,11 @@
 				<class>EbayEnterprise_Eb2cCore_Helper</class>
 			</eb2ccore>
 		</helpers>
+		<blocks>
+			<eb2ccore>
+				<class>EbayEnterprise_Eb2cCore_Block</class>
+			</eb2ccore>
+		</blocks>
 		<events>
 			<sales_quote_collect_totals_before>
 				<observers>
@@ -64,6 +69,28 @@
 			</filetransfer_import_complete>
 		</events>
 	</global>
+	<admin>
+		<routers>
+			<adminhtml>
+				<args>
+					<modules>
+						<EbayEnterprise_Eb2cCore after="Mage_Adminhtml">EbayEnterprise_Eb2cCore</EbayEnterprise_Eb2cCore>
+					</modules>
+				</args>
+			</adminhtml>
+		</routers>
+	</admin>
+	<adminhtml>
+		<translate>
+			<modules>
+				<EbayEnterprise_Eb2cCore>
+					<files>
+						<default>EbayEnterprise_Eb2cCore.csv</default>
+					</files>
+				</EbayEnterprise_Eb2cCore>
+			</modules>
+		</translate>
+	</adminhtml>
 	<crontab>
 		<jobs>
 			<eb2cinventory_feed_item_inventories>
@@ -157,6 +184,43 @@
 						</status>
 					</silent>
 				</default_status_handlers>
+				<test_connection_status_handlers>
+					<alert_level>silent</alert_level>
+					<status>
+						<no_response>
+							<logger>logInfo</logger>
+							<callback>
+								<type>helper</type>
+								<class>eb2ccore/api_validator</class>
+								<method>returnInvalidHostnameResponse</method>
+							</callback>
+						</no_response>
+						<server_error>
+							<logger>logInfo</logger>
+							<callback>
+								<type>helper</type>
+								<class>eb2ccore/api_validator</class>
+								<method>returnUnknownErrorResponse</method>
+							</callback>
+						</server_error>
+						<client_error>
+							<logger>logInfo</logger>
+							<callback>
+								<type>helper</type>
+								<class>eb2ccore/api_validator</class>
+								<method>returnClientErrorResponse</method>
+							</callback>
+						</client_error>
+						<success>
+							<logger>logInfo</logger>
+							<callback>
+								<type>helper</type>
+								<class>eb2ccore/api_validator</class>
+								<method>returnSuccessResponse</method>
+							</callback>
+						</success>
+					</status>
+				</test_connection_status_handlers>
 			</api>
 			<feed>
 				<destination_type>MAILBOX</destination_type>

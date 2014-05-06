@@ -40,19 +40,25 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	 * @param int $timeout The amount of time in seconds after which the connection is terminated
 	 * @param string $adapter The classname of a Zend_Http_Client_Adapter
 	 * @param Zend_Http_Client $client
+	 * @param string $apiKey Alternate API Key to use
 	 * @return string The response from the server
 	 */
-	public function request(DOMDocument $doc, $xsdName, $uri, $timeout=self::DEFAULT_TIMEOUT, $adapter=self::DEFAULT_ADAPTER, Zend_Http_Client $client=null)
-	{
+	public function request(
+		DOMDocument $doc, $xsdName, $uri, $timeout=self::DEFAULT_TIMEOUT, $adapter=self::DEFAULT_ADAPTER,
+		Zend_Http_Client $client=null, $apiKey=null
+	) {
 		$log = Mage::helper('ebayenterprise_magelog');
-		$cfg = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		if (!$apiKey) {
+			$apiKey = Mage::getModel('eb2ccore/config_registry')
+				->addConfigModel(Mage::getSingleton('eb2ccore/config'))
+				->apiKey;
+		}
 		$log = Mage::helper('ebayenterprise_magelog');
 		$xmlStr = $doc->C14N();
 		$log->logInfo("[ %s ] Validating request:\n%s", array(__CLASS__, $xmlStr));
 		$this->schemaValidate($doc, $xsdName);
 		$log->logInfo("[ %s ] Sending request to %s", array(__CLASS__, $uri));
-		$client = $this->_setupClient($client, $cfg->apiKey, $uri, $xmlStr, $adapter, $timeout);
+		$client = $this->_setupClient($client, $apiKey, $uri, $xmlStr, $adapter, $timeout);
 		try {
 			$response = $client->request(self::DEFAULT_METHOD);
 			return $this->_processResponse($response, $uri);

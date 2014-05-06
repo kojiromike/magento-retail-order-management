@@ -1,0 +1,59 @@
+<?php
+/**
+ * Mostly a clone of the template used for the button used to the Validate
+ * VAT configuration.
+ * @see app/design/adminhtml/default/default/template/customer/system/config/validatevat.phtml
+ * @see EbayEnterprise_Eb2cCore_Block_Api_System_Config_Testconnection
+ */
+?>
+<script type="text/javascript">
+//<![CDATA[
+	function testConnection() {
+		var elem = $('<?php echo $this->getHtmlId() ?>');
+		var hostnameEle = $('eb2ccore_api_hostname');
+		var hostScopeEle = hostnameEle && adminSystemConfig.getScopeElement(hostnameEle);
+		var keyEle = $('eb2ccore_api_key');
+		var keyScopeEle = keyEle && adminSystemConfig.getScopeElement(keyEle);
+		var storeIdEle = $('eb2ccore_general_store_id');
+		var storeIdScopeEle = storeIdEle && adminSystemConfig.getScopeElement(storeIdEle);
+		var params = {
+			'hostname_use_default': hostScopeEle && hostScopeEle.checked ? 1 : 0,
+			'api_key_use_default': keyScopeEle && keyScopeEle.checked ? 1 : 0,
+			'store_id_use_default': storeIdScopeEle && storeIdScopeEle.checked ? 1 : 0
+		};
+		// Need to be able to differentiate between these values being empty and
+		// non-existent when handling the request.
+		if (hostnameEle) {
+			params.hostname = hostnameEle.value;
+		}
+		if (keyEle) {
+			params.api_key = keyEle.value;
+		}
+		if (storeIdEle) {
+			params.store_id = storeIdEle.value;
+		}
+
+		new Ajax.Request('<?php echo $this->getAjaxUrl() ?>', {
+			'parameters': params,
+			'onSuccess': function(xhrResponse) {
+				var response = {};
+				try {
+					response = xhrResponse.responseText.evalJSON();
+				} catch (e) {
+					response.success = false;
+					response.message = 'Could Not Validate Settings';
+				}
+				if (response.success) {
+					elem.removeClassName('fail').addClassName('success');
+				} else {
+					elem.removeClassName('success').addClassName('fail');
+				}
+				$('validation_result').update(response.message);
+			}
+		});
+	}
+//]]>
+</script>
+<button onclick="javascript:testConnection(); return false;" class="scalable" type="button" id="<?php echo $this->getHtmlId() ?>">
+	<span id="validation_result"><?php echo $this->escapeHtml($this->getButtonLabel()) ?></span>
+</button>

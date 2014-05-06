@@ -91,6 +91,14 @@
 					<show_in_website>1</show_in_website>
 					<show_in_store>0</show_in_store>
 					<fields>
+						<hostname translate="label">
+							<label>API Hostname</label>
+							<sort_order>10</sort_order>
+							<frontend_type>text</frontend_type>
+							<show_in_default>1</show_in_default>
+							<show_in_website>0</show_in_website>
+							<show_in_store>0</show_in_store>
+						</hostname>
 						<key translate="label">
 							<label>API Key</label>
 							<sort_order>70</sort_order>
@@ -101,6 +109,15 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
 						</key>
+						<validate_api_connection translate="button_label">
+							<label/>
+							<sort_order>75</sort_order>
+							<button_label>Test API Connection</button_label>
+							<frontend_model>eb2ccore/system_config_testapiconnection</frontend_model>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</validate_api_connection>
 						<timeout translate="label">
 							<label>API Timeout</label>
 							<comment>Time in milliseconds</comment>
@@ -111,13 +128,6 @@
 							<show_in_website>0</show_in_website>
 							<show_in_store>0</show_in_store>
 						</timeout>
-						<hostname translate="label">
-							<label>API Hostname</label>
-							<frontend_type>text</frontend_type>
-							<show_in_default>1</show_in_default>
-							<show_in_website>0</show_in_website>
-							<show_in_store>0</show_in_store>
-						</hostname>
 						<inventory_expiration translate="label">
 							<label>Inventory Expiration</label>
 							<comment>Time in minutes to cache inventory quantity during persistent cart.</comment>

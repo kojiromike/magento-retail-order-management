@@ -14,6 +14,9 @@ src/app/etc/modules/*.xml app/etc/modules/
 src/app/locale/en_US/* app/locale/en_US/
 src/shell/* shell/
 
+# Core Adminhtml Frontend
+src/app/design/adminhtml/default/default/template/eb2ccore app/design/adminhtml/default/default/template/eb2ccore
+
 # Fraud
 src/js/ebayenterprise_eb2cfraud		js/ebayenterprise_eb2cfraud
 src/app/design/frontend/base/default/layout/eb2cfraud.xml app/design/frontend/base/default/layout/eb2cfraud.xml

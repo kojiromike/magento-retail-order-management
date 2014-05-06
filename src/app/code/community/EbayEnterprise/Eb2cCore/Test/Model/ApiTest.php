@@ -99,6 +99,33 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 		$this->assertSame($responseText, $api->request($request, $xsdName, $apiUri, 0, 'foo', $httpClient));
 	}
 	/**
+	 * Test that when an API key is provided as an argument, that the proper API
+	 * key gets used when setting up the client.
+	 * @test
+	 */
+	public function testRequestProvideApiKey()
+	{
+		$apiKey = 'the-api-key-to-use';
+		$doc = new DOMDocument();
+
+		$api = $this->getModelMock('eb2ccore/api', array('schemaValidate', '_setupClient', '_processResponse'));
+
+		$response = $this->getMockBuilder('Zend_Http_Response')->disableOriginalConstructor()->getMock();
+
+		$client = $this->getMock('Varien_Http_Client', array('request'));
+		$client->expects($this->any())
+			->method('request')
+			->will($this->returnValue($response));
+
+		$api->expects($this->once())
+			->method('_setupClient')
+			// really only care that the right API key is used
+			->with($this->anything(), $this->identicalTo($apiKey))
+			->will($this->returnValue($client));
+
+		$api->request($doc, 'some_file.xsd', 'http://example.com:80', 10, 'Zend_Http_Client_Adapter_Socket', $client, $apiKey);
+	}
+	/**
 	 * Test that we can handle a Zend_Http_Client_Exception
 	 *
 	 * @test

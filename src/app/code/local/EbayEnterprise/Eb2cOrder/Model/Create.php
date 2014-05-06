@@ -43,6 +43,18 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const ORDER_LEVEL = 'order';
 	const ITEM_LEVEL = 'item';
 	const CONTEXT_LEVEL = 'context';
+
+	const PROMOTIONAL_DISCOUNTS_NODE = 'PromotionalDiscounts';
+	const DISCOUNT_NODE = 'Discount';
+	const APPLIED_COUNT_ATTRIBUTE = 'appliedCount';
+	const DISCOUNT_ID_NODE = 'Id';
+	const DISCOUNT_CODE_NODE = 'Code';
+	const DISCOUNT_AMOUNT_NODE = 'Amount';
+	const DISCOUNT_DESCRIPTION_NODE = 'Description';
+	const DISCOUNT_EFFECT_TYPE_NODE = 'EffectType';
+
+	const NUMBER_OF_PENNIES_IN_DOLLAR = 100;
+	const REMAINDER_ATTRIBUTE = 'remainder';
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -68,14 +80,14 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * @var array, hold magento payment map to eb2c
 	 */
 	protected $_ebcPaymentMethodMap = array(
-			'Pbridge_eb2cpayment_cc' => 'CreditCard',
-			'Paypal_express' => 'PayPal',
-			'PrepaidCreditCard' => 'PrepaidCreditCard', // Not use
-			'StoredValueCard' => 'StoredValueCard', // Not use
-			'Points' => 'Points', // Not use
-			'PrepaidCashOnDelivery' => 'PrepaidCashOnDelivery', // Not use
-			'Free' => 'StoredValueCard',
-		);
+		'Pbridge_eb2cpayment_cc' => 'CreditCard',
+		'Paypal_express' => 'PayPal',
+		'PrepaidCreditCard' => 'PrepaidCreditCard', // Not use
+		'StoredValueCard' => 'StoredValueCard', // Not use
+		'Points' => 'Points', // Not use
+		'PrepaidCashOnDelivery' => 'PrepaidCashOnDelivery', // Not use
+		'Free' => 'StoredValueCard',
+	);
 	public function __construct()
 	{
 		$this->_config = Mage::helper('eb2corder')->getConfig();
@@ -368,14 +380,13 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$orderItem->createChild('Description')->createChild('Description', $item->getName());
 		$pricing = $orderItem->createChild('Pricing');
 		$merchandise = $pricing->createChild('Merchandise');
-		$merchandise->createChild('Amount', sprintf('%.02f', $item->getQtyOrdered() * $item->getPrice()));
-		if ($item->getDiscountAmount() > 0) {
-			$discount = $merchandise
-				->createChild('PromotionalDiscounts')
-				->createChild('Discount');
-			$discount->createChild('Id', 'CHANNEL_IDENTIFIER');	// Spec says this *may* be required, schema validation says it *is* required
-			$discount->createChild('Amount', sprintf('%.02f', $item->getDiscountAmount())); // Magento has only 1 discount per line item
-		}
+
+		// build 'Merchandise/PromotionalDiscounts/Discount' nodes
+		$this->_buildDiscount(
+			$merchandise, $item, $item->getDiscountAmount(),
+			EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE_PROMOTION
+		);
+
 		// Tax on the Merchandise:
 		$merchTaxFragment = $this->_buildTaxDataNodes(
 			$this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE), $item
@@ -390,6 +401,12 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		if ($this->_getShippingChargeType($this->_o) !== self::SHIPPING_CHARGE_TYPE_FLATRATE || $webLineId === 1) {
 			$shipping = $pricing->createChild('Shipping');
 			$shipping->createChild('Amount', $this->_getItemShippingAmount($item));
+			// build 'Shipping/PromotionalDiscounts/Discount' nodes
+			$this->_buildDiscount(
+				$shipping, $item, $this->_o->getShippingDiscountAmount(),
+				EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING_PROMOTION
+			);
+
 			$shippingTaxFragment = $this->_buildTaxDataNodes(
 				$this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING), $item, EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING
 			);
@@ -467,7 +484,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * @param  Mage_Sales_Model_Order_Item $item, the quote item to get the product object from
 	 * @return DOMDocumentFragment                  A DOM fragment of the nodes
 	 */
-	protected function _buildTaxDataNodes(EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection $taxQuotes, Mage_Sales_Model_Order_Item $item, $taxType = null)
+	protected function _buildTaxDataNodes(
+		EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection $taxQuotes,
+		Mage_Sales_Model_Order_Item $item, $taxType=null
+	)
 	{
 		$taxFragment = $this->_domRequest->createDocumentFragment();
 		if ($taxQuotes->count()) {
@@ -752,8 +772,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			->addChild('Connection', $this->_xsdString($checkout->getEb2cFraudConnection(), 25));
 		$cookieArr = (array) $checkout->getEb2cFraudCookies();
 		$cookieStr = implode(self::COOKIES_DELIMITER, array_map(function($name) use ($cookieArr) {
-			return "$name={$cookieArr[$name]}";
-		}, array_keys($cookieArr)));
+				return "$name={$cookieArr[$name]}";
+			}, array_keys($cookieArr)));
 		$this->_addElementIfNotEmpty('Cookies', $cookieStr, $browserData, 50);
 		$browserData->addChild('JavascriptData', $this->_o->getEb2cFraudJavascriptData())
 			->addChild('Referrer', $this->_xsdString($this->_getOrderSource(), 1024));
@@ -963,5 +983,105 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 				break;
 		}
 		return !is_null($class)?Mage::getModel($class):$class;
+	}
+	/**
+	 * Build 'PromotionalDiscounts/Discount' node and its inner nested child nodes.
+	 * @param  EbayEnterprise_Dom_Element $merchandise
+	 * @param  Mage_Sales_Model_Order_Item $item
+	 * @param  float $discountAmount (item discount or shipping discount)
+	 * @param  string $type (merchandise, shipping)
+	 * @return self
+	 */
+	protected function _buildDiscount(
+		EbayEnterprise_Dom_Element $merchandise,
+		Mage_Sales_Model_Order_Item $item,
+		$discountAmount,
+		$type
+	)
+	{
+		if ($discountAmount > 0) {
+			$appliedCount = ($type === EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE_PROMOTION)?
+				array(static::APPLIED_COUNT_ATTRIBUTE => $item->getQtyOrdered()) : array();
+
+			$discount = $merchandise->createChild(static::PROMOTIONAL_DISCOUNTS_NODE)
+				->createChild(static::DISCOUNT_NODE, null, $appliedCount);
+
+			$couponCode = $this->_o->getCouponCode();
+			// Spec says this *may* be required, schema validation says it *is* required
+			$discount->addChild(
+				static::DISCOUNT_ID_NODE,
+				Mage::helper('eb2ccore')->getDiscountId($couponCode)
+			);
+			// The actual promotion code if it exists
+			if ($couponCode !== '') {
+				$discount->addChild(static::DISCOUNT_CODE_NODE, $couponCode);
+			}
+			// Magento has only 1 discount per line item
+			// The total discount amount for all items in that line
+			// Discount/Amount = Base Promotional Amount * quantity
+			$discount->addChild(static::DISCOUNT_AMOUNT_NODE, sprintf('%.02f', $discountAmount));
+
+			$description = $this->_getDiscountDescription($item);
+			if (!is_null($description)) {
+				// Promotion label (store view specific if it exists).
+				// If no label exists, then use the promotion description
+				$discount->addChild(static::DISCOUNT_DESCRIPTION_NODE, $description);
+			}
+
+			$simpleAction = $this->_getSimpleAction($item);
+			if (!is_null($simpleAction)) {
+				$discount->addChild(static::DISCOUNT_EFFECT_TYPE_NODE, $simpleAction);
+			}
+			// Tax on the Discount
+			$discountTaxFragment = $this->_buildTaxDataNodes(
+				$this->getItemTaxQuotes($item, $type), $item
+			);
+			if ($discountTaxFragment->hasChildNodes()) {
+				$discount->appendChild($discountTaxFragment);
+			}
+		}
+
+		return $this;
+	}
+	/**
+	 * Return an instance of Mage_SalesRule_Model_Rule loaded with the first
+	 * rule id in the order item or null when order item has no rule ids.
+	 * @param Mage_Sales_Model_Order_Item $item
+	 * @return Mage_SalesRule_Model_Rule | null
+	 */
+	protected function _loadSalesRule(Mage_Sales_Model_Order_Item $item)
+	{
+		$ruleIds = array_filter(explode(',', $item->getAppliedRuleIds()));
+		return !empty($ruleIds)?
+			Mage::getModel('salesrule/rule')->load($ruleIds[0]):null;
+	}
+	/**
+	 * Retrieve the applied rule ids in an order item and only load the
+	 * Mage_SalesRule_Model_Rule with the first rule id if there are multiple.
+	 * Return the store label base on the store id in the order item, or the
+	 * rule description or null when there are no rule ids.
+	 * @param Mage_Sales_Model_Order_Item $item
+	 * @return string | null the store label when exists or rule description
+	 *         or null when there's no rule ids in the order item.
+	 */
+	protected function _getDiscountDescription(Mage_Sales_Model_Order_Item $item)
+	{
+		$rule = $this->_loadSalesRule($item);
+		if ($rule) {
+			return $rule->getStoreLabel($item->getStoreId()) ?: $rule->getDescription();
+		}
+		return null;
+	}
+	/**
+	 * Get the rule simple actions from Mage_SalesRule_Model_Rule using the
+	 * Mage_Sales_Model_Order_Item::getAppliedRuleIds to load the
+	 * Mage_SalesRule_Model_Rule model.
+	 * @param Mage_Sales_Model_Order_Item $item
+	 * @return string | null
+	 */
+	protected function _getSimpleAction(Mage_Sales_Model_Order_Item $item)
+	{
+		$rule = $this->_loadSalesRule($item);
+		return $rule?$rule->getSimpleAction():null;
 	}
 }

@@ -338,7 +338,7 @@ INVALID_XML;
 		$dutyFragment = $this
 			->_reflectMethod($create, '_buildDuty')
 			->invoke($create, Mage::getModel('sales/order_item'));
-		$this->assertInstanceOf('DOMNode',$dutyFragment);
+		$this->assertInstanceOf('DOMNode', $dutyFragment);
 	}
 	/**
 	 * When the observer triggers, the create model should build a new request
@@ -440,10 +440,11 @@ INVALID_XML;
 		$taxFragment->appendChild($doc->createElement('MockedTaxNodes'));
 		$dutyFragment = $doc->createDocumentFragment();
 		$dutyFragment->appendChild($doc->createElement('MockedDutyNodes'));
-		$create = $this->getModelMock(
-			'eb2corder/create',
-			array('_buildTaxDataNodes', 'getItemTaxQuotes', '_buildDuty', '_getItemShippingAmount', '_getShippingChargeType', '_buildEstimatedDeliveryDate')
-		);
+		$create = $this->getModelMock('eb2corder/create', array(
+			'_buildTaxDataNodes', 'getItemTaxQuotes', '_buildDuty',
+			'_getItemShippingAmount', '_getShippingChargeType',
+			'_buildEstimatedDeliveryDate', '_buildDiscount'
+		));
 		$create->expects($this->exactly(2))
 			->method('_buildTaxDataNodes')
 			->will($this->onConsecutiveCalls(
@@ -475,6 +476,11 @@ INVALID_XML;
 			->method('_buildEstimatedDeliveryDate')
 			->with($itemElement, $item)
 			->will($this->returnValue(null));
+
+		$create->expects($this->any())
+			->method('_buildDiscount')
+			->will($this->returnSelf());
+
 		$orderProp = $this->_reflectProperty($create, '_o');
 		$orderProp->setValue($create, $order);
 		$buildOrderItemMethod = $this->_reflectMethod($create, '_buildOrderItem');
@@ -645,7 +651,6 @@ INVALID_XML;
 			->with($this->identicalTo($mockResponseMessage))
 			->will($this->returnValue($expectedState));
 
-
 		$this->assertSame(
 			$orderCreate,
 			EcomDev_Utils_Reflection::invokeRestrictedMethod(
@@ -676,8 +681,8 @@ INVALID_XML;
 		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, $extRespSt->invoke($create, '<fail/>'));
 		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, $extRespSt->invoke(
 			$create,
-			'<_><ResponseStatus>nobodyhome!</ResponseStatus></_>')
-		);
+			'<_><ResponseStatus>nobodyhome!</ResponseStatus></_>'
+		));
 		$this->assertSame(
 			Mage_Sales_Model_Order::STATE_PROCESSING,
 			$extRespSt->invoke($create, '<_><ResponseStatus>sUcCeSs</ResponseStatus></_>')
@@ -1272,12 +1277,10 @@ INVALID_XML;
 		$create->expects($this->any())
 			->method('_buildSessionInfo')
 			->with($this->identicalTo(array('this is session data')), $this->identicalTo($element))
-			->will($this->returnCallback(
-				function($a, $node) use ($create) {
+			->will($this->returnCallback(function($a, $node) use ($create) {
 					$node->appendChild($node->ownerDocument->createElement('SessionInfo', $a[0]));
 					return $create;
-				}
-			));
+				}));
 		$create->expects($this->any())
 			->method('_buildCustomAttributesByLevel')
 			->with(
@@ -1591,6 +1594,99 @@ INVALID_XML;
 
 		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$create, '_buildCustomAttributesByLevel', array($level, $doc->documentElement, $order)
+		));
+
+		$this->assertSame($result, $doc->C14N());
+	}
+	/**
+	 * Test that EbayEnterprise_Eb2cOrder_Model_Create::_buildDiscount
+	 * will return itself and that the pass EbayEnterprise_Dom_Element will contain
+	 * the 'PromotionalDiscounts/Discount' node and child nodes
+	 * @test
+	 * @loadExpectation
+	 */
+	public function testBuildDiscount()
+	{
+		$result = $this->expected('result')->getDiscountNode();
+		$couponCode = 'Buy1Ge1Free';
+		$discountAmount = 2.040;
+		$baseDiscountAmount = 2.040;
+		$qtyOrdered = 2;
+		$couponId = 13;
+		$storeId = 'CPG';
+		$appliedRuleIds = '5';
+		$storeId = 8;
+		$storeLabel = null;
+		$ruleDescription = 'This is sale rule label';
+		$ruleSimpleAction = 'by_percent';
+		$type = EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE_PROMOTION;
+		$taxCollection = Mage::getResourceModel('eb2ctax/response_quote_collection');
+
+		$xml = '<_></_>';
+		$doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
+		$doc->loadXML($xml);
+
+		$fragment = $doc->createDocumentFragment();
+		$fragment->appendChild($doc->createElement('TaxData'));
+
+		$order = Mage::getModel('sales/order', array('coupon_code' => $couponCode));
+		$item = Mage::getModel('sales/order_item', array(
+			'discount_amount' => $discountAmount,
+			'qty_ordered' => $qtyOrdered,
+			'base_discount_amount' => $baseDiscountAmount,
+			'applied_rule_ids' => $appliedRuleIds,
+			'store_id' => $storeId,
+		));
+
+		$this->replaceCoreConfigRegistry(array(
+			'storeId' => $storeId
+		));
+
+		$coupon = $this->getModelMock('salesrule/coupon', array('loadByCode'));
+		$coupon->setId($couponId);
+		$coupon->expects($this->once())
+			->method('loadByCode')
+			->with($this->identicalTo($couponCode))
+			->will($this->returnSelf());
+		$this->replaceByMock('model', 'salesrule/coupon', $coupon);
+
+		$rule = $this->getModelMock('salesrule/rule', array('load', 'getStoreLabel'));
+		$rule->addData(array(
+			'description' => $ruleDescription,
+			'simple_action' => $ruleSimpleAction
+		));
+		$rule->expects($this->any())
+			->method('load')
+			->with($this->identicalTo($appliedRuleIds))
+			->will($this->returnSelf());
+		// I'm mocking this method because it is a concrete public method in
+		// Mage_SalesRule_Model_Rule::getStoreLabel
+		$rule->expects($this->any())
+			->method('getStoreLabel')
+			->with($this->identicalTo($storeId))
+			->will($this->returnValue($storeLabel));
+		$this->replaceByMock('model', 'salesrule/rule', $rule);
+
+		$create = $this->getModelMockBuilder('eb2corder/create')
+			->disableOriginalConstructor()
+			->setMethods(array('_buildTaxDataNodes', 'getItemTaxQuotes'))
+			->getMock();
+		$create->expects($this->once())
+			->method('_buildTaxDataNodes')
+			->with($this->identicalTo($taxCollection), $this->identicalTo($item))
+			->will($this->returnValue($fragment));
+		$create->expects($this->once())
+			->method('getItemTaxQuotes')
+			->with(
+				$this->identicalTo($item),
+				$this->identicalTo($type)
+			)
+			->will($this->returnValue($taxCollection));
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+
+		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$create, '_buildDiscount', array($doc->documentElement, $item, $discountAmount, $type)
 		));
 
 		$this->assertSame($result, $doc->C14N());

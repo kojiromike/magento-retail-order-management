@@ -215,6 +215,23 @@
 			</default>
 		</eb2cproduct_attributes>
 			<events>
+				<catalog_product_edit_action>
+					<observers>
+						<lock_readonly_attributes>
+							<class>eb2cproduct/observers</class>
+							<method>lockReadOnlyAttributes</method>
+							<!--
+								Unfortunately, there is no actual support for an <args> node. This
+								would be the perfect place to list the attributes we wish to
+								treat as readonly. But as of Tue May 6 2014, this is not really
+								supported.
+
+								Please search for readonly_attributes which are defined at
+								eb2cproduct/readonly_attributes.
+							-->
+						</lock_readonly_attributes>
+					</observers>
+				</catalog_product_edit_action>
 				<product_feed_processing_complete>
 					<observers>
 						<eb2c_reindex_all>
@@ -298,6 +315,8 @@
 			</feed>
 		</eb2ccore>
 		<eb2cproduct>
+			<!-- These attributes will display in the admin panel, but cannot be edited -->
+			<readonly_attributes><![CDATA[hts_codes,is_clean,unresolved_product_links]]></readonly_attributes>
 			<dummy>
 				<!-- Default values for product attributes where Vanilla Magento doesn't already have defaults. -->
 				<description>This product is invalid. If you are seeing this product, please do not attempt to purchase and contact customer service.</description>

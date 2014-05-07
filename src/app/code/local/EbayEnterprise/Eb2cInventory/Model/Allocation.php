@@ -69,8 +69,11 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation extends EbayEnterprise_Eb2cI
 				$shipToAddress->createChild('Line1', $shippingAddress->getStreet(1), null);
 				// add ship to address City
 				$shipToAddress->createChild('City', $shippingAddress->getCity(), null);
-				// add ship to address MainDivision
-				$shipToAddress->createChild('MainDivision', $shippingAddress->getRegionCode(), null);
+				$mainDivision = trim($shippingAddress->getRegionCode());
+				if ($mainDivision !== '') {
+					// add ship to address MainDivision
+					$shipToAddress->createChild('MainDivision', $mainDivision, null);
+				}
 				// add ship to address CountryCode
 				$shipToAddress->createChild('CountryCode', $shippingAddress->getCountryId(), null);
 				// add ship to address PostalCode

@@ -424,10 +424,11 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 					);
 				}
 
-				if (!$this->isSameNodelistElement($responseMainDivision, $requestMainDivision)) {
+				if ($requestMainDivision->length > 0 && !$this->isSameNodelistElement($responseMainDivision, $requestMainDivision)) {
 					$valid = false;
+					$mainDivision = $responseMainDivision->length?$responseMainDivision->item(0)->nodeValue: '';
 					Mage::log('[' . __CLASS__ . '] ' .
-						sprintf('%s: Main Division "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseMainDivision->item(0)->nodeValue),
+						sprintf('%s: Main Division "%s" not match in the request.', 'TaxDutyQuoteResponse', $mainDivision),
 						Zend_Log::DEBUG
 					);
 				}

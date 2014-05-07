@@ -3,28 +3,26 @@ class EbayEnterprise_Eb2cProduct_Test_Model_ObserversTest extends EbayEnterprise
 {
 	/**
 	 * @test
- 	 * _attributeStringToArray process manually entered data from a config.xml. Want to test that 
-	 * this method can correctly parse good data, and be somewhat robust against incorrect data.
+	 * @loadFixture readOnlyAttributes.yaml
+	 * lockReadOnlyAttributes reads the config for the attribute codes it needs to protect
+	 * from admin panel edits by issuing a lockAttribute against the attribute code.
 	 */
-	public function testAttributeStringToArray()
+	public function testLockReadOnlyAttributes()
 	{
-		$observer = Mage::getModel('eb2cproduct/observers');
-		$fn = $this->_reflectMethod($observer, '_attributeStringToArray');
+		$product = $this->getModelMock('catalog/product', array('lockAttribute'));
+		$product->expects($this->exactly(3))
+			->method('lockAttribute');
 
-		// valid string, should get 3 elements back
-		$rc = $fn->invoke($observer, 'a,b,c,');
-		$this->assertEquals(3, count($rc));
+		$varienEvent = $this->getMock('Varien_Event', array('getProduct'));
+		$varienEvent->expects($this->once())
+			->method('getProduct')
+			->will($this->returnValue($product));
 
-		// Pass in null, should get null back
-		$rc = $fn->invoke($observer, null);
-		$this->assertEquals(null, $rc);
+		$varienEventObserver = $this->getMock('Varien_Event_Observer', array('getEvent'));
+		$varienEventObserver->expects($this->once())
+			->method('getEvent')
+			->will($this->returnValue($varienEvent));
 
-		// Pass in no separators, should get that string at element 0
-		$rc = $fn->invoke($observer, 'abc');
-		$this->assertEquals('abc', $rc[0]);
-
-		// Pass in empty string, should get null back
-		$rc = $fn->invoke($observer, '');
-		$this->assertEquals(null, $rc);
+		Mage::getModel('eb2cproduct/observers')->lockReadOnlyAttributes($varienEventObserver);
 	}
 }

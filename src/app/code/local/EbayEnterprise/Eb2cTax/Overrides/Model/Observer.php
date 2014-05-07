@@ -2,29 +2,6 @@
 class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Observer
 {
 	protected $_tax;
-
-	/**
-	 * Put quote address tax information into order
-	 *
-	 * @param Varien_Event_Observer $observer
-	 * @return self
-	 */
-	public function salesEventConvertQuoteAddressToOrder(Varien_Event_Observer $observer)
-	{
-		$address = $observer->getEvent()->getAddress();
-		$order = $observer->getEvent()->getOrder();
-
-		$taxes = $address->getAppliedTaxes();
-		if (is_array($taxes)) {
-			if (is_array($order->getAppliedTaxes())) {
-				$taxes = array_merge($order->getAppliedTaxes(), $taxes);
-			}
-			$order->setAppliedTaxes($taxes);
-			$order->setConvertingFromQuote(true);
-		}
-		return $this;
-	}
-
 	/**
 	 * Save order tax information
 	 *

@@ -235,7 +235,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	 * Expectation 2: the method EbayEnterprise_Eb2cPayment_Helper_Data::getConfigModel will be invoked given the mocked
 	 *                Mage_Core_Model_Store object in which it will return the mocked EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 *                object with the magic property 'isPaymentEnabled' set to true, which will allowed the following methods
-	 *                to be invoked EbayEnterprise_Eb2cPayment_Model_Suppression::disableNonEb2CPaymentMethods, and saveEb2CPaymentMethods
+	 *                to be invoked EbayEnterprise_Eb2cPayment_Model_Suppression::disableNonEb2cPaymentMethods, and saveEb2cPaymentMethods
 	 *                given the value 1
 	 */
 	public function testSuppressPaymentModule()
@@ -295,13 +295,13 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 
 		$suppressionMock = $this->getModelMockBuilder('eb2cpayment/suppression')
 			->disableOriginalConstructor()
-			->setMethods(array('disableNonEb2CPaymentMethods', 'saveEb2CPaymentMethods'))
+			->setMethods(array('disableNonEb2cPaymentMethods', 'saveEb2cPaymentMethods'))
 			->getMock();
 		$suppressionMock->expects($this->once())
-			->method('disableNonEb2CPaymentMethods')
+			->method('disableNonEb2cPaymentMethods')
 			->will($this->returnSelf());
 		$suppressionMock->expects($this->once())
-			->method('saveEb2CPaymentMethods')
+			->method('saveEb2cPaymentMethods')
 			->with($this->identicalTo(1))
 			->will($this->returnSelf());
 		$this->replaceByMock('model', 'eb2cpayment/suppression', $suppressionMock);
@@ -370,13 +370,13 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 
 		$suppressionMock = $this->getModelMockBuilder('eb2cpayment/suppression')
 			->disableOriginalConstructor()
-			->setMethods(array('disableNonEb2CPaymentMethods', 'saveEb2CPaymentMethods'))
+			->setMethods(array('disableNonEb2cPaymentMethods', 'saveEb2cPaymentMethods'))
 			->getMock();
 		$suppressionMock->expects($this->once())
-			->method('disableNonEb2CPaymentMethods')
+			->method('disableNonEb2cPaymentMethods')
 			->will($this->returnSelf());
 		$suppressionMock->expects($this->once())
-			->method('saveEb2CPaymentMethods')
+			->method('saveEb2cPaymentMethods')
 			->with($this->identicalTo(0))
 			->will($this->returnSelf());
 		$this->replaceByMock('model', 'eb2cpayment/suppression', $suppressionMock);

@@ -99,7 +99,7 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 		$store = ($store instanceof Mage_Core_Model_Store)? $store : $helper->getDefaultStore();
 		$website = ($website instanceof Mage_Core_Mode_Website)? $website : $helper->getDefaultWebsite();
 
-		$supressor = Mage::getModel('eb2cpayment/suppression', array(
+		$suppressor = Mage::getModel('eb2cpayment/suppression', array(
 			'store' => $store,
 			'website' => $website
 		));
@@ -107,18 +107,18 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 			Mage::log(sprintf('[%s::%s] Enabling eBay Enterprise Payment Methods', __CLASS__, __METHOD__), Zend_Log::DEBUG);
 
 			// first let's disable any none eBay Enterprise payment method
-			$supressor->disableNonEb2CPaymentMethods();
+			$suppressor->disableNonEb2cPaymentMethods();
 
 			// let's enable only payment bridge and not paypal express it can be enabled manually
 			// via Exchange platform config section
-			$supressor->saveEb2CPaymentMethods(1);
+			$suppressor->saveEb2cPaymentMethods(1);
 		} else {
 			Mage::log(sprintf('[%s::%s] disabling eBay Enterprise Payment Methods', __CLASS__, __METHOD__), Zend_Log::DEBUG);
 			// let's disabled payment bridge ebay Enterprise Payment method.
-			$supressor->saveEb2CPaymentMethods(0);
+			$suppressor->saveEb2cPaymentMethods(0);
 
 			// let's disable any none eBay Enterprise payment method
-			$supressor->disableNonEb2CPaymentMethods();
+			$suppressor->disableNonEb2cPaymentMethods();
 		}
 
 		return $this;

@@ -1612,7 +1612,6 @@ INVALID_XML;
 		$discountAmount = 2.040;
 		$baseDiscountAmount = 2.040;
 		$qtyOrdered = 2;
-		$couponId = 13;
 		$storeId = 'CPG';
 		$appliedRuleIds = '5';
 		$storeId = 8;
@@ -1641,14 +1640,6 @@ INVALID_XML;
 		$this->replaceCoreConfigRegistry(array(
 			'storeId' => $storeId
 		));
-
-		$coupon = $this->getModelMock('salesrule/coupon', array('loadByCode'));
-		$coupon->setId($couponId);
-		$coupon->expects($this->once())
-			->method('loadByCode')
-			->with($this->identicalTo($couponCode))
-			->will($this->returnSelf());
-		$this->replaceByMock('model', 'salesrule/coupon', $coupon);
 
 		$rule = $this->getModelMock('salesrule/rule', array('load', 'getStoreLabel'));
 		$rule->addData(array(

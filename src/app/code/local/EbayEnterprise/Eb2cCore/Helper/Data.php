@@ -467,18 +467,18 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 		return Mage::app()->getStore();
 	}
 	/**
-	 * Expect a coupon code string to be passed in order to determine
-	 * the 'PromotionalDiscounts/Discount/Id'. load the coupon code to
-	 * the Mage_SalesRule_Model_Coupon model and then return a
-	 * concatenate string of the configured store id with a
-	 * dash and the coupon primary key.
+	 * Expect a comma delimited string of applied salesrule ids and the first rule
+	 * id will be concatenated to a string of configured store id and a dash. The
+	 * result string will be truncated to only 12 characters if exceeded.
+	 * @param string $appliedRuleIds
 	 * @return string
 	 */
-	public function getDiscountId($couponCode)
+	public function getDiscountId($appliedRuleIds)
 	{
 		$cfg = Mage::getModel('eb2ccore/config_registry')
 			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
-		$coupon = Mage::getModel('salesrule/coupon')->loadByCode($couponCode);
-		return $cfg->storeId . '-' . (int) $coupon->getId();
+		$ids = explode(',', $appliedRuleIds);
+		$ruleId = !empty($ids)?$ids[0]: 0;
+		return sprintf('%.12s', $cfg->storeId . '-' . $ruleId);
 	}
 }

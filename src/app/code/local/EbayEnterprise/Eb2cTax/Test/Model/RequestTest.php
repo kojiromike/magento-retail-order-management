@@ -1466,12 +1466,12 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	public function testBuildDiscountNode()
 	{
 		$discountId = 'storeid-2';
-		$code = 'disocount';
+		$appliedRuleIds = '2,3';
 
 		$helper = $this->getHelperMock('eb2ccore/data', array('getDiscountId'));
 		$helper->expects($this->once())
 			->method('getDiscountId')
-			->with($this->identicalTo($code))
+			->with($this->identicalTo($appliedRuleIds))
 			->will($this->returnValue($discountId));
 		$this->replaceByMock('helper', 'eb2ccore', $helper);
 
@@ -1482,7 +1482,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		$node = $doc->documentElement;
 
 		$discount = array(
-			'coupon_code' => $code,
+			'applied_rule_ids' => $appliedRuleIds,
 			'discount_amount' => 10.0
 		);
 
@@ -1869,8 +1869,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->method('getProductHtsCodeByCountry')
 			->will($this->returnValue($htsCode));
 		$this->replaceByMock('helper', 'eb2ccore', $hlpr);
-		$coupon = 'Buy1Get1Free';
-		$quote = Mage::getModel('sales/quote', array('coupon_code' => $coupon));
 
 		$item = $this->_buildModelMock('sales/quote_item', array(
 			'getId' => $this->returnValue(1),
@@ -1878,8 +1876,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'getName' => $this->returnValue('the item'),
 			'getQty' => $this->returnValue(1),
 			'getBaseRowTotal' => $this->returnValue(50.0),
-			'getProduct' => $this->returnValue($prod),
-			'getQuote' => $this->returnValue($quote)
+			'getProduct' => $this->returnValue($prod)
 		));
 		$request = $this->getModelMockBuilder('eb2ctax/request')
 			->setMethods(array(
@@ -1933,7 +1930,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'AdminOrigin' => 'the admin data',
 			'ShippingOrigin' => 'ship from data',
 			'some_discount_thing' => 'this is discount data',
-			'coupon_code' => 'Buy1Get1Free',
+			'applied_rule_ids' => null,
 			'discount_amount' => null
 		);
 		$this->assertEquals($itemData, $result);

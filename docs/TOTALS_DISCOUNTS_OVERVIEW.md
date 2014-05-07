@@ -1,4 +1,4 @@
-# Magento Quote Totals and Discount Calculation overview:
+# Magento Quote Totals and Discount Calculation Overview:
 ### The following are classes and methods responsible for calculating quote, and quote item totals and row totals.
 - *sales/quote_item_abstract* class has various methods to calculate quote item row totals, base totals, and etc...
 

@@ -53,8 +53,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const DISCOUNT_DESCRIPTION_NODE = 'Description';
 	const DISCOUNT_EFFECT_TYPE_NODE = 'EffectType';
 
-	const NUMBER_OF_PENNIES_IN_DOLLAR = 100;
-	const REMAINDER_ATTRIBUTE = 'remainder';
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -82,10 +80,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected $_ebcPaymentMethodMap = array(
 		'Pbridge_eb2cpayment_cc' => 'CreditCard',
 		'Paypal_express' => 'PayPal',
-		'PrepaidCreditCard' => 'PrepaidCreditCard', // Not use
-		'StoredValueCard' => 'StoredValueCard', // Not use
-		'Points' => 'Points', // Not use
-		'PrepaidCashOnDelivery' => 'PrepaidCashOnDelivery', // Not use
+		'PrepaidCreditCard' => 'PrepaidCreditCard', // Not used
+		'StoredValueCard' => 'StoredValueCard', // Not used
+		'Points' => 'Points', // Not used
+		'PrepaidCashOnDelivery' => 'PrepaidCashOnDelivery', // Not used
 		'Free' => 'StoredValueCard',
 	);
 	public function __construct()
@@ -1010,7 +1008,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			// Spec says this *may* be required, schema validation says it *is* required
 			$discount->addChild(
 				static::DISCOUNT_ID_NODE,
-				Mage::helper('eb2ccore')->getDiscountId($couponCode)
+				Mage::helper('eb2ccore')->getDiscountId($item->getAppliedRuleIds())
 			);
 			// The actual promotion code if it exists
 			if ($couponCode !== '') {

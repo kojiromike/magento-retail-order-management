@@ -339,7 +339,6 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	{
 		$store       = Mage::app()->getStore();
 		$mageProduct = Mage::getModel('catalog/product')->load($item->getProduct()->getId());
-		$quote = $item->getQuote();
 		return array_merge(
 			array(
 				'hts_code' => Mage::helper('eb2ccore')->getProductHtsCodeByCountry(
@@ -356,7 +355,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 				'quantity' => $item->getQty(),
 				'shipping_amount' => $store->roundPrice($this->_getShippingAmount($address)),
 				'shipping_tax_class' => self::SHIPPING_TAX_CLASS,
-				'coupon_code' => $quote->getCouponCode(),
+				'applied_rule_ids' => $item->getAppliedRuleIds(),
 				'discount_amount' => $item->getDiscountAmount()
 			),
 			$this->_extractShippingData($item),
@@ -574,7 +573,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	{
 		$merchandiseNode->createChild(static::PROMOTIONAL_DISCOUNT_NODE)
 			->createChild(static::DISCOUNT_NODE, null, array(
-				static::ID_ATTRIBUTE => Mage::helper('eb2ccore')->getDiscountId($quoteItem['coupon_code']),
+				static::ID_ATTRIBUTE => Mage::helper('eb2ccore')->getDiscountId($quoteItem['applied_rule_ids']),
 				static::CALCULATE_DUTY_ATTRIBUTE => static::CALCULATE_DUTY
 			))
 			->addChild(static::AMOUNT_NODE, Mage::app()->getStore()->roundPrice($quoteItem['discount_amount']));
@@ -658,7 +657,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 		if ($item['shipping_discount_amount']) {
 			$this->_buildDiscountNode($shippingNode, array(
-				'coupon_code' => $item['coupon_code'],
+				'applied_rule_ids' => $item['applied_rule_ids'],
 				'discount_amount' => $item['shipping_discount_amount']
 			));
 		}

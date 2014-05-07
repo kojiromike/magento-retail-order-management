@@ -6,9 +6,9 @@ Magento to Exchange Platform Order Custom Attribute Mappings
 	<default>
 		<eb2corder>
 			<!--
-			This is the place where you will be able to map costum attributes for
-			an order create request for each levels: order, order item and order context
-			 -->
+			This is the place where you will be able to map custom attributes for
+			an order create request for each level: order, order item and order context
+			-->
 			<custom_attribute_mappings>
 				<order_level>
 					<increment_id>

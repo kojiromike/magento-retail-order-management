@@ -96,7 +96,7 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	{
 		$translatedShipMethod = Mage::helper('eb2ccore')->lookupShipMethod($shippingMethod);
 		if (empty($translatedShipMethod)) {
-			Mage::helper('trueaction_magelog')->logWarn(
+			Mage::helper('ebayenterprise_magelog')->logWarn(
 				static::SHIPPING_METHOD_WARNING_MESSAGE,
 				array(__METHOD__, $shippingMethod)
 			);

@@ -81,33 +81,37 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount extends Enterpr
 	 * Update enterprise giftcard account with data from eb2c
 	 * @param EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount $giftCard, the gift card object
 	 * @param array $balanceData, the eb2c stored value balance data
-	 * @return void
+	 * @return self
 	 */
 	protected function _updateGiftCardWithEb2cData(Enterprise_GiftCardAccount_Model_Giftcardaccount $giftCard, array $balanceData)
 	{
 		if ($giftCard->getGiftcardaccountId()) {
-			$giftCard->setCode($balanceData['paymentAccountUniqueId'])
-				->setEb2cPan($balanceData['paymentAccountUniqueId'])
-				->setEb2cPin($balanceData['pin'])
-				->setStatus(1)
-				->setState(1)
-				->setBalance((float) $balanceData['balanceAmount'])
-				->setIsRedeemable(1)
-				->setWebsiteId(Mage::app()->getStore()->getWebsiteId())
-				->unsDateExpires()
-				->save();
+			$this->_updateGiftCard($giftCard, $balanceData);
 		}
+		return $this;
 	}
 	/**
-	 * add eb2c storedvalue gift card data to magento enterprise giftcard account
-	 * @param array $balanceData, the eb2c stored value balance data
-	 * @return void
+	 * Add eb2c storedvalue gift card data to magento enterprise giftcard account
+	 *
+	 * @param array $balanceData the eb2c stored value balance data
+	 * @return self
 	 */
 	protected function _addGiftCardWithEb2cData(array $balanceData)
 	{
-		$giftCard = Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->load(null);
-		$giftCard->unsGiftcardaccountId()
-			->setCode($balanceData['paymentAccountUniqueId'])
+		return $this->_updateGiftCard(
+			Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->load(null)->unsGiftcardaccountId(),
+			$balanceData
+		);
+	}
+	/**
+	 * Update Gift Card Account Data
+	 * @param EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount $giftCard, the gift card object
+	 * @param array $balanceData, the eb2c stored value balance data
+	 * @return self
+	 */
+	protected function _updateGiftCard(Enterprise_GiftCardAccount_Model_Giftcardaccount $giftCard, array $balanceData)
+	{
+		$giftCard->setCode($balanceData['paymentAccountUniqueId'])
 			->setEb2cPan($balanceData['paymentAccountUniqueId'])
 			->setEb2cPin($balanceData['pin'])
 			->setStatus(1)
@@ -116,8 +120,8 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount extends Enterpr
 			->setIsRedeemable(1)
 			->setWebsiteId(Mage::app()->getStore()->getWebsiteId())
 			->unsDateExpires()
-			->setDateCreated(Mage::getModel('core/date')->date('Y-m-d'))
 			->save();
+		return $this;
 	}
 	/**
 	 * overrriding addToCart method in order to save the eb2c pan and pin field in the quote

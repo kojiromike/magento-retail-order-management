@@ -12,6 +12,8 @@ class EbayEnterprise_Eb2cFraud_Block_Jsc extends Mage_Core_Block_Template
 	protected function _construct()
 	{
 		parent::_construct();
+		// 41st Parameter needs a new random value at every page load.
+		$this->setCacheLifetime(0);
 		$collectors = $this->getCollectors() ?: json_decode(
 			Mage::getConfig()
 				->loadModulesConfiguration('jsc.xml')
@@ -32,17 +34,5 @@ class EbayEnterprise_Eb2cFraud_Block_Jsc extends Mage_Core_Block_Template
 				EbayEnterprise_Eb2cFraud_Helper_Data::JSC_FIELD_NAME, $collector['formfield']
 			),
 		));
-	}
-	/**
-	 * Do not cache this block.
-	 * Setting getCacheLifetime to null is how
-	 * you tell Magento "don't save this to cache."
-	 *
-	 * @todo Can we do this in config like app/code/core/Enterprise/PageCache/etc/cache.xml?
-	 * @todo Or should it be done with a setCacheLifetime(0) in the constructor?
-	 */
-	public function getCacheLifetime()
-	{
-		return null;
 	}
 }

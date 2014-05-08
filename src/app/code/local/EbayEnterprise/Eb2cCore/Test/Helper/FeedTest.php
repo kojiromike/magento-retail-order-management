@@ -81,12 +81,14 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	 */
 	public function testGetHeaderConfig()
 	{
+		$cfgData = array('ItemMaster' => 'eb2cproduct/item_master_feed/outbound/message_header');
 		$feedHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
 			->disableOriginalConstructor()
-			->setMethods(array('getConfigData', '_doConfigTranslation'))
+			->setMethods(array('getConfigData', '_doConfigTranslation', '_getEventTypeToHeaderConfigPath'))
 			->getMock();
-		foreach (range(0, 1) as $idx) {
-			$pccd = $this->expected("pccd_${idx}");
+		foreach (array(2, 3) as $idx) {
+			$at = $idx-2;
+			$pccd = $this->expected('pccd_' . $at);
 			$mData = $pccd->getData();
 			$feedHelperMock->expects($this->at($idx))
 				->method('getConfigData')
@@ -95,17 +97,15 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 		}
 
 		$dct = $this->expected('dct');
-		$feedHelperMock->expects($this->at(2))
+		$feedHelperMock->expects($this->at(4))
 			->method('_doConfigTranslation')
 			->with($this->isType('array'))
 			->will($this->returnValue($dct['will']));
+		$feedHelperMock->expects($this->any())
+			->method('_getEventTypeToHeaderConfigPath')
+			->will($this->returnValue($cfgData));
 
 		$this->replaceByMock('helper', 'eb2ccore/feed', $feedHelperMock);
-		$this->_reflectProperty($feedHelperMock, '_feedTypeHeaderConf')->setValue(
-			$feedHelperMock,
-			array('ItemMaster' => 'eb2cproduct/item_master_feed/outbound/message_header')
-		);
-
 		$testData = array(
 			array(
 				'expect' => array(),

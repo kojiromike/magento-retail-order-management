@@ -312,6 +312,18 @@
 						</outbound>
 					</item_pricing>
 				</filetransfer_imports>
+				<filetransfer_exports>
+					<image_master>
+						<xsd>CombinedProduct.xsd</xsd>
+						<filename_format>{client_id}_{store_id}_{feed_type}_{time_stamp}_{current_store_id}.xml</filename_format>
+						<event_type>ImageMaster</event_type>
+						<outbound>
+							<message_header>
+								<event_type>ImageMaster</event_type>
+							</message_header>
+						</outbound>
+					</image_master>
+				</filetransfer_exports>
 			</feed>
 		</eb2ccore>
 		<eb2cproduct>
@@ -329,15 +341,6 @@
 			</dummy>
 			<api_service>product</api_service>
 			<api_return_format>xml</api_return_format>
-			<image_master_feed>
-				<xsd>CombinedProduct.xsd</xsd>
-				<filename_format>{client_id}_{store_id}_{feed_type}_{time_stamp}_{current_store_id}.xml</filename_format>
-				<outbound>
-					<message_header>
-						<event_type>ImageMaster</event_type>
-					</message_header>
-				</outbound>
-			</image_master_feed>
 			<pim_export_feed>
 				<cutoff_date />
 				<batch_size />

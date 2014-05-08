@@ -11,18 +11,37 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	const FILE_NAME_CONF = 'eb2ccore/feed/outbound/file_name';
 	const GIFTCARD_TENDER_CONFIG_PATH = 'eb2ccore/feed/gift_card_tender_code';
 
+	const IMPORT_CONFIG_PATH = 'eb2ccore/feed/filetransfer_imports';
+	const EXPORT_CONFIG_PATH = 'eb2ccore/feed/filetransfer_exports';
+	const HEADER_RELATIVE_PATH = '/outbound/message_header';
+	const KEY_OUTBOUND = 'outbound';
+	const KEY_EVENT_TYPE = 'event_type';
+
 	/**
-	 * @var array map of feed type and message header configuration path
+	 * This method will derive a map of event-type to header configuration path
+	 * using the event type in the file transfer import/export configuration section.
+	 * @return array
+	 *         Example: array(
+	 *             'ItemMaster' => 'eb2ccore/feed/filetransfer_imports/item_master/outbound/message_header',
+	 *             'ImageMaster' => 'eb2ccore/feed/filetransfer_exports/image_master/outbound/message_header',
+	 *             ...
+	 *         )
 	 */
-	protected $_feedTypeHeaderConf = array(
-		'ItemMaster' => 'eb2ccore/feed/filetransfer_imports/item_master/outbound/message_header',
-		'ContentMaster' => 'eb2ccore/feed/filetransfer_imports/content_master/outbound/message_header',
-		'iShip' => 'eb2ccore/feed/filetransfer_imports/i_ship/outbound/message_header',
-		'Pricing' => 'eb2ccore/feed/filetransfer_imports/item_pricing/outbound/message_header',
-		'ImageMaster' => 'eb2ccore/feed/outbound/message_header',
-		'ItemInventories' => 'eb2ccore/feed/filetransfer_imports/inventory/outbound/message_header',
-		'PIMExport' => 'eb2cproduct/pim_export_feed/outbound/message_header',
-	);
+	protected function _getEventTypeToHeaderConfigPath()
+	{
+		$headerMap = array();
+		$paths = array(static::IMPORT_CONFIG_PATH, static::EXPORT_CONFIG_PATH);
+		$relativeHeaderPath = static::HEADER_RELATIVE_PATH;
+		foreach ($paths as $path) {
+			$cfgData = $this->getConfigData($path);
+			foreach ($cfgData as $key => $cfg) {
+				if (isset($cfg[static::KEY_OUTBOUND]) && $cfg[static::KEY_EVENT_TYPE]) {
+					$headerMap[$cfg[static::KEY_EVENT_TYPE]] = $path . '/' . $key . $relativeHeaderPath;
+				}
+			}
+		}
+		return $headerMap;
+	}
 
 	/**
 	 * @var EbayEnterprise_Eb2cCore_Model_Config_Registry
@@ -156,15 +175,17 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * getting eb2ccore default message header config in a composite array
-	 * merge with the given feed type message header config data
-	 * return an empty array if the given feed type is not in the class property _feedTypeHeaderConf
-	 * @param string $feedType known feed types are (ItemMaster, ContentMaster, iShip, Pricing, ImageMaster, ItemInventories)
+	 * From the pass in event-type determine if the event-type has a key in the
+	 * derived event-type to message-header map. If the event-type key doesn't
+	 * exist simply return an empty array, otherwise proceed to pass the header
+	 * configuration path to build the header message base on configuration data.
+	 * @param string $feedType known feed types are
+	 *        (ItemMaster, ContentMaster, iShip, Pricing, ImageMaster, ItemInventories)
 	 * @return array
 	 */
 	public function getHeaderConfig($feedType)
 	{
-		$type = $this->_feedTypeHeaderConf;
+		$type = $this->_getEventTypeToHeaderConfigPath();
 		if (!isset($type[$feedType])) {
 			return array();
 		}

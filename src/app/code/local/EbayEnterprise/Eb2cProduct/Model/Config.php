@@ -22,9 +22,9 @@ class EbayEnterprise_Eb2cProduct_Model_Config extends EbayEnterprise_Eb2cCore_Mo
 		'i_ship_feed_event_type'              => 'eb2ccore/feed/filetransfer_imports/i_ship/event_type',
 
 		'image_feed'                          => 'eb2ccore/feed/filetransfer_exports/eb2c_outbox',
-		'image_feed_event_type'               => 'eb2cproduct/image_master_feed/outbound/message_header/event_type',
-		'image_export_filename_format'        => 'eb2cproduct/image_master_feed/filename_format',
-		'image_export_xsd'                    => 'eb2cproduct/image_master_feed/xsd',
+		'image_feed_event_type'               => 'eb2ccore/feed/filetransfer_exports/image_master/outbound/message_header/event_type',
+		'image_export_filename_format'        => 'eb2ccore/feed/filetransfer_exports/image_master/filename_format',
+		'image_export_xsd'                    => 'eb2ccore/feed/filetransfer_exports/image_master/xsd',
 
 		'item_feed'                           => 'eb2ccore/feed/filetransfer_imports/item_master',
 		'item_feed_event_type'                => 'eb2ccore/feed/filetransfer_imports/item_master/event_type',

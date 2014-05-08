@@ -2,7 +2,7 @@
 
 Copyright © 2014 eBay Enterprise
 
-The eBay Enterprise Exchange Platform is a unique set of integrated omnichannel-enabling capabilities, services, and infrastructure. The platform provides tight orchestration across the entire technology value chain.
+This extension is a unique set of integrated omnichannel-enabling capabilities, services, and infrastructure. It provides tight orchestration across the entire technology value chain.
 
 ## Contents
 

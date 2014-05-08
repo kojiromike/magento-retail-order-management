@@ -43,11 +43,6 @@
 			<eb2cpayment>
 				<class>EbayEnterprise_Eb2cPayment_Helper</class>
 			</eb2cpayment>
-			<enterprise_giftcardaccount>
-				<rewrite>
-					<data>EbayEnterprise_Eb2cPayment_Overrides_Helper_Data</data>
-				</rewrite>
-			</enterprise_giftcardaccount>
 		</helpers>
 		<blocks>
 			<eb2cpayment>

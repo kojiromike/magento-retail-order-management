@@ -6,6 +6,14 @@ class EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount_CartController extend
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_INVALID_PAN = 'EbayEnterprise_Eb2cPayment_GiftCard_Invalid_Pan';
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_INVALID_PIN = 'EbayEnterprise_Eb2cPayment_GiftCard_Invalid_Pin';
 	/**
+	 * Maximal gift card pan length according to database table definitions (longer codes are truncated)
+	 */
+	const GIFT_CARD_PAN_MAX_LENGTH = 22;
+	/**
+	 * Maximal gift card pin length according to database table definitions (longer codes are truncated)
+	 */
+	const GIFT_CARD_PIN_MAX_LENGTH = 8;
+	/**
 	 * Overriding Enterprise add gift card to cart controller
 	 * Add Gift Card to current quote
 	 *
@@ -17,13 +25,13 @@ class EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount_CartController extend
 			$code = $data['giftcard_code']; // interpreting code as eb2c pan
 			$pin = $data['giftcard_pin']; // getting pin data from user input
 			try {
-				if (strlen($code) > EbayEnterprise_Eb2cPayment_Overrides_Helper_Data::GIFT_CARD_PAN_MAX_LENGTH) {
+				if (strlen($code) > static::GIFT_CARD_PAN_MAX_LENGTH) {
 					Mage::throwException(Mage::helper('enterprise_giftcardaccount')->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_INVALID_PAN));
 					// @codeCoverageIgnoreStart
 				}
 				// @codeCoverageIgnoreEnd
 
-				if (strlen($pin) > EbayEnterprise_Eb2cPayment_Overrides_Helper_Data::GIFT_CARD_PIN_MAX_LENGTH) {
+				if (strlen($pin) > static::GIFT_CARD_PIN_MAX_LENGTH) {
 					Mage::throwException(Mage::helper('enterprise_giftcardaccount')->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_INVALID_PIN));
 					// @codeCoverageIgnoreStart
 				}

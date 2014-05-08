@@ -296,4 +296,43 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	{
 		$this->assertLessThanOrEqual(20, strlen(Mage::helper('eb2ccore/feed')->getCorrelationId()));
 	}
+	/**
+	 * Test that EbayEnterprise_Eb2cCore_Helper_Feed::_getEventTypeToHeaderConfigPath
+	 * will return an array of key eventtype map to the config path of a message
+	 * header
+	 * @test
+	 */
+	public function testGetEventTypeToHeaderConfigPath()
+	{
+		$outboundKey = EbayEnterprise_Eb2cCore_Helper_Feed::KEY_OUTBOUND;
+		$eventKey = EbayEnterprise_Eb2cCore_Helper_Feed::KEY_EVENT_TYPE;
+		$importPath = EbayEnterprise_Eb2cCore_Helper_Feed::IMPORT_CONFIG_PATH;
+		$importKey = 'ItemMaster';
+		$importData = array('item_master' => array(
+			$outboundKey => '',
+			$eventKey => $importKey
+		));
+		$exportPath = EbayEnterprise_Eb2cCore_Helper_Feed::EXPORT_CONFIG_PATH;
+		$exportKey = 'ImageMaster';
+		$exportData = array('image_master' => array(
+			$outboundKey => '',
+			$eventKey => $exportKey
+		));
+		$headerMap = array(
+			$importKey => $importPath . '/item_master/outbound/message_header',
+			$exportKey => $exportPath . '/image_master/outbound/message_header'
+		);
+
+		$feed = $this->getHelperMock('eb2ccore/feed', array('getConfigData'));
+		$feed->expects($this->exactly(2))
+			->method('getConfigData')
+			->will($this->returnValueMap(array(
+				array($importPath, $importData),
+				array($exportPath, $exportData)
+			)));
+
+		$this->assertSame($headerMap, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$feed, '_getEventTypeToHeaderConfigPath', array()
+		));
+	}
 }

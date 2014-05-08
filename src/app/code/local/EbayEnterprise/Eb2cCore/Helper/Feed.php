@@ -18,7 +18,7 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	const KEY_EVENT_TYPE = 'event_type';
 
 	/**
-	 * This method will derive a map of event-type to header configuration path
+	 * This method will derive a map of event type to header configuration path
 	 * using the event type in the file transfer import/export configuration section.
 	 * @return array
 	 *         Example: array(
@@ -35,7 +35,7 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 		foreach ($paths as $path) {
 			$cfgData = $this->getConfigData($path);
 			foreach ($cfgData as $key => $cfg) {
-				if (isset($cfg[static::KEY_OUTBOUND]) && $cfg[static::KEY_EVENT_TYPE]) {
+				if (isset($cfg[static::KEY_OUTBOUND]) && isset($cfg[static::KEY_EVENT_TYPE])) {
 					$headerMap[$cfg[static::KEY_EVENT_TYPE]] = $path . '/' . $key . $relativeHeaderPath;
 				}
 			}
@@ -175,10 +175,10 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * From the pass in event-type determine if the event-type has a key in the
-	 * derived event-type to message-header map. If the event-type key doesn't
-	 * exist simply return an empty array, otherwise proceed to pass the header
-	 * configuration path to build the header message base on configuration data.
+	 * From the passed in event type determine if the event-type has a key in the
+	 * derived event type to message header map. If the event type key doesn't
+	 * exist simply return an empty array, otherwise proceed to pass the message header
+	 * configuration path to build the message header base on configuration data.
 	 * @param string $feedType known feed types are
 	 *        (ItemMaster, ContentMaster, iShip, Pricing, ImageMaster, ItemInventories)
 	 * @return array

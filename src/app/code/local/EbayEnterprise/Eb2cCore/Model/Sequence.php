@@ -13,8 +13,7 @@ class EbayEnterprise_Eb2cCore_Model_Sequence
 		$domDocument = $hlpr->getNewDomDocument();
 		// load feed files to dom object
 		$domDocument->load($file);
-		// @todo decouple this
-		$feedXpath = new DOMXPath($domDocument);
+		$feedXpath = $hlpr->getNewDomXPath($domDocument);
 		$correlationId = $feedXpath->query('//MessageHeader/MessageData/CorrelationId');
 		if ($correlationId->length) {
 			$sequence = (string) $correlationId->item(0)->nodeValue;

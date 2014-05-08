@@ -67,10 +67,6 @@ abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 			try {
 				$this->processFile($feedFile);
 				$filesProcessed++;
-				// @todo - there should be two types of exceptions handled here, Mage_Core_Exception and
-				// EbayEnterprise_Core_Feed_Failure. One should halt any further feed processing and
-				// one should just log the error and move on. Leaving out the EbayEnterprise_Core_Feed_Failure
-				// for now as none of the feeds expect to use it.
 			} catch (Mage_Core_Exception $e) {
 				Mage::helper('ebayenterprise_magelog')->logWarn(
 					'[%s] Failed to process file, %s. %s',

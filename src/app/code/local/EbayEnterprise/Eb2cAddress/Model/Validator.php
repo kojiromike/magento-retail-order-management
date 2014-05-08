@@ -236,6 +236,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 			return Mage::getModel('eb2caddress/validation_response', array('message' => $apiResponse));
 		}
 		$log->logWarn('[ %s ] Address validation service returned empty response.', array(__CLASS__));
+		return null;
 	}
 	/**
 	 * Validate an address via the EB2C Address Validation service.

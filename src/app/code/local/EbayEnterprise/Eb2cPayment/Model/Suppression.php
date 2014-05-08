@@ -64,21 +64,20 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 	}
 
 	/**
-	 * updating eBay Enterprise payment methods, to enabled or disabled base on the pass value
+	 * Updating eBay Enterprise payment methods to enable or disable based on the passed value
+	 *
 	 * @param int $value, 0 to turn payment off, 1 to turn payment on.
 	 * @return self
 	 */
-	public function saveEb2CPaymentMethods($enabled)
+	public function saveEb2cPaymentMethods($enabled)
 	{
 		Mage::app()->getStore($this->_getStoreId())->getConfig('payment');
 		// when enabled, should enable all allowed payment methods
 		// when disabled, should only disable methods exclusive to eb2c payments
 		foreach ($this->_eb2cPaymentMethods as $method) {
-			// @todo we need a better way of determining and setting the scope and scope id
-			$this->_configModel->saveConfig('payment/' . $method . '/active', $enabled, 'default', 0);
+			$this->_configModel->saveConfig("payment/{$method}/active", $enabled, 'default', 0);
 		}
 		// when enabling eb2c payments, free payments need to be enabled...
-		// this is a bit hackish
 		if ($enabled) {
 			$this->_configModel->saveConfig('payment/free/active', $enabled, 'default', 0);
 		}
@@ -90,7 +89,7 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 	 * disabled non-eBay Enterprise payment methods
 	 * @return self
 	 */
-	public function disableNonEb2CPaymentMethods()
+	public function disableNonEb2cPaymentMethods()
 	{
 		// disable all prohibited active payment methods at the default level
 		$this->_disablePaymentMethods($this->getActivePaymentMethods(null), 'default', 0);
@@ -142,7 +141,7 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 	 * check if any non-eb2c payment method enabled
 	 * @return boolean true if any non-allowed payment method is enabled
 	 */
-	public function isAnyNonEb2CPaymentMethodEnabled()
+	public function isAnyNonEb2cPaymentMethodEnabled()
 	{
 		foreach (Mage::app()->getStores() as $store) {
 			foreach (array_keys($this->getActivePaymentMethods($store)) as $method) {

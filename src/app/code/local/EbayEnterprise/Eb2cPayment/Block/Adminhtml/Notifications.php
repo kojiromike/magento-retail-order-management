@@ -14,7 +14,7 @@ class EbayEnterprise_Eb2cPayment_Block_Adminhtml_Notifications extends Mage_Admi
 			if (!Mage::getModel('eb2cpayment/suppression')->isEbcPaymentConfigured()) {
 				return array(Mage::helper('eb2cpayment')->__(self::PAYMENT_NEED_CONFIGURATION_EB2C_TITLE));
 			} else {
-				if (Mage::getModel('eb2cpayment/suppression')->isAnyNonEb2CPaymentMethodEnabled()) {
+				if (Mage::getModel('eb2cpayment/suppression')->isAnyNonEb2cPaymentMethodEnabled()) {
 					return array(Mage::helper('eb2cpayment')->__(self::PAYMENT_NEED_CONFIGURATION_NONE_EB2C_TITLE));
 				}
 			}

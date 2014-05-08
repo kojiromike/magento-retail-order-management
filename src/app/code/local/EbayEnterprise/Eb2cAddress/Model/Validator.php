@@ -418,7 +418,8 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * Return a Varien_Object containing stashed data about address validation and
 	 * validated addresses. Most of the properties it contains are retrievable
 	 * from this class so it is unlikely this will need to be called publicly.
-	 * @return Varien_Object
+	 *
+	 * @return EbayEnterprise_Eb2cAddress_Model_Suggestion_Group
 	 */
 	public function getAddressCollection()
 	{

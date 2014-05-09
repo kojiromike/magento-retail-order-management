@@ -3,7 +3,7 @@
 	<modules>
 		<EbayEnterprise_Pbridge>
 			<active>true</active>
-			<codePool>local</codePool>
+			<codePool>community</codePool>
 			<depends>
 				<Enterprise_Pbridge />
 			</depends>

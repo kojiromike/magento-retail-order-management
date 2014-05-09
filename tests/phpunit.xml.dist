@@ -34,14 +34,16 @@
 		</include>
 	</groups>
 	<filter>
+		<whitelist>
+			<!-- Include only code from the EbayEnterprise namespace. -->
+			<directory suffix=".php">app/code/community/EbayEnterprise</directory>
+		</whitelist>
 		<blacklist>
 			<!-- Exclude all lib classes from code coverage. -->
 			<directory suffix=".php">lib</directory>
 			<!-- Exclude Magento Core files from code coverage -->
-			<directory suffix=".php">app/code/core</directory>
+			<directory suffix=".php">app/code</directory>
 			<!-- Exclude community code pool from code coverage -->
-			<directory suffix=".php">app/code/community</directory>
-			<!-- Exclude Mage.php file from code coverage -->
 			<file>app/Mage.php</file>
 			<!-- Exclude template files -->
 			<directory suffix=".phtml">app/design</directory>

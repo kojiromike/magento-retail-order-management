@@ -3,7 +3,7 @@
 	<modules>
 		<EbayEnterprise_Eb2cOrder>
 			<active>true</active>
-			<codePool>local</codePool>
+			<codePool>community</codePool>
 		</EbayEnterprise_Eb2cOrder>
 	</modules>
 </config>

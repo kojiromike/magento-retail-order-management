@@ -58,10 +58,6 @@
 					"formfield": "form_data",
 					"filename": "user.js"
 				}, {
-					"function": "element.parse_data",
-					"formfield": "k1",
-					"filename": "service.js"
-				}, {
 					"function": "dt1.val",
 					"formfield": "f_variable",
 					"filename": "form_functions.js"

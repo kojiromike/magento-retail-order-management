@@ -2,6 +2,7 @@
 class EbayEnterprise_Eb2cProduct_Helper_Pim
 {
 	const DEFAULT_OPERATION_TYPE = 'Change';
+	const NEW_PRODUCT_OPERATION_TYPE = 'Add';
 	const MAX_SKU_LENGTH         = 15;
 	const STRING_LIMIT           = 4000;
 	/**
@@ -169,18 +170,24 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		return $domAttribute;
 	}
 	/**
-	 * return DOMAttr object containing the default operation type value
-	 * @param  string                              $attrValue
-	 * @param  string                              $attribute
-	 * @param  Mage_Catalog_Model_Product          $product
-	 * @param  DOMDocument         $doc
+	 * return DOMAttr object containing the operation type for the product.
+	 * Any products created after the last export run should use the new product
+	 * operation type ("Add"). All other products being exported should use
+	 * the default operation type ("Change").
+	 * @param  string $attrValue
+	 * @param  string $attribute
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @param  DOMDocument $doc
 	 * @return DOMAttr
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function passOperationType($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
 		$domAttribute = $this->_getDomAttr($doc, $attribute);
-		$domAttribute->value = self::DEFAULT_OPERATION_TYPE;
+		$lastRunTime = Mage::helper('eb2cproduct')->getConfigModel()->pimExportFeedCutoffDate;
+		$domAttribute->value = strtotime($product->getCreatedAt()) > strtotime($lastRunTime) ?
+			static::NEW_PRODUCT_OPERATION_TYPE :
+			static::DEFAULT_OPERATION_TYPE;
 		return $domAttribute;
 	}
 	/**

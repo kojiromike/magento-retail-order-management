@@ -23,6 +23,17 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	 */
 	const DEFAULT_LOUD_HANDLER_CONFIG = 'eb2ccore/api/default_status_handlers/loud';
 	/**
+	 * log message format strings
+	 */
+	const VALIDATE_LOG_FORMAT = "[%s] Validating request:\n%s";
+	const SEND_REQUEST_LOG_FORMAT = "[%s] Sending request to %s";
+	const RESPONSE_LOG_FORMAT = "[%s] Received response for request to %s:\n%s";
+	// the zend http client throws exceptions that are generic and make it impractical to
+	// generate a message that is more representative of what went wrong.
+	const INCOMPLETE_REQUEST_LOG_FORMAT = "[%s] Unable to complete request to %s";
+	const EMPTY_RESPONSE_LOG_FORMAT = "[%s] Received response with no body from %s with status %s.";
+	const REQUEST_ERROR_LOG_FORMAT = "[%s] Problem with request to %s:\n%s";
+	/**
 	 * path handler config
 	 * @var string
 	 */
@@ -53,12 +64,11 @@ class EbayEnterprise_Eb2cCore_Model_Api
 				->addConfigModel(Mage::getSingleton('eb2ccore/config'))
 				->apiKey;
 		}
-		$log = Mage::helper('ebayenterprise_magelog');
 		$xmlStr = $doc->C14N();
-		$log->logInfo("[ %s ] Validating request:\n%s", array(__CLASS__, $xmlStr));
+		$log->logInfo(static::VALIDATE_LOG_FORMAT, array(__CLASS__, $xmlStr));
 		$this->schemaValidate($doc, $xsdName);
-		$log->logInfo("[ %s ] Sending request to %s", array(__CLASS__, $uri));
 		$client = $this->_setupClient($client, $apiKey, $uri, $xmlStr, $adapter, $timeout);
+		$log->logInfo(static::SEND_REQUEST_LOG_FORMAT, array(__CLASS__, $uri));
 		try {
 			$response = $client->request(self::DEFAULT_METHOD);
 			return $this->_processResponse($response, $uri);
@@ -92,21 +102,23 @@ class EbayEnterprise_Eb2cCore_Model_Api
 		return $client;
 	}
 	/**
-	 * log the response and return the result of the configured callback.
+	 * log the response and return the result the configured handler method.
 	 *
-	 * @param Zend_Http_Response $response
-	 * @param string             $uri
-	 * @return string response body or empty string
+	 * @param  Zend_Http_Response $response
+	 * @param  string             $uri
+	 * @return string response body or empty
 	 */
 	protected function _processResponse(Zend_Http_Response $response, $uri)
 	{
 		$this->_status = $response->getStatus();
 		$log = Mage::helper('ebayenterprise_magelog');
-		$msgPat = "[%s] Received response from %s with status %s:\n%s";
-		$msgArgs = array(__CLASS__, $uri, $this->_status, $response->asString());
 		$config = $this->_getHandlerConfig($this->_getHandlerKey($response));
 		$logMethod = isset($config['logger']) ? $config['logger'] : 'logDebug';
-		$log->$logMethod($msgPat, $msgArgs);
+		$log->$logMethod(static::RESPONSE_LOG_FORMAT, array(__CLASS__, $uri, $response->asString()));
+		if (!$response->getBody()) {
+			$msgArgs = array(__CLASS__, $uri, $this->_status);
+			$log->logInfo(static::EMPTY_RESPONSE_LOG_FORMAT, $msgArgs);
+		}
 		$callbackConfig = isset($config['callback']) ? $config['callback'] : array();
 		$callbackConfig['parameters'] = array($response);
 		return Mage::helper('eb2ccore')->invokeCallBack($callbackConfig);
@@ -120,7 +132,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	}
 	/**
 	 * Validates the DOM against a validation schema,
-	 * which should be a full path to an .xsd for this DOMDocument.
+	 * which should be a full path to an xsd for this DOMDocument.
 	 *
 	 * @param DomDocument $doc The document to validate
 	 * @param string $xsdName xsd file basename with which to validate the doc
@@ -148,7 +160,8 @@ class EbayEnterprise_Eb2cCore_Model_Api
 		return $this;
 	}
 	/**
-	 * handle the exception thrown by the zend client.
+	 * handle the exception thrown by the zend client and return the result of the
+	 * configured handler.
 	 * @param  Zend_Http_Client_Exception $exception
 	 * @param  string                     $uri
 	 * @return string
@@ -159,10 +172,8 @@ class EbayEnterprise_Eb2cCore_Model_Api
 		$log = Mage::helper('ebayenterprise_magelog');
 		$config = $this->_getHandlerConfig($this->_getHandlerKey());
 		$logMethod = isset($config['logger']) ? $config['logger'] : 'logDebug';
-		$log->$logMethod(
-			'[ %s ] Failed to send request to %s; API client error: %s',
-			array(__CLASS__, $uri, $exception)
-		);
+		$log->logInfo(static::INCOMPLETE_REQUEST_LOG_FORMAT, array(__CLASS__, $uri));
+		$log->$logMethod(static::REQUEST_ERROR_LOG_FORMAT, array(__CLASS__, $uri, $exception));
 		$callbackConfig = isset($config['callback']) ? $config['callback'] : array();
 		return Mage::helper('eb2ccore')->invokeCallBack($callbackConfig);
 	}
@@ -181,7 +192,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	 */
 	protected function _getHandlerConfig($handlerKey)
 	{
-		$path = $this->_statusHandlerPath ?: self::DEFAULT_HANDLER_CONFIG;
+		$path = $this->_statusHandlerPath ?: static::DEFAULT_HANDLER_CONFIG;
 		$config = $this->_getMergedHandlerConfig(Mage::helper('eb2ccore')->getConfigData($path));
 		return $config['status'][$handlerKey];
 	}
@@ -216,11 +227,11 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	protected function _getMergedHandlerConfig(array $config=array())
 	{
 		$coreHelper = Mage::helper('eb2ccore');
-		$defaultConfig = $coreHelper->getConfigData(self::DEFAULT_HANDLER_CONFIG);
+		$defaultConfig = $coreHelper->getConfigData(static::DEFAULT_HANDLER_CONFIG);
 		if (isset($config['alert_level']) && $config['alert_level'] === 'loud') {
 			$defaultConfig = array_replace_recursive(
 				$defaultConfig,
-				$coreHelper->getConfigData(self::DEFAULT_LOUD_HANDLER_CONFIG)
+				$coreHelper->getConfigData(static::DEFAULT_LOUD_HANDLER_CONFIG)
 			);
 		}
 		return array_replace_recursive($defaultConfig, $config);

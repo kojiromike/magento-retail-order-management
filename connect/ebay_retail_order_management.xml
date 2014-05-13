@@ -6,8 +6,8 @@
 	<version_ids>
 		<version_ids>2</version_ids>
 	</version_ids>
-	<summary>eBay Enterprise Exchange Platform</summary>
-	<description>eBay Enterprise Exchange Platform</description>
+	<summary>eBay Enterprise Retail Order Management</summary>
+	<description>eBay Enterprise Retail Order Management</description>
 	<license>proprietary</license>
 	<license_uri/>
 	<version>1.1.0.0</version>
@@ -53,7 +53,7 @@
 				<max/>
 			</max>
 			<files>
-				<files>																				</files>
+				<files></files>
 			</files>
 		</package>
 		<extension>

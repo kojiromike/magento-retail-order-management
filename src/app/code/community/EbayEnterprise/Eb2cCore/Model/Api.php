@@ -23,17 +23,6 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	 */
 	const DEFAULT_LOUD_HANDLER_CONFIG = 'eb2ccore/api/default_status_handlers/loud';
 	/**
-	 * log message format strings
-	 */
-	const VALIDATE_LOG_FORMAT = "[%s] Validating request:\n%s";
-	const SEND_REQUEST_LOG_FORMAT = "[%s] Sending request to %s";
-	const RESPONSE_LOG_FORMAT = "[%s] Received response for request to %s:\n%s";
-	// the zend http client throws exceptions that are generic and make it impractical to
-	// generate a message that is more representative of what went wrong.
-	const INCOMPLETE_REQUEST_LOG_FORMAT = "[%s] Unable to complete request to %s";
-	const EMPTY_RESPONSE_LOG_FORMAT = "[%s] Received response with no body from %s with status %s.";
-	const REQUEST_ERROR_LOG_FORMAT = "[%s] Problem with request to %s:\n%s";
-	/**
 	 * path handler config
 	 * @var string
 	 */
@@ -65,10 +54,10 @@ class EbayEnterprise_Eb2cCore_Model_Api
 				->apiKey;
 		}
 		$xmlStr = $doc->C14N();
-		$log->logInfo(static::VALIDATE_LOG_FORMAT, array(__CLASS__, $xmlStr));
+		$log->logInfo("[%s] Validating request:\n%s", array(__CLASS__, $xmlStr));
 		$this->schemaValidate($doc, $xsdName);
 		$client = $this->_setupClient($client, $apiKey, $uri, $xmlStr, $adapter, $timeout);
-		$log->logInfo(static::SEND_REQUEST_LOG_FORMAT, array(__CLASS__, $uri));
+		$log->logInfo("[%s] Sending request to %s", array(__CLASS__, $uri));
 		try {
 			$response = $client->request(self::DEFAULT_METHOD);
 			return $this->_processResponse($response, $uri);
@@ -102,7 +91,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 		return $client;
 	}
 	/**
-	 * log the response and return the result the configured handler method.
+	 * log the response and return the result of the configured handler method.
 	 *
 	 * @param  Zend_Http_Response $response
 	 * @param  string             $uri
@@ -114,10 +103,15 @@ class EbayEnterprise_Eb2cCore_Model_Api
 		$log = Mage::helper('ebayenterprise_magelog');
 		$config = $this->_getHandlerConfig($this->_getHandlerKey($response));
 		$logMethod = isset($config['logger']) ? $config['logger'] : 'logDebug';
-		$log->$logMethod(static::RESPONSE_LOG_FORMAT, array(__CLASS__, $uri, $response->asString()));
+		$log->$logMethod(
+			"[%s] Received response for request to %s:\n%s",
+			array(__CLASS__, $uri, $response->asString())
+		);
 		if (!$response->getBody()) {
-			$msgArgs = array(__CLASS__, $uri, $this->_status);
-			$log->logInfo(static::EMPTY_RESPONSE_LOG_FORMAT, $msgArgs);
+			$log->logInfo(
+				"[%s] Received response with no body from %s with status %s.",
+				array(__CLASS__, $uri, $this->_status)
+			);
 		}
 		$callbackConfig = isset($config['callback']) ? $config['callback'] : array();
 		$callbackConfig['parameters'] = array($response);
@@ -172,8 +166,10 @@ class EbayEnterprise_Eb2cCore_Model_Api
 		$log = Mage::helper('ebayenterprise_magelog');
 		$config = $this->_getHandlerConfig($this->_getHandlerKey());
 		$logMethod = isset($config['logger']) ? $config['logger'] : 'logDebug';
-		$log->logInfo(static::INCOMPLETE_REQUEST_LOG_FORMAT, array(__CLASS__, $uri));
-		$log->$logMethod(static::REQUEST_ERROR_LOG_FORMAT, array(__CLASS__, $uri, $exception));
+		// the zend http client throws exceptions that are generic and make it impractical to
+		// generate a message that is more representative of what went wrong.
+		$log->logInfo("[%s] Unable to complete request to %s", array(__CLASS__, $uri));
+		$log->$logMethod("[%s] Problem with request to %s:\n%s", array(__CLASS__, $uri, $exception));
 		$callbackConfig = isset($config['callback']) ? $config['callback'] : array();
 		return Mage::helper('eb2ccore')->invokeCallBack($callbackConfig);
 	}

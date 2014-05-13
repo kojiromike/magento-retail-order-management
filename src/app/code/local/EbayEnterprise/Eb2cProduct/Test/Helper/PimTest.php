@@ -417,40 +417,46 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	}
 
 	/**
-	 * Test EbayEnterprise_Eb2cProduct_Helper_Pim::passOperationType method for the following expectations
-	 * Expectation 1: the method EbayEnterprise_Eb2cProduct_Helper_Pim::passOperationType method will be invoked by this test
-	 *                given an attribute value, an attribute code, a mocked Mage_Catalog_Model_Product and mocked
-	 *                EbayEnterprise_Dom_Document object
-	 * Expectation 2: the method EbayEnterprise_Eb2cProduct_Helper_Pim::_getDomAttr is expected to be invoked and given
-	 *                the mocked EbayEnterprise_Dom_Document object and the attribute code which will in turn returned
-	 *                the DOMAttr object
+	 * Test getting the operation type for a product based on when the product
+	 * was created. If the product was created after the last run of the export,
+	 * found via a config value, the operation type should be "Add". Otherwise,
+	 * the operation type should be "Change".
+	 * @test
 	 */
 	public function testPassOperationType()
 	{
-		$attrValue = '';
-		$operationType = EbayEnterprise_Eb2cProduct_Helper_Pim::DEFAULT_OPERATION_TYPE;
-		$attribute = '_operation_type';
-		$domAttr = new DOMAttr('operation_type', $operationType);
+		// As this is a pseudo-product attribute, the value will be empty and the
+		// attribute code should will begin with an '_'
+		$attributeValue = '';
+		$attributeCode = '_operation_type';
+		// These time formats match the formats actually being used.
+		$addProduct = Mage::getModel('catalog/product', array('created_at' => '2014-02-02 00:00:00'));
+		$changeProduct = Mage::getModel('catalog/product', array('created_at' => '2014-01-01 00:00:00'));
+		// Any products created after this time should get "Add" operation type,
+		// any created before should get "Change" operation type
+		$lastRunTime = '2014-01-15T00:00:00+00:00';
 
-		$productMock = $this->getModelMockBuilder('catalog/product')
-			->disableOriginalConstructor()
-			->setMethods(null)
-			->getMock();
-		$domMock = $this->getMockBuilder('EbayEnterprise_Dom_Document')
-			->disableOriginalConstructor()
-			->setMethods(null)
-			->getMock();
+		$doc = new EbayEnterprise_Dom_Document();
+		$addAttr = $doc->createAttribute('operation_type');
+		$addAttr->value = 'Add';
+		$changeAttr = $doc->createAttribute('operation_type');
+		$changeAttr->value = 'Change';
 
-		$pimHelperMock = $this->getHelperMockBuilder('eb2cproduct/pim')
-			->disableOriginalConstructor()
-			->setMethods(array('_getDomAttr'))
-			->getMock();
-		$pimHelperMock->expects($this->once())
-			->method('_getDomAttr')
-			->with($this->identicalTo($domMock), $this->identicalTo($attribute))
-			->will($this->returnValue($domAttr));
+		// Stub out the config registry and helper that delivers it so a known
+		// last run time can be reliably returned.
+		$cfg = $this->buildCoreConfigRegistry(array('pimExportFeedCutoffDate' => $lastRunTime));
+		$prodHelper = $this->getHelperMock('eb2cproduct/data', array('getConfigModel'));
+		$prodHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($cfg));
+		$this->replaceByMock('helper', 'eb2cproduct', $prodHelper);
 
-		$this->assertSame($domAttr, $pimHelperMock->passOperationType($attrValue, $attribute, $productMock, $domMock));
+		$changeResult = Mage::helper('eb2cproduct/pim')->passOperationType($attributeValue, $attributeCode, $changeProduct, $doc);
+		$this->assertSame('Change', $changeResult->value);
+		$this->assertSame('operation_type', $changeResult->name);
+		$addResult = Mage::helper('eb2cproduct/pim')->passOperationType($attributeValue, $attributeCode, $addProduct, $doc);
+		$this->assertSame('Add', $addResult->value);
+		$this->assertSame('operation_type', $addResult->name);
 	}
 
 	/**

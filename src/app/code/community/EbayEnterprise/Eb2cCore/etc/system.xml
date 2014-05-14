@@ -9,7 +9,7 @@
 	<sections>
 		<eb2ccore translate="label" module="eb2ccore">
 			<class>separator-top</class>
-			<label>Exchange Platform</label>
+			<label>Retail Order Management</label>
 			<tab>ebayenterprise</tab>
 			<frontend_type>text</frontend_type>
 			<sort_order>550</sort_order>

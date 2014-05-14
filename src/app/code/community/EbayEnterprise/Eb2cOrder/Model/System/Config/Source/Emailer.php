@@ -9,10 +9,10 @@ class EbayEnterprise_Eb2cOrder_Model_System_Config_Source_Emailer
 	 */
 	public function toOptionArray()
 	{
-		return array(
-			array('value' => 'eb2c', 'label' => Mage::helper('adminhtml')->__('Exchange Platform')),
-			array('value' => 'mage', 'label' => Mage::helper('adminhtml')->__('Magento')),
-		);
+		$arr = $this->toArray();
+		return array_map(function ($k) use ($arr) {
+			return array('value' => $k, 'label' => $arr[$k]);
+		}, array_keys($arr));
 	}
 
 	/**
@@ -23,8 +23,8 @@ class EbayEnterprise_Eb2cOrder_Model_System_Config_Source_Emailer
 	public function toArray()
 	{
 		return array(
-			'eb2c' => Mage::helper('adminhtml')->__('Exchange Platform'),
-			'mage' => Mage::helper('adminhtml')->__('Magento'),
+			'eb2c' => Mage::helper('eb2corder')->__('eBay Enterprise Email'),
+			'mage' => Mage::helper('eb2corder')->__('Magento'),
 		);
 	}
 

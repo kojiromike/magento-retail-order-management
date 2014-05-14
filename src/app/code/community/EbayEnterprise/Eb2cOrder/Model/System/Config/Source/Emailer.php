@@ -23,7 +23,7 @@ class EbayEnterprise_Eb2cOrder_Model_System_Config_Source_Emailer
 	public function toArray()
 	{
 		return array(
-			'eb2c' => Mage::helper('eb2corder')->__('Exchange Platform'),
+			'eb2c' => Mage::helper('eb2corder')->__('eBay Enterprise Email'),
 			'mage' => Mage::helper('eb2corder')->__('Magento'),
 		);
 	}

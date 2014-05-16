@@ -48,7 +48,7 @@ class EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup
 	 */
 	protected function _logWarn($msg)
 	{
-		Mage::log(sprintf('[ %s ] %s', __CLASS__, $msg), Zend_Log::WARN);
+		Mage::log(sprintf('[%s] %s', __CLASS__, $msg), Zend_Log::WARN);
 	}
 
 	/**
@@ -58,7 +58,7 @@ class EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup
 	 */
 	protected function _logDebug($msg)
 	{
-		Mage::log(sprintf('[ %s ] %s', __CLASS__, $msg), Zend_Log::DEBUG);
+		Mage::log(sprintf('[%s] %s', __CLASS__, $msg), Zend_Log::DEBUG);
 	}
 
 	/**

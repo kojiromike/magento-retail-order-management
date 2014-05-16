@@ -2,7 +2,7 @@
 /**
  * Upgrade to add eb2c status time stamp to order
  */
-Mage::log('[ ' . __CLASS__ . ' ] Upgrading Eb2cOrder 0.9.0 -> 1.0.0.18', Zend_Log::INFO);
+Mage::log('[' . __CLASS__ . '] Upgrading Eb2cOrder 0.9.0 -> 1.0.0.18', Zend_Log::INFO);
 $installer = $this;
 $installer->startSetup();
 try{
@@ -38,7 +38,7 @@ try{
 			)
 		),
 		array(
-			'name'    => 'status_type',      
+			'name'    => 'status_type',
 			'options' => array (
 				'type'     => Varien_Db_Ddl_Table::TYPE_TEXT,
 				'visible'  => true,

@@ -69,7 +69,7 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 		// values by the collection, any products that do not include an 'is_clean'
 		// column will be included.
 		$productsToClean = $this->_products->getItemsByColumnValue('is_clean', false);
-		Mage::log(sprintf('[ %s ]: Cleaning %d products.', __CLASS__, count($productsToClean)), Zend_Log::INFO);
+		Mage::log(sprintf('[%s]: Cleaning %d products.', __CLASS__, count($productsToClean)), Zend_Log::INFO);
 		foreach ($productsToClean as $product) {
 			$this->cleanProduct($product);
 		}
@@ -383,7 +383,7 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 				->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
 		} elseif (empty($usedProductIds)) {
 			Mage::log(
-				sprintf('[ %s ]: Expected to find products to use for configurable product %s but found none.', __CLASS__, $product->getSku()),
+				sprintf('[%s]: Expected to find products to use for configurable product %s but found none.', __CLASS__, $product->getSku()),
 				Zend_Log::DEBUG
 			);
 		}
@@ -426,7 +426,7 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 				->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
 		} else {
 			Mage::log(sprintf(
-				'[ %s ]: Expected to find configurable product with sku %s to add product with sku %s to but no such product found',
+				'[%s]: Expected to find configurable product with sku %s to add product with sku %s to but no such product found',
 				__CLASS__, $product->getStyleId(), $product->getSku()
 			), Zend_Log::DEBUG);
 		}

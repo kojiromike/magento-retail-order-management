@@ -89,7 +89,7 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 			$this->_setProdQty($id, $qty);
 		} else {
 			// @codeCoverageIgnoreStart
-			Mage::log(sprintf('[ %s ] SKU "%s" not found for inventory update.', __CLASS__, $sku), Zend_Log::WARN);
+			Mage::log(sprintf('[%s] SKU "%s" not found for inventory update.', __CLASS__, $sku), Zend_Log::WARN);
 			// @codeCoverageIgnoreEnd
 		}
 		return $this;
@@ -114,7 +114,7 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 	public function updateInventories(array $feedItems)
 	{
 		// @codeCoverageIgnoreStart
-		Mage::log(sprintf('[ %s ] Updating inventory for %d items', __CLASS__, count($feedItems)), Zend_Log::INFO);
+		Mage::log(sprintf('[%s] Updating inventory for %d items', __CLASS__, count($feedItems)), Zend_Log::INFO);
 		// @codeCoverageIgnoreEnd
 		foreach ($feedItems as $feedItem) {
 			$sku = $this->_extractSku($feedItem);

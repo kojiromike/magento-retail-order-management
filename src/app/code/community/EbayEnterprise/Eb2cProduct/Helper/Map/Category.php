@@ -100,7 +100,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Category extends Mage_Core_Helper_Ab
 		if (isset($this->_namePathToIdMap[$namePath])) {
 			return $this->_namePathToIdMap[$namePath];
 		} else {
-			Mage::helper('ebayenterprise_magelog')->logWarn('[ %s ] No category was found with path matching "%s".', array(__CLASS__, $namePath));
+			Mage::helper('ebayenterprise_magelog')->logWarn('[%s] No category was found with path matching "%s".', array(__CLASS__, $namePath));
 			return -1;
 		}
 	}

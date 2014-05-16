@@ -72,7 +72,7 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 		if ($matches->length) {
 			return true;
 		} else {
-			Mage::log(sprintf('[ %s ] Feed does not have "%s" EventType node.', __CLASS__, $eventType), Zend_Log::WARN);
+			Mage::log(sprintf('[%s] Feed does not have "%s" EventType node.', __CLASS__, $eventType), Zend_Log::WARN);
 			return false;
 		}
 	}

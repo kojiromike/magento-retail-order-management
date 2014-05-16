@@ -20,7 +20,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	const ERROR_INVALID_DOC = '%s called with invalid doc. Must be instance of EbayEnterprise_Dom_Document';
 	const ERROR_INVALID_CORE_FEED = '%s called with invalid core feed. Must be instance of EbayEnterprise_Eb2cCore_Model_Feed';
 
-	const WARNING_CANNOT_GENERATE_FEED = '[ %s ] %s could not be generated because of missing required product data or the sku exceeded %d characters.';
+	const WARNING_CANNOT_GENERATE_FEED = '[%s] %s could not be generated because of missing required product data or the sku exceeded %d characters.';
 
 	/**
 	 * document object used when building the feed contents
@@ -198,7 +198,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 					$key, $this->_getFeedAttributes($key));
 			} catch(EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception $e) {
 				Mage::helper('ebayenterprise_magelog')->logWarn(
-					'[ %s ] Product excluded from export (%s)',
+					'[%s] Product excluded from export (%s)',
 					 array( __METHOD__, $e->getMessage())
 				);
 				$pimProducts->deleteItem($pimProduct);
@@ -264,7 +264,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 */
 	protected function _validateDocument($key)
 	{
-		Mage::helper('ebayenterprise_magelog')->logInfo("[ %s ] Validating document:\n%s", array(__METHOD__, $this->_docs[$key]->C14N()));
+		Mage::helper('ebayenterprise_magelog')->logInfo("[%s] Validating document:\n%s", array(__METHOD__, $this->_docs[$key]->C14N()));
 		$config = $this->_getFeedsMap();
 		Mage::getModel('eb2ccore/api')
 			->schemaValidate($this->_docs[$key], $config[$key][self::KEY_SCHEMA_LOCATION]);

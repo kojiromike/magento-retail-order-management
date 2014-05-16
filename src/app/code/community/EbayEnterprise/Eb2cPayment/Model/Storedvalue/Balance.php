@@ -15,7 +15,7 @@ class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Balance
 		// Replace the "GS" at the end of the url with the right tender type for the SVC.
 		$uri = $hlpr->getSvcUri('get_gift_card_balance', $pan);
 		if ($uri === '') {
-			Mage::log(sprintf('[ %s ] pan "%s" is out of range of any configured tender type bin.', __CLASS__, $pan), Zend_Log::ERR);
+			Mage::log(sprintf('[%s] pan "%s" is out of range of any configured tender type bin.', __CLASS__, $pan), Zend_Log::ERR);
 			return '';
 		}
 		return Mage::getModel('eb2ccore/api')

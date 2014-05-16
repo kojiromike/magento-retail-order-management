@@ -14,7 +14,7 @@ class EbayEnterprise_Eb2cCore_Model_Indexer
 				try {
 					$process->reindexEverything();
 					Mage::dispatchEvent($process->getIndexerCode() . '_shell_reindex_after');
-					Mage::log('[ ' . __CLASS__ . ' ] ' . $process->getIndexer()->getName() . ' index rebuilt successfully', Zend_Log::INFO);
+					Mage::log('[' . __CLASS__ . '] ' . $process->getIndexer()->getName() . ' index rebuilt successfully', Zend_Log::INFO);
 				} catch (Mage_Core_Exception $e) {
 					// @codeCoverageIgnoreStart
 					Mage::logException($e);

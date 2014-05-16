@@ -1,12 +1,12 @@
 <?php
-Mage::log('[ ' . __CLASS__ . ' ] Upgrading Eb2cOrder 1.0.0.18 -> 1.0.0.19', Zend_Log::INFO);
+Mage::log('[' . __CLASS__ . '] Upgrading Eb2cOrder 1.0.0.18 -> 1.0.0.19', Zend_Log::INFO);
 $installer = $this;
 $installer->startSetup();
 
 // Status and Status State tables
 $statusTable      = $installer->getTable('sales/order_status');
 $statusStateTable = $installer->getTable('sales/order_status_state');
- 
+
 // The states are assigned to variables so that our big array is more legible.
 $canceled   = Mage_Sales_Model_Order::STATE_CANCELED;
 $complete   = Mage_Sales_Model_Order::STATE_COMPLETE;

@@ -187,28 +187,28 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	{
 		$log = Mage::helper('ebayenterprise_magelog');
 		if ($this->_hasAddressBeenValidated($address)) {
-			$log->logDebug('[ %s ] No validation - already validated', array(__CLASS__));
+			$log->logDebug('[%s] No validation - already validated', array(__CLASS__));
 			return false;
 		}
 		if ($this->_isCheckoutAddress($address)) {
 			if ($this->_isAddressFromAddressBook($address)) {
-				$log->logDebug('[ %s ] No validation - from address book', array(__CLASS__));
+				$log->logDebug('[%s] No validation - from address book', array(__CLASS__));
 				return false;
 			}
 			if ($this->_isAddressBeingSaved()) {
-				$log->logDebug('[ %s ] Require validation - saving address in address book', array(__CLASS__));
+				$log->logDebug('[%s] Require validation - saving address in address book', array(__CLASS__));
 				return true;
 			}
 			if ($this->_isVirtualOrder()) {
-				$log->logDebug('[ %s ] No validation - virtual order', array(__CLASS__));
+				$log->logDebug('[%s] No validation - virtual order', array(__CLASS__));
 				return false;
 			}
 			if ($this->_isAddressBillingOnly($address)) {
-				$log->logDebug('[ %s ] No validation - billing only', array(__CLASS__));
+				$log->logDebug('[%s] No validation - billing only', array(__CLASS__));
 				return false;
 			}
 			if ($this->_isMissingRequiredFields($address)) {
-				$log->logDebug('[ %s ] No validation - missing required fields', array(__CLASS__));
+				$log->logDebug('[%s] No validation - missing required fields', array(__CLASS__));
 				return false;
 			}
 		}
@@ -235,7 +235,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 		if (isset($apiResponse) && trim($apiResponse)) {
 			return Mage::getModel('eb2caddress/validation_response', array('message' => $apiResponse));
 		}
-		$log->logWarn('[ %s ] Address validation service returned empty response.', array(__CLASS__));
+		$log->logWarn('[%s] Address validation service returned empty response.', array(__CLASS__));
 		return null;
 	}
 	/**

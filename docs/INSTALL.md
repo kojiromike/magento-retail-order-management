@@ -260,3 +260,4 @@ The `-i` option displays all the information you need to configure the Payment B
 The eBay Enterprise Exchange Platform uses your Magento EE cron job to update feeds every 15 minutes. Provided your cron job is set up, there is no additional configuration required.
 For more information about setting up your Magento cron job, see <a href="http://www.magentocommerce.com/knowledge-base/entry/ce18-and-ee113-installing#install-cron" target="_blank">Setting Up Cron Jobs</a>.
 
+> Warning: These jobs were not built to be run in parallel. Be sure to configure cron to avoid running more than one import job at a time. (One way to do this is to use `cron.sh`, not `cron.php` to trigger the jobs.)

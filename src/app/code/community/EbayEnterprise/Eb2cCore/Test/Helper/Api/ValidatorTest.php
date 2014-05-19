@@ -30,10 +30,10 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Api_ValidatorTest
 		// translation with simply prepending "Translated_" to the message
 		$this->replaceByMock('helper', 'eb2ccore', $this->_getMockTranslationHelper());
 		$this->assertSame(
-			json_encode(array(
+			array(
 				'message' => 'Translated_EbayEnterprise_Eb2cCore_Api_Validator_Invalid_Hostname',
 				'success' => false
-			)),
+			),
 			Mage::helper('eb2ccore/api_validator')->returnInvalidHostnameResponse()
 		);
 	}
@@ -47,10 +47,10 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Api_ValidatorTest
 		// translation with simply prepending "Translated_" to the message
 		$this->replaceByMock('helper', 'eb2ccore', $this->_getMockTranslationHelper());
 		$this->assertSame(
-			json_encode(array(
+			array(
 				'message' => 'Translated_EbayEnterprise_Eb2cCore_Api_Validator_Unknown_Failure',
 				'success' => false
-			)),
+			),
 			Mage::helper('eb2ccore/api_validator')->returnUnknownErrorResponse()
 		);
 	}
@@ -62,22 +62,22 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Api_ValidatorTest
 	public function provideStatusCodeAndResponseMessage()
 	{
 		return array(
-			array(401, json_encode(array(
+			array(401, array(
 				'message' => 'Translated_EbayEnterprise_Eb2cCore_Api_Validator_Invalid_Api_Key',
 				'success' => false
-			))),
-			array(403, json_encode(array(
+			)),
+			array(403, array(
 				'message' => 'Translated_EbayEnterprise_Eb2cCore_Api_Validator_Invalid_Store_Id',
 				'success' => false
-			))),
-			array(408, json_encode(array(
+			)),
+			array(408, array(
 				'message' => 'Translated_EbayEnterprise_Eb2cCore_Api_Validator_Network_Timeout',
 				'success' => false
-			))),
-			array(404, json_encode(array(
+			)),
+			array(404, array(
 				'message' => 'Translated_EbayEnterprise_Eb2cCore_Api_Validator_Unknown_Failure',
 				'success' => false
-			))),
+			)),
 		);
 	}
 	/**
@@ -114,10 +114,10 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Api_ValidatorTest
 		// translation with simply prepending "Translated_" to the message
 		$this->replaceByMock('helper', 'eb2ccore', $this->_getMockTranslationHelper());
 		$this->assertSame(
-			json_encode(array(
+			array(
 				'message' => 'Translated_EbayEnterprise_Eb2cCore_Api_Validator_Success',
 				'success' => true
-			)),
+			),
 			Mage::helper('eb2ccore/api_validator')->returnSuccessResponse()
 		);
 	}

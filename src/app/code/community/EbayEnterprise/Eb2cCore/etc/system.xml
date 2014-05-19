@@ -183,6 +183,15 @@
 							<comment>The sftp url to the feeds service. (sftp://host.gsipartners.com/path)</comment>
 							<validate>validate-required</validate>
 						</sftp_location>
+						<validate_sftp_connection translate="button_label">
+							<label/>
+							<sort_order>75</sort_order>
+							<button_label>Test SFTP Connection</button_label>
+							<frontend_model>eb2ccore/system_config_testsftpconnection</frontend_model>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</validate_sftp_connection>
 					</fields>
 				</feed>
 			</groups>

@@ -221,62 +221,73 @@ class EbayEnterprise_Eb2cCore_Test_Controller_Exchange_System_Config_ValidateCon
 			)
 		);
 	}
-	/**
-	 * Test doign simple validations on API settings. When all are valid, should
-	 * simply return self
-	 * @test
-	 */
-	public function testValidateSettings()
-	{
-		$controller = $this->getMockBuilder('EbayEnterprise_Eb2cCore_Exchange_System_Config_ValidateController')
-			->disableOriginalConstructor()
-			->getMock();
-		$this->assertSame(
-			$controller,
-			EcomDev_Utils_Reflection::invokeRestrictedMethod(
-				$controller,
-				'_validateSettings',
-				array('STORE_ID', 'API_KEY', 'example.com')
-			)
-		);
-	}
-	public function provideSettingsAndExceptions()
+	public function provideSftpPrivateKeyParams()
 	{
 		return array(
-			array('', '', '', 'Store Id, API Key, API Hostname'),
-			array('', '', 'example.com', 'Store Id, API Key'),
-			array('', 'apikey-123', 'example.com', 'Store Id'),
+			array(array('ssh_key' => 'abcd1234', 'ssh_key_use_default' => ''), null, 'abcd1234'),
+			array(array('ssh_key' => 'abcd1234', 'ssh_key_use_default' => '1'), 'core/store', '4321dcba'),
+			array(array('ssh_key' => '', 'ssh_key_use_default' => '1'), 'core/website', '4321dcba'),
+			array(array('ssh_key' => '', 'ssh_key_use_default' => '0'), 'core/store', '4321dcba'),
+			array(array('ssh_key_use_default' => '1'), 'core/website', '4321dcba'),
 		);
 	}
 	/**
-	 * Test doing simple validations on the settings - basically ensure that none
-	 * are empty. If any are, an exception should be thrown which includes the
-	 * settings that are invalid.
-	 * @param  string $storeId
-	 * @param  string $apiKey
-	 * @param  string $hostname
-	 * @param  string $exceptionMessage
+	 * Test getting the Sftp Private key to use for the request. It is expected
+	 * to either come from the request or configuration. When included in the
+	 * request, it should only be used if the use default param is not true and
+	 * the value is not the obscured value used by Magento for the encrypted
+	 * config. When the key is not in the request, is in the request as the
+	 * obscured value or the use default flag is true, the api key should come
+	 * from config. Additionally when the config source is a website, should also
+	 * decrypt the value before returning it.
+	 * @param  array $requestParams
+	 * @param  string $sourceType Factory alias for source of the config value when used
+	 * @param  string $apiKey Expected API key to be returned
 	 * @test
-	 * @dataProvider provideSettingsAndExceptions
+	 * @dataProvider provideSftpPrivateKeyParams
 	 */
-	public function testValidateInvalidSettings($storeId, $apiKey, $hostname, $exceptionMessage)
+	public function testGetSftpPrivateKey($requestParams, $sourceType, $apiKey)
 	{
-		$this->setExpectedException(
-			'EbayEnterprise_Eb2cCore_Exception_Api_Configuration',
-			$exceptionMessage
-		);
-		$translationHelper = $this->getHelperMock('eb2ccore/data', array('__'));
-		$translationHelper->expects($this->once())
-			->method('__')
-			->will($this->returnArgument(1));
-		$this->replaceByMock('helper', 'eb2ccore', $translationHelper);
+		$requestMock = $this->getMockForAbstractClass('Zend_Controller_Request_Abstract');
+		$requestMock->setParams($requestParams);
+
 		$controller = $this->getMockBuilder('EbayEnterprise_Eb2cCore_Exchange_System_Config_ValidateController')
 			->disableOriginalConstructor()
+			->setMethods(array('_getConfigSource'))
 			->getMock();
-		EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$controller,
-			'_validateSettings',
-			array($storeId, $apiKey, $hostname)
+
+		// if there is a source type, expect the value to come from config, so
+		// need to set up the model it will be coming from
+		if ($sourceType) {
+			$configSource = $this->getModelMockBuilder($sourceType)
+				->disableOriginalConstructor()
+				->setMethods(array('getConfig'))
+				->getMock();
+			$configSource->expects($this->any())
+				->method('getConfig')
+				->with($this->identicalTo('eb2ccore/feed/filetransfer_sftp_ssh_prv_key'))
+				->will($this->returnValue($apiKey));
+			$controller->expects($this->once())
+				->method('_getConfigSource')
+				->will($this->returnValue($configSource));
+		}
+		// If the key comes from any config source, the key needs to be decrypted
+		// before being returned.
+		if ($sourceType) {
+			$coreHelper = $this->getHelperMock('core/data', array('decrypt'));
+			$coreHelper->expects($this->once())
+				->method('decrypt')
+				->with($this->identicalTo($apiKey))
+				->will($this->returnArgument(0));
+			$this->replaceByMock('helper', 'core', $coreHelper);
+		}
+		$this->assertSame(
+			$apiKey,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod(
+				$controller,
+				'_getSftpPrivateKey',
+				array($requestMock)
+			)
 		);
 	}
 }

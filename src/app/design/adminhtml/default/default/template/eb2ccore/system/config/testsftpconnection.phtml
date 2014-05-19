@@ -1,0 +1,65 @@
+<?php
+/**
+ * Mostly a clone of the template used for the button used to the Validate
+ * VAT configuration.
+ * @see app/design/adminhtml/default/default/template/customer/system/config/validatevat.phtml
+ * @see EbayEnterprise_Eb2cCore_Block_Api_System_Config_Testconnection
+ */
+?>
+<script type="text/javascript">
+//<![CDATA[
+	function testSftpConnection() {
+		var elem = $('<?php echo $this->getHtmlId() ?>');
+		var usernameEle = $('eb2ccore_feed_filetransfer_sftp_username');
+		var usernameScopeEle = usernameEle && adminSystemConfig.getScopeElement(usernameEle);
+		var keyEle = $('eb2ccore_feed_filetransfer_sftp_ssh_prv_key');
+		var keyScopeEle = keyEle && adminSystemConfig.getScopeElement(keyEle);
+		var hostEle = $('eb2ccore_feed_filetransfer_sftp_host');
+		var hostScopeEle = hostEle && adminSystemConfig.getScopeElement(hostEle);
+		var portEle = $('eb2ccore_feed_filetransfer_sftp_port');
+		var portScopeEle = portEle && adminSystemConfig.getScopeElement(portEle);
+		var params = {
+			'username_use_default': usernameScopeEle && usernameScopeEle.checked ? 1 : 0,
+			'ssh_key_use_default': keyScopeEle && keyScopeEle.checked ? 1 : 0,
+			'host_use_default': hostScopeEle && hostScopeEle.checked ? 1 : 0,
+			'port_use_default': portScopeEle && portScopeEle.checked ? 1 : 0
+		};
+		// Need to be able to differentiate between these values being empty and
+		// non-existent when handling the request.
+		if (usernameEle) {
+			params.username = usernameEle.value;
+		}
+		if (keyEle) {
+			params.ssh_key = keyEle.value;
+		}
+		if (hostEle) {
+			params.host = hostEle.value;
+		}
+		if (portEle) {
+			params.port = portEle.value;
+		}
+
+		new Ajax.Request('<?php echo $this->getAjaxUrl() ?>', {
+			'parameters': params,
+			'onSuccess': function(xhrResponse) {
+				var response = {};
+				try {
+					response = xhrResponse.responseText.evalJSON();
+				} catch (e) {
+					response.success = false;
+					response.message = 'Could Not Validate Settings';
+				}
+				if (response.success) {
+					elem.removeClassName('fail').addClassName('success');
+				} else {
+					elem.removeClassName('success').addClassName('fail');
+				}
+				$('sftp_validation_result').update(response.message);
+			}
+		});
+	}
+//]]>
+</script>
+<button onclick="javascript:testSftpConnection(); return false;" class="scalable" type="button" id="<?php echo $this->getHtmlId() ?>">
+	<span id="sftp_validation_result"><?php echo $this->escapeHtml($this->getButtonLabel()) ?></span>
+</button>

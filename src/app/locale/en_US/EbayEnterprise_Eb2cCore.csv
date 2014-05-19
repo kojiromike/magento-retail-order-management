@@ -6,3 +6,8 @@
 "EbayEnterprise_Eb2cCore_Api_Validator_Unknown_Failure", "API connection could not be validated. Please check the settings and try again."
 "EbayEnterprise_Eb2cCore_Api_Validator_Success", "API connection successful."
 "EbayEnterprise_Eb2cCore_Api_Validation_Invalid_Settings", "Missing API settings: %s"
+"EbayEnterprise_Eb2cCore_Sftp_Validation_Invalid_Settings", "Missing or invalid SFTP settings: %s"
+"EbayEnterprise_Eb2cCore_Sftp_Invalid_Connection", "SFTP connection failed. Could not connect to host."
+"EbayEnterprise_Eb2cCore_Sftp_Invalid_Authentication_Configuration", "SFTP connection failed. Invalid username/key."
+"EbayEnterprise_Eb2cCore_Sftp_Conection_Success", "SFTP connection successful."
+"EbayEnterprise_Eb2cCore_Sftp_Connection_Failed", "SFTP connection could not be validated."

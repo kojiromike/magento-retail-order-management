@@ -18,29 +18,15 @@ class EbayEnterprise_Eb2cAddress_Model_Validation_Request extends Varien_Object
 	protected $_dom;
 
 	/**
-	 * Config helper with address validation config model loaded in.
-	 * @var EbayEnterprise_Eb2cCore_Helper_Config
-	 */
-	protected $_config;
-
-	/**
-	 * Get a core config helper object and load an address validation config model into it.
-	 */
-	protected function _construct()
-	{
-		$this->_config = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2caddress/config'));
-	}
-
-	/**
 	 * Get the DOMDocument (EbayEnterprise_Dom_Document)
 	 * to be sent with this message.
 	 * @return EbayEnterprise_Dom_Document
 	 */
 	public function getMessage()
 	{
+		$cfg = Mage::helper('eb2caddress')->getConfigModel();
 		$this->_dom = Mage::helper('eb2ccore')->getNewDomDocument();
-		$this->_dom->addElement(self::DOM_ROOT_NODE_NAME, null, $this->_config->apiNamespace);
+		$this->_dom->addElement(self::DOM_ROOT_NODE_NAME, null, $cfg->apiNamespace);
 		$this->_dom->documentElement->appendChild($this->_createMessageHeader());
 		$this->_dom->documentElement->appendChild($this->_createMessageAddress());
 		return $this->_dom;
@@ -52,12 +38,13 @@ class EbayEnterprise_Eb2cAddress_Model_Validation_Request extends Varien_Object
 	 */
 	protected function _createMessageHeader()
 	{
+		$cfg = Mage::helper('eb2caddress')->getConfigModel();
 		$fragment = $this->_dom->createDocumentFragment();
 
 		$fragment->appendChild(
 			$this->_dom->createElement('Header',
 				$this->_dom->createElement('MaxAddressSuggestions',
-					$this->_config->maxAddressSuggestions,
+					$cfg->maxAddressSuggestions,
 					$this->_dom->documentElement->namespaceURI
 				),
 				$this->_dom->documentElement->namespaceURI

@@ -4,6 +4,7 @@
  * to Magento address model objects.
  */
 class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
+	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
 	const LINES_PATH    = 'eb2c:Line1|eb2c:Line2|eb2c:Line3|eb2c:Line4';
 	const CITY_PATH     = 'eb2c:City';
@@ -31,8 +32,8 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(Mage::getModel('eb2caddress/config'))
-			->addConfigModel(Mage::getModel('eb2ccore/config'));
+			->addConfigModel(Mage::getSingleton('eb2caddress/config'))
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 	}
 
 	/**

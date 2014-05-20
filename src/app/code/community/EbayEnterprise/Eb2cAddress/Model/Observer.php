@@ -3,9 +3,7 @@ class EbayEnterprise_Eb2cAddress_Model_Observer
 {
 	protected function _isEnabled()
 	{
-		return Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2caddress/config'))
-			->isValidationEnabled;
+		return Mage::helper('eb2caddress')->getConfigModel()->isValidationEnabled;
 	}
 
 	/**

@@ -43,8 +43,7 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 	protected function _generatePhysicalAddressElement($streetLines=4)
 	{
 		$dom = Mage::helper('eb2ccore')->getNewDomDocument();
-		$rootNs = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2caddress/config'))->apiNamespace;
+		$rootNs = Mage::helper('eb2caddress')->getConfigModel()->apiNamespace;
 		$root = $dom->appendChild($dom->createElement('address', null, $rootNs));
 		for ($i = 1; $i <= $streetLines; $i++) {
 			$root->addChild('Line' . $i, $this->_addressParts['line' . $i]);

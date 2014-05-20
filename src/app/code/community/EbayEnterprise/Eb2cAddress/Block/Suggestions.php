@@ -19,13 +19,6 @@ class EbayEnterprise_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Templ
 	);
 
 	/**
-	 * config registry model, if populated, should be expected to have had
-	 * the necessary config models populated.
-	 * @var EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 */
-	protected $_config = null;
-
-	/**
 	 * An address validation validator model which will be used to look up
 	 * any necessary addresses/data related to address validation.
 	 * @var EbayEnterprise_Eb2cAddress_Model_Validator
@@ -43,8 +36,6 @@ class EbayEnterprise_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Templ
 
 	protected function _construct()
 	{
-		$this->_config = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2caddress/config'));
 		$this->_validator = Mage::getModel('eb2caddress/validator');
 	}
 
@@ -84,9 +75,10 @@ class EbayEnterprise_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Templ
 	 */
 	public function getRenderedAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
+		$cfg = Mage::helper('eb2caddress')->getConfigModel();
 		return Mage::helper('customer/address')
 			->getRenderer('eb2caddress/address_renderer')
-			->initType($this->_config->getConfig(($this->getAddressFormat() ?: self::DEFAULT_ADDRESS_FORMAT_CONFIG)))
+			->initType($cfg->getConfig(($this->getAddressFormat() ?: self::DEFAULT_ADDRESS_FORMAT_CONFIG)))
 			->render($address);
 	}
 

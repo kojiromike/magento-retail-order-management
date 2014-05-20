@@ -222,8 +222,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 */
 	protected function _makeRequestForAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
-		$cfg = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2caddress/config'));
+		$cfg = Mage::helper('eb2caddress')->getConfigModel();
 		$xsd = $cfg->xsdFileAddressValidation;
 		$uri = Mage::helper('eb2ccore')->getApiUri(
 			EbayEnterprise_Eb2cAddress_Model_Validation_Request::API_SERVICE,

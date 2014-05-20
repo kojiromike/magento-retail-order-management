@@ -15,13 +15,11 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ObserverTest
 			->disableOriginalConstructor()
 			->setMethods(array('__get', 'addConfigModel'))
 			->getMock();
-		$config->expects($this->once())
+		$config->expects($this->any())
 			->method('addConfigModel')
-			->with($this->equalTo(Mage::getSingleton('eb2caddress/config')))
 			->will($this->returnSelf());
-		$config->expects($this->once())
+		$config->expects($this->any())
 			->method('__get')
-			->with($this->identicalTo('isValidationEnabled'))
 			->will($this->returnValue($enabled));
 		$this->replaceByMock('model', 'eb2ccore/config_registry', $config);
 		return $config;

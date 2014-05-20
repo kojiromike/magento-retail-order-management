@@ -8,8 +8,7 @@ class EbayEnterprise_Eb2cCore_Helper_Feed_Shell extends Mage_Core_Helper_Abstrac
 	 */
 	public function getConfiguredFeedModels()
 	{
-		$config = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getModel('eb2ccore/config'));
+		$config = Mage::helper('eb2ccore')->getConfigModel();
 		$availableFeeds = array();
 		foreach( $config->feedAvailableModels as $module => $feedClass ) {
 			foreach( $feedClass as $class => $enabled ) {

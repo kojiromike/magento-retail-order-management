@@ -181,28 +181,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 			$this->_reflectMethod($feedHelperMock, '_doConfigTranslation')->invoke($feedHelperMock, $map)
 		);
 	}
-
-	/**
-	 * Test getConfig method
-	 * @test
-	 */
-	public function testGetConfig()
-	{
-		$hlpr = Mage::helper('eb2ccore/feed');
-		// set class property '_config' to a known state
-		$this->_reflectProperty($hlpr, '_config')->setValue($hlpr, null);
-
-		$this->assertInstanceOf(
-			'EbayEnterprise_Eb2cCore_Model_Config_Registry',
-			$hlpr->getConfig()
-		);
-
-		$this->assertInstanceOf(
-			'EbayEnterprise_Eb2cCore_Model_Config_Registry',
-			$this->_reflectProperty($hlpr, '_config')->getValue($hlpr)
-		);
-	}
-
 	/**
 	 * Test invokeCallback method
 	 * @loadExpectation
@@ -251,14 +229,16 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	 */
 	public function testGetStoreId()
 	{
-		$feedHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfig'))
-			->getMock();
-		$feedHelperMock->expects($this->once())
-			->method('getConfig')
-			->will($this->returnValue((object) array('storeId' => 'ABCD')));
-		$this->assertSame('ABCD', $feedHelperMock->getStoreId());
+		$storeId = 'ABCD';
+		$helperMock = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$helperMock->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'storeId' => $storeId
+			))));
+		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
+
+		$this->assertSame($storeId, Mage::helper('eb2ccore/feed')->getStoreId());
 	}
 
 	/**
@@ -267,14 +247,16 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	 */
 	public function testGetClientId()
 	{
-		$feedHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfig'))
-			->getMock();
-		$feedHelperMock->expects($this->once())
-			->method('getConfig')
-			->will($this->returnValue((object) array('clientId' => '1234')));
-		$this->assertSame('1234', $feedHelperMock->getClientId());
+		$clientId = '1234';
+		$helperMock = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$helperMock->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'clientId' => $clientId
+			))));
+		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
+
+		$this->assertSame($clientId, Mage::helper('eb2ccore/feed')->getClientId());
 	}
 
 	/**

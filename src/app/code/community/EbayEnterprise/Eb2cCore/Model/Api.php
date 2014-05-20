@@ -49,9 +49,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	) {
 		$log = Mage::helper('ebayenterprise_magelog');
 		if (!$apiKey) {
-			$apiKey = Mage::getModel('eb2ccore/config_registry')
-				->addConfigModel(Mage::getSingleton('eb2ccore/config'))
-				->apiKey;
+			$apiKey = Mage::helper('eb2ccore')->getConfigModel()->apiKey;
 		}
 		$xmlStr = $doc->C14N();
 		$log->logInfo("[%s] Validating request:\n%s", array(__CLASS__, $xmlStr));
@@ -139,8 +137,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 		set_error_handler(function ($errno, $errstr) use (&$errors) {
 			$errors[] = "'$errstr' [Errno $errno]";
 		});
-		$cfg = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
 		$isValid = $doc->schemaValidate(Mage::getBaseDir() . DS . $cfg->apiXsdPath . DS . $xsdName);
 		restore_error_handler();
 		if (!$isValid) {

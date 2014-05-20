@@ -9,8 +9,7 @@ class EbayEnterprise_Eb2cCore_Helper_Languages extends Mage_Core_Helper_Abstract
 	public function getStores($langCode=null)
 	{
 		$stores = array();
-		$config = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$config = Mage::helper('eb2ccore')->getConfigModel();
 
 		foreach (Mage::app()->getWebsites() as $website) {
 			foreach ($website->getGroups() as $group) {

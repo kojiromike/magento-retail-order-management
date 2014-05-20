@@ -38,8 +38,7 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Export_Ack
 	protected function _getConfigMapValue($cfgKey)
 	{
 		if (empty($this->_configMap)) {
-			$cfg = Mage::getModel('eb2ccore/config_registry')
-				->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+			$cfg = Mage::helper('eb2ccore')->getConfigModel();
 
 			$this->_configMap = array(
 				self::CFG_EXPORT_ARCHIVE => $cfg->feedExportArchive,

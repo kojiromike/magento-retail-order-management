@@ -1,5 +1,6 @@
 <?php
 class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
+	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
 	/**
 	 * Service URI has the following format:
@@ -24,8 +25,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getApiUri($service, $operation, $params=array(), $format='xml')
 	{
-		$config = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$config = Mage::helper('eb2ccore')->getConfigModel();
 
 		return sprintf(
 			self::URI_FORMAT,
@@ -38,6 +38,17 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 			(!empty($params)) ? '/' . implode('/', $params) : '',
 			$format
 		);
+	}
+	/**
+	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
+	 * @param mixed $store
+	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
+	 */
+	public function getConfigModel($store=null)
+	{
+		return Mage::getModel('eb2ccore/config_registry')
+			->setStore($store)
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 	}
 
 	/**
@@ -98,8 +109,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function isValidFtpSettings()
 	{
-		$cfg = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
 
 		return trim($cfg->sftpUsername) && trim($cfg->sftpLocation) && (
 			($cfg->sftpAuthType === 'password' && trim($cfg->sftpPassword)) ||
@@ -475,8 +485,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getDiscountId($appliedRuleIds)
 	{
-		$cfg = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
 		$ids = explode(',', $appliedRuleIds);
 		$ruleId = !empty($ids)?$ids[0]: 0;
 		return sprintf('%.12s', $cfg->storeId . '-' . $ruleId);

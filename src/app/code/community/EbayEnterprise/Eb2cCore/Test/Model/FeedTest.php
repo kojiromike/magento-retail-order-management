@@ -511,13 +511,17 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 
 		$feed = $this->getModelMockBuilder('eb2ccore/feed')
 			->disableOriginalConstructor()
-			->setMethods(array('_normalPaths', '_mv', '_setCheckAndCreateDir', '_getCoreConfig'))
+			->setMethods(array('_normalPaths', '_mv', '_setCheckAndCreateDir'))
 			->getMock();
 		// mock out config value
 		$cfg = $this->buildCoreConfigRegistry(array($feedConfigKey => $globalDir));
-		$feed->expects($this->once())
-			->method('_getCoreConfig')
+
+		$helperMock = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$helperMock->expects($this->any())
+			->method('getConfigModel')
 			->will($this->returnValue($cfg));
+		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
+
 		$feed->expects($this->once())
 			->method('_normalPaths')
 			->with(

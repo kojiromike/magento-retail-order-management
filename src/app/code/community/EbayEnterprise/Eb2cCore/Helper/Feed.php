@@ -44,24 +44,6 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * @var EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 */
-	protected $_config = null;
-	/**
-	 * set the an instantiated object of the registry class loaded with eb2ccore config model
-	 * to the class property _config if it's not already been set
-	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 */
-	public function getConfig()
-	{
-		if (!$this->_config) {
-			$this->_config = Mage::getModel('eb2ccore/config_registry')
-				->addConfigModel(Mage::getSingleton('eb2ccore/config'));
-		}
-		return $this->_config;
-	}
-
-	/**
 	 * Validate the event type.
 	 * @param bool whether the event type matches for the given feed.
 	 */
@@ -228,7 +210,7 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	 */
 	public function getStoreId()
 	{
-		return $this->getConfig()->storeId;
+		return Mage::helper('eb2ccore')->getConfigModel()->storeId;
 	}
 
 	/**
@@ -237,7 +219,7 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	 */
 	public function getClientId()
 	{
-		return $this->getConfig()->clientId;
+		return Mage::helper('eb2ccore')->getConfigModel()->clientId;
 	}
 
 	/**
@@ -246,7 +228,7 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	 */
 	public function getCatalogId()
 	{
-		return $this->getConfig()->catalogId;
+		return Mage::helper('eb2ccore')->getConfigModel()->catalogId;
 	}
 
 	/**

@@ -33,15 +33,6 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 		$this->_setUpDirs();
 	}
 	/**
-	 * Return configuration registry
-	 * @return eb2ccore/config_registry+eb2ccore/config
-	 */
-	protected function _getCoreConfig() {
-		return Mage::getModel('eb2ccore/config_registry')
-			->setStore(null)
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
-	}
-	/**
 	 * Validate the feed config the instance was constructed with.
 	 * Must have a 'local_directory' and 'event_type' key/value pairs.
 	 * @return self
@@ -206,7 +197,7 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 	{
 		$targetFile = $this->_normalPaths(
 			Mage::getBaseDir('var'),
-			$this->_getCoreConfig()->$feedConfigKey,
+			Mage::helper('eb2ccore')->getConfigModel()->$feedConfigKey,
 			basename($srcFile)
 		);
 		$this->_setCheckAndCreateDir(dirname($targetFile));
@@ -250,7 +241,7 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 	 */
 	protected function _getBaseAckFileName($eventType)
 	{
-		$coreConfig = $this->_getCoreConfig();
+		$coreConfig = Mage::helper('eb2ccore')->getConfigModel();
 		$timestamp  = date($coreConfig->feedAckTimestampFormat);
 		$filename   = str_replace(
 			array('{eventtype}', '{clientid}', '{storeid}', '{timestamp}'),
@@ -266,7 +257,7 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 	 */
 	public function acknowledgeReceipt($xmlToAckPath)
 	{
-		$cfg = $this->_getCoreConfig();
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
 		$coreHelper  = Mage::helper('eb2ccore');
 		$feedHelper  = Mage::helper('eb2ccore/feed');
 		$xmlToAckDom = $coreHelper->getNewDomDocument(); // The file I am acknowledging

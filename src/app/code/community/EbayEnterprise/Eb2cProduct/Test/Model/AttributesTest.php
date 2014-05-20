@@ -41,7 +41,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 	 */
 	public function testGetMappedFieldValueException($funcName, $message)
 	{
-		$exceptionName = 'Mage_Core_Exception';
+		$exceptionName = 'EbayEnterprise_Eb2cProduct_Model_Attributes_Exception';
 		$this->setExpectedException($exceptionName, $message);
 		$element = new Varien_SimpleXml_Element('<scope>Website</scope>');
 		$model = Mage::getModel('eb2cproduct/attributes');
@@ -58,7 +58,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 	 */
 	public function testFormatScopeException($value, $message)
 	{
-		$exceptionName = 'Mage_Core_Exception';
+		$exceptionName = 'EbayEnterprise_Eb2cProduct_Model_Attributes_Exception';
 		$this->setExpectedException($exceptionName, $message);
 		$model = Mage::getModel('eb2cproduct/attributes');
 		$fn = $this->_reflectMethod($model, '_formatScope');
@@ -85,17 +85,17 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 			->will($this->returnValue($defaultNode));
 		$model = $this->getModelMock('eb2cproduct/attributes', array(
 			'_loadDefaultAttributesConfig',
-			'_getPrototypeData'
+			'_makeAttributeRecord'
 		));
 		$model->expects($this->once())
 			->method('_loadDefaultAttributesConfig')
 			->will($this->returnValue($config));
 		$model->expects($this->once())
-			->method('_getPrototypeData')
+			->method('_makeAttributeRecord')
 			->with($this->identicalTo($attrNode))
-			->will($this->returnSelf());
+			->will($this->returnValue(array()));
 		$result = $model->getAttributesData();
-		$this->assertEquals(array(), $result);
+		$this->assertEquals(array('tax_code' => array()), $result);
 	}
 
 	/**
@@ -117,15 +117,15 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 			->will($this->returnValue($defaultNode));
 		$model = $this->getModelMock('eb2cproduct/attributes', array(
 			'_loadDefaultAttributesConfig',
-			'_getPrototypeData'
+			'_makeAttributeRecord'
 		));
 		$model->expects($this->once())
 			->method('_loadDefaultAttributesConfig')
 			->will($this->returnValue($config));
 		$model->expects($this->once())
-			->method('_getPrototypeData')
+			->method('_makeAttributeRecord')
 			->with($this->identicalTo($attrNode))
-			->will($this->throwException(new Mage_Core_Exception()));
+			->will($this->throwException(new EbayEnterprise_Eb2cProduct_Model_Attributes_Exception()));
 		$result = $model->getAttributesData();
 		$this->assertEquals(array(), $result);
 	}
@@ -215,7 +215,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 	 * verify a new model is returned and contains the correct data for each field
 	 * @loadExpectation
 	 */
-	public function testGetPrototypeData()
+	public function testMakeAttributeRecord()
 	{
 		$dataNode = new Varien_SimpleXml_Element(self::$configXml);
 		$result   = $dataNode->xpath('/eb2cproduct_attributes/default/tax_code');
@@ -227,58 +227,10 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 		// end preconditions checks
 
 		$model = Mage::getModel('eb2cproduct/attributes');
-		$attrData = $this->_reflectMethod($model, '_getPrototypeData')
-			->invoke($model, $taxCodeNode);
+		$attrData = EcomDev_Utils_Reflection::invokeRestrictedMethod($model, '_makeAttributeRecord', array($taxCodeNode));
 		$this->assertNotEmpty($attrData);
 		$e = $this->expected('tax_code');
 		$this->assertEquals($e->getData(), $attrData);
-	}
-
-	public function testGetPrototypeDataCache()
-	{
-		// setup input data
-		$dataNode = new Varien_SimpleXml_Element(self::$configXml);
-		$result = $dataNode->xpath('/eb2cproduct_attributes/default/tax_code');
-		$this->assertSame(1, count($result));
-		list($taxCodeNode) = $result;
-		$this->assertInstanceOf('Varien_SimpleXml_Element', $taxCodeNode);
-		$this->assertSame('tax_code', $taxCodeNode->getName());
-
-		// mock functions to make sure they're not called
-		$model = $this->getModelMock('eb2cproduct/attributes', array('_getDefaultValueFieldName', '_getMappedFieldName', '_getMappedFieldValue'));
-		// mock up the cache
-		$dummyObject = new Varien_Object();
-		$this->_reflectProperty($model, '_prototypeCache')
-			->setValue($model, array('tax_code' => $dummyObject));
-		$attrData = $this->_reflectMethod($model, '_getPrototypeData')
-			->invoke($model, $taxCodeNode);
-		$this->assertNotEmpty($attrData);
-		$this->assertInstanceOf('Varien_Object', $dummyObject);
-		$this->assertSame($dummyObject, $attrData);
-	}
-
-	public function provideOverrideXmlVfsStructure()
-	{
-		return array(
-			array('base_config', $this->_getOverrideXmlVfsStructure()),
-		);
-	}
-
-	protected function _getOverrideXmlVfsStructure(array $etcContents=array())
-	{
-		return array(
-			'app' => array(
-				'code' => array(
-					'local' => array(
-						'EbayEnterprise' => array(
-							'Eb2cProduct' => array(
-								'etc' => $etcContents
-							)
-						)
-					)
-				)
-			)
-		);
 	}
 
 	public static $configXml = '
@@ -295,4 +247,29 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 				</tax_code>
 			</default>
 		</eb2cproduct_attributes>';
+
+	/**
+	 * return cached data on consecutive calls
+	 */
+	public function testGetAttributesDataCache()
+	{
+		$config = Mage::getModel('core/config');
+		$config->loadString(self::$configXml);
+		$model = $this->getModelMock('eb2cproduct/attributes', array(
+			'_loadDefaultAttributesConfig',
+			'_makeAttributeRecord'
+		));
+		$model->expects($this->any())
+			->method('_loadDefaultAttributesConfig')
+			->will($this->returnValue($config));
+		$model->expects($this->once())
+			->method('_makeAttributeRecord')
+			->will($this->onConsecutiveCalls(array('the data'), array('should never get this')));
+
+		$result = $model->getAttributesData();
+		$this->assertEquals(array('tax_code' => array('the data')), $result);
+		// should get the same thing the next time
+		$result = $model->getAttributesData();
+		$this->assertEquals(array('tax_code' => array('the data')), $result);
+	}
 }

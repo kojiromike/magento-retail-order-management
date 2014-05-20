@@ -1,35 +1,26 @@
 <?php
 class EbayEnterprise_Eb2cProduct_Model_Attributes
 {
-	/**
-	 * @var string path of the attributes configuration in the global config.
-	 */
-	const ATTRIBUTES_CONFIG = 'global/eb2cproduct_attributes';
-
-	/**
-	 * name of the file containing overriding configuration.
-	 * @var string
-	 */
-	protected static $_attributeConfigOverrideFilename = 'eb2cproduct_attributes.xml';
-
-	/**
-	 * base log message template.
-	 * @var string
-	 */
-	protected $_baseLogMessage = '%s: %sattribute "%s" entity type "%s": %s';
+	// configuration path strings
+	const ATTRIBUTES_CONFIG = 'eb2cproduct/attributes';
+	const ATTRIBUTE_BASE_DATA = 'eb2cproduct/attributes/base_data';
 
 	/**
 	 * the attributes configuration
-	 * @var [type]
+	 * @var Mage_Core_Model_Config
 	 */
 	protected $_defaultAttributesConfig = null;
 
 	/**
-	 * prototype attribute data cache.
+	 * array of attribute data records
 	 * @var array
 	 */
-	protected $_prototypeCache = array();
+	protected $_attributeData = array();
 
+	/**
+	 * list of entity types to attach attributes to.
+	 * @var array
+	 */
 	protected $_entityTypes = array('catalog/product');
 
 	/**
@@ -69,19 +60,24 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		return $result;
 	}
 
+	/**
+	 * populate and get an array of attribute data records.
+	 * @return array
+	 */
 	public function getAttributesData()
 	{
-		$config      = $this->_loadDefaultAttributesConfig();
-		$defaultNode = $config->getNode('default');
-		foreach ($defaultNode->children() as $attrCode => $attrConfig) {
-			try {
-				$this->_getPrototypeData($attrConfig);
-			} catch (Exception $e) {
-				$message = 'Error processing config for attribute "%s": %s';
-				Mage::log(sprintf($message, $attrCode, $e->getMessage()), Zend_Log::WARN);
+		$config  = $this->_loadDefaultAttributesConfig();
+		foreach ($config->getNode('default')->children() as $attrCode => $attrConfig) {
+			if (!isset($this->_attributeData[$attrCode])) {
+				try {
+						$this->_attributeData[$attrCode] = $this->_makeAttributeRecord($attrConfig);
+				} catch (EbayEnterprise_Eb2cProduct_Model_Attributes_Exception $e) {
+					Mage::helper('ebayenterprise_magelog')
+						->logWarn("Error processing config for attribute '%s':\n%s", array($attrCode, $e));
+				}
 			}
 		}
-		return $this->_prototypeCache;
+		return $this->_attributeData;
 	}
 
 	/**
@@ -92,7 +88,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	 */
 	protected function _isValidEntityType($typeId)
 	{
-		return in_array((int) $typeId, $this->_getTargetEntityTypeIds());
+		return in_array((int) $typeId, $this->_getTargetEntityTypeIds(), true);
 	}
 
 	/**
@@ -106,20 +102,17 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * get the attribute model field name for the config field name.
+	 * get the attribute model's field name associated with the config field name.
 	 * @param  string $fieldName
 	 * @return string
 	 */
 	protected function _getMappedFieldName($fieldName)
 	{
-		$result = array_key_exists($fieldName, $this->_fieldNameMap) ?
-			$this->_fieldNameMap[$fieldName] :
-			$fieldName;
-		return $result;
+		return isset($this->_fieldNameMap[$fieldName]) ? $this->_fieldNameMap[$fieldName] : $fieldName;
 	}
 
 	/**
-	 * convert the scope string to the integer value
+	 * get the associated value for the scope string
 	 * @param  Varien_SimpleXml_Element $data
 	 * @return int
 	 */
@@ -128,11 +121,12 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		$scopeStr = strtolower((string) $data);
 		if (!isset(self::$_scopeMap[$scopeStr])) {
 			// @codeCoverageIgnoreStart
-			Mage::throwException('Invalid scope value "' . $scopeStr . '"');
+			throw new EbayEnterprise_Eb2cProduct_Model_Attributes_Exception(
+				'Invalid scope value "' . $scopeStr . '"'
+			);
 		}
 		// @codeCoverageIgnoreEnd
-		$val = (string) self::$_scopeMap[$scopeStr];
-		return $val;
+		return self::$_scopeMap[$scopeStr];
 	}
 
 	/**
@@ -142,16 +136,14 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	 */
 	protected function _formatArray($data)
 	{
-		$str = (string) $data;
-		$val = explode(',', $str);
-		return $val;
+		return explode(',', (string) $data);
 	}
 
 	/**
-	 * convert a string into a boolean value.
 	 * @see  http://php.net/manual/en/function.is-bool.php
 	 * @param Varien_SimpleXml_Element
-	 * @return  string
+	 * @return 1 if the string in $data is interpretable as true.
+	 *         0 otherwise
 	 */
 	protected function _formatBoolean($data)
 	{
@@ -159,7 +151,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 			strtolower((string) $data),
 			array('true', '1', 'on', 'yes', 'y'),
 			true
-		) ? '1' : '0';
+		) ? 1 : 0;
 	}
 
 	/**
@@ -176,7 +168,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 			$funcName = $this->_valueFunctionMap[$fieldName];
 			if (!method_exists($this, $funcName)) {
 				// @codeCoverageIgnoreStart
-				Mage::throwException(
+				throw new EbayEnterprise_Eb2cProduct_Model_Attributes_Exception(
 					"invalid value-function map. $funcName is not a member of " . get_class($this)
 				);
 			}
@@ -210,7 +202,8 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	 */
 	public function getDefaultAttributesCodeList($groupFilter=null)
 	{
-		Mage::log("getDefaultAttributesCodeList called with $groupFilter");
+		Mage::helper('ebayenterprise_magelog')
+			->logDebug("[%s] getDefaultAttributesCodeList called with %s", array(__CLASS__, $groupFilter));
 		$result = array();
 		// load the attributes from the config.
 		$config = $this->_loadDefaultAttributesConfig();
@@ -232,35 +225,27 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	 * @param  Varien_SimpleXml_Element $fieldCfg
 	 * @return Mage_Catalog_Model_Eav_Entity_Attribute
 	 */
-	protected function _getPrototypeData(Varien_SimpleXml_Element $fieldCfg)
+	protected function _makeAttributeRecord(Varien_SimpleXml_Element $fieldCfg)
 	{
-		$attributeCode = $fieldCfg->getName();
-		if (!isset($this->_prototypeCache[$attributeCode])) {
-			$baseData = $this->_getInitialData();
-			foreach ($fieldCfg->children() as $cfgField => $data) {
-				$fieldName = '';
-				if ($cfgField === 'default') {
-					// @hack: Code style checker doesn't like underscores. That's right,
-					// but sometimes we have to deal with data that has underscores.
-					$underScoreInputType = 'input_type';
-					$inputType = (string) $fieldCfg->$underScoreInputType;
-					$fieldName = $this->_getDefaultValueFieldName($inputType);
-				} else {
-					$fieldName = $this->_getMappedFieldName($cfgField);
-				}
-				$value                = $this->_getMappedFieldValue($fieldName, $data);
-				$baseData[$fieldName] = $value;
+		$record = $this->_getInitialData();
+		foreach ($fieldCfg->children() as $cfgField => $data) {
+			if ($cfgField === 'default') {
+				// @hack: Code style checker doesn't like underscores. That's right,
+				// but sometimes we have to deal with data that has underscores.
+				$underScoreInputType = 'input_type';
+				$inputType = (string) $fieldCfg->$underScoreInputType;
+				$fieldName = $this->_getDefaultValueFieldName($inputType);
+			} else {
+				$fieldName = $this->_getMappedFieldName($cfgField);
 			}
-			$this->_prototypeCache[$attributeCode] = $baseData;
+			$value              = $this->_getMappedFieldValue($fieldName, $data);
+			$record[$fieldName] = $value;
 		}
-		return $this->_prototypeCache[$attributeCode];
+		return $record;
 	}
 
 	/**
-	 * load attribute configuration files into a mage config object.
-	 * satisfies requirements:
-	 * 	- attributes stored in config file
-	 *  - attributes are overridable.
+	 * load our attribute configuration into a mage config object.
 	 * @return Mage_Core_Model_Config_Base
 	 */
 	protected function _loadDefaultAttributesConfig()
@@ -268,11 +253,6 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		if (!$this->_defaultAttributesConfig) {
 			$config = Mage::getModel('core/config')
 				->setXml(Mage::getConfig()->getNode(self::ATTRIBUTES_CONFIG));
-			// load config from an xml file and merge it with the base config.
-			Mage::getConfig()->loadModulesConfiguration(
-				self::$_attributeConfigOverrideFilename,
-				$config
-			);
 			$this->_defaultAttributesConfig = $config;
 		}
 		return $this->_defaultAttributesConfig;
@@ -284,30 +264,6 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	 */
 	protected function _getInitialData()
 	{
-		$data = array(
-			'is_global'                     => '0',
-			'frontend_input'                => 'text',
-			'default_value_text'            => '',
-			'default_value_yesno'           => '0',
-			'default_value_date'            => '',
-			'default_value_textarea'        => '',
-			'is_unique'                     => '0',
-			'is_required'                   => '0',
-			'frontend_class'                => '',
-			'is_searchable'                 => '1',
-			'is_visible_in_advanced_search' => '1',
-			'is_comparable'                 => '1',
-			'is_used_for_promo_rules'       => '0',
-			'is_html_allowed_on_front'      => '1',
-			'is_visible_on_front'           => '0',
-			'used_in_product_listing'       => '0',
-			'used_for_sort_by'              => '0',
-			'is_configurable'               => '0',
-			'is_filterable'                 => '0',
-			'is_filterable_in_search'       => '0',
-			'backend_type'                  => 'varchar',
-			'default_value'                 => '',
-		);
-		return $data;
+		return Mage::helper('eb2ccore')->getConfigData(self::ATTRIBUTE_BASE_DATA);
 	}
 }

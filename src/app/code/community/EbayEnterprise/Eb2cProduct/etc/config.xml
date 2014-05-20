@@ -27,201 +27,14 @@
 				</setup>
 			</eb2cproduct_attributes_setup>
 		</resources>
-		<eb2cproduct_attributes>
-			<default>
-				<size>
-					<scope>Website</scope>
-					<label>Size</label>
-					<group>General</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-					<default></default>
-				</size>
-				<style_id>
-					<scope>Website</scope>
-					<label>Style Id</label>
-					<group>General</group>
-					<input_type>text</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<default></default>
-				</style_id>
-				<is_clean>
-					<scope>Website</scope>
-					<label>Is Clean</label>
-					<group>Exchange Platform</group>
-					<input_type>boolean</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<default>N</default>
-					<backend_type>int</backend_type>
-				</is_clean>
-				<unresolved_product_links>
-					<scope>Website</scope>
-					<label>Unresolved Product Links</label>
-					<group>Exchange Platform</group>
-					<input_type>textarea</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<default></default>
-					<backend_type>text</backend_type>
-				</unresolved_product_links>
-				<hts_codes>
-					<scope>Website</scope>
-					<label>HTS Codes</label>
-					<group>Exchange Platform</group>
-					<input_type>textarea</input_type>
-					<unique>N</unique>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<default></default>
-					<backend_type>text</backend_type>
-				</hts_codes>
-				<tax_code>
-					<scope>Website</scope>
-					<label>Tax Code</label>
-					<group>Prices</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>1</is_required>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-				</tax_code>
-				<!-- { Attributes Required when We Are an EXPORT mode instance -->
-				<item_type>
-					<scope>Website</scope>
-					<label>Item Type</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>1</is_required>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<default_value>Merch</default_value>
-				</item_type>
-				<drop_shipped>
-					<scope>Website</scope>
-					<label>Drop Shipped</label>
-					<group>Exchange Platform</group>
-					<input_type>boolean</input_type>
-					<unique>0</unique>
-					<is_required>1</is_required>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-					<default_value>N</default_value>
-					<backend_type>int</backend_type>
-				</drop_shipped>
-				<drop_ship_supplier_name>
-					<scope>Website</scope>
-					<label>Drop Ship Supplier Name</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>0</is_required>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-				</drop_ship_supplier_name>
-				<drop_ship_supplier_number>
-					<scope>Website</scope>
-					<label>Drop Ship Supplier Number</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>0</is_required>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-				</drop_ship_supplier_number>
-				<drop_ship_supplier_part_number>
-					<scope>Website</scope>
-					<label>Drop Ship Supplier Part Number</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>0</is_required>
-					<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-				</drop_ship_supplier_part_number>
-				<hierarchy_dept_number>
-					<scope>Website</scope>
-					<label>Hierarchy Department Number</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>1</is_required>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<frontend_class>validate-digits</frontend_class>
-				</hierarchy_dept_number>
-				<hierarchy_dept_description>
-					<scope>Website</scope>
-					<label>Hierarchy Department Description</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>0</is_required>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-				</hierarchy_dept_description>
-				<hierarchy_subdept_number>
-					<scope>Website</scope>
-					<label>Hierarchy Subdepartment Number</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>1</is_required>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<frontend_class>validate-digits</frontend_class>
-				</hierarchy_subdept_number>
-				<hierarchy_subdept_description>
-					<scope>Website</scope>
-					<label>Hierarchy Subdepartment Description</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>0</is_required>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-				</hierarchy_subdept_description>
-				<hierarchy_class_number>
-					<scope>Website</scope>
-					<label>Hierarchy Class Number</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>1</is_required>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<frontend_class>validate-digits</frontend_class>
-				</hierarchy_class_number>
-				<hierarchy_class_description>
-					<scope>Website</scope>
-					<label>Hierarchy Class Description</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>0</is_required>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-				</hierarchy_class_description>
-				<hierarchy_subclass_number>
-					<scope>Website</scope>
-					<label>Hierarchy Subclass Number</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>1</is_required>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-					<frontend_class>validate-digits</frontend_class>
-				</hierarchy_subclass_number>
-				<hierarchy_subclass_description>
-					<scope>Website</scope>
-					<label>Hierarchy Subclass Description</label>
-					<group>Exchange Platform</group>
-					<input_type>text</input_type>
-					<unique>0</unique>
-					<is_required>0</is_required>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-				</hierarchy_subclass_description>
-				<!-- } End Attributes Required when We Are an EXPORT mode instance -->
-			</default>
-		</eb2cproduct_attributes>
-			<events>
-				<catalog_product_edit_action>
-					<observers>
-						<lock_readonly_attributes>
-							<class>eb2cproduct/observers</class>
-							<method>lockReadOnlyAttributes</method>
-							<!--
-								Unfortunately, there is no actual support for an <args> node. This
+		<events>
+			<catalog_product_edit_action>
+				<observers>
+					<lock_readonly_attributes>
+						<class>eb2cproduct/observers</class>
+						<method>lockReadOnlyAttributes</method>
+						<!--
+								Unfortunately, there is no actual support for an <args>node. This
 								would be the perfect place to list the attributes we wish to
 								treat as readonly. But as of Tue May 6 2014, this is not really
 								supported.
@@ -229,84 +42,84 @@
 								Please search for readonly_attributes which are defined at
 								eb2cproduct/readonly_attributes.
 							-->
-						</lock_readonly_attributes>
-					</observers>
-				</catalog_product_edit_action>
-				<product_feed_processing_complete>
-					<observers>
-						<eb2c_reindex_all>
-							<class>eb2ccore/indexer</class>
-							<method>reindexAll</method>
-						</eb2c_reindex_all>
-					</observers>
-				</product_feed_processing_complete>
-				<product_feed_complete_error_confirmation>
-					<observers>
-						<eb2c_error_confirmations>
-							<class>eb2cproduct/error_confirmations</class>
-							<method>process</method>
-						</eb2c_error_confirmations>
-					</observers>
-				</product_feed_complete_error_confirmation>
-				<product_feed_process_operation_type_error_confirmation>
-					<observers>
-						<eb2c_error_confirmations_operation>
-							<class>eb2cproduct/error_confirmations</class>
-							<method>processByOperationType</method>
-						</eb2c_error_confirmations_operation>
-					</observers>
-				</product_feed_process_operation_type_error_confirmation>
-				<filetransfer_import_complete>
-					<observers>
-						<eb2c_product_run_imports>
-							<class>eb2cproduct/feed</class>
-							<method>processFeeds</method>
-							<type>model</type>
-						</eb2c_product_run_imports>
-					</observers>
-				</filetransfer_import_complete>
-			</events>
-		</global>
-		<default>
-			<eb2ccore>
-				<feed>
-					<filetransfer_imports>
-						<item_master>
-							<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
-							<event_type>ItemMaster</event_type>
-							<header_version>2.3.0</header_version>
-							<outbound>
-								<message_header>
-									<event_type>ItemMaster</event_type>
-								</message_header>
-							</outbound>
-						</item_master>
-						<content_master>
-							<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
-							<event_type>ContentMaster</event_type>
-							<header_version>2.3.0</header_version>
-							<outbound>
-								<message_header>
-									<event_type>ContentMaster</event_type>
-								</message_header>
-							</outbound>
-						</content_master>
-						<i_ship>
-							<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
-							<event_type>iShip</event_type>
-							<header_version>2.3.0</header_version>
-							<outbound>
-								<message_header>
-									<event_type>iShip</event_type>
-								</message_header>
-							</outbound>
-						</i_ship>
-						<item_pricing>
-							<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
-							<event_type>Pricing</event_type>
-							<header_version>2.3.0</header_version>
-							<outbound>
-								<message_header>
+					</lock_readonly_attributes>
+				</observers>
+			</catalog_product_edit_action>
+			<product_feed_processing_complete>
+				<observers>
+					<eb2c_reindex_all>
+						<class>eb2ccore/indexer</class>
+						<method>reindexAll</method>
+					</eb2c_reindex_all>
+				</observers>
+			</product_feed_processing_complete>
+			<product_feed_complete_error_confirmation>
+				<observers>
+					<eb2c_error_confirmations>
+						<class>eb2cproduct/error_confirmations</class>
+						<method>process</method>
+					</eb2c_error_confirmations>
+				</observers>
+			</product_feed_complete_error_confirmation>
+			<product_feed_process_operation_type_error_confirmation>
+				<observers>
+					<eb2c_error_confirmations_operation>
+						<class>eb2cproduct/error_confirmations</class>
+						<method>processByOperationType</method>
+					</eb2c_error_confirmations_operation>
+				</observers>
+			</product_feed_process_operation_type_error_confirmation>
+			<filetransfer_import_complete>
+				<observers>
+					<eb2c_product_run_imports>
+						<class>eb2cproduct/feed</class>
+						<method>processFeeds</method>
+						<type>model</type>
+					</eb2c_product_run_imports>
+				</observers>
+			</filetransfer_import_complete>
+		</events>
+	</global>
+	<default>
+		<eb2ccore>
+			<feed>
+				<filetransfer_imports>
+					<item_master>
+						<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
+						<event_type>ItemMaster</event_type>
+						<header_version>2.3.0</header_version>
+						<outbound>
+							<message_header>
+								<event_type>ItemMaster</event_type>
+							</message_header>
+						</outbound>
+					</item_master>
+					<content_master>
+						<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
+						<event_type>ContentMaster</event_type>
+						<header_version>2.3.0</header_version>
+						<outbound>
+							<message_header>
+								<event_type>ContentMaster</event_type>
+							</message_header>
+						</outbound>
+					</content_master>
+					<i_ship>
+						<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
+						<event_type>iShip</event_type>
+						<header_version>2.3.0</header_version>
+						<outbound>
+							<message_header>
+								<event_type>iShip</event_type>
+							</message_header>
+						</outbound>
+					</i_ship>
+					<item_pricing>
+						<local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
+						<event_type>Pricing</event_type>
+						<header_version>2.3.0</header_version>
+						<outbound>
+							<message_header>
 								<event_type>Pricing</event_type>
 							</message_header>
 						</outbound>
@@ -327,6 +140,217 @@
 			</feed>
 		</eb2ccore>
 		<eb2cproduct>
+			<attributes>
+				<base_data>
+					<is_global>0</is_global>
+					<frontend_input>text</frontend_input>
+					<default_value_text/>
+					<default_value_yesno>0</default_value_yesno>
+					<default_value_date/>
+					<default_value_textarea/>
+					<is_unique>0</is_unique>
+					<is_required>0</is_required>
+					<frontend_class/>
+					<is_searchable>1</is_searchable>
+					<is_visible_in_advanced_search>1</is_visible_in_advanced_search>
+					<is_comparable>1</is_comparable>
+					<is_used_for_promo_rules>0</is_used_for_promo_rules>
+					<is_html_allowed_on_front>1</is_html_allowed_on_front>
+					<is_visible_on_front>0</is_visible_on_front>
+					<used_in_product_listing>0</used_in_product_listing>
+					<used_for_sort_by>0</used_for_sort_by>
+					<is_configurable>0</is_configurable>
+					<is_filterable>0</is_filterable>
+					<is_filterable_in_search>0</is_filterable_in_search>
+					<backend_type>varchar</backend_type>
+					<default_value/>
+				</base_data>
+				<default>
+					<size>
+						<scope>Website</scope>
+						<label>Size</label>
+						<group>General</group>
+						<input_type>text</input_type>
+						<unique>N</unique>
+						<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+						<default/>
+					</size>
+					<style_id>
+						<scope>Website</scope>
+						<label>Style Id</label>
+						<group>General</group>
+						<input_type>text</input_type>
+						<unique>N</unique>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+						<default/>
+					</style_id>
+					<is_clean>
+						<scope>Website</scope>
+						<label>Is Clean</label>
+						<group>Exchange Platform</group>
+						<input_type>boolean</input_type>
+						<unique>N</unique>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+						<default>N</default>
+						<backend_type>int</backend_type>
+					</is_clean>
+					<unresolved_product_links>
+						<scope>Website</scope>
+						<label>Unresolved Product Links</label>
+						<group>Exchange Platform</group>
+						<input_type>textarea</input_type>
+						<unique>N</unique>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+						<default/>
+						<backend_type>text</backend_type>
+					</unresolved_product_links>
+					<hts_codes>
+						<scope>Website</scope>
+						<label>HTS Codes</label>
+						<group>Exchange Platform</group>
+						<input_type>textarea</input_type>
+						<unique>N</unique>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+						<default/>
+						<backend_type>text</backend_type>
+					</hts_codes>
+					<tax_code>
+						<scope>Website</scope>
+						<label>Tax Code</label>
+						<group>Prices</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>1</is_required>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					</tax_code>
+					<!-- { Attributes Required when We Are an EXPORT mode instance -->
+					<item_type>
+						<scope>Website</scope>
+						<label>Item Type</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>1</is_required>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+						<default_value>Merch</default_value>
+					</item_type>
+					<drop_shipped>
+						<scope>Website</scope>
+						<label>Drop Shipped</label>
+						<group>Exchange Platform</group>
+						<input_type>boolean</input_type>
+						<unique>0</unique>
+						<is_required>1</is_required>
+						<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+						<default_value>N</default_value>
+						<backend_type>int</backend_type>
+					</drop_shipped>
+					<drop_ship_supplier_name>
+						<scope>Website</scope>
+						<label>Drop Ship Supplier Name</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>0</is_required>
+						<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+					</drop_ship_supplier_name>
+					<drop_ship_supplier_number>
+						<scope>Website</scope>
+						<label>Drop Ship Supplier Number</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>0</is_required>
+						<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+					</drop_ship_supplier_number>
+					<drop_ship_supplier_part_number>
+						<scope>Website</scope>
+						<label>Drop Ship Supplier Part Number</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>0</is_required>
+						<product_types><![CDATA[simple,configurable,bundle]]></product_types>
+					</drop_ship_supplier_part_number>
+					<hierarchy_dept_number>
+						<scope>Website</scope>
+						<label>Hierarchy Department Number</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>1</is_required>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+						<frontend_class>validate-digits</frontend_class>
+					</hierarchy_dept_number>
+					<hierarchy_dept_description>
+						<scope>Website</scope>
+						<label>Hierarchy Department Description</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>0</is_required>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					</hierarchy_dept_description>
+					<hierarchy_subdept_number>
+						<scope>Website</scope>
+						<label>Hierarchy Subdepartment Number</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>1</is_required>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+						<frontend_class>validate-digits</frontend_class>
+					</hierarchy_subdept_number>
+					<hierarchy_subdept_description>
+						<scope>Website</scope>
+						<label>Hierarchy Subdepartment Description</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>0</is_required>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					</hierarchy_subdept_description>
+					<hierarchy_class_number>
+						<scope>Website</scope>
+						<label>Hierarchy Class Number</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>1</is_required>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+						<frontend_class>validate-digits</frontend_class>
+					</hierarchy_class_number>
+					<hierarchy_class_description>
+						<scope>Website</scope>
+						<label>Hierarchy Class Description</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>0</is_required>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					</hierarchy_class_description>
+					<hierarchy_subclass_number>
+						<scope>Website</scope>
+						<label>Hierarchy Subclass Number</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>1</is_required>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+						<frontend_class>validate-digits</frontend_class>
+					</hierarchy_subclass_number>
+					<hierarchy_subclass_description>
+						<scope>Website</scope>
+						<label>Hierarchy Subclass Description</label>
+						<group>Exchange Platform</group>
+						<input_type>text</input_type>
+						<unique>0</unique>
+						<is_required>0</is_required>
+						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
+					</hierarchy_subclass_description>
+					<!-- } End Attributes Required when We Are an EXPORT mode instance -->
+				</default>
+			</attributes>
 			<!-- These attributes will display in the admin panel, but cannot be edited -->
 			<readonly_attributes><![CDATA[hts_codes,is_clean,unresolved_product_links]]></readonly_attributes>
 			<dummy>
@@ -342,8 +366,8 @@
 			<api_service>product</api_service>
 			<api_return_format>xml</api_return_format>
 			<pim_export_feed>
-				<cutoff_date />
-				<batch_size />
+				<cutoff_date/>
+				<batch_size/>
 			</pim_export_feed>
 			<processor_delete_batch_size>200</processor_delete_batch_size>
 			<processor_max_total_entries>200</processor_max_total_entries>
@@ -373,7 +397,7 @@
 					<class>eb2cproduct/map_category</class>
 					<type>helper</type>
 					<method>extractCategoryIds</method>
-					<xpath>CategoryLinks/CategoryLink[@import_mode!="Delete"]/Name</xpath>
+					<xpath>CategoryLinks/CategoryLink[@import_mode!=&quot;Delete&quot;]/Name</xpath>
 				</category_ids>
 				<country_of_manufacture>
 					<class>eb2cproduct/map</class>
@@ -391,7 +415,7 @@
 					<class>eb2cproduct/map</class>
 					<type>helper</type>
 					<method>extractProductTypeValue</method>
-					<xpath>CustomAttributes/Attribute[@name="ProductType"]/Value</xpath>
+					<xpath>CustomAttributes/Attribute[@name=&quot;ProductType&quot;]/Value</xpath>
 				</type_id>
 				<sku>
 					<class>eb2cproduct/map</class>
@@ -468,14 +492,14 @@
 				<price_view>
 					<class>eb2cproduct/map</class>
 					<type>disabled</type>
-					<method></method>
-					<xpath></xpath>
+					<method/>
+					<xpath/>
 				</price_view>
 				<allow_open_amount>
 					<class>eb2cproduct/map</class>
 					<type>disabled</type>
-					<method></method>
-					<xpath></xpath>
+					<method/>
+					<xpath/>
 				</allow_open_amount>
 				<stock_data>
 					<class>eb2cproduct/map_stock</class>

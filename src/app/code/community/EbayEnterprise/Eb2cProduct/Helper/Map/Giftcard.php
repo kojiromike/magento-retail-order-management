@@ -19,7 +19,8 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Giftcard extends Mage_Core_Helper_Ab
 	protected function _getGiftCardMap()
 	{
 		if (empty($this->_giftcardMap)) {
-			$this->_giftcardMap = Mage::helper('eb2ccore/feed')
+			$this->_giftcardMap = Mage::helper('eb2cproduct')
+				->getConfigModel()
 				->getConfigData(EbayEnterprise_Eb2cCore_Helper_Feed::GIFTCARD_TENDER_CONFIG_PATH);
 		}
 		return $this->_giftcardMap;

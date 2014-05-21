@@ -18,7 +18,8 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Extractor
 	 */
 	public function __construct()
 	{
-		$this->_callbacks = Mage::helper('eb2ccore/feed')->getConfigData(self::CALLBACK_CONFIG_PATH);
+		$cfg = Mage::helper('eb2cproduct')->getConfigModel();
+		$this->_callbacks = $cfg->getConfigData(self::CALLBACK_CONFIG_PATH);
 	}
 	/**
 	 * Extract data from a single item using the callback configuration.

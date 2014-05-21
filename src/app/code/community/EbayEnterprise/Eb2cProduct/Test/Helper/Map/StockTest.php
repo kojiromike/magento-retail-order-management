@@ -16,17 +16,14 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_StockTest
 			'AdvanceOrderLimited' => 'Yes',
 		);
 
-		$feedHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigData'))
-			->getMock();
-		$feedHelperMock->expects($this->once())
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->once())
 			->method('getConfigData')
 			->with($this->identicalTo(EbayEnterprise_Eb2cProduct_Helper_Map_Stock::STOCK_CONFIG_PATH))
 			->will($this->returnValue($mapData));
-		$this->replaceByMock('helper', 'eb2ccore/feed', $feedHelperMock);
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
-		$stock = Mage::helper('eb2cproduct/map_Stock');
+		$stock = Mage::helper('eb2cproduct/map_stock');
 
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($stock, '_stockMap', array());
 

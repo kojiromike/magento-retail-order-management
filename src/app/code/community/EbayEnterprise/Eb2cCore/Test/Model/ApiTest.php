@@ -278,21 +278,21 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 		$mergedConfig = array('status' => array('success' => array('the success handler')));
 		$handlerKey = 'success';
 		$configPath = 'eb2ccore/api/status/handler/testhandler';
-		$helper = $this->getHelperMock('eb2ccore/data', array('getConfigData'));
+
 		$api = $this->getModelMock('eb2ccore/api', array('getIsFailureLoud', 'getStatusHandlerConfigPath', '_getMergedHandlerConfig'));
 		$api->setStatusHandlerPath($configPath);
-
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($api, '_statusHandlerPath', $configPath);
-		$this->replaceByMock('helper', 'eb2ccore', $helper);
-
-		$helper->expects($this->once())
-			->method('getConfigData')
-			->with($this->identicalTo($configPath))
-			->will($this->returnValue($configArray));
 		$api->expects($this->once())
 			->method('_getMergedHandlerConfig')
 			->with($this->identicalTo($configArray))
 			->will($this->returnValue($mergedConfig));
+
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->once())
+			->method('getConfigData')
+			->with($this->identicalTo($configPath))
+			->will($this->returnValue($configArray));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
 		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($api, '_getHandlerConfig', array($handlerKey));
 		$this->assertSame(array('the success handler'), $result);
@@ -371,16 +371,15 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	public function testGetMergedHandlerConfigWithEmptyConfig()
 	{
 		$defaultConfig = array('default config');
-		$helper = $this->getHelperMock('eb2ccore/data', array('getConfigData'));
-		$api = $this->getModelMock('eb2ccore/api', array('getHandlerConfigPath'));
 
-		$this->replaceByMock('helper', 'eb2ccore', $helper);
-
-		$helper->expects($this->once())
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->once())
 			->method('getConfigData')
 			->with($this->identicalTo(EbayEnterprise_Eb2cCore_Model_Api::DEFAULT_HANDLER_CONFIG))
 			->will($this->returnValue($defaultConfig));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
+		$api = $this->getModelMock('eb2ccore/api', array('getHandlerConfigPath'));
 		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($api, '_getMergedHandlerConfig');
 		$this->assertSame(array('default config'), $result);
 	}
@@ -395,19 +394,18 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 		$config = array('alert_level' => 'loud', 'nested' => array('foo' => 'fie'));
 		$loudConfig = array('alert_level' => 'loud', 'nested' => array('foo' => 'fang'));
 		$defaultConfig = array('alert_level' => 'silent', 'nested' => array('foo' => 'baz', 'gee' => 'wiz'));
-		$helper = $this->getHelperMock('eb2ccore/data', array('getConfigData'));
-		$api = Mage::getModel('eb2ccore/api');
 
-		$this->replaceByMock('helper', 'eb2ccore', $helper);
-
-		$helper->expects($this->exactly(2))
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->exactly(2))
 			->method('getConfigData')
 			->with($this->isType('string'))
 			->will($this->returnValueMap(array(
 				array(EbayEnterprise_Eb2cCore_Model_Api::DEFAULT_HANDLER_CONFIG, $defaultConfig),
 				array(EbayEnterprise_Eb2cCore_Model_Api::DEFAULT_LOUD_HANDLER_CONFIG, $loudConfig),
 			)));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
+		$api = Mage::getModel('eb2ccore/api');
 		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($api, '_getMergedHandlerConfig', array($config));
 		$this->assertSame(array('alert_level' => 'loud', 'nested' => array('foo' => 'fie', 'gee' => 'wiz')), $result);
 	}

@@ -805,17 +805,16 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 		$doc->loadXML('<root/>');
 		$name = 'the giftcard name';
 		$pimHelper = $this->getHelperMock('eb2cproduct/pim', array('passString'));
-		$coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigData'));
 		$product = $this->getModelMock('catalog/product', array('none'));
 
-		$coreHelper->expects($this->any())
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->any())
 			->method('getConfigData')
 			->will($this->returnValueMap(array(
 				array(Enterprise_GiftCard_Model_Giftcard::XML_PATH_ALLOW_MESSAGE, $configAllowMessage),
 				array(Enterprise_GiftCard_Model_Giftcard::XML_PATH_MESSAGE_MAX_LENGTH, 10),
 			)));
-
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
 		$product->addData(array(
 			'use_config_allow_message' => $useConfig,

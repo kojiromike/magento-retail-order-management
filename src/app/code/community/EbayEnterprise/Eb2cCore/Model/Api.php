@@ -186,7 +186,8 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	protected function _getHandlerConfig($handlerKey)
 	{
 		$path = $this->_statusHandlerPath ?: static::DEFAULT_HANDLER_CONFIG;
-		$config = $this->_getMergedHandlerConfig(Mage::helper('eb2ccore')->getConfigData($path));
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
+		$config = $this->_getMergedHandlerConfig($cfg->getConfigData($path));
 		return $config['status'][$handlerKey];
 	}
 	/**
@@ -219,12 +220,12 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	 */
 	protected function _getMergedHandlerConfig(array $config=array())
 	{
-		$coreHelper = Mage::helper('eb2ccore');
-		$defaultConfig = $coreHelper->getConfigData(static::DEFAULT_HANDLER_CONFIG);
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
+		$defaultConfig = $cfg->getConfigData(static::DEFAULT_HANDLER_CONFIG);
 		if (isset($config['alert_level']) && $config['alert_level'] === 'loud') {
 			$defaultConfig = array_replace_recursive(
 				$defaultConfig,
-				$coreHelper->getConfigData(static::DEFAULT_LOUD_HANDLER_CONFIG)
+				$cfg->getConfigData(static::DEFAULT_LOUD_HANDLER_CONFIG)
 			);
 		}
 		return array_replace_recursive($defaultConfig, $config);

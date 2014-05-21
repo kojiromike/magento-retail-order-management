@@ -30,9 +30,9 @@ class EbayEnterprise_Eb2cOrder_Model_Custom_Attribute
 	public function extractData(Varien_Object $item)
 	{
 		$helper = Mage::helper('eb2ccore/feed');
-		$mappings = $helper->getConfigData($this->_getConfigPath());
+		$mappings = Mage::helper('eb2corder')->getConfigModel()->getConfigData($this->_getConfigPath());
 
-		return !empty($mappings)?array_reduce(
+		return !empty($mappings) ? array_reduce(
 			array_keys($mappings),
 			function ($attributes, $attribute) use ($mappings, $helper, $item) {
 				$callback = isset($mappings[$attribute]) ? $mappings[$attribute] : array();
@@ -42,6 +42,6 @@ class EbayEnterprise_Eb2cOrder_Model_Custom_Attribute
 					$attributes[$attribute] = $helper->invokeCallback($callback);
 				}
 				return $attributes;
-			}):array();
+			}) : array();
 	}
 }

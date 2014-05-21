@@ -965,15 +965,12 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	{
 		$map = array('item_map' => array(), 'content_map' => array());
 
-		$feedHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigData'))
-			->getMock();
-		$feedHelperMock->expects($this->once())
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->once())
 			->method('getConfigData')
 			->with($this->identicalTo(EbayEnterprise_Eb2cProduct_Model_Pim::PIM_CONFIG_PATH))
 			->will($this->returnValue($map));
-		$this->replaceByMock('helper', 'eb2ccore/feed', $feedHelperMock);
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
 		$pimModelMock = $this->getModelMockBuilder('eb2cproduct/pim')
 			->disableOriginalConstructor()

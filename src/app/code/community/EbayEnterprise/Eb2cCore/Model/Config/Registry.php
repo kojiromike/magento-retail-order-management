@@ -8,7 +8,7 @@
  */
 class EbayEnterprise_Eb2cCore_Model_Config_Registry
 {
- 	/**
+	/**
 	 * The default value to use when looking up config values.
 	 * @var null|string|bool|int|Mage_Core_Model_Store
 	 */
@@ -139,5 +139,15 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	public function __set($name, $value)
 	{
 		trigger_error(sprintf('Cannot write property %s::%s in php shell code on line %d', get_class($this), $name, __LINE__), E_USER_ERROR);
+	}
+	/**
+	 * abstracting getting config child nodes in an array
+	 * @param string $path the parent path to set of node to get as array
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
+	public function getConfigData($path)
+	{
+		return Mage::app()->getStore(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID)->getConfig($path);
 	}
 }

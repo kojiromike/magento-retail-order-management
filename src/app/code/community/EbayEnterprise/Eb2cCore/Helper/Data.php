@@ -395,15 +395,6 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return time();
 	}
-	/**
-	 * @see getConfigData of EbayEnterprise_Eb2cCore_Helper_Feed
-	 * @param  string  $configPath
-	 * @return mixed
-	 */
-	public function getConfigData($configPath)
-	{
-		return Mage::helper('eb2ccore/feed')->getConfigData($configPath);
-	}
 
 	/**
 	 * given a product object and a country code retrieve the hts_code value for this product

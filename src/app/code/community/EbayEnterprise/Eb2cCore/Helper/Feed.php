@@ -32,8 +32,9 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 		$headerMap = array();
 		$paths = array(static::IMPORT_CONFIG_PATH, static::EXPORT_CONFIG_PATH);
 		$relativeHeaderPath = static::HEADER_RELATIVE_PATH;
+		$cfgModel = Mage::helper('eb2ccore')->getConfigModel();
 		foreach ($paths as $path) {
-			$cfgData = $this->getConfigData($path);
+			$cfgData = $cfgModel->getConfigData($path);
 			foreach ($cfgData as $key => $cfg) {
 				if (isset($cfg[static::KEY_OUTBOUND]) && isset($cfg[static::KEY_EVENT_TYPE])) {
 					$headerMap[$cfg[static::KEY_EVENT_TYPE]] = $path . '/' . $key . $relativeHeaderPath;
@@ -123,17 +124,6 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * abstracting getting config child nodes in an array
-	 * @param string $path the parent path to set of node to get as array
-	 * @return array
-	 * @codeCoverageIgnore
-	 */
-	public function getConfigData($path)
-	{
-		return Mage::app()->getStore(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID)->getConfig($path);
-	}
-
-	/**
 	 * call a class static method base on the meta data in the given array
 	 * @param array $meta a composite array with class name and method to be executed
 	 * @return string|null
@@ -171,9 +161,10 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 		if (!isset($type[$feedType])) {
 			return array();
 		}
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
 		return $this->_doConfigTranslation(array_merge(
-			$this->getConfigData(self::DEFAULT_HEADER_CONF),
-			$this->getConfigData($type[$feedType])
+			$cfg->getConfigData(self::DEFAULT_HEADER_CONF),
+			$cfg->getConfigData($type[$feedType])
 		));
 	}
 
@@ -184,9 +175,10 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	 */
 	public function getFileNameConfig($feedType)
 	{
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
 		return $this->_doConfigTranslation(array_merge(
 			array('feed_type' => $feedType),
-			$this->getConfigData(self::FILE_NAME_CONF)
+			$cfg->getConfigData(self::FILE_NAME_CONF)
 		));
 	}
 

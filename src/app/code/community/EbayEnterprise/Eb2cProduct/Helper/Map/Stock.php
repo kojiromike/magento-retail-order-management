@@ -15,7 +15,8 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Stock extends Mage_Core_Helper_Abstr
 	protected function _getStockMap()
 	{
 		if (empty($this->_stockMap)) {
-			$this->_stockMap = Mage::helper('eb2ccore/feed')
+			$this->_stockMap = Mage::helper('eb2cproduct')
+				->getConfigModel()
 				->getConfigData(self::STOCK_CONFIG_PATH);
 		}
 		return $this->_stockMap;

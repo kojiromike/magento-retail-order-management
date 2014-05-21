@@ -84,20 +84,23 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 		$cfgData = array('ItemMaster' => 'eb2cproduct/item_master_feed/outbound/message_header');
 		$feedHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
 			->disableOriginalConstructor()
-			->setMethods(array('getConfigData', '_doConfigTranslation', '_getEventTypeToHeaderConfigPath'))
+			->setMethods(array('_doConfigTranslation', '_getEventTypeToHeaderConfigPath'))
 			->getMock();
-		foreach (array(2, 3) as $idx) {
-			$at = $idx-2;
+
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		foreach (array(0, 1) as $idx) {
+			$at = $idx;
 			$pccd = $this->expected('pccd_' . $at);
 			$mData = $pccd->getData();
-			$feedHelperMock->expects($this->at($idx))
+			$configRegistryMock->expects($this->at($idx))
 				->method('getConfigData')
 				->with($this->equalTo($mData['with']))
 				->will($this->returnValue($mData['will']));
 		}
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
 		$dct = $this->expected('dct');
-		$feedHelperMock->expects($this->at(4))
+		$feedHelperMock->expects($this->any())
 			->method('_doConfigTranslation')
 			->with($this->isType('array'))
 			->will($this->returnValue($dct['will']));
@@ -128,15 +131,18 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	 */
 	public function testGetFileNameConfig()
 	{
-		$feedHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigData', '_doConfigTranslation'))
-			->getMock();
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
 		$pccd = $this->expected('pccd');
-		$feedHelperMock->expects($this->once())
+		$configRegistryMock->expects($this->once())
 			->method('getConfigData')
 			->with($this->equalTo($pccd['with']))
 			->will($this->returnValue($pccd['will']));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
+
+		$feedHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
+			->disableOriginalConstructor()
+			->setMethods(array('_doConfigTranslation'))
+			->getMock();
 		$dct = $this->expected('dct');
 		$feedHelperMock->expects($this->once())
 			->method('_doConfigTranslation')
@@ -305,13 +311,16 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 			$exportKey => $exportPath . '/image_master/outbound/message_header'
 		);
 
-		$feed = $this->getHelperMock('eb2ccore/feed', array('getConfigData'));
-		$feed->expects($this->exactly(2))
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->exactly(2))
 			->method('getConfigData')
 			->will($this->returnValueMap(array(
 				array($importPath, $importData),
 				array($exportPath, $exportData)
 			)));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
+
+		$feed = Mage::helper('eb2ccore/feed');
 
 		$this->assertSame($headerMap, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$feed, '_getEventTypeToHeaderConfigPath', array()

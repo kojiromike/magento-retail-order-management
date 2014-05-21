@@ -32,12 +32,12 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Custom_Attribute_OrderTest
 			),
 		);
 
-		$helper = $this->getHelperMock('eb2ccore/feed', array('getConfigData'));
-		$helper->expects($this->once())
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->once())
 			->method('getConfigData')
 			->with($this->identicalTo($configPath))
 			->will($this->returnValue($mappings));
-		$this->replaceByMock('helper', 'eb2ccore/feed', $helper);
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
 		$this->assertSame($data, Mage::getModel('eb2corder/custom_attribute_order')->extractData($order));
 	}

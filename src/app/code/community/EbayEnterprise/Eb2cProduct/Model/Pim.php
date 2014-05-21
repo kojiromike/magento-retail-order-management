@@ -82,7 +82,8 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	protected function _getFeedsMap()
 	{
 		if (empty($this->_feedsMap)) {
-			$this->_feedsMap = Mage::helper('eb2ccore/feed')->getConfigData(self::PIM_CONFIG_PATH);
+			$cfg = Mage::helper('eb2cproduct')->getConfigModel();
+			$this->_feedsMap = $cfg->getConfigData(self::PIM_CONFIG_PATH);
 		}
 
 		return $this->_feedsMap;

@@ -11,12 +11,13 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 	public function testConstructor()
 	{
 		$configArray = array(array('callback' => 'things'));
-		$coreHelper = $this->getHelperMock('eb2ccore/feed', array('getConfigData'));
-		$coreHelper->expects($this->once())
+
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->once())
 			->method('getConfigData')
 			->with($this->identicalTo(EbayEnterprise_Eb2cProduct_Model_Feed_Extractor::CALLBACK_CONFIG_PATH))
 			->will($this->returnValue($configArray));
-		$this->replaceByMock('helper', 'eb2ccore/feed', $coreHelper);
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
 		$extractor = Mage::getModel('eb2cproduct/feed_extractor');
 		$this->assertSame(

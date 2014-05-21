@@ -235,7 +235,8 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 	public function extractGiftcardTenderValue(DOMNodeList $nodes)
 	{
 		$value = Mage::helper('eb2ccore')->extractNodeVal($nodes);
-		$mapData = Mage::helper('eb2ccore/feed')->getConfigData(EbayEnterprise_Eb2cCore_Helper_Feed::GIFTCARD_TENDER_CONFIG_PATH);
+		$cfg = Mage::helper('eb2cproduct')->getConfigModel();
+		$mapData = $cfg->getConfigData(EbayEnterprise_Eb2cCore_Helper_Feed::GIFTCARD_TENDER_CONFIG_PATH);
 		return isset($mapData[$value])? $this->_getGiftCardType($mapData[$value]) : null;
 	}
 

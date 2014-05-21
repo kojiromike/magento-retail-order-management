@@ -318,12 +318,12 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		if ($product->getTypeId() !== Enterprise_GiftCard_Model_Catalog_Product_Type_Giftcard::TYPE_GIFTCARD) {
 			return null;
 		}
-		$coreHelper = Mage::helper('eb2ccore');
+		$cfg = Mage::helper('eb2cproduct')->getConfigModel();
 		$allowMessage = $product->getUseConfigAllowMessage() ?
-			$coreHelper->getConfigData(Enterprise_GiftCard_Model_Giftcard::XML_PATH_ALLOW_MESSAGE) :
+			$cfg->getConfigData(Enterprise_GiftCard_Model_Giftcard::XML_PATH_ALLOW_MESSAGE) :
 			$product->getAllowMessage();
 		$MessageMaxLength = $allowMessage ?
-			(int) $coreHelper->getConfigData(Enterprise_GiftCard_Model_Giftcard::XML_PATH_MESSAGE_MAX_LENGTH) :
+			(int) $cfg->getConfigData(Enterprise_GiftCard_Model_Giftcard::XML_PATH_MESSAGE_MAX_LENGTH) :
 			0;
 		$isDigital = $product->getGiftCardType() === Enterprise_GiftCard_Model_Giftcard::TYPE_VIRTUAL ? 'true' : 'false';
 		$namespaceUri = $doc->documentElement->namespaceURI;

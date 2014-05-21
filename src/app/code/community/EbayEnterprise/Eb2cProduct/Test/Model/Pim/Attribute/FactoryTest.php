@@ -12,15 +12,15 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 		// mock mapping from the config.xml
 		$mappingConfig = array('sku' => array('xml_dest' => 'Some/Xpath',));
 		$defaultPimConfig = array('xml_dest' => 'ConfigurableAttributes/Attribute[@name="%s"]');
-		$coreHelper = $this->getHelperMock('eb2ccore/feed', array('getConfigData'));
-		$this->replaceByMock('helper', 'eb2ccore/feed', $coreHelper);
 
-		$coreHelper->expects($this->exactly(2))
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->exactly(2))
 			->method('getConfigData')
 			->will($this->returnValueMap(array(
 				array('eb2cproduct/feed_pim_mapping', $mappingConfig),
 				array('eb2cproduct/default_pim_mapping', $defaultPimConfig),
 			)));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
 		$factory = Mage::getModel('eb2cproduct/pim_attribute_factory');
 		$this->assertSame(

@@ -22,10 +22,10 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Attribute_Factory
 	 */
 	public function __construct()
 	{
-		$coreHelper = Mage::helper('eb2ccore/feed');
-		$this->_attributeMappings = $coreHelper
+		$cfg = Mage::helper('eb2cproduct')->getConfigModel();
+		$this->_attributeMappings = $cfg
 			->getConfigData(self::CONFIG_PATH_ATTRIBUTE_MAPPINGS);
-		$this->_defaultMapping = $coreHelper
+		$this->_defaultMapping = $cfg
 			->getConfigData(self::CONFIG_PATH_DEFAULT_MAPPING);
 	}
 	/**

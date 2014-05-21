@@ -18,15 +18,12 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_GiftcardTest
 			'SX' => 'combined'
 		);
 
-		$feedHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigData'))
-			->getMock();
-		$feedHelperMock->expects($this->once())
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->once())
 			->method('getConfigData')
 			->with($this->identicalTo(EbayEnterprise_Eb2cCore_Helper_Feed::GIFTCARD_TENDER_CONFIG_PATH))
 			->will($this->returnValue($mapData));
-		$this->replaceByMock('helper', 'eb2ccore/feed', $feedHelperMock);
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
 		$giftcard = Mage::helper('eb2cproduct/map_giftcard');
 
@@ -74,7 +71,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_GiftcardTest
 	 * Test extractGiftcardTenderValue method for the following expectations
 	 * Expectation 1: when this test invoked the method EbayEnterprise_Eb2cProduct_Helper_Map_Giftcard::extractGiftcardTenderValue with
 	 *                a DOMNodeList object it will extract the giftcard tender type value
-	 *                and then call the mocked method EbayEnterprise_Eb2cCore_Helper_Feed::getConfigData method
+	 *                and then call the mocked method EbayEnterprise_Eb2cCore_Model_Config_Registry::getConfigData method
 	 *                which will return an array of key tender type map to actual magento gift card type
 	 *                and then the method EbayEnterprise_Eb2cProduct_Helper_Map_Giftcard::_getGiftCardType will be given the value
 	 *                from the tender type key in the map data which will then return the constant value for the specific gift card type
@@ -157,15 +154,12 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_GiftcardTest
 			->will($this->returnValue($value));
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 
-		$feedHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigData'))
-			->getMock();
-		$feedHelperMock->expects($this->once())
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->once())
 			->method('getConfigData')
 			->with($this->identicalTo(EbayEnterprise_Eb2cCore_Helper_Feed::GIFTCARD_TENDER_CONFIG_PATH))
 			->will($this->returnValue($mapData));
-		$this->replaceByMock('helper', 'eb2ccore/feed', $feedHelperMock);
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
 
 		$giftcardHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_giftcard')
 			->disableOriginalConstructor()

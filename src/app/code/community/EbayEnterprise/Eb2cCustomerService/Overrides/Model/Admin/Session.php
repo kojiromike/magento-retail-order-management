@@ -21,7 +21,7 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 		// An empty token should never validate so don't bother trying and just
 		// return nothing.
 		$helper = Mage::helper('eb2ccsr');
-		$user = Mage::getModel('admin/user')->load($helper->getConfig()->csrUser);
+		$user = Mage::getModel('admin/user')->load($helper->getConfigModel()->csrUser);
 		try {
 			$this->_validateUser($user);
 			$helper->validateToken($token);

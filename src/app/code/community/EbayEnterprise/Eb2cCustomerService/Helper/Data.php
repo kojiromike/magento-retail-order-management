@@ -2,14 +2,19 @@
 
 class EbayEnterprise_Eb2cCustomerService_Helper_Data
 	extends Mage_Core_Helper_Abstract
+	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
 	/**
+	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * Get a config registry instance with the eb2ccsr config loaded.
+	 * @param mixed $store
 	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 */
-	public function getConfig()
+	public function getConfigModel($store=null)
 	{
 		return Mage::getModel('eb2ccore/config_registry')
+			->setStore($store)
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'))
 			->addConfigModel(Mage::getSingleton('eb2ccsr/config'));
 	}
 	/**
@@ -23,7 +28,7 @@ class EbayEnterprise_Eb2cCustomerService_Helper_Data
 		$request = Mage::getModel('eb2ccsr/token_request', array('token' => $token));
 		$response = Mage::getModel('eb2ccsr/token_response');
 		// if the CSR login is disabled, don't make a request
-		if ($this->getConfig()->isCsrLoginEnabled) {
+		if ($this->getConfigModel()->isCsrLoginEnabled) {
 			// Make the token request and pass the response message into the
 			// response model.
 			$response->setMessage($request->makeRequest());

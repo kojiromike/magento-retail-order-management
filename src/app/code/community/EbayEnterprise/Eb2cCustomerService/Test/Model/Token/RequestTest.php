@@ -18,7 +18,7 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_RequestTest
 		$cfg = $this->buildCoreConfigRegistry(
 			array('xsdFileTokenValidation' => $xsdName)
 		);
-		$csrHelper = $this->getHelperMock('eb2ccsr/data', array('getConfig'));
+		$csrHelper = $this->getHelperMock('eb2ccsr/data', array('getConfigModel'));
 		$this->replaceByMock('helper', 'eb2ccsr', $csrHelper);
 		$requestMessage = $this->getMock('EbayEnterprise_Dom_Document');
 		$api = $this->getModelMock('eb2ccore/api', array('request', 'setStatusHandlerPath'));
@@ -29,7 +29,7 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_RequestTest
 		);
 
 		$csrHelper->expects($this->once())
-			->method('getConfig')
+			->method('getConfigModel')
 			->will($this->returnValue($cfg));
 		$request->expects($this->once())
 			->method('_buildRequest')
@@ -73,10 +73,10 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_RequestTest
 		));
 
 		$cfg = $this->buildCoreConfigRegistry(array('apiXmlNs' => $xmlNs));
-		$helper = $this->getHelperMock('eb2ccsr/data', array('getConfig'));
+		$helper = $this->getHelperMock('eb2ccsr/data', array('getConfigModel'));
 		$this->replaceByMock('helper', 'eb2ccsr', $helper);
 		$helper->expects($this->once())
-			->method('getConfig')
+			->method('getConfigModel')
 			->will($this->returnValue($cfg));
 
 		$request = Mage::getModel('eb2ccsr/token_request', array('token' => 'abc-123'));
@@ -112,11 +112,12 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_RequestTest
 			'apiMajorVersion' => '1',
 			'apiMinorVersion' => '0',
 		));
-		$cfg->expects($this->once())
-			->method('addConfigModel')
-			->with($this->isInstanceOf('EbayEnterprise_Eb2cCore_Model_Config'))
-			->will($this->returnSelf());
-		$this->replaceByMock('model', 'eb2ccore/config_registry', $cfg);
+
+		$helperMock = $this->getHelperMock('eb2ccsr/data', array('getConfigModel'));
+		$helperMock->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($cfg));
+		$this->replaceByMock('helper', 'eb2ccsr', $helperMock);
 
 		$this->assertSame(
 			'https://example.com/v1.0/token/validate.xml',

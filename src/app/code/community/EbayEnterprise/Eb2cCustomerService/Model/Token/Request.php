@@ -30,7 +30,7 @@ class EbayEnterprise_Eb2cCustomerService_Model_Token_Request
 			->setStatusHandlerPath(static::API_STATUS_HANDLER)
 			->request(
 				$this->_buildRequest(),
-				Mage::helper('eb2ccsr')->getConfig()->xsdFileTokenValidation,
+				Mage::helper('eb2ccsr')->getConfigModel()->xsdFileTokenValidation,
 				$this->_getApiUri()
 			);
 		return $response;
@@ -44,7 +44,7 @@ class EbayEnterprise_Eb2cCustomerService_Model_Token_Request
 	{
 		$dom = Mage::helper('eb2ccore')->getNewDomDocument();
 		$dom->addElement(
-			static::ROOT_NODE, null, Mage::helper('eb2ccsr')->getConfig()->apiXmlNs
+			static::ROOT_NODE, null, Mage::helper('eb2ccsr')->getConfigModel()->apiXmlNs
 		)->documentElement->addChild('Token', $this->getToken());
 		return $dom;
 	}
@@ -54,10 +54,9 @@ class EbayEnterprise_Eb2cCustomerService_Model_Token_Request
 	 * domain, version, service and operation.
 	 * @return string
 	 */
-	public function _getApiUri()
+	protected function _getApiUri()
 	{
-		$config = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$config = Mage::helper('eb2ccsr')->getConfigModel();
 		return sprintf(
 			'https://%s/v%s.%s/%s/%s.xml',
 			$config->apiHostname,

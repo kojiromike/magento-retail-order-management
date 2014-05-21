@@ -8,10 +8,18 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 	 * configuration loaded.
 	 * @test
 	 */
-	public function testGetConfig()
+	public function testGetConfigModel()
 	{
-		$cfg = $this->getModelMock('eb2ccore/config_registry', array('addConfigModel'));
+		$cfg = $this->getModelMock('eb2ccore/config_registry', array('addConfigModel', 'setStore'));
 		$cfg->expects($this->once())
+			->method('setStore')
+			->with($this->identicalTo(null))
+			->will($this->returnSelf());
+		$cfg->expects($this->at(1))
+			->method('addConfigModel')
+			->with($this->isInstanceOf('EbayEnterprise_Eb2cCore_Model_Config'))
+			->will($this->returnSelf());
+		$cfg->expects($this->at(2))
 			->method('addConfigModel')
 			->with($this->isInstanceOf('EbayEnterprise_Eb2cCustomerService_Model_Config'))
 			->will($this->returnSelf());
@@ -19,7 +27,7 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 
 		$this->assertSame(
 			$cfg,
-			Mage::helper('eb2ccsr')->getConfig()
+			Mage::helper('eb2ccsr')->getConfigModel()
 		);
 	}
 	/**
@@ -50,10 +58,10 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 			->setMethods(null)
 			->getMock();
 		$this->replaceByMock('model', 'admin/session', $adminSession);
-		$helper = $this->getHelperMock('eb2ccsr/data', array('getConfig'));
+		$helper = $this->getHelperMock('eb2ccsr/data', array('getConfigModel'));
 
 		$helper->expects($this->once())
-			->method('getConfig')
+			->method('getConfigModel')
 			->will($this->returnValue($cfg));
 		$tokenRequest->expects($this->once())
 			->method('makeRequest')
@@ -104,10 +112,10 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 			->setMethods(array('isTokenValid'))
 			->getMock();
 		$this->replaceByMock('model', 'eb2ccsr/token_response', $tokenResponse);
-		$helper = $this->getHelperMock('eb2ccsr/data', array('getConfig'));
+		$helper = $this->getHelperMock('eb2ccsr/data', array('getConfigModel'));
 
 		$helper->expects($this->once())
-			->method('getConfig')
+			->method('getConfigModel')
 			->will($this->returnValue($cfg));
 		if ($isCsrEnabled) {
 			$tokenRequest->expects($this->once())

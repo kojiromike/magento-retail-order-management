@@ -397,7 +397,7 @@
 					<class>eb2cproduct/map_category</class>
 					<type>helper</type>
 					<method>extractCategoryIds</method>
-					<xpath>CategoryLinks/CategoryLink[@import_mode!=&quot;Delete&quot;]/Name</xpath>
+					<xpath>CategoryLinks/CategoryLink[@import_mode!="Delete"]/Name</xpath>
 				</category_ids>
 				<country_of_manufacture>
 					<class>eb2cproduct/map</class>
@@ -415,7 +415,7 @@
 					<class>eb2cproduct/map</class>
 					<type>helper</type>
 					<method>extractProductTypeValue</method>
-					<xpath>CustomAttributes/Attribute[@name=&quot;ProductType&quot;]/Value</xpath>
+					<xpath>CustomAttributes/Attribute[@name="ProductType"]/Value</xpath>
 				</type_id>
 				<sku>
 					<class>eb2cproduct/map</class>

@@ -3,19 +3,19 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 {
 	// configuration path strings
 	const ATTRIBUTES_CONFIG = 'eb2cproduct/attributes';
-	const ATTRIBUTE_BASE_DATA = 'eb2cproduct/attributes/base_data';
+	const ATTRIBUTE_BASE_DATA = 'base_data';
 
 	/**
 	 * the attributes configuration
-	 * @var Mage_Core_Model_Config
+	 * @var array
 	 */
-	protected $_defaultAttributesConfig = null;
+	protected $_defaultAttributesConfig = array();
 
 	/**
 	 * array of attribute data records
 	 * @var array
 	 */
-	protected $_attributeData = array();
+	protected $_attributeRecords = array();
 
 	/**
 	 * list of entity types to attach attributes to.
@@ -67,17 +67,17 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	public function getAttributesData()
 	{
 		$config  = $this->_loadDefaultAttributesConfig();
-		foreach ($config->getNode('default')->children() as $attrCode => $attrConfig) {
-			if (!isset($this->_attributeData[$attrCode])) {
+		foreach ($config['default'] as $attrCode => $attrConfig) {
+			if (!isset($this->_attributeRecords[$attrCode])) {
 				try {
-						$this->_attributeData[$attrCode] = $this->_makeAttributeRecord($attrConfig);
+						$this->_attributeRecords[$attrCode] = $this->_makeAttributeRecord($attrConfig);
 				} catch (EbayEnterprise_Eb2cProduct_Model_Attributes_Exception $e) {
 					Mage::helper('ebayenterprise_magelog')
 						->logWarn("Error processing config for attribute '%s':\n%s", array($attrCode, $e));
 				}
 			}
 		}
-		return $this->_attributeData;
+		return $this->_attributeRecords;
 	}
 
 	/**
@@ -157,13 +157,12 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	/**
 	 * convert data from the config to a form that can be set to the specified
 	 * field on the attribute model.
-	 * @param  string                   $fieldName
-	 * @param  Varien_SimpleXml_Element $data
+	 * @param  string $fieldName
+	 * @param  string $value
 	 * @return string
 	 */
-	protected function _getMappedFieldValue($fieldName, Varien_SimpleXml_Element $data)
+	protected function _getMappedFieldValue($fieldName, $value)
 	{
-		$value = (string) $data;
 		if (isset($this->_valueFunctionMap[$fieldName])) {
 			$funcName = $this->_valueFunctionMap[$fieldName];
 			if (!method_exists($this, $funcName)) {
@@ -173,7 +172,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 				);
 			}
 			// @codeCoverageIgnoreEnd
-			$value = $this->$funcName($data);
+			$value = $this->$funcName($value);
 		}
 		return $value;
 	}
@@ -208,11 +207,10 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		// load the attributes from the config.
 		$config = $this->_loadDefaultAttributesConfig();
 		// loop through the attributes and return the list of attribute names as an array.
-		$default = $config->getNode('default');
-		foreach ($default->children() as $code => $node) {
+		foreach ($config['default'] as $code => $data) {
 			if (!$groupFilter) {
 				$result[] = $code;
-			} elseif ($node->group && $groupFilter === (string) $node->group) {
+			} elseif (isset($data['group']) && $groupFilter === $data['group']) {
 				$result[] = $code;
 			}
 		}
@@ -222,18 +220,17 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 
 	/**
 	 * get an array to initialize an attribute model with data extracted from the config.
-	 * @param  Varien_SimpleXml_Element $fieldCfg
-	 * @return Mage_Catalog_Model_Eav_Entity_Attribute
+	 * @param  array $fieldCfg
+	 * @return array
 	 */
-	protected function _makeAttributeRecord(Varien_SimpleXml_Element $fieldCfg)
+	protected function _makeAttributeRecord(array $fieldCfg)
 	{
 		$record = $this->_getInitialData();
-		foreach ($fieldCfg->children() as $cfgField => $data) {
+		foreach ($fieldCfg as $cfgField => $data) {
 			if ($cfgField === 'default') {
 				// @hack: Code style checker doesn't like underscores. That's right,
 				// but sometimes we have to deal with data that has underscores.
-				$underScoreInputType = 'input_type';
-				$inputType = (string) $fieldCfg->$underScoreInputType;
+				$inputType = $fieldCfg['input_type'];
 				$fieldName = $this->_getDefaultValueFieldName($inputType);
 			} else {
 				$fieldName = $this->_getMappedFieldName($cfgField);
@@ -245,15 +242,14 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * load our attribute configuration into a mage config object.
-	 * @return Mage_Core_Model_Config_Base
+	 * load and store the configuration for the attributes
+	 * @return array
 	 */
 	protected function _loadDefaultAttributesConfig()
 	{
 		if (!$this->_defaultAttributesConfig) {
-			$config = Mage::getModel('core/config')
-				->setXml(Mage::getConfig()->getNode(self::ATTRIBUTES_CONFIG));
-			$this->_defaultAttributesConfig = $config;
+			$this->_defaultAttributesConfig = Mage::getConfig()->getNode(self::ATTRIBUTES_CONFIG, 'default')
+				->asCanonicalArray();
 		}
 		return $this->_defaultAttributesConfig;
 	}
@@ -264,6 +260,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	 */
 	protected function _getInitialData()
 	{
-		return Mage::helper('eb2ccore')->getConfigData(self::ATTRIBUTE_BASE_DATA);
+		$config = $this->_loadDefaultAttributesConfig();
+		return $config[self::ATTRIBUTE_BASE_DATA];
 	}
 }

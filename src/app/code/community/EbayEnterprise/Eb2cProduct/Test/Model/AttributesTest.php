@@ -1,7 +1,26 @@
 <?php
 class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	public static $modelClass = 'EbayEnterprise_Eb2cProduct_Model_Attributes';
+	private $_configArray;
+
+	public function setUp()
+	{
+		parent::setUp();
+		$this->_configArray = array(
+			'base_data' => array('initial_data' => 'some stuff'),
+			'default' => array(
+				'tax_code' => array(
+					'scope' => 'Store',
+					'label' => 'Tax Code2',
+					'group' => 'Prices',
+					'input_type' => 'boolean',
+					'unique' => 'Y',
+					'product_types' => 'simple,configurable,virtual,bundle,downloadable',
+					'default' => 'N',
+				)
+			)
+		);
+	}
 
 	/**
 	 * ensure the tax code is readable
@@ -43,12 +62,18 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 	{
 		$exceptionName = 'EbayEnterprise_Eb2cProduct_Model_Attributes_Exception';
 		$this->setExpectedException($exceptionName, $message);
-		$element = new Varien_SimpleXml_Element('<scope>Website</scope>');
+		$attributeField = array('scope' => 'Website');
 		$model = Mage::getModel('eb2cproduct/attributes');
-		$this->_reflectProperty($model, '_valueFunctionMap')
-			->setValue($model, array('is_global' => $funcName));
-		$fn = $this->_reflectMethod($model, '_getMappedFieldValue');
-		$fn->invoke($model, 'is_global', $element);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
+			$model,
+			'_valueFunctionMap',
+			array('is_global' => $funcName)
+		);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$model,
+			'_getMappedFieldValue',
+			array('is_global', $attributeField)
+		);
 	}
 
 	/**
@@ -71,28 +96,16 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 	 */
 	public function testGetAttributesData()
 	{
-		$attrNode = Mage::getModel('core/config');
-		$attrNode->loadString(self::$configXml);
-		$attrNode =	$attrNode->getNode('default/tax_code');
-		$defaultNode = $this->getMock('Varien_Object', array('children'));
-		$defaultNode->expects($this->once())
-			->method('children')
-			->will($this->returnValue(array('tax_code' => $attrNode)));
-		$config = $this->getModelMock('core/config', array('getNode'));
-		$config->expects($this->once())
-			->method('getNode')
-			->with($this->identicalTo('default'))
-			->will($this->returnValue($defaultNode));
 		$model = $this->getModelMock('eb2cproduct/attributes', array(
 			'_loadDefaultAttributesConfig',
 			'_makeAttributeRecord'
 		));
 		$model->expects($this->once())
 			->method('_loadDefaultAttributesConfig')
-			->will($this->returnValue($config));
+			->will($this->returnValue($this->_configArray));
 		$model->expects($this->once())
 			->method('_makeAttributeRecord')
-			->with($this->identicalTo($attrNode))
+			->with($this->identicalTo($this->_configArray['default']['tax_code']))
 			->will($this->returnValue(array()));
 		$result = $model->getAttributesData();
 		$this->assertEquals(array('tax_code' => array()), $result);
@@ -103,28 +116,16 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 	 */
 	public function testGetAttributesDataException()
 	{
-		$attrNode = Mage::getModel('core/config');
-		$attrNode->loadString(self::$configXml);
-		$attrNode =	$attrNode->getNode('default/tax_code');
-		$defaultNode = $this->getMock('Varien_Object', array('children'));
-		$defaultNode->expects($this->once())
-			->method('children')
-			->will($this->returnValue(array('tax_code' => $attrNode)));
-		$config = $this->getModelMock('core/config', array('getNode'));
-		$config->expects($this->once())
-			->method('getNode')
-			->with($this->identicalTo('default'))
-			->will($this->returnValue($defaultNode));
 		$model = $this->getModelMock('eb2cproduct/attributes', array(
 			'_loadDefaultAttributesConfig',
 			'_makeAttributeRecord'
 		));
 		$model->expects($this->once())
 			->method('_loadDefaultAttributesConfig')
-			->will($this->returnValue($config));
+			->will($this->returnValue($this->_configArray));
 		$model->expects($this->once())
 			->method('_makeAttributeRecord')
-			->with($this->identicalTo($attrNode))
+			->with($this->identicalTo($this->_configArray['default']['tax_code']))
 			->will($this->throwException(new EbayEnterprise_Eb2cProduct_Model_Attributes_Exception()));
 		$result = $model->getAttributesData();
 		$this->assertEquals(array(), $result);
@@ -165,7 +166,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 		$model->expects($this->any())
 			->method('_getTargetEntityTypeIds')
 			->will($this->returnValue(array(10)));
-		$val = $this->_reflectMethod($model, '_isValidEntityType')->invoke($model, $eid);
+		$val = EcomDev_Utils_Reflection::invokeRestrictedMethod($model, '_isValidEntityType', array($eid));
 		$this->assertSame($expect, $val);
 	}
 
@@ -178,9 +179,12 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 	{
 		$map = array('field_in_map' => 'model_field_name');
 		$model = Mage::getModel('eb2cproduct/attributes');
-		$this->_reflectProperty($model, '_fieldNameMap')->setValue($model, $map);
-		$modelFieldName = $this->_reflectMethod($model, '_getMappedFieldName')
-			->invoke($model, $fieldName);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($model, '_fieldNameMap', $map);
+		$modelFieldName = EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$model,
+			'_getMappedFieldName',
+			array($fieldName)
+		);
 		$this->assertSame($expected, $modelFieldName);
 	}
 
@@ -191,77 +195,61 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 	 */
 	public function testGetMappedFieldValue($fieldName, $data, $expected)
 	{
-		$xml      = "<?xml version='1.0'?>\n<{$fieldName}>{$data}</{$fieldName}>";
-		$dataNode = new Varien_SimpleXml_Element($xml);
-		$model    = Mage::getModel('eb2cproduct/attributes');
-		$value    = $this->_reflectMethod($model, '_getMappedFieldValue')
-			->invoke($model, $fieldName, $dataNode);
+		$model = Mage::getModel('eb2cproduct/attributes');
+		$value = EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$model,
+			'_getMappedFieldValue',
+			array($fieldName, $data)
+		);
 		$this->assertSame($expected, $value);
 	}
 
 	/**
-	 * verify a the correct field name for the frontend type is returned.
+	 * verify a the correct column name for the frontend type is returned.
 	 * @dataProvider dataProvider
 	 */
 	public function testGetDefaultValueFieldName($frontendType, $expected)
 	{
-		$model    = Mage::getModel('eb2cproduct/attributes');
-		$value    = $this->_reflectMethod($model, '_getDefaultValueFieldName')
+		$model = Mage::getModel('eb2cproduct/attributes');
+		$value = $this->_reflectMethod($model, '_getDefaultValueFieldName')
 			->invoke($model, $frontendType);
 		$this->assertSame($expected, $value);
 	}
 
 	/**
-	 * verify a new model is returned and contains the correct data for each field
+	 * verify an attribute data record is returned with correct data
 	 * @loadExpectation
 	 */
 	public function testMakeAttributeRecord()
 	{
-		$dataNode = new Varien_SimpleXml_Element(self::$configXml);
-		$result   = $dataNode->xpath('/eb2cproduct_attributes/default/tax_code');
-		// start precondition checks
-		$this->assertSame(1, count($result));
-		list($taxCodeNode) = $result;
-		$this->assertInstanceOf('Varien_SimpleXml_Element', $taxCodeNode);
-		$this->assertSame('tax_code', $taxCodeNode->getName());
-		// end preconditions checks
-
 		$model = Mage::getModel('eb2cproduct/attributes');
-		$attrData = EcomDev_Utils_Reflection::invokeRestrictedMethod($model, '_makeAttributeRecord', array($taxCodeNode));
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
+			$model,
+			'_defaultAttributesConfig',
+			$this->_configArray
+		);
+		$attrData = EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$model,
+			'_makeAttributeRecord',
+			array($this->_configArray['default']['tax_code'])
+		);
 		$this->assertNotEmpty($attrData);
 		$e = $this->expected('tax_code');
 		$this->assertEquals($e->getData(), $attrData);
 	}
-
-	public static $configXml = '
-		<eb2cproduct_attributes>
-			<default>
-				<tax_code>
-					<scope>Store</scope>
-					<label>Tax Code2</label>
-					<group>Prices</group>
-					<input_type>boolean</input_type>
-					<unique>Y</unique>
-					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable]]></product_types>
-					<default><![CDATA[N]]></default>
-				</tax_code>
-			</default>
-		</eb2cproduct_attributes>';
 
 	/**
 	 * return cached data on consecutive calls
 	 */
 	public function testGetAttributesDataCache()
 	{
-		$config = Mage::getModel('core/config');
-		$config->loadString(self::$configXml);
 		$model = $this->getModelMock('eb2cproduct/attributes', array(
 			'_loadDefaultAttributesConfig',
 			'_makeAttributeRecord'
 		));
 		$model->expects($this->any())
 			->method('_loadDefaultAttributesConfig')
-			->will($this->returnValue($config));
+			->will($this->returnValue($this->_configArray));
 		$model->expects($this->once())
 			->method('_makeAttributeRecord')
 			->will($this->onConsecutiveCalls(array('the data'), array('should never get this')));

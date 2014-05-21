@@ -1,0 +1,2 @@
+config_xml:
+  default/eb2cproduct/attributes: '<default/><tax_code><scope>Store</scope><label>Tax Code2</label><group>Prices</group><input_type>boolean</input_type><unique>Y</unique><product_types>simple,configurable,virtual,bundle,downloadable</product_types><default>N</default></tax_code></default>'

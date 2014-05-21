@@ -27,10 +27,10 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_SearchTest
 
 		$orderHelperMock = $this->getHelperMockBuilder('eb2corder/data')
 			->disableOriginalConstructor()
-			->setMethods(array('getConfig'))
+			->setMethods(array('getConfigModel'))
 			->getMock();
 		$orderHelperMock->expects($this->exactly(2))
-			->method('getConfig')
+			->method('getConfigModel')
 			->will($this->returnValue((object) array(
 				'xsdFileSearch' => 'Order-Service-Search-1.0.xsd',
 				'apiXmlNs' => 'http://api.gsicommerce.com/schema/checkout/1.0',
@@ -74,10 +74,10 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_SearchTest
 	{
 		$orderHelperMock = $this->getHelperMockBuilder('eb2corder/data')
 			->disableOriginalConstructor()
-			->setMethods(array('getConfig'))
+			->setMethods(array('getConfigModel'))
 			->getMock();
 		$orderHelperMock->expects($this->once())
-			->method('getConfig')
+			->method('getConfigModel')
 			->will($this->returnValue((object) array('apiXmlNs' => 'http://api.gsicommerce.com/schema/checkout/1.0')));
 		$this->replaceByMock('helper', 'eb2corder', $orderHelperMock);
 

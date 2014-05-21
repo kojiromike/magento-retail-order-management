@@ -9,7 +9,7 @@ class EbayEnterprise_Eb2cOrder_Overrides_Model_Enterprise_Rma
 	 */
 	public function sendNewRmaEmail()
 	{
-		if (Mage::helper('eb2corder')->getConfig()->transactionalEmailer === 'eb2c') {
+		if (Mage::helper('eb2corder')->getConfigModel()->transactionalEmailer === 'eb2c') {
 			Mage::log('Suppressing new RMA email');
 			return $this;
 		} else {
@@ -24,7 +24,7 @@ class EbayEnterprise_Eb2cOrder_Overrides_Model_Enterprise_Rma
 	 */
 	public function sendAuthorizeEmail()
 	{
-		if (Mage::helper('eb2corder')->getConfig()->transactionalEmailer === 'eb2c') {
+		if (Mage::helper('eb2corder')->getConfigModel()->transactionalEmailer === 'eb2c') {
 			Mage::log('Suppressing RMA authorization email');
 			return $this;
 		} else {

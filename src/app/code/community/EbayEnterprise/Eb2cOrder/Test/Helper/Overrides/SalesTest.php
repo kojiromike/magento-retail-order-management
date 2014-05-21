@@ -19,7 +19,7 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_Overrides_SalesTest
 	 */
 	public function testConfig()
 	{
-		$config = Mage::helper('eb2corder')->getConfig();
+		$config = Mage::helper('eb2corder')->getConfigModel();
 		$this->assertSame('eb2c', $config->transactionalEmailer);
 	}
 

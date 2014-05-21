@@ -6,7 +6,7 @@ class EbayEnterprise_Eb2cOrder_Model_Status_Feed extends EbayEnterprise_Eb2cCore
 {
 	protected function _construct()
 	{
-		$cfg = Mage::helper('eb2corder')->getConfig();
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
 		$this->setFeedConfig($cfg->statusFeedDirectoryConfig);
 		$this->setFeedRootNodeName($cfg->statusFeedRootNodeName);
 		parent::_construct();

@@ -71,10 +71,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected $_orderItemRef;
 	/**
-	 * @var EbayEnterprise_Eb2cCore_Model_Config_Registry, config Object
-	 */
-	protected $_config;
-	/**
 	 * @var array, hold magento payment map to eb2c
 	 */
 	protected $_ebcPaymentMethodMap = array(
@@ -88,7 +84,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	);
 	public function __construct()
 	{
-		$this->_config = Mage::helper('eb2corder')->getConfig();
 		// initiaze these class properties in the constructor.
 		$this->_o = null;
 		$this->_domRequest = null;
@@ -110,11 +105,12 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	public function sendRequest()
 	{
-		$uri = Mage::helper('eb2corder')->getOperationUri($this->_config->apiCreateOperation);
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$uri = Mage::helper('eb2corder')->getOperationUri($cfg->apiCreateOperation);
 		$response = '';
 		if ($this->_domRequest instanceof DOMDocument) {
 			$response = Mage::getModel('eb2ccore/api')
-				->request($this->_domRequest, $this->_config->xsdFileCreate, $uri, $this->_config->serviceOrderTimeout);
+				->request($this->_domRequest, $cfg->xsdFileCreate, $uri, $cfg->serviceOrderTimeout);
 		}
 		return $this->_processResponse($response);
 	}
@@ -186,10 +182,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildOrderCreateRequest()
 	{
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
 		$orderCreateRequest = $this->_domRequest
-			->addElement($this->_config->apiCreateDomRootNodeName, null, $this->_config->apiXmlNs)
+			->addElement($cfg->apiCreateDomRootNodeName, null, $cfg->apiXmlNs)
 			->firstChild;
-		$orderCreateRequest->setAttribute('orderType', $this->_config->apiOrderType);
+		$orderCreateRequest->setAttribute('orderType', $cfg->apiOrderType);
 		$orderCreateRequest->setAttribute('requestId', $this->_getRequestId());
 		return $orderCreateRequest;
 	}
@@ -200,8 +197,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildOrder(EbayEnterprise_Dom_Element $orderCreateRequest)
 	{
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
 		$order = $orderCreateRequest->createChild('Order');
-		$order->setAttribute('levelOfService', $this->_config->apiLevelOfService);
+		$order->setAttribute('levelOfService', $cfg->apiLevelOfService);
 		$order->setAttribute('customerOrderId', $this->_o->getIncrementId());
 		$this->_buildCustomer($order->createChild('Customer'));
 		$order->createChild('CreateTime', str_replace(' ', 'T', $this->_o->getCreatedAt()));
@@ -334,8 +332,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildCustomer(DomElement $customer)
 	{
-		$cfg = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
 		$customer->setAttribute('customerId', sprintf('%s%s', $cfg->clientCustomerIdPrefix, $this->_o->getCustomerId()));
 		$name = $customer->createChild('Name');
 		$name->createChild('Honorific', $this->_o->getCustomerPrefix());
@@ -489,12 +486,13 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		$taxFragment = $this->_domRequest->createDocumentFragment();
 		if ($taxQuotes->count()) {
+			$cfg = Mage::helper('eb2corder')->getConfigModel();
 			$taxData = $taxFragment->appendChild(
-				$this->_domRequest->createElement('TaxData', null, $this->_config->apiXmlNs)
+				$this->_domRequest->createElement('TaxData', null, $cfg->apiXmlNs)
 			);
 			// adding TaxClass node
 			if ($taxType === EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING) {
-				$taxData->createChild('TaxClass', $this->_config->shippingTaxClass);
+				$taxData->createChild('TaxClass', $cfg->shippingTaxClass);
 			} else {
 				$taxData->createChild('TaxClass', $this->_getAttributeValueByProductId('tax_code', $item->getProductId()));
 			}
@@ -546,8 +544,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$dutyFragment = $this->_domRequest->createDocumentFragment();
 		$dutyQuotes = $this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::DUTY);
 		if ($dutyQuotes->count()) {
+			$cfg = Mage::helper('eb2corder')->getConfigModel();
 			$duty = $dutyFragment->appendChild(
-				$this->_domRequest->createElement('Duty', null, $this->_config->apiXmlNs)
+				$this->_domRequest->createElement('Duty', null, $cfg->apiXmlNs)
 			);
 			$dutyTotal = 0;
 			foreach ($dutyQuotes as $dutyQuote) {
@@ -570,9 +569,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildShipGroup(DomElement $shipGroup)
 	{
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
 		$shipGroup->setAttribute('id', 'shipGroup_1');
 		$shipGroup->setAttribute('chargeType', $this->_getShippingChargeType($this->_o));
-		$shipGroup->createChild('DestinationTarget')->setAttribute('ref', $this->_config->apiShipGroupDestinationId);
+		$shipGroup->createChild('DestinationTarget')->setAttribute('ref', $cfg->apiShipGroupDestinationId);
 		$orderItems = $shipGroup->createChild('OrderItems');
 		foreach ($this->_orderItemRef as $orderItemRef) {
 			$shipItem = $orderItems->createChild('Item');
@@ -587,18 +587,19 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildShipping(DomElement $shipping)
 	{
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
 		$destinations = $shipping->createChild('Destinations');
 		// Ship-To
 		$sa = $this->_o->getShippingAddress();
 		$dest = $destinations->createChild('MailingAddress');
-		$dest->setAttribute('id', $this->_config->apiShipGroupDestinationId);
+		$dest->setAttribute('id', $cfg->apiShipGroupDestinationId);
 		$this->_buildPersonName($dest->createChild('PersonName'), $sa);
 		$this->_buildAddress($dest->createChild('Address'), $sa);
 		$dest->createChild('Phone', $sa->getTelephone());
 		// Bill-To
 		$ba = $this->_o->getBillingAddress();
 		$billing = $destinations->createChild('MailingAddress');
-		$billing->setAttribute('id', $this->_config->apiShipGroupBillingId);
+		$billing->setAttribute('id', $cfg->apiShipGroupBillingId);
 		$this->_buildPersonName($billing->createChild('PersonName'), $ba);
 		$this->_buildAddress($billing->createChild('Address'), $ba);
 		$billing->createChild('Phone', $ba->getTelephone());
@@ -641,7 +642,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildPayment($payment)
 	{
-		$payment->createChild('BillingAddress')->setAttribute('ref', $this->_config->apiShipGroupBillingId);
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$payment->createChild('BillingAddress')->setAttribute('ref', $cfg->apiShipGroupBillingId);
 		$this->_buildPayments($payment->createChild('Payments'));
 		return $this;
 	}
@@ -888,11 +890,12 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildSessionInfo(array $data, DOMElement $context)
 	{
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
 		$doc = $context->ownerDocument;
 		$frag = $doc->createDocumentFragment();
 		foreach ($data as $element => $value) {
 			if ($value) {
-				$frag->appendChild($doc->createElement($element, $value, $this->_config->apiXmlNs));
+				$frag->appendChild($doc->createElement($element, $value, $cfg->apiXmlNs));
 			}
 		}
 		if ($frag->hasChildNodes()) {

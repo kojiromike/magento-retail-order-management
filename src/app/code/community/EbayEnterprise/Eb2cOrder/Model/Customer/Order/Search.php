@@ -10,7 +10,7 @@ class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Search
 	 */
 	public function requestOrderSummary($customerId, $orderId='')
 	{
-		$cfg = Mage::helper('eb2corder')->getConfig();
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
 		// make request to eb2c for Customer OrderSummary
 		return Mage::getModel('eb2ccore/api')->request(
 			$this->buildOrderSummaryRequest($customerId, $orderId),
@@ -28,7 +28,7 @@ class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Search
 	public function buildOrderSummaryRequest($customerId, $orderId='')
 	{
 		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$orderSummaryRequest = $domDocument->addElement('OrderSummaryRequest', null, Mage::helper('eb2corder')->getConfig()->apiXmlNs)->firstChild;
+		$orderSummaryRequest = $domDocument->addElement('OrderSummaryRequest', null, Mage::helper('eb2corder')->getConfigModel()->apiXmlNs)->firstChild;
 		$orderSearch = $orderSummaryRequest->createChild('OrderSearch', null, array());
 		if (trim($orderId) !== '') {
 			$orderSearch->createChild('CustomerOrderId', (string) $orderId);
@@ -51,7 +51,7 @@ class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Search
 			$doc = $coreHlpr->getNewDomDocument();
 			$doc->loadXML($orderSummaryReply);
 			$xpath = new DOMXPath($doc);
-			$xpath->registerNamespace('a', Mage::helper('eb2corder')->getConfig()->apiXmlNs);
+			$xpath->registerNamespace('a', Mage::helper('eb2corder')->getConfigModel()->apiXmlNs);
 			$searchResults = $xpath->query('//a:OrderSummary');
 			foreach($searchResults as $result) {
 				$orderId = $coreHlpr->extractNodeVal($xpath->query('a:CustomerOrderId/text()', $result));

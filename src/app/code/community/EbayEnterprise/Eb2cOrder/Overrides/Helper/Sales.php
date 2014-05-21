@@ -10,7 +10,7 @@ class EbayEnterprise_Eb2cOrder_Overrides_Helper_Sales extends Mage_Sales_Helper_
 	protected $_useLocalMail;
 	public function __construct()
 	{
-		$this->_useLocalMail = (Mage::helper('eb2corder')->getConfig()->transactionalEmailer !== 'eb2c');
+		$this->_useLocalMail = (Mage::helper('eb2corder')->getConfigModel()->transactionalEmailer !== 'eb2c');
 	}
 	public function canSendNewOrderConfirmationEmail($s=null) { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
 	public function canSendNewOrderEmail($s=null)             { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }

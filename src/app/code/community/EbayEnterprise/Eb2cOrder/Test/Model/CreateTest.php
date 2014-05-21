@@ -599,11 +599,17 @@ INVALID_XML;
 			->method('_getRequestId')
 			->will($this->returnValue('12838-383848-944'));
 		$this->_reflectProperty($createModelMock, '_domRequest')->setValue($createModelMock, Mage::helper('eb2ccore')->getNewDomDocument());
-		$this->_reflectProperty($createModelMock, '_config')->setValue($createModelMock, (object) array(
-			'apiCreateDomRootNodeName' => 'OrderCreateRequest',
-			'apiXmlNs' => 'http://api.gsicommerce.com/schema/checkout/1.0',
-			'apiOrderType' => 'SALES'
-		));
+
+		$helperMock = $this->getHelperMock('eb2corder/data', array('getConfigModel'));
+		$helperMock->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'apiCreateDomRootNodeName' => 'OrderCreateRequest',
+				'apiXmlNs' => 'http://api.gsicommerce.com/schema/checkout/1.0',
+				'apiOrderType' => 'SALES'
+			))));
+		$this->replaceByMock('helper', 'eb2corder', $helperMock);
+
 		$this->assertInstanceOf(
 			'EbayEnterprise_Dom_Element',
 			$this->_reflectMethod($createModelMock, '_buildOrderCreateRequest')->invoke($createModelMock)
@@ -1313,12 +1319,15 @@ INVALID_XML;
 			->setMethods(array('none'))
 			->getMock();
 
-		$config = $this->buildCoreConfigRegistry(array(
-			'apiXmlNs' => 'http://namespace/foo',
-		));
+		$helperMock = $this->getHelperMock('eb2corder/data', array('getConfigModel'));
+		$helperMock->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'apiXmlNs' => 'http://namespace/foo',
+			))));
+		$this->replaceByMock('helper', 'eb2corder', $helperMock);
 
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_config', $config);
 
 		$expect = Mage::helper('eb2ccore')->getNewDomDocument();
 		$expect->preserveWhiteSpace = false;

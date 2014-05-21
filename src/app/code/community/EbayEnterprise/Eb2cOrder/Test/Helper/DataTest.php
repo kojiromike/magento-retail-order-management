@@ -26,7 +26,7 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 	 */
 	public function testGetConfig()
 	{
-		$config = $this->_helper->getConfig();
+		$config = $this->_helper->getConfigModel();
 		$this->assertStringStartsWith(
 			'api_rgn',
 			$config->apiRegion

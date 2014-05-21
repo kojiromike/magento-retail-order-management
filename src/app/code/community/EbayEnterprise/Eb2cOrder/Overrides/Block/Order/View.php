@@ -16,8 +16,7 @@ class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_View extends Mage_Sales_Blo
 		// instantiate eb2c customer order search class
 		$orderSearchObj = Mage::getModel('eb2corder/customer_order_search');
 
-		$cfg = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
 
 		if ($customerId > 0) {
 			// we have a registered customer

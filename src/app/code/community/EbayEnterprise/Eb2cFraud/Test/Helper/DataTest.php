@@ -15,17 +15,6 @@ class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * Make sure we get back some config data
-	 * @test
-	 * @loadFixture testConfig
-	 */
-	public function testGetConfig()
-	{
-		$config = $this->_helper->getConfig();
-		$this->assertSame('TAN-EB2CJS', $config->clientId);
-	}
-
-	/**
 	 * Get back sensible URL
 	 * @test
 	 */

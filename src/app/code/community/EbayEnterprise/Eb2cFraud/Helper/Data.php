@@ -1,5 +1,6 @@
 <?php
 class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
+	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
 	// Relative path where scripts are stored
 	const JSC_JS_PATH = 'ebayenterprise_eb2cfraud';
@@ -11,11 +12,6 @@ class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 	const XML_DATETIME_FORMAT = "c";
 	const TIME_FORMAT = '%h:%I:%S';
 	/**
-	 * Combined Eb2c_Core and Eb2c_Fraud config model
-	 * @var EbayEnterprise_Eb2cCore_Model_Config
-	 */
-	private $_config;
-	/**
 	 * Url to our JavaScript
 	 * @var string
 	 */
@@ -25,19 +21,21 @@ class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function __construct()
 	{
-		$this->_config = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getModel('eb2ccore/config'));
 		$this->_jscUrl = Mage::getBaseUrl(
 			Mage_Core_Model_Store::URL_TYPE_JS,
 			array('_secure' => true)
 		) . self::JSC_JS_PATH;
 	}
 	/**
-	 * @see _config
+	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
+	 * @param mixed $store
+	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 */
-	public function getConfig()
+	public function getConfigModel($store=null)
 	{
-		return $this->_config;
+		return Mage::getModel('eb2ccore/config_registry')
+			->setStore($store)
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 	}
 	/**
 	 * @see _jscUrl

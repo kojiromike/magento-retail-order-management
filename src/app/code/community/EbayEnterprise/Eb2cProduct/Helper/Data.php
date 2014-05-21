@@ -1,5 +1,6 @@
 <?php
 class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
+	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
 	/**
 	 * @var int, the default category id
@@ -138,15 +139,17 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 	}
 	/**
+	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * Get Product config instantiated object.
+	 * @param mixed $store
 	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 */
 	public function getConfigModel($store=null)
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(Mage::getModel('eb2cproduct/config'))
-			->addConfigModel(Mage::getModel('eb2ccore/config'));
+			->addConfigModel(Mage::getSingleton('eb2cproduct/config'))
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 	}
 	/**
 	 * @return bool true if the eav config has at least one instance of the given attribute.
@@ -483,9 +486,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	protected function _loadWebsiteFilter($mageStoreId)
 	{
-		$config = Mage::getModel('eb2ccore/config_registry')
-			->setStore($mageStoreId)
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$config = Mage::helper('eb2cproduct')->getConfigModel($mageStoreId);
 		return array (
 			'catalog_id'      => $config->catalogId,
 			'client_id'       => $config->clientId,

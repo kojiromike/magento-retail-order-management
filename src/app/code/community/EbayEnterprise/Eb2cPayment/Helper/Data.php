@@ -1,9 +1,9 @@
 <?php
 class EbayEnterprise_Eb2cPayment_Helper_Data extends Mage_Core_Helper_Abstract
+	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
 	const STATUS_HANDLER_PATH = 'eb2cpayment/api_status_handler';
 
-	public $configModel;
 	public $apiModel;
 	protected $_operation;
 
@@ -24,17 +24,17 @@ class EbayEnterprise_Eb2cPayment_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
+	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * Get payment config instantiated object.
-	 *
-	 * @return EbayEnterprise_Eb2cPayment_Model_Config
+	 * @param mixed $store
+	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 */
 	public function getConfigModel($store=null)
 	{
-		$this->configModel = Mage::getModel('eb2ccore/config_registry');
-		$this->configModel->setStore($store)
-			->addConfigModel(Mage::getModel('eb2cpayment/config'))
-			->addConfigModel(Mage::getModel('eb2ccore/config'));
-		return $this->configModel;
+		return Mage::getModel('eb2ccore/config_registry')
+			->setStore($store)
+			->addConfigModel(Mage::getSingleton('eb2cpayment/config'))
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 	}
 
 	/**

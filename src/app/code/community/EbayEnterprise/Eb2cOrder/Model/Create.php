@@ -642,8 +642,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildPayment($payment)
 	{
-		$cfg = Mage::helper('eb2corder')->getConfigModel();
-		$payment->createChild('BillingAddress')->setAttribute('ref', $cfg->apiShipGroupBillingId);
+		$payment->createChild('BillingAddress')->setAttribute(
+			'ref', Mage::helper('eb2corder')->getConfigModel()->apiShipGroupBillingId
+		);
 		$this->_buildPayments($payment->createChild('Payments'));
 		return $this;
 	}

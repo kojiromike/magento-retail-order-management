@@ -262,7 +262,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 		return new DateTime(
 			sprintf(
 				'%d minutes ago',
-				(int) (Mage::helper('eb2ccore')->getConfigModel()->inventoryExpirationTime)
+				(int) Mage::helper('eb2ccore')->getConfigModel()->inventoryExpirationTime
 			)
 		);
 	}

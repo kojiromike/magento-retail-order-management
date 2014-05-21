@@ -9,23 +9,8 @@ class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 	const JSC_FIELD_NAME = 'eb2cszyvl';
 	// format strings for working with Zend_Date
 	const MAGE_DATETIME_FORMAT = 'Y-m-d H:i:s';
-	const XML_DATETIME_FORMAT = "c";
+	const XML_DATETIME_FORMAT = 'c';
 	const TIME_FORMAT = '%h:%I:%S';
-	/**
-	 * Url to our JavaScript
-	 * @var string
-	 */
-	private $_jscUrl;
-	/**
-	 * Set up _config and _jscUrl.
-	 */
-	public function __construct()
-	{
-		$this->_jscUrl = Mage::getBaseUrl(
-			Mage_Core_Model_Store::URL_TYPE_JS,
-			array('_secure' => true)
-		) . self::JSC_JS_PATH;
-	}
 	/**
 	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * @param mixed $store
@@ -38,11 +23,15 @@ class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 	}
 	/**
-	 * @see _jscUrl
+	 * get url to our JavaScript
+	 * @return string
 	 */
 	public function getJscUrl()
 	{
-		return $this->_jscUrl;
+		return Mage::getBaseUrl(
+			Mage_Core_Model_Store::URL_TYPE_JS,
+			array('_secure' => true)
+		) . self::JSC_JS_PATH;
 	}
 	/**
 	 * Find the generated JS data from the given request's POST data. This uses

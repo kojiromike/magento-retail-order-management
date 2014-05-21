@@ -175,10 +175,9 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	 */
 	public function getFileNameConfig($feedType)
 	{
-		$cfg = Mage::helper('eb2ccore')->getConfigModel();
 		return $this->_doConfigTranslation(array_merge(
 			array('feed_type' => $feedType),
-			$cfg->getConfigData(self::FILE_NAME_CONF)
+			Mage::helper('eb2ccore')->getConfigModel()->getConfigData(self::FILE_NAME_CONF)
 		));
 	}
 

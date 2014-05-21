@@ -552,25 +552,28 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 		$cfg = $this->buildCoreConfigRegistry(array(
 			'errorFeed' => array('local_directory' => 'local/error'),
 		));
+
+		$productHelper = $this->getHelperMockBuilder('eb2cproduct/data')
+			->disableOriginalConstructor()
+			->setMethods(array('getConfigModel'))
+			->getMock();
+		$productHelper->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($cfg));
+		$this->replaceByMock('helper', 'eb2cproduct', $productHelper);
+
 		$coreFeed = $this->getModelMockBuilder('eb2ccore/feed')
 			->disableOriginalConstructor()
 			->setMethods(array('mvToLocalDirectory'))
 			->getMock();
-		$feedHelper = $this->getHelperMockBuilder('eb2ccore/feed')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfig'))
-			->getMock();
+
 		$confirmationsModelMock = $this->getModelMockBuilder('eb2cproduct/error_confirmations')
 			->disableOriginalConstructor()
 			->setMethods(array('loadFile', 'close'))
 			->getMock();
 
 		$this->replaceByMock('model', 'eb2ccore/feed', $coreFeed);
-		$this->replaceByMock('helper', 'eb2ccore/feed', $feedHelper);
 
-		$feedHelper->expects($this->once())
-			->method('getConfig')
-			->will($this->returnValue($cfg));
 		$confirmationsModelMock->expects($this->once())
 			->method('loadFile')
 			->with($this->equalTo($localFile))

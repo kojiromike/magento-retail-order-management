@@ -186,8 +186,9 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	protected function _getHandlerConfig($handlerKey)
 	{
 		$path = $this->_statusHandlerPath ?: static::DEFAULT_HANDLER_CONFIG;
-		$cfg = Mage::helper('eb2ccore')->getConfigModel();
-		$config = $this->_getMergedHandlerConfig($cfg->getConfigData($path));
+		$config = $this->_getMergedHandlerConfig(
+			Mage::helper('eb2ccore')->getConfigModel()->getConfigData($path)
+		);
 		return $config['status'][$handlerKey];
 	}
 	/**

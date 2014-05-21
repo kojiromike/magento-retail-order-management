@@ -1,5 +1,6 @@
 <?php
 class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
+	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
 	protected $_operation;
 
@@ -15,16 +16,17 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
+	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * Get inventory config instantiated object.
-	 *
+	 * @param mixed $store
 	 * @return EbayEnterprise_Eb2cInventory_Model_Config
 	 */
 	public function getConfigModel($store=null)
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(Mage::getModel('eb2cinventory/config'))
-			->addConfigModel(Mage::getModel('eb2ccore/config'));
+			->addConfigModel(Mage::getSingleton('eb2cinventory/config'))
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 	}
 
 	/**

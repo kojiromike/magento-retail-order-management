@@ -712,8 +712,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 */
 	protected function _extractAdminData()
 	{
-		$cfg = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ctax/config'));
+		$cfg = Mage::helper('eb2ctax')->getConfigModel();
 
 		return array(
 			'Lines' => array_map(function ($n) use ($cfg) {return $cfg->getConfig("admin_origin_line$n"); }, array(1, 2, 3, 4)),

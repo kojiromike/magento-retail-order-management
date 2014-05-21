@@ -1,17 +1,24 @@
 <?php
 class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
+	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
 	protected $_service        = 'taxes';
 	protected $_operation      = 'quote';
 	protected $_responseFormat = 'xml';
 
 	protected $_apiModel       = null;
-	protected $_configRegistry = null;
 
-	public function __construct()
+	/**
+	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
+	 * @param mixed $store
+	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
+	 */
+	public function getConfigModel($store=null)
 	{
-		$this->_configRegistry = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ctax/config'));
+		return Mage::getModel('eb2ccore/config_registry')
+			->setStore($store)
+			->addConfigModel(Mage::getSingleton('eb2ctax/config'))
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 	}
 
 	/**
@@ -26,7 +33,7 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 			'request' => $request,
 			'xml' => Mage::getModel('eb2ccore/api')->request(
 				$request->getDocument(),
-				$this->_configRegistry->xsdFileTaxDutyFeeQuoteRequest,
+				$this->getConfigModel()->xsdFileTaxDutyFeeQuoteRequest,
 				Mage::helper('eb2ccore')->getApiUri($this->_service, $this->_operation, array(), $this->_responseFormat)
 			),
 		));
@@ -77,7 +84,7 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getNamespaceUri($store=null)
 	{
-		return $this->_configRegistry->setStore($store)->apiNamespace;
+		return $this->getConfigModel($store)->apiNamespace;
 	}
 
 	/**
@@ -86,16 +93,16 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getVatInclusivePricingFlag($store=null)
 	{
-		return $this->_configRegistry->setStore($store)->taxVatInclusivePricing;
+		return $this->getConfigModel($store)->taxVatInclusivePricing;
 	}
 
 	public function getApplyTaxAfterDiscount($store=null)
 	{
-		return $this->_configRegistry->setStore($store)->taxApplyAfterDiscount;
+		return $this->getConfigModel($store)->taxApplyAfterDiscount;
 	}
 
 	public function taxDutyAmountRateCode($store=null)
 	{
-		return $this->_configRegistry->setStore($store)->taxDutyRateCode;
+		return $this->getConfigModel($store)->taxDutyRateCode;
 	}
 }

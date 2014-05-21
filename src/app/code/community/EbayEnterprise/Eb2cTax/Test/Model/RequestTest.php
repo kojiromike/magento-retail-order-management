@@ -1549,7 +1549,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		);
 		$mockConfig->expects($this->any())
 			->method('addConfigModel')
-			->with($this->identicalTo(Mage::getSingleton('eb2ctax/config')))
 			->will($this->returnSelf());
 		$mockConfig->expects($this->any())
 			->method('getConfig')

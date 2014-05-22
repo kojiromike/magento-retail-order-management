@@ -381,7 +381,7 @@
 					<class>eb2cproduct/map</class>
 					<type>helper</type>
 					<method>extractSkuValue</method>
-					<xpath>ExtendedAttributes/Style/StyleID</xpath>
+					<xpath>ExtendedAttributes/Style/StyleID|StyleID</xpath>
 				</style_id>
 				<tax_code>
 					<class>eb2cproduct/map</class>

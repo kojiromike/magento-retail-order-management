@@ -491,7 +491,7 @@ Copy this file to productimport.xml and configure the appropriate values below.
 					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
 				</lifetime>
 				<allow_message>
-					<class>eb2cproduct/map_giftcard</class>
+					<class>eb2cproduct/map</class>
 					<type>helper</type>
 					<method>extractBoolValue</method>
 					<xpath>ExtendedAttributes/AllowGiftMessage</xpath>

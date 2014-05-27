@@ -388,8 +388,8 @@
 				-->
 				<stock_map>
 					<stock>Yes</stock>
-					<AdvanceOrderOpen>No</AdvanceOrderOpen>
-					<AdvanceOrderLimited>Yes</AdvanceOrderLimited>
+					<advanceOrderOpen>No</advanceOrderOpen>
+					<advanceOrderLimited>Yes</advanceOrderLimited>
 				</stock_map>
 			</feed>
 			<feed_attribute_mappings>

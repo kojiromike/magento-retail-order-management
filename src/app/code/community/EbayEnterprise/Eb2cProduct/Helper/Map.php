@@ -155,7 +155,10 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 			$links[] = array(
 				'link_type' => $linkType,
 				'operation_type' => $attrs->getNamedItem('operation_type')->nodeValue,
-				'link_to_unique_id' => trim($linkNode->nodeValue),
+				'link_to_unique_id' => Mage::helper('eb2ccore')->normalizeSku(
+					trim($linkNode->nodeValue),
+					Mage::helper('eb2cproduct')->getConfigModel()->catalogId
+				)
 			);
 		}
 		return serialize($links);

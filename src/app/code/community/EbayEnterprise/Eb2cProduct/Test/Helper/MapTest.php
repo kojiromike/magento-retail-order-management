@@ -253,6 +253,15 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	 */
 	public function testExtractProductLinks()
 	{
+		$catalogId = 45;
+		$helperMock = $this->getHelperMock('eb2cproduct/data', array('getConfigModel'));
+		$helperMock->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'catalogId' => $catalogId
+			))));
+		$this->replaceByMock('helper', 'eb2cproduct', $helperMock);
+
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML(
 			'<root>
@@ -260,7 +269,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 					<LinkToUniqueId>45-12345</LinkToUniqueId>
 				</ProductLink>
 				<ProductLink link_type="ES_CrossSelling" operation_type="Delete">
-					<LinkToUniqueId>45-23456</LinkToUniqueId>
+					<LinkToUniqueId>23456</LinkToUniqueId>
 				</ProductLink>
 			</root>'
 		);

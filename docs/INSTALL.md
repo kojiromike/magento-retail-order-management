@@ -1,4 +1,4 @@
-# eBay Enterprise Exchange Platform: Magento Extension Integration, Installation, and Configuration Guide
+# eBay Enterprise Retail Order Management: Magento Extension Integration, Installation, and Configuration Guide
 
 ## Contents
 
@@ -8,22 +8,22 @@ This guide contains the following information:
 1.  [Prerequisites](#prerequisites)
 1.  [Configuring XML for Batch Feeds](#configuring-xml-for-batch-feeds)
 1.  [Configuring Local XML](#configuring-local-xml)
-1.  [Configuring the Magento Payment Bridge and eBay Enterprise Exchange Payments](#configuring-the-magento-payment-bridge-and-ebay-enterprise-exchange-payments)
+1.  [Configuring the Magento Payment Bridge and eBay Enterprise Retail Order Management Payments](#configuring-the-magento-payment-bridge-and-ebay-enterprise-retail-order-management-payments)
 1.  [Scheduling Batch Feeds](#scheduling-batch-feeds)
 
 ## Overview
 
-This guide discusses how you integrate with the eBay Enterprise Exchange Platform to enable a Magento instance to:
+This guide discusses how you integrate with eBay Enterprise Retail Order Management to enable a Magento instance to:
 
--   Periodically synchronize product data with the eBay Enterprise Exchange Platform (this includes product metadata, inventory, attributes, and attribute sets)
+-   Periodically synchronize product data with eBay Enterprise Retail Order Management (this includes product metadata, inventory, attributes, and attribute sets)
 -   Map the Magento shipping method (such as `flatrate_flatrate`) to an eBay Enterprise shipping method
 -   Specify valid ranges for stored value cards
 
 ### Understanding the Integration
 
-The following figure shows a basic overview of the integration between Magento and the eBay Enterprise Exchange Platform:
+The following figure shows a basic overview of the integration between Magento and eBay Enterprise Retail Order Management:
 
-![Exchange Platform Overview](static/basic-overview.png)
+![Retail Order Management Overview](static/basic-overview.png)
 
 Data flows work as follows:
 
@@ -34,10 +34,10 @@ Data flows work as follows:
     1.  Inventory is managed by the order management system.
     1.  Available inventory is communicated to storefront using the fulfillment hub.
 1.  Order transactions flow as follows: 
-    1.  Requests to eBay Exchange Platform arrive through a secure gateway.
+    1.  Requests to eBay Retail Order Management arrive through a secure gateway.
     1.  eBay interfaces route requests to the appropriate service: order service, inventory service, tax service, address validation service, or payment service.
     1.  Orders and inventory updates go to the order management system bidirectionally.
-    1.  Ordered items can be processed by the fulfilment hub or by the fulfillment channel you select.
+    1.  Ordered items can be processed by the fulfillment hub or by the fulfillment channel you select.
 
 Note the following:
 
@@ -48,13 +48,13 @@ Note the following:
 
 Magento enables you to:
 
--   Configure the eBay Enterprise Exchange Platform extension to communicate with the eBay Enterprise Exchange Platform through its secure gateway.
+-   Configure the eBay Enterprise Retail Order Management extension to communicate with eBay Enterprise Retail Order Management through its secure gateway.
 -   Configure options to interact with the eBay Enterprise Platform (tax, payments, address validation, and so on).
 -   If eBay Enterprise Payments is enabled, to authorize transactions.
 -   Create products, attributes, attribute sets, and so on.
      You must update the XML feeds if you make changes to the structure of this data.
 
-The eBay Enterprise Exchange Platform performs the following:
+eBay Enterprise Retail Order Management performs the following:
 
 -   Address validation
 -   Tax calculation
@@ -67,7 +67,7 @@ The eBay Enterprise Exchange Platform performs the following:
 
 ### For More Information
 
-For more detailed information about the eBay Enterprise Exchange Platform, see the [Exchange Platform](http://www.ebayenterprise.com/commerce_technologies/exchange_platform.php) overview on [ebayenterprise.com](http://www.ebayenterprise.com).
+For more detailed information about eBay Enterprise Retail Order Management, see the [Retail Order Management](http://www.ebayenterprise.com/commerce_technologies/exchange_platform.php) overview on [ebayenterprise.com](http://www.ebayenterprise.com).
 
 ## Implementation Roadmap
 
@@ -92,7 +92,7 @@ The following table provides high-level guidance about the tasks to integrate Ma
 <td align="left"><p>eBay Enterprise will assist you.</p></td>
 </tr>
 <tr class="odd">
-<td align="left"><p>2. Install the eBay Enterprise Exchange extension</p></td>
+<td align="left"><p>2. Install the eBay Enterprise Retail Order Management extension</p></td>
 <td align="left"><p>System Integrator or Magento administrator</p></td>
 <td align="left"><p>Install the extension and make sure it installed correctly.</p></td>
 <td align="left"><p>This guide</p></td>
@@ -121,7 +121,7 @@ The following table provides high-level guidance about the tasks to integrate Ma
 <tr class="even">
 <td align="left"><p>5. Go live!</p></td>
 <td align="left"><p>Magento administrator</p></td>
-<td align="left"><p>Update your eBay Enterprise credentials as discussed in [Configuring the Magento Payment Bridge and eBay Enterprise Exchange Payments](#configuring-the-magento-payment-bridge-and-ebay-enterprise-exchange-payments) and start accepting orders.</p></td>
+<td align="left"><p>Update your eBay Enterprise credentials as discussed in [Configuring the Magento Payment Bridge and eBay Enterprise Retail Order Management Payments](#configuring-the-magento-payment-bridge-and-ebay-enterprise-retail-order-management-payments) and start accepting orders.</p></td>
 <td align="left"><p>This guide</p></td>
 </tr>
 </tbody>
@@ -137,16 +137,16 @@ The intended audience for this guide is System Integrators with extensive experi
 
 ### System Prerequisites
 
--   The eBay Enterprise Exchange is compatible with Magento EE 1.13.1 and later.
+-   The eBay Enterprise Retail Order Management extension is compatible with Magento EE 1.13.1 and later.
     -   If you're running an earlier version of Magento EE, see [Upgrading to and Verifying Magento Community Edition 1.8 and Enterprise Edition 1.13—Part 1](http://www.magentocommerce.com/knowledge-base/entry/ce18-and-ee113-upgrading).
 -   The extension requires a patch to core Magento's Address Model so that the address validation service can work effectively. If you do not have this patch, contact eBay Enterprise.
--   In addition to Magento's standard system requirements, the eBay Enterprise Exchange Platform Magento Extension requires the XSL and OpenSSL Extensions to PHP. (These are often, but not always, enabled by default.)
+-   In addition to Magento's standard system requirements, the eBay Enterprise Retail Order Management Magento extension requires the XSL and OpenSSL extensions to PHP. (These are often, but not always, enabled by default.)
 -   The Magento Payment Bridge must be set up in a secure environment that is [Payment Application Data Security Standard (PA DSS) compliant](https://www.pcisecuritystandards.org/documents/pa-dss_v2.pdf).
 -   The extension has been tested with PHP5.3.
 
 ### Required Information
 
-You must have the following information from eBay Enterprise to start using the Exchange Platform:
+You must have the following information from eBay Enterprise to start using eBay Enterprise Retail Order Management:
 
 -   The eBay Enterprise mapping for the Magento shipping method (a typical Magento shipping method is `flatrate_flatrate`)
 -   Valid number ranges for all the stored value cards your store accepts
@@ -173,20 +173,20 @@ Documentation for the Magento Payment Bridge is available on the Magento support
 
 **Note:** _Setting up Payment Methods for Use via Payment Bridge_ does not discuss setting up the eBay Enterprise Credit Card but it has useful information that applies to all payment methods.
 
-### Installing the eBay Exchange Platform Extension
+### Installing the eBay Enterprise Retail Order Management extension
 
-To install eBay Exchange Platform extension:
+To install eBay Enterprise Retail Order Management extension:
 
-1.  Download the eBay Exchange Platform's tarball file from the eBay Enterprise partner portal.
+1.  Download the eBay Enterprise Retail Order Management extension's tarball file from the eBay Enterprise partner portal.
 1.  Log in to the Magento Admin Panel as an administrator.
 1.  Click **System \> Magento Connect \> Magento Connect Manager**.
 1.  Log in to the Magento Connect Manager as an administrator.
 1.  On the Extensions tab page, click **Browse** in the Direct package file upload section. The following figure shows an example.
     ![Magento Connect Manager Browser button](static/connect-mgr-browse.png)
-1.  Browse to locate the eBay Exchange Platform's tarball file.
+1.  Browse to locate the eBay Retail Order Management extension's tarball file.
 1.  Click **Upload**. A successful installation displays as follows:
     ![Magento Connect Manager successful installation](static/connect-mgr-installed.png)
-1.  If the eBay Exchange Platform installed successfully: 
+1.  If the eBay Enterprise Retail Order Management extension installed successfully: 
     1.  Log out of the Magento Connect Manager.
     1.  Log out of the Magento Admin Panel.
     1.  Secure the Magento file system as discussed in [After You Install Magento: Recommended File System Ownership and Privileges](http://www.magentocommerce.com/knowledge-base/entry/install-privs-after).
@@ -206,26 +206,26 @@ If the preceding error displays, use the following steps:
 1.  Run the following command: `chmod +x mage && ./mage mage-setup`.
 1.  Log out of the Magento Connect Manager.
 1.  Log back in to the Magento Connect Manager as an administrator.
-1.  Install the eBay Exchange Platform again.
+1.  Install the eBay Enterprise Retail Order Management extension again.
 1.  After you have installed and verified the eBay Platform Exchange extension, secure the Magento file system as discussed in [After You Install Magento: Recommended File System Ownership and Privileges](http://www.magentocommerce.com/knowledge-base/entry/install-privs-after).
 
-### Verifying the eBay Exchange Platform Extension
+### Verifying the eBay Retail Order Management Extension
 
-To verify the eBay Exchange Platform extension installed successfully, log in to the Magento Admin Panel and look for configuration options under **System \> Configuration \> EBAY ENTERPRISE** as follows:
+To verify the eBay Retail Order Management extension installed successfully, log in to the Magento Admin Panel and look for configuration options under **System \> Configuration \> EBAY ENTERPRISE** as follows:
 
 1.  Log in to the Magento Admin Panel as an administrator.
 1.  Click **System \> Configuration**.
 1.  In the left navigation bar, look for **EBAY ENTERPRISE** between **SALES** and **SERVICES**.
-1.  Click **EBAY ENTERPRISE \> Exchange Platform**. The following figure shows the options that display in the right pane.
-    ![Exchange Platform configuration options](static/config-nav.png)
+1.  Click **EBAY ENTERPRISE \> Retail Order Management**. The following figure shows the options that display in the right pane.
+    ![Retail Order Management configuration options](static/config-nav.png)
     - If a 404 (Not Found) error displays, log out of the Admin Panel and log back in.
     - If these options do not display, try the following:
         1.  Flush the Magento cache: 
             1.  In the Admin Panel, click System \> Cache Management.
             1.  Click Flush Magento Cache at the top of the page.
         1.  Log out of the Admin Panel and log back in.
-        1.  If the preceding options do not display, install the eBay Exchange Platform again.
-1.  After you have verified the eBay Exchange Platform extension, secure the Magento file system as discussed in [After You Install Magento: Recommended File System Ownership and Privileges](http://www.magentocommerce.com/knowledge-base/entry/install-privs-after).
+        1.  If the preceding options do not display, install the eBay Enterprise Retail Order Management extension again.
+1.  After you have verified the eBay Enterprise Retail Order Management extension, secure the Magento file system as discussed in [After You Install Magento: Recommended File System Ownership and Privileges](http://www.magentocommerce.com/knowledge-base/entry/install-privs-after).
 
 ## Configuring XML for Batch Feeds
 
@@ -254,7 +254,7 @@ Magento supports the following product types:
 -   Grouped
 -   Bundled
 
-The product type is specified in eBay Enterprise Exchange Platform XML as follows:
+The product type is specified in the eBay Enterprise Retail Order Management XML as follows:
 
 ```xml
 <Attribute name="ProductType" operation_type="Add" is_list="false" dt="string">
@@ -262,7 +262,7 @@ The product type is specified in eBay Enterprise Exchange Platform XML as follow
 </Attribute>
 ```
 
-The following table shows how the eBay Enterprise Exchange Platform supports Magento product types:
+The following table shows how the eBay Enterprise Retail Order Management extension supports Magento product types:
 
 <table>
 <col width="20%" />
@@ -383,7 +383,7 @@ The following table shows the correlation between custom attributes and custom a
 
 ## Configuring Local XML
 
-The eBay Exchange Platform extension ships with a sample configuration file — `magento-install-dir/app/etc/e2bc.xml.sample` — that enables you to specify options such as:
+The eBay Retail Order Management extension ships with a sample configuration file — `magento-install-dir/app/etc/retailordermanagement.xml.sample` — that enables you to specify options such as:
 
 -   eBay Enterprise Exchange mapping for the Magento shipping method.
 -   Stored value card number ranges.
@@ -391,15 +391,15 @@ The eBay Exchange Platform extension ships with a sample configuration file — 
 
 Except for the option to delete feed files, all values are provided to you by eBay Enterprise.
 
-`e2bc.xml.sample` provided with the extension follows.
+`retailordermanagement.xml.sample` provided with the extension follows.
 
-To configure the eBay Exchange Platform extension:
+To configure the eBay Retail Order Management extension:
 
 1.  Log in to your Magento server as a user with ownership of the Magento file system.
 1.  Enter the following commands in the order shown: 
     1.  `cd magento-install-dir/app/etc`
-    1.  `cp e2bc.xml.sample e2bc.xml`
-1.  Open `e2bc.xml` in a text editor.
+    1.  `cp retailordermanagement.xml.sample retailordermanagement.xml`
+1.  Open `retailordermanagement.xml` in a text editor.
 1.  Enter the following information. 
     <table>
     <col width="25%" />
@@ -436,9 +436,9 @@ To configure the eBay Exchange Platform extension:
     </tr>
     </tbody>
     </table>
-1. Save your changes to `e2bc.xml`.
+1. Save your changes to `retailordermanagement.xml`.
 
-## Configuring the Magento Payment Bridge and eBay Enterprise Exchange Payments
+## Configuring the Magento Payment Bridge and eBay Enterprise Retail Order Management Payments
 
 This section discusses the tasks you must perform to:
 
@@ -456,7 +456,7 @@ See one of the following sections:
 
 ### Prerequisites
 
-Before continuing, you must configure other eBay Enterprise Exchange Platform options (including **System \> Configuration \> EBAY ENTERPRISE \> eBay Exchange Platform \> Tax Admin Origin**). For more information, see the _eBay Enterprise Exchange Platform Installation and Administration Guide_.
+Before continuing, you must configure other eBay Enterprise Retail Order Management options (including **System \> Configuration \> EBAY ENTERPRISE \> Retail Order Management \> Tax Admin Origin**). For more information, see the _eBay Enterprise Retail Order Management Installation and Administration Guide_.
 
 ### Configuring Payment Bridge Options in the Admin Panel
 
@@ -488,12 +488,12 @@ To set up Payment Bridge options in the Admin Panel:
     <tr class="odd">
     <td align="left"><p>Title field</p></td>
     <td align="left"><p>Store View</p></td>
-    <td align="left"><p>Enter the payment method name as you wish it to display on the storefront; for example, <code>Credit Card</code>.</p></td>
+    <td align="left"><p>Enter the payment method name as you wish it to display on the storefront; for example, Credit Card.</p></td>
     </tr>
     <tr class="even">
     <td align="left"><p>Payment From Applicable Countries list</p></td>
     <td align="left"><p>Website</p></td>
-    <td align="left"><p>From the list, one of the following: </p>
+    <td align="left"><p>From the list, one of the following:</p>
     <ol>
     <li>**All Allowed Countries** to accept eBay Enterprise Credit card payments from all countries for which this website is configured.</li>
     <li>**Specific Countries** to accept payments from countries you choose.</li>
@@ -512,14 +512,14 @@ To set up Payment Bridge options in the Admin Panel:
     </tbody>
     </table>
 
-### Configuring eBay Enterprise Exchange Platform Payments
+### Configuring eBay Enterprise Retail Order Management Payments
 
 This section discusses how to configure eBay Payments. The next section discusses how to configure eBay Enterprise Credit Card payments.
 
-To configure your Magento server to use the eBay Enterprise Exchange Platform:
+To configure your Magento server to use eBay Enterprise Retail Order Management:
 
 1.  Log in to the Magento Admin Panel as an administrator.
-1.  Click **System \> Configuration \> EBAY ENTERPRISE \> Exchange Platform**.
+1.  Click **System \> Configuration \> EBAY ENTERPRISE \> Retail Order Management**.
 1.  To change the scope of your settings, from the **Current Configuration Scope** list on the left, click the appropriate option. For example, to configure options for store view scope, click the name of a store view.
 1.  In the right pane, click the **Payments** tab to expand it. The following figure shows an example.
     ![Magento Payments configuration](static/config_payments.png)
@@ -542,7 +542,7 @@ To configure your Magento server to use the eBay Enterprise Exchange Platform:
     <tr class="odd">
     <td align="left"><p>Enable Credit Card</p></td>
     <td align="left"><p>Store View</p></td>
-    <td align="left"><p>From the list, click **Yes** to securely process credit card transactions using the eBay Enterprise Exchange Platform.</p><p>**Important**: Save the configuration before you click **Configure Payment Bridge**; otherwise, all configuration changes will be lost. To save the configuration, click Save Config at the top of the page.</p><p>The default is **No**, which means you do not use the eBay Enterprise Credit Card.</p></td>
+    <td align="left"><p>From the list, click **Yes** to securely process credit card transactions using the eBay Enterprise Retail Order Management.</p><p>**Important**: Save the configuration before you click **Configure Payment Bridge**; otherwise, all configuration changes will be lost. To save the configuration, click Save Config at the top of the page.</p><p>The default is **No**, which means you do not use the eBay Enterprise Credit Card.</p></td>
     </tr>
     <tr class="even">
     <td align="left"><p>Enable PayPal Express</p></td>
@@ -598,9 +598,9 @@ To configure the Payment Bridge:
 To configure general options:
 
 1.  Log in to the Magento Admin Panel as an administrator.
-1.  Click **System \> Configuration \> EBAY ENTERPRISE \> Exchange Platform**.
+1.  Click **System \> Configuration \> EBAY ENTERPRISE \> Retail Order Management**.
 1.  In the right pane, click **General** to expand it. The following figure shows an example.
-    ![General eBay Enterprise Exchange Platform configuration](static/config_general.png)
+    ![General eBay Enterprise Retail Order Management configuration](static/config_general.png)
 1.  Enter the information you received from eBay Enterprise. Contact eBay Enterprise to get any missing values.
 1.  At the top of the page, click **Save Config**.
 
@@ -611,7 +611,7 @@ Your Magento server communicates with eBay Enterprise using web services to retr
 To configure web services:
 
 1.  Log in to the Magento Admin Panel as an administrator.
-1.  Click **System \> Configuration \> EBAY ENTERPRISE \> Exchange Platform**.
+1.  Click **System \> Configuration \> EBAY ENTERPRISE \> Retail Order Management**.
 1.  To change the scope of your settings, from the **Current Configuration Scope** list on the left, click the appropriate option. For example, to configure options for store view scope, click the name of a store view.
 1.  In the right pane, click the **Web Services** tab to expand it.
 1.  Enter or edit the following information: 
@@ -646,12 +646,12 @@ To configure web services:
 
 ### Configuring Batch Feeds
 
-Your Magento instance periodically retrieves updates to batch feed XML files stored on the eBay Enterprise Exchange Platform using the Secure File Transfer Protocol (SFTP).
+Your Magento instance periodically retrieves updates to batch feed XML files stored on the eBay Enterprise Retail Order Management using the Secure File Transfer Protocol (SFTP).
 
 To configure SFTP:
 
 1.  Log in to the Magento Admin Panel as an administrator.
-1.  Click **System \> Configuration \> EBAY ENTERPRISE \> Exchange Platform**.
+1.  Click **System \> Configuration \> EBAY ENTERPRISE \> Retail Order Management**.
 1.  To change the scope of your settings, from the **Current Configuration Scope** list on the left, click the appropriate option. For example, to configure options for store view scope, click the name of a store view.
 1.  In the right pane, click the **Batch Feeds** tab to expand it. The following figure shows an example.
     ![Batch feed configuration](static/config-batch-feeds.png)
@@ -674,7 +674,7 @@ To configure SFTP:
     <tr class="odd">
     <td align="left"><p>Connection Retry Timer</p></td>
     <td align="left"><p>Global</p></td>
-    <td align="left"><p>Enter the number of seconds to wait after a failed connection attempt before retrying the connection again.<br /> If the connection attempt limit passes without a successful connection, the eBay Exchange Platform makes another connection attempt. If the connection attempt limit is exceeded, errors are logged and the connection is attempted again the next time the eBay Enterprise Exchange cron job runs.<br /> The cron job is discussed in the _eBay Exchange Platform Integrator's Guide_.</p></td>
+    <td align="left"><p>Enter the number of seconds to wait after a failed connection attempt before retrying the connection again.<br /> If the connection attempt limit passes without a successful connection, the eBay Retail Order Management makes another connection attempt. If the connection attempt limit is exceeded, errors are logged and the connection is attempted again the next time the eBay Enterprise Exchange cron job runs.<br /> The cron job is discussed in the _eBay Retail Order Management Integrator's Guide_.</p></td>
     </tr>
     <tr class="even">
     <td align="left"><p>SFTP User Name</p></td>
@@ -763,6 +763,8 @@ To set logging options:
 
 ### Scheduling Batch Feeds
 
-The eBay Enterprise Exchange Platform uses your Magento EE cron job to update feeds every 15 minutes. Provided your cron job is set up, there is no additional configuration required.
+The eBay Enterprise Retail Order Management uses your Magento EE cron job to update feeds every 15 minutes. Provided your cron job is set up, there is no additional configuration required.
 
 For more information about setting up your Magento cron job, see [Setting Up Cron Jobs in the Magento Knowledge Base](http://www.magentocommerce.com/knowledge-base/entry/ce18-and-ee113-installing#install-cron).
+
+Warning: These jobs were not built to be run in parallel. Be sure to configure cron to avoid running more than one import job at a time. (One way to do this is to use `cron.sh`, not `cron.php` to trigger the jobs.)

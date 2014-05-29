@@ -3,7 +3,7 @@
 	<modules>
 		<EbayEnterprise_Eb2cTax>
 			<active>true</active>
-			<codePool>local</codePool>
+			<codePool>community</codePool>
 		</EbayEnterprise_Eb2cTax>
 	</modules>
 </config>

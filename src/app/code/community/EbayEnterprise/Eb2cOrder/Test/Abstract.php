@@ -312,7 +312,7 @@ abstract class EbayEnterprise_Eb2cOrder_Test_Abstract extends EbayEnterprise_Eb2
 			// Core Values:
 			'clientId'                => 'TAN-OS-CLI',
 			'feedDestinationType'     => 'MAILBOX',
-			'apiXsdPath'              => '/home/mwest/projects/magento-enterprise/src/app/code/local/EbayEnterprise/Eb2cCore/xsd',
+			'apiXsdPath'              => '/home/mwest/projects/magento-enterprise/src/app/code/community/EbayEnterprise/Eb2cCore/xsd',
 
 			// Eb2cOrder-specific Values:
 			'eb2cPaymentsEnabled'     => true,

@@ -1,5 +1,5 @@
 <?php
-include(Mage::getBaseDir('app') . DS . 'code/local/EbayEnterprise/Eb2cPayment/controllers/Overrides/GiftCardAccount/CartController.php');
+require_once('EbayEnterprise/Eb2cPayment/controllers/Overrides/GiftCardAccount/CartController.php');
 class EbayEnterprise_Eb2cPayment_Test_Controller_Overrides_GiftCardAccount_CartControllerTest extends EcomDev_PHPUnit_Test_Case_Controller
 {
 	public function getCallback()

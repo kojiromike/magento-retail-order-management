@@ -147,7 +147,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 			array('apiMajorVersion', '1'),
 			array('apiMinorVersion', '10'),
 			array('apiRegion', 'eu'),
-			array('apiXsdPath', 'app/code/local/EbayEnterprise/Eb2cCore/xsd'),
+			array('apiXsdPath', 'app/code/community/EbayEnterprise/Eb2cCore/xsd'),
 			array('storeId', 'store-123'),
 		);
 		$mock->expects($this->any())

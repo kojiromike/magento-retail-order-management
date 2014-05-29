@@ -3,7 +3,7 @@
 	<modules>
 		<EbayEnterprise_Eb2cInventory>
 			<active>true</active>
-			<codePool>local</codePool>
+			<codePool>community</codePool>
 			<depends>
 				<EbayEnterprise_Eb2cCore/>
 			</depends>

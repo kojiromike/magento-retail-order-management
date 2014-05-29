@@ -3,7 +3,7 @@
 	<modules>
 		<EbayEnterprise_Eb2cProduct>
 			<active>true</active>
-			<codePool>local</codePool>
+			<codePool>community</codePool>
 			<depends>
 				<Mage_Eav/>
 				<Mage_Catalog/>

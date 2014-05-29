@@ -6,7 +6,7 @@ require_once 'abstract.php';
  */
 class EbayEnterprise_Eb2c_Xslt_Test extends Mage_Shell_Abstract
 {
-	const DEFAULT_XSLT_SHEET = '/var/www/mage_2014_02_18/src/.modman/eb2c/src/app/code/local/EbayEnterprise/Eb2cProduct/xslt/default-language-template.xsl';
+	const DEFAULT_XSLT_SHEET = '/var/www/mage_2014_02_18/src/.modman/eb2c/src/app/code/community/EbayEnterprise/Eb2cProduct/xslt/default-language-template.xsl';
 
 	public function xslCallBack(DOMDocument $xslDoc, array $siteFilter)
 	{

@@ -142,6 +142,10 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	 * @param string $username
 	 * @param string $privateKey
 	 * @param int $port
+	 *
+	 * Ignore UnusedLocalVariable warning from the anon-function used as the
+	 * error handler callback.
+	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
 	 */
 	public function testSftpConnection($host, $username, $privateKey, $port)
 	{

@@ -59,7 +59,13 @@ processOpts() {
 		shift
 	done
 
+	if [[ -z "$buildNumber" ]]; then
+		echo "Error: a build number must be specifed." >&2
+		printHelp
+		exit 1
+	fi
 	if ! has "$metaTag" 'alpha' 'beta' 'rc'; then
+		echo "Error: meta-tag must be one of ('alpha', 'beta', 'rc')" >&2
 		printHelp
 		exit 1
 	fi
@@ -76,15 +82,18 @@ main() {
 
 	processOpts "$@"
 	oldBuildNumber=$(git describe --abbrev=0)
-	if [[ "$oldBuildNumber" == *.*.*.* ]]; then
+	if [[ "$oldBuildNumber" = *.*.*-*-* ]]; then
+		newBuildNumber="${oldBuildNumber%-*-*}"
+	elif [[ "$oldBuildNumber" = *.*.*.* ]]; then
 		newBuildNumber="${oldBuildNumber%.*}"
 	else
-		newBuildNumber="${oldBuildNumber%-*-*}"
+		echo "Error: a tag must already exist that matches either *.*.*.* or *.*.*-*-*" >&2
+		exit 1
 	fi
 	newBuildNumber="$newBuildNumber-$metaTag-$buildNumber"
 	echo "checking for existence of '$newBuildNumber'..."
-	if [[ ! -z $(git describe --abbrev=0 --match $newBuildNumber) ]]; then
-		echo "$newBuildNumber already exists." >&2	
+	if [[ ! -z $(git describe --abbrev=0 --exact-match $newBuildNumber) ]]; then
+		echo "Error: $newBuildNumber already exists." >&2
 		exit 1
 	fi
 	echo "OK"

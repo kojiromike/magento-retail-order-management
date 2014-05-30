@@ -20,8 +20,7 @@ dropAllTables
 
 # Fetch Magento ee and untar it.
 mv magento magento.deleteme && rm magento.deleteme &
-	wget -o wget.log -O- https://ebay.box.com/shared/static/q2peu39zawc8px9vdun8.gz |
-	tar -xzpf-
+	tar -xJpf /usr/local/shared/enterprise-1.13.1.0.tar-2013-11-19-03-06-28.xz
 
 cd magento
 # Run the Magento installer.

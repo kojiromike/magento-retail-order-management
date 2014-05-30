@@ -38,7 +38,7 @@ def create_release(repo, version, auth_headers):
 
 def upload_github(repo, release_id, archive, auth_headers):
 	"""
-	Upload the release archive as an asset to a relase.
+	Upload the release archive as an asset to a release.
 	eBay Github can't currently do this so will not work.
 	"""
 	headers = dict(auth_headers.items() + {'Content-Type': 'application/x-gzip',}.items())

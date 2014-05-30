@@ -13,16 +13,86 @@
 declare -r SCRIPTNAME=release
 
 ##
+# Print the help for this script.
+printHelp() {
+	cat <<- 'EOF'
+		usage: release --meta-tag <alpha|beta|rc> --build-number <build_number>
+
+		options:
+	EOF
+	column -ts: <<- 'EOF'
+		  -h|--help:(this information)
+		  -m|--meta-tag=:(Release meta tag: alpha|beta|rc)
+		  -b|--build-number=:(Release build number)
+	EOF
+	echo
+}
+
+##
+# Process the commandline options in whatever order
+processOpts() {
+	while [[ $1 ]]; do
+		case $1 in
+			-h|--help)
+				printHelp
+				exit 0
+				;;
+			-m|--meta-tag)
+				metaTag="$2"
+				shift
+				;;
+			-m=*|--meta-tag=*)
+				metaTag="${1#*=}"
+				;;
+			-b|--build-number)
+				buildNumber="$2"
+				shift
+				;;
+			-b=*|--build-number=*)
+				buildNumber="${1#*=}"
+				;;
+			*)
+				printHelp
+				exit 1
+				;;
+		esac
+		shift
+	done
+
+	if ! has "$metaTag" 'alpha' 'beta' 'rc'; then
+		printHelp
+		exit 1
+	fi
+}
+
+##
 # Deploy
 main() {
-	# Assume the most recent annotated tag is the last version.
-	local oldBuildNumber=$(git describe --abbrev=0)
-	# Increment the fourth part of that tag to make the current version.
-	local newBuildNumber="${oldBuildNumber%.*}.$(( ${oldBuildNumber##*.} + 1 ))"
+	local releaseVersion
+	local metaTag
+	local buildNumber
+	local oldBuildNumber
+	local newBuildNumber
+
+	processOpts "$@"
+	oldBuildNumber=$(git describe --abbrev=0)
+	if [[ "$oldBuildNumber" == *.*.*.* ]]; then
+		newBuildNumber="${oldBuildNumber%.*}"
+	else
+		newBuildNumber="${oldBuildNumber%-*-*}"
+	fi
+	newBuildNumber="$newBuildNumber-$metaTag-$buildNumber"
+	echo "checking for existence of '$newBuildNumber'..."
+	if [[ ! -z $(git describe --abbrev=0 --match $newBuildNumber) ]]; then
+		echo "$newBuildNumber already exists." >&2	
+		exit 1
+	fi
+	echo "OK"
 	# Create a new Magento connect package using MagentoTarToConnect based on the current state
 	magento-tar-to-connect deploy/extension-config.php
-	# Create build on https://github.scm.corp.ebay.com/api/v3/Cheetah/eb2c/releases/
+	# # Create build on https://github.scm.corp.ebay.com/api/v3/Cheetah/eb2c/releases/
 	deploy/releaseToGithub "$newBuildNumber" "build/ebay_enterprise_exchange.tar.gz" "$BUILD_REPO" "$GITHUB_KEY"
 }
 
-main "$@"
+. deploy/utils
+

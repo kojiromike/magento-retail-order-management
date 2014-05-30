@@ -32,7 +32,7 @@ class EbayEnterprise_Rom_Shell_Add_Categories extends Mage_Shell_Abstract
 	private function _getDefaultStoreId()
 	{
 		$allStores = Mage::app()->getStores();
-		foreach ($allStores as $storeId => $val) {
+		foreach (array_keys($allStores) as $storeId) {
 			return Mage::app()->getStore($storeId)->getId();
 		}
 		return Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;

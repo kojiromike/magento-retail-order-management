@@ -48,3 +48,7 @@ src/app/design/adminhtml/default/default/layout/eb2cpayment.xml app/design/admin
 src/app/design/adminhtml/default/default/template/eb2cpayment app/design/adminhtml/default/default/template/eb2cpayment
 src/app/design/frontend/enterprise/default/layout/eb2cpayment.xml app/design/frontend/enterprise/default/layout/eb2cpayment.xml
 src/app/design/frontend/enterprise/default/template/eb2cpayment app/design/frontend/enterprise/default/template/eb2cpayment
+
+# Storevalue Giftcard Template for Magento 1.14
+src/app/design/frontend/rwd/enterprise/default/layout/eb2cpayment.xml app/design/frontend/rwd/enterprise/default/layout/eb2cpayment.xml
+src/app/design/frontend/rwd/enterprise/default/template/eb2cpayment app/design/frontend/rwd/enterprise/default/template/eb2cpayment

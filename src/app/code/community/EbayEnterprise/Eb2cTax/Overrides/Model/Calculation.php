@@ -146,11 +146,11 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 	}
 	/**
 	 * return the response data for the specified item.
-	 * @param  Mage_Sales_Model_Quote_Item $item
-	 * @param  Mage_Salse_Model_Quote_Address $address
+	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
+	 * @param Mage_Salse_Model_Quote_Address $address
 	 * @return EbayEnterprise_Eb2cTax_Model_Response_Orderitem
 	 */
-	protected function _getItemResponse(Mage_Sales_Model_Quote_Item $item=null, Mage_Sales_Model_Quote_Address $address=null)
+	protected function _getItemResponse(Mage_Sales_Model_Quote_Item_Abstract $item=null, Mage_Sales_Model_Quote_Address $address=null)
 	{
 		$response = $this->getTaxResponse();
 		return $response && $response->isValid() ?

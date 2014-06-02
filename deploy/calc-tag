@@ -1,0 +1,99 @@
+#!/bin/bash
+
+##
+# Auto increment the relase tag.
+#
+# Get the current tag: oldBuildNumber=$(git describe)
+# Increment the build number: newBuildNumber="${oldBuildNumber%.*}.$(( ${oldBuildNumber##*.} + 1 ))"
+#
+
+# SCRIPTNAME should always be the filename of the script.
+declare -r SCRIPTNAME=calc-tag
+
+##
+# Print the help for this script.
+printHelp() {
+	cat <<- 'EOF'
+		usage: calc-tag --meta-tag <alpha|beta|rc> --build-number <build_number>
+
+		options:
+	EOF
+	column -ts: <<- 'EOF'
+		  -h|--help:(this information)
+		  -m|--meta-tag=:(Release meta tag: alpha|beta|rc)
+		  -b|--build-number=:(Release build number)
+	EOF
+	echo
+}
+
+##
+# Process the commandline options in whatever order
+processOpts() {
+	while [[ $1 ]]; do
+		case $1 in
+			-h|--help)
+				printHelp
+				exit 0
+				;;
+			-m|--meta-tag)
+				metaTag="$2"
+				shift
+				;;
+			-m=*|--meta-tag=*)
+				metaTag="${1#*=}"
+				;;
+			-b|--build-number)
+				buildNumber="$2"
+				shift
+				;;
+			-b=*|--build-number=*)
+				buildNumber="${1#*=}"
+				;;
+			*)
+				printHelp
+				exit 1
+				;;
+		esac
+		shift
+	done
+
+	if [[ -z "$buildNumber" ]]; then
+		echo "Error: a build number must be specifed." >&2
+		printHelp
+		exit 1
+	fi
+	if ! has "$metaTag" 'alpha' 'beta' 'rc'; then
+		echo "Error: meta-tag must be one of ('alpha', 'beta', 'rc')" >&2
+		printHelp
+		exit 1
+	fi
+}
+
+##
+# generate the tag
+main() {
+	local metaTag
+	local buildNumber
+	local oldBuildNumber
+	local newBuildNumber
+
+	processOpts "$@"
+	oldBuildNumber=$(git describe --abbrev=0)
+	if [[ "$oldBuildNumber" = *.*.*-*-* ]]; then
+		newBuildNumber="${oldBuildNumber%-*-*}"
+	elif [[ "$oldBuildNumber" = *.*.*.* ]]; then
+		newBuildNumber="${oldBuildNumber%.*}"
+	else
+		echo "Error: a tag must already exist that matches either *.*.*.* or *.*.*-*-*" >&2
+		exit 1
+	fi
+	newBuildNumber="$newBuildNumber-$metaTag-$buildNumber"
+	if [[ ! -z $(git describe --abbrev=0 --exact-match $newBuildNumber 2>/dev/null) ]]; then
+		echo "Error: $newBuildNumber already exists." >&2
+		exit 1
+	fi
+
+	echo "$newBuildNumber"
+}
+
+. deploy/utils

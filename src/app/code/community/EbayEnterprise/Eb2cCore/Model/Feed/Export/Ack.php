@@ -1,5 +1,19 @@
 <?php
 /**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ * 
+ * NOTICE OF LICENSE
+ * 
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * 
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+
+/**
  * This class will implement the functionality to confirm that feed files that were exported such as PIM, and Image
  * had their their acknowledgment files imported and if a known exported file has no firm imported acknowledgment file
  * after a configurable elapse time it will move the exported file to the out-box to be exported.

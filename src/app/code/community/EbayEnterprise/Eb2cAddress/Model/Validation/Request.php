@@ -1,5 +1,19 @@
 <?php
 /**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ * 
+ * NOTICE OF LICENSE
+ * 
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * 
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+
+/**
  * Generate the xml request to the AddressValidation service
  * @method Mage_Customer_Model_Address_Abstract getQuote
  * @method EbayEnterprise_Eb2cAddress_Model_Validation_Request setADdress(Mage_Customer_Model_Address_Abstract $address)

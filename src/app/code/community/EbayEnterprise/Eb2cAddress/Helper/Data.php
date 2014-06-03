@@ -46,8 +46,7 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(Mage::getSingleton('eb2caddress/config'))
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+			->addConfigModel(Mage::getSingleton('eb2caddress/config'));
 	}
 
 	/**

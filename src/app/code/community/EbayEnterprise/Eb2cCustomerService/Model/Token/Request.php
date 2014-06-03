@@ -70,7 +70,7 @@ class EbayEnterprise_Eb2cCustomerService_Model_Token_Request
 	 */
 	protected function _getApiUri()
 	{
-		$config = Mage::helper('eb2ccsr')->getConfigModel();
+		$config = Mage::helper('eb2ccore')->getConfigModel();
 		return sprintf(
 			'https://%s/v%s.%s/%s/%s.xml',
 			$config->apiHostname,

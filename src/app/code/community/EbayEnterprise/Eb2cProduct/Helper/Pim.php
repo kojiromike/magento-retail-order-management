@@ -66,7 +66,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	 */
 	public function passSKU($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
-		$catalogId = Mage::helper('eb2cproduct')->getConfigModel()->catalogId;
+		$catalogId = Mage::helper('eb2ccore')->getConfigModel()->catalogId;
 		$sku       = Mage::helper('eb2ccore')->denormalizeSku($attrValue, $catalogId);
 		if (strlen($sku) > self::MAX_SKU_LENGTH) {
 			throw new EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception(

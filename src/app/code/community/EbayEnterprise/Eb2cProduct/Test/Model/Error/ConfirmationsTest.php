@@ -567,14 +567,14 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 			'errorFeed' => array('local_directory' => 'local/error'),
 		));
 
-		$productHelper = $this->getHelperMockBuilder('eb2cproduct/data')
+		$productHelper = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
 			->setMethods(array('getConfigModel'))
 			->getMock();
 		$productHelper->expects($this->once())
 			->method('getConfigModel')
 			->will($this->returnValue($cfg));
-		$this->replaceByMock('helper', 'eb2cproduct', $productHelper);
+		$this->replaceByMock('helper', 'eb2ccore', $productHelper);
 
 		$coreFeed = $this->getModelMockBuilder('eb2ccore/feed')
 			->disableOriginalConstructor()

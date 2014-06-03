@@ -61,7 +61,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection
 	 */
 	public function getItemForProduct(Mage_Catalog_Model_Product $product)
 	{
-		$cfg = Mage::helper('eb2cproduct')->getConfigModel($product->getStore());
+		$cfg = Mage::helper('eb2ccore')->getConfigModel($product->getStore());
 		return $this->getItemById(
 			$this->_formatId(
 				$product->getSku(),

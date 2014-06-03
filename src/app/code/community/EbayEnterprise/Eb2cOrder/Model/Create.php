@@ -120,11 +120,12 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	public function sendRequest()
 	{
 		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$coreCfg = Mage::helper('eb2ccore')->getConfigModel();
 		$uri = Mage::helper('eb2corder')->getOperationUri($cfg->apiCreateOperation);
 		$response = '';
 		if ($this->_domRequest instanceof DOMDocument) {
 			$response = Mage::getModel('eb2ccore/api')
-				->request($this->_domRequest, $cfg->xsdFileCreate, $uri, $cfg->serviceOrderTimeout);
+				->request($this->_domRequest, $cfg->xsdFileCreate, $uri, $coreCfg->serviceOrderTimeout);
 		}
 		return $this->_processResponse($response);
 	}
@@ -346,7 +347,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildCustomer(DomElement $customer)
 	{
-		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
 		$customer->setAttribute('customerId', sprintf('%s%s', $cfg->clientCustomerIdPrefix, $this->_o->getCustomerId()));
 		$name = $customer->createChild('Name');
 		$name->createChild('Honorific', $this->_o->getCustomerPrefix());

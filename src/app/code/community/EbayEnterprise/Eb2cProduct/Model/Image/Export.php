@@ -68,7 +68,7 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 			self::XML_TEMPLATE,
 			self::ROOT_NODE,
 			$this->_getCurrentHostName($storeId),
-			$cfg->clientId,
+			$cHelper->getConfigModel()->clientId,
 			Mage::getModel('core/date')->date('c'),
 			$pHelper->generateMessageHeader($cfg->imageFeedEventType),
 			$cHelper->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA)

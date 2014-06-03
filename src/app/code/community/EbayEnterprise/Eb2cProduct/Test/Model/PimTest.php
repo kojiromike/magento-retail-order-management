@@ -331,12 +331,12 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 			'client_id' => 'theclientid', 'catalog_id' => 'thecatalogid'
 		));
 
-		$prodHelper = $this->getHelperMock('eb2cproduct/data', array('getConfigModel'));
+		$prodHelper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
 		$prodHelper->expects($this->once())
 			->method('getConfigModel')
 			->with($this->identicalTo($storeId))
 			->will($this->returnValue($config));
-		$this->replaceByMock('helper', 'eb2cproduct', $prodHelper);
+		$this->replaceByMock('helper', 'eb2ccore', $prodHelper);
 
 		if ($isInCollection) {
 			$pimProductCollection->expects($this->once())

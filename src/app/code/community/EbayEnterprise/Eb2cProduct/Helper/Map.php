@@ -171,7 +171,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 				'operation_type' => $attrs->getNamedItem('operation_type')->nodeValue,
 				'link_to_unique_id' => Mage::helper('eb2ccore')->normalizeSku(
 					trim($linkNode->nodeValue),
-					Mage::helper('eb2cproduct')->getConfigModel()->catalogId
+					Mage::helper('eb2ccore')->getConfigModel()->catalogId
 				)
 			);
 		}
@@ -200,7 +200,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 		$helper = Mage::helper('eb2ccore');
 		return $helper->normalizeSku(
 			$helper->extractNodeVal($nodes),
-			Mage::helper('eb2cproduct')->getConfigModel()->catalogId
+			Mage::helper('eb2ccore')->getConfigModel()->catalogId
 		);
 	}
 	/**

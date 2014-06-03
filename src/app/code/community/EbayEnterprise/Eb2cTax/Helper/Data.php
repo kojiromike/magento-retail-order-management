@@ -31,8 +31,7 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(Mage::getSingleton('eb2ctax/config'))
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+			->addConfigModel(Mage::getSingleton('eb2ctax/config'));
 	}
 
 	/**
@@ -98,7 +97,7 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getNamespaceUri($store=null)
 	{
-		return $this->getConfigModel($store)->apiNamespace;
+		return Mage::helper('eb2ccore')->getConfigModel($store)->apiNamespace;
 	}
 
 	/**

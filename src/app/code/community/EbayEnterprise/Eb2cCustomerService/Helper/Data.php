@@ -28,7 +28,6 @@ class EbayEnterprise_Eb2cCustomerService_Helper_Data
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'))
 			->addConfigModel(Mage::getSingleton('eb2ccsr/config'));
 	}
 	/**

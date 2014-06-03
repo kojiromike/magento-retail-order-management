@@ -100,25 +100,19 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 		$catalogId = '54';
 		$attribute = 'sku';
 
-		$helperMock = $this->getHelperMockBuilder('eb2cproduct/data')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigModel'))
-			->getMock();
-		$helperMock->expects($this->once())
-			->method('getConfigModel')
-			->will($this->returnValue($this->buildCoreConfigRegistry(array(
-				'catalogId' => $catalogId
-			))));
-		$this->replaceByMock('helper', 'eb2cproduct', $helperMock);
-
 		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
-			->setMethods(array('denormalizeSku'))
+			->setMethods(array('denormalizeSku', 'getConfigModel'))
 			->getMock();
 		$coreHelperMock->expects($this->once())
 			->method('denormalizeSku')
 			->with($this->identicalTo($attrValue), $this->identicalTo($catalogId))
 			->will($this->returnValue($denormalizeSku));
+		$coreHelperMock->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'catalogId' => $catalogId
+			))));
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 
 		$doc = $this->getMockBuilder('EbayEnterprise_Dom_Document')

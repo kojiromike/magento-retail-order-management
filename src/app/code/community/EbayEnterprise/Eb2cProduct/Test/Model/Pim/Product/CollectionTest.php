@@ -90,9 +90,9 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 		$product = $this->getModelMock('catalog/product', array('getSku', 'getStore'));
 		$store = $this->getModelMockBuilder('core/store')->disableOriginalConstructor()->getMock();
 		$config = $this->buildCoreConfigRegistry(array('clientId' => $clientId, 'catalogId' => $catalogId));
-		$prodHelper = $this->getHelperMock('eb2cproduct/data', array('getConfigModel'));
+		$coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
 
-		$this->replaceByMock('helper', 'eb2cproduct', $prodHelper);
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
 
 		$product->expects($this->once())
 			->method('getSku')
@@ -100,7 +100,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 		$product->expects($this->once())
 			->method('getStore')
 			->will($this->returnValue($store));
-		$prodHelper->expects($this->once())
+		$coreHelper->expects($this->once())
 			->method('getConfigModel')
 			->with($this->identicalTo($store))
 			->will($this->returnValue($config));

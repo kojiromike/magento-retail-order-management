@@ -162,8 +162,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(Mage::getSingleton('eb2cproduct/config'))
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+			->addConfigModel(Mage::getSingleton('eb2cproduct/config'));
 	}
 	/**
 	 * @return bool true if the eav config has at least one instance of the given attribute.
@@ -356,7 +355,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function generateMessageHeader($feedType)
 	{
-		$cfg = $this->getConfigModel(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID);
+		$cfg = Mage::helper('eb2ccore')->getConfigModel(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID);
 		$map = Mage::helper('eb2ccore/feed')->getHeaderConfig($feedType);
 		$map['event_type'] = $feedType;
 		return $this->mapPattern($map, $cfg->feedHeaderTemplate);
@@ -370,7 +369,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getProcessingDirectory()
 	{
 		$helper = Mage::helper('eb2ccore');
-		$path = Mage::getBaseDir('var') . DS .  $this->getConfigModel()->feedProcessingDirectory;
+		$path = Mage::getBaseDir('var') . DS . Mage::helper('eb2ccore')->getConfigModel()->feedProcessingDirectory;
 		$helper->createDir($path);
 		if (!$helper->isDir($path)){
 			throw new EbayEnterprise_Eb2cCore_Exception_Feed_File("Can not create the following directory (${path})");
@@ -388,7 +387,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 		return $this->getProcessingDirectory() . DS .
 			$this->generateFileName(
 				$feedType,
-				$this->getConfigModel(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID)
+				Mage::helper('eb2ccore')->getConfigModel(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID)
 					->errorFeedFilenameFormat
 			);
 	}
@@ -500,7 +499,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	protected function _loadWebsiteFilter($mageStoreId)
 	{
-		$config = Mage::helper('eb2cproduct')->getConfigModel($mageStoreId);
+		$config = Mage::helper('eb2ccore')->getConfigModel($mageStoreId);
 		return array (
 			'catalog_id'      => $config->catalogId,
 			'client_id'       => $config->clientId,

@@ -29,11 +29,7 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 			->method('setStore')
 			->with($this->identicalTo(null))
 			->will($this->returnSelf());
-		$cfg->expects($this->at(1))
-			->method('addConfigModel')
-			->with($this->isInstanceOf('EbayEnterprise_Eb2cCore_Model_Config'))
-			->will($this->returnSelf());
-		$cfg->expects($this->at(2))
+		$cfg->expects($this->once())
 			->method('addConfigModel')
 			->with($this->isInstanceOf('EbayEnterprise_Eb2cCustomerService_Model_Config'))
 			->will($this->returnSelf());

@@ -636,11 +636,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 
 		$coreHelperMock = $this->getHelperMock(
 			'eb2ccore/data',
-			array('isDir', 'createDir')
-		);
-		$prodHelper = $this->getHelperMock(
-			'eb2cproduct/data',
-			array('getConfigModel')
+			array('isDir', 'createDir', 'getConfigModel')
 		);
 		$cfg = $this->buildCoreConfigRegistry(array(
 			'feedProcessingDirectory' => $processingDir,
@@ -654,13 +650,13 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$coreHelperMock->expects($this->once())
 			->method('createDir')
 			->will($this->returnValue(null));
-		$prodHelper->expects($this->once())
+		$coreHelperMock->expects($this->once())
 			->method('getConfigModel')
 			->will($this->returnValue($cfg));
 
 		$this->assertSame(
 			$base . DS . $processingDir,
-			$prodHelper->getProcessingDirectory()
+			Mage::helper('eb2cproduct')->getProcessingDirectory()
 		);
 	}
 
@@ -677,11 +673,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 
 		$coreHelperMock = $this->getHelperMock(
 			'eb2ccore/data',
-			array('isDir', 'createDir')
-		);
-		$prodHelper = $this->getHelperMock(
-			'eb2cproduct/data',
-			array('getConfigModel')
+			array('isDir', 'createDir', 'getConfigModel')
 		);
 		$cfg = $this->buildCoreConfigRegistry(array(
 			'feedProcessingDirectory' => $processingDir,
@@ -695,7 +687,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$coreHelperMock->expects($this->once())
 			->method('createDir')
 			->will($this->returnValue(null));
-		$prodHelper->expects($this->once())
+		$coreHelperMock->expects($this->once())
 			->method('getConfigModel')
 			->will($this->returnValue($cfg));
 
@@ -703,9 +695,8 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 			'EbayEnterprise_Eb2cCore_Exception_Feed_File',
 			"Can not create the following directory ({$base}/{$processingDir})"
 		);
-		$prodHelper->getProcessingDirectory();
+		Mage::helper('eb2cproduct')->getProcessingDirectory();
 	}
-
 
 	/**
 	 * Test buildErrorFeedFilename method
@@ -716,15 +707,18 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$feedType = 'SomeEvent';
 		$filenameFormat = 'file_{name}_format.xml';
 
+		$coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$coreHelper->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'errorFeedFilenameFormat' => $filenameFormat
+			))));
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
+
 		$helper = $this->getHelperMock(
 			'eb2cproduct/data',
-			array('getProcessingDirectory', 'generateFileName', 'getConfigModel')
+			array('getProcessingDirectory', 'generateFileName')
 		);
-		$config = $this->buildCoreConfigRegistry(array('errorFeedFilenameFormat' => $filenameFormat));
-
-		$helper->expects($this->once())
-			->method('getConfigModel')
-			->will($this->returnValue($config));
 		$helper->expects($this->once())
 			->method('getProcessingDirectory')
 			->will($this->returnValue('/Mage/var/processing'));
@@ -767,11 +761,11 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 			)));
 		$this->replaceByMock('helper', 'eb2ccore/feed', $feedHelperMock);
 
-		$dataHelperMock = $this->getHelperMockBuilder('eb2cproduct/data')
+		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
-			->setMethods(array('getConfigModel', 'mapPattern'))
+			->setMethods(array('getConfigModel'))
 			->getMock();
-		$dataHelperMock->expects($this->once())
+		$coreHelperMock->expects($this->once())
 			->method('getConfigModel')
 			->with($this->equalTo(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID))
 			->will($this->returnValue($this->buildCoreConfigRegistry(array(
@@ -795,6 +789,12 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		<CreateDateAndTime>{create_date_and_time}</CreateDateAndTime>
 	</MessageHeader>'
 			))));
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
+
+		$dataHelperMock = $this->getHelperMockBuilder('eb2cproduct/data')
+			->disableOriginalConstructor()
+			->setMethods(array('mapPattern'))
+			->getMock();
 		$dataHelperMock->expects($this->once())
 			->method('mapPattern')
 			->will($this->returnValue('<MessageHeader>

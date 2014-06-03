@@ -241,8 +241,8 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	{
 		if (empty($this->_importedSkus)) {
 			$updateSkuNodes = $xpath->query(self::ALL_SKUS_XPATH);
-			$cfg = Mage::helper('eb2cproduct')->getConfigModel();
 			$helper = Mage::helper('eb2ccore');
+			$cfg = $helper->getConfigModel();
 			foreach ($updateSkuNodes as $skuNode) {
 				$this->_importedSkus[] = $helper->normalizeSku($skuNode->nodeValue, $cfg->catalogId);
 			}
@@ -334,9 +334,10 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	{
 		$extractor = Mage::getSingleton('eb2cproduct/feed_extractor');
 		$helper = Mage::helper('eb2cproduct');
-		$sku = Mage::helper('eb2ccore')->normalizeSku(
+		$coreHelper = Mage::helper('eb2ccore');
+		$sku = $coreHelper->normalizeSku(
 			$extractor->extractSku($feedXPath, $itemNode),
-			$helper->getConfigModel()->catalogId
+			$coreHelper->getConfigModel()->catalogId
 		);
 		$websiteId = Mage::getModel('core/store')->load($productCollection->getStoreId())->getWebsiteId();
 		$product = $productCollection->getItemById($sku);

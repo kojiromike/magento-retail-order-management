@@ -29,7 +29,7 @@ class EbayEnterprise_Eb2cOrder_Overrides_Helper_Sales_Guest extends Mage_Sales_H
 			// Making eb2c call to make sure the order exists in the OMS
 			$orderSearchObj = Mage::getModel('eb2corder/customer_order_search');
 
-			$cfg = Mage::helper('eb2corder')->getConfigModel();
+			$cfg = Mage::helper('eb2ccore')->getConfigModel();
 
 			// making eb2c customer order search request base on current order id pass in the post in the guest order search form
 			// and then parse result in a collection of varien object

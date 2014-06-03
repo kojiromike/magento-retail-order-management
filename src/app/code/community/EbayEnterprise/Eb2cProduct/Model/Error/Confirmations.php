@@ -316,7 +316,7 @@ class EbayEnterprise_Eb2cProduct_Model_Error_Confirmations
 		$feedDetails = $observer->getEvent()->getFeedDetails();
 		$coreFeed = Mage::getModel(
 			'eb2ccore/feed',
-			array('feed_config' => Mage::helper('eb2cproduct')->getConfigModel()->errorFeed)
+			array('feed_config' => Mage::helper('eb2ccore')->getConfigModel()->errorFeed)
 		);
 		foreach ($feedDetails as $detail) {
 			$fileName = $detail['error_file'];

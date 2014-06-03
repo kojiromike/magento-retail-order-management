@@ -39,8 +39,7 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(Mage::getSingleton('eb2cinventory/config'))
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+			->addConfigModel(Mage::getSingleton('eb2cinventory/config'));
 	}
 
 	/**
@@ -74,7 +73,7 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getRequestId($entityId)
 	{
-		$cfg = $this->getConfigModel(null);
+		$cfg = Mage::helper('eb2ccore')->getConfigModel(null);
 		return implode('-', array($cfg->clientId, $cfg->storeId, $entityId));
 	}
 
@@ -87,7 +86,7 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getReservationId($entityId)
 	{
-		$cfg = $this->getConfigModel(null);
+		$cfg = Mage::helper('eb2ccore')->getConfigModel(null);
 		return implode('-', array($cfg->clientId, $cfg->storeId, $entityId));
 	}
 	/**

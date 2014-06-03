@@ -268,13 +268,13 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	public function testExtractProductLinks()
 	{
 		$catalogId = 45;
-		$helperMock = $this->getHelperMock('eb2cproduct/data', array('getConfigModel'));
+		$helperMock = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
 		$helperMock->expects($this->any())
 			->method('getConfigModel')
 			->will($this->returnValue($this->buildCoreConfigRegistry(array(
 				'catalogId' => $catalogId
 			))));
-		$this->replaceByMock('helper', 'eb2cproduct', $helperMock);
+		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML(
@@ -383,20 +383,9 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 		$sku = '847499';
 		$result = $catalogId . '-' . $sku;
 
-		$prodHelper = $this->getHelperMockBuilder('eb2cproduct/data')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigModel'))
-			->getMock();
-		$prodHelper->expects($this->once())
-			->method('getConfigModel')
-			->will($this->returnValue($this->buildCoreConfigRegistry(array(
-				'catalogId' => $catalogId
-			))));
-		$this->replaceByMock('helper', 'eb2cproduct', $prodHelper);
-
 		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
-			->setMethods(array('extractNodeVal', 'normalizeSku'))
+			->setMethods(array('extractNodeVal', 'normalizeSku', 'getConfigModel'))
 			->getMock();
 		$coreHelperMock->expects($this->once())
 			->method('extractNodeVal')
@@ -406,6 +395,11 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 			->method('normalizeSku')
 			->with($this->identicalTo($sku), $this->identicalTo($catalogId))
 			->will($this->returnValue($result));
+		$coreHelperMock->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'catalogId' => $catalogId
+			))));
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 
 		$this->assertSame($result, Mage::helper('eb2cproduct/map')->extractSkuValue($nodes));

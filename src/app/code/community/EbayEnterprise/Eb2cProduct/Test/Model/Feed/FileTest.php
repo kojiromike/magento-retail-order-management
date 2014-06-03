@@ -315,20 +315,9 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 
 		$catalogId = 45;
 
-		$productHelperMock = $this->getHelperMockBuilder('eb2cproduct/data')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigModel'))
-			->getMock();
-		$productHelperMock->expects($this->once())
-			->method('getConfigModel')
-			->will($this->returnValue($this->buildCoreConfigRegistry(array(
-				'catalogId' => $catalogId
-			))));
-		$this->replaceByMock('helper', 'eb2cproduct', $productHelperMock);
-
 		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
-			->setMethods(array('normalizeSku'))
+			->setMethods(array('normalizeSku', 'getConfigModel'))
 			->getMock();
 		$coreHelperMock->expects($this->exactly(3))
 			->method('normalizeSku')
@@ -337,6 +326,11 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 				array($skus[1], $catalogId, $skus[1]),
 				array($skus[2], $catalogId, $skus[2])
 			)));
+		$coreHelperMock->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'catalogId' => $catalogId
+			))));
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 
 		$file = $this->getModelMockBuilder('eb2cproduct/feed_file')

@@ -143,7 +143,9 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Image_ExportTest
 			->getMock();
 		$helperMock->expects($this->once())
 			->method('getConfigModel')
-			->will($this->returnValue($this->buildCoreConfigRegistry($cfg)));
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'imageFeedEventType' => $cfg['imageFeedEventType']
+			))));
 		$helperMock->expects($this->once())
 			->method('generateMessageHeader')
 			->with($this->identicalTo($cfg['imageFeedEventType']))
@@ -161,7 +163,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Image_ExportTest
 
 		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
-			->setMethods(array('getNewDomDocument', 'getBaseUrl'))
+			->setMethods(array('getNewDomDocument', 'getBaseUrl', 'getConfigModel'))
 			->getMock();
 		$coreHelperMock->expects($this->once())
 			->method('getNewDomDocument')
@@ -170,6 +172,11 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Image_ExportTest
 			->method('getBaseUrl')
 			->with($this->identicalTo(Mage_Core_Model_Store::URL_TYPE_MEDIA))
 			->will($this->returnValue($mediaUrl));
+		$coreHelperMock->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'clientId' => $cfg['clientId']
+			))));
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 
 		$dateMock = $this->getModelMockBuilder('core/date')

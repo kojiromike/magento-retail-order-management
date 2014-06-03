@@ -26,8 +26,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(Mage::getSingleton('eb2corder/config'))
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+			->addConfigModel(Mage::getSingleton('eb2corder/config'));
 	}
 
 	/**
@@ -79,7 +78,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		$customerId = Mage::getSingleton('customer/session')->getCustomer()->getId();
 		$orderSearchObj = Mage::getModel('eb2corder/customer_order_search');
-		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
 		// making eb2c customer order search request base on current session customer id and then
 		// parse result in a collection of varien object
 		$orderHistorySearchResults = $orderSearchObj->parseResponse(

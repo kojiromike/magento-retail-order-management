@@ -127,11 +127,11 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_RequestTest
 			'apiMinorVersion' => '0',
 		));
 
-		$helperMock = $this->getHelperMock('eb2ccsr/data', array('getConfigModel'));
+		$helperMock = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
 		$helperMock->expects($this->once())
 			->method('getConfigModel')
 			->will($this->returnValue($cfg));
-		$this->replaceByMock('helper', 'eb2ccsr', $helperMock);
+		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$this->assertSame(
 			'https://example.com/v1.0/token/validate.xml',

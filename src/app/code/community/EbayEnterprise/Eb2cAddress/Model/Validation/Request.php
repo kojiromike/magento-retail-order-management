@@ -38,7 +38,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validation_Request extends Varien_Object
 	 */
 	public function getMessage()
 	{
-		$cfg = Mage::helper('eb2caddress')->getConfigModel();
+		$cfg = Mage::helper('eb2ccore')->getConfigModel();
 		$this->_dom = Mage::helper('eb2ccore')->getNewDomDocument();
 		$this->_dom->addElement(self::DOM_ROOT_NODE_NAME, null, $cfg->apiNamespace);
 		$this->_dom->documentElement->appendChild($this->_createMessageHeader());

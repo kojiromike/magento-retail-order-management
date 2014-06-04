@@ -9,11 +9,15 @@
 # SCRIPTNAME should always be the filename of the script.
 declare -r SCRIPTNAME=calc-tag
 
+# sed extended regular expression used to extract the release version
+# NOTE: a tag must exist that matches this pattern
+declare -r VERSION_REGEX='([0-9]+\.[0-9]+\.[0-9]+)(\..*|-[a-z]+-[0-9]+|)'
+
 ##
 # Print the help for this script.
 printHelp() {
 	cat <<- 'EOF'
-		usage: calc-tag --meta-tag <alpha|beta|rc> --build-number <build_number>
+		usage: calc-tag --meta-tag <alpha|beta|rc> [--build-number <build_number>]
 
 		options:
 	EOF
@@ -56,11 +60,6 @@ processOpts() {
 		shift
 	done
 
-	if [[ -z "$buildNumber" ]]; then
-		echo "Error: a build number must be specifed." >&2
-		printHelp
-		exit 1
-	fi
 	if ! has "$metaTag" 'alpha' 'beta' 'rc'; then
 		echo "Error: meta-tag must be one of ('alpha', 'beta', 'rc')" >&2
 		printHelp
@@ -73,28 +72,30 @@ processOpts() {
 main() {
 	local metaTag
 	local buildNumber
-	local oldBuildNumber
-	local newBuildNumber
+	local newTag
+	local oldTag
+	local releaseVersion
 
 	processOpts "$@"
-	oldBuildNumber=$(git describe --abbrev=0)
-	if [[ "$oldBuildNumber" = *.*.*-*-* ]]; then
-		# extract the release version using the current scheme (eg 1.3.0-rc-1)
-		newBuildNumber="${oldBuildNumber%-*-*}"
-	elif [[ "$oldBuildNumber" = *.*.*.* ]]; then
-		# extract the release version using the old scheme (eg 1.2.0.1)
-		newBuildNumber="${oldBuildNumber%.*}"
-	else
-		echo "Error: a tag must already exist that matches either *.*.*.* or *.*.*-*-*" >&2
-		exit 1
-	fi
-	newBuildNumber="$newBuildNumber-$metaTag-$buildNumber"
-	if [[ ! -z $(git describe --abbrev=0 --exact-match $newBuildNumber 2>/dev/null) ]]; then
-		echo "Error: $newBuildNumber already exists." >&2
+	oldTag=$(git describe --match *.*.* --abbrev=0 2>/dev/null)
+	releaseVersion=$(echo $oldTag | sed -rn "s/$VERSION_REGEX/\1/p")
+	if [[ -z $releaseVersion ]]; then
+		echo "Error: a tag must already exist that matches $VERSION_REGEX" >&2
 		exit 1
 	fi
 
-	echo "$newBuildNumber"
+	if [[ -z "$buildNumber" ]]; then
+		buildNumber=$(git describe --tags --match *.*.*[.-]* --abbrev=0)
+		buildNumber=$((${buildNumber##*[.-]} + 1 ))
+	fi
+
+	newTag="$releaseVersion-$metaTag-$buildNumber"
+	if [[ ! -z $(git describe --abbrev=0 --exact-match $newTag 2>/dev/null) ]]; then
+		echo "Error: $newTag already exists." >&2
+		exit 1
+	fi
+
+	echo "$newTag"
 }
 
 . deploy/utils

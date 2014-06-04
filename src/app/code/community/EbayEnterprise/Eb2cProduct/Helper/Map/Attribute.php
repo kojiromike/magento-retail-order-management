@@ -2,6 +2,8 @@
 class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_Abstract
 {
 	const COLOR = 'color';
+	const TURN_OFF_MANAGE_STOCK_XML = '<Item><SalesClass>advanceOrderOpen</SalesClass></Item>';
+	const STALES_CLASS_NODE = 'SalesClass';
 
 	/**
 	 * @var Mage_Eav_Model_Resource_Entity_Attribute_Collection
@@ -163,7 +165,26 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 				$data[] = $this->_getConfiguredAttributeData($attributeCode);
 			}
 		}
+		// At this point we know we are dealing with a configurable product; therefore,
+		// this is the right place to make sure manage stock get turn off.
+		$this->_turnOffManageStock($product);
 		return $data;
+	}
+	/**
+	 * Turn off manage stock for configurable products because they may not be in ItemMaster
+	 * feed.
+	 * @param Mage_Catalog_Model_Product $product
+	 * @return self
+	 */
+	protected function _turnOffManageStock(Mage_Catalog_Model_Product $product)
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML(static::TURN_OFF_MANAGE_STOCK_XML);
+		$xpath = Mage::helper('eb2ccore')->getNewDomXPath($doc);
+		Mage::helper('eb2cproduct/map_stock')->extractStockData(
+			$xpath->query(static::STALES_CLASS_NODE, $doc->documentElement), $product
+		);
+		return $this;
 	}
 
 	/**

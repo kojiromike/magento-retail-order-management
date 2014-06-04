@@ -37,7 +37,7 @@ getCsStandard() {
 	(
 		mkdir -p build/codeAnalysis
 		if cd build/codeAnalysis; then
-			git clone https://github.scm.corp.ebay.com/Cheetah/php-code-sniffer-ruleset . ||
+			git clone $HOME/git/php-code-sniffer-ruleset . ||
 			git pull
 		else
 			echo "$PWD"

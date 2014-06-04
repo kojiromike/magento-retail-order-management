@@ -507,7 +507,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 
 		$attributeHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
 			->disableOriginalConstructor()
-			->setMethods(array('_getConfiguredAttributeData', '_isSuperAttributeExists', '_isAttributeInSet'))
+			->setMethods(array('_getConfiguredAttributeData', '_isSuperAttributeExists', '_isAttributeInSet', '_turnOffManageStock'))
 			->getMock();
 		$attributeHelperMock->expects($this->exactly(2))
 			->method('_getConfiguredAttributeData')
@@ -524,6 +524,10 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 				array($existedConfAttrData, $data[0], false),
 				array($existedConfAttrData, $data[1], false),
 			)));
+		$attributeHelperMock->expects($this->once())
+			->method('_turnOffManageStock')
+			->with($this->identicalTo($product))
+			->will($this->returnSelf());
 
 		$this->assertSame($result, $attributeHelperMock->extractConfigurableAttributesData($nodeList, $product));
 	}
@@ -628,7 +632,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 
 		$attributeHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
 			->disableOriginalConstructor()
-			->setMethods(array('_getConfiguredAttributeData', '_isSuperAttributeExists', '_isAttributeInSet'))
+			->setMethods(array('_getConfiguredAttributeData', '_isSuperAttributeExists', '_isAttributeInSet', '_turnOffManageStock'))
 			->getMock();
 		$attributeHelperMock->expects($this->exactly(1))
 			->method('_getConfiguredAttributeData')
@@ -646,6 +650,10 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 				array($existedConfAttrData, $data[0], false),
 				array($existedConfAttrData, $data[1], false),
 			)));
+		$attributeHelperMock->expects($this->once())
+			->method('_turnOffManageStock')
+			->with($this->identicalTo($product))
+			->will($this->returnSelf());
 		$this->assertSame(array($result[0]), $attributeHelperMock->extractConfigurableAttributesData($nodeList, $product));
 	}
 
@@ -906,5 +914,26 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 			$result,
 			EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, '_isAttributeInSet', array($attribute, $product))
 		);
+	}
+	/**
+	 * Test that the method EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::_turnOffManageStock
+	 * will turn of manage stock on a product when called by this test.
+	 * @test
+	 */
+	public function testTurnOffManageStock()
+	{
+		$product = Mage::getModel('catalog/product');
+		$stock = $this->getHelperMock('eb2cproduct/map_stock', array('extractStockData'));
+		$stock->expects($this->once())
+			->method('extractStockData')
+			->with($this->isInstanceOf('DOMNodeList'), $product)
+			->will($this->returnValue(null));
+		$this->replaceByMock('helper', 'eb2cproduct/map_stock', $stock);
+
+		$attribute = Mage::helper('eb2cproduct/map_attribute');
+
+		$this->assertSame($attribute, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$attribute, '_turnOffManageStock', array($product)
+		));
 	}
 }

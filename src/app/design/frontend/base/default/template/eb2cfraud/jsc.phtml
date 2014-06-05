@@ -5,7 +5,10 @@ document.observe("dom:loaded", function() {
 	$('co-payment-form').insert('<?php echo $this->getField() ?>');
 	$('co-payment-form').insert('<?php echo $this->getMappingField() ?>');
 	Review.prototype.save = function() {
-		<?php echo $this->getCall() ?>
+		try {
+			<?php echo $this->getCall() ?>
+		} catch(error) {
+		}
 		if (checkout.loadWaiting!=false) return;
 		checkout.setLoadWaiting('review');
 		Form.enable(payment.form);

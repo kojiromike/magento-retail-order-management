@@ -84,7 +84,7 @@ class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 				self::MAGE_DATETIME_FORMAT,
 				Mage::getModel('log/customer')->load($visitorLog->getId(), 'visitor_id')->getLoginAt()
 			);
-			$lastLogin = $lastLogin->format(self::XML_DATETIME_FORMAT);
+			$lastLogin = $lastLogin ? $lastLogin->format(self::XML_DATETIME_FORMAT) : '';
 		}
 		return array(
 			'TimeSpentOnSite' => $timeSpentOnSite,

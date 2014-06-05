@@ -125,4 +125,78 @@ class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
 
 		$this->assertSame($expect, $helper->getSessionInfo());
 	}
+	/**
+	 * Test that when customer/visitor logging is disabled, empty values are
+	 * returned for time spent on site, last login
+	 * @test
+	 */
+	public function testGetSessionInfoMissingLogData()
+	{
+		$session = $this->getModelMockBuilder('customer/session')
+			->disableOriginalConstructor()
+			->setMethods(array('getCustomer', 'isLoggedIn', 'getEncryptedSessionId'))
+			->getMock();
+		$customer = $this->getModelMockBuilder('customer/customer')
+			->disableOriginalConstructor()
+			->setMethods(array('getId', 'decryptPassword', 'getPassword'))
+			->getmock();
+		$visitorLog = $this->getModelMock('log/visitor', array('load', 'getFirstVisitAt', 'getLastVisitAt', 'getId'));
+		$customerLog = $this->getModelMock('log/customer', array('load', 'getLoginAt'));
+		$helper = $this->_helper;
+
+		$this->replaceByMock('singleton', 'customer/session', $session);
+		$this->replaceByMock('model', 'log/visitor', $visitorLog);
+		$this->replaceByMock('model', 'log/customer', $customerLog);
+
+		$expect = array(
+			'TimeSpentOnSite' => '',
+			'LastLogin' => '',
+			'UserPassword' => 'password',
+			'TimeOnFile' => '',
+			'RTCTransactionResponseCode' => '',
+			'RTCReasonCodes' => '',
+		);
+		$sessionId = 'somesessionid';
+		$visitorId = 10;
+
+		$session->expects($this->any())
+			->method('getCustomer')
+			->will($this->returnValue($customer));
+		$session->expects($this->any())
+			->method('getEncryptedSessionId')
+			->will($this->returnValue($sessionId));
+		$session->expects($this->any())
+			->method('isLoggedIn')
+			->will($this->returnValue(true));
+
+		$visitorLog->expects($this->any())
+			->method('load')
+			->with($this->identicalTo($sessionId), $this->identicalTo('session_id'))
+			->will($this->returnSelf());
+		// when customer/visitor logging is disabled, there will be no record to
+		// back these models so any "get" methods will return null
+		$visitorLog->expects($this->any())
+			->method('getId')
+			->will($this->returnValue(null));
+		$visitorLog->expects($this->any())
+			->method('getFirstVisitAt')
+			->will($this->returnValue(null));
+		$visitorLog->expects($this->any())
+			->method('getLastVisitAt')
+			->will($this->returnValue(null));
+
+		$customer->expects($this->any())
+			->method('decryptPassword')
+			->will($this->returnValue('password'));
+
+		$customerLog->expects($this->any())
+			->method('load')
+			->with($this->identicalTo(null), $this->identicalTo('visitor_id'))
+			->will($this->returnSelf());
+		$customerLog->expects($this->any())
+			->method('getLoginAt')
+			->will($this->returnValue(null));
+
+		$this->assertSame($expect, $helper->getSessionInfo());
+	}
 }

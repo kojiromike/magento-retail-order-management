@@ -157,7 +157,6 @@ class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
 			'RTCReasonCodes' => '',
 		);
 		$sessionId = 'somesessionid';
-		$visitorId = 10;
 
 		$session->expects($this->any())
 			->method('getCustomer')

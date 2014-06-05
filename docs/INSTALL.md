@@ -27,13 +27,13 @@ The following figure shows a basic overview of the integration between Magento a
 
 Data flows work as follows:
 
-1.  Product data (whose structure is defined by the XML feeds) flows as follows: 
+1.  Product data (whose structure is defined by the XML feeds) flows as follows:
     1.  To the product hub.
     1.  Data is stored in both the data warehouse and order management system.
-1.  Inventory data flows as follows: 
+1.  Inventory data flows as follows:
     1.  Inventory is managed by the order management system.
     1.  Available inventory is communicated to storefront using the fulfillment hub.
-1.  Order transactions flow as follows: 
+1.  Order transactions flow as follows:
     1.  Requests to eBay Retail Order Management arrive through a secure gateway.
     1.  eBay interfaces route requests to the appropriate service: order service, inventory service, tax service, address validation service, or payment service.
     1.  Orders and inventory updates go to the order management system bidirectionally.
@@ -59,7 +59,7 @@ eBay Enterprise Retail Order Management performs the following:
 -   Address validation
 -   Tax calculation
 -   Inventory management
--   If you enabled eBay Enterprise Payments, it performs the following: 
+-   If you enabled eBay Enterprise Payments, it performs the following:
     -   Capture
     -   Refund
     -   Cancel
@@ -165,7 +165,7 @@ Documentation for the Magento Payment Bridge is available on the Magento support
 1.  In the left navigation bar, click **Downloads**.
 1.  In the right pane, click **Magento Payment Bridge**. The following figure shows an example.
         ![Magento Payment Bridge Download](static/spt-portal_login.png)
-1.  Click **Download** next to the document to download: 
+1.  Click **Download** next to the document to download:
     1.  _Setting up Payment Methods for Use via Payment Bridge_
     1.  _Magento Payment Bridge 1.11.31.0 Administrative Guide_
     1.  _Magento Payment Bridge 1.11.31.0 PA-DSS Implementation Guide_
@@ -186,7 +186,7 @@ To install eBay Enterprise Retail Order Management extension:
 1.  Browse to locate the eBay Retail Order Management extension's tarball file.
 1.  Click **Upload**. A successful installation displays as follows:
     ![Magento Connect Manager successful installation](static/connect-mgr-installed.png)
-1.  If the eBay Enterprise Retail Order Management extension installed successfully: 
+1.  If the eBay Enterprise Retail Order Management extension installed successfully:
     1.  Log out of the Magento Connect Manager.
     1.  Log out of the Magento Admin Panel.
     1.  Secure the Magento file system as discussed in [After You Install Magento: Recommended File System Ownership and Privileges](http://www.magentocommerce.com/knowledge-base/entry/install-privs-after).
@@ -194,7 +194,7 @@ To install eBay Enterprise Retail Order Management extension:
 The following error might display instead:
 
 ```
-CONNECT ERROR: The 'community' channel is not installed. Please use the 
+CONNECT ERROR: The 'community' channel is not installed. Please use the
 
                MAGE shell script to install the 'community' channel.
 ```
@@ -220,7 +220,7 @@ To verify the eBay Retail Order Management extension installed successfully, log
     ![Retail Order Management configuration options](static/config-nav.png)
     - If a 404 (Not Found) error displays, log out of the Admin Panel and log back in.
     - If these options do not display, try the following:
-        1.  Flush the Magento cache: 
+        1.  Flush the Magento cache:
             1.  In the Admin Panel, click System \> Cache Management.
             1.  Click Flush Magento Cache at the top of the page.
         1.  Log out of the Admin Panel and log back in.
@@ -396,11 +396,11 @@ Except for the option to delete feed files, all values are provided to you by eB
 To configure the eBay Retail Order Management extension:
 
 1.  Log in to your Magento server as a user with ownership of the Magento file system.
-1.  Enter the following commands in the order shown: 
+1.  Enter the following commands in the order shown:
     1.  `cd magento-install-dir/app/etc`
     1.  `cp retailordermanagement.xml.sample retailordermanagement.xml`
 1.  Open `retailordermanagement.xml` in a text editor.
-1.  Enter the following information. 
+1.  Enter the following information.
     <table>
     <col width="25%" />
     <col width="25%" />
@@ -523,7 +523,7 @@ To configure your Magento server to use eBay Enterprise Retail Order Management:
 1.  To change the scope of your settings, from the **Current Configuration Scope** list on the left, click the appropriate option. For example, to configure options for store view scope, click the name of a store view.
 1.  In the right pane, click the **Payments** tab to expand it. The following figure shows an example.
     ![Magento Payments configuration](static/config_payments.png)
-1.  Enter or edit the following information: 
+1.  Enter or edit the following information:
     <table>
     <col width="33%" />
     <col width="33%" />
@@ -581,10 +581,10 @@ The merchant code was provided to you by Magento. The API key and store code wer
 To configure the Payment Bridge:
 
 1.  Log in to the Magento server as a user with ownership of the Magento file system.
-1.  Enter the following commands in the order shown: 
+1.  Enter the following commands in the order shown:
     1.  `cd magento-install-dir/tools`
     1.  `php merchant.php --pgc merchant-code`
-1.  When prompted, select the following options: 
+1.  When prompted, select the following options:
 1.  GSI Credit Card payment method (also identified by the string `eb2cpayment_cc`) The GSI credit card is another name for eBay Enterprise payments or the eBay Enterprise credit card.
 1.  API key provided by eBay Enterprise (This is the same API key.)
 1.  Store code provided by eBay Enterprise
@@ -614,7 +614,7 @@ To configure web services:
 1.  Click **System \> Configuration \> EBAY ENTERPRISE \> Retail Order Management**.
 1.  To change the scope of your settings, from the **Current Configuration Scope** list on the left, click the appropriate option. For example, to configure options for store view scope, click the name of a store view.
 1.  In the right pane, click the **Web Services** tab to expand it.
-1.  Enter or edit the following information: 
+1.  Enter or edit the following information:
     <table>
     <col width="50%" />
     <col width="50%" />
@@ -655,7 +655,7 @@ To configure SFTP:
 1.  To change the scope of your settings, from the **Current Configuration Scope** list on the left, click the appropriate option. For example, to configure options for store view scope, click the name of a store view.
 1.  In the right pane, click the **Batch Feeds** tab to expand it. The following figure shows an example.
     ![Batch feed configuration](static/config-batch-feeds.png)
-1.  Enter or edit the following information: 
+1.  Enter or edit the following information:
     <table>
     <col width="33%" />
     <col width="33%" />
@@ -711,7 +711,7 @@ To set logging options:
 1.  To change the scope of your settings, from the **Current Configuration Scope** list on the left, click the appropriate option. For example, to configure options for store view scope, click the name of a store view.
 1.  In the right pane, click the **Log Settings** tab to expand it. The following figure shows an example:
     ![Magento log settings](static/config_log-settings.png)
-1.  Enter or edit the following information: 
+1.  Enter or edit the following information:
     <table>
     <col width="33%" />
     <col width="33%" />

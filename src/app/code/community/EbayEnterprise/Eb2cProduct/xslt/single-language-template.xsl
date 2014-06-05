@@ -5,7 +5,7 @@
 	<xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 	<xsl:strip-space elements="*" />
 
-	<!-- 
+	<!--
 		The purpose of this transform is to deliver only those elements relevant to 'lang_code'.
 		'lang_code' comparison is case-insensitive, although the output will be present unchanged.
 	-->

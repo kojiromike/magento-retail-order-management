@@ -2,7 +2,7 @@ vfs:
   sample:
     test.xml: |
       <?xml version="1.0" encoding="UTF-8"?>
-      <Acknowledgement> 
+      <Acknowledgement>
         <MessageHeader>
           <Standard>GSI</Standard>
           <HeaderVersion>2.3</HeaderVersion>

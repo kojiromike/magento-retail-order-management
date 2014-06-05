@@ -1,9 +1,9 @@
 %YAML:1.1
 # testGetItemTaxClass
 0-1:
-	tax_code: 
+	tax_code:
 0-2:
-	tax_code: 
+	tax_code:
 0-3:
 	tax_code: '1'
 0-4:

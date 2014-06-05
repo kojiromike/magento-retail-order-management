@@ -11,7 +11,7 @@ allrequiredblank:
   eb2c_ship_from_address_country_code:
   eb2c_ship_from_address_postal_code: 19210
 streetblank:
-  eb2c_ship_from_address_line1: 
+  eb2c_ship_from_address_line1:
   eb2c_ship_from_address_city: the city
   eb2c_ship_from_address_main_division: some state
   eb2c_ship_from_address_country_code: the country

@@ -37,7 +37,7 @@ getCsStandard() {
 	(
 		mkdir -p build/codeAnalysis
 		if cd build/codeAnalysis; then
-			git clone $HOME/git/php-code-sniffer-ruleset . ||
+			git clone ~stack/git/php-code-sniffer-ruleset.git . ||
 			git pull
 		else
 			echo "$PWD"

@@ -13,13 +13,13 @@
   @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <!--
-Magento to Exchange Platform mappings:
-The below configurations translate from Magento to the Exchange Platform.
-Copy this file to exchangeplatform.xml and configure the appropriate values below.
+Magento to Retail Order Management mappings:
+The below configurations translate from Magento to the Retail Order Management system.
+Copy this file to rom.xml and configure the appropriate values below.
 -->
 <config>
 	<!--
-	Configuration for setting Exchange Platform cron jobs
+	Configuration for setting Retail Order Management cron jobs
 	-->
 	<crontab>
 		<jobs>
@@ -34,7 +34,7 @@ Copy this file to exchangeplatform.xml and configure the appropriate values belo
 		<eb2ccore>
 			<!--
 			Shipping method mappings:
-			Map Magento shipping methods to the desired Exchange Platform shipping method name. Add one node for each configured Magento shipping method.
+			Map Magento shipping methods to the desired Retail Order Management shipping method name. Add one node for each configured Magento shipping method.
 			-->
 			<shipmap>
 				<!-- This example maps the Magento flatrate_flatrate shipping method to Exchange's ANY_STD shipping. -->

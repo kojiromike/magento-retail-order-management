@@ -1,4 +1,4 @@
-# eBay Enterprise Retail Order Management: Magento Extension Integration, Installation, and Configuration Guide
+# Installation and Configuration of the eBay Enterprise Retail Order Management Magento Extension
 
 ## Contents
 
@@ -171,7 +171,7 @@ Documentation for the Magento Payment Bridge is available on the Magento support
     1.  _Magento Payment Bridge 1.11.31.0 PA-DSS Implementation Guide_
 1.  Follow the prompts on your screen to download the desired documents.
 
-**Note:** _Setting up Payment Methods for Use via Payment Bridge_ does not discuss setting up the eBay Enterprise Credit Card but it has useful information that applies to all payment methods.
+**Note:** _Setting up Payment Methods for Use via Payment Bridge_ does not discuss setting up eBay Enterprise Credit Card but has useful information that applies to all payment methods.
 
 ### Installing the eBay Enterprise Retail Order Management extension
 
@@ -207,7 +207,7 @@ If the preceding error displays, use the following steps:
 1.  Log out of the Magento Connect Manager.
 1.  Log back in to the Magento Connect Manager as an administrator.
 1.  Install the eBay Enterprise Retail Order Management extension again.
-1.  After you have installed and verified the eBay Platform Exchange extension, secure the Magento file system as discussed in [After You Install Magento: Recommended File System Ownership and Privileges](http://www.magentocommerce.com/knowledge-base/entry/install-privs-after).
+1.  After you have installed and verified the eBay Retail Order Management extension, secure the Magento file system as discussed in [After You Install Magento: Recommended File System Ownership and Privileges](http://www.magentocommerce.com/knowledge-base/entry/install-privs-after).
 
 ### Verifying the eBay Retail Order Management Extension
 
@@ -233,7 +233,7 @@ Batch feed XML files are used to import and update products (including attribute
 
 eBay Enterprise will initially assist you with setting up your XML. Before product import functions properly, all of the following must be true:
 
-1.  The XML must be set up properly.
+1.  The XML must be properly set up.
 1.  The XML feeds must be uploaded to eBay Enterprise (subsequently, the Magento cron job looks for updates every 15 minutes).
 1.  All required attributes and attribute sets must be set up in Magento. You or the Magento administrator must do this; it does not happen automatically.
 
@@ -385,7 +385,7 @@ The following table shows the correlation between custom attributes and custom a
 
 The eBay Retail Order Management extension ships with a sample configuration file — `magento-install-dir/app/etc/retailordermanagement.xml.sample` — that enables you to specify options such as:
 
--   eBay Enterprise Exchange mapping for the Magento shipping method.
+-   eBay Enterprise Retail Order Management mapping for the Magento shipping method.
 -   Stored value card number ranges.
 -   Whether or not to delete feed files on the eBay Enterprise server after they have been read.
 
@@ -444,7 +444,7 @@ This section discusses the tasks you must perform to:
 
 -   Configure the Payment Bridge to use the eBay Enterprise Credit Card as a payment method.
      For more information about configuring the Payment Bridge, see the documentation discussed in Payment Bridge Documentation.
--   Configure eBay Enterprise Exchange payments options in the Admin Panel.
+-   Configure eBay Enterprise Retail Order Management payments options in the Admin Panel.
 -   Configure the Payment Bridge using the command line.
 
 See one of the following sections:
@@ -674,7 +674,7 @@ To configure SFTP:
     <tr class="odd">
     <td align="left"><p>Connection Retry Timer</p></td>
     <td align="left"><p>Global</p></td>
-    <td align="left"><p>Enter the number of seconds to wait after a failed connection attempt before retrying the connection again.<br /> If the connection attempt limit passes without a successful connection, the eBay Retail Order Management makes another connection attempt. If the connection attempt limit is exceeded, errors are logged and the connection is attempted again the next time the eBay Enterprise Exchange cron job runs.<br /> The cron job is discussed in the _eBay Retail Order Management Integrator's Guide_.</p></td>
+    <td align="left"><p>Enter the number of seconds to wait after a failed connection attempt before retrying the connection again.<br /> If the connection attempt limit passes without a successful connection, the eBay Retail Order Management makes another connection attempt. If the connection attempt limit is exceeded, errors are logged and the connection is attempted again the next time the eBay Enterprise Retail Order Management cron job runs.<br /> The cron job is discussed in the _eBay Retail Order Management Integrator's Guide_.</p></td>
     </tr>
     <tr class="even">
     <td align="left"><p>SFTP User Name</p></td>

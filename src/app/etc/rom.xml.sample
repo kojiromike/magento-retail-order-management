@@ -37,7 +37,7 @@ Copy this file to rom.xml and configure the appropriate values below.
 			Map Magento shipping methods to the desired Retail Order Management shipping method name. Add one node for each configured Magento shipping method.
 			-->
 			<shipmap>
-				<!-- This example maps the Magento flatrate_flatrate shipping method to Exchange's ANY_STD shipping. -->
+				<!-- This example maps the Magento flatrate_flatrate shipping method to ANY_STD shipping in Retail Order Management. -->
 				<flatrate_flatrate>ANY_STD</flatrate_flatrate>
 			</shipmap>
 			<payment>

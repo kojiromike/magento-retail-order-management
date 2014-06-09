@@ -14,9 +14,10 @@
  */
 
 /**
+ * Class EbayEnterprise_Eb2cAddress_Model_Suggestion_Group
+ *
  * Stores all of the session data used by address validation.
  *
- * @method Mage_Customer_Model_Address_Abstract getOriginalAddress()
  * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setOriginalAddress(Mage_Customer_Model_Address_Abstract)
  * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setSuggestedAddresses(Mage_Customer_Model_Address_Abstract[])
  * @method EbayEnterprise_Eb2cAddress_Model_Validation_Response getResponseMessage()
@@ -29,6 +30,7 @@ class EbayEnterprise_Eb2cAddress_Model_Suggestion_Group extends Varien_Object
 	/**
 	 * Container for validated addresses. Addresses are stored by type.
 	 * Varien_Object instead of simple array for easier access.
+	 *
 	 * @var Varien_Object
 	 */
 	protected $_validatedAddresses;
@@ -36,6 +38,7 @@ class EbayEnterprise_Eb2cAddress_Model_Suggestion_Group extends Varien_Object
 	/**
 	 * Get the collection of validated addresses (a Varien_Object) if one exists
 	 * or create a new one and return it.
+	 *
 	 * @return Varien_Object
 	 */
 	protected function _getValidatedAddresses()
@@ -48,7 +51,8 @@ class EbayEnterprise_Eb2cAddress_Model_Suggestion_Group extends Varien_Object
 
 	/**
 	 * Get the last validated address of the given type.
-	 * @param string $type
+	 *
+	 * @param string $type the type of address to return
 	 * @return Mage_Customer_Model_Address_Abstract
 	 */
 	public function getValidatedAddress($type)
@@ -60,7 +64,8 @@ class EbayEnterprise_Eb2cAddress_Model_Suggestion_Group extends Varien_Object
 	/**
 	 * Add a newly validated address. Validated addresses are stored by
 	 * type to prevent collisions.
-	 * @param Mage_Customer_Model_Address_Abstract
+	 *
+	 * @param Mage_Customer_Model_Address_Abstract $address The address to add to the validated address container
 	 * @return EbayEnterprise_Eb2cAddress_Model_Suggestion_Group
 	 */
 	public function addValidatedAddress(Mage_Customer_Model_Address_Abstract $address)

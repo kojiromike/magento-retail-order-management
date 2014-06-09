@@ -13,11 +13,18 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cAddress_Block_Address_Renderer
-	extends Mage_Customer_Block_Address_Renderer_Default
+/**
+ * Class EbayEnterprise_Eb2cAddress_Block_Address_Renderer
+ *
+ * Renders a single address within the suggestions block.
+ */
+class EbayEnterprise_Eb2cAddress_Block_Address_Renderer extends Mage_Customer_Block_Address_Renderer_Default
 {
 	/**
-	 * @param string $format - the template used to format the address
+	 * Initialize the block data
+	 *
+	 * @param string $format template used to format the address
+	 * @return self
 	 */
 	public function initType($format)
 	{

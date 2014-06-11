@@ -361,8 +361,12 @@ The following table describes how elements in the XML product feeds are imported
 			<td>No</td>
 		</tr>
 		<tr>
+			<td>Event</td>
+			<td>Any new price events for a product in a feed will replace any existing product pricing data for the product "Price," "Special Price," "Special Price From Date," and "Special Price To Date."</td>
+			<td></td>
+		<tr>
 			<td>Event/Price</td>
-			<td>When an `Event/AlternatePrice1` value is not included for the item, this will be used as the "Price" product attribute. When an `Event/AlternatePrice1` is included for the item, this will be used as the "Special Price" product attribute.</td>
+			<td>When an `Event/AlternatePrice1` value is not included for the product, this will be used as the "Price" product attribute and will be the price of the product on the site. When an `Event/AlternatePrice1` is included for the product, this will be used as the "Special Price" product attribute and will be the sale price of the product while the special price is available.</td>
 			<td>No</td>
 		</tr>
 		<tr>
@@ -372,17 +376,17 @@ The following table describes how elements in the XML product feeds are imported
 		</tr>
 		<tr>
 			<td>Event/AlternatePrice1</td>
-			<td>When present, this will be used as the "Price" product attribute.</td>
+			<td>When present, this will be used as the "Price" product attribute. Due to handling of the `Event/Price` element, this will result in this value being used as the "WAS" price while the special price is available.</td>
 			<td>No</td>
 		</tr>
 		<tr>
 			<td>Event/StartDate</td>
-			<td>The "Special Price From Date" of the product.</td>
+			<td>The "Special Price From Date" of the product. While this value is a full date time in the feed, only the date will be used whithin Magento.</td>
 			<td>No</td>
 		</tr>
 		<tr>
 			<td>Event/EndDate</td>
-			<td>The "Special Price To Date" of the product.</td>
+			<td>The "Special Price To Date" of the product. While this value is a full date time in the feed, only the date will be used within Magento.</td>
 			<td>No</td>
 		</tr>
 		<tr>

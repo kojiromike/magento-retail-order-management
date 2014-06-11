@@ -473,11 +473,35 @@
 					<xpath>ExtendedAttributes/ShortDescription</xpath>
 				</short_description>
 				<price>
+					<class>eb2cproduct/map_price</class>
+					<type>helper</type>
+					<method>extractPrice</method>
+					<xpath>Event</xpath>
+				</price>
+				<special_price>
+					<class>eb2cproduct/map_price</class>
+					<type>helper</type>
+					<method>extractSpecialPrice</method>
+					<xpath>Event</xpath>
+				</special_price>
+				<special_from_date>
+					<class>eb2cproduct/map_price</class>
+					<type>helper</type>
+					<method>extractPriceEventFromDate</method>
+					<xpath>Event</xpath>
+				</special_from_date>
+				<special_to_date>
+					<class>eb2cproduct/map_price</class>
+					<type>helper</type>
+					<method>extractPriceEventToDate</method>
+					<xpath>Event</xpath>
+				</special_to_date>
+				<msrp>
 					<class>eb2cproduct/map</class>
 					<type>helper</type>
 					<method>extractFloatValue</method>
-					<xpath>Event/Price</xpath>
-				</price>
+					<xpath>Event/MSRP</xpath>
+				</msrp>
 				<weight>
 					<class>eb2cproduct/map</class>
 					<type>helper</type>

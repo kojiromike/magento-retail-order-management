@@ -126,11 +126,11 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * get the associated value for the scope string
+	 * extract the scope string and return the associated magento attribute scope value
 	 * @param  Varien_SimpleXml_Element $data
 	 * @return int
 	 */
-	protected function _formatScope($data)
+	protected function _formatScope(Varien_SimpleXml_Element $data)
 	{
 		$scopeStr = strtolower((string) $data);
 		if (!isset(self::$_scopeMap[$scopeStr])) {
@@ -142,22 +142,23 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * convert the ',' delimited list into an array.
+	 * extract a ',' delimited string and convert it into an array.
 	 * @param  Varien_SimpleXml_Element $data
 	 * @return int
 	 */
-	protected function _formatArray($data)
+	protected function _formatArray(Varien_SimpleXml_Element $data)
 	{
 		return explode(',', (string) $data);
 	}
 
 	/**
+	 * extract a string and convert it to be saved to a magento boolean-type field.
 	 * @see  http://php.net/manual/en/function.is-bool.php
 	 * @param Varien_SimpleXml_Element
 	 * @return 1 if the string in $data is interpretable as true.
 	 *         0 otherwise
 	 */
-	protected function _formatBoolean($data)
+	protected function _formatBoolean(Varien_SimpleXml_Element $data)
 	{
 		return in_array(
 			strtolower((string) $data),
@@ -218,9 +219,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		$config = $this->_loadDefaultAttributesConfig();
 		// loop through the attributes and return the list of attribute names as an array.
 		foreach ($config['default'] as $code => $data) {
-			if (!$groupFilter) {
-				$result[] = $code;
-			} elseif (isset($data['group']) && $groupFilter === $data['group']) {
+			if (!$groupFilter || isset($data['group']) && $groupFilter === $data['group']) {
 				$result[] = $code;
 			}
 		}

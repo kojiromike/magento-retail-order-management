@@ -134,12 +134,10 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	{
 		$scopeStr = strtolower((string) $data);
 		if (!isset(self::$_scopeMap[$scopeStr])) {
-			// @codeCoverageIgnoreStart
 			throw new EbayEnterprise_Eb2cProduct_Model_Attributes_Exception(
 				'Invalid scope value "' . $scopeStr . '"'
 			);
 		}
-		// @codeCoverageIgnoreEnd
 		return self::$_scopeMap[$scopeStr];
 	}
 
@@ -180,12 +178,10 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		if (isset($this->_valueFunctionMap[$fieldName])) {
 			$funcName = $this->_valueFunctionMap[$fieldName];
 			if (!method_exists($this, $funcName)) {
-				// @codeCoverageIgnoreStart
 				throw new EbayEnterprise_Eb2cProduct_Model_Attributes_Exception(
 					"invalid value-function map. $funcName is not a member of " . get_class($this)
 				);
 			}
-			// @codeCoverageIgnoreEnd
 			$value = $this->$funcName($value);
 		}
 		return $value;

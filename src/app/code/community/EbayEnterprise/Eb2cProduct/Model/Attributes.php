@@ -112,7 +112,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	 */
 	protected function _formatFrontendLabel($data)
 	{
-		return array((string) $data, '', '', '', '');
+		return array($data, '', '', '', '');
 	}
 
 	/**
@@ -126,11 +126,11 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * extract the scope string and return the associated magento attribute scope value
-	 * @param  Varien_SimpleXml_Element $data
+	 * convert the scope string to the associated magento attribute scope value
+	 * @param  string $data
 	 * @return int
 	 */
-	protected function _formatScope(Varien_SimpleXml_Element $data)
+	protected function _formatScope($data)
 	{
 		$scopeStr = strtolower((string) $data);
 		if (!isset(self::$_scopeMap[$scopeStr])) {
@@ -142,26 +142,26 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * extract a ',' delimited string and convert it into an array.
-	 * @param  Varien_SimpleXml_Element $data
+	 * convert a ',' delimited string to an array.
+	 * @param  string $data
 	 * @return int
 	 */
-	protected function _formatArray(Varien_SimpleXml_Element $data)
+	protected function _formatArray($data)
 	{
-		return explode(',', (string) $data);
+		return explode(',', $data);
 	}
 
 	/**
-	 * extract a string and convert it to be saved to a magento boolean-type field.
+	 * convert a string so it can be saved to a magento boolean-type field.
 	 * @see  http://php.net/manual/en/function.is-bool.php
-	 * @param Varien_SimpleXml_Element
+	 * @param string
 	 * @return 1 if the string in $data is interpretable as true.
 	 *         0 otherwise
 	 */
-	protected function _formatBoolean(Varien_SimpleXml_Element $data)
+	protected function _formatBoolean($data)
 	{
 		return in_array(
-			strtolower((string) $data),
+			strtolower($data),
 			array('true', '1', 'on', 'yes', 'y'),
 			true
 		) ? 1 : 0;

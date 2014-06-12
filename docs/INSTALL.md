@@ -383,7 +383,7 @@ The following table shows the correlation between custom attributes and custom a
 
 ## Configuring Local XML
 
-The eBay Retail Order Management extension ships with a sample configuration file — `magento-install-dir/app/etc/retailordermanagement.xml.sample` — that enables you to specify options such as:
+The eBay Retail Order Management extension ships with a sample configuration file — `magento-install-dir/app/etc/rom.xml.sample` — that enables you to specify options such as:
 
 -   eBay Enterprise Retail Order Management mapping for the Magento shipping method.
 -   Stored value card number ranges.
@@ -391,15 +391,15 @@ The eBay Retail Order Management extension ships with a sample configuration fil
 
 Except for the option to delete feed files, all values are provided to you by eBay Enterprise.
 
-`retailordermanagement.xml.sample` provided with the extension follows.
+`rom.xml.sample` provided with the extension follows.
 
 To configure the eBay Retail Order Management extension:
 
 1.  Log in to your Magento server as a user with ownership of the Magento file system.
 1.  Enter the following commands in the order shown:
     1.  `cd magento-install-dir/app/etc`
-    1.  `cp retailordermanagement.xml.sample retailordermanagement.xml`
-1.  Open `retailordermanagement.xml` in a text editor.
+    1.  `cp rom.xml.sample rom.xml`
+1.  Open `rom.xml` in a text editor.
 1.  Enter the following information.
     <table>
     <col width="25%" />
@@ -436,7 +436,7 @@ To configure the eBay Retail Order Management extension:
     </tr>
     </tbody>
     </table>
-1. Save your changes to `retailordermanagement.xml`.
+1. Save your changes to `rom.xml`.
 
 ## Configuring the Magento Payment Bridge and eBay Enterprise Retail Order Management Payments
 

@@ -144,7 +144,7 @@ The following table describes how elements in the XML product feeds are imported
 						<tr><td>SX</td><td>combined</td></tr>
 					</tbody>
 				</table>
-				This mapping can be customized by changing the <code>config/default/eb2ccore/feed/gift_card_tender_code</code> values in the <code>app/etc/retailordermanagement.xml</code> file for the Magento store.
+				This mapping can be customized by changing the <code>config/default/eb2ccore/feed/gift_card_tender_code</code> values in the <code>app/etc/rom.xml</code> file for the Magento store.
 			</td>
 			<td>No</td>
 		</tr>

@@ -164,7 +164,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 			strtolower($data),
 			array('true', '1', 'on', 'yes', 'y'),
 			true
-		) ? 1 : 0;
+		);
 	}
 
 	/**

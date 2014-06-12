@@ -29,15 +29,15 @@
 -
   - is_unique
   - 'N'
-  - 0
+  - false
 -
   - is_unique
   - 'n'
-  - 0
+  - false
 -
   - is_unique
   - 'y'
-  - 1
+  - true
 -
   - default_value_text
   - sometext
@@ -45,12 +45,12 @@
 -
   - default_value_yesno
   - 'N'
-  - 0
+  - false
 -
   - default_value_yesno
   - 'n'
-  - 0
+  - false
 -
   - default_value_yesno
   - 'y'
-  - 1
+  - true

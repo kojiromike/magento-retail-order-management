@@ -68,6 +68,9 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 */
 	public function testProcess()
 	{
+		$helper = $this->getHelperMock('eb2cproduct/data');
+		$this->replaceByMock('helper', 'eb2cproduct', $helper);
+		$helper->expects($this->any())->method('loadWebsiteFilters')->will($this->returnValue(array('foo')));
 		$file = $this->getModelMockBuilder('eb2cproduct/feed_file')
 			->disableOriginalConstructor()
 			->setMethods(array('removeProductsFromWebsites', 'processWebsite', 'processTranslations'))

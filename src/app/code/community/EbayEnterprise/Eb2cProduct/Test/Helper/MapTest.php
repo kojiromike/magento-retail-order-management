@@ -510,4 +510,92 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 			'htscodes/HTSCode', $doc->documentElement
 		)));
 	}
+	/**
+	 * Test EbayEnterprise_Eb2cProduct_Helper_Map::extractAttributeSetValue when
+	 * encountered an Attribute Set that doesn't exist in magento it will use the
+	 * one that it currently set to.
+	 * @test
+	 */
+	public function testExtractAttributeSetValue()
+	{
+		$attributeSetId = 4;
+		$nonExistsAttribute = null;
+		$attributeSetName = 'ROM';
+
+		$helper = $this->getHelperMock('eb2cproduct/data', array('getAttributeSetIdByName'));
+		$helper->expects($this->once())
+			->method('getAttributeSetIdByName')
+			->with($this->identicalTo($attributeSetName))
+			->will($this->returnValue($nonExistsAttribute));
+		$this->replaceByMock('helper', 'eb2cproduct', $helper);
+
+		$product = Mage::getModel('catalog/product', array('attribute_set_id' => $attributeSetId));
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML(
+			"<root>
+				<Item>
+					<CustomAttributes>
+						<Attribute name='AttributeSet'>
+							<Value>$attributeSetName</Value>
+						</Attribute>
+					</CustomAttributes>
+				</Item>
+			</root>"
+		);
+
+		$xpath = Mage::helper('eb2ccore')->getNewDomXPath($doc);
+		$nodes = $xpath->query(
+			'Item/CustomAttributes/Attribute[@name="AttributeSet"]/Value',
+			$doc->documentElement
+		);
+		$this->assertSame(
+			$attributeSetId,
+			Mage::helper('eb2cproduct/map')->extractAttributeSetValue($nodes, $product)
+		);
+	}
+	/**
+	 * @see self::testExtractAttributeSetValue but this time we are testing that
+	 * when a known attribute set is found it will return the knowned attribute set
+	 * id in magento.
+	 * @test
+	 */
+	public function testExtractAttributeSetValueKnowAttributeSet()
+	{
+		$attributeSetId = 4;
+		$knownAttributeSetId = 5;
+		$attributeSetName = 'Luma';
+
+		$helper = $this->getHelperMock('eb2cproduct/data', array('getAttributeSetIdByName'));
+		$helper->expects($this->once())
+			->method('getAttributeSetIdByName')
+			->with($this->identicalTo($attributeSetName))
+			->will($this->returnValue($knownAttributeSetId));
+		$this->replaceByMock('helper', 'eb2cproduct', $helper);
+
+		$product = Mage::getModel('catalog/product', array('attribute_set_id' => $attributeSetId));
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML(
+			"<root>
+				<Item>
+					<CustomAttributes>
+						<Attribute name='AttributeSet'>
+							<Value>$attributeSetName</Value>
+						</Attribute>
+					</CustomAttributes>
+				</Item>
+			</root>"
+		);
+
+		$xpath = Mage::helper('eb2ccore')->getNewDomXPath($doc);
+		$nodes = $xpath->query(
+			'Item/CustomAttributes/Attribute[@name="AttributeSet"]/Value',
+			$doc->documentElement
+		);
+		$this->assertSame(
+			$knownAttributeSetId,
+			Mage::helper('eb2cproduct/map')->extractAttributeSetValue($nodes, $product)
+		);
+	}
 }

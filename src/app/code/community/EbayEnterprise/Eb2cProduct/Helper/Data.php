@@ -519,4 +519,18 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 		$uniqueSites = array_map("unserialize", array_unique(array_map("serialize", $allWebsites)));
 		return $uniqueSites;
 	}
+	/**
+	 * get attribute set id by attribute set name
+	 * @param string $name the attribute set name
+	 * @return int the entity id of the attribute set or null when not found
+	 */
+	public function getAttributeSetIdByName($name)
+	{
+		return Mage::getModel('eav/entity_attribute_set')
+			->getCollection()
+			->setEntityTypeFilter(Mage::getModel('eav/entity')->setType('catalog_product')->getTypeId())
+			->addFieldToFilter('attribute_set_name', $name)
+			->getFirstItem()
+			->getAttributeSetId();
+	}
 }

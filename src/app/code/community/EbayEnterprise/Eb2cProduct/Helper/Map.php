@@ -258,4 +258,22 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 		}
 		return serialize($htscodes);
 	}
+	/**
+	 * extract the attribute set name
+	 * @param DOMNodeList $node
+	 * @param Mage_Catalog_Model_Product $product
+	 * @return int
+	 */
+	public function extractAttributeSetValue(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
+	{
+		$attributeSetName = Mage::helper('eb2ccore')->extractNodeVal($nodes);
+		$attributeSetId = Mage::helper('eb2cproduct')->getAttributeSetIdByName($attributeSetName);
+		if (is_null($attributeSetId)) {
+			Mage::helper('ebayenterprise_magelog')->logWarn(
+				'[%s] Attribute Set (%s) has not yet been setup for this magento instance.',
+				array(__CLASS__, $attributeSetName)
+			);
+		}
+		return $attributeSetId ?: $product->getAttributeSetId();
+	}
 }

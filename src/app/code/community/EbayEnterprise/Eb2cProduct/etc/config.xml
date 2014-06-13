@@ -347,6 +347,12 @@
 				</stock_map>
 			</feed>
 			<feed_attribute_mappings>
+				<attribute_set_id>
+					<class>eb2cproduct/map</class>
+					<type>helper</type>
+					<method>extractAttributeSetValue</method>
+					<xpath>CustomAttributes/Attribute[@name="AttributeSet"]/Value</xpath>
+				</attribute_set_id>
 				<category_ids>
 					<class>eb2cproduct/map_category</class>
 					<type>helper</type>

@@ -4,11 +4,11 @@
 
 - [Enabling Product Import ](#enabling-product-import)
 - [Product Attribute Mappings](#product-attribute-mappings)
+- [Required Custom Attributes](#required-custom-attributes)
 - [Import Products into Different Magento Websites ](#import-products-into-different-magento-websites)
 - [Product Import Mapping](#product-import-mapping)
 - [Dependency and Non-Dependency Attributes](#dependency-and-non-dependency-attributes)
 - [Language](#language)
-- [Required Custom Attributes](#required-custom-attributes)
 - [Importing Configurable Products](#importing-configurable-products)
 - [Importing Gift Cards](#importing-gift-cards)
 - [Images](#images)
@@ -67,7 +67,7 @@ The following table describes how elements in the XML product feeds are imported
 		</tr>
 		<tr>
 			<td>BaseAttributes/CatalogClass</td>
-			<td>Controls the "Visibility" of the product. Values of <code>regular</code> and <code>always</code> result in products with a visibility of "Catalog, Search". Values of <code>collapse</code> or <code>nosale</code> will be given a visibility of "Not Visible Individually."</td>
+			<td>Controls the "Visibility" of the product. Values of <code>regular</code> and <code>always</code> result in products with a visibility of "Catalog, Search". A values of <code>nosale</code> will be given a visibility of "Not Visible Individually."</td>
 			<td>No</td>
 		</tr>
 		<tr>

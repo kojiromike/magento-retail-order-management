@@ -266,7 +266,7 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation extends EbayEnterprise_Eb2cI
 	{
 		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
 		$rollbackAllocationRequestMessage = $domDocument->addElement('RollbackAllocationRequestMessage', null, Mage::helper('eb2cinventory')->getXmlNs())->firstChild;
-		$rollbackAllocationRequestMessage->setAttribute('requestId', Mage::helper('eb2cinventory')->getRequestId($quote->getEntityId()));
+		$rollbackAllocationRequestMessage->setAttribute('requestId', uniqid());
 		$rollbackAllocationRequestMessage->setAttribute('reservationId', Mage::helper('eb2cinventory')->getReservationId($quote->getEntityId()));
 		return $domDocument;
 	}

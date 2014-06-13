@@ -32,7 +32,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	protected $_attributeRecords = array();
 
 	/**
-	 * list of entity types to attach attributes to.
+	 * list of entity types to attach attributes to
 	 * @var array
 	 */
 	protected $_entityTypes = array('catalog/product');
@@ -49,6 +49,11 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		'label'         => 'frontend_label',
 	);
 
+	/**
+	 * mapping of attribute model fields to functions needed to convert
+	 * data from the configuration
+	 * @var array
+	 */
 	protected $_valueFunctionMap = array(
 		'is_global'           => '_formatScope',
 		'default_value_yesno' => '_formatBoolean',
@@ -56,13 +61,17 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		'default_value_date'  => '_formatDate',
 	);
 
+	/**
+	 * mapping of configuration scope strings to the magento scope enumerations
+	 * @var array
+	 */
 	protected static $_scopeMap = array(
 		'website' => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_GLOBAL,
 		'store'   => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_STORE,
 	);
 
 	/**
-	 * return a list of entity type id's the attributes should be added to.
+	 * return a list of entity type id's the attributes should be added to
 	 * @return array
 	 */
 	public function getTargetEntityTypeIds()
@@ -75,7 +84,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * populate and get an array of attribute data records.
+	 * populate and get an array of attribute data records
 	 * @return array
 	 */
 	public function getAttributesData()
@@ -95,8 +104,8 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * return true if the attribute set is an entity type that
-	 * should have the attributes applied.
+	 * return true if the configured attributes should be applied to
+	 * an entity type by the entity type id
 	 * @param  int  $typeId
 	 * @return boolean
 	 */
@@ -106,8 +115,8 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * convert the frontend label into an an array.
-	 * @param  Varien_SimpleXml_Element $data
+	 * get an array suitable for saving an attribute model's frontend label
+	 * @param  string $data
 	 * @return array
 	 */
 	protected function _formatFrontendLabel($data)
@@ -116,8 +125,8 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * get the attribute model's field name associated with the config field name.
-	 * @param  string $fieldName
+	 * get the field name in the attribute model for a field in the configuration
+	 * @param  string $fieldName configured field name
 	 * @return string
 	 */
 	protected function _getMappedFieldName($fieldName)
@@ -128,6 +137,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	/**
 	 * convert the scope string to the associated magento attribute scope value
 	 * @param  string $data
+	 * @throws EbayEnterprise_Eb2cProduct_Model_Attributes_Exception an invalid scope string is given
 	 * @return int
 	 */
 	protected function _formatScope($data)
@@ -142,7 +152,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * convert a ',' delimited string to an array.
+	 * convert a ',' delimited string to an array
 	 * @param  string $data
 	 * @return int
 	 */
@@ -152,11 +162,11 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * convert a string so it can be saved to a magento boolean-type field.
+	 * convert a string to be suitable for magento boolean-type fields
 	 * @see  http://php.net/manual/en/function.is-bool.php
 	 * @param string
-	 * @return 1 if the string in $data is interpretable as true.
-	 *         0 otherwise
+	 * @return true if the string in $data is interpretable as true
+	 *         false otherwise
 	 */
 	protected function _formatBoolean($data)
 	{
@@ -168,10 +178,11 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * convert data from the config to a form that can be set to the specified
-	 * field on the attribute model.
+	 * convert data from the config to a form suitable for the specified
+	 * field in the attribute model
 	 * @param  string $fieldName
 	 * @param  string $value
+	 * @throws EbayEnterprise_Eb2cProduct_Model_Attributes_Exception if a mapped method doesn't exist
 	 * @return string
 	 */
 	protected function _getMappedFieldValue($fieldName, $value)
@@ -189,9 +200,9 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	}
 
 	/**
-	 * get the name of the default value field for based on the frontend type.
+	 * get the name of the "default value" field for the frontend type
 	 * @param  string $frontendType
-	 * @return string default value field name.
+	 * @return string default value field name
 	 */
 	protected function _getDefaultValueFieldName($frontendType)
 	{
@@ -199,14 +210,14 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 			case 'boolean': return 'default_value_yesno';
 			case 'date': return 'default_value_date';
 			case 'select':
-			case 'multiselect': return 'option'; // No $fieldName here.
+			case 'multiselect': return 'option';
 			default: return 'default_value_text';
 		}
 	}
 
 	/**
-	 * return an array of the default attribute codes.
-	 * optionally, the list can be filtered to only include codes whose group is $groupFilter.
+	 * return an array of the default attribute codes
+	 * optionally, the list can be filtered to only include codes whose group is $groupFilter
 	 * @param string $groupFilter
 	 * @return array
 	 */
@@ -215,20 +226,17 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		Mage::helper('ebayenterprise_magelog')
 			->logDebug("[%s] getDefaultAttributesCodeList called with %s", array(__CLASS__, $groupFilter));
 		$result = array();
-		// load the attributes from the config.
 		$config = $this->_loadDefaultAttributesConfig();
-		// loop through the attributes and return the list of attribute names as an array.
 		foreach ($config['default'] as $code => $data) {
 			if (!$groupFilter || isset($data['group']) && $groupFilter === $data['group']) {
 				$result[] = $code;
 			}
 		}
-		// TODO: perhaps store it in a cache?
 		return $result;
 	}
 
 	/**
-	 * get an array to initialize an attribute model with data extracted from the config.
+	 * get an attribute model initializer array containing data extracted from the config.
 	 * @param  array $fieldCfg
 	 * @return array
 	 */
@@ -237,8 +245,6 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		$record = $this->_getInitialData();
 		foreach ($fieldCfg as $cfgField => $data) {
 			if ($cfgField === 'default') {
-				// @hack: Code style checker doesn't like underscores. That's right,
-				// but sometimes we have to deal with data that has underscores.
 				$inputType = $fieldCfg['input_type'];
 				$fieldName = $this->_getDefaultValueFieldName($inputType);
 			} else {

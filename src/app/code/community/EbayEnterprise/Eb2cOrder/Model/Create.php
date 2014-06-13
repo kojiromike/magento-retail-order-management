@@ -680,7 +680,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 						$paymentContext = $thisPayment->createChild('PaymentContext');
 						$paymentContext->createChild('PaymentSessionId', sprintf('payment%s', $payment->getId()));
 						$paymentContext->createChild('TenderType', Mage::helper('eb2cpayment')->getTenderType($pan));
-						$paymentContext->createChild('PaymentAccountUniqueId', $pan)->setAttribute('isToken', 'true');
+						$paymentContext->createChild('PaymentAccountUniqueId', $pan)->setAttribute('isToken', 'false');
 						$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
 						$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGiftCardsAmount()));
 					} else {
@@ -700,7 +700,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * Get order stored value pan.
 	 * (This is a public static because I ran into strange test
 	 * behavior invoking it as a ReflectionMethod when it was private.)
-	 *
+	 * Removing getting the panToken key because the panToken key is the encrypted pan token from eb2c.
+	 * Instead we are getting the 'c' key. This will ensure we can get the proper
+	 * tender type base on the svc_bin_range in the configuration.
 	 * @param Mage_Sales_Model_Order $order the order object
 	 * @return string the panToken | pan
 	 */
@@ -709,8 +711,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$giftCardData = unserialize($order->getGiftCards());
 		if (!empty($giftCardData)) {
 			foreach ($giftCardData as $gcData) {
-				if (isset($gcData['panToken']) && trim($gcData['panToken']) !== '') {
-					return $gcData['panToken'];
+				if (isset($gcData['c']) && trim($gcData['c']) !== '') {
+					return $gcData['c'];
 				} elseif (isset($gcData['pan']) && trim($gcData['pan']) !== '') {
 					// the giftcard data in the admin order creation is expecting the pan key
 					// from the unserialize data, not quite sure about the panToken key here

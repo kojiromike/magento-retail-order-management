@@ -989,7 +989,7 @@ INVALID_XML;
 		$order
 			->expects($this->once())
 			->method('getGiftCards')
-			->will($this->returnValue(serialize(array(array('panToken' => $expectedPanToken)))));
+			->will($this->returnValue(serialize(array(array('c' => $expectedPanToken)))));
 		$this->assertSame($expectedPanToken, EbayEnterprise_Eb2cOrder_Model_Create::getOrderGiftCardPan($order));
 	}
 

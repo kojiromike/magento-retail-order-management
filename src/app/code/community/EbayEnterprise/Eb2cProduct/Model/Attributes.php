@@ -19,28 +19,17 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	const ATTRIBUTES_CONFIG = 'eb2cproduct/attributes';
 	const ATTRIBUTE_BASE_DATA = 'base_data';
 
-	/**
-	 * the attributes configuration
-	 * @var array
-	 */
+
+	// @var array the attributes configuration
 	protected $_defaultAttributesConfig = array();
 
-	/**
-	 * array of attribute data records
-	 * @var array
-	 */
+	// @var array list of attribute data records
 	protected $_attributeRecords = array();
 
-	/**
-	 * list of entity types to attach attributes to
-	 * @var array
-	 */
+	// @var array list of entity types to attach attributes to
 	protected $_entityTypes = array('catalog/product');
 
-	/**
-	 * mapping of config field name to model field name
-	 * @var array
-	 */
+	// @var array mapping of config field name to model field name
 	protected $_fieldNameMap = array(
 		'scope'         => 'is_global',
 		'unique'        => 'is_unique',
@@ -61,10 +50,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 		'default_value_date'  => '_formatDate',
 	);
 
-	/**
-	 * mapping of configuration scope strings to the magento scope enumerations
-	 * @var array
-	 */
+	// @var array mapping of configuration scope strings to the magento scope enumerations
 	protected static $_scopeMap = array(
 		'website' => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_GLOBAL,
 		'store'   => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_STORE,

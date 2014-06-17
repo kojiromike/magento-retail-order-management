@@ -50,7 +50,7 @@
 				<is_clean>
 					<scope>Website</scope>
 					<label>Is Clean</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>boolean</input_type>
 					<unique>N</unique>
 					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
@@ -60,7 +60,7 @@
 				<unresolved_product_links>
 					<scope>Website</scope>
 					<label>Unresolved Product Links</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>textarea</input_type>
 					<unique>N</unique>
 					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
@@ -70,7 +70,7 @@
 				<hts_codes>
 					<scope>Website</scope>
 					<label>HTS Codes</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>textarea</input_type>
 					<unique>N</unique>
 					<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
@@ -90,7 +90,7 @@
 				<item_type>
 					<scope>Website</scope>
 					<label>Item Type</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>1</is_required>
@@ -100,7 +100,7 @@
 				<drop_shipped>
 					<scope>Website</scope>
 					<label>Drop Shipped</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>boolean</input_type>
 					<unique>0</unique>
 					<is_required>1</is_required>
@@ -111,7 +111,7 @@
 				<drop_ship_supplier_name>
 					<scope>Website</scope>
 					<label>Drop Ship Supplier Name</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>0</is_required>
@@ -120,7 +120,7 @@
 				<drop_ship_supplier_number>
 					<scope>Website</scope>
 					<label>Drop Ship Supplier Number</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>0</is_required>
@@ -129,7 +129,7 @@
 				<drop_ship_supplier_part_number>
 					<scope>Website</scope>
 					<label>Drop Ship Supplier Part Number</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>0</is_required>
@@ -138,7 +138,7 @@
 				<hierarchy_dept_number>
 					<scope>Website</scope>
 					<label>Hierarchy Department Number</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>1</is_required>
@@ -148,7 +148,7 @@
 				<hierarchy_dept_description>
 					<scope>Website</scope>
 					<label>Hierarchy Department Description</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>0</is_required>
@@ -157,7 +157,7 @@
 				<hierarchy_subdept_number>
 					<scope>Website</scope>
 					<label>Hierarchy Subdepartment Number</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>1</is_required>
@@ -167,7 +167,7 @@
 				<hierarchy_subdept_description>
 					<scope>Website</scope>
 					<label>Hierarchy Subdepartment Description</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>0</is_required>
@@ -176,7 +176,7 @@
 				<hierarchy_class_number>
 					<scope>Website</scope>
 					<label>Hierarchy Class Number</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>1</is_required>
@@ -186,7 +186,7 @@
 				<hierarchy_class_description>
 					<scope>Website</scope>
 					<label>Hierarchy Class Description</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>0</is_required>
@@ -195,7 +195,7 @@
 				<hierarchy_subclass_number>
 					<scope>Website</scope>
 					<label>Hierarchy Subclass Number</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>1</is_required>
@@ -205,7 +205,7 @@
 				<hierarchy_subclass_description>
 					<scope>Website</scope>
 					<label>Hierarchy Subclass Description</label>
-					<group>Exchange Platform</group>
+					<group>Retail Order Management</group>
 					<input_type>text</input_type>
 					<unique>0</unique>
 					<is_required>0</is_required>

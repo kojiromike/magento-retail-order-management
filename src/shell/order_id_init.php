@@ -12,10 +12,8 @@ class EbayEnterprise_Eb2c_Shell_Increment extends Mage_Shell_Abstract
 	 */
 	private function _getDefaultStoreId()
 	{
-		$allStores = Mage::app()->getStores();
-		foreach (array_keys($allStores) as $storeId) {
-			return Mage::app()->getStore($storeId)->getId();
-		}
+		// all stores will use the default store id when increment
+		// ids are not split across stores
 		return Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID;
 	}
 

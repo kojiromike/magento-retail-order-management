@@ -183,7 +183,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	)
 	{
 		$currentStoreId = $products->getStoreId();
-		$config = Mage::helper('eb2ccore')->getConfigModel($currentStoreId);
+		$config = Mage::helper('eb2cproduct')->getConfigModel($currentStoreId);
 		$clientId = $config->clientId;
 		$catalogId = $config->catalogId;
 		foreach ($products->getItems() as $product) {

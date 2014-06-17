@@ -120,13 +120,13 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<xml_dest>BaseAttributes/TaxCode</xml_dest>
 							<translate>0</translate>
 						</tax_code>
-						<hierarchy>
+						<_hierarchy>
 							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
 							<method>passHierarchy</method>
 							<xml_dest>BaseAttributes/Hierarchy/</xml_dest>
 							<translate>0</translate>
-						</hierarchy>
+						</_hierarchy>
 						<drop_ship_supplier_name>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
@@ -169,13 +169,13 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<xml_dest>ExtendedAttributes/CountryOfOrigin</xml_dest>
 							<translate>0</translate>
 						</country_of_manufacture>
-						<giftcard>
+						<_giftcard>
 							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
 							<method>passGiftCard</method>
 							<xml_dest>ExtendedAttributes/</xml_dest>
 							<translate>0</translate>
-						</giftcard>
+						</_giftcard>
 						<manufacturer>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
@@ -283,7 +283,8 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<type>helper</type>
 							<method>passGiftWrap</method>
 							<xml_dest>ExtendedAttributes/GiftWrap</xml_dest>
-							<translate>0</translate></gift_wrap>
+							<translate>0</translate>
+						</gift_wrap>
 						<description>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
@@ -317,15 +318,14 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<type>helper</type>
 							<method>getValueAsDefault</method>
 							<xml_dest>CustomAttributes/Attribute[@name="news_from_date"]</xml_dest>
-							<translate>1</translate>
+							<translate>0</translate>
 						</news_from_date>
 						<news_to_date>
-							<after>news_from_date</after>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
 							<method>getValueAsDefault</method>
 							<xml_dest>CustomAttributes/Attribute[@name="news_to_date"]</xml_dest>
-							<translate>1</translate>
+							<translate>0</translate>
 						</news_to_date>
 					</mappings>
 				</content_map>
@@ -353,20 +353,19 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<translate>0</translate>
 						</_gsi_store_id>
 						<sku>
-							<before>price_event_number</before>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
 							<method>passSKU</method>
 							<xml_dest>ClientItemId</xml_dest>
 							<translate>0</translate>
 						</sku>
-						<price_event_number>
+						<_price_event_number>
 							<class>eb2cproduct/pim_price</class>
 							<type>helper</type>
 							<method>passPriceEventNumber</method>
 							<xml_dest>Event/EventNumber</xml_dest>
 							<translate>0</translate>
-						</price_event_number>
+						</_price_event_number>
 						<price>
 							<class>eb2cproduct/pim_price</class>
 							<type>helper</type>
@@ -402,13 +401,13 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<xml_dest>Event/EndDate</xml_dest>
 							<translate>0</translate>
 						</special_to_date>
-						<price_vat_inclusive>
+						<_price_vat_inclusive>
 							<class>eb2cproduct/pim_price</class>
 							<type>helper</type>
 							<method>passPriceVatInclusive</method>
 							<xml_dest>Event/PriceVatInclusive</xml_dest>
 							<translate>0</translate>
-						</price_vat_inclusive>
+						</_price_vat_inclusive>
 					</mappings>
 				</price_map>
 			</feed_pim_mapping>

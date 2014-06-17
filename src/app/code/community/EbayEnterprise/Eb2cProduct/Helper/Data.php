@@ -547,4 +547,12 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 			->getFirstItem()
 			->getAttributeSetId();
 	}
+	/**
+	 * Get the default store view store id
+	 * @return int, the default store view store id
+	 */
+	public function getDefaultStoreViewId()
+	{
+		return (int) Mage::app()->getDefaultStoreView()->getId();
+	}
 }

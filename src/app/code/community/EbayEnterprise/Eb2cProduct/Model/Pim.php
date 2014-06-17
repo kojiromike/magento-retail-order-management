@@ -3,7 +3,7 @@
 class EbayEnterprise_Eb2cProduct_Model_Pim
 {
 	const PIM_CONFIG_PATH = 'eb2cproduct/feed_pim_mapping';
-	const XML_TEMPlATE = '<%1$s xmlns:xsi="%2$s" xsi:schemaLocation="%3$s">%4$s</%1$s>';
+	const XML_TEMPLATE = '<%1$s xmlns:xsi="%2$s" xsi:schemaLocation="%3$s">%4$s</%1$s>';
 	const XMLNS = 'http://www.w3.org/2001/XMLSchema-instance';
 
 	const KEY_EVENT_TYPE = 'event_type';
@@ -195,12 +195,13 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 				$pimProducts->addItem($pimProduct);
 			}
 			try {
-				$pimProduct->loadPimAttributesByProduct($product, $this->_docs[$key],
-					$key, $this->_getFeedAttributes($key, $currentStoreId));
+				$pimProduct->loadPimAttributesByProduct(
+					$product, $this->_docs[$key], $key, $this->_getFeedAttributes($key, $currentStoreId)
+				);
 			} catch(EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception $e) {
 				Mage::helper('ebayenterprise_magelog')->logWarn(
-					'[ %s ] Product excluded from export (%s)',
-					 array( __METHOD__, $e->getMessage())
+					'[%s] Product excluded from export (%s)',
+					array( __METHOD__, $e->getMessage())
 				);
 				$pimProducts->deleteItem($pimProduct);
 			}
@@ -265,7 +266,9 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 */
 	protected function _appendAttributeValue(
 		EbayEnterprise_Dom_Element $itemNode,
-		EbayEnterprise_Eb2cProduct_Model_Pim_Attribute $pimAttribute, $key) {
+		EbayEnterprise_Eb2cProduct_Model_Pim_Attribute $pimAttribute, $key
+	)
+	{
 		if ($pimAttribute->value instanceof DOMAttr) {
 			$itemNode->setAttribute($pimAttribute->value->name, $pimAttribute->value->value);
 		} elseif ($pimAttribute->value instanceof DOMNode) {
@@ -321,7 +324,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	{
 		foreach ($this->_getFeedsMap() as $key => $map) {
 			$this->_docs[$key]->loadXml(sprintf(
-				self::XML_TEMPlATE,
+				self::XML_TEMPLATE,
 				$map[self::KEY_ROOT_NODE],
 				self::XMLNS,
 				$map[self::KEY_SCHEMA_LOCATION],
@@ -342,13 +345,13 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 */
 	protected function _clumpWithSimilar(DOMElement $attributeNode)
 	{
-			// if the value  element and a same-named element already exists,
-			// insert the value element before the exigent one instead of appending.
-			$xpath = new DOMXPath($attributeNode->ownerDocument);
-			$nodeList = $xpath->query($attributeNode->tagName, $attributeNode->parentNode);
-			if ($nodeList->length > 1) {
-				$attributeNode = $attributeNode->parentNode->insertBefore($attributeNode, $nodeList->item(0));
-			}
-			return $attributeNode;
+		// if the value  element and a same-named element already exists,
+		// insert the value element before the exigent one instead of appending.
+		$xpath = new DOMXPath($attributeNode->ownerDocument);
+		$nodeList = $xpath->query($attributeNode->tagName, $attributeNode->parentNode);
+		if ($nodeList->length > 1) {
+			$attributeNode = $attributeNode->parentNode->insertBefore($attributeNode, $nodeList->item(0));
+		}
+		return $attributeNode;
 	}
 }

@@ -146,7 +146,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 		$itemNode = $map[$key][self::KEY_ITEM_NODE];
 		foreach ($pimProducts->getItems() as $pimProduct) {
 			$itemFragment = $this->_buildItemNode($pimProduct, $itemNode, $key);
-			if ($itemFragment && $itemFragment->hasChildNodes()) {
+			if ($itemFragment->hasChildNodes()) {
 				$pimRoot->appendChild($itemFragment);
 			}
 		}
@@ -236,25 +236,23 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 			}, array_keys($mapAttributes)));
 	}
 	/**
-	 * Create DOMDocumentFragment with the <Item> node. Return null
-	 * when there are no attributes.
+	 * Create DOMDocumentFragment with the <Item> node.
 	 * @param  EbayEnterprise_Eb2cProduct_Model_Pim_Product $pimProduct
 	 * @param string $childNode
 	 * @param string $key
-	 * @return DOMDocumentFragment | null
+	 * @return DOMDocumentFragment
 	 */
 	protected function _buildItemNode(EbayEnterprise_Eb2cProduct_Model_Pim_Product $pimProduct, $childNode, $key)
 	{
+		$fragment = $this->_docs[$key]->createDocumentFragment();
 		$attributes = $pimProduct->getPimAttributes();
 		if (count($attributes)) {
-			$fragment = $this->_docs[$key]->createDocumentFragment();
 			$itemNode = $fragment->appendChild($this->_docs[$key]->createElement($childNode));
 			foreach (array_unique($attributes) as $pimAttribute) {
 				$this->_appendAttributeValue($itemNode, $pimAttribute, $key);
 			}
-			return $fragment;
 		}
-		return null;
+		return $fragment;
 	}
 	/**
 	 * Append the nodes necessary DOMNodes to represent the pim attribute to the

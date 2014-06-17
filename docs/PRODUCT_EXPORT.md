@@ -1,6 +1,6 @@
 # Product Export
 
-When Magento is to be the system of record for product information (except for inventory management), the extension enables the system to be configured to export product data as XML files.
+When Magento is to be the system of record for product information (except for inventory management), the extension enables Magento to be configured to export product data as XML files.
 
 ## Contents
 
@@ -30,7 +30,7 @@ The local XML configuration for product export provides settings for:
 
 The following table describes how Magento product attribute are exported to elements in the XML product feeds. The eBay Enterprise Retail Order Management Extension provides these mappings. Any additional product attributes or elements in the XML that are not included below can be mapped and exported to meet the specific needs of a Magento store. See [Product Export Mapping](#product-export-mapping) for more details on mapping additional elements.
 
-Values in the "Magento Attribute Code" column below that begin with an underscore (`_`) do not related to actual Magento product attributes. These fields represent data that is necessary to include in the product feed but may come from some other part of the Magento system, for example configuration values, or from more than a single product attribute.
+Some values in the _Magento Attribute Code_ column are not truly product attribute codes, but are necessary to include data from some other part of Magento, such as configuration values. Those values are indicated by a starting underscore (`_`).
 
 *All XPath expressions are relative to the repeating XML node representing a single product in the feed, e.g. `Item` in ItemMaster or `Content` in ContentMaster.*
 
@@ -50,7 +50,7 @@ Values in the "Magento Attribute Code" column below that begin with an underscor
 		<tr>
 			<td>_gsi_client_id</td>
 			<td>@gsi_client_id</td>
-			<td>The Client ID configured for the website product data is being exported for.</td>
+			<td>The Client Id configured for the website product data is being exported for.</td>
 			<td>No</td>
 		</tr>
 		<tr>
@@ -62,7 +62,7 @@ Values in the "Magento Attribute Code" column below that begin with an underscor
 		<tr>
 			<td>_catalog_id</td>
 			<td>@catalog_id</td>
-			<td>The Catalog ID configured for the Magento instance.</td>
+			<td>The Catalog Id configured for the Magento instance.</td>
 			<td>No</td>
 		</tr>
 		<tr>
@@ -128,7 +128,7 @@ Values in the "Magento Attribute Code" column below that begin with an underscor
 		<tr>
 			<td>drop_ship_supplier_part_number</td>
 			<td>DropShipSupplierInformation/SupplierPartNumber</td>
-			<td>The ID or SKU used by the drop ship supplier to identify the item. Only required when the product can be fulfilled by a drop shipper.</td>
+			<td>The id or SKU used by the drop ship supplier to identify the item. Only required when the product can be fulfilled by a drop shipper.</td>
 			<td>No</td>
 		</tr>
 		<tr>
@@ -195,13 +195,13 @@ Values in the "Magento Attribute Code" column below that begin with an underscor
 		<tr>
 			<td>_gsi_client_id</td>
 			<td>@gsi_client_id</td>
-			<td>The Client ID configured for the website product data is being exported for.</td>
+			<td>The Client Id configured for the website product data is being exported for.</td>
 			<td>No</td>
 		</tr>
 		<tr>
 			<td>_catalog_id</td>
 			<td>@catalog_id</td>
-			<td>The Catalog ID configured for the Magento instance.</td>
+			<td>The Catalog Id configured for the Magento instance.</td>
 			<td>No</td>
 		</tr>
 		<tr>
@@ -314,19 +314,19 @@ Values in the "Magento Attribute Code" column below that begin with an underscor
 		<tr>
 			<td>_gsi_client_id</td>
 			<td>@gsi_client_id</td>
-			<td>The Client ID configured for the website product data is being exported for.</td>
+			<td>The Client Id configured for the website product data is being exported for.</td>
 			<td>No</td>
 		</tr>
 		<tr>
 			<td>_catalog_id</td>
 			<td>@catalog_id</td>
-			<td>The Catalog ID configured for the Magento instance.</td>
+			<td>The Catalog Id configured for the Magento instance.</td>
 			<td>No</td>
 		</tr>
 		<tr>
 			<td>_gsi_store_id</td>
 			<td>@gsi_store_id</td>
-			<td>The Store ID configured for the website product data is being exported for.</td>
+			<td>The Store Id configured for the website product data is being exported for.</td>
 			<td>No</td>
 		</tr>
 		<tr>
@@ -384,14 +384,14 @@ Values in the "Magento Attribute Code" column below that begin with an underscor
 
 The following product requirements must be met for a product to be exported from Magento to eBay Enterprise Retail Order Management.
 
-| Product Attribute         | Requirement                                          |
-| ------------------------- | ---------------------------------------------------- |
-| SKU                       | Must be set and less than 15 characters.             |
-| Hierarchy Class Number    | Non-empty value. May be provided by eBay Enterprise. |
-| Hierarchy Dept Number     | Non-empty value. May be provided by eBay Enterprise. |
-| Hierarchy Subclass Number | Non-empty value. May be provided by eBay Enterprise. |
-| Hierarchy Subdept Number  | Non-empty value. May be provided by eBay Enterprise. |
-| Tax Code                  | Non-empty value. May be provided by eBay Enterprise. |
+| Product Attribute         | Requirement |
+| ------------------------- | ----------- |
+| SKU                       | Must be set and less than 15 characters. |
+| Hierarchy Class Number    | Non-empty value. Must be provided by eBay Enterprise. |
+| Hierarchy Dept Number     | Non-empty value. Must be provided by eBay Enterprise. |
+| Hierarchy Subclass Number | Non-empty value. Must be provided by eBay Enterprise. |
+| Hierarchy Subdept Number  | Non-empty value. Must be provided by eBay Enterprise. |
+| Tax Code                  | Non-empty value. Must be provided by eBay Enterprise. |
 
 ## Product Export Mapping
 
@@ -496,7 +496,7 @@ As long as the resultant XML validates according to the schema (see the `xsd` su
 
 The eb2cproduct/pim helper has predefined passthrough methods for the following data types:
 
-- passYesNoToBool - convert "Yes/No" product attributes to text node with containing the boolean representation
+- passYesNoToBool - convert "Yes/No" product attributes to text node containing the boolean representation
 - passString - produces a text node containing the string value of the product attribute
 - passInteger - produces a text node containing the integer value of the product attribute
 - passDecimal - produces a text node containing the float value of the product attribute
@@ -521,7 +521,7 @@ The following attributes have are created by the eBay Enterprise Retail Order Ma
 | Attribute Name | Attribute Code | Description |
 |----------------|----------------|-------------|
 | Size | size | Product size. |
-| Style ID | style_id | Relates simple products to configurable products. A simple product's Style ID relates to the configurable product's SKU. |
+| Style Id | style_id | Relates simple products to configurable products. A simple product's Style Id relates to the configurable product's SKU. |
 | Is Clean | is_clean | Flag indicating if the product has had all of its product links resolved. |
 | Unresolved Product Links | unresolved_product_links | Any related, cross-sell or up-sell product links for the product that have not yet been created, typically due to the target products not existing in Magento yet. |
 | HTS Codes | hts_codes | Mapping of tax codes used for calculating international taxes and duties. |
@@ -530,7 +530,7 @@ The following attributes have are created by the eBay Enterprise Retail Order Ma
 | Drop Shipped | drop_shipped | Specifies if the item can be fulfilled using a drop shipper.  |
 | Drop Ship Supplier Name | drop_ship_supplier_name | Name of the drop ship supplier fulfilling the product. |
 | Drop Ship Supplier Number | drop_ship_supplier_number | eBay Enterprise assigned code for the drop ship supplier. |
-| Drop Ship Supplier Part Number | drop_ship_supplier_part_number | ID or SKU used by the drop ship supplier to identify the item. |
+| Drop Ship Supplier Part Number | drop_ship_supplier_part_number | Id or SKU used by the drop ship supplier to identify the item. |
 | Hierarchy Department Number | hierarchy_dept_number | Hierarchy Level 1 number. |
 | Hierarchy Department Description | hierarchy_dept_description | Hierarchy Level 1 description. |
 | Hierarchy Subdepartment Number | hierarchy_subdept_number | Hierarchy Level 2 number. |
@@ -699,7 +699,7 @@ The resultant XML would look like:
 </BaseAttributes>
 ```
 
-If two store views with the same client id, store code and language have different values for an attribute, both values will be included in the feed with the same language:
+If two store views with the same Client Id, store code and language have different values for an attribute, both values will be included in the feed with the same language:
 
 ```xml
 <Foo xml:lang="en-us">Fish</Foo>
@@ -710,9 +710,9 @@ This is harmless and eBay Enterprise Retail Order Management will normalize the 
 
 ## Exporting Configurable Products
 
-Configurable products will be included in all of the product feeds from Magento. Configurable products will be related to used simple products via the Style ID. Simple products being used by a configurable product will have a Style ID matching the SKU of the configurable product to indicate the relationship. Configurable products will be given a Style ID matching the product's SKU to indicate that it is a parent product.
+Configurable products will be included in all of the product feeds from Magento. Configurable products will be related to used simple products via the Style Id. Simple products being used by a configurable product will have a Style Id matching the SKU of the configurable product to indicate the relationship. Configurable products will be given a Style Id matching the product's SKU to indicate that it is a parent product.
 
-_Note that in the product export feeds, simple products may only be related to a single configurable product via the Style ID. For this reason, eBay Enterprise Retail Order Management does not support simple products being associated with multiple configurable products. In such scenarios, the product export should not crash but the exact behavior of simple products associated with more than one configurable product is not strictly defined._
+_Note that in the product export feeds, simple products may only be related to a single configurable product via the Style Id. For this reason, eBay Enterprise Retail Order Management does not support simple products being associated with multiple configurable products. In such scenarios, the product export should not crash but the exact behavior of simple products associated with more than one configurable product is not strictly defined._
 
 ## Images
 

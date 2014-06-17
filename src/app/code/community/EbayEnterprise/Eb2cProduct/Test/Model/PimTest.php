@@ -371,7 +371,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 		));
 
 		$feedXml = sprintf(
-			EbayEnterprise_Eb2cProduct_Model_Pim::XML_TEMPlATE,
+			EbayEnterprise_Eb2cProduct_Model_Pim::XML_TEMPLATE,
 			$map[$key][$rootNode],
 			EbayEnterprise_Eb2cProduct_Model_Pim::XMLNS,
 			$map[$key][$schemeLocation],
@@ -998,10 +998,17 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	{
 		$key = 'item_map';
 		$attributes = array('_gsi_client_id', 'sku');
+		$storeId = 1;
 		$map = array($key => array(EbayEnterprise_Eb2cProduct_Model_Pim::KEY_MAPPINGS => array(
 			$attributes[0] => array(),
 			$attributes[1] => array()
 		)));
+
+		$helperMock = $this->getHelperMock('eb2cproduct/data', array('getDefaultStoreViewId'));
+		$helperMock->expects($this->once())
+			->method('getDefaultStoreViewId')
+			->will($this->returnValue($storeId));
+		$this->replaceByMock('helper', 'eb2cproduct', $helperMock);
 
 		$pimModelMock = $this->getModelMockBuilder('eb2cproduct/pim')
 			->disableOriginalConstructor()
@@ -1012,7 +1019,44 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 			->will($this->returnValue($map));
 
 		$this->assertSame($attributes, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$pimModelMock, '_getFeedAttributes', array($key)
+			$pimModelMock, '_getFeedAttributes', array($key, $storeId)
+		));
+	}
+	/**
+	 * @see self::testGetFeedAttributes; however, this test is testing
+	 *      when the passed in store id is not equal to the default store view store id
+	 *      it expects only translatable attributes to be returned.
+	 */
+	public function testGetFeedAttributesTranslatableAttributes()
+	{
+		$key = 'item_map';
+		$translatableAttributes = array('description', 'keywords');
+		$noneTranslatableAttributes = array('sku', 'name');
+		$storeId = 2;
+		$defauldStoreViewId = 1;
+		$map = array($key => array(EbayEnterprise_Eb2cProduct_Model_Pim::KEY_MAPPINGS => array(
+			$translatableAttributes[0] => array('translate' => '1'),
+			$translatableAttributes[1] => array('translate' => '1'),
+			$noneTranslatableAttributes[0] => array('translate' => '0'),
+			$noneTranslatableAttributes[1] => array('translate' => '0'),
+		)));
+
+		$helperMock = $this->getHelperMock('eb2cproduct/data', array('getDefaultStoreViewId'));
+		$helperMock->expects($this->once())
+			->method('getDefaultStoreViewId')
+			->will($this->returnValue($defauldStoreViewId));
+		$this->replaceByMock('helper', 'eb2cproduct', $helperMock);
+
+		$pimModelMock = $this->getModelMockBuilder('eb2cproduct/pim')
+			->disableOriginalConstructor()
+			->setMethods(array('_getFeedsMap'))
+			->getMock();
+		$pimModelMock->expects($this->once())
+			->method('_getFeedsMap')
+			->will($this->returnValue($map));
+
+		$this->assertSame($translatableAttributes, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$pimModelMock, '_getFeedAttributes', array($key, $storeId)
 		));
 	}
 	/**

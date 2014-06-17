@@ -146,7 +146,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 		$itemNode = $map[$key][self::KEY_ITEM_NODE];
 		foreach ($pimProducts->getItems() as $pimProduct) {
 			$itemFragment = $this->_buildItemNode($pimProduct, $itemNode, $key);
-			if ($itemFragment->hasChildNodes()) {
+			if ($itemFragment && $itemFragment->hasChildNodes()) {
 				$pimRoot->appendChild($itemFragment);
 			}
 		}
@@ -182,7 +182,8 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 		EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts, $key
 	)
 	{
-		$config = Mage::helper('eb2cproduct')->getConfigModel($products->getStoreId());
+		$currentStoreId = $products->getStoreId();
+		$config = Mage::helper('eb2ccore')->getConfigModel($currentStoreId);
 		$clientId = $config->clientId;
 		$catalogId = $config->catalogId;
 		foreach ($products->getItems() as $product) {
@@ -195,7 +196,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 			}
 			try {
 				$pimProduct->loadPimAttributesByProduct($product, $this->_docs[$key],
-					$key, $this->_getFeedAttributes($key));
+					$key, $this->_getFeedAttributes($key, $currentStoreId));
 			} catch(EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception $e) {
 				Mage::helper('ebayenterprise_magelog')->logWarn(
 					'[ %s ] Product excluded from export (%s)',
@@ -207,31 +208,52 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 		return $pimProducts;
 	}
 	/**
-	 * given a key in the feed configuration maps get all the mapping attributes
+	 * Take a key for the map export feed configuration and a store id
+	 * determine if the passed in store id is for the default store view
+	 * if so return all mapped attributes otherwise return only
+	 * translatable attributes.
 	 * @param string $key
+	 * @param int $storeId the entity id of Mage_Core_Model_Store
 	 * @return array
 	 */
-	protected function _getFeedAttributes($key)
+	protected function _getFeedAttributes($key, $storeId)
 	{
 		$map = $this->_getFeedsMap();
-		return array_keys($map[$key][self::KEY_MAPPINGS]);
+		return ((int) $storeId === Mage::helper('eb2cproduct')->getDefaultStoreViewId())?
+			array_keys($map[$key][self::KEY_MAPPINGS]) :
+			$this->_getTranslatableAttributes($map[$key][self::KEY_MAPPINGS]);
 	}
 	/**
-	 * Create DOMDocumentFragment with the <Item> node.
+	 * get only translatable attributes
+	 * @param array $mapAttributes
+	 * @return array
+	 */
+	protected function _getTranslatableAttributes(array $mapAttributes)
+	{
+		return array_filter(array_map(function($key) use ($mapAttributes) {
+				return ($mapAttributes[$key]['translate'] === '1') ? $key : null;
+			}, array_keys($mapAttributes)));
+	}
+	/**
+	 * Create DOMDocumentFragment with the <Item> node. Return null
+	 * when there are no attributes.
 	 * @param  EbayEnterprise_Eb2cProduct_Model_Pim_Product $pimProduct
 	 * @param string $childNode
 	 * @param string $key
-	 * @return DOMDocumentFragment
+	 * @return DOMDocumentFragment | null
 	 */
 	protected function _buildItemNode(EbayEnterprise_Eb2cProduct_Model_Pim_Product $pimProduct, $childNode, $key)
 	{
-		$fragment = $this->_docs[$key]->createDocumentFragment();
-		$itemNode = $fragment->appendChild($this->_docs[$key]->createElement($childNode));
 		$attributes = $pimProduct->getPimAttributes();
-		foreach (array_unique($attributes) as $pimAttribute) {
-			$this->_appendAttributeValue($itemNode, $pimAttribute, $key);
+		if (count($attributes)) {
+			$fragment = $this->_docs[$key]->createDocumentFragment();
+			$itemNode = $fragment->appendChild($this->_docs[$key]->createElement($childNode));
+			foreach (array_unique($attributes) as $pimAttribute) {
+				$this->_appendAttributeValue($itemNode, $pimAttribute, $key);
+			}
+			return $fragment;
 		}
-		return $fragment;
+		return null;
 	}
 	/**
 	 * Append the nodes necessary DOMNodes to represent the pim attribute to the
@@ -243,8 +265,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 */
 	protected function _appendAttributeValue(
 		EbayEnterprise_Dom_Element $itemNode,
-		EbayEnterprise_Eb2cProduct_Model_Pim_Attribute $pimAttribute, $key
-	) {
+		EbayEnterprise_Eb2cProduct_Model_Pim_Attribute $pimAttribute, $key) {
 		if ($pimAttribute->value instanceof DOMAttr) {
 			$itemNode->setAttribute($pimAttribute->value->name, $pimAttribute->value->value);
 		} elseif ($pimAttribute->value instanceof DOMNode) {

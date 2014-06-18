@@ -3,6 +3,22 @@ class EbayEnterprise_Eb2cProduct_Helper_Itemmaster
 	extends EbayEnterprise_Eb2cProduct_Helper_Pim
 {
 	/**
+	 * Get a collection of color attribute options within the scope of a given
+	 * store view.
+	 * @param  int $storeId Store view context to get options in
+	 * @return Mage_Eav_Model_Resource_Entity_Attribute_Option_Collection
+	 */
+	protected function _getColorAttributeOptionsCollection($storeId)
+	{
+		return Mage::getResourceModel('eav/entity_attribute_option_collection')
+			->setAttributeFilter(
+				Mage::getSingleton('eav/config')->getAttribute(
+					Mage_Catalog_Model_Product::ENTITY, 'color'
+				)->getId()
+			)
+			->setStoreFilter($storeId);
+	}
+	/**
 	 * Constructs Hierarchy Node
 	 * Items without Hierarchy can't be processed, so if we're empty we must throw an Exception
 	 * will return a DOMNode object
@@ -190,6 +206,18 @@ class EbayEnterprise_Eb2cProduct_Helper_Itemmaster
 		return $fragment;
 	}
 	/**
+	 * Get the color eav attribute option model used by the product.
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @return Mage_Eav_Model_Entity_Attirbute_Option|null
+	 */
+	private function _getColorOptionForProduct(Mage_Catalog_Model_Product $product)
+	{
+		$colorValue = $product->getColor();
+		return $colorValue
+			? $this->_getColorAttributeOptionsCollection($product->getStoreId())->getItemById($colorValue)
+			: null;
+	}
+	/**
 	 * return a DOMNode object containing Color Code/ Description nodes
 	 * @param  string                              $attrValue
 	 * @param  string                              $attribute
@@ -198,20 +226,28 @@ class EbayEnterprise_Eb2cProduct_Helper_Itemmaster
 	 * @return DOMNode|null
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function passColorMaster($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	public function passColorCode($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
-		$color = $product->getColor(); 
-		if (empty($color)) {
-			return null;
-		}
-		$fragment = $doc->createDocumentFragment();
-		$storeId = Mage::app()->getStore()->getId();
-		Mage::app()->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
-		$adminProduct = Mage::getModel('catalog/product')->load($product->getId());
-		$fragment->appendChild($doc->createElement('Code', $color));
-		$fragment->appendChild($doc->createElement('Description', $adminProduct->getColor()));
-		Mage::app()->setCurrentStore($storeId);
-		return $fragment;
+		$colorOption = $this->_getColorOptionForProduct($product);
+		return $colorOption
+			? $this->passString($colorOption->getDefaultValue(), $attribute, $product, $doc)
+			: null;
+	}
+	/**
+	 * return a DOMNode object containing Color Code/ Description nodes
+	 * @param  string                              $attrValue
+	 * @param  string                              $attribute
+	 * @param  Mage_Catalog_Model_Product          $product
+	 * @param  DOMDocument         $doc
+	 * @return DOMNode|null
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passColorDescription($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		$colorOption = $this->_getColorOptionForProduct($product);
+		return $colorOption
+			? $this->passString($colorOption->getValue(), $attribute, $product, $doc)
+			: null;
 	}
 	/**
 	 * return a DOMNode object containing an ItemURL value.

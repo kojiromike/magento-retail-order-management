@@ -138,9 +138,15 @@ Some values in the _Magento Attribute Code_ column are not truly product attribu
 			<td>No</td>
 		</tr>
 		<tr>
-			<td>color</td>
-			<td>ExtendedAttributes/ColorAttributes/Color/</td>
-			<td>Exports the color option used by the product. The child <code>Code</code> XML element will be the label of the option in the admin store view and should be a unique code for the color. The children <code>Description</code> XML elements will contain the translated values used as the option labels for other store views.</td>
+			<td>_color_code</td>
+			<td>ExtendedAttributes/ColorAttributes/Color/Code</td>
+			<td>When a product has a color option, this will use the "admin" label for the color option. This value should uniquely identify the color option.</td>
+			<td>No</td>
+		</tr>
+		<tr>
+			<td>_color_description</td>
+			<td>ExtendedAttributes/ColorAttributes/Color/Description</td>
+			<td>When a product has a color option, <code>Description</code> XML nodes will be added for each store view specific color option label. The <code>Description</code> node will include an <code>xml:lang</code> attribute containing the "Store Language Code" of the store view the label applies to. These values should be the display name of the color option.</td>
 			<td>Yes</td>
 		</tr>
 		<tr>
@@ -255,9 +261,15 @@ Some values in the _Magento Attribute Code_ column are not truly product attribu
 			<td>Yes</td>
 		</tr>
 		<tr>
-			<td>color</td>
-			<td>ExtendedAttributes/ColorAttributes/Color/</td>
-			<td>Exports the color option used by the product. The child <code>Code</code> XML element will be the label of the option in the admin store view and should be a unique code for the color. The children <code>Description</code> XML elements will contain the translated values used as the option labels for other store views.</td>
+			<td>_color_code</td>
+			<td>ExtendedAttributes/ColorAttributes/Color/Code</td>
+			<td>When a product has a color option, this will use the "admin" label for the color option. This value should uniquely identify the color option.</td>
+			<td>No</td>
+		</tr>
+		<tr>
+			<td>_color_description</td>
+			<td>ExtendedAttributes/ColorAttributes/Color/Description</td>
+			<td>When a product has a color option, <code>Description</code> XML nodes will be added for each store view specific color option label. The <code>Description</code> node will include an <code>xml:lang</code> attribute containing the "Store Language Code" of the store view the label applies to. These values should be the display name of the color option.</td>
 			<td>Yes</td>
 		</tr>
 		<tr>

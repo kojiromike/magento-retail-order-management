@@ -155,13 +155,20 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<xml_dest>ExtendedAttributes/AllowGiftMessage</xml_dest>
 							<translate>0</translate>
 						</gift_message_available>
-						<color>
+						<_color_code>
 							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
-							<method>passColorMaster</method>
-							<xml_dest>ExtendedAttributes/ColorAttributes/Color/</xml_dest>
+							<method>passColorCode</method>
+							<xml_dest>ExtendedAttributes/ColorAttributes/Color/Code</xml_dest>
 							<translate>0</translate>
-						</color>
+						</_color_code>
+						<_color_description>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passColorDescription</method>
+							<xml_dest>ExtendedAttributes/ColorAttributes/Color/Description</xml_dest>
+							<translate>1</translate>
+						</_color_description>
 						<country_of_manufacture>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
@@ -264,13 +271,20 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<xml_dest>BaseAttributes/Title</xml_dest>
 							<translate>1</translate>
 						</name>
-						<color>
+						<_color_code>
 							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
-							<method>passColorMaster</method>
-							<xml_dest>ExtendedAttributes/ColorAttributes/Color/</xml_dest>
+							<method>passColorCode</method>
+							<xml_dest>ExtendedAttributes/ColorAttributes/Color/Code</xml_dest>
 							<translate>0</translate>
-						</color>
+						</_color_code>
+						<_color_description>
+							<class>eb2cproduct/itemmaster</class>
+							<type>helper</type>
+							<method>passColorDescription</method>
+							<xml_dest>ExtendedAttributes/ColorAttributes/Color/Description</xml_dest>
+							<translate>1</translate>
+						</_color_description>
 						<country_of_manufacture>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>

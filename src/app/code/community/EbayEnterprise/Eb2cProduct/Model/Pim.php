@@ -202,6 +202,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 		$clientId = $config->clientId;
 		$catalogId = $config->catalogId;
 		foreach ($products->getItems() as $product) {
+			$product->setStoreId($currentStoreId);
 			$pimProduct = $pimProducts->getItemForProduct($product);
 			if (!$pimProduct) {
 				$pimProduct = Mage::getModel('eb2cproduct/pim_product', array(

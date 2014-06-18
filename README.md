@@ -12,6 +12,7 @@ This extension is a unique set of integrated omnichannel-enabling capabilities, 
 1. [Exporting Products](docs/PRODUCT_EXPORT.md)
 1. [Platform](docs/EXCHANGE_PLATFORM.md)
 1. [Troubleshooting Guide](docs/ROM_TROUBLESHOOTING.md)
+
 ## License
 
 Licensed under the terms of the Open Software License v. 3.0 (OSL-3.0). See [LICENSE.md](LICENSE.md) or http://opensource.org/licenses/OSL-3.0 for the full text of the license.

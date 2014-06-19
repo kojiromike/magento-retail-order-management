@@ -555,4 +555,23 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return (int) Mage::app()->getDefaultStoreView()->getId();
 	}
+	/**
+	 * Get get ISO CountryCode by a country full name.
+	 * @param string $countryName the country full name example: United States.
+	 * @return string | null the ISO2 country code Example: US or null when not found.
+	 */
+	public function getCountryCodeByName($countryName)
+	{
+		if (!empty($countryName)) {
+			$countries = Mage::getResourceModel('directory/country_collection')->loadByStore()->toOptionArray();
+			foreach ($countries as $country) {
+				if (strtolower($country['label']) === strtolower($countryName) ||
+					strtolower($country['value']) === strtolower($countryName)
+				) {
+					return $country['value'];
+				}
+			}
+		}
+		return null;
+	}
 }

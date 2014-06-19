@@ -933,4 +933,48 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 
 		$this->assertSame($productMock, $productHelperMock->createNewProduct('1234', 'Fake Product'));
 	}
+	/**
+	 * Test that the method EbayEnterprise_Eb2cProduct_Helper_Data::getCountryCodeByName
+	 * return the proper iso country code when call with the country full name.
+	 * @test
+	 */
+	public function testGetCountryCodeByName()
+	{
+		$countryName = 'United States';
+		$countryCode = 'US';
+		$data = array('1' => array('value' => $countryCode, 'label' => $countryName));
+
+		$collection = $this->getResourceModelMock('directory/country_collection', array('loadByStore', 'toOptionArray'));
+		$collection->expects($this->once())
+			->method('loadByStore')
+			->will($this->returnSelf());
+		$collection->expects($this->once())
+			->method('toOptionArray')
+			->will($this->returnValue($data));
+		$this->replaceByMock('resource_model', 'directory/country_collection', $collection);
+
+		$this->assertSame($countryCode, Mage::helper('eb2cproduct')->getCountryCodeByName($countryName));
+	}
+	/**
+	 * @see self::testGetCountryCodeByName but this time we are testing that null
+	 *      will be return when an invalid country name is provided
+	 * @test
+	 */
+	public function testGetCountryCodeByNameInvalidCountryReturnNull()
+	{
+		$countryName = 'Wrong Country Name';
+		$result = null;
+		$data = array('1' => array('value' => 'US', 'label' => 'United States'));
+
+		$collection = $this->getResourceModelMock('directory/country_collection', array('loadByStore', 'toOptionArray'));
+		$collection->expects($this->once())
+			->method('loadByStore')
+			->will($this->returnSelf());
+		$collection->expects($this->once())
+			->method('toOptionArray')
+			->will($this->returnValue($data));
+		$this->replaceByMock('resource_model', 'directory/country_collection', $collection);
+
+		$this->assertSame($result, Mage::helper('eb2cproduct')->getCountryCodeByName($countryName));
+	}
 }

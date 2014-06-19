@@ -429,4 +429,19 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	{
 		return $this->createStringNode($attrValue ? 'Y' : 'N', $doc);
 	}
+	/**
+	 * Pass string as an ISO Country code otherwise null.
+	 * @param  string                              $attrValue
+	 * @param  string                              $attribute
+	 * @param  Mage_Catalog_Model_Product          $product
+	 * @param  DOMDocument         $doc
+	 * @return DOMNode|null
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passIsoCountryCode($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		$countryCode = Mage::helper('eb2cproduct')->getCountryCodeByName($attrValue);
+		return (!empty($countryCode)) ?
+			$this->passString($countryCode, $attribute, $product, $doc): null;
+	}
 }

@@ -1003,4 +1003,40 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 		$this->assertSame('Y', $pimHelper->passGiftWrap(true, 'gift_wrap', $product, $doc));
 		$this->assertSame('N', $pimHelper->passGiftWrap(false, 'gift_wrap', $product, $doc));
 	}
+	/**
+	 * Test that the method EbayEnterprise_Eb2cProduct_Helper_Pim::passIsoCountryCode
+	 * will return a DOMNode object with a valid ISO country code value.
+	 * @test
+	 */
+	public function testPassIsoCountryCode()
+	{
+		$attrValue = 'United States';
+		$attribute = 'some_attribute';
+		$countryCode = 'US';
+		$product = Mage::getModel('catalog/product');
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$result = $doc->createCDataSection($countryCode);
+
+		$helperMock = $this->getHelperMock('eb2cproduct/data', array('getCountryCodeByName'));
+		$helperMock->expects($this->once())
+			->method('getCountryCodeByName')
+			->with($this->identicalTo($attrValue))
+			->will($this->returnValue($countryCode));
+		$this->replaceByMock('helper', 'eb2cproduct', $helperMock);
+
+		$pimHelperMock = $this->getHelperMock('eb2cproduct/pim', array('passString'));
+		$pimHelperMock->expects($this->once())
+			->method('passString')
+			->with(
+				$this->identicalTo($countryCode),
+				$this->identicalTo($attribute),
+				$this->identicalTo($product),
+				$this->identicalTo($doc)
+			)
+			->will($this->returnValue($result));
+
+		$this->assertSame($result, $pimHelperMock->passIsoCountryCode(
+			$attrValue, $attribute, $product, $doc
+		));
+	}
 }

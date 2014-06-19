@@ -152,7 +152,7 @@ Copy this file to productexport.xml and configure the appropriate values below.
 						<country_of_manufacture>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
-							<method>passStringIf</method>
+							<method>passIsoCountryCode</method>
 							<xml_dest>ExtendedAttributes/CountryOfOrigin</xml_dest>
 							<translate>0</translate>
 						</country_of_manufacture>

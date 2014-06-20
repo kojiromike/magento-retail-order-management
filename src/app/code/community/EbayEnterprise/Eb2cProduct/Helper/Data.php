@@ -556,22 +556,14 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 		return (int) Mage::app()->getDefaultStoreView()->getId();
 	}
 	/**
-	 * Get get ISO CountryCode by a country full name.
-	 * @param string $countryName the country full name example: United States.
-	 * @return string | null the ISO2 country code Example: US or null when not found.
+	 * check if a string is a valid ISO-3166-1-alpha-2 code.
+	 * @param string $name the string to check if it is a valid ISO Country code.
+	 * @return bool true is valid ISO country code otherwise false.
 	 */
-	public function getCountryCodeByName($countryName)
+	public function isValidIsoCountryCode($name)
 	{
-		if (!empty($countryName)) {
-			$countries = Mage::getResourceModel('directory/country_collection')->loadByStore()->toOptionArray();
-			foreach ($countries as $country) {
-				if (strtolower($country['label']) === strtolower($countryName) ||
-					strtolower($country['value']) === strtolower($countryName)
-				) {
-					return $country['value'];
-				}
-			}
-		}
-		return null;
+		$collection = Mage::getResourceModel('directory/country_collection')
+			->addFieldToFilter('iso2_code', $name);
+		return ($collection->count() > 0);
 	}
 }

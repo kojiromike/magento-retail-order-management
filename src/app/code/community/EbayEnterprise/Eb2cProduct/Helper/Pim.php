@@ -454,8 +454,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	 */
 	public function passIsoCountryCode($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
-		$countryCode = Mage::helper('eb2cproduct')->getCountryCodeByName($attrValue);
-		return (!empty($countryCode)) ?
-			$this->passString($countryCode, $attribute, $product, $doc): null;
+		return Mage::helper('eb2cproduct')->isValidIsoCountryCode($attrValue) ?
+			$this->passString($attrValue, $attribute, $product, $doc): null;
 	}
 }

@@ -1017,25 +1017,24 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 */
 	public function testPassIsoCountryCode()
 	{
-		$attrValue = 'United States';
+		$attrValue = 'US';
 		$attribute = 'some_attribute';
-		$countryCode = 'US';
 		$product = Mage::getModel('catalog/product');
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$result = $doc->createCDataSection($countryCode);
+		$result = $doc->createCDataSection($attrValue);
 
-		$helperMock = $this->getHelperMock('eb2cproduct/data', array('getCountryCodeByName'));
+		$helperMock = $this->getHelperMock('eb2cproduct/data', array('isValidIsoCountryCode'));
 		$helperMock->expects($this->once())
-			->method('getCountryCodeByName')
+			->method('isValidIsoCountryCode')
 			->with($this->identicalTo($attrValue))
-			->will($this->returnValue($countryCode));
+			->will($this->returnValue(true));
 		$this->replaceByMock('helper', 'eb2cproduct', $helperMock);
 
 		$pimHelperMock = $this->getHelperMock('eb2cproduct/pim', array('passString'));
 		$pimHelperMock->expects($this->once())
 			->method('passString')
 			->with(
-				$this->identicalTo($countryCode),
+				$this->identicalTo($attrValue),
 				$this->identicalTo($attribute),
 				$this->identicalTo($product),
 				$this->identicalTo($doc)

@@ -19,16 +19,6 @@
 abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 {
 	protected $_coreFeed; // Handles file moving, listing, etc.
-
-	/**
-	 * Processes the DOM loaded into xmlDom. At minimum, you'll have to implement this. You may
-	 * wish to override processFile and/ or processFeeds as well if there's something unusual
-	 * you need to do.
-	 *
-	 * @see processFeeds
-	 * @see processFile
-	 */
-	abstract public function processDom(EbayEnterprise_Dom_Document $xmlDom, array $fileDetail);
 	/**
 	 * Validate that the feed model has necessary configuration for the core
 	 * feed model. Instantiate and store a core feed model using config data
@@ -136,7 +126,7 @@ abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 			$fileDetail['local_file'] = $fileDetail['core_feed']
 				->acknowledgeReceipt($fileDetail['local_file'])
 				->mvToProcessingDirectory($fileDetail['local_file']);
-			$this->processDom($dom, $fileDetail);
+			Mage::dispatchEvent('ebayenterprise_feed_dom_loaded', array('file_detail' => $fileDetail, 'doc' => $dom));
 		}
 		$fileDetail['core_feed']->mvToImportArchive($fileDetail['local_file']);
 		return $this;

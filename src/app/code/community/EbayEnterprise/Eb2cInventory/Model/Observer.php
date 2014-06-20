@@ -145,4 +145,26 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 		}
 		return $this;
 	}
+	/**
+	 * Listen to the 'ebayenterprise_feed_dom_loaded' event
+	 * @see EbayEnterprise_Eb2cCore_Model_Feed_Abstract::processFile
+	 * process a dom document
+	 * @param  Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function processDom(Varien_Event_Observer $observer)
+	{
+		Varien_Profiler::start(__METHOD__);
+		$event = $observer->getEvent();
+		$fileDetail = $event->getFileDetail();
+		$feedConfig = $fileDetail['core_feed']->getFeedConfig();
+		// only process the import if the event type is an inventory type
+		if ($feedConfig['event_type'] === Mage::helper('eb2cinventory')->getConfigModel()->feedEventType) {
+			Mage::log(sprintf('[%s] processing %s', __CLASS__, $fileDetail['local_file']), Zend_Log::DEBUG);
+			$fileDetail['doc'] = $event->getDoc();
+			Mage::getModel('eb2cinventory/feed_item_inventories')->processDom($fileDetail['doc'], $fileDetail);
+		}
+		Varien_Profiler::stop(__METHOD__);
+		return $this;
+	}
 }

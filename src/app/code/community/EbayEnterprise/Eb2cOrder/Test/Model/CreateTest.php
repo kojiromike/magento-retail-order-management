@@ -834,7 +834,7 @@ INVALID_XML;
 			'giftmessage/message',
 			array('load'),
 			false,
-			array(array('sender' => $sender, 'recipient' => $recipient, 'message' => $message, 'id' => $giftMessageId))
+			array(array('sender' => $sender, 'recipient' => $recipient, 'message' => $message, 'gift_message_id' => $giftMessageId))
 		);
 		$this->replaceByMock('model', 'giftmessage/message', $giftMessage);
 		// If there is a message id on the order, load the gift message with that id
@@ -1768,5 +1768,99 @@ INVALID_XML;
 		));
 
 		$this->assertSame($result, $doc->C14N());
+	}
+	/**
+	 * Test that the method EbayEnterprise_Eb2cOrder_Model_Create::_buildGift
+	 * when invoked by this test will build a gift node
+	 * @test
+	 */
+	public function testBuildGift()
+	{
+		$level = 'item';
+		$wrappingId = 5;
+		$sku = '53-GWTST0001';
+		$gwPrice = 10.95;
+		$basePrice = 9.45;
+		$giftMessageId = 0;
+		$taxType = 'SALES';
+		$taxability = 'TAXABLE';
+		$situs = 'ADMINISTRATIVE_ORIGIN';
+		$jurisdiction = 'PENNSYLVANIA';
+		$jurisdictionLevel = 'STATE';
+		$jurisdictionId = '31152';
+		$imposition = 'Sales and Use Tax';
+		$impositionType = 'General Sales and Use Tax';
+		$effectiveRate = 0.06;
+		$taxableAmount = 10.95;
+		$calculatedTax = 0.66;
+
+		$item = Mage::getModel('sales/order_item', array(
+			'gw_price' => $gwPrice,
+			'gift_message_id' => $giftMessageId
+		));
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root></root>');
+		$docElement = $doc->documentElement;
+
+		$taxData = array(
+			'tax_type' => $taxType,
+			'taxability' => $taxability,
+			'situs' => $situs,
+			'jurisdiction' => $jurisdiction,
+			'jurisdiction_level' => $jurisdictionLevel,
+			'jurisdiction_id' => $jurisdictionId,
+			'imposition' => $imposition,
+			'imposition_type' => $impositionType,
+			'effective_rate' => $effectiveRate,
+			'taxable_amount' => $taxableAmount,
+			'calculated_tax' => $calculatedTax
+		);
+
+		$rq = Mage::getModel('eb2ctax/response_quote', $taxData);
+		$quoteCollection = Mage::getResourceModel('eb2ctax/response_quote_collection');
+		$quoteCollection->addItem($rq);
+
+		$taxQuote = $this->getModelMock('eb2ctax/response_quote', array('getCollection'));
+		$taxQuote->expects($this->any())
+			->method('getCollection')
+			->will($this->returnValue($quoteCollection));
+		$this->replaceByMock('model', 'eb2ctax/response_quote', $taxQuote);
+
+		// Related gift message
+		$giftWrapping = $this->getModelMock(
+			'enterprise_giftwrapping/wrapping',
+			array('load'),
+			false,
+			array(array(
+				'wrapping_id' => $wrappingId,
+				'eb2c_sku' => $sku,
+				'base_price' => $basePrice
+			))
+		);
+		$giftWrapping->expects($this->once())
+			->method('load')
+			->with($this->identicalTo($wrappingId))
+			->will($this->returnSelf());
+		$this->replaceByMock('model', 'enterprise_giftwrapping/wrapping', $giftWrapping);
+
+		$create = Mage::getModel('eb2corder/create');
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_domRequest', $doc);
+
+		// Building 'Gift' node
+		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$create, '_buildGift', array($docElement, $item, $wrappingId, $level)
+		));
+
+		$expectedXml = '<root><Gift><ItemId>' . $sku . '</ItemId><Pricing><Amount>' . $gwPrice .
+			'</Amount><TaxData xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><TaxClass></TaxClass><Taxes><Tax taxType="' .
+			$taxType . '" taxability="' . $taxability . '"><Situs>' . $situs .
+			'</Situs><Jurisdiction jurisdictionId="' . $jurisdictionId . '" jurisdictionLevel="' . $jurisdictionLevel .
+			'">' . $jurisdiction . '</Jurisdiction><Imposition impositionType="' . $impositionType . '">' . $imposition .
+			'</Imposition><EffectiveRate>' . $effectiveRate . '</EffectiveRate><TaxableAmount>' . $taxableAmount .
+			'</TaxableAmount><CalculatedTax>' . $calculatedTax . '</CalculatedTax></Tax></Taxes></TaxData><UnitPrice>' . $basePrice .
+			'</UnitPrice></Pricing></Gift></root>';
+		$this->assertSame($expectedXml, $doc->C14N());
 	}
 }

@@ -10,6 +10,8 @@ The eBay Enterprise Retail Order Management extension includes support for gift 
 
 When available, gift messages may be added for the entire order as well as for individual items. The "Add Printed Card" option is used to determine if the gift messages are to be included on the pack slip or as separate cards. The extension currently does not include support for adding additional charges for including a printed card.
 
+## Gift Wrapping
+
 The eBay Enterprise Retail Order Management extension also includes limited support for gift wrapping. The availability of gift wrapping is dependent upon specific agreements between the merchant and eBay Enterprise.
 
 When available, gift wrapping may be included for the entire order as well as for individual items. Gift wrapping may be added with or without including a gift message. If the customer selects to include a printed card, however, any items that include a gift message will also be gift wrapped. The extension currently does not include support for adding additional charges for gift wrapping or selecting different styles of gift wrapping. Additional rules regarding gift wrapping may be determined as part of the merchant agreement with eBay Enterprise.

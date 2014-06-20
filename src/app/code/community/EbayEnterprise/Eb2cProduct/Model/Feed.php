@@ -152,24 +152,6 @@ class EbayEnterprise_Eb2cProduct_Model_Feed
 		Mage::dispatchEvent('product_feed_complete_error_confirmation', array('feed_details' => $feedFiles));
 		return $filesProcessed;
 	}
-
-	/**
-	 * @see EbayEnterprise_Eb2cCore_Model_Feed_Abstract::processDom
-	 * process a dom document
-	 * @param  EbayEnterprise_Dom_Document $doc
-	 * @param array $fileDetail
-	 * @return self
-	 */
-	public function processDom(EbayEnterprise_Dom_Document $doc, array $fileDetail)
-	{
-		Varien_Profiler::start(__METHOD__);
-		Mage::log(sprintf('[%s] processing %s', __CLASS__, $fileDetail['local_file']), Zend_Log::DEBUG);
-		$fileDetail['doc'] = $doc;
-		Mage::getModel('eb2cproduct/feed_file', $fileDetail)->process();
-		Varien_Profiler::stop(__METHOD__);
-		return $this;
-	}
-
 	/**
 	 * compare feedFile entries and return an integer to represent whether
 	 * $a has higher, same, or lower priority than $b

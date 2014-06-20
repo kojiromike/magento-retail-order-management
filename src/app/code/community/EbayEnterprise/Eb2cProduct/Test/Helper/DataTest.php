@@ -234,8 +234,9 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	 * @test
 	 * @dataProvider dataProvider
 	 */
-	public function testApplyDummyData($sku, $name=null)
+	public function testApplyDummyData($sku, $additionalData=array())
 	{
+		$name = isset($additionalData['name']) ? $additionalData['name'] : null;
 		$hlpr = $this->getHelperMock('eb2cproduct/data', array('_getProdTplt'));
 		$hlpr->expects($this->once())
 			->method('_getProdTplt')
@@ -243,7 +244,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$hlpRef = new ReflectionObject(Mage::helper('eb2cproduct'));
 		$applyDummyDataMethod = $hlpRef->getMethod('_applyDummyData');
 		$applyDummyDataMethod->setAccessible(true);
-		$prod = $applyDummyDataMethod->invoke($hlpr, Mage::getModel('catalog/product'), $sku, $name);
+		$prod = $applyDummyDataMethod->invoke($hlpr, Mage::getModel('catalog/product'), $sku, $additionalData);
 		$this->assertSame($sku, $prod->getSku());
 		$this->assertSame($name ?: "Invalid Product: $sku", $prod->getName());
 		$this->assertSame($sku, $prod->getUrlKey());
@@ -400,6 +401,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	 */
 	public function testPrepareProductModel()
 	{
+		$additionalData = array('name' => 'Test Product Title');
 		$productModelMock = $this->getModelMockBuilder('catalog/product')
 			->disableOriginalConstructor()
 			->setMethods(array('getId'))
@@ -420,13 +422,13 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 			->with(
 				$this->isInstanceOf('Mage_Catalog_Model_Product'),
 				$this->equalTo('TST-1234'),
-				$this->equalTo('Test Product Title')
+				$this->identicalTo($additionalData)
 			)
 			->will($this->returnValue($productModelMock));
 		$this->replaceByMock('helper', 'eb2cproduct', $productHelperMock);
 		$this->assertInstanceOf(
 			'Mage_Catalog_Model_Product',
-			Mage::helper('eb2cproduct')->prepareProductModel('TST-1234', 'Test Product Title')
+			Mage::helper('eb2cproduct')->prepareProductModel('TST-1234', $additionalData)
 		);
 	}
 	/**
@@ -916,6 +918,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	 */
 	public function testCreateNewProduct()
 	{
+		$additionalData = array('name' => 'Fake Product');
 		$productMock = $this->getModelMockBuilder('catalog/product')
 			->disableOriginalConstructor()
 			->getMock();
@@ -927,11 +930,11 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 			->getMock();
 		$productHelperMock->expects($this->once())
 			->method('_applyDummyData')
-			->with($this->equalTo($productMock), $this->equalTo('1234'), $this->equalTo('Fake Product'))
+			->with($this->equalTo($productMock), $this->equalTo('1234'), $this->identicalTo($additionalData))
 			->will($this->returnValue($productMock));
 		$this->replaceByMock('helper', 'eb2cproduct', $productHelperMock);
 
-		$this->assertSame($productMock, $productHelperMock->createNewProduct('1234', 'Fake Product'));
+		$this->assertSame($productMock, $productHelperMock->createNewProduct('1234', $additionalData));
 	}
 	/**
 	 * Test that the method EbayEnterprise_Eb2cProduct_Helper_Data::isValidIsoCountryCode

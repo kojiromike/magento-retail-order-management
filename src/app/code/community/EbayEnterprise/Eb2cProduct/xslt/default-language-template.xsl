@@ -51,6 +51,6 @@
 	<!--
 		Only want items that will be added/updated so filter out any deletes.
 	-->
-	<xsl:template match="/*/Item[@operation_type='Delete']" />
+	<xsl:template match="/*/Item[@operation_type='Delete']|/*/Item[./BaseAttributes/ItemType='GiftWrap']" />
 
 </xsl:stylesheet>

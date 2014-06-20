@@ -232,24 +232,26 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * instantiate new product object and apply dummy data to it
 	 * @param string $sku
+	 * @param  array $additionalData optional
 	 * @return Mage_Catalog_Model_Product
 	 */
-	public function createNewProduct($sku, $name='')
+	public function createNewProduct($sku, array $additionalData=array())
 	{
-		return $this->_applyDummyData(Mage::getModel('catalog/product'), $sku, $name);
+		return $this->_applyDummyData(Mage::getModel('catalog/product'), $sku, $additionalData);
 	}
 
 	/**
 	 * Fill a product model with dummy data so that it can be saved and edited later.
 	 * @see http://www.magentocommerce.com/boards/viewthread/289906/
-	 * @param Mage_Catalog_Model_Product $prod product model to be autofilled
-	 * @param string $sku the new product's sku
-	 * @param string $name the new product's name
+	 * @param  Mage_Catalog_Model_Product $prod product model to be autofilled
+	 * @param  string $sku the new product's sku
+	 * @param  array $additionalData optional
 	 * @return Mage_Catalog_Model_Product
 	 */
-	protected function _applyDummyData(Mage_Catalog_Model_Product $prod, $sku, $name)
+	protected function _applyDummyData(Mage_Catalog_Model_Product $prod, $sku, array $additionalData=array())
 	{
-		$prodData = $this->_getProdTplt();
+		$prodData = array_merge($this->_getProdTplt(), $additionalData);
+		$name = isset($prodData['name']) ? $prodData['name'] : null;
 		$prodData['name'] = $name ?: "Invalid Product: $sku";
 		$prodData['sku'] = $prodData['url_key'] = $sku;
 		return $prod->addData($prodData);

@@ -256,9 +256,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * node will be appended to the given DOMElement.
 	 * @param  DOMElement    $node
 	 * @param  Varien_Object $item
+	 * @param  string $level can either be 'order' or 'item' use to determine at what level the gifting node is being built.
 	 * @return self
 	 */
-	protected function _buildGifting(DOMElement $node, Varien_Object $item)
+	protected function _buildGifting(DOMElement $node, Varien_Object $item, $level='order')
 	{
 		$messageId = $item->getGiftMessageId();
 		$wrapId = $item->getGwId();
@@ -268,6 +269,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		}
 
 		$gifting = $node->createChild('Gifting');
+		// building the Gifting/Gift node if there's a valid giftwrapping for this item
+		$this->_buildGift($gifting, $item, $wrapId, $level);
 		// type of card to add, printed gift card or on the packslip
 		$type = $this->_o->getGwAddCard() ? self::GIFT_MESSAGE_PRINTED_CARD_NODE : self::GIFT_MESSAGE_PACKSLIP_NODE;
 
@@ -280,13 +283,29 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$gifting->addChild('GiftCard');
 		}
 
+		$this->_buildMessage($gifting, $messageId, $type);
+
+		return $this;
+	}
+	/**
+	 * Build the "Gifting/GiftCard/Message" or "Gifting/Gift/Message" or "Gifting/Packslip/Message" nodes.
+	 * Any time a message node to be create simply pass the context node, the message id and the type.
+	 * @param  DOMElement    $node
+	 * @param  int $messageId
+	 * @param  string $type optional
+	 * @return self
+	 */
+	protected function _buildMessage(DOMElement $node, $messageId, $type=null)
+	{
 		if ($messageId) {
 			$giftMessage = Mage::getModel('giftmessage/message')->load($messageId);
-			$messageNode = $gifting->createChild($type);
-			$messageNode->createChild('Message')
-				->addChild('To', strip_tags($giftMessage->getSender()))
-				->addChild('From', strip_tags($giftMessage->getRecipient()))
-				->addChild('Message', strip_tags($giftMessage->getMessage()));
+			if ($giftMessage->getGiftMessageId()) {
+				$messageNode = $type? $node->createChild($type) : $node;
+				$messageNode->createChild('Message')
+					->addChild('To', strip_tags($giftMessage->getSender()))
+					->addChild('From', strip_tags($giftMessage->getRecipient()))
+					->addChild('Message', strip_tags($giftMessage->getMessage()));
+			}
 		}
 		return $this;
 	}
@@ -434,7 +453,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$orderItem->createChild('ShippingMethod', Mage::helper('eb2ccore')->lookupShipMethod($order->getShippingMethod()));
 		$this->_buildEstimatedDeliveryDate($orderItem, $item);
 
-		$this->_buildGifting($orderItem, $item);
+		$this->_buildGifting($orderItem, $item, 'item');
 
 		// According to the XSD the 'CustomAttributes' node at the order item level
 		// must be inserted before the 'ReservationId' node.
@@ -593,7 +612,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$shipItem = $orderItems->createChild('Item');
 			$shipItem->setAttribute('ref', $orderItemRef);
 		}
-		$this->_buildGifting($shipGroup, $this->_o);
+		$this->_buildGifting($shipGroup, $this->_o, 'order');
 	}
 	/**
 	 * Builds the Shipping Node for order
@@ -1104,5 +1123,67 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		$rule = $this->_loadSalesRule($item);
 		return $rule?$rule->getSimpleAction():null;
+	}
+	/**
+	 * @see self::_buildGifting
+	 * Build the "Gifting/Gift" nodes for an order item.
+	 * When an order item has a valid getGwId, we can use that to get
+	 * the giftwrapping associated to it in order to build the
+	 * Gift node under Gifting and attached it to a DOMElement object.
+	 * @param  DOMElement    $giftingNode
+	 * @param  Varien_Object $item
+	 * @param  string $level possible values (item or order)
+	 * @return self
+	 */
+	protected function _buildGift(DOMElement $giftingNode, Varien_Object $item, $wrapId, $level='order')
+	{
+		$giftwrapping = Mage::getModel('enterprise_giftwrapping/wrapping')->load($wrapId);
+		if ($giftwrapping->getWrappingId()) {
+			$giftNode = $giftingNode->createChild('Gift');
+			$giftNode->addChild('ItemId', sprintf('%.20s', $giftwrapping->getEb2cSku()));
+			$pricingNode = $giftNode->createChild('Pricing');
+			$pricingNode->addChild('Amount', Mage::app()->getStore()->roundPrice($item->getGwPrice()));
+			// Tax on the gift wrapping pricing
+			$taxData = ($level === 'order')
+				? $this->_getTaxOnQuote($this->_o, EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING)
+				: $this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::GIFTING);
+			$pricingTaxFragment = $this->_buildTaxDataNodes($taxData, $item);
+			if ($pricingTaxFragment->hasChildNodes()) {
+				$pricingNode->appendChild($pricingTaxFragment);
+			}
+			$pricingNode->addChild('UnitPrice', Mage::app()->getStore()->roundPrice($giftwrapping->getBasePrice()));
+			$this->_buildMessage($giftNode, $item->getGiftMessageId(), null);
+		}
+		return $this;
+	}
+	/**
+	 * Get tax for the entire quote, however because the is specific to quote item
+	 * try to query the quote response for all quote item that has a situs
+	 * of 'DESTINATION'.
+	 * @param  Mage_Sales_Model_Order $order The order to get tax quotes for
+	 * @param  int $taxType   The type of tax quotes to load
+	 * @return EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection
+	 */
+	protected function _getTaxOnQuote(Mage_Sales_Model_Order $order, $taxType)
+	{
+		$taxQuotes = Mage::getModel('eb2ctax/response_quote')->getCollection();
+		$taxQuotes->addFieldToFilter('quote_item_id', array('in' => $this->_getAllQuoteItemIds($order)))
+			->addFieldToFilter('type', $taxType)
+			->addFieldToFilter('situs', 'DESTINATION');
+		return $taxQuotes;
+	}
+	/**
+	 * Get all quote item ids
+	 * @param  Mage_Sales_Model_Order $order
+	 * @return array of quote ids
+	 */
+	protected function _getAllQuoteItemIds(Mage_Sales_Model_Order $order)
+	{
+		$ids = array();
+		$quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
+		foreach ($quote->getAllVisibleItems() as $item) {
+			$ids[] = $item->getId();
+		}
+		return $ids;
 	}
 }

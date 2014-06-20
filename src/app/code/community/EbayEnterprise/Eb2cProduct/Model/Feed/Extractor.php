@@ -16,41 +16,25 @@
 
 class EbayEnterprise_Eb2cProduct_Model_Feed_Extractor
 {
-	const CALLBACK_CONFIG_PATH = 'eb2cproduct/feed_attribute_mappings';
-	/**
-	 * XPath expression to extract a sku from any Item node.
-	 */
-	const SKU_XPATH = 'ItemId/ClientItemId|UniqueID|ClientItemId';
-	/**
-	 * Array of callback configuration
-	 * @var array
-	 */
-	protected $_callbacks = array();
-	/**
-	 * Constructor should load up all of the callback configuration for product
-	 * feed extraction.
-	 */
-	public function __construct()
-	{
-		$cfg = Mage::helper('eb2cproduct')->getConfigModel();
-		$this->_callbacks = $cfg->getConfigData(self::CALLBACK_CONFIG_PATH);
-	}
 	/**
 	 * Extract data from a single item using the callback configuration.
 	 * only callback methods on key value array with type not disabled
 	 * @param  DOMXPath $xpath       DOMXPath object loaded with the DOMDocument to extract data from
 	 * @param  DOMNode  $contextNode DOMNode to be used as the context for all XPath queries
+	 * @param  Mage_Core_Model_Abstract $item
+	 * @param  array $cfgData
 	 * @return array Extracted data
 	 */
-	public function extractItem(DOMXPath $xpath, DOMNode $contextNode, Mage_Catalog_Model_Product $product)
+	public function extractItem(DOMXPath $xpath, DOMNode $contextNode, Mage_Core_Model_Abstract $item, array $cfgData)
 	{
 		$coreHelper = Mage::helper('eb2ccore/feed');
+		$callbacks = Mage::helper('eb2cproduct')->getConfigModel()->getConfigData($cfgData['extractor_callback_path']);
 		$itemData = array();
-		foreach ($this->_callbacks as $attribute => $callback) {
+		foreach ($callbacks as $attribute => $callback) {
 			if ($callback['type'] !== 'disabled') {
 				$result = $xpath->evaluate($callback['xpath'], $contextNode);
 				if ($this->_validateResult($result)) {
-					$callback['parameters'] = array($result, $product);
+					$callback['parameters'] = array($result, $item);
 					$itemData[$attribute] = $coreHelper->invokeCallback($callback);
 				}
 			}
@@ -72,9 +56,14 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Extractor
 	{
 		return !($result instanceof DOMNodeList && $result->length === 0);
 	}
-
-	public function extractSku(DOMXPath $xpath, DOMNode $contextNode)
+	/**
+	 * extract skus given the xpath object the context node and the xpath string.
+	 * @param DOMXPath $xpath
+	 * @param DOMNode $contextNode
+	 * @param string $skuXPath
+	 */
+	public function extractSku(DOMXPath $xpath, DOMNode $contextNode, $skuXPath)
 	{
-			return $xpath->query(self::SKU_XPATH, $contextNode)->item(0)->nodeValue;
+		return $xpath->query($skuXPath, $contextNode)->item(0)->nodeValue;
 	}
 }

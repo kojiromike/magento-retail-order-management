@@ -18,7 +18,7 @@
   - [ROM Extended Magento Logging](#rom-extended-magento-logging)
   - [Reading the System Log](#reading-the-system-log)
     - [Log Format](#log-format)
-    - [Monitoring and Viewing Logs](#monitoring-and-viewing-logs)  
+    - [Monitoring and Viewing Logs](#monitoring-and-viewing-logs)
   - [Log Messages: Examples](#log-messages-examples)
   - [Reading the Exception Log](#reading-the-exception-log)
 
@@ -62,16 +62,19 @@ The ROM Extension fully supports product level gift messaging and gift wrapping.
 
 The extension does not support order level gift message and wrapping. These options must be disabled (```System->Configuration->Sales->Gift Options```).
 
+Make sure Enterprise Giftwrapping is imported under (```Sales->Gift Wrapping```).
+Also ensure the two newly added field are available: Sku and Tax Class.
+
 ---
 ##Common Configuration Problems
 Configuration issues are the most common cause of problems.
 
 ### SFTP Credentials
 The private key must be pasted as-is, with newlines. Note that the Public Key (Fig. 1) is displayed as soon as the private key is correctly installed. Use the Test SFTP Connection button to ensure you are able to connect.
- 
+
 ![ts-privatekey](static/rom-ts-privatekey-config.png)
 
-### Web Services: 
+### Web Services:
 The API Key (Fig. 2) is obscured, so the only way to really know if it is correct is to use the Test API Connection.
 
 ![ts-webservices](static/rom-ts-webservices-config.png)
@@ -83,7 +86,7 @@ You will need:
 
 * ```rom.xml```, which contains core configuration details.
 * _One of_: ```productexport.xml``` (Using Magento as a Product Information Manager ) ```productimport.xml``` (Magento receives feeds from eBay Enterprise Retail Order Management Service). Unpredictable results will occur if you have _both_ of these files installed.
- 
+
 You may need:
 
 * ```ordercustomattributes.xml``` If you are implementing any custom attributes for _orders_. Consult [Mapping Order Create Custom Attributes](ORDER_CUSTOM_ATTRIBUTES.md) for full details.
@@ -95,7 +98,7 @@ There are two places that require configuration and enabling for ROM Extension P
 1. System Configuration->Retail Order Management->Payments
 2. System Configuration->Payment Methods->Payment Bridge
 
-It is possible to Enable ROM Payments Credit Cards and not enable Payment Bridge. 
+It is possible to Enable ROM Payments Credit Cards and not enable Payment Bridge.
 
 
 #### Ensure that Payments are enabled (Fig. 3) ...
@@ -131,7 +134,7 @@ In this section, we will review:
 
 * _Log Format_ the general format of a log message
 * _Monitoring_ the system from the command line
-* _Examples_ some specific log examples to give you an idea of real-world messages 
+* _Examples_ some specific log examples to give you an idea of real-world messages
 
 > **_IMPORTANT!_** During system testing you should monitor requests and responses to ensure that the remote host is correctly configured for your installation. The ROM Extension requires corresponding configuration both in Magento and on the remote host. The remote host will provide helpful messages that are needed to resolve configuration issues.
 
@@ -154,7 +157,7 @@ As the log file is a plain text file, any editor will be able to peruse it. You 
 
 ```
 tail -f log/system.log
-``` 
+```
 
 to watch the log and monitor entries near realtime.
 
@@ -167,7 +170,7 @@ Of note:
 * Messages can span multiple lines.
 * Some XML requests or responses can be large; it will help to have a reliable XML formatter into which you can paste XML log message that are difficult to parse by eye.
 
-####Example: Inventory Service Requests and Response 
+####Example: Inventory Service Requests and Response
 
 #####Quantity
 
@@ -203,13 +206,13 @@ Server: Mule EE Core Extensions/3.3.2
 ##### Allocation
 
 * Request. A good example of where the XML can start to get a little more tricky to review by eye, but not impossible. Here we have requested an allocation of quantity 1 for SKU 45-1112.
- 
+
 ```
 2014-06-02T19:28:47+00:00 INFO (6): [EbayEnterprise_Eb2cCore_Model_Api] Validating request:
 <AllocationRequestMessage xmlns="http://api.gsicommerce.com/schema/checkout/1.0" requestId="MAGTNA-MAGT1-14" reservationId="MAGTNA-MAGT1-14"><OrderItem itemId="45-1112" lineId="24"><Quantity>1</Quantity><ShipmentDetails><ShippingMethod>ANY_STD</ShippingMethod><ShipToAddress><Line1>123 Main St.</Line1><City>Philadelphia</City><MainDivision>PA</MainDivision><CountryCode>US</CountryCode><PostalCode>19106</PostalCode></ShipToAddress></ShipmentDetails></OrderItem></AllocationRequestMessage>
 ```
 
-* Response. We have been allocated a quantity of 1. 
+* Response. We have been allocated a quantity of 1.
 
 ```
 2014-06-02T19:28:49+00:00 INFO (6): [EbayEnterprise_Eb2cCore_Model_Api] Received response for request to https://beta5-na.gsipartners.com/v1.0/stores/MAGT1/inventory/allocations/create.xml:

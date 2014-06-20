@@ -132,7 +132,12 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			}
 
 			$this->_storeId = $quote->getStore()->getId();
-			$this->setQuoteCurrencyCode($quote->getQuoteCurrencyCode());
+			$this->addData(array(
+				'quote_currency_code' => $quote->getQuoteCurrencyCode(),
+				// In order to get giftwrapping related to the entire quote we need to set it magically
+				'gw_id' => $quote->getGwId(),
+				'gw_price' => $quote->getGwPrice()
+			));
 
 			// track if this is a multishipping quote or not.
 			$this->_isMultiShipping = (bool) $quote->getIsMultiShipping();
@@ -372,7 +377,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 				'shipping_amount' => $store->roundPrice($this->_getShippingAmount($address)),
 				'shipping_tax_class' => self::SHIPPING_TAX_CLASS,
 				'applied_rule_ids' => $item->getAppliedRuleIds(),
-				'discount_amount' => $item->getDiscountAmount()
+				'discount_amount' => $item->getDiscountAmount(),
+				'gw_id' => $item->getGwId(), // the associated giftwrapping id to the quote item
+				'gw_price' => $item->getGwPrice(),
 			),
 			$this->_extractShippingData($item),
 			$this->_extractItemDiscountData($item, $address)
@@ -500,6 +507,15 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			}
 			$shipGroup->appendChild($orderItemsFragment);
 
+			// Building TaxDutyQuoteRequest/Shipping/ShipGroups/ShipGroup/Gifting nodes
+			$quoteGwId = $this->getGwId();
+			if ($quoteGwId) {
+				$giftwrapping = Mage::getModel('enterprise_giftwrapping/wrapping')->load($quoteGwId);
+				if ($giftwrapping->getWrappingId()) {
+					$giftingNode = $shipGroup->createChild('Gifting', null, array('id' => sprintf('%.12s', uniqid())));
+					$this->_buildGiftingNode($giftingNode, array('gw_price' => $this->getGwPrice()), $giftwrapping);
+				}
+			}
 		}
 	}
 
@@ -683,6 +699,14 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			$taxClassNode = $parent->ownerDocument->createElementNs($parent->namespaceURI, 'TaxClass', $taxClass);
 			$unitPriceNode->parentNode->insertBefore($taxClassNode, $unitPriceNode);
 		}
+
+		if ($item['gw_id']) {
+			$giftwrapping = Mage::getModel('enterprise_giftwrapping/wrapping')->load($item['gw_id']);
+			if ($giftwrapping->getWrappingId()) {
+				$giftingNode = $orderItem->createChild('Gifting', null, array('id' => sprintf('%.12s', uniqid())));
+				$this->_buildGiftingNode($giftingNode, $item, $giftwrapping);
+			}
+		}
 	}
 
 	/**
@@ -851,5 +875,28 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			$item = $item->getQuoteItem();
 		}
 		return $item;
+	}
+	/**
+	 * build 'OrderItem/Gifting' node and its
+	 * inner nested child nodes.
+	 * @param  EbayEnterprise_Dom_Element $merchandiseNode
+	 * @param  array $quoteItem
+	 * @param Enterprise_GiftWrapping_Model_Wrapping $giftwrapping
+	 * @return self
+	 */
+	protected function _buildGiftingNode(
+		EbayEnterprise_Dom_Element $giftingNode,
+		array $quoteItem,
+		Enterprise_GiftWrapping_Model_Wrapping $giftwrapping
+	)
+	{
+		$giftingNode->addChild('ItemId', sprintf('%.20s', $giftwrapping->getEb2cSku()))
+			->addChild('ItemDesc', sprintf('%.20s', $giftwrapping->getDesign()));
+		$pricingNode = $giftingNode->createChild('Pricing');
+		$pricingNode->addChild('Amount', Mage::app()->getStore()->roundPrice($quoteItem['gw_price']))
+			->addChild('TaxClass', sprintf('%.40s', $giftwrapping->getEb2cTaxClass()));
+		$pricingNode->addChild('UnitPrice', Mage::app()->getStore()->roundPrice($giftwrapping->getBasePrice()));
+
+		return $this;
 	}
 }

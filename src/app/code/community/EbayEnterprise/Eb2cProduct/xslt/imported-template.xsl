@@ -6,7 +6,8 @@
 			<xsl:for-each select="Item|Content|PricePerItem">
 				<xsl:choose>
 					<xsl:when test="@operation_type"><!-- the attribute exists in the node -->
-						<xsl:if test="@operation_type!='Delete'"> <!-- the attribute doesn't equal to 'delete'-->
+						<xsl:variable name="itemType" select="BaseAttributes/ItemType" />
+						<xsl:if test="@operation_type!='Delete' and $itemType!='GiftWrap'"> <!-- the attribute doesn't equal to 'delete'-->
 							<sku><xsl:value-of select="ItemId/ClientItemId|UniqueID|ClientItemId" /></sku>
 						</xsl:if>
 					</xsl:when>

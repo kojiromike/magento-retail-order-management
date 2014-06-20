@@ -13,39 +13,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
 class EbayEnterprise_Eb2cProduct_Model_Feed_File
 {
-	/**
-	 * hold the deleted XSLT stylesheet template file
-	 */
-	const XSLT_DELETED_SKU = 'delete-template.xsl';
-
-	/**
-	 * the root XPath to query individual SKU node
-	 */
-	const DELETED_BASE_XPATH = 'sku';
-
-	/**
-	 * hold the default language XSLT stylesheet template file
-	 */
-	const XSLT_DEFAULT_TEMPLATE_PATH = 'default-language-template.xsl';
-
-	/**
-	 * hold the single language XSLT stylesheet template file
-	 */
-	const XSLT_SINGLE_TEMPLATE_PATH = 'single-language-template.xsl';
-
-	/**
-	 * XPath expression used to chunk the feed file into separate items
-	 */
-	const BASE_ITEM_XPATH = '/Items/Item';
-
-	/**
-	 * XPath expression to get all SKUs in a feed file
-	 */
-	const ALL_SKUS_XPATH = '/Items/Item/ItemId/ClientItemId|/Items/Item/UniqueID|/Items/Item/ClientItemId';
-
 	/**
 	 * Array of information about the feed file to be processed. Expected to be
 	 * passed to the constructor and *must* contain the following keys:
@@ -91,7 +60,7 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	 * @return EbayEnterprise_Dom_Document
 	 * @codeCoverageIgnore
 	 */
-	public function getDoc()
+	protected function _getDoc()
 	{
 		return $this->_feedDetails['doc'];
 	}
@@ -107,22 +76,34 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 
 	/**
 	 * Process the file - making necessary deletes and adds/updates.
+	 * @param EbayEnterprise_Eb2cCore_Model_Feed_Import_Config_Interface $config
+	 *        is a concrete class that implement the interface class and implement
+	 *        the method getImportConfigData which will return an array of key/value pair
+	 *        of configuration specific to the feed running this method
+	 * @param EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
+	 *        is a concrete class that implements this interface class that has two
+	 *        methods ('buildCollection', and 'createNewItem')
 	 * @return self
 	 */
-	public function process()
+	public function process(
+		EbayEnterprise_Eb2cCore_Model_Feed_Import_Config_Interface $config,
+		EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
+	)
 	{
+		$cfgData = $config->getImportConfigData();
 		$skusToReport = array();
-		$this->removeProductsFromWebsites();
+		$this->_removeItemsFromWebsites($cfgData, $items);
 		$skusToReport = array_merge($skusToReport, $this->_importedSkus);
 
 		$siteFilters = Mage::helper('eb2cproduct')->loadWebsiteFilters();
 		foreach($siteFilters as $siteFilter) {
 			$this->_importedSkus = array();
-			$this->processWebsite($siteFilter)->processTranslations($siteFilter);
+			$this->_processWebsite($siteFilter, $cfgData, $items)
+				->_processTranslations($siteFilter, $cfgData, $items);
 			$skusToReport = array_merge($skusToReport, $this->_importedSkus);
 		}
 
-		if(count($skusToReport)) {
+		if (count($skusToReport) && $cfgData['feed_type'] === 'product') {
 			Mage::dispatchEvent(
 				'product_feed_process_operation_type_error_confirmation',
 				array(
@@ -137,15 +118,17 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	/**
 	 * Get a list of SKUs marked for deletion in the feed, load all products to
 	 * delete into a single collection and delete the collection.
+	 * @param array $cfgData
+	 * @param EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
 	 * @return self
 	 */
-	public function removeProductsFromWebsites()
+	protected function _removeItemsFromWebsites(array $cfgData, EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items)
 	{
-		$dData = $this->_getSkusToRemoveFromWebsites();
+		$dData = $this->_getSkusToRemoveFromWebsites($cfgData);
 		Mage::log(sprintf('[%s] deleting %d skus', __CLASS__, count($dData)), Zend_Log::DEBUG);
 		if (!empty($dData)) {
 			$skus = array_keys($dData);
-			$collection = $this->_buildProductCollection($skus);
+			$collection = $items->buildCollection($skus);
 
 			if ($collection->count()) {
 				$this->_removeFromWebsites($collection, $dData);
@@ -184,16 +167,17 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	}
 	/**
 	 * Get an array of SKUs to be deleted from the feed file being processed.
+	 * @param array $cfgData
 	 * @return array Array of SKUs to delete
 	 */
-	protected function _getSkusToRemoveFromWebsites()
+	protected function _getSkusToRemoveFromWebsites(array $cfgData)
 	{
 		$productHelper = Mage::helper('eb2cproduct');
 		$coreHelper = Mage::helper('eb2ccore');
 		$result = array();
-		$dlDoc = $productHelper->splitDomByXslt($this->getDoc(), $this->_getXsltPath(self::XSLT_DELETED_SKU));
+		$dlDoc = $productHelper->splitDomByXslt($this->_getDoc(), $this->_getXsltPath($cfgData['xslt_deleted_sku'], $cfgData['xslt_module']));
 		$xpath = $coreHelper->getNewDomXPath($dlDoc);
-		foreach ($xpath->query(self::DELETED_BASE_XPATH, $dlDoc->documentElement) as $item) {
+		foreach ($xpath->query($cfgData['deleted_base_xpath'], $dlDoc->documentElement) as $item) {
 			$catalogId = $item->getAttribute('catalog_id');
 			$sku = $coreHelper->normalizeSku($item->nodeValue, $catalogId);
 
@@ -214,11 +198,11 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	protected function _getSkusInWebsite(array $dData, array $wData)
 	{
 		return array_filter(array_keys($dData), function ($sku) use ($dData, $wData) {
-			return (
-				$dData[$sku]['gsi_client_id'] === $wData['client_id'] &&
-				$dData[$sku]['catalog_id'] === $wData['catalog_id']
-			);
-		});
+				return (
+					$dData[$sku]['gsi_client_id'] === $wData['client_id'] &&
+					$dData[$sku]['catalog_id'] === $wData['catalog_id']
+				);
+			});
 	}
 	/**
 	 * given an array of website id, and and website id to remove from it
@@ -229,22 +213,23 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	protected function _removeWebsiteId(array $websiteIds, $websiteId)
 	{
 		return array_filter($websiteIds, function ($id) use ($websiteId) {
-			return ($websiteId !== $id);
-		});
+				return ($websiteId !== $id);
+			});
 	}
 	/**
 	 * Get an array of SKUs included in the given DOMXPath.
 	 * @param  DOMXPath $xpath
+	 * @param array $cfgData
 	 * @return array
 	 */
-	protected function _getSkusToUpdate(DOMXPath $xpath)
+	protected function _getSkusToUpdate(DOMXPath $xpath, array $cfgData)
 	{
 		if (empty($this->_importedSkus)) {
-			$updateSkuNodes = $xpath->query(self::ALL_SKUS_XPATH);
+			$updateSkuNodes = $xpath->query($cfgData['all_skus_xpath']);
 			$helper = Mage::helper('eb2ccore');
 			$cfg = $helper->getConfigModel();
 			foreach ($updateSkuNodes as $skuNode) {
-				$this->_importedSkus[] = $helper->normalizeSku($skuNode->nodeValue, $cfg->catalogId);
+				$this->_importedSkus[] = $helper->normalizeSku(trim($skuNode->nodeValue), $cfg->catalogId);
 			}
 		}
 		return $this->_importedSkus;
@@ -253,42 +238,29 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	 * Get the path to the given XSLT template. Methods assumes all XSLTs are
 	 * in an XSLT directory within the eb2cproduct module directory.
 	 * @param  string $templateName File name of the XSLT
+	 * @param  string $module the modulename including packagename
 	 * @return string
 	 * @codeCoverageIgnore
 	 */
-	protected function _getXsltPath($templateName)
+	protected function _getXsltPath($templateName, $module)
 	{
-		return Mage::getModuleDir('', 'EbayEnterprise_Eb2cProduct') . DS . 'xslt' . DS . $templateName;
-	}
-	/**
-	 * Get a DOMDocument including only the data that should be set for a given
-	 * language using the specified XSLT.
-	 * @param string $languageCode
-	 * @param string $template
-	 * @return EbayEnterprise_Dom_Document
-	 */
-	protected function _splitByLanguageCode($languageCode, $template)
-	{
-		return Mage::helper('eb2cproduct')->splitDomByXslt(
-			$this->getDoc(),
-			$this->_getXsltPath($template),
-			array('lang_code' => $languageCode)
-		);
+		return Mage::getModuleDir('', $module) . DS . 'xslt' . DS . $templateName;
 	}
 	/**
 	 * Get a DOMDocument including only the data that should be set for a given
 	 * language using the specified XSLT.
 	 * @param array $websiteFilter
 	 * @param string $template
+	 * @param string $module
 	 * @return EbayEnterprise_Dom_Document
 	 */
-	protected function _splitByFilter($websiteFilter, $template)
+	protected function _splitByFilter($websiteFilter, $template, $module)
 	{
 		return Mage::helper('eb2cproduct')->splitDomByXslt(
-			$this->getDoc(),
-			$this->_getXsltPath($template),
+			$this->_getDoc(),
+			$this->_getXsltPath($template, $module),
 			array('lang_code' => $websiteFilter['lang_code']),
-			array($this, 'xslCallBack'), // Call Back to massage XSL after initial load
+			array($this, '_xslCallBack'), // Call Back to massage XSL after initial load
 			$websiteFilter // Site Context
 		);
 	}
@@ -296,22 +268,26 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	 * load a product collection base on a given set of product data and apply
 	 * the product data to the collection and then save
 	 * product data is expected to have known SKU in order to load the collection
-	 * @param DOMDocument $productDataDoc
-	 * @param int $storeId
+	 * @param  DOMDocument $itemDataDoc
+	 * @param  int $storeId
+	 * @param  array $cfgData
+	 * @param  EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
 	 * @return self
 	 */
-	protected function _importExtractedData(DOMDocument $productDataDoc, $storeId)
+	protected function _importExtractedData(DOMDocument $itemDataDoc, $storeId, array $cfgData, EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items)
 	{
-		$feedXPath = Mage::helper('eb2ccore')->getNewDomXPath($productDataDoc);
-		$skusToUpdate = $this->_getSkusToUpdate($feedXPath);
+		$feedXPath = Mage::helper('eb2ccore')->getNewDomXPath($itemDataDoc);
+		$skusToUpdate = $this->_getSkusToUpdate($feedXPath, $cfgData);
 		if (count($skusToUpdate)) {
-			$productCollection = $this->_buildProductCollection($skusToUpdate);
-			$productCollection->setStore($storeId);
-			foreach ($feedXPath->query(self::BASE_ITEM_XPATH) as $itemNode) {
-				$this->_updateItem($feedXPath, $itemNode, $productCollection);
+			$collection = $items->buildCollection($skusToUpdate);
+			if ($cfgData['feed_type'] === 'product') {
+				$collection->setStore($storeId);
 			}
-			Mage::log(sprintf('[%s] saving collection of %d products', __CLASS__, $productCollection->count()), Zend_Log::DEBUG);
-			$productCollection->save();
+			foreach ($feedXPath->query($cfgData['base_item_xpath']) as $itemNode) {
+				$this->_updateItem($feedXPath, $itemNode, $collection, $storeId, $cfgData, $items);
+			}
+			Mage::log(sprintf('[%s] saving collection of %d %s', __CLASS__, $collection->count(), $cfgData['feed_type']), Zend_Log::DEBUG);
+			$collection->save();
 		}
 		return $this;
 	}
@@ -324,47 +300,53 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	 * @param  DOMXPath $feedXPath
 	 * @param  DOMNode $itemNode
 	 * @param  EbayEnterprise_Eb2cProduct_Model_Resource_Feed_Product_Collection $productCollection
+	 * @param  int $storeId
+	 * @param  array $cfgData
+	 * @param  EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
 	 * @return self
 	 */
 	protected function _updateItem(
 		DOMXPath $feedXPath,
 		DOMNode $itemNode,
-		EbayEnterprise_Eb2cProduct_Model_Resource_Feed_Product_Collection $productCollection
+		Varien_Data_Collection $itemCollection,
+		$storeId, array $cfgData, EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
 	)
 	{
 		$extractor = Mage::getSingleton('eb2cproduct/feed_extractor');
-		$helper = Mage::helper('eb2cproduct');
 		$coreHelper = Mage::helper('eb2ccore');
 		$sku = $coreHelper->normalizeSku(
-			$extractor->extractSku($feedXPath, $itemNode),
+			$extractor->extractSku($feedXPath, $itemNode, $cfgData['extractor_sku_xpath']),
 			$coreHelper->getConfigModel()->catalogId
 		);
-		$websiteId = Mage::getModel('core/store')->load($productCollection->getStoreId())->getWebsiteId();
-		$product = $productCollection->getItemById($sku);
-		if (is_null($product)) {
-			$product = $helper->createNewProduct($sku);
-			$product->setWebsiteIds(array($websiteId));
-			$productCollection->addItem($product);
-			Mage::log(sprintf('[%s] creating new product %s', __CLASS__, $sku), Zend_Log::DEBUG);
-		} else {
-			$product->setUrlKey(false);
+		$websiteId = Mage::getModel('core/store')->load($storeId)->getWebsiteId();
+		$item = $itemCollection->getItemById($sku);
+		if (is_null($item)) {
+			$item = $items->createNewItem($sku);
+			$item->setWebsiteIds(array($websiteId));
+			$itemCollection->addItem($item);
+			Mage::log(sprintf('[%s] creating new %s %s', __CLASS__, $cfgData['feed_type'], $sku), Zend_Log::DEBUG);
+		} elseif ($cfgData['feed_type'] === 'product') {
+			$item->setUrlKey(false);
 		}
-		$product->setStoreId($productCollection->getStoreId());
-		$webSiteIds = array_unique(array_merge($product->getWebsiteIds(), array($websiteId)));
-		$product->setWebsiteIds($webSiteIds);
-		$product->addData($extractor->extractItem($feedXPath, $itemNode, $product));
+		$item->setStoreId($storeId);
+		$webSiteIds = array_unique(array_merge($item->getWebsiteIds(), array($websiteId)));
+		$item->setWebsiteIds($webSiteIds);
+		$item->addData($extractor->extractItem($feedXPath, $itemNode, $item, $cfgData));
 		return $this;
 	}
 	/**
-	 * Get all languages configured in Magento and process product data for
+	 * Get all languages configured in Magento and process item data for
 	 * each language.
+	 * @param array $siteFilter
+	 * @param array $cfgData
+	 * @param EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
 	 * @return self
 	 */
-	public function processTranslations($siteFilter)
+	protected function _processTranslations(array $siteFilter, array $cfgData, EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items)
 	{
 		foreach (Mage::helper('eb2ccore/languages')->getLanguageCodesList() as $language) {
 			if ($siteFilter['lang_code'] === $language) {
-				$this->processForLanguage($siteFilter);
+				$this->_processForLanguage($siteFilter, $cfgData, $items);
 			}
 		}
 		return $this;
@@ -372,21 +354,20 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	/**
 	 * Process the feed for a single language by extracting data for the given
 	 * language and then importing the data for each store view with that language.
-	 * @param string $languageCode
+	 * @param  array $siteFilter
+	 * @param  array $cfgData
+	 * @param  EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
 	 * @return self
 	 */
-	public function processForLanguage($siteFilter)
+	protected function _processForLanguage(array $siteFilter, array $cfgData, EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items)
 	{
 		Mage::log(sprintf('[%s] processing %s language', __CLASS__, $siteFilter['lang_code']), Zend_Log::DEBUG);
-		$splitDoc = $this->_splitByFilter(
-			$siteFilter,
-			EbayEnterprise_Eb2cProduct_Model_Feed_File::XSLT_SINGLE_TEMPLATE_PATH
-		);
+		$splitDoc = $this->_splitByFilter($siteFilter, $cfgData['xslt_single_template_path'], $cfgData['xslt_module']);
 		foreach (Mage::helper('eb2ccore/languages')->getStores($siteFilter['lang_code']) as $store) {
 			// do not reprocess the default store
 			$storeId = $store->getId();
 			if ($siteFilter['mage_store_id'] === $storeId && $storeId !== Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID) {
-				$this->_importExtractedData($splitDoc, $storeId);
+				$this->_importExtractedData($splitDoc, $storeId, $cfgData, $items);
 			}
 		}
 		return $this;
@@ -395,25 +376,25 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	 * Process the feed for this website. Should process the file using
 	 * the default language XSLT and the language the default store view is
 	 * configured for.
+	 * @param array $websiteFilter
+	 * @param array $cfgData
+	 * @param EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
 	 * @return self
 	 */
-	public function processWebsite($websiteFilter)
+	protected function _processWebsite(array $websiteFilter, array $cfgData, EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items)
 	{
 		Mage::log(sprintf('[%s] site filter = %s', __METHOD__, json_encode($websiteFilter)), Zend_Log::DEBUG);
 		$mageStoreId = $websiteFilter['mage_store_id'];
 		return $this->_importExtractedData(
-			$this->_splitByFilter(
-				$websiteFilter,
-				EbayEnterprise_Eb2cProduct_Model_Feed_File::XSLT_DEFAULT_TEMPLATE_PATH
-			),
-			$mageStoreId
+			$this->_splitByFilter($websiteFilter, $cfgData['xslt_default_template_path'], $cfgData['xslt_module']),
+			$mageStoreId, $cfgData, $items
 		);
 	}
 	/**
 	 * This is a callback; adds additional template handling for configurable variables that XSLT 1.0 just doesn't do.
 	 * @return
 	 */
-	public function xslCallBack(DOMDocument $xslDoc, array $websiteFilter)
+	protected function _xslCallBack(DOMDocument $xslDoc, array $websiteFilter)
 	{
 		$helper = Mage::helper('eb2cproduct');
 		foreach( array('Item', 'PricePerItem', 'Content') as $nodeToMatch) {
@@ -423,18 +404,5 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 		}
 		$xslDoc->loadXML($xslDoc->saveXML());
 		return;
-	}
-	/**
-	 * Create a product collection containing any product with a SKU in the
-	 * given list. This will only load products that already exist in Magento.
-	 * @param  array $skus
-	 * @return Mage_Catalog_Model_Resource_Product_Collection
-	 */
-	protected function _buildProductCollection(array $skus=array())
-	{
-		return Mage::getResourceModel('eb2cproduct/feed_product_collection')
-			->addAttributeToSelect(array('*'))
-			->addAttributeToFilter(array(array('attribute' => 'sku', 'in' => $skus)))
-			->load();
 	}
 }

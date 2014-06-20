@@ -58,6 +58,14 @@
 					</lock_readonly_attributes>
 				</observers>
 			</catalog_product_edit_action>
+			<ebayenterprise_feed_dom_loaded>
+				<observers>
+					<eb2c_product_feed_dom>
+						<class>eb2cproduct/observers</class>
+						<method>processDom</method>
+					</eb2c_product_feed_dom>
+				</observers>
+			</ebayenterprise_feed_dom_loaded>
 			<product_feed_processing_complete>
 				<observers>
 					<eb2c_reindex_all>
@@ -416,6 +424,19 @@
 					<advanceOrderOpen>No</advanceOrderOpen>
 					<advanceOrderLimited>Yes</advanceOrderLimited>
 				</stock_map>
+				<import_configuration>
+					<xslt_deleted_sku>delete-template.xsl</xslt_deleted_sku>
+					<deleted_base_xpath>sku</deleted_base_xpath>
+					<xslt_default_template_path>default-language-template.xsl</xslt_default_template_path>
+					<xslt_single_template_path>single-language-template.xsl</xslt_single_template_path>
+					<base_item_xpath>/Items/Item</base_item_xpath>
+					<all_skus_xpath>/Items/Item/ItemId/ClientItemId|/Items/Item/UniqueID|/Items/Item/ClientItemId</all_skus_xpath>
+					<feed_type>product</feed_type>
+					<xslt_module>EbayEnterprise_Eb2cProduct</xslt_module>
+					<extractor_callback_path>eb2cproduct/feed_attribute_mappings</extractor_callback_path>
+					<extractor_sku_xpath>ItemId/ClientItemId|UniqueID|ClientItemId</extractor_sku_xpath>
+					<allowable_event_type>ItemMaster,ContentMaster,iShip,Pricing</allowable_event_type>
+				</import_configuration>
 			</feed>
 			<feed_attribute_mappings>
 				<attribute_set_id>

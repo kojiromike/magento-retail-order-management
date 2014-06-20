@@ -39,4 +39,64 @@ class EbayEnterprise_Eb2cProduct_Test_Model_ObserversTest extends EbayEnterprise
 
 		Mage::getModel('eb2cproduct/observers')->lockReadOnlyAttributes($varienEventObserver);
 	}
+	/**
+	 * Test that the method EbayEnterprise_Eb2cProduct_Model_Observers::processDom will invoked
+	 * and will will run EbayEnterprise_Eb2cProduct_Model_Feed_File::process with the required
+	 * parameters
+	 */
+	public function testProcessDom()
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML(
+			'<ItemMaster>
+				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
+					<ItemId>
+						<ClientItemId>45-2BCEC162</ClientItemId>
+					</ItemId>
+				</Item>
+			</ItemMaster>'
+		);
+
+		$feedData = array('event_type' => 'ItemMaster');
+		$coreFeed = $this->getModelMockBuilder('eb2ccore/feed')
+			->disableOriginalConstructor()
+			->setMethods(array('getFeedConfig'))
+			->getMock();
+		$coreFeed->expects($this->any())
+			->method('getFeedConfig')
+			->will($this->returnValue($feedData));
+
+		$observer = new Varien_Event_Observer(array('event' => new Varien_Event(array('doc' => $doc, 'file_detail' => array(
+			'local_file' => 'EbayEnterprise/Product/ItemMaster/Inbound/ItemMaster_TestSubset.xml',
+			'core_feed' => 'core feed mock',
+			'timestamp' => '2012-07-06 10:09:05',
+			'error_file' => '/EbayEnterprise/Eb2c/Feed/Product/ItemMaster/outbound/ItemMaster_20140107224605_12345_ABCD.xml',
+			'core_feed' => $coreFeed
+		)))));
+		$cfgData = array(
+			'allowable_event_type' => 'ItemMaster,ContentMaster,iShip,Pricing',
+		);
+		$config = $this->getModelMock('eb2cproduct/feed_import_config', array('getImportConfigData'));
+		$config->expects($this->any())
+			->method('getImportConfigData')
+			->will($this->returnValue($cfgData));
+		$this->replaceByMock('model', 'eb2cproduct/feed_import_config', $config);
+
+		$items = $this->getModelMock('eb2cproduct/feed_import_items', array());
+		$this->replaceByMock('model', 'eb2cproduct/feed_import_items', $items);
+
+		$fileModelMock = $this->getModelMockBuilder('eb2cproduct/feed_file')
+			->disableOriginalConstructor()
+			->setMethods(array('process'))
+			->getMock();
+		$fileModelMock->expects($this->once())
+			->method('process')
+			->with($this->identicalTo($config), $this->identicalTo($items))
+			->will($this->returnSelf());
+		$this->replaceByMock('model', 'eb2cproduct/feed_file', $fileModelMock);
+
+		$observers = Mage::getModel('eb2cproduct/observers');
+
+		$this->assertSame($observers, $observers->processDom($observer));
+	}
 }

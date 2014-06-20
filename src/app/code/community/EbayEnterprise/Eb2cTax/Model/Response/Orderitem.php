@@ -41,6 +41,8 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 		EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE => 'a:Pricing/a:Merchandise/a:TaxData/a:Taxes/a:Tax',
 		EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING => 'a:Pricing/a:Shipping/a:TaxData/a:Taxes/a:Tax',
 		EbayEnterprise_Eb2cTax_Model_Response_Quote::DUTY => 'a:Pricing/a:Duty/a:TaxData/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::GIFTING => 'a:Gifting/a:Pricing/a:TaxData/a:Taxes/a:Tax',
+		EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING => '/a:TaxDutyQuoteResponse/a:Shipping/a:ShipGroups/a:ShipGroup/a:Gifting/a:Pricing/a:TaxData/a:Taxes/a:Tax',
 	);
 	/**
 	 * get whether the response is valid or not.
@@ -91,13 +93,11 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 
 	public function getOrderItemData()
 	{
-		$quoteData = array_map(function($obj) {
-				return $obj->unsNode()->getData();
-			},
-			array_merge($this->_taxQuotes, $this->_taxQuoteDiscounts)
-		);
-		return $this
-			->setTaxQuotes($quoteData)
+		return $this->setTaxQuotes(
+			array_map(
+				function ($obj) {return $obj->unsNode()->getData();},
+				array_merge($this->_taxQuotes, $this->_taxQuoteDiscounts)
+			))
 			->getData();
 	}
 
@@ -154,19 +154,19 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	 * @param string $type (string, float) * @return array */
 	protected function _extractByType(DomElement $itemNode, DOMXPath $xpath, array $map, $type='string')
 	{
-		return array_reduce(array_keys($map), function($result=array(), $key) use ($itemNode, $xpath, $map, $type) {
-			$val = $xpath->evaluate($map[$key], $itemNode);
-			switch ($type) {
-				case 'float':
-					$val = (float) $val;
-					$result[$key] = $val > 0 ? $val : null;
-					break;
-				default:
-					$result[$key] = $val;
-					break;
-			}
-			return $result;
-		});
+		return array_reduce(array_keys($map), function($result = array(), $key) use ($itemNode, $xpath, $map, $type) {
+				$val = $xpath->evaluate($map[$key], $itemNode);
+				switch ($type) {
+					case 'float':
+						$val = (float) $val;
+						$result[$key] = $val > 0 ? $val : null;
+						break;
+					default:
+						$result[$key] = $val;
+						break;
+					}
+				return $result;
+			});
 	}
 
 	/**
@@ -180,10 +180,10 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	protected function _processTaxData($xpath, $itemNode, $isDiscount=false)
 	{
 		$taxTypes = array_map(function ($expr) use ($xpath, $itemNode) {
-			return $xpath->query($expr, $itemNode);
-		}, $isDiscount ? self::$_promoTaxMap : self::$_taxMap);
-		$modelFactory = 'eb2ctax/response_quote' . ($isDiscount ? '_discount' : '');
+				return $xpath->query($expr, $itemNode);
+			}, $isDiscount ? self::$_promoTaxMap : self::$_taxMap);
 
+		$modelFactory = 'eb2ctax/response_quote' . ($isDiscount ? '_discount' : '');
 		$taxQuote                  = array();
 		$calculationErrorResponses = $this->_collectErrorResponseTypes();
 		$calculationError          = count($calculationErrorResponses) ? true : false;
@@ -228,7 +228,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 		if( !empty($merchError)) {
 			$errorTypes[] = EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE;
 		}
-		$shipError  = $this->getErrorShipping();
+		$shipError = $this->getErrorShipping();
 		if( !empty($shipError)) {
 			$errorTypes[] = EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING;
 		}

@@ -68,77 +68,48 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 */
 	public function testProcess()
 	{
-		$helper = $this->getHelperMock('eb2cproduct/data');
+		$cfgData = array(
+			'feed_type' => 'product'
+		);
+		$siteFilter = array(array('foo'));
+
+		$config = $this->getModelMock('eb2cproduct/feed_import_config', array('getImportConfigData'));
+		$config->expects($this->any())
+			->method('getImportConfigData')
+			->will($this->returnValue($cfgData));
+		$items = Mage::getModel('eb2cproduct/feed_import_items');
+
+		$helper = $this->getHelperMock('eb2cproduct/data', array('loadWebsiteFilters'));
+		$helper->expects($this->any())
+			->method('loadWebsiteFilters')
+			->will($this->returnValue($siteFilter));
 		$this->replaceByMock('helper', 'eb2cproduct', $helper);
-		$helper->expects($this->any())->method('loadWebsiteFilters')->will($this->returnValue(array('foo')));
+
 		$file = $this->getModelMockBuilder('eb2cproduct/feed_file')
 			->disableOriginalConstructor()
-			->setMethods(array('removeProductsFromWebsites', 'processWebsite', 'processTranslations'))
+			->setMethods(array('_removeItemsFromWebsites', '_processWebsite', '_processTranslations'))
 			->getMock();
 		$file->expects($this->once())
-			->method('removeProductsFromWebsites')
+			->method('_removeItemsFromWebsites')
 			->will($this->returnSelf());
 		$file->expects($this->once())
-			->method('processWebsite')
+			->method('_processWebsite')
 			->will($this->returnSelf());
 		$file->expects($this->once())
-			->method('processTranslations')
+			->method('_processTranslations')
 			->will($this->returnSelf());
 
-		$this->assertSame($file, $file->process());
+		$this->assertSame($file, $file->process($config, $items));
 	}
-	/**
-	 * When splitting the feed DOMDocument by language code, use eb2cproduct/data
-	 * helper's splitDomByXslt method, passing through the original DOMDocument,
-	 * the path to the appropriate XSLT and the parameters to be passed through
-	 * to the XSLT.
-	 * @test
-	 */
-	public function testSplitByLanguageCode()
-	{
-
-		$languageCode = 'en-us';
-		$template = EbayEnterprise_Eb2cProduct_Model_Feed_File::XSLT_DEFAULT_TEMPLATE_PATH;
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$splitDoc = Mage::helper('eb2ccore')->getNewDomDocument();
-
-		$xsltFilePath = 'mock/path/to/language-splitting-xslt.xsl';
-
-		$productHelperMock = $this->getHelperMockBuilder('eb2cproduct/data')
-			->disableOriginalConstructor()
-			->setMethods(array('splitDomByXslt'))
-			->getMock();
-		$productHelperMock->expects($this->once())
-			->method('splitDomByXslt')
-			->with($this->equalTo($doc), $this->equalTo($xsltFilePath), $this->equalTo(array('lang_code' => $languageCode)))
-			->will($this->returnValue($splitDoc));
-		$this->replaceByMock('helper', 'eb2cproduct', $productHelperMock);
-
-		$fileModelMock = $this->getModelMockBuilder('eb2cproduct/feed_file')
-			->disableOriginalConstructor()
-			->setMethods(array('getDoc', '_getXsltPath'))
-			->getMock();
-		$fileModelMock->expects($this->once())
-			->method('getDoc')
-			->will($this->returnValue($doc));
-		$fileModelMock->expects($this->once())
-			->method('_getXsltPath')
-			->with($this->equalTo($template))
-			->will($this->returnValue($xsltFilePath));
-
-		$this->assertSame(
-			$splitDoc,
-			$this->_reflectMethod($fileModelMock, '_splitByLanguageCode')->invoke($fileModelMock, $languageCode, $template)
-		);
-	}
-
 	/**
 	 * Deleting a product should create a product collection of products marked
 	 * for deletion in the feed and then call the delete method on the collection.
 	 * @test
 	 */
-	public function testRemoveProductsFromWebsites()
+	public function testRemoveItemsFromWebsites()
 	{
+		$cfgData = array();
+
 		$errorConfirmationMock = $this->getModelMockBuilder('eb2cproduct/error_confirmations')
 			->disableOriginalConstructor()
 			->setMethods(array('processByOperationType'))
@@ -163,26 +134,27 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 			->method('count')
 			->will($this->returnValue(2));
 
+		$items = $this->getModelMock('eb2cproduct/feed_import_items', array('buildCollection'));
+		$items->expects($this->once())
+			->method('buildCollection')
+			->with($this->identicalTo($skus))
+			->will($this->returnValue($collectionMock));
+
 		$fileModelMock = $this->getModelMockBuilder('eb2cproduct/feed_file')
 			->disableOriginalConstructor()
-			->setMethods(array('_getSkusToRemoveFromWebsites', '_buildProductCollection', '_removeFromWebsites'))
+			->setMethods(array('_getSkusToRemoveFromWebsites', '_removeFromWebsites'))
 			->getMock();
 		$fileModelMock->expects($this->once())
 			->method('_getSkusToRemoveFromWebsites')
 			->will($this->returnValue($dData));
 		$fileModelMock->expects($this->once())
-			->method('_buildProductCollection')
-			->with($this->identicalTo($skus))
-			->will($this->returnValue($collectionMock));
-		$fileModelMock->expects($this->once())
 			->method('_removeFromWebsites')
 			->with($this->identicalTo($collectionMock), $this->identicalTo($dData))
 			->will($this->returnSelf());
 
-		$this->assertSame(
-			$fileModelMock,
-			$this->_reflectMethod($fileModelMock, 'removeProductsFromWebsites')->invoke($fileModelMock)
-		);
+		$this->assertSame($fileModelMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$fileModelMock, '_removeItemsFromWebsites', array($cfgData, $items)
+		));
 
 		$this->assertEventDispatched('product_feed_process_operation_type_error_confirmation');
 	}
@@ -192,7 +164,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 * Expectation 1: this set first set the class property EbayEnterprise_Eb2cProduct_Model_Feed_File::_feedDetails
 	 *                to a known state of key value array
 	 * Expectation 2: when the method EbayEnterprise_Eb2cProduct_Model_Feed_File::_getSkusToRemoveFromWebsites get invoked by this
-	 *                test the method EbayEnterprise_Eb2cProduct_Model_Feed_File::getDoc will be called once and it
+	 *                test the method EbayEnterprise_Eb2cProduct_Model_Feed_File::_getDoc will be called once and it
 	 *                will return the DOMDocument object, then the method EbayEnterprise_Eb2cProduct_Helper_Data::splitDomByXslt
 	 *                will be called with the DOMDocument object and the xslt full path to the delete template file, this method
 	 *                will return DOMDocument object with skus to be deleted
@@ -200,12 +172,17 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 *                method which will return the DOMXPath object, with this xpath object the method query the each sku node and
 	 *                extract each sku to be deleted into an array of skus
 	 * Expectation 4: this array of skus then get return
-	 * @mock EbayEnterprise_Eb2cProduct_Model_Feed_File::getDoc
+	 * @mock EbayEnterprise_Eb2cProduct_Model_Feed_File::_getDoc
 	 * @mock EbayEnterprise_Eb2cProduct_Helper_Data::splitDomByXslt
 	 * @mock EbayEnterprise_Eb2cCore_Helper_Data::getNewDomXPath
 	 */
 	public function testGetSkusToRemoveFromWebsites()
 	{
+		$cfgData = array(
+			'xslt_deleted_sku' => 'delete-template.xsl',
+			'xslt_module' => 'EbayEnterprise_Eb2cProduct',
+			'deleted_base_xpath' => 'sku',
+		);
 		$skus = array('45-4321' , '45-9432');
 		$dData = array(
 			$skus[0] => array('gsi_client_id' => 'MAGTNA', 'catalog_id' => '45'),
@@ -274,14 +251,17 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 
 		$file = $this->getModelMockBuilder('eb2cproduct/feed_file')
 			->disableOriginalConstructor()
-			->setMethods(array('getDoc', '_getXsltPath'))
+			->setMethods(array('_getDoc', '_getXsltPath'))
 			->getMock();
 		$file->expects($this->once())
-			->method('getDoc')
+			->method('_getDoc')
 			->will($this->returnValue($doc));
 		$file->expects($this->once())
 			->method('_getXsltPath')
-			->with($this->identicalTo(EbayEnterprise_Eb2cProduct_Model_Feed_File::XSLT_DELETED_SKU))
+			->with(
+				$this->identicalTo($cfgData['xslt_deleted_sku']),
+				$this->identicalTo($cfgData['xslt_module'])
+			)
 			->will($this->returnValue($xslt));
 
 		$this->_reflectProperty($file, '_feedDetails')->setValue($file, array(
@@ -293,10 +273,10 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 			'error_file' => '/EbayEnterprise/Eb2c/Feed/Product/ItemMaster/outbound/ItemMaster_20140107224605_12345_ABCD.xml'
 		));
 
-		$this->assertSame(
-			$dData,
-			$this->_reflectMethod($file, '_getSkusToRemoveFromWebsites')->invoke($file)
-		);
+		$items = Mage::getModel('eb2cproduct/feed_import_items');
+		$this->assertSame($dData, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$file, '_getSkusToRemoveFromWebsites', array($cfgData)
+		));
 	}
 	/**
 	 * Test getting an array of all SKUs contained in a split feed file. Can
@@ -305,6 +285,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 */
 	public function testGetSkusToUpdate()
 	{
+		$cfgData = array('all_skus_xpath' => '/Items/Item/ItemId/ClientItemId|/Items/Item/UniqueID|/Items/Item/ClientItemId');
 		$skus = array('45-12345', '45-23456', '45-34567');
 		$doc = '<Items>
 					<Item><ItemId><ClientItemId>45-12345</ClientItemId></ItemId></Item>
@@ -341,7 +322,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 			->setMethods(null)
 			->getMock();
 		$this->assertSame($skus, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$file, '_getSkusToUpdate', array($xpath)
+			$file, '_getSkusToUpdate', array($xpath, $cfgData)
 		));
 	}
 	/**
@@ -354,6 +335,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 */
 	public function testImportExtractedData()
 	{
+		$cfgData = array('feed_type' => 'product', 'base_item_xpath' => '/Items/Item');
 		// DOMDocument containing data to be imported
 		$doc = $this->getMockBuilder('EbayEnterprise_Dom_Document')->disableOriginalConstructor()->getMock();
 		// store context to save the products in
@@ -370,19 +352,24 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 
 		$file = $this->getModelMockBuilder('eb2cproduct/feed_file')
 			->disableOriginalConstructor()
-			->setMethods(array(
-				'_getSkusToUpdate', '_buildProductCollection', '_updateItem'
-			))
+			->setMethods(array('_getSkusToUpdate', '_updateItem'))
 			->getMock();
 		$coreHelper = $this->getHelperMock('eb2ccore/data', array('getNewDomXPath'));
 		$xpath = $this->getMockBuilder('DOMXPath')
 			->disableOriginalConstructor()
 			->setMethods(array('query'))
 			->getMock();
+
 		$productCollection = $this->getResourceModelMockBuilder('eb2cproduct/feed_product_collection')
 			->disableOriginalConstructor()
 			->setMethods(array('setStore', 'save', 'count'))
 			->getMock();
+
+		$items = $this->getModelMock('eb2cproduct/feed_import_items', array('buildCollection'));
+		$items->expects($this->once())
+			->method('buildCollection')
+			->with($this->identicalTo($skus))
+			->will($this->returnValue($productCollection));
 
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
 
@@ -395,10 +382,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 			->method('_getSkusToUpdate')
 			->with($this->identicalTo($xpath))
 			->will($this->returnValue($skus));
-		$file->expects($this->once())
-			->method('_buildProductCollection')
-			->with($this->identicalTo($skus))
-			->will($this->returnValue($productCollection));
 		$file->expects($this->once())
 			->method('_updateItem')
 			->with(
@@ -426,51 +409,10 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 			EcomDev_Utils_Reflection::invokeRestrictedMethod(
 				$file,
 				'_importExtractedData',
-				array($doc, $storeId)
+				array($doc, $storeId, $cfgData, $items)
 			)
 		);
 	}
-	/**
-	 * Build a product collection from a list of SKUs. The collection should only
-	 * be expected to inlcude products that already exist in Magento. The
-	 * collection should also load as little product data as possible while still
-	 * allowing all of the necessary updates and saves to be performed.
-	 * @test
-	 */
-	public function testBuildProductCollection()
-	{
-		$skus = array('12345', '4321');
-
-		$productCollectionMock = $this->getResourceModelMockBuilder('eb2cproduct/feed_product_collection')
-			->disableOriginalConstructor()
-			->setMethods(array('addAttributeToSelect', 'addAttributeToFilter', 'load'))
-			->getMock();
-
-		$productCollectionMock->expects($this->any())
-			->method('addAttributeToSelect')
-			->with($this->equalTo(array('*')))
-			->will($this->returnSelf());
-		$productCollectionMock->expects($this->any())
-			->method('addAttributeToFilter')
-			->with($this->equalTo(array(
-				array(
-					'attribute' => 'sku',
-					'in' => $skus,
-				),
-			)))
-			->will($this->returnSelf());
-		$productCollectionMock->expects($this->any())
-			->method('load')
-			->will($this->returnSelf());
-
-		$this->replaceByMock('resource_model', 'eb2cproduct/feed_product_collection', $productCollectionMock);
-		$file = $this->getModelMockBuilder('eb2cproduct/feed_file')
-			->disableOriginalConstructor()
-			->setMethods(null)
-			->getMock();
-		$this->assertSame($productCollectionMock, $this->_reflectMethod($file, '_buildProductCollection')->invoke($file, $skus));
-	}
-
 	/**
 	 * Test EbayEnterprise_Eb2cProduct_Model_Feed_File::_removeFromWebsites method for the following expectations
 	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cProduct_Model_Feed_File::_removeFromWebsites given

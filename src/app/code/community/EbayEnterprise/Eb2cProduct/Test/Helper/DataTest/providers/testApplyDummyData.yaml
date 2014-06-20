@@ -1,6 +1,8 @@
 -
   - 45-sku-123
-  - ab-name-cd
+  -
+    name: ab-name-cd
+    short_description: something...
 -
   - 45-sku-abc
 

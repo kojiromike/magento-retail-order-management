@@ -19,6 +19,16 @@
  */
 class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	public function setUp()
+	{
+		parent::setUp();
+		Mage::app()->disableEvents();
+	}
+	public function tearDown()
+	{
+		parent::tearDown();
+		Mage::app()->enableEvents();
+	}
 	/**
 	 * Provide sets of initial data for the abstract feed model to have while
 	 * running _construct and whether that data set contains all necessary data
@@ -164,7 +174,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 			->getMock();
 		$abstractFeed = $this->getModelMockBuilder('eb2ccore/feed_abstract')
 			->disableOriginalConstructor()
-			->setMethods(array('_loadDom', 'processDom'))
+			->setMethods(array('_loadDom'))
 			->getMock();
 		$feedDom = $this->getMockBuilder('EbayEnterprise_Dom_Document')
 			->disableOriginalConstructor()
@@ -196,10 +206,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 			->method('_loadDom')
 			->with($this->identicalTo($fileDetails))
 			->will($this->returnValue($feedDom));
-		$abstractFeed->expects($this->once())
-			->method('processDom')
-			->with($this->identicalTo($feedDom), $this->identicalTo($processingDetails))
-			->will($this->returnSelf());
 
 		$this->assertSame($abstractFeed, $abstractFeed->processFile($fileDetails));
 	}

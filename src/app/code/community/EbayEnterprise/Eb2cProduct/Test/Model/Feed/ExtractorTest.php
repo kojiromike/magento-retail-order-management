@@ -17,28 +17,6 @@
 class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
-
-	/**
-	 * Load callback config and ensure it gets stored on the $_callbacks property.
-	 * @test
-	 */
-	public function testConstructor()
-	{
-		$configArray = array(array('callback' => 'things'));
-
-		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
-		$configRegistryMock->expects($this->once())
-			->method('getConfigData')
-			->with($this->identicalTo(EbayEnterprise_Eb2cProduct_Model_Feed_Extractor::CALLBACK_CONFIG_PATH))
-			->will($this->returnValue($configArray));
-		$this->replaceByMock('model', 'eb2ccore/config_registry', $configRegistryMock);
-
-		$extractor = Mage::getModel('eb2cproduct/feed_extractor');
-		$this->assertSame(
-			$configArray,
-			EcomDev_Utils_Reflection::getRestrictedPropertyValue($extractor, '_callbacks')
-		);
-	}
 	/**
 	 * Build array of key => value pairs of product attribute to value for a
 	 * single item in the feed.
@@ -49,10 +27,25 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 	 */
 	public function testExtractItem()
 	{
+		$extractorCallbackPath = 'some/module/config/path';
+		$cfgData = array('extractor_callback_path' => $extractorCallbackPath);
+
 		$callbackConfig = array(
 			'sku' => array('xpath' => 'Xpath/To/Sku', 'type' => 'helper'),
 			'bad_path' => array('xpath' => 'Xpath/To/Bad', 'type' => 'helper'),
 		);
+		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+		$configRegistryMock->expects($this->once())
+			->method('getConfigData')
+			->with($this->identicalTo($extractorCallbackPath))
+			->will($this->returnValue($callbackConfig));
+
+		$helperMock = $this->getHelperMock('eb2cproduct/data', array('getConfigModel'));
+		$helperMock->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($configRegistryMock));
+		$this->replaceByMock('helper', 'eb2cproduct', $helperMock);
+
 		$itemData = array('sku' => 'abc-123');
 		$product = $this->getModelMock('catalog/product');
 
@@ -93,11 +86,10 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 		$extractor->expects($this->exactly(2))
 			->method('_validateResult')
 			->will($this->returnValueMap($validateValueMap));
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($extractor, '_callbacks', $callbackConfig);
 
 		$this->assertSame(
 			$itemData,
-			$extractor->extractItem($xpath, $contextNode, $product)
+			$extractor->extractItem($xpath, $contextNode, $product, $cfgData)
 		);
 	}
 
@@ -163,6 +155,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 	 */
 	public function testExtractSku($xml)
 	{
+		$skuXPath = 'ItemId/ClientItemId|UniqueID|ClientItemId';
 		$dom = Mage::helper('eb2ccore')->getNewDomDocument();
 		$dom->loadXML($xml);
 		$xpath = new DOMXPath($dom);
@@ -172,6 +165,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
-		$this->assertSame('45-12345', $extractor->extractSku($xpath, $node));
+		$this->assertSame('45-12345', $extractor->extractSku($xpath, $node, $skuXPath));
 	}
 }

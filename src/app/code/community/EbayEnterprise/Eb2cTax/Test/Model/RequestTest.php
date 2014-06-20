@@ -1944,7 +1944,10 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'ShippingOrigin' => 'ship from data',
 			'some_discount_thing' => 'this is discount data',
 			'applied_rule_ids' => null,
-			'discount_amount' => null
+			'discount_amount' => null,
+			'discount_amount' => null,
+			'gw_id' => null,
+			'gw_price' => null
 		);
 		$this->assertEquals($itemData, $result);
 	}
@@ -1994,10 +1997,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		$request->expects($this->once())
 			->method('_addBillingDestination')
 			->with($this->identicalTo($billingAddress));
-		$request->expects($this->once())
-			->method('setQuoteCurrencyCode')
-			->with($this->identicalTo('USD'))
-			->will($this->returnSelf());
+		$request->setQuoteCurrencyCode('USD');
 		$request->expects($this->once())
 			->method('_getItemsForAddress')
 			->with($this->identicalTo($address))
@@ -2160,5 +2160,47 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 					$action : $this->returnValue($action)
 				);
 		}
+	}
+	/**
+	 * Test that the method EbayEnterprise_Eb2cTax_Model_Request::_buildGiftingNode when
+	 * invoked by this test will build a valid gifting nodes with all the request nodes
+	 * @test
+	 */
+	public function testBuildGiftingNode()
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root></root>');
+		$docElement = $doc->documentElement;
+
+		$quoteItem = array('gw_price' => 10.95);
+		$data = array(
+			'eb2c_sku' => '65-GWTEST001',
+			'design' => 'GW Test Design',
+			'eb2c_tax_class' => '89',
+			'base_price' => 9.45
+		);
+		$giftWrapping = Mage::getModel('enterprise_giftwrapping/wrapping', $data);
+
+		$request = Mage::getModel('eb2ctax/request');
+
+		// Build the Gifting node
+		$this->assertSame($request, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$request, '_buildGiftingNode', array($docElement, $quoteItem, $giftWrapping)
+		));
+
+		// Verify the expected xml node in the DOMDocument.
+		$expectedXML = '<root><ItemId>' .
+			$data['eb2c_sku'] .
+			'</ItemId><ItemDesc>' .
+			$data['design'] .
+			'</ItemDesc><Pricing><Amount>' .
+			$quoteItem['gw_price'] .
+			'</Amount><TaxClass>' .
+			$data['eb2c_tax_class'] .
+			'</TaxClass><UnitPrice>' .
+			$data['base_price'] .
+			'</UnitPrice></Pricing></root>';
+
+		$this->assertSame($expectedXML, $doc->C14N());
 	}
 }

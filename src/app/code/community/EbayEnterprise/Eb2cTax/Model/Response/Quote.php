@@ -22,12 +22,15 @@
  */
 class EbayEnterprise_Eb2cTax_Model_Response_Quote extends Mage_Core_Model_Abstract
 {
-	const MERCHANDISE = 0;
-	const SHIPPING    = 1;
-	const DUTY        = 2;
-	const MERCHANDISE_PROMOTION = 3;
-	const SHIPPING_PROMOTION = 4;
-	const DUTY_PROMOTION = 5;
+	const MERCHANDISE             = 0;
+	const SHIPPING                = 1;
+	const DUTY                    = 2;
+	const MERCHANDISE_PROMOTION   = 3;
+	const SHIPPING_PROMOTION      = 4;
+	const DUTY_PROMOTION          = 5;
+
+	const GIFTING                 = 6;
+	const SHIPGROUP_GIFTING       = 7;
 
 	protected function _construct()
 	{
@@ -56,9 +59,9 @@ class EbayEnterprise_Eb2cTax_Model_Response_Quote extends Mage_Core_Model_Abstra
 				'imposition'         => '',
 				'imposition_type'    => '',
 				'situs'              => '',
-				'effective_rate'     => (float)0.00,
-				'taxable_amount'     => (float)0.00,
-				'calculated_tax'     => (float)0.00,
+				'effective_rate'     => (float) 0.00,
+				'taxable_amount'     => (float) 0.00,
+				'calculated_tax'     => (float) 0.00,
 			));
 		}
 		if ($tax) {
@@ -76,7 +79,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Quote extends Mage_Core_Model_Abstra
 			$imposition = $xpath->evaluate('string(a:Imposition)', $tax);
 			$effectiveRate = $xpath->evaluate('number(a:EffectiveRate)', $tax);
 
-			$code              = $jurisdiction && $imposition ?
+			$code = $jurisdiction && $imposition ?
 				$jurisdiction . '-' . $imposition :
 				$effectiveRate;
 

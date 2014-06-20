@@ -201,6 +201,12 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 					case $taxQuote::DUTY:
 						$typeStr = 'Duty';
 						break;
+					case $taxQuote::GIFTING:
+						$typeStr = 'Gifting';
+						break;
+					case $taxQuote::SHIPGROUP_GIFTING:
+						$typeStr = 'ShipGroup-Gifting';
+						break;
 				}
 
 				if (isset($result[$id])) {

@@ -34,6 +34,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 	public function collect(Mage_Sales_Model_Quote_Address $address)
 	{
 		Mage::log(sprintf('[%s] Calculating tax for address %s', __CLASS__, $address->getAddressType()), Zend_Log::DEBUG);
+		try{
 		$this->_initBeforeCollect($address);
 		$this->_roundingDeltas = array();
 		$this->_baseRoundingDeltas = array();
@@ -51,6 +52,9 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 			$this->_calcShippingTaxes($address);
 			//round total amounts in address
 			$this->_roundTotals($address);
+		}
+		} catch (Exception $e) {
+			Mage::log(sprintf('[%s] Exception Message: %s', __METHOD__, $e->getMessage()), Zend_Log::DEBUG);
 		}
 		return $this;
 	}

@@ -19,6 +19,7 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 	protected $_whitelistPaymentMethods = array(
 		'paypal_express',
 		'free',
+		'giftcard'
 	);
 
 	/**
@@ -211,8 +212,7 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 			($section === 'payment' &&
 				($isPaymentEnabled && $group && !$this->isMethodAllowed($group)) ||
 				(!$isPaymentEnabled && $group === 'pbridge_eb2cpayment_cc')
-			) ||
-			($section === 'giftcard' && $isPaymentEnabled)
+			)
 		);
 	}
 }

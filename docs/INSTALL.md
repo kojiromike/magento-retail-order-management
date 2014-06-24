@@ -99,7 +99,7 @@ Except for the option to delete feed files, all values are provided to you by eB
   1. [Local XML Configuration](#local-xml-configuration)
 	1. [Payment Bridge Installation and Configuration](#payment-bridge-installation-and-configuration)
 	1. [Admin Configuration](#admin-configuration)
-## Configuring eb2c.xml
+## Configuring rom.xml
 
 The eBay Retail Order Management extension ships with a sample extension configuration file&mdash;<em>magento-install-dir</em>/app/etc/e2bc.xml.sample&mdash;that enables you to specify options such as:
 - eBay Enterprise Exchange mapping for the Magento shipping method.
@@ -112,8 +112,8 @@ To configure the eBay Retail Order Management extension:
 
 <ol>
 <li>Log in to your Magento server as a user with ownership of the Magento file system.</li>
-<li>Navigate to app/etc in your Magento install and copy the eb2c.xml.sample file into eb2c.xml.</li>
-<li>Edit eb2c.xml, including the following information:
+<li>Navigate to app/etc in your Magento install and copy the rom.xml.sample file into rom.xml.</li>
+<li>Edit rom.xml, including the following information:
 <table>
 <thead>
 	<tr><th>Element</th><th>Subelement</th><th>Default value</th><th>Valid values</th></tr>

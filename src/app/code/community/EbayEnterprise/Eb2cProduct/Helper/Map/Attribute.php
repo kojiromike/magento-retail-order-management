@@ -15,7 +15,6 @@
 
 class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_Abstract
 {
-	const COLOR = 'color';
 	const TURN_OFF_MANAGE_STOCK_XML = '<Item><SalesClass>advanceOrderOpen</SalesClass></Item>';
 	const STALES_CLASS_NODE = 'SalesClass';
 
@@ -78,54 +77,17 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	{
 		return Mage::getModel('eav/entity_attribute')->loadByCode(Mage_Catalog_Model_Product::ENTITY, $name);
 	}
-
 	/**
-	 * extract the color for a given product, determine which store id set for this product
-	 * get the language code for the store, base on the language code determine which language description
-	 * to use to get the option specific for this product
-	 * @param DOMNodeList $node DOM nodes extracted from the feed
-	 * @return int|null
+	 * Color is a set of nodes - a Code (as the color is known to ROM) and one or more
+	 * Description nodes, each node's value a different language.
+	 * @param DOMNodeList $nodeList DOM nodes extracted from the feed
+	 * @return int - the OptionId added or updated | null - the attribute does not exsit
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function extractColorValue(DOMNodeList $nodeList, $product)
 	{
-		if ($this->_isAttributeInSet(self::COLOR, $product)) {
-			$colorCode = Mage::helper('eb2ccore')->extractNodeVal($nodeList);
-			$optionId = $this->_getAttributeOptionId(self::COLOR, $colorCode);
-			return (!$optionId) ? $this->_addNewOption(self::COLOR, $colorCode) : $optionId;
-		}
-		return null;
+		return $this->_addAdminMappedOption('color', 'Code', 'Description', $nodeList);
 	}
-
-	/**
-	 * given an attribute code and and new option code add new record and return
-	 * the newly added option item of the given attribute code
-	 * @param string $attributeCode the attribute code such as color or size, etc
-	 * @param string $optionCode the option to be added to the attribute
-	 * @return int the newly added option code option id
-	 */
-	protected function _addNewOption($attributeCode, $optionCode)
-	{
-		$this->_loadEavAttributeModel($this->_getAttributeIdByName($attributeCode))
-			->addData(array(
-				'option' => array('value' => array(0 => array(
-					Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID => $optionCode
-				)))
-			))
-			->save();
-		return $this->_getAttributeOptionId($attributeCode, $optionCode);
-	}
-
-	/**
-	 * given an attribute id load the Mage_Catalog_Model_Resource_Eav_Attribute class
-	 * and return the it as a new object
-	 * @param int $attributeId the attribute for example color
-	 * @return Mage_Catalog_Model_Resource_Eav_Attribute
-	 */
-	protected function _loadEavAttributeModel($attributeId)
-	{
-		return Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
-	}
-
 	/**
 	 * get a list of option from a given attribute code and store id
 	 * @param string $attributeCode the attribute code (color, size)
@@ -138,13 +100,12 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 		$option = Mage::getResourceModel('eav/entity_attribute_option_collection')
 			->setAttributeFilter($this->_getAttributeIdByName($attributeCode))
 			->addFieldToFilter('tdv.value', $optionValue)
-			->setStoreFilter(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID)
+			->setStoreFilter(Mage_Core_Model_App::ADMIN_STORE_ID)
 			->load()
 			->getFirstItem();
 
 		return (!is_null($option))? (int) $option->getOptionId() : 0;
 	}
-
 	/**
 	 * given a DOMNodeList and a Mage_Catalog_Model_Product make sure this is
 	 * a product of type configurable and then extract the configurable attribute from the node list
@@ -271,5 +232,122 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	{
 		return Mage::getModel('catalog/product_type_configurable_attribute')
 			->setProductAttribute($attribute);
+	}
+	/**
+	 * This function creates options that can be mapped in and out of ROM. It assigns the value
+	 * found at mapCodeNodeName to the ADMIN Value. The description values found at descriptionNodeName
+	 * are then assigned to all stores using the description's language.
+	 * @param string $attributeCode Magento attribute_code
+	 * @param string $mapCodeNodeName The node name at which we find the value that must map to ROM. Should be 1 and only 1.
+	 * @param string $descriptionNodeName The (maybe >1) node names at which we find the language-specific values
+	 * @param DOMNodeList $nodeList as pulled from a feed
+	 * @return The newly updated or added attributeOptionId
+	 */
+	protected function _addAdminMappedOption($attributeCode, $mapCodeNodeName, $descriptionNodeName, DOMNodeList $nodeList)
+	{
+		$xpath            = new DOMXPath($nodeList->item(0)->ownerDocument);
+		$valueCode        = $xpath->query("./$mapCodeNodeName", $nodeList->item(0))->item(0)->nodeValue;
+		$translationNodes = $xpath->query("./$descriptionNodeName", $nodeList->item(0));
+		$translations     = array();
+		foreach ($translationNodes as $node) {
+			$translations[$node->getAttribute('xml:lang')] = $node->nodeValue;
+		}
+		return $this->_setOptionValues($attributeCode, $valueCode, $translations);
+	}
+	/*
+	 * Set the translations (values) for a specific option id. The option id is identified by adminValueText
+	 * @param string $attributeCodeText a product attribute that has options; e.g. color, size, etc.
+	 * @param string $adminValueText This is the Code we received for this option. It is used as the default option value,
+	 *  and is used to retrieve the option
+	 * @param array $translation Option values indexed by a language code, e.g. array['en-us'] = 'English Text'.
+	 * @return int the created/ updated Attribute Option's Id
+	 */
+	protected function _setOptionValues($attributeCodeText, $adminValueText, $translations)
+	{
+		$attributeId = $this->_getAttributeIdByName($attributeCodeText);
+		if (!$attributeId) {
+			return 0; // _getAttributeIdByName guarantees us non-zero value for valid attributes.
+		}
+		$attributeOptions  = array(); // An array holding the format Magento wants for options
+		$attributeOptionId = $this->_getAttributeOptionId($attributeCodeText, $adminValueText);
+		$attribute         = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
+
+		$attributeOptions['attribute_id'] = $attributeId;
+		/*
+		attributeOptionId deserves special attention, as Magento will act differently according to whether it's 0 or not.
+		It will be 0 if the option matching adminValueText is not found - this signals that we must add it.
+		Otherwise, it will be an int > 0.
+
+		The options array must be constructed exactly the same either way:
+		New:
+			attributeOptions['value'][0][Mage_Core_Model_App::ADMIN_STORE] = 'ROM code for this option';
+			attributeOptions['value'][0][store1] = 'text for store1';
+			attributeOptions['value'][0][store2] = 'text for store2';
+		Existing:
+			attributeOptions['value'][144][Mage_Core_Model_App::ADMIN_STORE] = 'ROM code for this option';
+			attributeOptions['value'][144][store1] = 'text for store1';
+			attributeOptions['value'][144][store2] = 'text for store2';
+
+		Despite the fact that they are constructed exactly the same way, they must be added or updated via
+		different methods.
+
+		The other keys in attributeOptions are:
+			attributeOptions['delete'] = attributeOptionIdToDelete (and all values along with it)
+			attributeOptions['order'] = the sort order for the option
+
+		Most of this was gleaned from Mage_Eav_Model_Resource_Entity_Attribute::_saveOption
+		 */
+
+		// Get existing values, if any, because update will overwrite everything.
+		$attributeOptions['value'][$attributeOptionId] = $this->_getAllOptionValues($attribute, $attributeOptionId);
+		// The Default (always stored at Admin) Value
+		$attributeOptions['value'][$attributeOptionId][Mage_Core_Model_App::ADMIN_STORE_ID] = $adminValueText;
+		foreach ($translations as $lang=>$desc) {
+			// For each language, update all stores using that language
+			foreach( Mage::helper('eb2ccore/languages')->getStores($lang) as $store) {
+				$attributeOptions['value'][$attributeOptionId][$store->getId()] = $desc;
+			}
+		}
+		if ($attributeOptionId) {
+			// Previously existing attributeOption is being updated:
+			$attribute->addData(array('option'=>$attributeOptions))->save();
+		} else {
+			// New attributeOption is being added:
+			Mage::getModel('eav/entity_setup','core_setup')->addAttributeOption($attributeOptions);
+			$attributeOptionId = $this->_getAttributeOptionId($attributeCodeText, $adminValueText);
+		}
+		return $attributeOptionId;
+	}
+	/*
+	 * Returns an array keyed by store id, each holding that store's value for the given option id
+	 * Return empty array if there's no option id
+	 * @return array
+	 */
+	protected function _getAllOptionValues($attribute, $attributeOptionId)
+	{
+		$allOptionValues = array();
+		if ($attributeOptionId) {
+			$defaultOptionValueText = $this->_getOptionValueText($attribute, $attributeOptionId);
+			$stores = Mage::helper('eb2ccore/languages')->getStores();
+			foreach ($stores as $store) {
+				$storeId = $store->getId();
+				$optionValueText = $this->_getOptionValueText($attribute, $attributeOptionId, $storeId);
+				if ($optionValueText !== $defaultOptionValueText) {
+					$allOptionValues[$storeId] = $optionValueText;
+				}
+			}
+		}
+		return $allOptionValues;
+	}
+	/*
+	 * Returns the text of the attributeOption for the given store
+	 * @param string $attribute a Magento Attribute object
+	 * @param string $attributeOptionId the id of the option whose text value we want
+	 * @param int $storeId which store view we want
+	 * @return string
+	 */
+	protected function _getOptionValueText($attribute, $attributeOptionId, $storeId=Mage_Core_Model_App::ADMIN_STORE_ID)
+	{
+		return $attribute->setStoreId($storeId)->getSource()->getOptionText($attributeOptionId);
 	}
 }

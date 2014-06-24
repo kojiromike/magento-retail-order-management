@@ -133,201 +133,43 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 	}
 
 	/**
-	 * Test extracColorValue method for the following expectations
-	 * Expectation 1: when this test invoked the method EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::extractColorValue
-	 *                with the a DONNodeList will first extract data into a usable array of color data by calling the
-	 *                mocked EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::_extractColorData method that take a DOMNodeList
-	 *                object and return an array with code key and description key which is map to an array list of lang/value
-	 * Expectation 2: with this array of color data the test expect the method EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::_getDefaultStoreOptionId
-	 *                which will take the attribute code, and the option label, it will return the option id for the default store
-	 * Expectation 3: calling the mock method EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::_getLanguageCodeByStoreId with the store id
-	 *                from the Mock Mage_Catalog_Model_Product::getStoreId method, the _getLanguageCodeByStoreId method will return the language code
-	 *                for that specific store
-	 * Expectation 4: with the color data and language code the method EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::_retrieveColorByLanguage get called
-	 *                and return the value match the lang on the color data array.
-	 * Expectation 5: with the color and the current store id simply call the method
-	 *                EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::saveOption($optionId, $storeId, $name)
-	 *                which will save the option name for that store and return itself
+	 * Test extractColorValue method
+	 * Given the Color XML Node, ensure the setter is called with correctly parsed arguments.
 	 */
 	public function testExtractColorValue()
 	{
-		$colorCode = '700';
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML(
 			'<root>
 				<Color>
 					<Code>700</Code>
-					<Description xml:lang="en-US">Vanilla</Description>
-					<Description xml:lang="fr-FR">Vanille</Description>
+					<Description xml:lang="en-us">Red</Description>
 				</Color>
 			</root>'
 		);
-
-		$product = Mage::getModel('catalog/product');
-
 		$xpath = new DOMXPath($doc);
+		$nodeList = $xpath->query('Color', $doc->documentElement);
 
-		$nodeList = $xpath->query('Color/Code', $doc->documentElement);
-
-		$coreHelper = $this->getHelperMockBuilder('eb2ccore/data')
+		$attrStub = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
 			->disableOriginalConstructor()
-			->setMethods(array('extractNodeVal'))
+			->setMethods(array('_setOptionValues'))
 			->getMock();
-		$coreHelper->expects($this->once())
-			->method('extractNodeVal')
-			->with($this->identicalTo($nodeList))
-			->will($this->returnValue($colorCode));
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
 
-		$optionId = 172;
-		$noOptionId = 0;
-
-		$attributeHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
-			->disableOriginalConstructor()
-			->setMethods(array('_getAttributeOptionId', '_addNewOption', '_isAttributeInSet'))
-			->getMock();
-		$attributeHelperMock->expects($this->once())
-			->method('_getAttributeOptionId')
+		$attrStub->expects($this->once())
+			->method('_setOptionValues')
 			->with(
-				$this->identicalTo(EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::COLOR),
-				$this->identicalTo($colorCode)
+				$this->identicalTo('color'),
+				$this->identicalTo('700'),
+				$this->identicalTo(
+					array(
+						'en-us' => 'Red'
+					)
+				)
 			)
-			->will($this->returnValue($noOptionId));
-		$attributeHelperMock->expects($this->once())
-			->method('_addNewOption')
-			->with(
-				$this->identicalTo(EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::COLOR),
-				$this->identicalTo($colorCode)
-			)
-			->will($this->returnValue($optionId));
-		$attributeHelperMock->expects($this->once())
-			->method('_isAttributeInSet')
-			->with(
-				$this->identicalTo(EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::COLOR),
-				$this->identicalTo($product)
-			)
-			->will($this->returnValue(true));
+			->will($this->returnValue(0));
 
-		$this->assertSame($optionId, $attributeHelperMock->extractColorValue($nodeList, $product));
+		$attrStub->extractColorValue($nodeList, Mage::getModel('catalog/product')); // Forcing a call to _setOptionValues is all we are doing
 	}
-
-	/**
-	 * if the color attribute is not in the attribute set,
-	 * then return null
-	 */
-	public function testExtractColorValueNotInSet()
-	{
-		$doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
-		$doc->loadXML(
-			'<root>
-				<Color>
-					<Code></Code><Code></Code>
-				</Color>
-			</root>'
-		);
-
-		$product = Mage::getModel('catalog/product');
-		$xpath = new DOMXPath($doc);
-		$nodeList = $xpath->query('Color/Code', $doc->documentElement);
-
-		$coreHelper = $this->getHelperMockBuilder('eb2ccore/data')
-			->disableOriginalConstructor()
-			->getMock();
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
-
-		$attributeHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
-			->disableOriginalConstructor()
-			->setMethods(array('_getAttributeOptionId', '_addNewOption', '_isAttributeInSet'))
-			->getMock();
-
-		$attributeHelperMock->expects($this->once())
-			->method('_isAttributeInSet')
-			->will($this->returnValue(false));
-		$this->assertNull($attributeHelperMock->extractColorValue($nodeList, $product));
-	}
-
-	/**
-	 * Test _addNewOption method with the following expectations
-	 * Expectation 1: give an attribute code and a option code the method EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::_addNewOption
-	 *                when invoked by this test will get the attibute id from the attribute code that's pass to it by
-	 *                calling EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::_getAttributeByName which will load the
-	 *                Mage_Catalog_Model_Resource_Eav_Attribute object in which the addData will take an array with key
-	 *                option contain value map with option id of zero and the default stored id map to the option code
-	 *                then the save method will be called and the return value of the _getAttributeOptionId will be returned
-	 */
-	public function testAddNewOption()
-	{
-		$attributeCode = EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::COLOR;
-		$optionCode = '700';
-		$attributeId = 82;
-		$optionId = 344;
-
-		$eavAttributeMock = $this->getModelMockBuilder('catalog/resource_eav_attribute')
-			->disableOriginalConstructor()
-			->setMethods(array('addData', 'save'))
-			->getMock();
-		$eavAttributeMock->expects($this->once())
-			->method('addData')
-			->with($this->identicalTo(array(
-				'option' => array('value' => array(0 => array(
-					Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID => $optionCode
-				)))
-			)))
-			->will($this->returnSelf());
-		$eavAttributeMock->expects($this->once())
-			->method('save')
-			->will($this->returnSelf());
-
-		$attributeHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_attribute')
-			->disableOriginalConstructor()
-			->setMethods(array('_loadEavAttributeModel', '_getAttributeIdByName', '_getAttributeOptionId'))
-			->getMock();
-		$attributeHelperMock->expects($this->once())
-			->method('_loadEavAttributeModel')
-			->with($this->identicalTo($attributeId))
-			->will($this->returnValue($eavAttributeMock));
-		$attributeHelperMock->expects($this->once())
-			->method('_getAttributeIdByName')
-			->with($this->identicalTo($attributeCode))
-			->will($this->returnValue($attributeId));
-		$attributeHelperMock->expects($this->once())
-			->method('_getAttributeOptionId')
-			->with($this->identicalTo($attributeCode), $this->identicalTo($optionCode))
-			->will($this->returnValue($optionId));
-
-		$this->assertSame($optionId, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$attributeHelperMock,
-			'_addNewOption',
-			array($attributeCode, $optionCode)
-		));
-	}
-
-	/**
-	 * Test _loadEavAttributeModel method with the following expectations
-	 * Expectation 1: given an attribute id the method EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::_loadEavAttributeModel will
-	 *                instantiate the Mage_Catalog_Model_Resource_Eav_Attribute class object and load it with the given atttibute id
-	 */
-	public function testLoadEavAttributeModel()
-	{
-		$attributeId = 83;
-
-		$eavAttributeMock = $this->getModelMockBuilder('catalog/resource_eav_attribute')
-			->disableOriginalConstructor()
-			->setMethods(array('load'))
-			->getMock();
-		$eavAttributeMock->expects($this->once())
-			->method('load')
-			->will($this->returnSelf());
-		$this->replaceByMock('model', 'catalog/resource_eav_attribute', $eavAttributeMock);
-
-		$helper = Mage::helper('eb2cproduct/map_attribute');
-		$this->assertSame($eavAttributeMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$helper,
-			'_loadEavAttributeModel',
-			array($attributeId)
-		));
-	}
-
 	/**
 	 * Test _getAttributeOptionId method with the following expectations
 	 * Expectation 1: given the attribute code and option code when this test invoked the method
@@ -340,7 +182,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 	 */
 	public function testGetAttributeOptionId()
 	{
-		$attributeCode = EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::COLOR;
+		$attributeCode = 'color';
 		$optionValue = '700';
 		$attributeId = 82;
 		$optionId = 174;

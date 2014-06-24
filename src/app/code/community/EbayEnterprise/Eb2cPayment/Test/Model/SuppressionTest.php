@@ -19,10 +19,10 @@ class EbayEnterprise_Eb2cPayment_Test_Model_SuppressionTest
 	public function providerIsConfigSuppressed()
 	{
 		return array(
-			// suppress the giftcard section when payments is enabled
-			array('giftcard', 'general', 1, true),
+			// giftcard config should never be suppressed
+			array('giftcard', 'general', 1, false),
 			array('giftcard', 'general', 0, false),
-			array('giftcard', 'someothergroup', 1, true),
+			array('giftcard', 'someothergroup', 1, false),
 			// when payments is enabled, suppress all payment groups other than those we allow
 			array('payment', 'allowed_group', 1, false),
 			array('payment', 'disallowed_group', 1, true),

@@ -6,7 +6,7 @@
 # Core
 connect/ebay_enterprise_exchange.xml var/connect/ebay_enterprise_exchange.xml
 src/app/code/community/EbayEnterprise/* app/code/community/EbayEnterprise/
-src/app/etc/exchangeplatform.xml.sample app/etc/exchangeplatform.xml.sample
+src/app/etc/rom.xml.sample app/etc/rom.xml.sample
 src/app/etc/productexport.xml.sample app/etc/productexport.xml.sample
 src/app/etc/productimport.xml.sample app/etc/productimport.xml.sample
 

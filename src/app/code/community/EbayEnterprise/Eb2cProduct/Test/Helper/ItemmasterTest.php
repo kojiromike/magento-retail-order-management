@@ -118,13 +118,27 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 		);
 	}
 	/**
+	 * Provide various values for the product cost attribute that should not
+	 * be considered valid to include in the feed. Value must be numeric to
+	 * be valid.
+	 * @return array Args array
+	 */
+	public function provideInvalidCostValue()
+	{
+		return array(
+			array(null), array('foo'), array(''), array(array()), array(true), array(new Varien_Object()),
+		);
+	}
+	/**
 	 * When a product does not have a `cost`, the mapping should return null
 	 * to prevent the UnitCost node from being added.
+	 * @param mixed $costValue Values that should be considered invalid
 	 * @test
+	 * @dataProvider provideInvalidCostValue
 	 */
-	public function testUnitCostNoValue()
+	public function testUnitCostNoValue($costValue)
 	{
-		// product will be devoid of data, so will certainly not have a "cost"
+		$this->product->setCost($costValue);
 		$this->assertSame(
 			null,
 			$this->itemmasterHelper->passUnitCost($this->product->getCost(), 'cost', $this->product, $this->doc)

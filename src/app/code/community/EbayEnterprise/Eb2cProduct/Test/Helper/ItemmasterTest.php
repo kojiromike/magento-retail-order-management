@@ -1,4 +1,17 @@
 <?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 
 class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
@@ -102,6 +115,19 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 		$this->assertSame(
 			null,
 			$this->itemmasterHelper->passColorDescription(null, '_color_code', $this->product, $this->doc)
+		);
+	}
+	/**
+	 * When a product does not have a `cost`, the mapping should return null
+	 * to prevent the UnitCost node from being added.
+	 * @test
+	 */
+	public function testUnitCostNoValue()
+	{
+		// product will be devoid of data, so will certainly not have a "cost"
+		$this->assertSame(
+			null,
+			$this->itemmasterHelper->passUnitCost($this->product->getCost(), 'cost', $this->product, $this->doc)
 		);
 	}
 }

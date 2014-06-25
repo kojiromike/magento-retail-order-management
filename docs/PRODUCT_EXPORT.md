@@ -158,7 +158,7 @@ Some values in the _Magento Attribute Code_ column are not truly product attribu
 		<tr>
 			<td>_giftcard</td>
 			<td>ExtendedAttributes/</td>
-			<td>For gift cards, will include the <code>GiftCardFacing</code> element, set to the product's "Name" attribute and the <code>GiftCardTenderCode</code> to the appropriate eBay Enterprise Retail Order Management tender code for the type of gift card.</td>
+			<td>For gift cards, will include the <code>GiftCardFacing</code> element, set to the product's "Name" attribute and the <code>GiftCardTenderCode</code> set to the product's <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Gift Card Tender Code"</a> attribute.</td>
 			<td>No</td>
 		</tr>
 		<tr>
@@ -551,6 +551,7 @@ The following attributes have are created by the eBay Enterprise Retail Order Ma
 | Hierarchy Class Description | hierarchy_class_description | Hierarchy Level 3 description. |
 | Hierarchy Subclass Number | hierarchy_subclass_number | Hierarchy Level 4 number. |
 | Hierarchy Subclass Description | hierarchy_subclass_description | Hierarchy Level 4 description. |
+| Gift Card Tender Code | gift_card_tender_code | Type of gift card to be used for activiation. Allowable valies: "SD" (TRU DIGITAL GIFT CARD), "SP" (SVS Physical Gift Card), "ST" (SmartClixx Gift Card Canada), "SV" (SVS Virtual Gift Card), "SX" (SmartClixx Gift Card). |
 
 ### eBay Enterprise Retail Order Management Item Types
 

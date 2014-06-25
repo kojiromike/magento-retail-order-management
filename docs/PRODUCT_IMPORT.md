@@ -558,6 +558,7 @@ The following attributes have are created by the eBay Enterprise Retail Order Ma
 | Hierarchy Class Description | hierarchy_class_description | Hierarchy Level 3 description. |
 | Hierarchy Subclass Number | hierarchy_subclass_number | Hierarchy Level 4 number. |
 | Hierarchy Subclass Description | hierarchy_subclass_description | Hierarchy Level 4 description. |
+| Gift Card Tender Code | gift_card_tender_code | Type of gift card to be used for activiation. Allowable valies: "SD" (TRU DIGITAL GIFT CARD), "SP" (SVS Physical Gift Card), "ST" (SmartClixx Gift Card Canada), "SV" (SVS Virtual Gift Card), "SX" (SmartClixx Gift Card). |
 
 ### Attributes Directly Affecting the Behavior of eBay Enterprise Retail Order Management
 

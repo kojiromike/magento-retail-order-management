@@ -211,7 +211,8 @@ class EbayEnterprise_Eb2cProduct_Helper_Itemmaster
 	 */
 	public function passUnitCost($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
-		if (empty($attrValue)) {
+		// only allow numeric values to be included in the feed
+		if (!is_numeric($attrValue)) {
 			return null;
 		}
 		$fragment = $doc->createDocumentFragment();

@@ -197,6 +197,9 @@ class EbayEnterprise_Eb2cProduct_Helper_Itemmaster
 	 */
 	public function passUnitCost($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
+		if (empty($attrValue)) {
+			return null;
+		}
 		$fragment = $doc->createDocumentFragment();
 		$unitCostNode = $doc->createElement('UnitCost', Mage::getModel('core/store')->roundPrice($attrValue));
 		$currencyCodeAttr = $doc->createAttribute('currency_code');

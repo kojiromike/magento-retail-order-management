@@ -83,29 +83,15 @@ class EbayEnterprise_Eb2cProduct_Helper_Itemmaster
 	 */
 	public function passStyle($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
-		$styleId          = $product->getSku();
-		$styleDescription = $product->getName();
-
-		$parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($product->getId());
-		if (!empty($parentIds)) {
-			$parentId = $parentIds[0];
-			$parentProduct = Mage::getModel('catalog/product')->load($parentId);
-			if ($parentProduct->getId()) {
-				$styleId = $parentProduct->getSku();
-				$styleDescription = $parentProduct->getName();
-			} else {
-				Mage::helper('ebayenterprise_magelog')->logWarn(
-					'[ %s ] Warning - Unable to load Parent for SKU %s',
-					 array( __METHOD__, $product->getSku())
-				);
-				return null;
-			}
+		$sourceProduct = $this->_getStyleSourceProduct($product);
+		if ($sourceProduct) {
+			$fragment = $doc->createDocumentFragment();
+			$styleId = $fragment->appendChild($doc->createElement('StyleID'));
+			$styleId->appendChild($this->passSKU($sourceProduct->getSku(), 'sku', $sourceProduct, $doc));
+			$fragment->appendChild($doc->createElement('StyleDescription', $sourceProduct->getName()));
+			return $fragment;
 		}
-        $fragment = $doc->createDocumentFragment();
-		$fragment->appendChild($doc->createElement('StyleID', $styleId));
-		$fragment->appendChild($doc->createElement('StyleDescription', $styleDescription));
-
-		return $fragment;
+		return null;
 	}
 	/**
 	 * Translate a hierarchy_subclass_number into SubClass

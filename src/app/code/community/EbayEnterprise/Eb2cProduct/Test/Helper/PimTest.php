@@ -16,6 +16,92 @@
 class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	// @var Mage_Catalog_Model_Product emtpy product object
+	public $product;
+	// @var Mage_Catalog_Model_Product configurable "style" product
+	public $configProduct;
+	// @var Mage_Catalog_Model_Product simple product used by the configurable
+	public $simpleProduct;
+	/**
+	 * Scripted resource model used to lookup parent configurable products
+	 * by child product ids.
+	 * @var Mock_Mage_Catalog_Model_Resource_Product_Type_Configurable
+	 */
+	public $configTypeResource;
+	// @var Mock_EbayEnterprise_Eb2cCore_Model_Config_Registry mock config for eb2ccore
+	public $coreConfig;
+	/**
+	 * Mock core helper scripted to return a mocked set of config data and a
+	 * @var Mock_EbayEnterprise_Eb2cCore_Helper_Data
+	 */
+	public $coreHelper;
+	// @var string mocked catalog id configuration
+	public $catalogId = '11';
+	// @var string expected product style id
+	public $styleId = 'ABC123';
+	// @var EbayEnterprise_Dom_Document document to use in mapping callbacks
+	public $doc;
+
+	/**
+	 * Set up dependent systems for the tests
+	 */
+	public function setUp()
+	{
+		parent::setUp();
+
+		$this->doc = Mage::helper('eb2ccore')->getNewDomDocument();
+
+		$this->product = Mage::getModel('catalog/product');
+
+		// setup parent config and used simple products
+		$configId = 1;
+		$configSku = sprintf('%s-%s', $this->catalogId, $this->styleId);
+		$simpleId = 2;
+		$simpleSku = sprintf('%s-%s', $this->catalogId, 'SIMPLE1');
+
+		$this->configProduct = Mage::getModel(
+			'catalog/product',
+			array(
+				'type_id' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE,
+				'sku' => $configSku,
+				'entity_id' => $configId,
+			)
+		);
+
+		$this->simpleProduct = Mage::getModel(
+			'catalog/product',
+			array(
+				'type_id' => Mage_Catalog_Model_Product_Type::TYPE_SIMPLE,
+				'sku' => $simpleSku,
+				'entity_id' => $simpleId,
+			)
+		);
+
+		// mock out the resource model used to lookup the config to simple
+		// product relationships so lookups can be avoided and made reliable
+		$this->configTypeResource = $this->getResourceModelMock(
+			'catalog/product_type_configurable',
+			array('getParentIdsByChild')
+		);
+		// script out lookup behavior - when called with the simple product's id,
+		// return array containing config product's id and an empty array otherwise
+		$this->configTypeResource->expects($this->any())
+			->method('getParentIdsByChild')
+			->will($this->returnCallback(function ($childId) use ($configId, $simpleId) {
+				return $childId === $simpleId ? array($configId) : array();
+			}));
+
+		// mock out catalog id config
+		$this->coreConfig = $this->buildCoreConfigRegistry(array(
+			'catalogId' => $this->catalogId
+		));
+
+		$this->coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$this->coreHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->coreConfig));
+	}
+
 	public function provideDefaultValue()
 	{
 		return array(array('some attribute value'), array(null));
@@ -722,61 +808,91 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 
 		$this->assertSame($result, $pimHelperMock->createBool($value));
 	}
-
 	/**
-	 * Expectations:
-	 *  call passSKU on the product if it is configurable.
-	 *  call passSKU on the parent of the product if it is not configurable and has a parent.
-	 * @param  boolean $isConfigurable
-	 * @param  boolean $hasParent
-	 * @test
-	 * @dataProvider provideTrueFalse
+	 * Provide the various Magento product types
+	 * @return array Args array with product type id string
 	 */
-	public function testPassStyleId($isConfigurable)
+	public function provideProductTypeIds()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML('<root/>');
-		$attribute = 'sku';
-		$pimHelper = $this->getHelperMock('eb2cproduct/pim', array('passSKU'));
-		$product = $this->getModelMock('catalog/product', array('isConfigurable', 'getId'));
-		$parentIds = array(1);
-		$parentProduct = $this->getModelMock('catalog/product', array('load'));
-		$configurableType = $this->getResourceModelMockBuilder('catalog/product_type_configurable')
-			->disableOriginalConstructor()
-			->setMethods(array('getParentIdsByChild'))
-			->getMock();
+		return array(
+			array(Mage_Catalog_Model_Product_Type::TYPE_SIMPLE),
+			array(Mage_Catalog_Model_Product_Type::TYPE_BUNDLE),
+			array(Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE),
+			array(Mage_Catalog_Model_Product_Type::TYPE_GROUPED),
+			array(Mage_Catalog_Model_Product_Type::TYPE_VIRTUAL),
+		);
+	}
+	/**
+	 * Any product that is not used by a configurable product should simply
+	 * use its own sku as the style information
+	 * @param string $productTypeId Magento product type identifier
+	 * @test
+	 * @dataProvider provideProductTypeIds
+	 */
+	public function testPassStyleNoParentConfigProduct($productTypeId)
+	{
+		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $this->configTypeResource);
+		$this->product->setData(array(
+			'type_id' => $productTypeId,
+			'sku' => sprintf('%s-%s', $this->catalogId, $this->styleId),
+			'entity_id' => 23,
+		));
 
-		$product->expects($this->any())
-			->method('isConfigurable')
-			->will($this->returnValue($isConfigurable));
-		$product->expects($this->any())
-			->method('getId')
-			->will($this->returnValue(2));
-
-		$configurableType->expects($this->any())
-			->method('getParentIdsByChild')
-			->will($this->returnValue($parentIds));
-
-		$parentProduct->expects($this->any())
+		// should return text node with text of the style id
+		$this->assertSame(
+			$this->styleId,
+			Mage::helper('eb2cproduct/pim')->passStyleId(null, '_style_id', $this->product, $this->doc)->wholeText
+		);
+	}
+	/**
+	 * When building style nodes for a simple product used by a config product,
+	 * style value should come from the config product
+	 * @test
+	 */
+	public function testPassStyleSimpleWithParent()
+	{
+		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $this->configTypeResource);
+		// Mock out the loading of the config product - must be called with
+		// the config product's id. Simulates loading by swapping the empty
+		// product mock with the config product which has the expected data
+		// already loaded in it
+		$prodLoader = $this->getModelMock('catalog/product', array('load'));
+		$prodLoader->expects($this->once())
 			->method('load')
-			->with($parentIds[0])
+			->with($this->identicalTo($this->configProduct->getId()))
+			->will($this->returnValue($this->configProduct));
+		$this->replaceByMock('model', 'catalog/product', $prodLoader);
+
+		// should return text node with text of the style id
+		$this->assertSame(
+			$this->styleId,
+			Mage::helper('eb2cproduct/pim')->passStyleId(null, '_style_id', $this->simpleProduct, $this->doc)->wholeText
+		);
+	}
+	/**
+	 * If the simple to config lookup returns an item id but that item doesn't
+	 * actually exist. Returns null which would result in no style data in the
+	 * feed.
+	 * @test
+	 */
+	public function testPassStyleSimpleWithMissingParent()
+	{
+		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $this->configTypeResource);
+		// Mock out product loading to simply return an empty product - will
+		// simulate attempting to load a parent product that doesn't exist or
+		// otherwise cannot be loaded
+		$prodLoader = $this->getModelMock('catalog/product', array('load'));
+		$prodLoader->expects($this->once())
+			->method('load')
 			->will($this->returnSelf());
+		$this->replaceByMock('model', 'catalog/product', $prodLoader);
 
-		$pimHelper->expects($this->once())
-			->method('passSKU')
-			->with(
-				$this->anything(),
-				$this->identicalTo($attribute),
-				$this->identicalTo($isConfigurable ? $product : $parentProduct),
-				$this->identicalTo($doc)
-			)
-			->will($this->returnValue('result of passSKU'));
-
-		$this->replaceByMock('model', 'catalog/product', $parentProduct);
-		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $configurableType);
-
-		$result = $pimHelper->passStyleId('dontcare', 'dontcare', $product, $doc);
-		$this->assertSame('result of passSKU', $result);
+		$this->assertNull(
+			Mage::helper('eb2cproduct/pim')->passStyleId(null, '_style_id', $this->simpleProduct, $this->doc)
+		);
 	}
 	/**
 	 * if the product is not a gift card null should be returned.

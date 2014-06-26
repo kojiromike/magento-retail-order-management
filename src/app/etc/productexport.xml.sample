@@ -184,13 +184,13 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<xml_dest>ExtendedAttributes/SalesClass</xml_dest>
 							<translate>0</translate>
 						</manage_stock>
-						<style>
+						<_style>
 							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>
 							<method>passStyle</method>
 							<xml_dest>ExtendedAttributes/Style/</xml_dest>
 							<translate>0</translate>
-						</style>
+						</_style>
 						<cost>
 							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>

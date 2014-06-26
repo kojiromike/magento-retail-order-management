@@ -52,7 +52,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	 */
 	public function passSKU($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
-		$catalogId = Mage::helper('eb2cproduct')->getConfigModel()->catalogId;
+		$catalogId = Mage::helper('eb2cproduct')->getConfigModel($product->getStoreId())->catalogId;
 		$sku       = Mage::helper('eb2ccore')->denormalizeSku($attrValue, $catalogId);
 		if (strlen($sku) > self::MAX_SKU_LENGTH) {
 			throw new EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception(
@@ -285,6 +285,50 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		return (strtolower($value) === 'yes')? 'true' : 'false';
 	}
 	/**
+	 * For a given product, look for a configurable product using that product.
+	 * If a product is used by multiple configurable products, only the first
+	 * configurable product will be returned.
+	 * @param  Mage_Catalog_Model_Product $product
+	 * @return Mage_Catalog_Model_Product|null Parent configurable product or null of no product is found
+	 */
+	protected function _getParentConfigurableProduct(Mage_Catalog_Model_Product $product)
+	{
+		$parentIds = Mage::getResourceSingleton('catalog/product_type_configurable')
+			->getParentIdsByChild($product->getId());
+		return isset($parentIds[0]) ? Mage::getModel('catalog/product')->load($parentIds[0]) : null;
+	}
+	/**
+	 * Get the product to use as the source for style data. The selection of the
+	 * source product will follow these rules:
+	 * - Products used by a configurable product that exists will use the
+	 *   configurable product.
+	 * - Products used by a configurable product that does not exist, will have
+	 *   no source - return null. This scenario is almost guaranteed to never
+	 *   occur by the DB schema and the way the parent product lookup is
+	 *   implemented. As it is still technically possible, however, for the
+	 *   product to have not been loaded (customization on the load events or
+	 *   similar), failing to cover the scenario would cause a catastrophic
+	 *   failure of the export and there is minimal logic to cover the scenario,
+	 *   handling is included.
+	 * - All other products will get the data from itself.
+	 * @param  Mage_Catalog_Model_Product $product Product being exported
+	 * @return Mage_Catalog_Model_Product|null Product to use as source for style data, null of no such product exists
+	 */
+	protected function _getStyleSourceProduct(Mage_Catalog_Model_Product $product)
+	{
+		// only simple products can be used by configurable products so only look
+		// for the relationships if dealing with a simple product
+		if ($product->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_SIMPLE) {
+			$parentProduct = $this->_getParentConfigurableProduct($product);
+			// if a parent product was found, it should be the style source
+			if ($parentProduct) {
+				// if the product doesn't exist (no id), there should be no style source
+				return $parentProduct->getId() ? $parentProduct : null;
+			}
+		}
+		return $product;
+	}
+	/**
 	 * if $product is configurable return the result of passSKU
 	 * @param  string                     $attrValue
 	 * @param  string                     $attribute
@@ -295,13 +339,8 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	 */
 	public function passStyleId($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
-		if ($product->isConfigurable()) {
-			return $this->passSKU($product->getSku(), 'sku', $product, $doc);
-		}
-		// check if the product has a parent configurable product, use the first available parent.
-		$parentId = current(Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($product->getId()));
-		$parentProduct = Mage::getModel('catalog/product')->load($parentId);
-		return $this->passSKU($parentProduct->getSku(), 'sku', $parentProduct, $doc);
+		$sourceProduct = $this->_getStyleSourceProduct($product);
+		return $sourceProduct ? $this->passSKU($sourceProduct->getSku(), 'sku', $sourceProduct, $doc) : null;
 	}
 	/**
 	 * if $product is a giftcard, return fragment with the child nodes

@@ -177,7 +177,7 @@ Some values in the _Magento Attribute Code_ column are not truly product attribu
 			<td>_style</td>
 			<td>ExtendedAttributes/Style/</td>
 			<td>
-				<p>Relates a specific variant of a product, a simple product in Magento, to a general style of product, a configurable product in Magento. Any simple product that is used by a configurable product will have <code>StyleID</code> and <code>StyleDescription</code> XML nodes with values of the "SKU" and "Name" respectively of the parent configurable product. Any other product will simply use its own "SKU" and "Name" for the <code>StyleID</code> and <code>StyleDescription</code>.</p>
+				<p>Associates configurable products to simple products. Any simple product that is associated with a configurable product will have a "StyleID" and a "StyleDescription" matching the associated configurable product's SKU and name. Any other product will contain a "StyleID" and "StyleDescription" matching its own SKU and name.</p>
 
 				<p><em>Note that eBay Enterprise Retail Order Management feed only supports simple products belonging to a single parent configurable product. If a simple product is used by more than one configurable product, only one of the relationships will be included in the feed. Which relationship will be included is not strictly defined.</em></p>
 			</td>
@@ -217,10 +217,10 @@ Some values in the _Magento Attribute Code_ column are not truly product attribu
 			<td>No</td>
 		</tr>
 		<tr>
-			<td>_style</td>
-			<td>ExtendedAttributes/Style/</td>
+			<td>_style_id</td>
+			<td>StyleID</td>
 			<td>
-				<p>Relates a specific variant of a product, a simple product in Magento, to a general style of product, a configurable product in Magento. Any simple product that is used by a configurable product will have <code>StyleID</code> XML node with a value of the "SKU" of the parent configurable product. Any configurable product will simply use its own SKU as the <code>StyleID</code> value.</p>
+				<p>Associates configurable products to simple products. Any simple product that is associated with a configurable product will have a "StyleID" matching the configurable product's SKU. Any other product will have a "StyleID" matching its own SKU.</p>
 
 				<p><em>Note that eBay Enterprise Retail Order Management feed only supports simple products belonging to a single parent configurable product. If a simple product is used by more than one configurable product, only one of the relationships will be included in the feed. Which relationship will be included is not strictly defined.</em></p>
 			</td>

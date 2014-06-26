@@ -18,6 +18,16 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 {
 	// @var Mage_Catalog_Model_Product emtpy product object
 	public $product;
+	// @var Mage_Catalog_Model_Product configurable "style" product
+	public $configProduct;
+	// @var Mage_Catalog_Model_Product simple product used by the configurable
+	public $simpleProduct;
+	/**
+	 * Scripted resource model used to lookup parent configurable products
+	 * by child product ids.
+	 * @var Mock_Mage_Catalog_Model_Resource_Product_Type_Configurable
+	 */
+	public $configTypeResource;
 	// @var Mage_Eav_Model_Attribute_Option instanse set up with color data
 	public $colorOption;
 	/**
@@ -35,16 +45,70 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	 * @var Mock_EbayEnterprise_Eb2cProduct_Helper_Map_Itemmaster test object
 	 */
 	public $itemmasterHelper;
+	// @var Mock_EbayEnterprise_Eb2cCore_Model_Config_Registry mock config for eb2ccore
+	public $coreConfig;
 	/**
-	 * Set up a product, DOM document, color option and color option collection
-	 * for tests
+	 * Mock core helper scripted to return a mocked set of config data and a
+	 * @var Mock_EbayEnterprise_Eb2cCore_Helper_Data
+	 */
+	public $coreHelper;
+	// @var string mocked catalog id configuration
+	public $catalogId = '11';
+	// @var string expected product style id
+	public $styleId = 'ABC123';
+	// @var string expected product style description
+	public $styleName = 'Product Style';
+	/**
+	 * Set up mock and test objects used throughout the tests.
 	 */
 	public function setUp()
 	{
 		parent::setUp();
+
 		$this->product = Mage::getModel('catalog/product');
+
+		$configId = 1;
+		$configSku = sprintf('%s-%s', $this->catalogId, $this->styleId);
+		$simpleId = 2;
+		$simpleSku = sprintf('%s-%s', $this->catalogId, 'SIMPLE1');
+
+		$this->configProduct = Mage::getModel(
+			'catalog/product',
+			array(
+				'type_id' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE,
+				'sku' => $configSku,
+				'name' => sprintf($this->styleName),
+				'entity_id' => $configId,
+			)
+		);
+
+		$this->simpleProduct = Mage::getModel(
+			'catalog/product',
+			array(
+				'type_id' => Mage_Catalog_Model_Product_Type::TYPE_SIMPLE,
+				'sku' => $simpleSku,
+				'name' => 'Simple Product',
+				'entity_id' => $simpleId,
+			)
+		);
+
+		// mock out the resource model used to lookup the config to simple
+		// product relationships so lookups can be avoided and made reliable
+		$this->configTypeResource = $this->getResourceModelMock(
+			'catalog/product_type_configurable',
+			array('getParentIdsByChild')
+		);
+		// script out lookup behavior - when called with the simple product's id,
+		// return array containing config product's id and an empty array otherwise
+		$this->configTypeResource->expects($this->any())
+			->method('getParentIdsByChild')
+			->will($this->returnCallback(function ($childId) use ($configId, $simpleId) {
+				return $childId === $simpleId ? array($configId) : array();
+			}));
+
 		$this->colorOption = Mage::getModel('eav/entity_attribute_option');
 		$this->colorOption->setData($this->colorData);
+
 		$this->colorOptionCollection = $this->getResourceModelMockBuilder('eav/entity_attribute_option_collection')
 			->disableOriginalConstructor()
 			->setMethods(array('getItemById'))
@@ -54,7 +118,18 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 			->will($this->returnValueMap(array(
 				array($this->colorData['id'], $this->colorOption),
 			)));
+
 		$this->doc = new EbayEnterprise_Dom_Document();
+
+		$this->coreConfig = $this->buildCoreConfigRegistry(array(
+			'catalogId' => $this->catalogId
+		));
+
+		$this->coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$this->coreHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->coreConfig));
+
 		$this->itemmasterHelper = $this->getHelperMock('eb2cproduct/itemmaster', array('_getColorAttributeOptionsCollection'));
 		$this->itemmasterHelper->expects($this->any())
 			->method('_getColorAttributeOptionsCollection')
@@ -143,5 +218,94 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 			null,
 			$this->itemmasterHelper->passUnitCost($this->product->getCost(), 'cost', $this->product, $this->doc)
 		);
+	}
+	/**
+	 * Provide the various Magento product types
+	 * @return array Args array with product type id string
+	 */
+	public function provideProductTypeIds()
+	{
+		return array(
+			array(Mage_Catalog_Model_Product_Type::TYPE_SIMPLE),
+			array(Mage_Catalog_Model_Product_Type::TYPE_BUNDLE),
+			array(Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE),
+			array(Mage_Catalog_Model_Product_Type::TYPE_GROUPED),
+			array(Mage_Catalog_Model_Product_Type::TYPE_VIRTUAL),
+		);
+	}
+	/**
+	 * Any product that is not used by a configurable product should simply
+	 * use its own sku and name as the style information
+	 * @param string $productTypeId Magento product type identifier
+	 * @test
+	 * @dataProvider provideProductTypeIds
+	 */
+	public function testPassStyleNoParentConfigProduct($productTypeId)
+	{
+		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $this->configTypeResource);
+
+		$this->product->setData(array(
+			'type_id' => $productTypeId,
+			'sku' => sprintf('%s-%s', $this->catalogId, $this->styleId),
+			'entity_id' => 23,
+			'name' => $this->styleName,
+		));
+
+		$styleFragment = $this->itemmasterHelper->passStyle(null, '_style', $this->product, $this->doc);
+		$idNode = $styleFragment->firstChild;
+		$descNode = $idNode->nextSibling;
+
+		$this->assertSame($this->styleId, $idNode->textContent);
+		$this->assertSame($this->styleName, $descNode->textContent);
+	}
+	/**
+	 * When building style nodes for a simple product used by a config product,
+	 * style values should come from the config product
+	 * @test
+	 */
+	public function testPassStyleSimpleWithParent()
+	{
+		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $this->configTypeResource);
+		// Mock out the loading of the config product - must be called with
+		// the config product's id. Simulates loading by swapping the empty
+		// product mock with the config product which has the expected data
+		// already loaded in it
+		$prodLoader = $this->getModelMock('catalog/product', array('load'));
+		$prodLoader->expects($this->once())
+			->method('load')
+			->with($this->identicalTo($this->configProduct->getId()))
+			->will($this->returnValue($this->configProduct));
+		$this->replaceByMock('model', 'catalog/product', $prodLoader);
+
+		// use the simple product which will be associated with the config product
+		$styleFragment = $this->itemmasterHelper->passStyle(null, '_style', $this->simpleProduct, $this->doc);
+		$idNode = $styleFragment->firstChild;
+		$descNode = $idNode->nextSibling;
+
+		$this->assertSame($this->styleId, $idNode->textContent);
+		$this->assertSame($this->styleName, $descNode->textContent);
+	}
+	/**
+	 * If the simple to config lookup returns an item id but that item doesn't
+	 * actually exist. Returns null which would result in no style data in the
+	 * feed.
+	 * @test
+	 */
+	public function testPassStyleSimpleWithMissingParent()
+	{
+		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $this->configTypeResource);
+		// Mock out product loading to simply return an empty product - will
+		// simulate attempting to load a parent product that doesn't exist or
+		// otherwise cannot be loaded
+		$prodLoader = $this->getModelMock('catalog/product', array('load'));
+		$prodLoader->expects($this->once())
+			->method('load')
+			->will($this->returnSelf());
+		$this->replaceByMock('model', 'catalog/product', $prodLoader);
+
+		$this->assertNull($this->itemmasterHelper->passStyle(null, '_style', $this->simpleProduct, $this->doc));
 	}
 }

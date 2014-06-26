@@ -14,7 +14,7 @@
  */
 
 // need to use a different setup model (should be configured this way but isn't)
-$installer = Mage::getResourceModel('eb2cproduct/eav_entity_setup', 'eb2cproduct_attribute_setup');
+$installer = Mage::getResourceModel('eb2cproduct/eav_entity_setup', 'eb2cproduct_attributes_setup');
 
 $installer->startSetup();
 

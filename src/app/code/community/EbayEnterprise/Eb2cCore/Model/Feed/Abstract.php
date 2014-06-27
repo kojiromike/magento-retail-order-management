@@ -33,6 +33,8 @@ abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 	 * Validate that the feed model has necessary configuration for the core
 	 * feed model. Instantiate and store a core feed model using config data
 	 * and optionally a fs_tool set in magic data.
+	 * 
+	 * @throws EbayEnterprise_Eb2cCore_Exception_Feed_Configuration
 	 * @return self
 	 */
 	protected function _construct()

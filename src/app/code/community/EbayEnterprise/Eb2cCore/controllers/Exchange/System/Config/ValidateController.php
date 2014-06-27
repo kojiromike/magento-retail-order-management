@@ -13,7 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
 class EbayEnterprise_Eb2cCore_Exchange_System_Config_ValidateController
 	extends Mage_Adminhtml_Controller_Action
 {
@@ -22,7 +21,7 @@ class EbayEnterprise_Eb2cCore_Exchange_System_Config_ValidateController
 	const API_KEY_PARAM = 'api_key';
 	const API_KEY_USE_DEFAULT_PARAM = 'api_key_use_default';
 	const STORE_ID_PARAM = 'store_id';
-	const STORE_ID_USE_DEAFULT_PARAM = 'store_id_use_default';
+	const STORE_ID_USE_DEFAULT_PARAM = 'store_id_use_default';
 	const SFTP_HOSTNAME_PARAM = 'host';
 	const SFTP_HOSTNAME_USE_DEFAULT_PARAM = 'hst_use_default';
 	const SFTP_USERNAME_PARAM = 'username';
@@ -45,7 +44,7 @@ class EbayEnterprise_Eb2cCore_Exchange_System_Config_ValidateController
 			$request, self::HOSTNAME_PARAM, self::HOSTNAME_USE_DEFAULT_PARAM, $configMap->getPathForKey('api_hostname')
 		);
 		$storeId = $this->_getParamOrFallbackValue(
-			$request, self::STORE_ID_PARAM, self::STORE_ID_USE_DEAFULT_PARAM, $configMap->getPathForKey('store_id')
+			$request, self::STORE_ID_PARAM, self::STORE_ID_USE_DEFAULT_PARAM, $configMap->getPathForKey('store_id')
 		);
 		$apiKey = $this->_getApiKey($request);
 
@@ -109,7 +108,7 @@ class EbayEnterprise_Eb2cCore_Exchange_System_Config_ValidateController
 	 * @param  Zend_Controller_Request_Abstract $request
 	 * @return string
 	 */
-	public function _getSftpPrivateKey(Zend_Controller_Request_Abstract $request)
+	protected function _getSftpPrivateKey(Zend_Controller_Request_Abstract $request)
 	{
 		$key = $request->getParam(self::SFTP_PRIV_KEY_PARAM);
 		$useFallback = $request->getParam(self::SFTP_PRIV_KEY_USE_DEFAULT_PARAM);
@@ -132,7 +131,7 @@ class EbayEnterprise_Eb2cCore_Exchange_System_Config_ValidateController
 	 * @param  Zend_Controller_Request_Abstract $request
 	 * @param  string $param Name of the param that may contain the value
 	 * @param  string $useFallbackParam  Name of the param indicating if the value should fallback
-	 * @param  string $configKey Core config registry key to get a fallback value for
+	 * @param  string $configPath Core config registry key to get a fallback value for
 	 * @return string
 	 */
 	protected function _getParamOrFallbackValue(Zend_Controller_Request_Abstract $request, $param, $useFallbackParam, $configPath)

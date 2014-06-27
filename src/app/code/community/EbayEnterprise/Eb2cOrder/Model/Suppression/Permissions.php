@@ -16,9 +16,8 @@
 /**
  * apply permissions to suppress user access to admin resources involving order
  * management.
- * @package Eb2c\Order
- * @author mphang@ebay.com
  *
+ * @author mphang@ebay.com
  */
 class EbayEnterprise_Eb2cOrder_Model_Suppression_Permissions
 {

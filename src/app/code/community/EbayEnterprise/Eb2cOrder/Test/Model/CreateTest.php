@@ -1003,63 +1003,127 @@ INVALID_XML;
 
 		$this->assertSame(sprintf($this->expected('paypal')->getPaymentNode(), "\n"), trim($doc->saveXML()));
 	}
-
 	/**
+	 * Test building the payment nodes for stored value cards. Should build the
+	 * <StoreValueCard> and necessary child nodes and attach it to the DOMElement
+	 * passed to the method.
 	 * @test
 	 */
-	public function testGetOrderGiftCardPan()
+	public function testBuildPaymentsStoredValue()
 	{
-		$expectedPanToken = 'abc123';
-		$order = $this->getModelMock('sales/order', array('getGiftCards'));
-		$order
-			->expects($this->once())
-			->method('getGiftCards')
-			->will($this->returnValue(serialize(array(array('c' => $expectedPanToken)))));
-		$this->assertSame($expectedPanToken, EbayEnterprise_Eb2cOrder_Model_Create::getOrderGiftCardPan($order));
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<root/>');
+
+		$paymentId = 12;
+		$svcPan = '1234567890';
+		$svcPanToken = 'abcdefghij';
+		$svcTenderType = 'SV';
+		$gcAmount = 29.99;
+		$paymentCreatedAt = '2014-01-01T01:00:00';
+
+		// mock up the payment helper which will be used to get config if payments
+		// are enabled and lookup the tender type of the SVC
+		$paymentHelper = $this->getHelperMockBuilder('eb2cpayment/data')
+			->disableOriginalConstructor()
+			->setMethods(array('getConfigModel', 'getTenderType'))
+			->getMock();
+		// swap out config with one that will indicate payments are enabled
+		$paymentHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array('isPaymentEnabled' => true))));
+		// map the PAN to a specific tender type
+		$paymentHelper->expects($this->any())
+			->method('getTenderType')
+			->will($this->returnValueMap(array(
+				array($svcPan, $svcTenderType)
+			)));
+		$this->replaceByMock('helper', 'eb2cpayment', $paymentHelper);
+
+		// payment model for the SVC payment - the "Free" method is interpreted as SVC
+		$payment = Mage::getModel(
+			'sales/order_payment',
+			array('entity_id' => $paymentId, 'created_at' => $paymentCreatedAt, 'method' => 'Free')
+		);
+		$order = $this->getModelMock(
+			'sales/order',
+			array('getAllPayments'),
+			false,
+			array(array(
+				'gift_cards_amount' => $gcAmount,
+				'gift_cards' => serialize(array(array('pan' => $svcPan, 'panToken' => $svcPanToken)))
+			))
+		);
+		$order->expects($this->any())
+			->method('getAllPayments')
+			->will($this->returnValue(array($payment)));
+
+		$create = Mage::getModel('eb2corder/create');
+		$this->_reflectProperty($create, '_o')->setValue($create, $order);
+		$this->assertSame($create, $this->_reflectMethod($create, '_buildPayments')->invoke($create, $doc->documentElement));
+
+		$resultDoc = new DOMDocument();
+		$resultDoc->loadXML(sprintf(
+			'<?xml version="1.0"?><root><StoredValueCard><PaymentContext><PaymentSessionId>payment%1$s</PaymentSessionId><TenderType>%2$s</TenderType><PaymentAccountUniqueId isToken="true">%3$s</PaymentAccountUniqueId></PaymentContext><CreateTimeStamp>%5$s</CreateTimeStamp><Amount>%4$.2f</Amount></StoredValueCard></root>',
+			$paymentId, $svcTenderType, $svcPanToken, $gcAmount, $paymentCreatedAt
+		));
+		$this->assertSame(
+			$resultDoc->C14N(),
+			trim($doc->C14N())
+		);
 	}
 
 	/**
-	 * test EbayEnterprise_Eb2cOrder_Model_Create::getOrderGiftCardPan for the following expectation
-	 * Expectation 1: this test will invoke the method EbayEnterprise_Eb2cOrder_Model_Create::getOrderGiftCardPan given
-	 *                a mock order object of class Mage_Sales_Model_Order in which the method Mage_Sales_Model_Order::getGiftCards
-	 *                will be invoked once and return an array of array of giftcard data in the order object it will then
-	 *                loop through the array of array of giftcard data and return the pan key value
-	 * @mock Mage_Sales_Model_Order::getGiftCards
+	 * Provide a gift card PAN and PAN token, whether the lookup should be for
+	 * a token or raw value and what the test should expect to be found
+	 * @return array Args array
 	 */
-	public function testGetOrderGiftCardPanWhenKeyPanIsInGiftcardData()
+	public function provideOrderPanAndToken()
 	{
-		$data = array(array('pan' => '000000000003939388322'));
-		$giftcards = serialize($data);
-
-		$orderMock = $this->getModelMockBuilder('sales/order')
-			->disableOriginalConstructor()
-			->setMethods(array('getGiftCards'))
-			->getMock();
-		$orderMock->expects($this->once())
-			->method('getGiftCards')
-			->will($this->returnValue($giftcards));
-
-		$this->assertSame($data[0]['pan'], EbayEnterprise_Eb2cOrder_Model_Create::getOrderGiftCardPan($orderMock));
+		return array(
+			array('1234567890', 'abcdefghij', true, 'abcdefghij'),
+			array('1234567890', '', true, ''),
+			array('1234567890', null, true, ''),
+			array(null, null, true, ''),
+			array('1234567890', 'abcdefghij', false, '1234567890'),
+			array('', 'abcdefghij', false, ''),
+			array(null, 'abcdefghij', false, ''),
+			array(null, null, false, ''),
+		);
 	}
-
 	/**
-	 * @see self::testGetOrderGiftCardPanWhenKeyPanIsInGiftcardData except we now testing when the return value of
-	 *      Mage_Sales_Model_Order::getGiftCards unserialized into an empty array
-	 * @mock Mage_Sales_Model_Order::getGiftCards
+	 * Test getting the PAN from an order. Should be able to return the raw
+	 * PAN code or the tokenized PAN code received when redeeming the SVC.
+	 * When $useToken is true, $expected must be the $panToken or '' if no token
+	 * When $useToken is false, $expected must be the $pan or '' if no PAN
+	 * @param string $pan SVC PAN
+	 * @param string $panToken Tokenized SVC PAN
+	 * @param bool   $useToken Look for a token, true, or raw value, false
+	 * @param string $expected Value expected to be returned
+	 * @test
+	 * @dataProvider provideOrderPanAndToken
 	 */
-	public function testGetOrderGiftCardPanWNoGiftcardData()
+	public function testGetOrderGiftCardPan($pan, $panToken, $useToken, $expected)
 	{
-		$giftcards = serialize(array(array()));
+		$gcData = array();
+		// only add the 'pan' and 'panToken' if they were supplied - simulate the
+		// data not existing at all instead of just being null
+		if (!is_null($pan)) {
+			$gcData['pan'] = $pan;
+		}
+		if (!is_null($panToken)) {
+			$gcData['panToken'] = $panToken;
+		}
 
-		$orderMock = $this->getModelMockBuilder('sales/order')
-			->disableOriginalConstructor()
-			->setMethods(array('getGiftCards'))
-			->getMock();
-		$orderMock->expects($this->once())
-			->method('getGiftCards')
-			->will($this->returnValue($giftcards));
+		$order = Mage::getModel(
+			'sales/order',
+			array('gift_cards' => serialize(!empty($gcData) ? array($gcData) : array()))
+		);
 
-		$this->assertSame('', EbayEnterprise_Eb2cOrder_Model_Create::getOrderGiftCardPan($orderMock));
+		$create = Mage::getModel('eb2corder/create');
+		$this->assertSame(
+			$expected,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getOrderGiftCardPan', array($order, $useToken))
+		);
 	}
 
 	public function provideForTestGetOrderSource()

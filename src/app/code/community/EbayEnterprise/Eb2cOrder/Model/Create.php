@@ -675,12 +675,17 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 				} elseif ($payMethodNode === 'StoredValueCard') {
 					// the payment method is free and there is gift card for the order
 					if ($this->_o->getGiftCardsAmount() > 0) {
-						$pan = self::getOrderGiftCardPan($this->_o);
 						$thisPayment = $payments->createChild($payMethodNode);
 						$paymentContext = $thisPayment->createChild('PaymentContext');
 						$paymentContext->createChild('PaymentSessionId', sprintf('payment%s', $payment->getId()));
-						$paymentContext->createChild('TenderType', Mage::helper('eb2cpayment')->getTenderType($pan));
-						$paymentContext->createChild('PaymentAccountUniqueId', $pan)->setAttribute('isToken', 'false');
+						// this **must always** use the raw PAN to be able to look up the tender type
+						$paymentContext->createChild(
+							'TenderType',
+							Mage::helper('eb2cpayment')->getTenderType($this->_getOrderGiftCardPan($this->_o))
+						);
+						// this **must always** be the PAN token for the OMS to be able to issue adjustments
+						$paymentContext->createChild('PaymentAccountUniqueId', $this->_getOrderGiftCardPan($this->_o, true))
+							->setAttribute('isToken', 'true');
 						$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
 						$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGiftCardsAmount()));
 					} else {
@@ -697,27 +702,24 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		return $this;
 	}
 	/**
-	 * Get order stored value pan.
-	 * (This is a public static because I ran into strange test
-	 * behavior invoking it as a ReflectionMethod when it was private.)
-	 * Removing getting the panToken key because the panToken key is the encrypted pan token from eb2c.
-	 * Instead we are getting the 'c' key. This will ensure we can get the proper
-	 * tender type base on the svc_bin_range in the configuration.
+	 * Get order stored value pan. This can get either the raw PAN - the
+	 * default behavior - or the tokenized PAN. If there are no gift cards or
+	 * the gift card does not have the requested data, this method will return
+	 * an empty string.
 	 * @param Mage_Sales_Model_Order $order the order object
-	 * @return string the panToken | pan
+	 * @param boolean $useToken true to get tokenized PAN, false to get raw PAN
+	 * @return string
 	 */
-	public static function getOrderGiftCardPan(Mage_Sales_Model_Order $order)
+	protected function _getOrderGiftCardPan(Mage_Sales_Model_Order $order, $useToken=false)
 	{
 		$giftCardData = unserialize($order->getGiftCards());
 		if (!empty($giftCardData)) {
 			foreach ($giftCardData as $gcData) {
-				if (isset($gcData['c']) && trim($gcData['c']) !== '') {
-					return $gcData['c'];
-				} elseif (isset($gcData['pan']) && trim($gcData['pan']) !== '') {
-					// the giftcard data in the admin order creation is expecting the pan key
-					// from the unserialize data, not quite sure about the panToken key here
-					// perhaps it's a front-end expectation
-					return $gcData['pan'];
+				// the 'panToken' key/value pair will contain the tokenized PAN
+				// the 'pan' key/value pair will contain the raw PAN
+				$panKey = $useToken ? 'panToken' : 'pan';
+				if (isset($gcData[$panKey]) && trim($gcData[$panKey]) !== '') {
+					return $gcData[$panKey];
 				}
 			}
 		}

@@ -15,7 +15,7 @@
 <config>
 	<modules>
 		<EbayEnterprise_Eb2cOrder>
-			<version>1.3.0.0</version>
+			<version>1.2.0.0</version>
 		</EbayEnterprise_Eb2cOrder>
 	</modules>
 	<global>
@@ -23,11 +23,6 @@
 			<eb2corder>
 				<class>EbayEnterprise_Eb2cOrder_Model</class>
 			</eb2corder>
-			<eav>
-				<rewrite>
-					<entity_type>EbayEnterprise_Eb2cOrder_Overrides_Model_Eav_Entity_Type</entity_type>
-				</rewrite>
-			</eav>
 			<enterprise_rma>
 				<rewrite>
 					<rma>EbayEnterprise_Eb2cOrder_Overrides_Model_Enterprise_Rma</rma>

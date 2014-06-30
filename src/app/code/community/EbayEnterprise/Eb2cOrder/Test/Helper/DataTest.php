@@ -16,22 +16,25 @@
 class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cOrder_Test_Abstract
 {
 	protected $_helper;
-
+	// @var Mage_Core_Model_App original Mage::app instance
+	protected $_origApp;
 	/**
 	 * setUp method
 	 */
 	public function setUp()
 	{
 		parent::setUp();
-		$this->replaceCoreConfigRegistry(
-			array(
-				'apiRegion' => 'api_rgn',
-				'clientId'  => 'client_id',
-			)
-		);
+		$this->_origApp = EcomDev_Utils_Reflection::getRestrictedPropertyValue('Mage', '_app');
 		$this->_helper = Mage::helper('eb2corder');
 	}
-
+	/**
+	 * Restore original Mage::app instance
+	 */
+	public function tearDown()
+	{
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue('Mage', '_app', $this->_origApp);
+		parent::tearDown();
+	}
 	/**
 	 * Make sure we get back a EbayEnterprise_Eb2cCore_Model_Config_Registry and that
 	 * we can see some sensible values in it.
@@ -39,6 +42,12 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 	 */
 	public function testGetConfig()
 	{
+		$this->replaceCoreConfigRegistry(
+			array(
+				'apiRegion' => 'api_rgn',
+				'clientId'  => 'client_id',
+			)
+		);
 		$config = $this->_helper->getConfigModel();
 		$this->assertStringStartsWith(
 			'api_rgn',
@@ -53,11 +62,16 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 	/**
 	 * Testing getOperationUri method with both create and cancel operations
 	 *
-	 * @test
 	 * @loadFixture basicTestConfig.yaml
 	 */
 	public function testGetOperationUri()
 	{
+		$this->replaceCoreConfigRegistry(
+			array(
+				'apiRegion' => 'api_rgn',
+				'clientId'  => 'client_id',
+			)
+		);
 		$this->assertStringEndsWith(
 			'create.xml',
 			$this->_helper->getOperationUri('create')
@@ -71,7 +85,6 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 
 	/**
 	 * Test method to map Eb2c Status to Mage State
-	 * @test
 	 * @loadFixture testMapEb2cStatus.yaml
 	 */
 	public function testMapEb2cStatus()
@@ -91,7 +104,6 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 
 	/**
 	 * Test getting an order history URL for a given store
-	 * @test
 	 */
 	public function testOrderHistoryUrl()
 	{
@@ -107,5 +119,41 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 			'http://test.example.com/mocked/order/create',
 			Mage::helper('eb2corder')->getOrderHistoryUrl($order)
 		);
+	}
+	/**
+	 * Test removing the order increment id prefix.
+	 */
+	public function testRemoveOrderIncrementPrefix()
+	{
+		$admin = Mage::getModel('core/store', array('store_id' => 0));
+		$default = Mage::getModel('core/store', array('store_id' => 1));
+
+		$app = $this->getModelMock('core/app', array('getStores'));
+		$app->expects($this->any())
+			->method('getStores')
+			->will($this->returnValueMap(array(
+				array(true, false, array(0 => $admin, 1 => $default)),
+				array(false, false, array(1 => $default))
+			)));
+
+		$adminConfig = $this->buildCoreConfigRegistry(array('clientOrderIdPrefix' => '555'));
+		$storeConfig = $this->buildCoreConfigRegistry(array('clientOrderIdPrefix' => '7777'));
+		$coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$coreHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValueMap(array(
+				array(0, $adminConfig),
+				array(1, $storeConfig),
+			)));
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue('Mage', '_app', $app);
+		// should be able to replace the order id prefix from any config scope
+		$this->assertSame('8888888', $this->_helper->removeOrderIncrementPrefix('77778888888'));
+		$this->assertSame('8888888', $this->_helper->removeOrderIncrementPrefix('5558888888'));
+		// when no matching prefix on the original increment id, should return unmodified value
+		$this->assertSame('1238888888', $this->_helper->removeOrderIncrementPrefix('1238888888'));
+		// must work with null as when the first increment id for a store is
+		// created, the "last id" will be given as null
+		$this->assertSame('', $this->_helper->removeOrderIncrementPrefix(null));
 	}
 }

@@ -1111,20 +1111,23 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	/**
 	 * verify Y/N is returned when the value evaluates to
 	 * true/false respectively.
+	 * Fixture includes config for the sales/gift_options/wrapping_allow_items
+	 * which will be used as the fallback when the attribute value is not set.
 	 * @test
+	 * @loadFixture
 	 */
 	public function testPassGiftWrap()
 	{
+		$storeId = 0;
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML('<root/>');
-		$pimHelper = $this->getHelperMock('eb2cproduct/pim', array('createStringNode'));
-		$product = $this->getModelMock('catalog/product', array('getColor'));
+		$pimHelper = Mage::helper('eb2cproduct/pim');
+		$this->product->setStoreId($storeId);
 
-		$pimHelper->expects($this->any())
-			->method('createStringNode')
-			->will($this->returnArgument(0));
-		$this->assertSame('Y', $pimHelper->passGiftWrap(true, 'gift_wrap', $product, $doc));
-		$this->assertSame('N', $pimHelper->passGiftWrap(false, 'gift_wrap', $product, $doc));
+		$this->assertSame('Y', $pimHelper->passGiftWrap(true, 'gift_wrap', $this->product, $doc)->wholeText);
+		$this->assertSame('N', $pimHelper->passGiftWrap(false, 'gift_wrap', $this->product, $doc)->wholeText);
+		// config fallback set to true so this should result in a "Y"
+		$this->assertSame('Y', $pimHelper->passGiftWrap(null, 'gift_wrap', $this->product, $doc)->wholeText);
 	}
 	/**
 	 * Test that the method EbayEnterprise_Eb2cProduct_Helper_Pim::passIsoCountryCode

@@ -242,7 +242,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	 */
 	public function testPassStyleNoParentConfigProduct($productTypeId)
 	{
-		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('helper', 'eb2cproduct', $this->coreHelper);
 		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $this->configTypeResource);
 
 		$this->product->setData(array(
@@ -266,7 +266,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	 */
 	public function testPassStyleSimpleWithParent()
 	{
-		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('helper', 'eb2cproduct', $this->coreHelper);
 		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $this->configTypeResource);
 		// Mock out the loading of the config product - must be called with
 		// the config product's id. Simulates loading by swapping the empty
@@ -295,7 +295,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	 */
 	public function testPassStyleSimpleWithMissingParent()
 	{
-		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('helper', 'eb2cproduct', $this->coreHelper);
 		$this->replaceByMock('resource_singleton', 'catalog/product_type_configurable', $this->configTypeResource);
 		// Mock out product loading to simply return an empty product - will
 		// simulate attempting to load a parent product that doesn't exist or

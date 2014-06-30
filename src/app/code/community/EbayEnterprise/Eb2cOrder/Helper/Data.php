@@ -1,4 +1,17 @@
 <?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	/**
@@ -39,17 +52,14 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function mapEb2cOrderStatusToMage($eb2cLabelIn)
 	{
-			$mageState =  Mage::getModel('sales/order_status')
-					->getCollection()
-					->joinStates()
-					->addFieldToFilter('label', array('eq'=>$eb2cLabelIn))
-					->getFirstItem()
-					->getState();
-
-			if (!empty($mageState)) {
-					return $mageState;
-			}
-			return Mage_Sales_Model_Order::STATE_NEW;
+		$mageState = Mage::getModel('sales/order_status')
+			->getCollection()
+			->joinStates()
+			->setPageSize(1)
+			->addFieldToFilter('label', array('eq' => $eb2cLabelIn))
+			->getFirstItem()
+			->getState();
+		return !empty($mageState) ? $mageState : Mage_Sales_Model_Order::STATE_NEW;
 	}
 	/**
 	 * Retrieve a collection of orders for order history and recent orders blocks based on the current customer in session.
@@ -61,31 +71,30 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		$customerId = Mage::getSingleton('customer/session')->getCustomer()->getId();
 		$orderSearchObj = Mage::getModel('eb2corder/customer_order_search');
-		$cfg = Mage::getModel('eb2ccore/config_registry')->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+		$helper = Mage::helper('eb2corder');
+		$cfg = $helper->getConfig();
 		// making eb2c customer order search request base on current session customer id and then
 		// parse result in a collection of varien object
 		$orderHistorySearchResults = $orderSearchObj->parseResponse(
 			$orderSearchObj->requestOrderSummary($cfg->clientCustomerIdPrefix . $customerId)
 		);
-		$orders = new Varien_Data_Collection();
-		$tempId = 0;
-		foreach ($orderHistorySearchResults as $orderId => $ebcData) {
-			$mgtOrder = Mage::getModel('sales/order')->loadByIncrementId($orderId);
-			$gmtShippingAddress = $mgtOrder->getShippingAddress();
-			$orders->addItem(
-				Mage::getModel('sales/order')->addData(array(
-					'created_at' => $ebcData->getOrderDate(),
-					'entity_id' => $mgtOrder->getId() ?: 'ebc-' . ++$tempId,
-					'exist_in_mage' => (bool) $mgtOrder->getId(), // We will never encounter an order id of 0 or "0".
-					'grand_total' => $ebcData->getOrderTotal(),
-					'real_order_id' => $orderId,
-					'status' => Mage::helper('eb2corder')->mapEb2cOrderStatusToMage($ebcData->getStatus()),
-				))->addAddress(Mage::getModel('sales/order_address')->setData(array(
-					'address_type' => 'shipping',
-					'name' => $gmtShippingAddress ? $gmtShippingAddress->getName() : '',
-				)))
-			);
+		$limit = (int) Mage::app()->getRequest()->getParam('limit') ?: -1;
+		$orders = Mage::registry('customer_order_search_results') ?: new Varien_Data_Collection();
+		if (count($orders) === $limit) {
+			return $orders;
 		}
+		foreach ($orderHistorySearchResults as $orderId => $summaryData) {
+			$order = Mage::getModel('eb2corder/customer_order_detail_order_adapter')
+				->loadByIncrementId($orderId);
+			if ($order->getId()) {
+				$orders->addItem($order);
+			}
+			if ($orders->count() === $limit) {
+				break;
+			}
+		}
+		Mage::unregister('customer_order_search_results');
+		Mage::register('customer_order_search_results', $orders);
 		return $orders;
 	}
 	/**
@@ -108,5 +117,36 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 		// must return a string
 		return (string) $incrementId;
+	}
+	/**
+	 * perform order detail request and return an object containing the data.
+	 * @param  string $orderId
+	 * @return Varien_Object
+	 */
+	public function fetchOrderDetail($orderId)
+	{
+		$detail = Mage::registry('ebayenterprise_order_detail_response');
+		if (!$detail || $detail->getOrder()->getRealOrderId() !== $orderId) {
+			Varien_Profiler::start(__METHOD__);
+			Mage::unregister('ebayenterprise_order_detail_response');
+			$detail = Mage::getModel('eb2corder/customer_order_detail');
+			$responseText = $detail->requestOrderDetail($orderId);
+			$detail->parseResponse($responseText);
+			Mage::register('ebayenterprise_order_detail_response', $detail);
+			Varien_Profiler::stop(__METHOD__);
+		}
+		return $detail;
+	}
+	/**
+	 * remove items from a collection
+	 * @param Varien_Data_Collection $items
+	 * @return Varien_Data_Collection
+	 */
+	public function emptyCollection(Varien_Data_Collection $items)
+	{
+		foreach ($items->getAllIds() as $itemId) {
+			$items->removeItemByKey($itemId);
+		}
+		return $items;
 	}
 }

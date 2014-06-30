@@ -116,28 +116,6 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 		return $this->_getDefProdAttSetId();
 	}
 	/**
-	 * Parse a string into a boolean.
-	 * @param string $s the string to parse
-	 * @return bool
-	 */
-	public function parseBool($s)
-	{
-		if (!is_string($s)) {
-			return (bool) $s;
-		}
-		switch (strtolower($s)) {
-			case '1':
-			case 'on':
-			case 't':
-			case 'true':
-			case 'y':
-			case 'yes':
-				return true;
-			default:
-				return false;
-		}
-	}
-	/**
 	 * Get Product config instantiated object.
 	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 */

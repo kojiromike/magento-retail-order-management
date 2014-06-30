@@ -13,15 +13,22 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Recent extends Mage_Sales_Block_Order_Recent
+class EbayEnterprise_Eb2cOrder_Overrides_Helper_Shipping
+	extends Mage_Shipping_Helper_Data
 {
-	const TEMPLATE = 'sales/order/recent.phtml';
 	/**
-	 * Replace internal orders with orders fetched from Eb2c.
+	 * @see parent::getTrackingPopupUrlBySalesModel()
+	 * Overriding this helper method because these data
+	 * will no long exists in magento since it will be
+	 * coming from OMS
+	 * @param Mage_Sales_Model_Abstract $model
+	 * @return string
 	 */
-	public function __construct()
+	public function getTrackingPopupUrlBySalesModel($model)
 	{
-		$this->setTemplate(static::TEMPLATE);
-		$this->setOrders(Mage::helper('eb2corder')->getCurCustomerOrders());
+		if (!$model instanceof Mage_Sales_Model_Order) {
+			$model = Mage::registry('current_order');
+		}
+		return $this->_getTrackingUrl('order_id', $model);
 	}
 }

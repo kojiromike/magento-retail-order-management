@@ -1,4 +1,17 @@
 <?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 class EbayEnterprise_Eb2cCore_Model_Api
 {
 	/**
@@ -49,7 +62,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
 		$log = Mage::helper('ebayenterprise_magelog');
 		$xmlStr = $doc->C14N();
-		$log->logInfo("[ %s ] Validating request:\n%s", array(__CLASS__, $xmlStr));
+		$log->logInfo("[ %s ] Validating request using XSD '%s':\n%s", array(__CLASS__, $xsdName, $xmlStr));
 		$this->schemaValidate($doc, $xsdName);
 		$log->logInfo("[ %s ] Sending request to %s", array(__CLASS__, $uri));
 		$client = $this->_setupClient($client, $cfg->apiKey, $uri, $xmlStr, $adapter, $timeout);

@@ -13,11 +13,15 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History extends Mage_Sales_Block_Order_History
+class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Detail_Order_Payment_Adapter extends Mage_Sales_Model_Order_Payment
 {
-	public function __construct()
-	{
-		$this->setTemplate('sales/order/history.phtml');
-		$this->setOrders(Mage::helper('eb2corder')->getCurCustomerOrders());
-	}
+		/**
+		 * force the id to be null so to prevent the error caused by
+		 * the underlying call to parent::_getResource
+		 * @return null
+		 */
+    public function getId()
+    {
+        return null;
+    }
 }

@@ -313,32 +313,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$this->assertSame(4, Mage::helper('eb2cproduct')->getDefaultProductAttributeSetId());
 	}
 	/**
-	 * Test parseBool the feed
-	 * @test
-	 */
-	public function testParseBool()
-	{
-		$testData = array(
-			array('expect' => true, 's' => true),
-			array('expect' => false, 's' => false),
-			array('expect' => false, 's' => array()),
-			array('expect' => true, 's' => array(range(1, 4))),
-			array('expect' => true, 's' => '1'),
-			array('expect' => true, 's' => 'on'),
-			array('expect' => true, 's' => 't'),
-			array('expect' => true, 's' => 'true'),
-			array('expect' => true, 's' => 'y'),
-			array('expect' => true, 's' => 'yes'),
-			array('expect' => false, 's' => 'false'),
-			array('expect' => false, 's' => 'off'),
-			array('expect' => false, 's' => 'f'),
-			array('expect' => false, 's' => 'n'),
-		);
-		foreach ($testData as $data) {
-			$this->assertSame($data['expect'], Mage::helper('eb2cproduct')->parseBool($data['s']));
-		}
-	}
-	/**
 	 * Test getProductAttributeId the feed
 	 * @test
 	 */

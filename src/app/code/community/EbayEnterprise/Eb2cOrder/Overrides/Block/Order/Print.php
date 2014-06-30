@@ -13,11 +13,18 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History extends Mage_Sales_Block_Order_History
+class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Print extends Mage_Sales_Block_Order_Print
 {
-	public function __construct()
+	public function getOrder()
 	{
-		$this->setTemplate('sales/order/history.phtml');
-		$this->setOrders(Mage::helper('eb2corder')->getCurCustomerOrders());
+		$order = parent::getOrder();
+		if (!$order instanceof EbayEnterprise_Eb2cOrder_Model_Customer_Order_Detail_Order_Adapter) {
+			$newOrder = Mage::getModel('eb2corder/customer_order_detail_order_adapter');
+			$newOrder->loadByIncrementId($order->getRealOrderId());
+			$order = $newOrder;
+			Mage::unregister('current_order');
+			Mage::register('current_order', $newOrder);
+		}
+		return $order;
 	}
 }

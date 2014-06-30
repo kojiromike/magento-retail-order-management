@@ -82,7 +82,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 		$helper->expects($this->exactly(2))
 			->method('logInfo')
 			->with($this->logicalOr(
-				$this->identicalTo("[ %s ] Validating request:\n%s"), $this->identicalTo(array('EbayEnterprise_Eb2cCore_Model_Api', $apiUri, $formattedRequest)),
+				$this->identicalTo("[ %s ] Validating request using XSD '%s':\n%s"), $this->identicalTo(array('EbayEnterprise_Eb2cCore_Model_Api', $apiUri, $formattedRequest)),
 				$this->identicalTo("[ %s ] Sending request to %s"), $this->identicalTo(array('EbayEnterprise_Eb2cCore_Model_Api', $apiUri, $formattedRequest))
 			))
 			->will($this->returnSelf());

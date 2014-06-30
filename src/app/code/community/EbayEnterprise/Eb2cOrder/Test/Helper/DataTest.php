@@ -138,8 +138,54 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 		$this->assertSame('8888888', $orderHelper->removeOrderIncrementPrefix('5558888888'));
 		// when no matching prefix on the original increment id, should return unmodified value
 		$this->assertSame('1238888888', $orderHelper->removeOrderIncrementPrefix('1238888888'));
-		// must work with null as when the first increment id for a store is
-		// created, the "last id" will be given as null
-		$this->assertSame('', $orderHelper->removeOrderIncrementPrefix(null));
+	}
+	/**
+	 * verify only orders that exist in both eb2c and magento are displayed.
+	 * @test
+	 */
+	public function testGetCurCustomerOrders()
+	{
+		$customerSession = $this->getModelMock('customer/session', array('getCustomer'), false, array(), null, false);
+		$this->replaceByMock('singleton', 'customer/session', $customerSession);
+		$customer = $this->getModelMockBuilder('customer/customer')->disableOriginalConstructor()->getMock();
+		$orderSearch = $this->getModelMock('eb2corder/customer_order_search', array('parseResponse', 'requestOrderSummary'));
+		$this->replaceByMock('model', 'eb2corder/customer_order_search', $orderSearch);
+		$config = $this->buildCoreConfigRegistry(array('clientCustomerIdPrefix' => '8888'));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $config);
+
+		$customerSession->expects($this->any())->method('getCustomer')->will($this->returnValue($customer));
+		$orderModelStub = $this->getModelMockBuilder('eb2corder/customer_order_detail_order_adapter')
+			->setMethods(array('getId', 'loadByIncrementId'))
+			->disableOriginalConstructor()
+			->getMock();
+		$this->replaceByMock('model', 'eb2corder/customer_order_detail_order_adapter', $orderModelStub);
+
+		$orderModelStub->expects($this->any())
+			->method('loadByIncrementId')
+			->will($this->returnSelf());
+		// one call will return null to simulate one of
+		// the orders not existing in magento
+		$orderModelStub->expects($this->any())
+			->method('getId')
+			->will($this->onConsecutiveCalls(1, null));
+
+		// stub helper cuz stub mapeb2corderstatustomage called
+		$helper = $this->getHelperMock('eb2corder/data', array('mapEb2cOrderStatusToMage'));
+		$this->replaceByMock('helper', 'eb2corder', $helper);
+		$helper->expects($this->any())
+			->method('mapEb2cOrderStatusToMage')
+			->will($this->returnValue('status'));
+
+		$orderSearch->expects($this->any())
+			->method('parseResponse')
+			->will($this->returnValue(array(
+				'order-exists' => new Varien_Object(),
+				'order-not-exist' => new Varien_Object()
+			)));
+
+		$expectedOrders = array($orderModelStub);
+		$orderCollection = $helper->getCurCustomerOrders();
+
+		$this->assertSame($orderCollection->getItems(), $expectedOrders);
 	}
 }

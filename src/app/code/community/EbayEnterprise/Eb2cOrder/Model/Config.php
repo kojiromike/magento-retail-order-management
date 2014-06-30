@@ -1,4 +1,17 @@
 <?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 class EbayEnterprise_Eb2cOrder_Model_Config extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
 {
 	protected $_configPaths = array(
@@ -6,6 +19,7 @@ class EbayEnterprise_Eb2cOrder_Model_Config extends EbayEnterprise_Eb2cCore_Mode
 		'api_cancel_operation'           => 'eb2corder/api/cancel_operation',
 		'api_create_dom_root_node_name'  => 'eb2corder/api/create_dom_root_node_name',
 		'api_create_operation'           => 'eb2corder/api/create_operation',
+		'api_detail_operation'           => 'eb2corder/api/detail_operation',
 		'api_level_of_service'           => 'eb2corder/api/level_of_service',
 		'api_order_history_path'         => 'eb2corder/api/order_history_path',
 		'api_order_type'                 => 'eb2corder/api/order_type',
@@ -27,5 +41,6 @@ class EbayEnterprise_Eb2cOrder_Model_Config extends EbayEnterprise_Eb2cCore_Mode
 		'xsd_file_cancel'                => 'eb2corder/xsd/cancel_file',
 		'xsd_file_create'                => 'eb2corder/xsd/create_file',
 		'xsd_file_search'                => 'eb2corder/xsd/search_file',
+		'xsd_file_detail'                => 'eb2corder/xsd/detail_file',
 	);
 }

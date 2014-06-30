@@ -33,14 +33,15 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Stock extends Mage_Core_Helper_Abstr
 	 */
 	public function extractStockData(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
 	{
-		$value = Mage::helper('eb2ccore')->extractNodeVal($nodes);
+		$coreHelper = Mage::helper('eb2ccore');
+		$value = $coreHelper->extractNodeVal($nodes);
 		$mapData = $this->_getStockMap();
 		$id = (int) $product->getId();
 		if (isset($mapData[$value]) && $id) {
 			$stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($id);
 			if ($stockItem) {
 				$stockItem->addData(array(
-					'manage_stock' => $this->_boolToInt(Mage::helper('eb2cproduct')->parseBool($mapData[$value])),
+					'manage_stock' => $this->_boolToInt($coreHelper->parseBool($mapData[$value])),
 					'use_config_manage_stock' => false,
 					'product_id' => $id,
 					'stock_id' => Mage_CatalogInventory_Model_Stock::DEFAULT_STOCK_ID,

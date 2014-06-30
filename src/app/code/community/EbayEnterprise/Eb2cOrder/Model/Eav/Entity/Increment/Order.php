@@ -40,7 +40,7 @@ class EbayEnterprise_Eb2cOrder_Model_Eav_Entity_Increment_Order
 	public function getNextId()
 	{
 		// remove any order prefixes from the last increment id
-		$last = (int) Mage::helper('eb2corder')->removeOrderIncrementPrefix($this->getLastId());
+		$last = Mage::helper('eb2corder')->removeOrderIncrementPrefix($this->getLastId());
 		$next = $last + 1;
 		return $this->format($next);
 	}

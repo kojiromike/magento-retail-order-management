@@ -73,7 +73,7 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	// @codeCoverageIgnoreEnd
 
 	/**
-	 * Get the configuration value represented by the given configKey
+	 * Get the configuration flag value represented by the given configKey
 	 * @param string $configKey
 	 * @param null|string|bool|int|Mage_Core_Model_Store $store
 	 * @return string
@@ -86,7 +86,7 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	}
 
 	/**
-	 * Get the configuration flag value represented by the given configKey
+	 * Get the configuration value represented by the given configKey
 	 * @param string $configKey
 	 * @param null|string|bool|int|Mage_Core_Model_Store $store
 	 * @return boolean

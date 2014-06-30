@@ -10,7 +10,32 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 		parent::setUp();
 		$this->_helper = Mage::helper('eb2ccore');
 	}
-
+	/**
+	 * Test parseBool the feed
+	 * @test
+	 */
+	public function testParseBool()
+	{
+		$testData = array(
+			array('expect' => true, 's' => true),
+			array('expect' => false, 's' => false),
+			array('expect' => false, 's' => array()),
+			array('expect' => true, 's' => array(range(1, 4))),
+			array('expect' => true, 's' => '1'),
+			array('expect' => true, 's' => 'on'),
+			array('expect' => true, 's' => 't'),
+			array('expect' => true, 's' => 'true'),
+			array('expect' => true, 's' => 'y'),
+			array('expect' => true, 's' => 'yes'),
+			array('expect' => false, 's' => 'false'),
+			array('expect' => false, 's' => 'off'),
+			array('expect' => false, 's' => 'f'),
+			array('expect' => false, 's' => 'n'),
+		);
+		foreach ($testData as $data) {
+			$this->assertSame($data['expect'], Mage::helper('eb2ccore')->parseBool($data['s']));
+		}
+	}
 	/**
 	 * Test getNewDomDocument - although providerApiCall calls it, does not get noted as covered.
 	 * @test
@@ -40,7 +65,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 			)
 		);
 	}
-
 	/**
 	 * Mock out the config helper.
 	 *

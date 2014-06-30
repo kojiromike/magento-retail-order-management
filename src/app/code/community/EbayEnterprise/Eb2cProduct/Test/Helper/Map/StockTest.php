@@ -97,16 +97,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_StockTest
 			->will($this->returnValue($value));
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 
-		$productHelper = $this->getHelperMockBuilder('eb2cproduct/data')
-			->disableOriginalConstructor()
-			->setMethods(array('parseBool'))
-			->getMock();
-		$productHelper->expects($this->once())
-			->method('parseBool')
-			->with($this->identicalTo($mapValue))
-			->will($this->returnValue($valueToBool));
-		$this->replaceByMock('helper', 'eb2cproduct', $productHelper);
-
 		$stockHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_stock')
 			->disableOriginalConstructor()
 			->setMethods(array('_getStockMap', '_boolToInt'))

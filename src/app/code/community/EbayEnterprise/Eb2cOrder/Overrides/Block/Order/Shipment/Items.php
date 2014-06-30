@@ -13,11 +13,19 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History extends Mage_Sales_Block_Order_History
+class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Shipment_Items
+	extends Mage_Sales_Block_Order_Shipment_Items
 {
-	public function __construct()
+	/**
+	 * @see parent::getPrintShipmentUrl()
+	 * overriding this method because shipment will not
+	 * exists in magento therefore we should simply use the
+	 * print all shipment url which uses the order id, which
+	 * should both exists in Magento and OMS.
+	 * @return string
+	 */
+	public function getPrintShipmentUrl($shipment)
 	{
-		$this->setTemplate('sales/order/history.phtml');
-		$this->setOrders(Mage::helper('eb2corder')->getCurCustomerOrders());
+		return $this->getPrintAllShipmentsUrl($this->getOrder());
 	}
 }

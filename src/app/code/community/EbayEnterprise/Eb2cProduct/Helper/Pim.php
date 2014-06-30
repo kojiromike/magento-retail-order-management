@@ -5,6 +5,8 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	const NEW_PRODUCT_OPERATION_TYPE = 'Add';
 	const MAX_SKU_LENGTH         = 15;
 	const STRING_LIMIT           = 4000;
+	// Config XML path for gift wrapping availability flag
+	const XML_PATH_ALLOW_GIFT_WRAPPING = 'sales/gift_options/wrapping_allow_items';
 	/**
 	 * return a cdata node from a given string value.
 	 * @param  string                              $attrValue
@@ -466,6 +468,10 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	 */
 	public function passGiftWrap($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
+		// when the attribute value is not set, fall back to the configured gift wrap avail flag
+		if (is_null($attrValue)) {
+			$attrValue = Mage::getStoreConfigFlag(self::XML_PATH_ALLOW_GIFT_WRAPPING, $product->getStoreId());
+		}
 		return $this->createStringNode($attrValue ? 'Y' : 'N', $doc);
 	}
 	/**

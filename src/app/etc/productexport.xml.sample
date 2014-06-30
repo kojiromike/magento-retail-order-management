@@ -279,12 +279,13 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<xml_dest>ExtendedAttributes/DisplayCountryOfOrigin</xml_dest>
 							<translate>0</translate>
 						</country_of_manufacture>
-						<gift_wrap>
+						<gift_wrapping_available>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>
 							<method>passGiftWrap</method>
 							<xml_dest>ExtendedAttributes/GiftWrap</xml_dest>
-							<translate>0</translate></gift_wrap>
+							<translate>0</translate>
+						</gift_wrapping_available>
 						<description>
 							<class>eb2cproduct/pim</class>
 							<type>helper</type>

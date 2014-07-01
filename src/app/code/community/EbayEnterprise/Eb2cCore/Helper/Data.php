@@ -13,6 +13,12 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * Class EbayEnterprise_Eb2cCore_Helper_Data
+ *
+ * A loose collection of semi-static methods that are used by independent
+ * modules across Retail Order Management.
+ */
 class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
@@ -30,12 +36,15 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	const URI_FORMAT = 'https://%s/v%s.%s/stores/%s/%s/%s%s.%s';
 	const PERMISSION = 0750;
+
 	/**
 	 * Get the API URI for the given service/request.
+	 *
 	 * @param string $service
 	 * @param string $operation
 	 * @param array $params
 	 * @param string $format
+	 * @return string
 	 */
 	public function getApiUri($service, $operation, $params=array(), $format='xml')
 	{
@@ -53,6 +62,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 			$format
 		);
 	}
+
 	/**
 	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * @param mixed $store
@@ -76,8 +86,9 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * given DOMDocument get the DOMElement from it.
+	 *
 	 * @param DOMDocument $doc
-	 * @return DOMELement
+	 * @return DOMElement
 	 * @codeCoverageIgnore
 	 */
 	public function getDomElement(DOMDocument $doc)
@@ -87,6 +98,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Create and return a new instance of XSLTProcessor.
+	 *
 	 * @return XSLTProcessor
 	 * @codeCoverageIgnore
 	 */
@@ -97,6 +109,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Create and return a new instance of DOMXPath.
+	 *
 	 * @param DOMDocument $doc
 	 * @return DOMXPath
 	 * @codeCoverageIgnore
@@ -108,6 +121,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Create and return a new instance of SplObjectStorage.
+	 *
 	 * @return SplObjectStorage
 	 * @codeCoverageIgnore
 	 */
@@ -117,9 +131,9 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * validating ftp settings by simply checking if there's actual setting data.
+	 * Validate sftp settings by simply checking if there's actual setting data.
 	 *
-	 * @return bool, true valid ftp settings otherwise false
+	 * @return bool valid ftp settings
 	 */
 	public function isValidFtpSettings()
 	{
@@ -129,18 +143,6 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 			($cfg->sftpAuthType === 'password' && trim($cfg->sftpPassword)) ||
 			($cfg->sftpAuthType === 'pub_key' && trim($cfg->sftpPrivateKey))
 		);
-	}
-
-	/**
-	 * convert feed lang data to match magento expected format (en-US => en_US)
-	 *
-	 * @param string $langCode, the language code
-	 *
-	 * @return string, the magento expected format
-	 */
-	public static function xmlToMageLangFrmt($langCode)
-	{
-		return str_replace('-', '_', $langCode);
 	}
 
 	/**
@@ -157,6 +159,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Ensure the sku/client id/style id matches the same format expected for skus
 	 * {catalogId}-{item_id}
+	 *
 	 * @param  string $itemId    Product item/style/client/whatevs id
 	 * @param  string $catalogId Product catalog id
 	 * @return string            Normalized style id
@@ -174,6 +177,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * remove the client id found in a given sku {item_id}
+	 *
 	 * @param  string $itemId    Product item/style/client/whatevs id
 	 * @param  string $catalogId Product catalog id
 	 * @return string            Normalized style id
@@ -187,8 +191,9 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Get value of node specified for query. In accordance with existing local custom here,
 	 * named 'extract', and calls extractNodeValue to ensure consistency.
-	 * @param DOMXpath xpath object
-	 * @param xpath query string
+	 *
+	 * @param DOMXpath $xpath The object that can query
+	 * @param string $query The xpath query string
 	 * @return string value found at node found by query
 	 */
 	public function extractQueryNodeValue(DOMXpath $xpath, $query)
@@ -221,6 +226,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Return the eb2c ship method configured to correspond to a known Magento ship method.
+	 *
 	 * @param string $mageShipMethod
 	 * @return string EB2C ship method
 	 */
@@ -232,6 +238,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * loading a file into a new SplFileInfo instantiated object
+	 *
 	 * @param string $fileName
 	 * @return SplFileInfo
 	 * @codeCoverageIgnore
@@ -243,8 +250,9 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting calling file exists
+	 *
 	 * @param string $fileName
-	 * @return bool true|false
+	 * @return bool true if the file is readable
 	 * @codeCoverageIgnore
 	 */
 	public function isFileExist($fileName)
@@ -254,8 +262,9 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting calling is dir
+	 *
 	 * @param string $dir
-	 * @return bool true|false
+	 * @return bool true if the dir is a directory
 	 * @codeCoverageIgnore
 	 */
 	public function isDir($dir)
@@ -265,6 +274,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting creating dir
+	 *
 	 * @param string $dir
 	 * @return void
 	 * @codeCoverageIgnore
@@ -278,8 +288,10 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting moving a file
+	 *
 	 * @param string $source
 	 * @param string $destination
+	 * @throws EbayEnterprise_Eb2cCore_Exception_Feed_File
 	 * @return void
 	 * @codeCoverageIgnore
 	 */
@@ -291,9 +303,12 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 			throw new EbayEnterprise_Eb2cCore_Exception_Feed_File("Can not move $source to $destination");
 		}
 	}
+
 	/**
 	 * abstracting removing a file
+	 *
 	 * @param string $file
+	 * @throws EbayEnterprise_Eb2cCore_Exception_Feed_File
 	 * @return void
 	 * @codeCoverageIgnore
 	 */
@@ -308,6 +323,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting getting store configuration value
+	 *
 	 * @see Mage::getStoreConfig
 	 * @param string $path
 	 * @param mixed $store
@@ -321,6 +337,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting getting store configuration flag
+	 *
 	 * @see Mage::getStoreConfigFlag
 	 * @param string $path
 	 * @param mixed $store
@@ -331,9 +348,11 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getStoreConfigFlag($path, $store);
 	}
+
 	/**
 	 * abstracting getting the magento base directory with a given scope or default
 	 * scope and a given relative path to build an absolute full path
+	 *
 	 * @see Mage::getBaseDir
 	 * @param string $relative
 	 * @param string $scope
@@ -344,9 +363,10 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getBaseDir($scope) . DS . $relative;
 	}
+
 	/**
 	 * @see invokeCallback of EbayEnterprise_Eb2cCore_Helper_Feed
-	 * @param  array  $callback
+	 * @param  array  $callback Not a callable, but an array in the format expected by Magento config
 	 * @return mixed
 	 */
 	public function invokeCallback(array $callback=array())
@@ -356,6 +376,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * getting how long ago a file has been modified or created in minutes
+	 *
 	 * @param string $sourceFile
 	 * @return int time ago in minutes
 	 */
@@ -379,9 +400,11 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 			$interVal->i
 		);
 	}
+
 	/**
-	 * abstracting instantiating a new DataTime object
-	 * @param $time
+	 * abstracting instantiating a new DateTime object
+	 *
+	 * @param string $time
 	 * @param DateTimeZone $timezone
 	 * @return DateTime
 	 * @codeCoverageIgnore
@@ -390,9 +413,11 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return new DateTime($time, $timezone);
 	}
+
 	/**
 	 * abstracting instantiating a new DateTimeZone in the default
 	 * magento config time zone
+	 *
 	 * @return DateTimeZone
 	 * @codeCoverageIgnore
 	 */
@@ -402,6 +427,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 	/**
 	 * abstracting getting the current time
+	 *
 	 * @return int
 	 * @codeCoverageIgnore
 	 */
@@ -413,6 +439,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * given a product object and a country code retrieve the hts_code value for this product
 	 * matching a given country code
+	 *
 	 * @param Mage_Catalog_Model_Product $product
 	 * @param string $countryCode the two letter code for a country (US, CA, DE, etc...)
 	 * @return string | null the htscode matching the country code for that product otherwise null
@@ -433,6 +460,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting getting an instance of the default store
+	 *
 	 * @return Mage_Core_Model_Store
 	 * @codeCoverageIgnore
 	 */
@@ -443,6 +471,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting getting an instance of the default website
+	 *
 	 * @return Mage_Core_Model_Website
 	 * @codeCoverageIgnore
 	 */
@@ -453,6 +482,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting getting store configuration flag
+	 *
 	 * @see Mage::getBaseUrl
 	 * @codeCoverageIgnore
 	 */
@@ -463,6 +493,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting triggering errors
+	 *
 	 * @param string $message
 	 * @return void
 	 * @codeCoverageIgnore
@@ -474,6 +505,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting getting an instance of the current store
+	 *
 	 * @return Mage_Core_Model_Store
 	 * @codeCoverageIgnore
 	 */
@@ -485,6 +517,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 * Expect a comma delimited string of applied salesrule ids and the first rule
 	 * id will be concatenated to a string of configured store id and a dash. The
 	 * result string will be truncated to only 12 characters if exceeded.
+	 *
 	 * @param string $appliedRuleIds
 	 * @return string
 	 */

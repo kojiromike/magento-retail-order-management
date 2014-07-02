@@ -162,24 +162,17 @@ class EbayEnterprise_Eb2cAddress_Model_Validation_Response extends Varien_Object
 	{
 		if (!$this->hasData('is_valid')) {
 			$resultCode = $this->_lookupPath('result_code');
-			$validity;
 			$logger = Mage::helper('ebayenterprise_magelog');
 			switch ($resultCode) {
 				case 'V':
+				case 'N':
 					$validity = true;
 					break;
 				case 'C':
-					if ($this->hasAddressSuggestions()) {
-						$validity = false;
-					} else {
-						$validity = true;
-					}
+					$validity = !$this->hasAddressSuggestions();
 					break;
 				case 'K':
 					$validity = false;
-					break;
-				case 'N':
-					$validity = true;
 					break;
 				case 'U':
 					$logger->logWarn('[%s] Unable to contact provider', array(__CLASS__));

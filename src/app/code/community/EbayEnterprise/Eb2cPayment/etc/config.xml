@@ -61,11 +61,6 @@
 			<eb2cpayment>
 				<class>EbayEnterprise_Eb2cPayment_Block</class>
 			</eb2cpayment>
-			<enterprise_giftcardaccount>
-				<rewrite>
-					<checkout_cart_giftcardaccount>EbayEnterprise_Eb2cPayment_Overrides_Block_Checkout_Cart_Giftcardaccount</checkout_cart_giftcardaccount>
-				</rewrite>
-			</enterprise_giftcardaccount>
 			<customer>
 				<rewrite>
 					<account_navigation>EbayEnterprise_Eb2cPayment_Overrides_Block_Account_Navigation</account_navigation>

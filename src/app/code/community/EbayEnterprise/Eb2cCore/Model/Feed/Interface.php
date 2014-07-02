@@ -18,9 +18,9 @@
  * a 'contract' between the feed classes, and the Feed Shell classes that run them.
  */
 interface EbayEnterprise_Eb2cCore_Model_Feed_Interface
-	{
+{
 	/**
-	 * Must be defined by implementor - this is the point of entry to start process a feed.
+	 * The point of entry to start process a feed.
 	 */
 	public function processFeeds();
 }

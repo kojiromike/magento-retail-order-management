@@ -307,26 +307,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$this->replaceByMock('helper', 'eb2cproduct', $productHelperMock);
 		$this->assertSame('en-US', Mage::helper('eb2cproduct')->getDefaultLanguageCode());
 	}
-	/**
-	 * Test getDefaultProductAttributeSetId the feed
-	 * @test
-	 */
-	public function testGetDefaultProductAttributeSetId()
-	{
-		$entityTypeModelMock = $this->getModelMockBuilder('eav/entity_type')
-			->disableOriginalConstructor()
-			->setMethods(array('loadByCode', 'getDefaultAttributeSetId'))
-			->getMock();
-		$entityTypeModelMock->expects($this->once())
-			->method('loadByCode')
-			->with($this->equalTo('catalog_product'))
-			->will($this->returnSelf());
-		$entityTypeModelMock->expects($this->once())
-			->method('getDefaultAttributeSetId')
-			->will($this->returnValue(4));
-		$this->replaceByMock('model', 'eav/entity_type', $entityTypeModelMock);
-		$this->assertSame(4, Mage::helper('eb2cproduct')->getDefaultProductAttributeSetId());
-	}
+
 	/**
 	 * Test parseBool the feed
 	 * @test

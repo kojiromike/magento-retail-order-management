@@ -43,7 +43,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	/**
 	 * Test that the request method returns a non-empty string on successful response.
 	 *
-	 * @test
 	 */
 	public function testRequest()
 	{

@@ -61,7 +61,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 	 * given response message loaded. This DOM document should then be used to
 	 * create a DOMXpath object, via the _getNewDomXpath method, which should
 	 * then have the namespace used by inventory responses registered.
-	 * @test
 	 */
 	public function testXPathForMessage()
 	{

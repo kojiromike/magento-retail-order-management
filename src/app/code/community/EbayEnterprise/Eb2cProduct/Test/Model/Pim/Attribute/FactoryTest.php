@@ -19,7 +19,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 {
 	/**
 	 * Constructor should load and store the PIM feed mappings from the config
-	 * @test
 	 */
 	public function testConstructor()
 	{

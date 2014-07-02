@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_BalanceTest
 {
 	/**
 	 * Test getBalance method
-	 * @test
 	 */
 	public function testGetBalance()
 	{

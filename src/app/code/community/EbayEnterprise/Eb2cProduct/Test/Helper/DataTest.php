@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 {
 	/**
 	 * testing getConfigModel method
-	 * @test
 	 */
 	public function testGetConfigModel()
 	{

@@ -153,7 +153,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Test the various session interactions when there is not session data
 	 * for address validation initialized.
-	 * @test
 	 */
 	public function testValidatorSessionNotInitialized()
 	{

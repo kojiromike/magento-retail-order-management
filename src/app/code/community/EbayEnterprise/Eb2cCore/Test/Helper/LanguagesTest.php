@@ -17,7 +17,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_LanguagesTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	/**
-	 * @test
 	 * @loadFixture testLanguages.yaml
 	 */
 	public function testGetStoreLanguageCodesList()

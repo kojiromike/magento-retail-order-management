@@ -51,7 +51,6 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 	/**
 	 * Test the retrieval of the tax caluculation sequence config value. Expecting true
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testGetApplyTaxAfterDiscount($configValue)
 	{

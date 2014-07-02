@@ -33,7 +33,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 	/**
 	 * testing getXmlNs method
 	 *
-	 * @test
 	 */
 	public function testGetXmlNs()
 	{

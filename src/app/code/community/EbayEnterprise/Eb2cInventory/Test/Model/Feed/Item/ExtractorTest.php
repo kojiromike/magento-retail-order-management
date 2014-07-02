@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_ExtractorTest
 {
 	/**
 	 * testing extractInventoryFeed method
-	 * @test
 	 */
 	public function testExtractInventoryFeed()
 	{

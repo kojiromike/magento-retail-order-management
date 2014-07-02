@@ -87,7 +87,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ConfigRegistryTest extends EcomDev_PHPU
 	 * the values that would have been returned by simply using Magento's
 	 * Mage::getStoreConfig and Mage::getStoreConfigFlag methods.
 	 *
-	 * @test
 	 * @loadFixture configData
 	 */
 	public function testGetConfig()

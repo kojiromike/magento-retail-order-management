@@ -17,7 +17,6 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	/**
-	 * @test
 	 */
 	public function testGetXmlNs()
 	{

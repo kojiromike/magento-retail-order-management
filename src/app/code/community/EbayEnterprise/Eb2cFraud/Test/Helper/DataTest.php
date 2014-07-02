@@ -30,7 +30,6 @@ class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * Get back sensible URL
-	 * @test
 	 */
 	public function testGetJscUrl()
 	{

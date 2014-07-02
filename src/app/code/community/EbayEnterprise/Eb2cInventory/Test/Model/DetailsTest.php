@@ -94,7 +94,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	 * @param Mage_Sales_Model_Quote_Item[]  $items          Quote items in the quote
 	 * @param Mage_Sales_Model_Quote_Address $address        Shipping address for the quote
 	 * @param boolean                        $canMakeRequest Can a request be made for a quote with the provided items and address
-	 * @test
 	 * @dataProvider providerCanMakeRequestWithQuote
 	 */
 	public function testCanMakeRequestWithQuote($items, $address, $canMakeRequest)

@@ -20,7 +20,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_RequestTest
 	/**
 	 * Test making a request for a token. The token should be set on the request
 	 * instance as a "token" magic data property.
-	 * @test
 	 */
 	public function testMakeRequestSuccess()
 	{

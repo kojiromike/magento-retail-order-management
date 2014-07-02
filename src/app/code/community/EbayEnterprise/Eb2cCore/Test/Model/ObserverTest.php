@@ -43,7 +43,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 	/**
 	 * Test processing the Exchange Platform order - should dispatch an event
 	 * to cause an inventory allocation and an event to trigger SVC redemption.
-	 * @test
 	 */
 	public function testProcessExchangePlatformOrder()
 	{

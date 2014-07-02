@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_PaypalTest
 {
 	/**
 	 * empty paypal table
-	 * @test
 	 * @loadFixture paypalTableEmpty.yaml
 	 */
 	public function testPaypalTableEmpty()

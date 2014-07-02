@@ -62,7 +62,6 @@ class EbayEnterprise_Eb2cCore_Test_Controller_Exchange_System_Config_ValidateCon
 	 * on the request params.
 	 * @param  array $requestParams
 	 * @param  string $sourceType Model class that should provide the config data
-	 * @test
 	 * @dataProvider provideRequestParams
 	 */
 	public function testGetConfigSource($requestParams, $useDefault, $sourceType)

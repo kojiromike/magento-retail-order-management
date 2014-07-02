@@ -39,7 +39,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 * property. When given an invalid set of file details, an error should be triggered.
 	 * @param array  $fileDetails  Argument to the constructor
 	 * @param string $errorMessage Expected error message, if empty, no error is expected
-	 * @test
 	 * @dataProvider provideConstructorDetailsAndErrors
 	 */
 	public function testConstruction($fileDetails, $errorMessage)

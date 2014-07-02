@@ -150,7 +150,6 @@ XML;
 	/**
 	 * Testing _construct method - valid request/response match xml
 	 *
-	 * @test
 	 */
 	public function testConstructValidRequestResponseMatch()
 	{

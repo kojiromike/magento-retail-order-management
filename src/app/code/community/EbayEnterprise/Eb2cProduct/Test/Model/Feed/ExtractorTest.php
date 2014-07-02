@@ -23,7 +23,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 	 * Iterate over configured callbacks
 	 * - Query XPath to get DOMNodeList of feed data
 	 * - Invoke callback with callback configuration, including necessary parameters key
-	 * @test
 	 */
 	public function testExtractItem()
 	{

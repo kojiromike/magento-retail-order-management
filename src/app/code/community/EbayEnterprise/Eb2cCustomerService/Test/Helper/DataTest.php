@@ -20,7 +20,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 	/**
 	 * Test getting a config registry instance with the eb2ccsr
 	 * configuration loaded.
-	 * @test
 	 */
 	public function testGetConfigModel()
 	{

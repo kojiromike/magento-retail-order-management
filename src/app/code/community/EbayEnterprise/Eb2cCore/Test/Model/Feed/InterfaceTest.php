@@ -22,7 +22,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_InterfaceTest extends EbayEnterpri
 	/**
 	 * Really the only test you can do with an interface, I think.
 	 *
-	 * @test
 	 */
 	public function testInterfaceExists()
 	{

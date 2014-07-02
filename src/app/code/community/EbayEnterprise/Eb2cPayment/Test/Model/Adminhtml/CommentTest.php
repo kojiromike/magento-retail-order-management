@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Adminhtml_CommentTest
 {
 	/**
 	 * Test getCommentText method
-	 * @test
 	 */
 	public function testGetCommentText()
 	{

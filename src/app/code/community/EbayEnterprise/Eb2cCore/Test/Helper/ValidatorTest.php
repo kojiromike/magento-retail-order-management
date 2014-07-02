@@ -20,7 +20,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	/**
 	 * Test doign simple validations on API settings. When all are valid, should
 	 * simply return self
-	 * @test
 	 */
 	public function testValidateSettings()
 	{

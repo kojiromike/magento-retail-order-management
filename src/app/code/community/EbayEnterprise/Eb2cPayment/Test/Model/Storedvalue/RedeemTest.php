@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 {
 	/**
 	 * Test getRedeem method
-	 * @test
 	 */
 	public function testGetRedeem()
 	{

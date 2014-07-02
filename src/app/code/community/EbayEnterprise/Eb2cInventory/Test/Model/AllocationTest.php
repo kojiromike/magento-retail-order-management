@@ -194,7 +194,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	/**
 	 * testing building inventory details request message
 	 *
-	 * @test
 	 */
 	public function testAllocateQuoteItems()
 	{

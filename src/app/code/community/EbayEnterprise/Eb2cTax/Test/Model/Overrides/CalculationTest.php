@@ -259,7 +259,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 	 * @param  EbayEnterprise_Eb2cTax_Model_Response|null $response  The response object stored on the calc
 	 * @param  EbayEnterprise_Eb2cTax_Model_Request $newRequest      The request to be returned by the factory method
 	 * @param  EbayEnterprise_Eb2cTax_Model_Request $expectedRequest The request object that should be returned
-	 * @test
 	 * @dataProvider provideGetTaxRequestNoAddress
 	 */
 	public function testGetTaxRequestNoAddress($response, $newRequest, $expectedRequest)

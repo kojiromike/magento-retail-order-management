@@ -31,7 +31,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Suggestion_GroupTest extends EcomDev
 
 	/**
 	 * Test setting and retrieving validated addresses.
-	 * @test
 	 */
 	public function testValidatedAddress()
 	{

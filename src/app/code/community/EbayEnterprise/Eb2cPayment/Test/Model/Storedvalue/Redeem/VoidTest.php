@@ -20,7 +20,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 	 * Test voiding a card redemption - use the pan, pin, quote id and amount
 	 * to build a request message, send it to the service and return the data
 	 * extracted from the response message.
-	 * @test
 	 */
 	public function testVoidCardRedemption()
 	{

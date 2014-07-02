@@ -27,7 +27,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 
 	/**
 	 * Test getNewDomDocument - although providerApiCall calls it, does not get noted as covered.
-	 * @test
 	 */
 	public function testGetNewDomDocument()
 	{

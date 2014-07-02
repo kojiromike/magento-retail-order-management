@@ -320,7 +320,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_GiftcardaccountTest
 	}
 	/**
 	 * testing _filterGiftCardByPanPin method - the reason for this test is because the method will be replace by a mock on all the other tests
-	 * @test
 	 */
 	public function testRewrite()
 	{

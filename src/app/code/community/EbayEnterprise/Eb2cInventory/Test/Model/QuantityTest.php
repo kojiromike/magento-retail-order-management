@@ -54,7 +54,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_QuantityTest
 	 * testing Building Quantity Request Message
 	 *
 	 * @param Mage_Sales_Model_Quote $quote Quote to build request for
-	 * @test
 	 * @dataProvider providerBuildQuantityRequestMessage
 	 */
 	public function testBuildQuantityRequestMessage($quote)

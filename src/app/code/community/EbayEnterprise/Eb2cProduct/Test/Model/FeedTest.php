@@ -31,7 +31,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_FeedTest
 	 * each loaded with the config data for one of the feed types handled by this
 	 * model. Using those core feed models, it should then also create an array
 	 * of event types used when sorting the feed files.
-	 * @test
 	 */
 	public function testConstruct()
 	{

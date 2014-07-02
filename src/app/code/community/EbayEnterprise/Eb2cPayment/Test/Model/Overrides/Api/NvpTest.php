@@ -260,7 +260,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	/**
 	 * testing callSetExpressCheckout method - when eb2c PayPalSetExpressCheckout is disabled
 	 *
-	 * @test
 	 * @medium
 	 * @loadFixture loadConfigPaymentsDisabled.yaml
 	 * @expectedException Mage_Core_Exception

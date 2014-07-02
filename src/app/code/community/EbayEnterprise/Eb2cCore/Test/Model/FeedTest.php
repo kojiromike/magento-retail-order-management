@@ -25,7 +25,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Test _construct method
-	 * @test
 	 */
 	public function testConstruct()
 	{

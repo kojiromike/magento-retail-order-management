@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest
 {
 	/**
 	 * Test _savePaymentData method
-	 * @test
 	 */
 	public function testSavePaymentData()
 	{

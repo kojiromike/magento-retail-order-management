@@ -61,7 +61,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	/**
 	 * Test adding of address tax data to the order.
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testAddAddressTaxToOrder($addressTaxes, $orderTaxes)
 	{

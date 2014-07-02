@@ -22,7 +22,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_Import_ItemsTest
 	 * be expected to inlcude products that already exist in Magento. The
 	 * collection should also load as little product data as possible while still
 	 * allowing all of the necessary updates and saves to be performed.
-	 * @test
 	 */
 	public function testBuildProductCollection()
 	{

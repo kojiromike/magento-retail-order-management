@@ -21,7 +21,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cProduct_Helper_Map::extractStringValue method with a known
 	 *                DOMNodeList object the method is then expected to return a string value extract from the
 	 *                DOMNodeList object
-	 * @test
 	 */
 	public function testExtractStringValue()
 	{

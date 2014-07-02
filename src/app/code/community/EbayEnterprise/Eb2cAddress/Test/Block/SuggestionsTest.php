@@ -49,7 +49,6 @@ class EbayEnterprise_Eb2cAddress_Test_Block_SuggestionsTest extends EcomDev_PHPU
 	/**
 	 * Test determining if suggestions should be shown
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testShouldShowSuggestions($hasFreshSuggestions, $hasSuggestions, $isValid)
 	{

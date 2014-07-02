@@ -79,7 +79,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	/**
 	 * testing redeeming gifcard observer method - successful redeem response
 	 *
-	 * @test
 	 * @dataProvider providerRedeemGiftCard
 	 */
 	public function testRedeemGiftCard($observer)

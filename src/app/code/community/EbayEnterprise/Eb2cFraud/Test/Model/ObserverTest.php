@@ -20,7 +20,6 @@ class EbayEnterprise_Eb2cFraud_Test_Model_ObserverTest extends EcomDev_PHPUnit_T
 {
 	/**
 	 * Is this observer first of all defined?
-	 * @test
 	 */
 	public function testEventObserverDefined()
 	{

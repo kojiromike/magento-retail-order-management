@@ -29,7 +29,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Test
 	/**
 	 * ensure the parse response method is being called.
 	 *
-	 * @test
 	 * @dataProvider provideModelAliases
 	 */
 	public function testParseResponseCallsFailureHandler($alias, $responseMessage)

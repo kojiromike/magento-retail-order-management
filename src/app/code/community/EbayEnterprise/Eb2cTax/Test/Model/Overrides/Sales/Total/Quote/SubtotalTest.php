@@ -25,7 +25,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest
 	 * Test the application of taxes to an item.
 	 * @large
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testApplyTaxes($qty, $price, $subtotal, $basePrice, $baseSubtotal)
 	{

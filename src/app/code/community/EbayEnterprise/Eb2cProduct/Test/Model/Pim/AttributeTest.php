@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_AttributeTest
 {
 	/**
 	 * verify the constructor allows for magento factory initialization
-	 * @test
 	 */
 	public function testConstructor()
 	{

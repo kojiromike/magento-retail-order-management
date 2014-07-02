@@ -21,7 +21,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	 * Should create an internal DOMDocument to be used to build the feed file
 	 * unless one is provided in a 'dom' key in the parameters arg passed to the
 	 * constructor.
-	 * @test
 	 */
 	public function testConstructor()
 	{

@@ -37,7 +37,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 	/**
 	 * Test a valid feed name configured, but pointing to model that does not implement the appropriate interface
 	 *
-	 * @test
 	 * @expectedException Mage_Core_Exception
 	 */
 	public function testModelLacksImplementation()

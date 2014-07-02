@@ -220,7 +220,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 	 * Expectation 4: the method EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::addMessage will return itself as asserted in the test
 	 * @mock EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_getLangCode
 	 * @mock EbayEnterprise_Eb2cProduct_Helper_Data::mapPattern
-	 * @test
 	 */
 	public function testAddMessage()
 	{

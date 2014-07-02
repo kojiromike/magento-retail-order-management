@@ -21,7 +21,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ConfigTest extends EcomDev_PHPUnit_Test
 {
 	/**
 	 * A config model knows about a key.
-	 * @test
 	 */
 	public function testConfigModelHasKey()
 	{

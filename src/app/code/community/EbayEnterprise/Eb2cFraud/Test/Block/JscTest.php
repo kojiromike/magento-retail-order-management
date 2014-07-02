@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cFraud_Test_Block_JscTest extends EcomDev_PHPUnit_Test_C
 	/**
 	 * Constructor should populate the block instance with "magic" data about the
 	 * collector to use.
-	 * @test
 	 */
 	public function testConstruct()
 	{

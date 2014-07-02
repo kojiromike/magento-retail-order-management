@@ -22,7 +22,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Overrides_Admin_SessionTest
 	 * through the adminhtml/url method is necessary to account for url secret
 	 * key validation
 	 * @param  boolean $useSecretKey
-	 * @test
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testGetStartpageUri($useSecretKey)

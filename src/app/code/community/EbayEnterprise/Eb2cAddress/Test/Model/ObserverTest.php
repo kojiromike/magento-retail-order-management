@@ -41,7 +41,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ObserverTest
 
 	/**
 	 * When disabled, observer method should do nothing.
-	 * @test
 	 */
 	public function testValidationValidationDisabled()
 	{

@@ -361,7 +361,6 @@ class EbayEnterprise_Eb2cPayment_Test_Controller_Overrides_GiftCardAccount_CartC
 	/**
 	 * testing addAction method - successfully adding gift card to quote
 	 *
-	 * @test
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml
 	 */

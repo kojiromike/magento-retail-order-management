@@ -47,7 +47,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 	 * a _coreFeed property. When invalid, should throw an exception.
 	 * @param  array   $initialData
 	 * @param  boolean $isValid
-	 * @test
 	 * @dataProvider provideConstructorInitialData
 	 */
 	public function testConstructor($initialData, $isValid)

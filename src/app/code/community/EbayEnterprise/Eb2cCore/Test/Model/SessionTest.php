@@ -43,7 +43,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	}
 	/**
 	 * Test extracting quote item sku data from a quote
-	 * @test
 	 */
 	public function testExtractQuoteSkuData()
 	{

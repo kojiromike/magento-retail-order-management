@@ -23,7 +23,6 @@ class EbayEnterprise_Eb2cPayment_Test_Block_Overrides_Adminhtml_System_Config_Ta
 	}
 
 	/**
-	 * @test
 	 * verify the isConfigSuppressed function is called with the correct parameters.
 	 */
 	public function testCheckSectionPermissionsSuppressionCall()

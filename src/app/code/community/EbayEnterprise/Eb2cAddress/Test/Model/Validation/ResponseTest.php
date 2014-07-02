@@ -17,7 +17,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_ResponseTest
 	extends EcomDev_PHPUnit_Test_Case
 {
 	/**
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testIsValid($valid, $message)

@@ -139,7 +139,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	/**
 	 * Test getting the color code - color option default value - for a product
 	 * with a color. Should return a DOMText object with the value as the text.
-	 * @test
 	 */
 	public function testPassColorCode()
 	{

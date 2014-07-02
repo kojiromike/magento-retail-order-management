@@ -67,7 +67,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_RequestTest extends EcomD
 
 	/**
 	 * build the message dom for an address.
-	 * @test
 	 * @large
 	 */
 	public function testRequestMessage()

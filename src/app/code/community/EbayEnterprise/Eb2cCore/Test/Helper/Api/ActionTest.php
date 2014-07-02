@@ -27,7 +27,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Api_ActionTest
 	}
 	/**
 	 * always return an empty string.
-	 * @test
 	 */
 	public function testReturnEmpty()
 	{

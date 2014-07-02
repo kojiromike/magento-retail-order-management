@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 {
 	/**
 	 * Test fs tool is set in the constructor when no parameter passed.
-	 * @test
 	 */
 	public function testConstructor()
 	{

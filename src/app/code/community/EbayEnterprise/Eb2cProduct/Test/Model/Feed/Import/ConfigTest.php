@@ -20,7 +20,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_Import_ConfigTest
 	/**
 	 * Test that EbayEnterprise_Eb2cProduct_Model_Feed_Import_Config::getImportConfigData
 	 * method will be invoke by this test and will return an array of key/value pairs
-	 * @test
 	 */
 	public function testGetImportConfigData()
 	{

@@ -83,7 +83,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * Test getting the shipping amount for an address. As Magento has shipping totals
 	 * collected after tax, this method should force the shipping amounts to be collected
 	 * before returning the address' base shipping amount.
-	 * @test
 	 */
 	public function testGetShippingAmount()
 	{

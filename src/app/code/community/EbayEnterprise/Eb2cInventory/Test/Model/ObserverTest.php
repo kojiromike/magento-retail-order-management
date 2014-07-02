@@ -18,7 +18,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 {
 	/**
 	 * verify the observer is configured to listen for necessary events.
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testObserverConfiguration($area, $eventName, $method)

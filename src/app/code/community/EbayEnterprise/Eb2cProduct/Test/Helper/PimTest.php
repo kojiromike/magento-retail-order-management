@@ -108,7 +108,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	}
 	/**
 	 * return inner value element contining $attrValue.
-	 * @test
 	 * @dataProvider provideDefaultValue
 	 */
 	public function testGetValueAsDefault($attrValue)

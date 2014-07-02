@@ -19,7 +19,6 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Helper_DataTest
 	/**
 	 * Test that the method EbayEnterprise_Eb2cGiftwrap_Helper_Data::createNewGiftwrapping
 	 * will be invoked and will return new Mage_Catalog_Model_Giftwrap object with dummy data
-	 * @test
 	 */
 	public function testCreateNewGiftwrapping()
 	{

@@ -33,7 +33,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 	/**
 	 * Test getProductsToClean method, making sure our assumption are correct and
 	 * the right parameters are being pass to the collect to filter where is_clean is false
-	 * @test
 	 */
 	public function testGetProductsToClean()
 	{

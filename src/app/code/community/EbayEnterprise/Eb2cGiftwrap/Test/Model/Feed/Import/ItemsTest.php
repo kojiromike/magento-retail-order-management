@@ -20,7 +20,6 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_Feed_Import_ItemsTest
 	/**
 	 * Test that when invoked, the method EbayEnterprise_Eb2cGiftwrap_Model_Feed_Import_Items::buildCollection
 	 * will return a collection of giftwrap object base on the passed in array of skus.
-	 * @test
 	 */
 	public function testBuildGiftwrapCollection()
 	{

@@ -20,7 +20,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_ResponseTest
 	/**
 	 * Test checking the validity of the token, for now, this basically just
 	 * means a successful response/any response message at all.
-	 * @test
 	 */
 	public function testIsTokenValid()
 	{

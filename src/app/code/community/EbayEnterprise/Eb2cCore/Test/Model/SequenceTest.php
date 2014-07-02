@@ -36,7 +36,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SequenceTest extends EcomDev_PHPUnit_Te
 	/**
 	 * test buildSequence method
 	 *
-	 * @test
 	 * @dataProvider providerBuildSequence
 	 */
 	public function testBuildSequence($feeds)

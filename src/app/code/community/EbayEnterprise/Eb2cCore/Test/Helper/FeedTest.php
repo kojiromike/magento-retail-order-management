@@ -67,7 +67,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 
 	/**
 	 * validateHeader should be true when the header has the expected DestinationId and Event Type nodes.
-	 * @test
 	 * @dataProvider providerValidateHeader
 	 * @loadFixture configData.yaml
 	 */

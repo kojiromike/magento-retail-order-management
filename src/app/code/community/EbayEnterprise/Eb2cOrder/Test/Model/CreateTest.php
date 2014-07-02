@@ -62,7 +62,6 @@ INVALID_XML;
 	}
 	/**
 	 * Test getting tax quotes for a given item
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testGettingTaxQuotesForItem($taxType)

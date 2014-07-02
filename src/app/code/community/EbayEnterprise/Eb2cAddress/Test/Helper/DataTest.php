@@ -72,7 +72,6 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 	/**
 	 * Test the generic method for getting the text contents from a set of XML
 	 * based on a given XPath expression using element as XPath context.
-	 * @test
 	 */
 	public function testTextValueFromXmlPathOnElement()
 	{

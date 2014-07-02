@@ -17,7 +17,6 @@ class EbayEnterprise_Eb2cOrder_Test_Block_Overrides_Order_ViewTest extends EbayE
 {
 	/**
 	 * Test overriding sales/order_view block
-	 * @test
 	 */
 	public function testPrepareLayout()
 	{

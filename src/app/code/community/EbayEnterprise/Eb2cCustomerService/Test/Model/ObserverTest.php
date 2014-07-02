@@ -48,7 +48,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_ObserverTest
 	 * Test the preDispatch token login check. Ensure that when the request
 	 * original path matches the csrlogin url path, the current user is logged
 	 * out and the token is validated.
-	 * @test
 	 */
 	public function testPreDispatchTokenLogin()
 	{

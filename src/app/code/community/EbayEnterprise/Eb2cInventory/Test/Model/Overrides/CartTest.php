@@ -77,7 +77,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Overrides_CartTest extends EcomDev
 	/**
 	 * testing addProduct method
 	 *
-	 * @test
 	 * @large
 	 * @dataProvider providerAddProduct
 	 * @loadFixture loadWebsiteConfig.yaml

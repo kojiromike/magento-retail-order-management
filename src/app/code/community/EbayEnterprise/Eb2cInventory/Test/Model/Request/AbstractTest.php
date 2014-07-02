@@ -35,7 +35,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Request_AbstractTest extends EbayE
 	 * @param string $operationKey   Helper operation uri key
 	 * @param string $xsdConfigKey   Config key for the xsd file
 	 * @param bool   $requestSuccess Was the request successful/no exception thrown
-	 * @test
 	 * @dataProvider providerMakeRequestForQuote
 	 */
 	public function testMakeRequestForQuote($requestType, $operationKey, $xsdConfigKey, $requestSuccess)

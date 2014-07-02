@@ -20,7 +20,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 	/**
 	 * Test formatting a sku, client id and catalog id into an item identifier
 	 * for an item in the collection.
-	 * @test
 	 */
 	public function testFormatId()
 	{

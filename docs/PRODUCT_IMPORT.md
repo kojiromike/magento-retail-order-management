@@ -111,8 +111,15 @@ The following table describes how elements in the XML product feeds are imported
 			<td>No</td>
 		</tr>
 		<tr>
-			<td>ExtendedAttributes/ColorAttributes/Color/Code</td>
-			<td>Used to specify the "Color" attribute of the product. The color "Code" should be a unique value used to identify the color and will be used as the admin label for the color option. When colors are being imported, if a color option with an admin label matching the code already exists, that color option will be reused for the product. When a new "code" is encountered, a new option will be created for the color.</td>
+			<td>ExtendedAttributes/ColorAttributes/Color</td>
+			<td>
+Used to specify the "Color" attribute of the product.
+Consists of at least 2 child nodes:
+<ul>
+<li>A color "Code", a unique value used to identify the color. This will be used as the admin label for the color option. When colors are being imported, if a color option with an admin label matching the code already exists, that color option will be reused for the product. When a new "Code" is encountered, a new option will be created for the color.
+</li>
+<li>One or more "Description" nodes, each with an "xml:lang" attribute. The description is used for to all stores that use the language specified.
+</li></td>
 			<td>No</td>
 		</tr>
 		<tr>

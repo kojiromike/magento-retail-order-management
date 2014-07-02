@@ -273,7 +273,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 			'error_file' => '/EbayEnterprise/Eb2c/Feed/Product/ItemMaster/outbound/ItemMaster_20140107224605_12345_ABCD.xml'
 		));
 
-		$items = Mage::getModel('eb2cproduct/feed_import_items');
 		$this->assertSame($dData, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$file, '_getSkusToRemoveFromWebsites', array($cfgData)
 		));

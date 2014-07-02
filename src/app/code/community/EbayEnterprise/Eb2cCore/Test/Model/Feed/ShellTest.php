@@ -24,26 +24,13 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 
 	public function setUp()
 	{
-		$this->_mockOrderStatusFeedModel(self::FAKE_PROCESS_FEEDS_RETURN);
+		$this->_mockProductFeedModel(self::FAKE_PROCESS_FEEDS_RETURN);
 		$this->_shellCore = Mage::getModel('eb2ccore/feed_shell',
 			array (
 				'feed_set' => array(
-					'eb2corder/status_feed'
+					'eb2cproduct/feed'
 				)
 			)
-		);
-	}
-
-	/**
-	 * The shorter term 'status' should match Eb2cOrder Status Feed, we should get that model back
-	 *
-	 * @test
-	 */
-	public function testMatchFeedNames()
-	{
-		$this->assertInstanceOf(
-			'EbayEnterprise_Eb2cOrder_Model_Status_Feed',
-			$this->_shellCore->getFeedModel('status')
 		);
 	}
 
@@ -93,7 +80,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 	{
 		$this->assertEquals(
 			self::FAKE_PROCESS_FEEDS_RETURN,
-			$this->_shellCore->runFeedModel('status')
+			$this->_shellCore->runFeedModel('product')
 		);
 	}
 
@@ -162,7 +149,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 	 * Set up an Order Status Feed as the 'dummy', and he mocks his fs_tool
 	 *
 	 */
-	private function _mockOrderStatusFeedModel($dummyReturnValue)
+	private function _mockProductFeedModel($dummyReturnValue)
 	{
 		// Mock the Varien_Io_File, need a mock file system
 		$mockFsTool = $this->getMock('Varien_Io_File', array(
@@ -206,8 +193,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 
 		// Mock order status feeds so I can fake a call to processFeeds(), this is
 		// where I need a mock FS.
-		$mockOrderStatusFeed = $this->getModelMock(
-			'eb2corder/status_feed',
+		$mockProductFeed = $this->getModelMock(
+			'eb2cproduct/feed',
 			array(
 				'processFeeds',
 			),
@@ -219,11 +206,11 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 			)
 		);
 
-		$mockOrderStatusFeed
+		$mockProductFeed
 			->expects($this->any())
 			->method('processFeeds')
 			->will($this->returnValue($dummyReturnValue));
 
-		$this->replaceByMock('model', 'eb2corder/status_feed', $mockOrderStatusFeed);
+		$this->replaceByMock('model', 'eb2cproduct/feed', $mockProductFeed);
 	}
 }

@@ -43,9 +43,11 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 		return $this;
 	}
 	/**
-	 * @see parent::processDom
+	 * Take a DOMDocument loaded with xml to update product inventory.
+	 * @param EbayEnterprise_Dom_Document $xmlDom
+	 * @return self
 	 */
-	public function processDom(EbayEnterprise_Dom_Document $xmlDom, array $fileDetails)
+	public function process(EbayEnterprise_Dom_Document $xmlDom)
 	{
 		return $this->updateInventories($this->getExtractor()->extractInventoryFeed($xmlDom));
 	}

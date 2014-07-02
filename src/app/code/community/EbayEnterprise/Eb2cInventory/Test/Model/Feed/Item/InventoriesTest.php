@@ -102,9 +102,8 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 	 * extractor to extract feed data and pass it on to updateInventories
 	 * @test
 	 */
-	public function testProcessDom()
+	public function testProcess()
 	{
-		$fileDetails = array('local' => '/Mage/var/processing/file.xml');
 		$dom = Mage::helper('eb2ccore')->getNewDomDocument();
 		$extractedData = array(new Varien_Object(array('some' => 'data')));
 
@@ -129,7 +128,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 			->with($this->identicalTo($extractedData))
 			->will($this->returnSelf());
 
-		$this->assertSame($fii, $fii->processDom($dom, $fileDetails));
+		$this->assertSame($fii, $fii->process($dom));
 	}
 	/**
 	 * @test

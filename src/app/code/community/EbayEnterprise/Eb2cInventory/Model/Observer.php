@@ -162,7 +162,7 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 		if ($feedConfig['event_type'] === Mage::helper('eb2cinventory')->getConfigModel()->feedEventType) {
 			Mage::log(sprintf('[%s] processing %s', __CLASS__, $fileDetail['local_file']), Zend_Log::DEBUG);
 			$fileDetail['doc'] = $event->getDoc();
-			Mage::getModel('eb2cinventory/feed_item_inventories')->processDom($fileDetail['doc'], $fileDetail);
+			Mage::getModel('eb2cinventory/feed_item_inventories')->process($fileDetail['doc']);
 		}
 		Varien_Profiler::stop(__METHOD__);
 		return $this;

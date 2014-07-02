@@ -184,10 +184,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 		$localFile = '/Mage/var/local/file.xml';
 		$processingFile = '/Mage/var/processing/file.xml';
 		$archiveFile = '/Mage/var/archive/file.xml';
-		// initial file detials - local_file in "local" directory
+		// initial file details - local_file in "local" directory
 		$fileDetails = array('local_file' => $localFile, 'core_feed' => $coreFeed);
-		// processing details - local_file in "processing" directory
-		$processingDetails = array('local_file' => $processingFile, 'core_feed' => $coreFeed);
 
 		$coreFeed->expects($this->once())
 			->method('acknowledgeReceipt')

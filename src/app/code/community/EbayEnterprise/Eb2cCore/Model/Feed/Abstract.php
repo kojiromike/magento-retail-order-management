@@ -108,13 +108,16 @@ abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 		}
 		return $dom;
 	}
+
 	/**
 	 * Processes a single file using the data in the file detail. The given file
 	 * detail can be expected to have, at the least:
 	 * 'local_file': path to the file to be processed
 	 * 'core_feed': reference to a EbayEnterprise_Eb2cCore_Model_Feed instance
 	 *   configured for the type of feed file being processed
+	 *
 	 * @param array $fileDetail
+	 * @return self
 	 */
 	public function processFile(array $fileDetail)
 	{

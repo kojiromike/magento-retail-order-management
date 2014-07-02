@@ -152,19 +152,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 		);
 	}
 
-	/**
-	 * Test xmlToMageLangFrmt static method
-	 *
-	 * @param  string $langCode, the language code
-	 *
-	 * @test
-	 * @dataProvider providerXmlToMageLangFrmt
-	 */
-	public function testXmlToMageLangFrmt($langCode)
-	{
-		$this->assertSame('en_US', Mage::helper('eb2ccore')->xmlToMageLangFrmt($langCode));
-	}
-
 	public function providerExtractNodeVal()
 	{
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();

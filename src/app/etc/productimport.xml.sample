@@ -465,7 +465,7 @@ Copy this file to productimport.xml and configure the appropriate values below.
 					<class>eb2cproduct/map_attribute</class>
 					<type>helper</type>
 					<method>extractColorValue</method>
-					<xpath>ExtendedAttributes/ColorAttributes/Color/Code</xpath>
+					<xpath>ExtendedAttributes/ColorAttributes/Color</xpath>
 				</color>
 				<configurable_attributes_data>
 					<class>eb2cproduct/map_attribute</class>

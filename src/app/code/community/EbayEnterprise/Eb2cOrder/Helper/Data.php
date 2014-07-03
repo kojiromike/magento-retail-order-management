@@ -98,9 +98,8 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	public function removeOrderIncrementPrefix($incrementId)
 	{
 		$prefix = '';
-		$coreHelper = Mage::helper('eb2ccore');
 		foreach (Mage::app()->getStores(true) as $store) {
-			$prefix = $coreHelper->getConfigModel($store->getId())->clientOrderIdPrefix;
+			$prefix = $this->getConfig($store->getId())->clientOrderIdPrefix;
 			// if the configured prefix matches the start of the increment id, strip
 			// off the prefix from the increment
 			if (strpos($incrementId, $prefix) === 0) {

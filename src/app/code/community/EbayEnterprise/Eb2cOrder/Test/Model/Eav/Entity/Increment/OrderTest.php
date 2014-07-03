@@ -29,7 +29,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Eav_Entity_Increment_OrderTest
 	// @var int increment prefix of a different store view
 	public $configAltPrefix = '7777';
 	// @var Mock_EbayEnterprise_Eb2cCore_Helper_Data mock core helper scripted to return config
-	public $coreHelper;
+	public $orderHelper;
 	// @var Mock_EbayEnterprise_Eb2cCore_Model_Config_Registry config registry expected to be used
 	public $coreConfig;
 	// @var Mock_EbayEnterprise_Eb2cCore_Model_Config_Registry config registry not expected to be used
@@ -72,10 +72,10 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Eav_Entity_Increment_OrderTest
 		$this->coreConfigDefault = $this->buildCoreConfigRegistry(array('clientOrderIdPrefix' => $this->configAltPrefix));
 		$this->coreConfig = $this->buildCoreConfigRegistry(array('clientOrderIdPrefix' => $this->configPrefix));
 
-		$this->coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$this->orderHelper = $this->getHelperMock('eb2corder/data', array('getConfig'));
 		// script config for the admin store and target store
-		$this->coreHelper->expects($this->any())
-			->method('getConfigModel')
+		$this->orderHelper->expects($this->any())
+			->method('getConfig')
 			->will($this->returnValueMap(array(
 				array(Mage_Core_Model_App::ADMIN_STORE_ID, $this->coreConfigDefault),
 				array($this->targetStoreId, $this->coreConfig),
@@ -98,7 +98,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Eav_Entity_Increment_OrderTest
 		$this->testApp->expects($this->any())
 			->method('getStore')
 			->will($this->returnValue($this->targetStore));
-		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('helper', 'eb2ccore', $this->orderHelper);
 		$this->incrementModel->setData(array(
 			'last_id' => $this->lastId,
 			'prefix' => 'fake_prefix',
@@ -118,7 +118,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Eav_Entity_Increment_OrderTest
 		$this->testApp->expects($this->any())
 			->method('getStore')
 			->will($this->returnValue($this->adminStore));
-		$this->replaceByMock('helper', 'eb2ccore', $this->coreHelper);
+		$this->replaceByMock('helper', 'eb2ccore', $this->orderHelper);
 		$this->incrementModel->setData(array(
 			'last_id' => $this->lastId,
 			'prefix' => 'fake_prefix',

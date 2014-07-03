@@ -125,22 +125,21 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 
 		$adminConfig = $this->buildCoreConfigRegistry(array('clientOrderIdPrefix' => '555'));
 		$storeConfig = $this->buildCoreConfigRegistry(array('clientOrderIdPrefix' => '7777'));
-		$coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
-		$coreHelper->expects($this->any())
-			->method('getConfigModel')
+		$orderHelper = $this->getHelperMock('eb2corder/data', array('getConfig'));
+		$orderHelper->expects($this->any())
+			->method('getConfig')
 			->will($this->returnValueMap(array(
 				array(0, $adminConfig),
 				array(1, $storeConfig),
 			)));
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue('Mage', '_app', $app);
 		// should be able to replace the order id prefix from any config scope
-		$this->assertSame('8888888', $this->_helper->removeOrderIncrementPrefix('77778888888'));
-		$this->assertSame('8888888', $this->_helper->removeOrderIncrementPrefix('5558888888'));
+		$this->assertSame('8888888', $orderHelper->removeOrderIncrementPrefix('77778888888'));
+		$this->assertSame('8888888', $orderHelper->removeOrderIncrementPrefix('5558888888'));
 		// when no matching prefix on the original increment id, should return unmodified value
-		$this->assertSame('1238888888', $this->_helper->removeOrderIncrementPrefix('1238888888'));
+		$this->assertSame('1238888888', $orderHelper->removeOrderIncrementPrefix('1238888888'));
 		// must work with null as when the first increment id for a store is
 		// created, the "last id" will be given as null
-		$this->assertSame('', $this->_helper->removeOrderIncrementPrefix(null));
+		$this->assertSame('', $orderHelper->removeOrderIncrementPrefix(null));
 	}
 }

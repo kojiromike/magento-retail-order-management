@@ -51,6 +51,6 @@ class EbayEnterprise_Eb2cOrder_Model_Eav_Entity_Increment_Order
 	 */
 	public function getPrefix()
 	{
-		return Mage::helper('eb2ccore')->getConfigModel($this->_getStoreId())->clientOrderIdPrefix;
+		return Mage::helper('eb2corder')->getConfig($this->_getStoreId())->clientOrderIdPrefix;
 	}
 }

@@ -94,7 +94,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_ObserverTest
 	/**
 	 * When the original request path wasn't the CSR login path, don't attempt
 	 * to login using a token.
-	 * @test
 	 */
 	public function testPreDispatchTokenLoginNonCsrPath()
 	{

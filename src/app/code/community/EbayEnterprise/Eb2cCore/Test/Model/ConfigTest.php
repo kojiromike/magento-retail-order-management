@@ -31,7 +31,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ConfigTest extends EcomDev_PHPUnit_Test
 
 	/**
 	 * A config model can get the correct path for a known key.
-	 * @test
 	 */
 	public function testConfigModelGetPath()
 	{

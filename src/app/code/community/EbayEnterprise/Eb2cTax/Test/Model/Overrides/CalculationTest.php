@@ -311,7 +311,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 	}
 
 	/**
-	 * @test
 	 * @dataProvider provideTrueFalse
 	 * @loadExpectation testGetAppliedRates.yaml
 	 */
@@ -383,7 +382,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 	}
 
 	/**
-	 * @test
 	 * @loadExpectation testGetAppliedRates.yaml
 	 */
 	public function testGetAppliedRatesDuplicateRatesExtraDiscountRates()
@@ -715,7 +713,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 
 	/**
 	 * verify a request object is returned when address is not null
-	 * @test
 	 */
 	public function testGetTaxRequest()
 	{
@@ -752,7 +749,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 	 * verify a request object is always returned.
 	 * verify existing request/response is discarded when quote is not null
 	 * verify same request is returned when quote is null and previous request exists.
-	 * @test
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testGetTaxRequestNullAddress($hasResponse)

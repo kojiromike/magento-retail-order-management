@@ -56,7 +56,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest
 
 	/**
 	 * an exception should be thrown if the ResponseCode field is not 'SUCCESS'
-	 * @test
 	 */
 	public function testBlockIfRequestFailed()
 	{
@@ -92,7 +91,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest
 
 	/**
 	 * messages should be logged
-	 * @test
 	 */
 	public function testBlockIfRequestFailedOkWithWarnings()
 	{
@@ -119,7 +117,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest
 
 	/**
 	 * no exception will be thrown
-	 * @test
 	 */
 	public function testBlockIfRequestFailedWithSuccess()
 	{
@@ -139,7 +136,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest
 
 	/**
 	 * extract message strings from the response
-	 * @test
 	 */
 	public function testExtractMessages()
 	{

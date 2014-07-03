@@ -121,7 +121,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ConfigRegistryTest extends EcomDev_PHPU
 	 * Run through a similar test as $this::testGetConfig but this time run them
 	 * all through the overloaded __get method via "magic" properties.
 	 *
-	 * @test
 	 * @loadFixture configData
 	 */
 	public function testMagicPropConfig()
@@ -152,7 +151,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ConfigRegistryTest extends EcomDev_PHPU
 	/**
 	 * If getConfig is called and the key is not found, an exception should be raised.
 	 *
-	 * @test
 	 * @expectedException Exception
 	 */
 	public function testConfigNotFoundExceptions()
@@ -164,7 +162,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ConfigRegistryTest extends EcomDev_PHPU
 	 * Same as $this::testConfigNotFoundException except this time via
 	 * the overloaded __get method via "magic" properties.
 	 *
-	 * @test
 	 * @expectedException Exception
 	 */
 	public function testUnknownPropError()
@@ -173,7 +170,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ConfigRegistryTest extends EcomDev_PHPU
 	}
 	/**
 	 * Getting a nonexistent property should error but still return null.
-	 * @test
 	 */
 	public function testUnknownProp()
 	{
@@ -189,7 +185,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ConfigRegistryTest extends EcomDev_PHPU
 	/**
 	 * All properties on the config helper should be readonly.
 	 * Attempting to set a property on the object should trigger an error.
-	 * @test
 	 * @expectedException Exception
 	 */
 	public function testAllPropsReadonlyError()
@@ -199,7 +194,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ConfigRegistryTest extends EcomDev_PHPU
 
 	/**
 	 * Sidestep the error and ensure that values are not getting set.
-	 * @test
 	 * @loadFixture configData
 	 */
 	public function testAllPropsReadonly()

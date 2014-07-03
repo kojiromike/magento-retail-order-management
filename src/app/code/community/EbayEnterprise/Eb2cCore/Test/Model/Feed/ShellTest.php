@@ -54,7 +54,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 	/**
 	 * Test a valid feed name configured, but pointing to a non-existent model
 	 *
-	 * @test
 	 * @expectedException Mage_Core_Exception
 	 */
 	public function testInvalidModelConfigured()
@@ -73,7 +72,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 	 * Test that we'll find a valid model, and call its processFeeds() method,
 	 * which in setup we mocked it up to return FAKE_PROCESS_FEEDS_RETURN
 	 *
-	 * @test
 	 */
 	public function testRunFeedModel()
 	{
@@ -86,7 +84,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 	/**
 	 * Non-matches are invalid. If you ask for a feed that producese no match, should return false.
 	 *
-	 * @test
 	 */
 	public function testInvalidFeedIsFalse()
 	{
@@ -105,7 +102,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 	/**
 	 * Multiple matches are invalid. If I pass an ambiguous feed name, I should see false returned.
 	 *
-	 * @test
 	 */
 	public function testMultipleMatchesIsFalse()
 	{
@@ -124,7 +120,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_ShellTest extends EbayEnterprise_E
 	/**
 	 * test listAvailable returns all the feeds we configured
 	 *
-	 * @test
 	 * @loadFixture listAvailableFeeds
 	 */
 	public function testListAvailableFeeds()

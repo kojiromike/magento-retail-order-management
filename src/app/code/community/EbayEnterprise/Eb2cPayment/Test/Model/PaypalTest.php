@@ -32,7 +32,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_PaypalTest
 
 	/**
 	 * Retrieves list of paypal ids for some purpose
-	 * @test
 	 * @loadFixture paypalTableList.yaml
 	 */
 	public function testPaypalTableList()
@@ -44,7 +43,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_PaypalTest
 
 	/**
 	 * test loadByQuoteId method
-	 * @test
 	 * @loadFixture paypalTableList.yaml
 	 */
 	public function testLoadByQuoteId()

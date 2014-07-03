@@ -124,7 +124,6 @@ class EbayEnterprise_Eb2cCore_Test_Controller_Exchange_System_Config_ValidateCon
 	 * @param array $params Request params
 	 * @param string $configValue Value stored in config
 	 * @param string $expectedValue Expected output based on given request params
-	 * @test
 	 * @dataProvider provideParamsForFallbackTest
 	 */
 	public function testGetParamOrFallbackValue($params, $configValue, $expectedValue)
@@ -186,7 +185,6 @@ class EbayEnterprise_Eb2cCore_Test_Controller_Exchange_System_Config_ValidateCon
 	 * @param  array $requestParams
 	 * @param  string|null $sourceType Factory alias for the source of config values, either core/store or core/website
 	 * @param  string $apiKey Expected API key to be returned
-	 * @test
 	 * @dataProvider provideApiKeyParams
 	 */
 	public function testGetApiKey($requestParams, $sourceType, $apiKey)
@@ -256,7 +254,6 @@ class EbayEnterprise_Eb2cCore_Test_Controller_Exchange_System_Config_ValidateCon
 	 * @param  array $requestParams
 	 * @param  string $sourceType Factory alias for source of the config value when used
 	 * @param  string $apiKey Expected API key to be returned
-	 * @test
 	 * @dataProvider provideSftpPrivateKeyParams
 	 */
 	public function testGetSftpPrivateKey($requestParams, $sourceType, $apiKey)

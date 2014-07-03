@@ -39,7 +39,6 @@ class EbayEnterprise_Eb2cFraud_Test_Model_ObserverTest extends EcomDev_PHPUnit_T
 	 * Test capturing order context, all context data comes from various other
 	 * places so just ensure that the method is attempting to add some data
 	 * for each of the data fields we're expecting to have populated.
-	 * @test
 	 */
 	public function testObserverMethod()
 	{

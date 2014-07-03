@@ -142,7 +142,6 @@ class EbayEnterprise_Eb2cAddress_Test_Block_SuggestionsTest extends EcomDev_PHPU
 
 	/**
 	 * Test getting JSON representation of an address object.
-	 * @test
 	 */
 	public function testAddressJson()
 	{
@@ -179,7 +178,6 @@ class EbayEnterprise_Eb2cAddress_Test_Block_SuggestionsTest extends EcomDev_PHPU
 	/**
 	 * Test the rendering of address objects. Not a huge fan of testing against the
 	 * expected HTML markup...seems overly brittle.
-	 * @test
 	 * @large
 	 */
 	public function testGetRenderedAddress()
@@ -210,7 +208,6 @@ class EbayEnterprise_Eb2cAddress_Test_Block_SuggestionsTest extends EcomDev_PHPU
 	 * My main reason for doing this is that other code also uses the const, such as
 	 * the validator model to pull out the selected value, hence it is important
 	 * to ensure this method pulls the same value other code is expecting it to be.
-	 * @test
 	 */
 	public function testSuggestionInputName()
 	{
@@ -226,7 +223,6 @@ class EbayEnterprise_Eb2cAddress_Test_Block_SuggestionsTest extends EcomDev_PHPU
 	 * the validator model to determine if the "New Address" seleciton is made,
 	 * hence it is important to ensure this method pulls the same value
 	 * other code is expecting it to be.
-	 * @test
 	 */
 	public function testNewAddressSuggestionValue()
 	{
@@ -240,7 +236,6 @@ class EbayEnterprise_Eb2cAddress_Test_Block_SuggestionsTest extends EcomDev_PHPU
 	 * Get the user messages. Less concerned with the actual message, more so
 	 * ensuring they are all passed through the translation helper method.
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testMessages($methodName)
 	{

@@ -298,7 +298,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	/**
 	 * testing when allocation data is found in quote items
 	 *
-	 * @test
 	 * @dataProvider providerHasAllocation
 	 */
 	public function testHasAllocation($quote)
@@ -374,7 +373,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	/**
 	 * testing isExpired method
 	 *
-	 * @test
 	 * @dataProvider providerIsExpired
 	 */
 	public function testIsExpired($quote)
@@ -387,7 +385,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	/**
 	 * testing parseResponse
 	 *
-	 * @test
 	 */
 	public function testParseResponse()
 	{
@@ -417,7 +414,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	 * When an allocation is made with 0 quantity, assume the product is not
 	 * available and remove it from the cart. This should result in a message
 	 * being returned indicating that the item was removed.
-	 * @test
 	 */
 	public function testUpdateQuoteWithZeroQuantityAllocation()
 	{
@@ -471,7 +467,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	 * but still greater than 0, the item quantity should be set to the quantity
 	 * allocated and a message indicating the quantity has been changed should
 	 * be returned.
-	 * @test
 	 */
 	public function testUpdateQuoteWithInsufficientQuantity()
 	{
@@ -528,7 +523,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	 * equal to the requested quantity, the item should be updated with allocation
 	 * data and the quote and item saved. An empty response/error message should
 	 * be returned as no errors were encountered.
-	 * @test
 	 */
 	public function testUpdateQuoteWithAllocation()
 	{
@@ -657,7 +651,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	/**
 	 * Test for checking if an allocation is required for the given quote.
 	 * @param  Mage_Sales_Model_Quote $quote The quote to be tested.
-	 * @test
 	 * @dataProvider allocationRequiredProvider
 	 */
 	public function testIfAllocationRequired($key, $quote)
@@ -711,7 +704,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 
 	/**
 	 * Testing _buildAllocationRequestMessage method
-	 * @test
 	 */
 	public function testBuildAllocationRequestMessage()
 	{

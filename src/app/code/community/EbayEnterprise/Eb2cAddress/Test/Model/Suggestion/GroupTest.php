@@ -50,7 +50,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Suggestion_GroupTest extends EcomDev
 
 	/**
 	 * Test the management of the "fresh" suggestions flag
-	 * @test
 	 */
 	public function testFreshSuggestionsFlagOriginalAddresses()
 	{
@@ -88,7 +87,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Suggestion_GroupTest extends EcomDev
 	/**
 	 * Get the suggested addresses, ensuring the has_fresh_suggestions
 	 * flag is properly managed.
-	 * @test
 	 */
 	public function testFreshSuggestionsFlagSuggestedAddresses()
 	{

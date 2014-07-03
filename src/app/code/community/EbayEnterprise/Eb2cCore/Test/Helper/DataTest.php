@@ -73,7 +73,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 
 	/**
 	 * test generating the API URIs
-	 * @test
 	 */
 	public function testApiUriCreation()
 	{
@@ -103,7 +102,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 
 	/**
 	 * test generating the API URIs with a non default store.
-	 * @test
 	 * @loadFixture
 	 */
 	public function testApiUriCreationNonDefaultStore()
@@ -126,7 +124,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 	 * @param  string $password SFTP password config setting
 	 * @param  string $privKey  SFTP private key config setting
 	 *
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testIsValidFtpSettingsWithSftpData($username, $host, $authType, $password, $privKey)
@@ -177,7 +174,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 	 *
 	 * @param DOMNodeList $nodeList
 	 *
-	 * @test
 	 * @dataProvider providerExtractNodeVal
 	 */
 	public function testExtractNodeVal(DOMNodeList $nodeList)
@@ -203,7 +199,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 	 * @param DOMNodeList $nodeList
 	 * @param string $attributeName
 	 *
-	 * @test
 	 * @dataProvider providerExtractNodeAttributeVal
 	 */
 	public function testExtractNodeAttributeVal(DOMNodeList $nodeList, $attributeName)
@@ -215,7 +210,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 	 * Test that we can transform a Magento shipping method into an eb2c shipping method.
 	 * @loadFixture
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testConvertShipMethod($mageShipMethod)
 	{
@@ -229,7 +223,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 	 * Test normalizing a product style id to match formatting for skus
 	 * @param  string $style   The product style id
 	 * @param  string $catalog The product catalog id
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testNormalizeSku($styleId, $catalogId)
@@ -264,7 +257,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 
 	/**
 	 * Testing the extractQueryNodeValue method
-	 * @test
 	 * @loadFixture
 	 */
 	public function testExtractQueryNodeValue()
@@ -385,7 +377,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 	}
 	/**
 	 * verify the core feed helper's invokeCallback method is called correctly.
-	 * @test
 	 */
 	public function testInvokeCallback()
 	{

@@ -73,7 +73,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_RequestTest
 	}
 	/**
 	 * Test building the DOM message to be sent to the token service.
-	 * @test
 	 */
 	public function testBuildRequest()
 	{
@@ -101,7 +100,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_RequestTest
 	/**
 	 * When a token hasn't been set on the request model, don't make a request,
 	 * simply return an empty response.
-	 * @test
 	 */
 	public function testNoRequestForNoToken()
 	{
@@ -116,7 +114,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_RequestTest
 	 * Test the special API URI building needed for this service. Should include
 	 * the domain, major version and minor version from config as well as the
 	 * service and operation set as consts on the class.
-	 * @test
 	 */
 	public function testGetApiUri()
 	{

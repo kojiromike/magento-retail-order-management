@@ -34,7 +34,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Api_ActionTest
 	}
 	/**
 	 * return the response body
-	 * @test
 	 */
 	public function testReturnBody()
 	{
@@ -47,7 +46,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Api_ActionTest
 	/**
 	 * display a general notice in the cart when a request is configured to
 	 * fail loudly
-	 * @test
 	 */
 	public function testDisplayDefaultMessage()
 	{

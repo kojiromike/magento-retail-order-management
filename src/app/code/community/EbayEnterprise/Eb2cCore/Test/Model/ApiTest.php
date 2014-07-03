@@ -112,7 +112,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	/**
 	 * Test that when an API key is provided as an argument, that the proper API
 	 * key gets used when setting up the client.
-	 * @test
 	 */
 	public function testRequestProvideApiKey()
 	{
@@ -140,7 +139,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	 * Test that we can handle a Zend_Http_Client_Exception
 	 * verify the response is logged even when an exception is thrown.
 	 *
-	 * @test
 	 * @dataProvider provideApiCall
 	 */
 	public function testZendHttpClientException($request, $apiUri, $xsdName)
@@ -190,7 +188,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	}
 	/**
 	 * log the response and call the configured method.
-	 * @test
 	 */
 	public function testProcessResponse()
 	{
@@ -234,7 +231,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 
 	/**
 	 * log the response and call the configured method.
-	 * @test
 	 */
 	public function testProcessException()
 	{
@@ -283,7 +279,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	 * and merge the two arrays such that the defaults get overwritten by the custom
 	 * values.
 	 * return the handler config mapped to the supplied status key.
-	 * @test
 	 */
 	public function testGetHandlerConfig()
 	{
@@ -324,7 +319,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	}
 	/**
 	 * return a string that is a key to the handler config for the class of status codes.
-	 * @test
 	 * @dataProvider provideFortestGetHandlerKey
 	 */
 	public function testGetHandlerKey($code, $key)
@@ -357,7 +351,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	}
 	/**
 	 * return a string that is a key to the handler config for the class of status codes.
-	 * @test
 	 * @dataProvider provideForTestGetHandlerKeySuccess
 	 */
 	public function testGetHandlerKeySuccess($success, $redirect, $key)
@@ -379,7 +372,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	}
 	/**
 	 * by default return the silent config
-	 * @test
 	 */
 	public function testGetMergedHandlerConfigWithEmptyConfig()
 	{
@@ -400,7 +392,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	 * return the merged contents of the default (silent) config and the loud config and the passed in array
 	 * such that the loud config's values override the silent config's values and the passed config's values
 	 * override the loud config's values.
-	 * @test
 	 */
 	public function testGetMergedHandlerConfigWithLoudConfig()
 	{
@@ -424,7 +415,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	}
 	/**
 	 * set the status handler path
-	 * @test
 	 */
 	public function testSetStatusHandlerPath()
 	{

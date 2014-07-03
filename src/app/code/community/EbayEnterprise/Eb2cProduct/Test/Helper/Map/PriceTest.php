@@ -50,7 +50,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_Price
 	}
 	/**
 	 * Test extracting a price from the `Event` node.
-	 * @test
 	 */
 	public function testExtractSpecialPrice()
 	{
@@ -61,7 +60,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_Price
 	}
 	/**
 	 * Test extracting a price from the `Event` node.
-	 * @test
 	 */
 	public function testExtractPriceEventFromDate()
 	{
@@ -72,7 +70,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_Price
 	}
 	/**
 	 * Test extracting a price from the `Event` node.
-	 * @test
 	 */
 	public function testExtractPriceEventToDate()
 	{

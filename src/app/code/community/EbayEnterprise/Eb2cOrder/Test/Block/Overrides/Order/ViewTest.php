@@ -121,7 +121,6 @@ class EbayEnterprise_Eb2cOrder_Test_Block_Overrides_Order_ViewTest extends EbayE
 	/**
 	 * Test overriding sales/order_view block for guest order view search result
 	 * and retrieve customer search result from eb2c oms from the session
-	 * @test
 	 */
 	public function testPrepareLayoutGuestOrderViewRetrieveResultFromSession()
 	{
@@ -245,7 +244,6 @@ class EbayEnterprise_Eb2cOrder_Test_Block_Overrides_Order_ViewTest extends EbayE
 	/**
 	 * Test overriding sales/order_view block for guest order view search result
 	 * and no retrieve customer search result from eb2c oms from the session
-	 * @test
 	 */
 	public function testPrepareLayoutGuestOrderViewRetrieveNoResultFromSession()
 	{
@@ -359,7 +357,6 @@ class EbayEnterprise_Eb2cOrder_Test_Block_Overrides_Order_ViewTest extends EbayE
 	/**
 	 * Test overriding sales/order_view block for guest order view search result
 	 * and retrieve customer search result from eb2c oms from the session but return wrong search result
-	 * @test
 	 */
 	public function testPrepareLayoutGuestOrderViewRetrieveResultFromSessionButReturnWrongSearchResults()
 	{

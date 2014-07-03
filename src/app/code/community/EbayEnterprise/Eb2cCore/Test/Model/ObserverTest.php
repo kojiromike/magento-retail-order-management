@@ -80,7 +80,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 	 * Test that when the allocation event causes an exception to be thrown,
 	 * the allocation request fails, the exception should be caught, a flag
 	 * set in the session, and the exception re-thrown.
-	 * @test
 	 */
 	public function testProcessExchangePlatformOrderAllocationFails()
 	{
@@ -136,7 +135,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 	/**
 	 * Test triggering the Exchange platform rollbacks.
 	 * For now, should just dispatch an event with the quote and order
-	 * @test
 	 */
 	public function testRollbackExchangePlatformOrder()
 	{
@@ -173,7 +171,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 	 * Test adding the redirect to the saveOrder action response when an the
 	 * Exchange Platform order could not be created.
 	 * @param  boolean $isCreateFailed Session flag for is the order create failed or not
-	 * @test
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testAddOnePageCheckoutRedirect($isCreateFailed)

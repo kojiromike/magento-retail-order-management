@@ -80,7 +80,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Overrides_Admin_SessionTest
 	 * Test validating the user account to be active and have a role assigned.
 	 * @param  boolean $isActive
 	 * @param  boolean $hasAssignedToRole
-	 * @test
 	 * @dataProvider provideActiveAndAssigned
 	 */
 	public function testValidateUser($isActive, $hasAssignedToRole)

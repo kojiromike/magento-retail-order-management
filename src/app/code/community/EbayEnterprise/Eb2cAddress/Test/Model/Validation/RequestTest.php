@@ -101,7 +101,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_RequestTest extends EcomD
 
 	/**
 	 * Test that the generated message validates per the xsd schema.
-	 * @test
 	 */
 	public function testRequestMessageValidates()
 	{

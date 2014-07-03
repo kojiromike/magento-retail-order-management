@@ -33,7 +33,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_LanguagesTest
 		);
 	}
 	/**
-	 * @test
 	 * @loadFixture testLanguages.yaml
 	 */
 	public function testGetAllStores()
@@ -65,7 +64,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_LanguagesTest
 		}
 	}
 	/**
-	 * @test
 	 * @loadFixture testLanguages.yaml
 	 */
 	public function testGetStoreByLanguage()

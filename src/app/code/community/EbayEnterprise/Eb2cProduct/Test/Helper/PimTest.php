@@ -133,7 +133,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 *                object, then we expect the method EbayEnterprise_Eb2cProduct_Helper_Pim::createStringNode given
 	 *                an attrValue string that either less or equal to the const EbayEnterprise_Eb2cProduct_Helper_Pim::STRING_LIMIT
 	 *                passed as first parameter and the DOMDocument as second parameter which will return a DOMNode object
-	 * @test
 	 */
 	public function testPassString()
 	{
@@ -176,7 +175,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 *                EbayEnterprise_Eb2cCore_Model_Config_Registry object that get return when call the
 	 *                EbayEnterprise_Eb2cProduct_Helper_Data::getConfigModel method, this de-normalize sku
 	 *                passed as first parameter and the DOMDocument as second parameter which will return a DOMNode object
-	 * @test
 	 */
 	public function testPassSKU()
 	{
@@ -234,7 +232,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 *                an attrValue string that get rounded to two decimal point when invoked the method
 	 *                Mage_Core_Model_Store::roundPrice given the attrValue this value then get passed as first parameter
 	 *                and the DOMDocument as second parameter which will return a DOMNode object
-	 * @test
 	 */
 	public function testPassPrice()
 	{
@@ -286,7 +283,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 *                an attrValue string that return decimal value when invoked the method
 	 *                EbayEnterprise_Eb2cProduct_Helper_Pim::createDecimal given the attrValue this value then get
 	 *                passed as first parameter and the DOMDocument as second parameter which will return a DOMNode object
-	 * @test
 	 */
 	public function testPassDecimal()
 	{
@@ -332,7 +328,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 *                an attrValue string that return proper xml datetime value when invoked the method
 	 *                EbayEnterprise_Eb2cProduct_Helper_Pim::createDateTime given the attrValue this value then get
 	 *                passed as first parameter and the DOMDocument as second parameter which will return a DOMNode object
-	 * @test
 	 */
 	public function testPassDate()
 	{
@@ -378,7 +373,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 *                an attrValue string that return proper integer value when invoked the method
 	 *                EbayEnterprise_Eb2cProduct_Helper_Pim::createInteger given the attrValue this value then get
 	 *                passed as first parameter and the DOMDocument as second parameter which will return a DOMNode object
-	 * @test
 	 */
 	public function testPassInteger()
 	{
@@ -424,7 +418,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 *                an attrValue string that return proper string boolean value when invoked the method
 	 *                EbayEnterprise_Eb2cProduct_Helper_Pim::createBool given the attrValue this value then get
 	 *                passed as first parameter and the DOMDocument as second parameter which will return a DOMNode object
-	 * @test
 	 */
 	public function testPassYesNoToBool()
 	{
@@ -514,7 +507,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 * was created. If the product was created after the last run of the export,
 	 * found via a config value, the operation type should be "Add". Otherwise,
 	 * the operation type should be "Change".
-	 * @test
 	 */
 	public function testPassOperationType()
 	{
@@ -825,7 +817,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 * Any product that is not used by a configurable product should simply
 	 * use its own sku as the style information
 	 * @param string $productTypeId Magento product type identifier
-	 * @test
 	 * @dataProvider provideProductTypeIds
 	 */
 	public function testPassStyleNoParentConfigProduct($productTypeId)
@@ -847,7 +838,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	/**
 	 * When building style nodes for a simple product used by a config product,
 	 * style value should come from the config product
-	 * @test
 	 */
 	public function testPassStyleSimpleWithParent()
 	{
@@ -874,7 +864,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 * If the simple to config lookup returns an item id but that item doesn't
 	 * actually exist. Returns null which would result in no style data in the
 	 * feed.
-	 * @test
 	 */
 	public function testPassStyleSimpleWithMissingParent()
 	{
@@ -895,7 +884,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	}
 	/**
 	 * if the product is not a gift card null should be returned.
-	 * @test
 	 */
 	public function testPassGiftCardNotGiftCard()
 	{
@@ -919,7 +907,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	/**
 	 * return a fragment that contains the giftcard subtree
 	 * if the giftcard is virtual, the Digital element will contain 'false'
-	 * @test
 	 * @dataProvider provideGiftCardFlags
 	 */
 	public function testPassGiftCard($useConfig, $prodAllowMessage, $configAllowMessage, $isVirtual, $allowMessage)
@@ -979,7 +966,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 * verify a fragment is returned containing the product links
 	 * @param  bool   $allowMessage
 	 * @param  bool   $isVirtual
-	 * @test
 	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
 	 */
 	public function testPassProductLinks()
@@ -1040,7 +1026,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	}
 	/**
 	 * verify a fragment is returned containing the nodes for the category links
-	 * @test
 	 */
 	public function testPassCategoryLinks()
 	{
@@ -1112,7 +1097,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	 * true/false respectively.
 	 * Fixture includes config for the sales/gift_options/wrapping_allow_items
 	 * which will be used as the fallback when the attribute value is not set.
-	 * @test
 	 * @loadFixture
 	 */
 	public function testPassGiftWrap()
@@ -1131,7 +1115,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_PimTest
 	/**
 	 * Test that the method EbayEnterprise_Eb2cProduct_Helper_Pim::passIsoCountryCode
 	 * will return a DOMNode object with a valid ISO country code value.
-	 * @test
 	 */
 	public function testPassIsoCountryCode()
 	{

@@ -104,7 +104,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Request_AbstractTest extends EbayE
 	}
 	/**
 	 * Test that when an unusable quote is given, no request is made.
-	 * @test
 	 */
 	public function testNoRequestWithBadQuote()
 	{
@@ -138,7 +137,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Request_AbstractTest extends EbayE
 	/**
 	 * When the API returns an empty response, via the API model, the empty response
 	 * should be handled by the _handleEmptyResponse method
-	 * @test
 	 */
 	public function testMakeRequestForQuoteWithNoResponse()
 	{

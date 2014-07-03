@@ -383,7 +383,6 @@ class EbayEnterprise_Eb2cPayment_Test_Controller_Overrides_GiftCardAccount_CartC
 	/**
 	 * testing addAction method - when giftcard code exceed maximum length
 	 *
-	 * @test
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml
 	 */
@@ -406,7 +405,6 @@ class EbayEnterprise_Eb2cPayment_Test_Controller_Overrides_GiftCardAccount_CartC
 	/**
 	 * testing addAction method - exceed pin maximum length
 	 *
-	 * @test
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml
 	 */
@@ -429,7 +427,6 @@ class EbayEnterprise_Eb2cPayment_Test_Controller_Overrides_GiftCardAccount_CartC
 	/**
 	 * testing addAction method - make gift card add to cart throw exception
 	 *
-	 * @test
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml
 	 */
@@ -452,7 +449,6 @@ class EbayEnterprise_Eb2cPayment_Test_Controller_Overrides_GiftCardAccount_CartC
 	/**
 	 * testing quickCheckAction method
 	 *
-	 * @test
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml
 	 */
@@ -478,7 +474,6 @@ class EbayEnterprise_Eb2cPayment_Test_Controller_Overrides_GiftCardAccount_CartC
 	/**
 	 * testing quickCheckAction method - with validation exception thrown
 	 *
-	 * @test
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml
 	 */

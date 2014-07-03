@@ -395,7 +395,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	/**
 	 * Test cleaning up any session flags related to tax. As all of this is handled
 	 * by the helper, basically just means calling the helper method.
-	 * @test
 	 */
 	public function testCleanupTaxRequestFlags()
 	{
@@ -407,7 +406,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify calculation trigger is set and response is attached to the calculator
-	 * @test
 	 */
 	public function testHandleResponse()
 	{
@@ -446,7 +444,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify failTaxRequest is called with invalid response and no calculation is triggered.
-	 * @test
 	 */
 	public function testHandleResponseInvalidResponse()
 	{
@@ -485,7 +482,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify the response is passed to _handleResponse
-	 * @test
 	 */
 	public function testDoRequest()
 	{
@@ -521,7 +517,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	/**
 	 * verify exception will prevent the call to _handleResponse
 	 * verify exception will trigger a call to failTaxRequest
-	 * @test
 	 */
 	public function testDoRequestException()
 	{
@@ -554,7 +549,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify valid request is processed as normal.
-	 * @test
 	 */
 	public function testFetchTaxUpdate()
 	{
@@ -605,7 +599,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify invalid request triggers a call to failTaxRequest.
-	 * @test
 	 */
 	public function testFetchTaxUpdateInvalidRequest()
 	{
@@ -654,7 +647,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify updated tax information will be fetched if an updated is needed
-	 * @test
 	 */
 	public function testTaxEventSubtotalCollectBefore()
 	{
@@ -683,7 +675,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	 * NOTE: no need to test for the case where address is null since a null address
 	 *       is handled by the underlying call to
 	 *       EbayEnterprise_Eb2cTax_Overrides_Model_Calculation::getTaxRequest
-	 * @test
 	 */
 	public function testTaxEventSubtotalCollectBeforeNoUpdate()
 	{

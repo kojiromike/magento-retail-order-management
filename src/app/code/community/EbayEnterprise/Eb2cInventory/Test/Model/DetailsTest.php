@@ -124,7 +124,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	 * Test that buildInventoryDetailsRequestMessage takes a quote,
 	 * passes the order items and address in the quote downstream
 	 * and returns a DOMDocument.
-	 * @test
 	 */
 	public function testBuildInventoryDetailsRequestMessage()
 	{
@@ -163,7 +162,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	 * Test that buildOrderItemsXml takes an array of quote items
 	 * and a quote address and concatenates the result of calling testBuildOrderItemXml
 	 * on each of them.
-	 * @test
 	 */
 	public function testBuildOrderItemsXml()
 	{
@@ -194,7 +192,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	/**
 	 * Test that buildOrderItemXml takes a quote item and shipment details string,
 	 * extracts the expected values from the item and returns a string.
-	 * @test
 	 */
 	public function testBuildOrderItemXml()
 	{
@@ -215,7 +212,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	}
 	/**
 	 * Test that buildShipmentDetailsXml takes a quote address and returns a string.
-	 * @test
 	 */
 	public function testBuildShipmentDetailsXml()
 	{
@@ -266,7 +262,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	/**
 	 * Test extracting details data from the details response message, this mainly consists
 	 * of extracting values from DOMNodeLists looked up using XPath expressions.
-	 * @test
 	 */
 	public function testExtractItemDetails()
 	{
@@ -410,7 +405,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	 * get all UnavailableItem nodes via XPath and iterate over the DOMNodeList pulling
 	 * the itemId and lineId attributes from each node. Should result in an array
 	 * of sku => item info (sku and line id)
-	 * @test
 	 */
 	public function testExtractUnavailableItems()
 	{
@@ -462,7 +456,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	 * items in the details list and not in the delete list should be updated to include
 	 * the additional data form the inventory details response. If the quote is successfully
 	 * updated, an event should be dispatched with the updated quote.
-	 * @test
 	 */
 	public function testUpdateQuoteWithResponse()
 	{
@@ -540,7 +533,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	 * When updateQuoteWithResponse is given a falsey value - empty string, null, false, 0 -
 	 * it shouldn't attempt to update the quote, extract any data, dispatch the
 	 * eb2cinventory_details_process_after event.
-	 * @test
 	 */
 	public function testUpdateQuoteWithResponseEmptyResponse()
 	{
@@ -556,7 +548,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 		$this->assertEventNotDispatched('eb2cinventory_details_process_after');
 	}
 	/**
-	 * @test
 	 */
 	public function testUpdateQuoteItemWithDetails()
 	{

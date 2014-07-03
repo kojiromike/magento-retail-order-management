@@ -49,7 +49,6 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_Feed_Import_ItemsTest
 	/**
 	 * Test that when invoked, the method EbayEnterprise_Eb2cGiftwrap_Model_Feed_Import_Items::createNewItem
 	 * will return a new instantance of Mage_Catalog_Model_Giftwrap with dummny data.
-	 * @test
 	 */
 	public function testCreateNewGiftwrap()
 	{

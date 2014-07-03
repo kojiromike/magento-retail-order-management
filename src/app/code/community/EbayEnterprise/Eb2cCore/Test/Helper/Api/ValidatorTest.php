@@ -52,7 +52,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Api_ValidatorTest
 	}
 	/**
 	 * Test returning the response message for when an unknown failure occurred.
-	 * @test
 	 */
 	public function testReturnUnknownErrorResponse()
 	{
@@ -97,7 +96,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Api_ValidatorTest
 	 * Test getting the response messages for various client errors.
 	 * @param  int $statusCode HTTP status code
 	 * @param  string $responseMessage Message for the error
-	 * @test
 	 * @dataProvider provideStatusCodeAndResponseMessage
 	 */
 	public function testReturnClientErrorResponse($statusCode, $responseMessage)
@@ -119,7 +117,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Api_ValidatorTest
 	}
 	/**
 	 * Test getting the success message for a successful request.
-	 * @test
 	 */
 	public function testReturnSuccessResponse()
 	{

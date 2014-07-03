@@ -109,7 +109,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	/**
 	 * testing redeemGiftCard unsucessful redeem response
 	 *
-	 * @test
 	 * @dataProvider providerRedeemGiftCard
 	 * @expectedException Mage_Core_Exception
 	 */
@@ -167,7 +166,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	 * a warning should be logged. When it succeeds, nothing should happen.
 	 * @param  array $response Response data
 	 * @param  boolean $isSuccess Was the request successful
-	 * @test
 	 * @dataProvider provideRedeemVoidFailureData
 	 */
 	public function testRedeemVoidGiftCard($response, $isSuccess)
@@ -212,7 +210,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	/**
 	 * Test that when the quote contains invalid gift card data, no attempt to
 	 * void the data is made.
-	 * @test
 	 */
 	public function testRedeemVoidInvalidGiftCardData()
 	{
@@ -404,7 +401,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	/**
 	 * Test voiding order payments when the order create fails.
 	 * @param  PHPUnit_Framework_MockObject_Stub $voidResult Stub results of the void call
-	 * @test
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testVoidPayments($canVoid)

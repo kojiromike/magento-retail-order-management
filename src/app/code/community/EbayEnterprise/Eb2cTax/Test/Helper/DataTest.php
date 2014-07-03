@@ -61,7 +61,6 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 		$this->assertSame($configValue, $val);
 	}
 	/**
-	 * @test
 	 */
 	public function testNamespaceUri()
 	{
@@ -74,7 +73,6 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 		);
 	}
 	/**
-	 * @test
 	 * @loadFixture sendRequestConfig.yaml
 	 */
 	public function testSendRequest()
@@ -103,7 +101,6 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 		);
 	}
 	/**
-	 * @test
 	 * @loadFixture sendRequestConfig.yaml
 	 */
 	public function testSendRequestWithExceptionThrown()
@@ -129,7 +126,6 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 		Mage::helper('eb2ctax')->sendRequest($request);
 	}
 	/**
-	 * @test
 	 */
 	public function testGetVatInclusivePricingFlag()
 	{
@@ -140,7 +136,6 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 		$this->assertFalse($val);
 	}
 	/**
-	 * @test
 	 */
 	public function testGetVatInclusivePricingFlagEnabled()
 	{
@@ -151,7 +146,6 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 		$this->assertTrue($val);
 	}
 	/**
-	 * @test
 	 */
 	public function testTaxDutyRateCode()
 	{
@@ -194,7 +188,6 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 	 * @param  boolean                        $requestFailFlag State of previous failures flag
 	 * @param  Mage_Sales_Model_Quote_Address $address         Address object the request would be for
 	 * @param  boolean                        $isRequired      Is it required
-	 * @test
 	 * @dataProvider provideIsRequestForAddressRequired
 	 */
 	public function testIsRequestForAddressRequired($sessionFlag, $requestFailFlag, $address, $isRequired)
@@ -227,7 +220,6 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * verify the tax request flag is unset from the session.
-	 * @test
 	 * @dataProvider provideCleanupSessionFlags
 	 */
 	public function testCleanupSessionFlags($hasFailed)

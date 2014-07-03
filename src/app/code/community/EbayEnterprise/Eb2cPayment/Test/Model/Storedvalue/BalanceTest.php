@@ -94,7 +94,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_BalanceTest
 	}
 	/**
 	 * Test getBalance method, where getSvcUri return an empty url
-	 * @test
 	 */
 	public function testGetBalanceWithEmptyUrl()
 	{
@@ -121,7 +120,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_BalanceTest
 	}
 	/**
 	 * Test buildStoredValueBalanceRequest method
-	 * @test
 	 */
 	public function testBuildStoredValueBalanceRequest()
 	{
@@ -157,7 +155,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_BalanceTest
 
 	/**
 	 * testing parseResponse method
-	 * @test
 	 * @dataProvider dataProvider
 	 * @loadFixture loadConfig.yaml
 	 */

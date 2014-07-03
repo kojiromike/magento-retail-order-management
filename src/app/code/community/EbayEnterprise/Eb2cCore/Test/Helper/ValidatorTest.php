@@ -49,7 +49,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	 * @param  string $apiKey
 	 * @param  string $hostname
 	 * @param  string $exceptionMessage
-	 * @test
 	 * @dataProvider provideSettingsAndExceptions
 	 */
 	public function testValidateInvalidSettings($storeId, $apiKey, $hostname, $exceptionMessage)
@@ -73,7 +72,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	/**
 	 * Test validating SFTP settings when settings are all potentially valid - not
 	 * empty or easily detectable errors.
-	 * @test
 	 */
 	public function testValidateSftpSettings()
 	{
@@ -111,7 +109,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	 * @param string $privateKey
 	 * @param string $port
 	 * @param string $exceptionMessage
-	 * @test
 	 * @dataProvider provideSftpSettingsAndExceptions
 	 */
 	public function testValidateInvalidSftpSettings($host, $username, $privateKey, $port, $exceptionMessage)

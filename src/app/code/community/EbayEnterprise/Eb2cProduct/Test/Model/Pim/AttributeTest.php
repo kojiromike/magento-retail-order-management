@@ -132,7 +132,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_AttributeTest
 	/**
 	 * An error should be triggered, captured as an Exception in the test, if the
 	 * constructor is called without all required key/value pairs.
-	 * @test
 	 * @dataProvider provideConstructorArgs
 	 */
 	public function testConstructInvalidArgs($constructorArgs, $message)

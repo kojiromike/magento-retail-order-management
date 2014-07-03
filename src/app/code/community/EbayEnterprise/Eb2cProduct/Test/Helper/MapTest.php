@@ -52,7 +52,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	 * Expectation 2: the EbayEnterprise_Eb2cProduct_Helper_Data::parseBool method is expected to be given, the extract value
 	 *                from the DOMNodeList object object and return a boolean representative of the passed in string
 	 * @mock EbayEnterprise_Eb2cProduct_Helper_Data::parseBool
-	 * @test
 	 */
 	public function testExtractBoolValue()
 	{
@@ -93,7 +92,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cProduct_Helper_Map::extractIntValue method with a known
 	 *                DOMNodeList object the method is then expected to return a string value cast as an integer value
 	 *                DOMNodeList object
-	 * @test
 	 */
 	public function testExtractIntValue()
 	{
@@ -124,7 +122,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cProduct_Helper_Map::extractFloatValue method with a known
 	 *                DOMNodeList object the method is then expected to return a string value cast as an float value
 	 *                DOMNodeList object
-	 * @test
 	 */
 	public function testExtractFloatValue()
 	{
@@ -154,7 +151,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	 *                DOMNodeList object the method is then expected to return a value for enabling magento product by first
 	 *                extracting the first value of the DOMNodeList and then checking if it is equal to 'active' and then returning
 	 *                the Mage_Catalog_Model_Product_Status::STATUS_ENABLED constant
-	 * @test
 	 */
 	public function testExtractStatusValueWhenActive()
 	{
@@ -180,7 +176,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 
 	/**
 	 * @see testExtractStatusValueWhenActive test, now testing when the extract string is not equal to 'active'
-	 * @test
 	 */
 	public function testExtractStatusValueWhenNotActive()
 	{
@@ -222,7 +217,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	 *                if the value equal to 'regular' or 'always' in order to return
 	 *                Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH contstant otherwise
 	 *                return Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE constant
-	 * @test
 	 * @dataProvider provideCatalogClassAndVisibility
 	 */
 	public function testExtractVisibilityValueWhenVisibilityBoth($catalogClass, $visibility)
@@ -247,7 +241,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 
 	/**
 	 * return whatever got pass as parameter
-	 * @test
 	 */
 	public function  testPassThrough()
 	{
@@ -262,7 +255,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	/**
 	 * Test extracting product links. Should return a serialized array of
 	 * product links in the feed.
-	 * @test
 	 */
 	public function testExtractProductLinks()
 	{
@@ -309,7 +301,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 		);
 	}
 	/**
-	 * @test
 	 */
 	public function testExtractProductLinksUnknownLink()
 	{
@@ -334,7 +325,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	}
 	/**
 	 * Test mapping related product link types through the config registry.
-	 * @test
 	 */
 	public function testConvertToMagentoLinkType()
 	{
@@ -373,7 +363,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	 *                with a node list that the extract value doesn't have the catalog id, the called to
 	 *                the method EbayEnterprise_Eb2cCore_Helper_Data::normalizeSku will prepend the catalog
 	 *                to the extract value
-	 * @test
 	 */
 	public function testExtractSkuValue()
 	{
@@ -513,7 +502,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	 * Test EbayEnterprise_Eb2cProduct_Helper_Map::extractAttributeSetValue when
 	 * encountered an Attribute Set that doesn't exist in magento it will use the
 	 * one that it currently set to.
-	 * @test
 	 */
 	public function testExtractAttributeSetValue()
 	{
@@ -557,7 +545,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 	 * @see self::testExtractAttributeSetValue but this time we are testing that
 	 * when a known attribute set is found it will return the knowned attribute set
 	 * id in magento.
-	 * @test
 	 */
 	public function testExtractAttributeSetValueKnowAttributeSet()
 	{

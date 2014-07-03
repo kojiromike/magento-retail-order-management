@@ -59,7 +59,6 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_Overrides_Sales_GuestTest extends Eba
 
 	/**
 	 * Test overriding sales/guest helper, when valid post data is passed and the order exists in eb2c oms
-	 * @test
 	 */
 	public function testLoadValidOrderValidPostDataAndOrderExistInOms()
 	{
@@ -178,7 +177,6 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_Overrides_Sales_GuestTest extends Eba
 
 	/**
 	 * Test overriding sales/guest helper, when valid post data is passed but the order do not exists in eb2c oms
-	 * @test
 	 */
 	public function testLoadValidOrderValidPostDataButOrderDoNotExistInOms()
 	{

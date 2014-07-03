@@ -73,7 +73,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 	 * any products mentioned in the unresolved product links of products to be
 	 * cleaned, any potential parent configurable products of products to be
 	 * cleaned and any potential simple used products of the products to be cleaned.
-	 * @test
 	 */
 	public function testGetAffectedSkus()
 	{
@@ -114,7 +113,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 	/**
 	 * Test getting an array of all skus included in the unresolved product links
 	 * for all products in a given collection.
-	 * @test
 	 */
 	public function testGetAllLinkedSkus()
 	{
@@ -146,7 +144,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 	 * products.
 	 * @param  Mage_Catalog_Model_Product $product
 	 * @param  boolean $hasParent
-	 * @test
 	 */
 	public function testGetAllParentConfigurableSkus()
 	{
@@ -188,7 +185,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 	/**
 	 * Get all of the simple products used to configure the products included in
 	 * the collection of products.
-	 * @test
 	 */
 	public function testGetAllUsedProductSkus()
 	{
@@ -272,7 +268,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 	 * that an array is always returned.
 	 * @param  string|null $rawValue Raw, serialized value of the attribute
 	 * @param  array $links Expected links
-	 * @test
 	 * @dataProvider provideProductLinks
 	 */
 	public function testGetAllUnresolvedRelations($rawValue, $links)
@@ -292,7 +287,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 	 * Test reducing the array of products links into the array of skus. All skus,
 	 * in the products links as 'link_to_unique_id', should be added to the array
 	 * of skus passed to the method and the updated list of skus returned.
-	 * @test
 	 */
 	public function testReduceLinksToSkus()
 	{
@@ -317,7 +311,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 	 * more rigorous coverage is included in the other test methods.
 	 * I just want to ensure that when put together, all the pieces work to some
 	 * verifiable degree.
-	 * @test
 	 */
 	public function testCleanAllProducts()
 	{
@@ -352,7 +345,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 
 	/**
 	 * Test cleanProduct method, when the product is configurable
-	 * @test
 	 */
 	public function testCleanProductWithConfigurableProduct()
 	{
@@ -389,7 +381,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 
 	/**
 	 * Test cleanProduct method, when the product is a child of a configurable
-	 * @test
 	 */
 	public function testCleanProductWithChildConfigurableProduct()
 	{
@@ -432,7 +423,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 
 	/**
 	 * Test _resolveProductLinks method, when the product has unresolved link data
-	 * @test
 	 */
 	public function testResolveProductLinks()
 	{
@@ -495,7 +485,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 	/**
 	 * Test _linkProducts method, when the product has unresolved link data and
 	 * the product to be linked does not yet exist.
-	 * @test
 	 */
 	public function testLinkProducts()
 	{
@@ -564,7 +553,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 
 	/**
 	 * Test _addUsedProducts method, when the product has used product data
-	 * @test
 	 */
 	public function testAddUsedProducts()
 	{
@@ -643,7 +631,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 
 	/**
 	 * Test _addToConfigurableProduct method, when child product has a known Parent configruable product
-	 * @test
 	 */
 	public function testAddToConfigurableProduct()
 	{
@@ -712,7 +699,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 
 	/**
 	 * Test _addToConfigurableProduct method, when child product has a known Parent configruable product
-	 * @test
 	 */
 	public function testAddToCofigurableProductNoParentProduct()
 	{
@@ -757,7 +743,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 
 	/**
 	 * Test markProductClean method, marking product clean
-	 * @test
 	 */
 	public function testMarkProductClean()
 	{
@@ -782,7 +767,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 
 	/**
 	 * Test markProductClean method, marking product clean
-	 * @test
 	 */
 	public function testMarkProductCleanNoUnresolvedLinkData()
 	{

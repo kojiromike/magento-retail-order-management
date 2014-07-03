@@ -67,7 +67,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_ProductTest
 	}
 	/**
 	 * verify an exception is thrown when missing arguments
-	 * @test
 	 */
 	public function testConstructInvalidArguments()
 	{

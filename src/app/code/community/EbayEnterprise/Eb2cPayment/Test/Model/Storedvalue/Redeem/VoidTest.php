@@ -59,7 +59,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 	 * conifigured to use the proper status handler and then make the request
 	 * using the given request message, xsd file set in config and the URI from
 	 * the helper method.
-	 * @test
 	 */
 	public function testMakeVoidRequest()
 	{
@@ -109,7 +108,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 	}
 	/**
 	 * Test getRedeemVoid method, where getSvcUri return an empty url
-	 * @test
 	 */
 	public function testGetRedeemVoidWithEmptyUrl()
 	{
@@ -137,7 +135,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 	/**
 	 * testing parseResponse method
 	 *
-	 * @test
 	 * @dataProvider dataProvider
 	 * @loadFixture loadConfig.yaml
 	 */
@@ -159,7 +156,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 	}
 	/**
 	 * When given an empty response message, should just return an empty array.
-	 * @test
 	 */
 	public function testParseEmptyResponse()
 	{
@@ -174,7 +170,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 	}
 	/**
 	 * Test building a request message for a given quote id, PAN, PIN and amount.
-	 * @test
 	 */
 	public function testBuildStoredValueVoidRequest()
 	{

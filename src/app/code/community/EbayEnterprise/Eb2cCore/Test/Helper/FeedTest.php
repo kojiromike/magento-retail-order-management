@@ -78,7 +78,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	}
 
 	/**
-	 * @test
 	 */
 	public function testFileTransferDefaultIsSftp()
 	{
@@ -244,7 +243,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 
 	/**
 	 * Test getStoreId method
-	 * @test
 	 */
 	public function testGetStoreId()
 	{
@@ -262,7 +260,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 
 	/**
 	 * Test getClientId method
-	 * @test
 	 */
 	public function testGetClientId()
 	{
@@ -281,7 +278,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	/**
 	 * Test getMessageId method
 	 * As per the XSD, the message id has to be <= 20 characters long
-	 * @test
 	 */
 	public function testGetMessageId()
 	{
@@ -291,7 +287,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	/**
 	 * Test getCorrelationId method
 	 * As per the XSD, the correlation id has to be <= 20 characters long
-	 * @test
 	 */
 	public function testGetCorrelationId()
 	{
@@ -301,7 +296,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	 * Test that EbayEnterprise_Eb2cCore_Helper_Feed::_getEventTypeToHeaderConfigPath
 	 * will return an array of key eventtype map to the config path of a message
 	 * header
-	 * @test
 	 */
 	public function testGetEventTypeToHeaderConfigPath()
 	{

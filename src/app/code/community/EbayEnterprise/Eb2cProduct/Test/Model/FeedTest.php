@@ -89,7 +89,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_FeedTest
 	 * @mock EbayEnterprise_Eb2cProduct_Model_Feed_Item::getFeedRemotePath
 	 * @mock DateTime::getTimeStamp
 	 * @mock EbayEnterprise_Eb2cCore_Helper_Feed::getMessageDate
-	 * @test
 	 */
 	public function testUnifiedAllFiles()
 	{
@@ -167,7 +166,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_FeedTest
 	 * @mock EbayEnterprise_Eb2cProduct_Helper_Data::buildErrorFeedFilename
 	 * @mock EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::loadFile
 	 * @mock EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::initFeed
-	 * @test
 	 */
 	public function testGetFilesToProcess()
 	{
@@ -296,7 +294,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_FeedTest
 	 * When feeds fail to process, the cleaner should not be triggered, the error
 	 * message should be logged as a warning and the method should report back
 	 * that 0 files were processed.
-	 * @test
 	 */
 	public function testProcessFeedsFailure()
 	{

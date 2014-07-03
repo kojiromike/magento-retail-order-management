@@ -151,7 +151,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	}
 	/**
 	 * Test getting color code for a product without a color - shoulr return null
-	 * @test
 	 */
 	public function testPassColorCodeNoColor()
 	{
@@ -166,7 +165,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	 * Test getting the color description - color option value - for a product
 	 * with a color. Should return a DOMText object with the color option value
 	 * as the text
-	 * @test
 	 */
 	public function testPassColorDescription()
 	{
@@ -180,7 +178,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	/**
 	 * Test getting the color description for a product without a color - should
 	 * return null
-	 * @test
 	 */
 	public function testPassColorDescriptionNoColor()
 	{
@@ -207,7 +204,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	 * When a product does not have a `cost`, the mapping should return null
 	 * to prevent the UnitCost node from being added.
 	 * @param mixed $costValue Values that should be considered invalid
-	 * @test
 	 * @dataProvider provideInvalidCostValue
 	 */
 	public function testUnitCostNoValue($costValue)
@@ -236,7 +232,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	 * Any product that is not used by a configurable product should simply
 	 * use its own sku and name as the style information
 	 * @param string $productTypeId Magento product type identifier
-	 * @test
 	 * @dataProvider provideProductTypeIds
 	 */
 	public function testPassStyleNoParentConfigProduct($productTypeId)
@@ -261,7 +256,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	/**
 	 * When building style nodes for a simple product used by a config product,
 	 * style values should come from the config product
-	 * @test
 	 */
 	public function testPassStyleSimpleWithParent()
 	{
@@ -290,7 +284,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_ItemmasterTest
 	 * If the simple to config lookup returns an item id but that item doesn't
 	 * actually exist. Returns null which would result in no style data in the
 	 * feed.
-	 * @test
 	 */
 	public function testPassStyleSimpleWithMissingParent()
 	{

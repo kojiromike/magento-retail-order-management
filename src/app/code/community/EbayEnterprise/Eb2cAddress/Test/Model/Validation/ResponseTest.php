@@ -27,7 +27,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_ResponseTest
 	}
 
 	/**
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testIsValidLogged($valid, $message, $logMessage)
@@ -45,7 +44,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_ResponseTest
 
 	/**
 	 * Test creating a Mage_Customer_Model_Address from the response message.
-	 * @test
 	 */
 	public function testGettingOriginalAddress()
 	{
@@ -115,7 +113,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_ResponseTest
 	 * - The number of suggested addresses returned
 	 * - That each suggested address is a proper address object
 	 *
-	 * @test
 	 */
 	public function testGettingSuggestedAddresses()
 	{
@@ -183,7 +180,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_ResponseTest
 	/**
 	 * When there are multiple suggestions, and the supplied is not considered valid,
 	 * there should be no valid address, hence getValidAddress should return null.
-	 * @test
 	 */
 	public function testNoValidAddress()
 	{
@@ -245,7 +241,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_ResponseTest
 	/**
 	 * When there are no suggestions and the original address is considered valid,
 	 * the valid address should be the same as the original address.
-	 * @test
 	 */
 	public function testOriginalAddressValid()
 	{
@@ -281,7 +276,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_ResponseTest
 
 	/**
 	 * When there is only one suggestion, it should be considered the valid address.
-	 * @test
 	 */
 	public function testOneSuggestedAddressIsValid()
 	{
@@ -324,7 +318,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_ResponseTest
 	/**
 	 * When there are more than one suggestion in the response message,
 	 * should accurately detect that there are suggestions.
-	 * @test
 	 */
 	public function testDetectingSuggestionsInMessage()
 	{
@@ -375,7 +368,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_ResponseTest
 	/**
 	 * When there is only one suggestions, the one suggestion will be considered valid,
 	 * hence, it should not consider there to be any suggestions.
-	 * @test
 	 */
 	public function testDetectOnlyOneSuggestionInMessage()
 	{
@@ -412,7 +404,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_ResponseTest
 	/**
 	 * Should accurately detect and report that there are no suggestions when
 	 * no suggestions exist in the response message.
-	 * @test
 	 */
 	public function testDetectNoSuggestionsInMessage()
 	{

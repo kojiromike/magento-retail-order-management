@@ -63,7 +63,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	/**
 	 * Constructing an instance of the core feed model with invalid config should
 	 * thrown an exception.
-	 * @test
 	 */
 	public function testConstructInvalidConfig()
 	{
@@ -110,7 +109,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	 * should be caught.
 	 * @param  array  $feedConfig
 	 * @param  string $exceptionMessage
-	 * @test
 	 * @dataProvider provideFeedConfigForValidation
 	 */
 	public function testValidateFeedConfig($feedConfig, $exceptionMessage)
@@ -135,7 +133,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Test getting the event type from the feed config.
-	 * @test
 	 */
 	public function testGetEventType()
 	{
@@ -152,7 +149,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Test _setCheckAndCreateDir method
-	 * @test
 	 */
 	public function testSetCheckAndCreateDir()
 	{
@@ -181,7 +177,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	/**
 	 * When creating the a directory fails, throw an exception indicating the
 	 * directory could not be created.
-	 * @test
 	 */
 	public function testSetCheckAndCreateDirFailure()
 	{
@@ -206,7 +201,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Test joining parts of a path and getting a normalized, joined path.
-	 * @test
 	 */
 	public function testNormalPaths()
 	{
@@ -235,7 +229,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Test setUpDirs method when a local directory and sent directory are present
-	 * @test
 	 */
 	public function testSetUpDirs()
 	{
@@ -265,7 +258,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Test setUpDirs method when a local directory but no sent directory configured
-	 * @test
 	 */
 	public function testSetUpDirsLocalOnly()
 	{
@@ -293,7 +285,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Test lsLocalDirectory method when local dir already set up
-	 * @test
 	 */
 	public function testLsLocalDir()
 	{
@@ -327,7 +318,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Test lsLocalDirectory method when with default pattern
-	 * @test
 	 */
 	public function testLsLocalDirDefaultPattern()
 	{
@@ -358,7 +348,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Test _mv method
-	 * @test
 	 */
 	public function testMvToDir()
 	{
@@ -389,7 +378,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * If moving a file fails, an exception should be thrown
-	 * @test
 	 */
 	public function testMvFail()
 	{
@@ -418,7 +406,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Should call _mv with the local directory as the target directory.
-	 * @test
 	 */
 	public function testMvToLocalDir()
 	{
@@ -446,7 +433,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	 * Test moving the file to the configured sent directory. When the directory
 	 * has already been set up, simply move the file to the configured directory
 	 * via_mv
-	 * @test
 	 */
 	public function testMvToSentDir()
 	{
@@ -473,7 +459,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	/**
 	 * When the sent directory hasn't been set up yet, check that one was supplied
 	 * in the configuration. If no, throw an exception.
-	 * @test
 	 */
 	public function testMvToSentNoSentConfigured()
 	{
@@ -512,7 +497,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	 * key matching given config key.
 	 * @param string $method method to call
 	 * @param string $feedConfigKey config registry key to get the dir path from
-	 * @test
 	 * @dataProvider provideMvToGlobalConfigDir
 	 */
 	public function testMvToGlobalConfiguredDir($method, $feedConfigKey)
@@ -556,7 +540,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * Test make the base acknowledgement file name from config values
-	 * @test
 	 */
 	public function testGetBaseAckFileName()
 	{

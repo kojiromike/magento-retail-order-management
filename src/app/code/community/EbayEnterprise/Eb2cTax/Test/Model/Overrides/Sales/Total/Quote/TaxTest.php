@@ -611,7 +611,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest exte
 
 	/**
 	 * verify tax calculations are not attempted when there are no items
-	 * @test
 	 */
 	public function testCollectNoItems()
 	{
@@ -643,7 +642,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest exte
 	}
 
 	/**
-	 * @test
 	 */
 	public function testSaveAppliedTaxes()
 	{
@@ -708,7 +706,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest exte
 	}
 
 	/**
-	 * @test
 	 */
 	public function testProcessConfigArray()
 	{

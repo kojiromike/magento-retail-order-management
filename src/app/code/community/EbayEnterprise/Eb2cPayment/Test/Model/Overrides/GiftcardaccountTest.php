@@ -393,7 +393,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_GiftcardaccountTest
 	}
 	/**
 	 * testing loadByCode method - With GiftCard Data to be updated
-	 * @test
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml
 	 */
@@ -410,7 +409,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_GiftcardaccountTest
 	}
 	/**
 	 * testing loadByCode method - Without GiftCard Data to be updated
-	 * @test
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml
 	 */
@@ -427,7 +425,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_GiftcardaccountTest
 	}
 	/**
 	 * testing addToCart method
-	 * @test
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml
 	 */
@@ -444,7 +441,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_GiftcardaccountTest
 	}
 	/**
 	 * testing addToCart method - with exception
-	 * @test
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml
 	 * @expectedException Mage_Core_Exception

@@ -285,7 +285,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	/**
 	 * testing callGetExpressCheckoutDetails method - when eb2c PayPalGetExpressCheckout is disabled
 	 *
-	 * @test
 	 * @medium
 	 * @loadFixture loadConfigPaymentsDisabled.yaml
 	 * @expectedException Mage_Core_Exception
@@ -307,7 +306,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	/**
 	 * testing callDoExpressCheckoutPayment method
 	 *
-	 * @test
 	 * @medium
 	 * @loadFixture loadConfig.yaml
 	 */
@@ -329,7 +327,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	/**
 	 * testing callDoExpressCheckoutPayment method - when eb2c PayPalDoExpressCheckout is disabled
 	 *
-	 * @test
 	 * @medium
 	 * @loadFixture loadConfigPaymentsDisabled.yaml
 	 * @expectedException Mage_Core_Exception
@@ -351,7 +348,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	/**
 	 * testing callDoAuthorization method
 	 *
-	 * @test
 	 * @medium
 	 * @loadFixture loadConfig.yaml
 	 */
@@ -375,7 +371,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	/**
 	 * testing callDoAuthorization method - when eb2c PayPalDoAuthorization is disabled
 	 *
-	 * @test
 	 * @medium
 	 * @loadFixture loadConfigPaymentsDisabled.yaml
 	 * @expectedException Mage_Core_Exception
@@ -400,7 +395,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	/**
 	 * testing callDoVoid method
 	 *
-	 * @test
 	 * @medium
 	 * @loadFixture loadConfig.yaml
 	 */
@@ -421,7 +415,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	/**
 	 * testing callDoVoid method - when eb2c PayPalDoVoid is disabled
 	 *
-	 * @test
 	 * @medium
 	 * @loadFixture loadConfigPaymentsDisabled.yaml
 	 * @expectedException Mage_Core_Exception
@@ -444,7 +437,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	 * Test that when any non-overridden API call tries to get through the call
 	 * method while Eb2cPayments is enabled, an exception is thrown.
 	 *
-	 * @test
 	 * @loadFixture loadConfig.yaml
 	 */
 	public function testCallExceptions()

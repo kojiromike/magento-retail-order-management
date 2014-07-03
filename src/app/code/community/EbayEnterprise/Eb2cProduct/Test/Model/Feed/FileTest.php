@@ -63,7 +63,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 * Test processing of the file, which consists for deleting any products
 	 * marked for deletion in the feed, processing adds/updates for the default
 	 * store view and then processing any translations in the feed.
-	 * @test
 	 */
 	public function testProcess()
 	{
@@ -103,7 +102,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	/**
 	 * Deleting a product should create a product collection of products marked
 	 * for deletion in the feed and then call the delete method on the collection.
-	 * @test
 	 */
 	public function testRemoveItemsFromWebsites()
 	{
@@ -279,7 +277,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	/**
 	 * Test getting an array of all SKUs contained in a split feed file. Can
 	 * assume that any SKUs to delete have already been stripped out by the XSLT.
-	 * @test
 	 */
 	public function testGetSkusToUpdate()
 	{
@@ -329,7 +326,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 * split the feed file into individual item nodes and create/update the
 	 * product for each item. Finally, the collection should be set within the
 	 * store context the product data should be saved in and save the collection.
-	 * @test
 	 */
 	public function testImportExtractedData()
 	{

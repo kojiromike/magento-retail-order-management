@@ -143,7 +143,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 	 * Test determining if a product is expected to have a configuratble parent
 	 * products.
 	 * @param  Mage_Catalog_Model_Product $product
-	 * @param  boolean $hasParent
+	 * @param  bool $hasParent
 	 */
 	public function testGetAllParentConfigurableSkus()
 	{

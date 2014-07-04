@@ -259,8 +259,8 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest
 	/**
 	 * Create quote item mocks to use in the collect test
 	 * @param  Mock_Mage_Sales_Model_Quote_Item $parentItem         Item parent item
-	 * @param  boolean $hasChildren        Does this item have child items
-	 * @param  boolean $childrenCalculated Are children of this item calculated
+	 * @param  bool $hasChildren        Does this item have child items
+	 * @param  bool $childrenCalculated Are children of this item calculated
 	 * @return Mock_Mage_Sales_Model_Quote_Item
 	 */
 	protected function _collectItemGenerator(

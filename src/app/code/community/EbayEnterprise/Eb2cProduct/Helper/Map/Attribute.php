@@ -167,7 +167,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	 * @param  string  $attribute
 	 * @param  mixed   $value
 	 * @param  Mage_Catalog_Model_Product $product
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isAttributeInSet($attributeCode, $product)
 	{

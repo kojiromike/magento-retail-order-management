@@ -422,9 +422,9 @@ INVALID_XML;
 	 * @todo This method should really be broken down into some smaller chunks to make this test less complicated
 	 * @param array $itemData Order item object data
 	 * @param array $orderData Order object data
-	 * @param boolean $merchTax Should this item have merchandise taxes
-	 * @param boolean $shippingTax Should this item have shipping taxes
-	 * @param boolean $dutyTax Should this item have duty taxes
+	 * @param bool $merchTax Should this item have merchandise taxes
+	 * @param bool $shippingTax Should this item have shipping taxes
+	 * @param bool $dutyTax Should this item have duty taxes
 	 * @dataProvider dataProvider
 	 */
 	public function testBuildOrderItemNodes($itemData, $orderData, $merchTax, $shippingTax, $dutyTax)

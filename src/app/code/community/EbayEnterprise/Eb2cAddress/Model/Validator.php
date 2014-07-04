@@ -57,7 +57,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * - The address object having a 'has_been_validated' property which is true
 	 * - Matches the 'validated_address' object stashed in the session
 	 * @param Mage_Customer_Model_Address_Abstract
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _hasAddressBeenValidated(Mage_Customer_Model_Address_Abstract $address)
 	{
@@ -92,7 +92,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	/**
 	 * Determine if the address is for use in checkout, specifically, Onepage Checkout
 	 * @param Mage_Customer_Model_Address_Abstract $address
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isCheckoutAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
@@ -101,7 +101,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 
 	/**
 	 * When dealing with checkout addresses, check if the current quote is virtual.
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isVirtualOrder()
 	{
@@ -114,7 +114,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	/**
 	 * Is the address a billing address.
 	 * @param Mage_Customer_Model_Address_Abstract $address
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isBillingAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
@@ -127,7 +127,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * reliably work when the address is submitted during onepage checkout
 	 * as the only way to determine this is via the POST data submitted with the address.
 	 * @param Mage_Customer_Model_Address_Abstract $address
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isAddressUsedForShipping(Mage_Customer_Model_Address_Abstract $address)
 	{
@@ -150,7 +150,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * will not be saved in the address book.
 	 * Only applies to Onepage Checkout
 	 * @param Mage_Customer_Model_Address_Abstract $address
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isAddressBillingOnly(Mage_Customer_Model_Address_Abstract $address)
 	{
@@ -160,7 +160,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * Determine if the address is to be saved in the address book as part of
 	 * onepage checkout.
 	 * @param Mage_Customer_Model_Address_Abstract $address
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isAddressBeingSaved()
 	{
@@ -181,7 +181,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	/**
 	 * Determine if the address is from the customers address book or is a new address
 	 * @param Mage_Customer_Model_Address_Abstract $address
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isAddressFromAddressBook(Mage_Customer_Model_Address_Abstract $address)
 	{
@@ -195,7 +195,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * Others conditions, like using an address for billing address only
 	 * or being from the address book, indicate that validation is not required.
 	 * @param Mage_Customer_Model_Address_Abstract
-	 * @return boolean
+	 * @return bool
 	 */
 	public function shouldValidateAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
@@ -315,7 +315,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * EB2C, e.g. an address object returned by $this->_extractValidatedAddressData.
 	 * @param Mage_Customer_Model_Address_Abstract $address
 	 * @param Mage_Customer_Model_Address_Abstract $validatedAddress
-	 * @return boolean - true if they match, false if not
+	 * @return bool - true if they match, false if not
 	 */
 	protected function _compareAddressToValidatedAddress(
 		Mage_Customer_Model_Address_Abstract $address,
@@ -445,7 +445,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 
 	/**
 	 * Get the address returned as the "original" address from EB2C.
-	 * @param boolean $keepFresh - flag passed to the session's method
+	 * @param bool $keepFresh - flag passed to the session's method
 	 * @return Mage_Customer_Model_Address
 	 */
 	public function getOriginalAddress($keepFresh=false)
@@ -455,7 +455,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 
 	/**
 	 * Get the suggested address returned by EB2C
-	 * @param boolean $keepFresh - flag passed to the session's method
+	 * @param bool $keepFresh - flag passed to the session's method
 	 * @return Mage_Customer_Model_Address[]
 	 */
 	public function getSuggestedAddresses($keepFresh=false)
@@ -487,7 +487,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	/**
 	 * Returns whether or not there are address suggestions stored in the session
 	 * and they should be shown to the user.
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasSuggestions()
 	{
@@ -502,7 +502,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * When there is no response message in the session, consider the address valid.
 	 * When there is a response message in the session, it should accurately indicate
 	 * if the address being validated by the request is valid.
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isValid()
 	{
@@ -514,7 +514,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * Returns whether or not the last set of suggestions are "fresh"
 	 * e.g. whether or not they have been used on the frontend or chosen as
 	 * the correct suggestion.
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasFreshSuggestions()
 	{
@@ -533,7 +533,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 
 	/**
 	 * return true if the address contains enough data to be submitted for verification
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isMissingRequiredFields(Mage_Customer_Model_Address_Abstract $address)
 	{

@@ -63,7 +63,7 @@ class EbayEnterprise_Pbridge_Model_Cc extends Mage_Payment_Model_Method_Cc
 	/**
 	 * Return that current payment method is dummy
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIsDummy()
 	{
@@ -112,7 +112,7 @@ class EbayEnterprise_Pbridge_Model_Cc extends Mage_Payment_Model_Method_Cc
 	 * Check whether payment method can be used
 	 *
 	 * @param Mage_Sales_Model_Quote $quote
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isAvailable($quote = null)
 	{

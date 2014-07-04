@@ -21,7 +21,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * Create a stub quote item scripted to return the given sku and qty
 	 * @param  string  $sku       Quote item sku
 	 * @param  int     $qty       Qty of the item in the cart
-	 * @param  boolean $isVirtual Is the item virtual
+	 * @param  bool $isVirtual Is the item virtual
 	 * @return Mock_Mage_Sales_Model_Quote_Item The stub quote item
 	 */
 	protected function _stubQuoteItem($sku, $qty, $isVirtual)
@@ -669,7 +669,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test checking if quote data in the session has expired
 	 * @param  array   $quoteData Array of quote data, possibly containing a 'last_updated' key
-	 * @param  boolean $isExpired Should the quote data be considered expired
+	 * @param  bool $isExpired Should the quote data be considered expired
 	 * @dataProvider providerHasInventoryExpired
 	 */
 	public function testHasInventoryExpired($quoteData, $isExpired)
@@ -794,8 +794,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * should then be examined for indicating that an update is needed to tax and/or inventory
 	 * requests. After running this method, the quote data, diff data and all flags should
 	 * be updated based on the changes made to the quote.
-	 * @param  boolean $currFlag    Is details already flagged for updates
-	 * @param  boolean $changeFlag  Should these changes require details updates
+	 * @param  bool $currFlag    Is details already flagged for updates
+	 * @param  bool $changeFlag  Should these changes require details updates
 	 * @dataProvider providerUpdateWithQuote
 	 */
 	public function testUpdateWithQuote($currFlag, $changeFlag) {
@@ -974,9 +974,9 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * Test checking the quote diff data for requiring tax data to be updated.
 	 * @param  array   $quoteData  Array of quote data
 	 * @param  array   $diffData   Array of quote changes
-	 * @param  boolean $hasVirtual Does the quote contain virtual items
-	 * @param  boolean $hasManaged Does the quote contain managed stock items
-	 * @param  boolean $flagTax    Should this flag tax
+	 * @param  bool $hasVirtual Does the quote contain virtual items
+	 * @param  bool $hasManaged Does the quote contain managed stock items
+	 * @param  bool $flagTax    Should this flag tax
 	 * @dataProvider providerQuoteDiffs
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
@@ -1001,11 +1001,11 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * Test checking the quote diff data for requiring tax data to be updated.
 	 * @param  array   $quoteData  Array of quote data
 	 * @param  array   $diffData   Array of quote changes
-	 * @param  boolean $hasVirtual Does the quote contain virtual items
-	 * @param  boolean $hasManaged Does the quote contain managed stock items
-	 * @param  boolean $flagTax    Should this flag tax
-	 * @param  boolean $flagQty    Should this flag quantity
-	 * @param  boolean $flagDeets  Should this flag details
+	 * @param  bool $hasVirtual Does the quote contain virtual items
+	 * @param  bool $hasManaged Does the quote contain managed stock items
+	 * @param  bool $flagTax    Should this flag tax
+	 * @param  bool $flagQty    Should this flag quantity
+	 * @param  bool $flagDeets  Should this flag details
 	 * @dataProvider providerQuoteDiffs
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
@@ -1031,11 +1031,11 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * Test checking the quote diff data for requiring tax data to be updated.
 	 * @param  array   $quoteData  Array of quote data
 	 * @param  array   $diffData   Array of quote changes
-	 * @param  boolean $hasVirtual Does the quote contain virtual items
-	 * @param  boolean $hasManaged Does the quote contain managed stock items
-	 * @param  boolean $flagTax    Should this flag tax
-	 * @param  boolean $flagQty    Should this flag quantity
-	 * @param  boolean $flagDeets  Should this flag details
+	 * @param  bool $hasVirtual Does the quote contain virtual items
+	 * @param  bool $hasManaged Does the quote contain managed stock items
+	 * @param  bool $flagTax    Should this flag tax
+	 * @param  bool $flagQty    Should this flag quantity
+	 * @param  bool $flagDeets  Should this flag details
 	 * @dataProvider providerQuoteDiffs
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

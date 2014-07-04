@@ -24,7 +24,7 @@ abstract class EbayEnterprise_Eb2cCore_Model_Config_Abstract implements EbayEnte
 	/**
 	 * Determines if this config model knows about the given key
 	 * @param string $configKey
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasKey($configKey)
 	{

@@ -154,7 +154,7 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 
 	/**
 	 * check if any non-eb2c payment method enabled
-	 * @return boolean true if any non-allowed payment method is enabled
+	 * @return bool true if any non-allowed payment method is enabled
 	 */
 	public function isAnyNonEb2cPaymentMethodEnabled()
 	{
@@ -206,7 +206,7 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 	/**
 	 * Is the payment method allowed while eb2c payments are enabled.
 	 * @param  string  $paymentMethodName name of the payment method in config
-	 * @return boolean                    true if allowed, false if not
+	 * @return bool                    true if allowed, false if not
 	 */
 	public function isMethodAllowed($paymentMethodName)
 	{
@@ -216,7 +216,7 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 	/**
 	 * @param  string  $section name of the configuration section
 	 * @param  string  $group   name of the configuration group within $section
-	 * @return boolean          true if the config should be supppressed in the system config; false otherwise
+	 * @return bool          true if the config should be supppressed in the system config; false otherwise
 	 */
 	public function isConfigSuppressed($section, $group='')
 	{

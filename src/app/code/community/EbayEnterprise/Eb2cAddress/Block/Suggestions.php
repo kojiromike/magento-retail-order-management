@@ -53,7 +53,7 @@ class EbayEnterprise_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Templ
 	 * Ensures that the block only ever asks the validator once as after
 	 * the block starts pulling address data from the validator, this would change
 	 * as the suggestions would no longer be "fresh".
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $_shouldShowSuggestions = null;
 
@@ -70,7 +70,7 @@ class EbayEnterprise_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Templ
 	/**
 	 * Determine and cache if there are suggestions to display to the user.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function shouldShowSuggestions()
 	{

@@ -46,7 +46,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	);
 	/**
 	 * get whether the response is valid or not.
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isValid()
 	{

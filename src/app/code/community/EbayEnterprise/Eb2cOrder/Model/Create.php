@@ -72,7 +72,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected $_o;
 	/**
-	 * @var boolean TaxHeaderError - if set on any tax node at all, this is set to true
+	 * @var bool TaxHeaderError - if set on any tax node at all, this is set to true
 	 */
 	protected $_taxHeaderError = false;
 
@@ -762,7 +762,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * the gift card does not have the requested data, this method will return
 	 * an empty string.
 	 * @param Mage_Sales_Model_Order $order the order object
-	 * @param boolean $useToken true to get tokenized PAN, false to get raw PAN
+	 * @param bool $useToken true to get tokenized PAN, false to get raw PAN
 	 * @return string
 	 */
 	protected function _getOrderGiftCardPan(Mage_Sales_Model_Order $order, $useToken=false)

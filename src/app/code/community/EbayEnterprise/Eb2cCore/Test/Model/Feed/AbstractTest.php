@@ -46,7 +46,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 	 * Test the _construct method. When valid, should result in a model with
 	 * a _coreFeed property. When invalid, should throw an exception.
 	 * @param  array   $initialData
-	 * @param  boolean $isValid
+	 * @param  bool $isValid
 	 * @dataProvider provideConstructorInitialData
 	 */
 	public function testConstructor($initialData, $isValid)
@@ -305,8 +305,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 	/**
 	 * Test _loadDom failure scenarios. When either the DOM load or header
 	 * validation fails, the _loadDom method should return null.
-	 * @param  boolean $loadResult
-	 * @param  boolean $validateResult
+	 * @param  bool $loadResult
+	 * @param  bool $validateResult
 	 * @dataProvider provideLoadDomFailures
 	 */
 	public function testLoadDomFailure($loadResult, $validateResult)

@@ -130,8 +130,8 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 	}
 	/**
 	 * Create a stub Mage_Sales_Model_Quote_Item for checking if the item is inventoried
-	 * @param  boolean $isVirtual Is the item virtual
-	 * @param  boolean $isManaged Is the product managed stock
+	 * @param  bool $isVirtual Is the item virtual
+	 * @param  bool $isManaged Is the product managed stock
 	 * @return Mock_Mage_Sales_Model_Quote_Item Stub which will report the item as being virtual and/or with a "managed_stock" stock item
 	 */
 	protected function _stubQuoteItem($isVirtual, $isManaged)
@@ -173,7 +173,7 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 	/**
 	 * Test detecting an item that is or is not inventoried.
 	 * @param  Mage_Sales_Model_Quote_Item $item          Quote item
-	 * @param  boolean                     $isInventoried Is the item inventoried
+	 * @param  bool                     $isInventoried Is the item inventoried
 	 * @dataProvider providerFilterInventoriedItem
 	 */
 	public function testFilterInventoriedItem($item, $isInventoried)

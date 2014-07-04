@@ -150,7 +150,7 @@ class EbayEnterprise_Eb2cCore_Exchange_System_Config_ValidateController
 	 * or website specified in the request params. If neither is present, should
 	 * use the default store.
 	 * @param Zend_Controller_Request_Abstract $request
-	 * @param boolean $useFallback Should the config value fallback to parent value
+	 * @param bool $useFallback Should the config value fallback to parent value
 	 * @return Mage_Core_Model_Store|Mage_Core_Model_Website
 	 */
 	protected function _getConfigSource($request, $useFallback=false)

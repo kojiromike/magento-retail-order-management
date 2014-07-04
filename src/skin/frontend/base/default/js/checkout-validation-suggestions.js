@@ -21,7 +21,7 @@ document.observe('dom:loaded', function() {
 	 * its replacement.
 	 * @param function originalFn - the original method this is replacing
 	 * @param Ajax.Response transport - the result of the Ajax call this is a callback to
-	 * @return boolean
+	 * @return bool
 	 */
 	var nextWithSuggestions = function nextWithSuggestions(originalFn, transport) {
 		// call the original next function and capture the results

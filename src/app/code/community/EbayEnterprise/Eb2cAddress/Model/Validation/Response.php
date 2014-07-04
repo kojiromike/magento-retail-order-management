@@ -117,7 +117,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validation_Response extends Varien_Object
 
 	/**
 	 * Does the response message include suggestions?
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasAddressSuggestions()
 	{

@@ -184,7 +184,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * Mock a product model
-	 * @param  boolean $isVirtual Is the product a virtual product or not
+	 * @param  bool $isVirtual Is the product a virtual product or not
 	 * @param  string  $taxCode   Product tax code
 	 * @return Mock_Mage_Catalog_Model_Product
 	 */
@@ -204,7 +204,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * @param  integer                         $id                 Expected id of the item
 	 * @param  string                          $sku                Expected sku of the item
 	 * @param  Mage_Sales_Model_Quote_Item[]   $children           Array of child items
-	 * @param  boolean                         $childrenCalculated Are children of this item calculated
+	 * @param  bool                         $childrenCalculated Are children of this item calculated
 	 * @param  integer                         $discountAmt        Expected discount amount of the item
 	 * @return Mock_Mage_Sales_Model_Quote_Item                    The stubbed quote item.
 	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
@@ -1641,8 +1641,8 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * @dataProvider provideExtractShippingData
 	 * @param array   $itemData
 	 * @param array   $adminOrigin
-	 * @param boolean $virtual
-	 * @param boolean $valid
+	 * @param bool $virtual
+	 * @param bool $valid
 	 * @param array   $shipData
 	 */
 	public function testExtractShippingData($itemData, $adminOrigin, $isVirtual, $isValid, $shipData)

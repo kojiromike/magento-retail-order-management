@@ -93,7 +93,7 @@ class EbayEnterprise_Eb2cProduct_Model_Attributes
 	 * return true if the configured attributes should be applied to
 	 * an entity type by the entity type id
 	 * @param  int  $typeId
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isValidEntityType($typeId)
 	{

@@ -50,7 +50,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 
 	/**
 	 * is the response valid
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $_isValid = false;
 
@@ -148,7 +148,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 	}
 
 	/**
-	 * @return boolean true if response has valid data; false otherwise.
+	 * @return bool true if response has valid data; false otherwise.
 	 */
 	public function isValid()
 	{
@@ -157,7 +157,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 
 	/**
 	 * return true if the request is valid.
-	 * @return boolean [description]
+	 * @return bool [description]
 	 */
 	protected function _isRequestValid()
 	{
@@ -473,7 +473,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 	 * @param NodeList $response, the response element nodelist to be compared
 	 * @param NodeList $request, the request element nodelist to be compared
 	 *
-	 * @return boolean, true request and response nodelist element are the same, otherwise, not the same
+	 * @return bool, true request and response nodelist element are the same, otherwise, not the same
 	 */
 	public function isSameNodelistElement($response, $request)
 	{

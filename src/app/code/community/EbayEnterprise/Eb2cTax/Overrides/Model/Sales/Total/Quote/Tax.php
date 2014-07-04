@@ -237,7 +237,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 	/**
 	 * return true if the shipping price includes VAT.
 	 * return false otherwise.
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isShippingPriceTaxInclusive()
 	{

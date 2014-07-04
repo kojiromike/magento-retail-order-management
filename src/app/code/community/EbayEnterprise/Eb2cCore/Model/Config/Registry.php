@@ -18,7 +18,7 @@
  * Looks up configuration paths and values via configuration models registered with the helper.
  *
  * @prop string configVal The store config value represented by the key config_val
- * @prop bool configValFlag A boolean store config value represented by the key config_val
+ * @prop bool configValFlag A bool store config value represented by the key config_val
  */
 class EbayEnterprise_Eb2cCore_Model_Config_Registry
 {
@@ -69,8 +69,8 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 * and get the actual config path from it for the lookup.
 	 * @param string $configKey
 	 * @param null|string|bool|int|Mage_Core_Model_Store $store
-	 * @param boolean $asFlag
-	 * @return string|boolean
+	 * @param bool $asFlag
+	 * @return string|bool
 	 * @throws Exception Raised if the config path is not found.
 	 */
 	protected function _getStoreConfigValue($configKey, $store, $asFlag)
@@ -103,7 +103,7 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 * Get the configuration flag value represented by the given configKey
 	 * @param string $configKey
 	 * @param null|string|bool|int|Mage_Core_Model_Store $store
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getConfig($configKey, $store=null)
 	{
@@ -129,7 +129,7 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 * Uses the stored store.
 	 *
 	 * @param string $name The property name
-	 * @return null|string|boolean|Mage_Core_Model_Store Boolean if the property name ends with "Flag",
+	 * @return null|string|bool|Mage_Core_Model_Store Boolean if the property name ends with "Flag",
 	 *         Mage_Core_Model_Store if the property is "store", string otherwise.
 	 */
 	public function __get($name)

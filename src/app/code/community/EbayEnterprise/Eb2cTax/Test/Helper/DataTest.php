@@ -184,10 +184,10 @@ class EbayEnterprise_Eb2cTax_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 	 * Test checking if a tax request is necessary for a given quote. Should only
 	 * be required when the session flag indicates it is, no previous errors have been
 	 * encountered when making tax requests and the address has items.
-	 * @param  boolean                        $sessionFlag     State of the session tax flag
-	 * @param  boolean                        $requestFailFlag State of previous failures flag
+	 * @param  bool                        $sessionFlag     State of the session tax flag
+	 * @param  bool                        $requestFailFlag State of previous failures flag
 	 * @param  Mage_Sales_Model_Quote_Address $address         Address object the request would be for
-	 * @param  boolean                        $isRequired      Is it required
+	 * @param  bool                        $isRequired      Is it required
 	 * @dataProvider provideIsRequestForAddressRequired
 	 */
 	public function testIsRequestForAddressRequired($sessionFlag, $requestFailFlag, $address, $isRequired)

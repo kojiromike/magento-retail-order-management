@@ -16,7 +16,7 @@
 interface EbayEnterprise_Eb2cCore_Model_Config_Interface {
 	/**
 	 * Indicates this model knows about the given config key
-	 * @return boolean
+	 * @return bool
 	 */
 	public function hasKey($configKey);
 

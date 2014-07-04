@@ -42,7 +42,7 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Shell extends Varien_Object
 	 * have a processFeeds method. That will convince me that this is an OK feed processor.
 	 *
 	 * @param $modelName a Model to validate
-	 * @return boolean null - Not a valid 'EbayEnterprise_Eb2cCore_Model_Feed_Interface'
+	 * @return bool null - Not a valid 'EbayEnterprise_Eb2cCore_Model_Feed_Interface'
 	 * @return Mage::getModel() - valid model for feed processing.
 	 */
 	private function _validateModel($modelName)
@@ -67,7 +67,7 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Shell extends Varien_Object
 	 * Given a partial feed name (or full model/method name), return the approriate model for that feed.
 	 * The name must resovle uniquely - if you pass just 'feed' for example, you'll fail - too many matches.
 	 *
-	 * @return boolean null - Not a valid 'EbayEnterprise_Eb2cCore_Model_Feed_Interface'
+	 * @return bool null - Not a valid 'EbayEnterprise_Eb2cCore_Model_Feed_Interface'
 	 * @return Mage::getModel() - valid model for feed processing.
 	 */
 	public function getFeedModel($partialFeedName)

@@ -48,7 +48,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * true if the request is valid; false otherwise
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $_isValid = false;
 	/**
@@ -59,7 +59,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * @see _isValid
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isValid()
 	{
@@ -168,7 +168,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * return true if the quote has enough information to be useful.
 	 * @param  Mage_Sales_Model_Quote  $quote
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isQuoteUsable(Mage_Sales_Model_Quote $quote=null)
 	{
@@ -183,7 +183,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * return true if the address has enough information to be useful.
 	 * @param Mage_Sales_Model_Quote_Address $address
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _hasValidBillingAddress(Mage_Sales_Model_Quote_Address $address)
 	{
@@ -213,7 +213,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * return a string to use as the address's destination id
 	 * @param  Mage_Sales_Model_Quote_Address $address
-	 * @param  boolean                        $isVirtual
+	 * @param  bool                        $isVirtual
 	 * @return string
 	 */
 	protected function _getDestinationId(Mage_Sales_Model_Quote_Address $address, $isVirtual=false)
@@ -226,7 +226,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * data extracted from $address.
 	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
 	 * @param Mage_Sales_Model_Quote_Address       $address
-	 * @param boolean                        $isVirtual
+	 * @param bool                        $isVirtual
 	 */
 	protected function _addToDestination(
 		Mage_Sales_Model_Quote_Item_Abstract $item,
@@ -323,7 +323,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * validate the data extracted from an address.
 	 * @param  array   $destData   extracted data from an address
-	 * @param  boolean $isVirtual  true if the destination is virtual; false otherwise
+	 * @param  bool $isVirtual  true if the destination is virtual; false otherwise
 	 * @throws Mage_Core_Exception If destination is missing any required data.
 	 * @return self
 	 */
@@ -621,7 +621,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * @param  string  $string
 	 * @param  int  $minLength
 	 * @param  int  $maxLength
-	 * @param  boolean $truncate
+	 * @param  bool $truncate
 	 * @return null|string
 	 */
 	protected function _checkLength($string, $minLength=null, $maxLength=null, $truncate=true)
@@ -801,7 +801,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * street line, a city and country code. Return true if address meets these
 	 * criteria, false otherwise.
 	 * @param  array   $data address data
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _validateShipFromData($data)
 	{

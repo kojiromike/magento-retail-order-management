@@ -21,7 +21,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Block_Adminhtml_System_Config_Tabs ex
     /**
      * determine if the config section should have its tab displayed.
      * @param  string   $code
-     * @return boolean  true if the tab for the config section should be displayed; false otherwise
+     * @return bool  true if the tab for the config section should be displayed; false otherwise
      */
     public function checkSectionPermissions($code=null)
     {

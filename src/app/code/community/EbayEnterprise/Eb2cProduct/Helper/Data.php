@@ -475,7 +475,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	 * xpath as a string, and build a node and insert it.
 	 * @param DOMDocument xslDoc an already loaded DOM
 	 * @param string xpathExpression to match
-	 * @return boolean true (node inserted), or false (node insert failed)
+	 * @return bool true (node inserted), or false (node insert failed)
 	 */
 	function appendXslTemplateMatchNode($xslDoc, $xpathExpression)
 	{

@@ -59,7 +59,7 @@ abstract class EbayEnterprise_Eb2cInventory_Model_Request_Abstract
 	 * Determine if a valid message can be sent using the quote. All inventory services
 	 * require at least a set of items to send in the request.
 	 * @param  Mage_Sales_Model_Quote $quote Quote the request would be for
-	 * @return boolean Can a valid request be made for the quote? true if yes, false if no.
+	 * @return bool Can a valid request be made for the quote? true if yes, false if no.
 	 */
 	protected function _canMakeRequestWithQuote(Mage_Sales_Model_Quote $quote)
 	{

@@ -94,7 +94,7 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	 * if it is, false if not. Items whose product is marked as managed stock and is not
 	 * virtual should be considered to have stock managed via the inventory service.
 	 * @param  Mage_Sales_Model_Quote_Item $item The item to check
-	 * @return boolean True if inventory is managed, false if not
+	 * @return bool True if inventory is managed, false if not
 	 */
 	public function isItemInventoried(Mage_Sales_Model_Quote_Item $item)
 	{

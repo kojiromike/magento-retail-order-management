@@ -47,7 +47,7 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	 * Determine if a valid request could be sent for the given quote. In this case, must
 	 * have items (parent check), a shipping address, and shipping method.
 	 * @param  Mage_Sales_Model_Quote $quote The quote the request would be for
-	 * @return boolean True if possible to create valid request from the quote, false otherwise
+	 * @return bool True if possible to create valid request from the quote, false otherwise
 	 */
 	protected function _canMakeRequestWithQuote(Mage_Sales_Model_Quote $quote)
 	{

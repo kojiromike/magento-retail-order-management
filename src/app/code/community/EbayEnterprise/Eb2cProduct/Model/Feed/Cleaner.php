@@ -223,7 +223,7 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 	 * Currently, this means only simple products with a style_id that differs
 	 * from the sku.
 	 * @param  Mage_Catalog_Model_Product $product
-	 * @return boolean True if product is expected to have a parent configurable product, false otherwise.
+	 * @return bool True if product is expected to have a parent configurable product, false otherwise.
 	 */
 	protected function _filterProductWithConfigParent(Mage_Catalog_Model_Product $product)
 	{

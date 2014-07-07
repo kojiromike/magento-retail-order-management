@@ -1002,6 +1002,7 @@ INVALID_XML;
 		$paymentId = 12;
 		$svcPan = '1234567890';
 		$svcPanToken = 'abcdefghij';
+		$svcPin = '1234';
 		$svcTenderType = 'SV';
 		$gcAmount = 29.99;
 		$paymentCreatedAt = '2014-01-01T01:00:00';
@@ -1035,7 +1036,7 @@ INVALID_XML;
 			false,
 			array(array(
 				'gift_cards_amount' => $gcAmount,
-				'gift_cards' => serialize(array(array('pan' => $svcPan, 'panToken' => $svcPanToken)))
+				'gift_cards' => serialize(array(array('pan' => $svcPan, 'panToken' => $svcPanToken, 'pin' => $svcPin)))
 			))
 		);
 		$order->expects($this->any())
@@ -1048,8 +1049,8 @@ INVALID_XML;
 
 		$resultDoc = new DOMDocument();
 		$resultDoc->loadXML(sprintf(
-			'<?xml version="1.0"?><root><StoredValueCard><PaymentContext><PaymentSessionId>payment%1$s</PaymentSessionId><TenderType>%2$s</TenderType><PaymentAccountUniqueId isToken="true">%3$s</PaymentAccountUniqueId></PaymentContext><CreateTimeStamp>%5$s</CreateTimeStamp><Amount>%4$.2f</Amount></StoredValueCard></root>',
-			$paymentId, $svcTenderType, $svcPanToken, $gcAmount, $paymentCreatedAt
+			'<?xml version="1.0"?><root><StoredValueCard><PaymentContext><PaymentSessionId>payment%1$s</PaymentSessionId><TenderType>%2$s</TenderType><PaymentAccountUniqueId isToken="true">%3$s</PaymentAccountUniqueId></PaymentContext><CreateTimeStamp>%5$s</CreateTimeStamp><Pin>%6$s</Pin><Amount>%4$.2f</Amount></StoredValueCard></root>',
+			$paymentId, $svcTenderType, $svcPanToken, $gcAmount, $paymentCreatedAt, $svcPin
 		));
 		$this->assertSame(
 			$resultDoc->C14N(),
@@ -1109,7 +1110,23 @@ INVALID_XML;
 			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getOrderGiftCardPan', array($order, $useToken))
 		);
 	}
-
+	/**
+	 * Test getting the PIN of the SVC used for the order.
+	 */
+	public function testGetOrderGiftCardPin()
+	{
+		$svcPin = '1234';
+		$gcData = array('pin' => $svcPin);
+		$order = Mage::getModel(
+			'sales/order',
+			array('gift_cards' => serialize(array($gcData)))
+		);
+		$create = Mage::getModel('eb2corder/create');
+		$this->assertSame(
+			$svcPin,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getOrderGiftCardPin', array($order))
+		);
+	}
 	public function provideForTestGetOrderSource()
 	{
 		return array(

@@ -76,11 +76,6 @@ The following table describes how elements in the XML product feeds are imported
 			<td>No</td>
 		</tr>
 		<tr>
-			<td>BaseAttributes/ItemType</td>
-			<td>Provides the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Item Type"</a> product attribute.</td>
-			<td>No</td>
-		</tr>
-		<tr>
 			<td>BaseAttributes/ItemStatus</td>
 			<td>Sets the "Status" of the item. May be one of: <code>Active</code>, <code>Discontinued</code>, or <code>Inactive</code>. A Value of <code>Active</code> will result in a product that is "Enabled" in Magento. Both <code>Discontinued</code> and <code>Inactive</code> will result in a product that is "Disabled" in Magento.</td>
 			<td>No</td>
@@ -552,20 +547,6 @@ The following attributes have are created by the eBay Enterprise Retail Order Ma
 | Unresolved Product Links | unresolved_product_links | Any related, cross-sell or up-sell product links for the product that have not yet been created, typically due to the target products not existing in Magento yet. |
 | HTS Codes | hts_codes | Mapping of tax codes used for calculating international taxes and duties. |
 | Tax Code | tax_code | eBay Enterprise assigned tax group. |
-| Item Type | item_type | Item specification used by eBay Enterprise Retail Order Management. |
-| Drop Shipped | drop_shipped | Specifies if the item can be fulfilled using a drop shipper.  |
-| Drop Ship Supplier Name | drop_ship_supplier_name | Name of the drop ship supplier fulfilling the product. |
-| Drop Ship Supplier Number | drop_ship_supplier_number | eBay Enterprise assigned code for the drop ship supplier. |
-| Drop Ship Supplier Part Number | drop_ship_supplier_part_number | ID or SKU used by the drop ship supplier to identify the item. |
-| Hierarchy Department Number | hierarchy_dept_number | Hierarchy Level 1 number. |
-| Hierarchy Department Description | hierarchy_dept_description | Hierarchy Level 1 description. |
-| Hierarchy Subdepartment Number | hierarchy_subdept_number | Hierarchy Level 2 number. |
-| Hierarchy Subdepartment Description | hierarchy_subdept_description | Hierarchy Level 2 description. |
-| Hierarchy Class Number | hierarchy_class_number | Hierarchy Level 3 number. |
-| Hierarchy Class Description | hierarchy_class_description | Hierarchy Level 3 description. |
-| Hierarchy Subclass Number | hierarchy_subclass_number | Hierarchy Level 4 number. |
-| Hierarchy Subclass Description | hierarchy_subclass_description | Hierarchy Level 4 description. |
-| Gift Card Tender Code | gift_card_tender_code | Type of gift card to be used for activiation. Allowable valies: "SD" (TRU DIGITAL GIFT CARD), "SP" (SVS Physical Gift Card), "ST" (SmartClixx Gift Card Canada), "SV" (SVS Virtual Gift Card), "SX" (SmartClixx Gift Card). |
 
 ### Attributes Directly Affecting the Behavior of eBay Enterprise Retail Order Management
 

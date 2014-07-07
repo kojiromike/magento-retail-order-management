@@ -16,6 +16,7 @@ When Magento is to be the system of record for product information (except for i
 ## Enabling Product Export
 
 1. Ensure the eBay Enterprise Retail Order Management Extension is configured. See the [Installation and Configuration Guide](INSTALL.md) for more details.
+1. Enable the eBay Enterprise Retail Order Management ProductExport module.
 1. Copy `app/etc/productexport.xml.sample` to `app/etc/productexport.xml` to enable the local XML configuration.
 1. Ensure cron jobs are set to run on the Magento instance.
 

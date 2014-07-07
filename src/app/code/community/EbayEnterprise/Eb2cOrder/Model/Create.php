@@ -687,6 +687,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 						$paymentContext->createChild('PaymentAccountUniqueId', $this->_getOrderGiftCardPan($this->_o, true))
 							->setAttribute('isToken', 'true');
 						$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
+						$thisPayment->createChild('Pin', $this->_getOrderGiftCardPin($this->_o));
 						$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGiftCardsAmount()));
 					} else {
 						// there is no gift card for the order and the payment method is free
@@ -712,14 +713,34 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _getOrderGiftCardPan(Mage_Sales_Model_Order $order, $useToken=false)
 	{
+		return $this->_getOrderGiftCardData($order, $useToken ? 'panToken' : 'pan');
+	}
+	/**
+	 * Get order stored value pin. If there is no gift card or no pin within the
+	 * gift card data, return an empty string.
+	 * @param Mage_Sales_Model_Order $order the order object
+	 * @return string
+	 */
+	protected function _getOrderGiftCardPin(Mage_Sales_Model_Order $order)
+	{
+		return $this->_getOrderGiftCardData($order, 'pin');
+	}
+	/**
+	 * Get the value of the gift card data key/value pair identified by a given
+	 * key. Returns the first non-empty value found in all sets of gift card
+	 * data on the order.
+	 * @param  Mage_Sales_Model_Order $order
+	 * @param  string $gcDataKey gift card data key
+	 * @return string
+	 */
+	protected function _getOrderGiftCardData(Mage_Sales_Model_Order $order, $gcDataKey)
+	{
 		$giftCardData = unserialize($order->getGiftCards());
 		if (!empty($giftCardData)) {
 			foreach ($giftCardData as $gcData) {
-				// the 'panToken' key/value pair will contain the tokenized PAN
-				// the 'pan' key/value pair will contain the raw PAN
-				$panKey = $useToken ? 'panToken' : 'pan';
-				if (isset($gcData[$panKey]) && trim($gcData[$panKey]) !== '') {
-					return $gcData[$panKey];
+				$val = isset($gcData[$gcDataKey]) ? $gcData[$gcDataKey] : null;
+				if ($val) {
+					return $val;
 				}
 			}
 		}

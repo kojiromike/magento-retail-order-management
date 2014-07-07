@@ -100,30 +100,6 @@ Copy this file to productimport.xml and configure the appropriate values below.
 			by the import process.
 			 -->
 			<feed_attribute_mappings>
-				<is_drop_shipped>
-					<class>eb2cproduct/map</class>
-					<type>helper</type>
-					<method>extractBoolValue</method>
-					<xpath>BaseAttributes/IsDropShipped</xpath>
-				</is_drop_shipped>
-				<drop_ship_supplier_name>
-					<class>eb2cproduct/map</class>
-					<type>helper</type>
-					<method>extractStringValue</method>
-					<xpath>DropShipSupplierInformation/SupplierName</xpath>
-				</drop_ship_supplier_name>
-				<drop_ship_supplier_number>
-					<class>eb2cproduct/map</class>
-					<type>helper</type>
-					<method>extractStringValue</method>
-					<xpath>DropShipSupplierInformation/SupplierNumber</xpath>
-				</drop_ship_supplier_number>
-				<drop_ship_supplier_part>
-					<class>eb2cproduct/map</class>
-					<type>helper</type>
-					<method>extractStringValue</method>
-					<xpath>DropShipSupplierInformation/SupplierPartNumber</xpath>
-				</drop_ship_supplier_part>
 				<gift_message_available>
 					<class>eb2cproduct/map</class>
 					<type>disabled</type>

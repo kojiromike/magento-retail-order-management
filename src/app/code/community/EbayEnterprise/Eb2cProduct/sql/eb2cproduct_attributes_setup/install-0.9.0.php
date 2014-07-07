@@ -12,12 +12,8 @@
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-
-$installer = $this;
-$installer->startSetup();
-
-$defaultAttributes = Mage::getModel('eb2cproduct/attributes');
-$setup = new EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup('core_setup');
-$setup->applyToAllSets($defaultAttributes);
-
-$installer->endSetup();
+//* @var EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup $this */
+$this
+	->startSetup()
+	->applyToAllSets(Mage::getModel('eb2cproduct/attributes'))
+	->endSetup();

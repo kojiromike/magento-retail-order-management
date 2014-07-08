@@ -91,40 +91,6 @@ INVALID_XML;
 		Mage::getModel('eb2corder/create')->getItemTaxQuotes($item, $taxType);
 	}
 	/**
-	 * Test _getAttributeValueByProductId method with the following expectations
-	 * Expectation 1: this test is expected to mockout the method Mage_Catalog_Model_Resource_Product::getAttributeRawValue
-	 *                to be called once with product id (9) as first parameter, the attribute which is being passed the
-	 *                _getAttributeValueByProductId method in this test as 'tax_code' and also the value being returned
-	 *                from the mocked method Mage_Core_Helper_Data::getStoreId which is expected to return the value 1
-	 * Expectation 2: the method Mage_Core_Helper_Data::getStoreId is expected to be called once to return the value 1
-	 * @mock Mage_Catalog_Model_Resource_Product::getAttributeRawValue
-	 * @mock Mage_Core_Helper_Data::getStoreId
-	 */
-	public function testGetAttributeValueByProductId()
-	{
-		$productResourceModelMock = $this->getResourceModelMockBuilder('catalog/product')
-			->disableOriginalConstructor()
-			->setMethods(array('getAttributeRawValue'))
-			->getMock();
-		$productResourceModelMock->expects($this->once())
-			->method('getAttributeRawValue')
-			->with($this->equalTo(9), $this->equalTo('tax_code'), $this->equalTo(1))
-			->will($this->returnValue('12334423'));
-		$this->replaceByMock('resource_model', 'catalog/product', $productResourceModelMock);
-
-		$coreHelperMock = $this->getHelperMockBuilder('core/data')
-			->disableOriginalConstructor()
-			->setMethods(array('getStoreId'))
-			->getMock();
-		$coreHelperMock->expects($this->once())
-			->method('getStoreId')
-			->will($this->returnValue(1));
-		$this->replaceByMock('helper', 'core', $coreHelperMock);
-
-		$create = Mage::getModel('eb2corder/create');
-		$this->assertSame('12334423', $this->_reflectMethod($create, '_getAttributeValueByProductId')->invoke($create, 'tax_code', 9));
-	}
-	/**
 	 * Test building out a DOMDocumentFragment for tax nodes
 	 * The expectations for the EbayEnterprise_Eb2cOrder_Model_Create::_buildTaxDataNodes is as followed
 	 * Expectation 1: the EbayEnterprise_Eb2cOrder_Model_Create::_buildTaxDataNodes method is expected to be invoked with
@@ -141,10 +107,6 @@ INVALID_XML;
 	 * Expectation 4: the class property EbayEnterprise_Eb2cOrder_Model_Create::_domRequest is expected to be initalized with an object of
 	 *                EbayEnterprise_Dom_Document type, so the test set this property to a known state with the instantiation of
 	 *                EbayEnterprise_Dom_Document class
-	 * Expectation 5: the mocked method EbayEnterprise_Eb2cOrder_Model_Create::_getAttributeValueByProductId is expected to get the attribute 'tax_code'
-	 *                as its first parameter and the product id which is added in the real order item object to be the value 9, this method is expected
-	 *                to be called once and will return the value '1234533' which is then get asserted within the test as the value in the TaxClass node
-	 * @mock EbayEnterprise_Eb2cOrder_Model_Create::_getAttributeValueByProductId
 	 * @mock Mage_Tax_Model_Calculation::round
 	 * @mock EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection::getIterator
 	 * @mock EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection::count
@@ -205,24 +167,14 @@ INVALID_XML;
 			->method('count')
 			->will($this->returnValue(2));
 
-		$create = $this->getModelMockBuilder('eb2corder/create')
-			->setMethods(array('_getAttributeValueByProductId'))
-			->getMock();
-		$create->expects($this->once())
-			->method('_getAttributeValueByProductId')
-			->with($this->equalTo('tax_code'), $this->equalTo(9))
-			->will($this->returnValue('1234533'));
-
 		$request = $this->_reflectProperty($create, '_domRequest');
 		$request->setValue($create, Mage::helper('eb2ccore')->getNewDomDocument());
-		$taxFragment = $this->_reflectMethod($create, '_buildTaxDataNodes')->invoke($create, $taxQuotesCollection, Mage::getModel('sales/order_item')->addData(array(
-			'product_id' => 9,
-		)));
+		$taxFragment = $this->_reflectMethod($create, '_buildTaxDataNodes')->invoke($create, $taxQuotesCollection, '77');
 		// probe the tax fragment a bit to hopefully ensure the nodes are all populated right
 		$this->assertSame(1, $taxFragment->childNodes->length);
 		$this->assertSame('TaxData', $taxFragment->firstChild->nodeName);
 		$this->assertSame('TaxClass', $taxFragment->firstChild->firstChild->nodeName);
-		$this->assertSame('1234533', $taxFragment->firstChild->firstChild->nodeValue);
+		$this->assertSame('77', $taxFragment->firstChild->firstChild->nodeValue);
 		$this->assertSame('Taxes', $taxFragment->lastChild->lastChild->nodeName);
 
 		$taxes = $taxFragment->lastChild->lastChild;
@@ -248,108 +200,6 @@ INVALID_XML;
 				}
 			}
 		}
-	}
-	/**
-	 * Test that we pull the TaxClass for shipping from config.
-	 */
-	public function testBuildTaxDataNodesShipping()
-	{
-		$this->replaceCoreConfigRegistry(
-			array(
-				'shippingTaxClass' => 'UNIT_TEST_CLASS',
-			)
-		);
-
-		$taxQuotes[] = Mage::getModel(
-			'eb2ctax/response_quote',
-			array(
-				'id' => '1',
-				'quote_item_id' => '15',
-				'type' => '0',
-				'tax_type' => 'SALES',
-				'taxability' => 'TAXABLE',
-				'jurisdiction' => 'PENNSYLVANIA',
-				'jurisdiction_id' => '31152',
-				'jurisdiction_level' => 'STATE',
-				'imposition' => 'Sales and Use Tax',
-				'imposition_type' => 'General Sales and Use Tax',
-				'situs' => 'ADMINISTRATIVE_ORIGIN',
-				'effective_rate' => 0.06,
-				'taxable_amount' => 43.96,
-				'calculated_tax' => 2.64,
-			)
-		);
-
-		$taxQuotesCollection = $this->getModelMockBuilder('eb2ctax/resource_response_quote_collection')
-			->disableOriginalConstructor()
-			->setMethods(array('getIterator', 'count'))
-			->getMock();
-		$taxQuotesCollection->expects($this->any())
-			->method('getIterator')
-			->will($this->returnValue(new ArrayIterator($taxQuotes)));
-		$taxQuotesCollection->expects($this->any())
-			->method('count')
-			->will($this->returnValue(1));
-
-		$create = Mage::getModel('eb2corder/create');
-		$request = $this->_reflectProperty($create, '_domRequest');
-		$request->setValue($create, Mage::helper('eb2ccore')->getNewDomDocument());
-		$taxFragment = $this
-			->_reflectMethod($create, '_buildTaxDataNodes')
-			->invoke($create, $taxQuotesCollection, Mage::getModel('sales/order_item'), EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING);
-
-		$this->assertSame('UNIT_TEST_CLASS', $taxFragment->firstChild->firstChild->nodeValue);
-	}
-	/**
-	 * Build Duty: given a Duty Quote, ensure we'll get a DOMNode back from buildDuty.
-	 * My rationale here is: that's the only thing it should do. Validation is the test
-	 * of whether the node is correctly constructed. I just need to be sure it's a node.
-	 */
-	public function testBuildDutyMethod()
-	{
-		$dutyQuotes[] = Mage::getModel(
-			'eb2ctax/response_quote',
-			array(
-				'id'                 => EbayEnterprise_Eb2cTax_Model_Response_Quote::DUTY,
-				'quote_item_id'      => '15',
-				'type'               => '0',
-				'tax_type'           => 'VAT',
-				'taxability'         => 'TAXABLE',
-				'jurisdiction'       => 'QUEBEC',
-				'jurisdiction_id'    => '44906',
-				'jurisdiction_level' => 'PROVINCE',
-				'imposition'         => 'Sales and Use Tax',
-				'imposition_type'    => 'Goods and Services',
-				'situs'              => 'DESTINATION',
-				'effective_rate'     => 1.23,
-				'taxable_amount'     => 2.34,
-				'calculated_tax'     => 3.45,
-			)
-		);
-		$create = $this->getModelMockBuilder('eb2corder/create')
-			->setMethods(array('getItemTaxQuotes'))
-			->getMock();
-		$dutyQuotesCollection = $this->getModelMockBuilder('eb2ctax/resource_response_quote_collection')
-			->disableOriginalConstructor()
-			->setMethods(array('getIterator', 'count'))
-			->getMock();
-		$dutyQuotesCollection->expects($this->any())
-			->method('getIterator')
-			->will($this->returnValue(new ArrayIterator($dutyQuotes)));
-		$dutyQuotesCollection->expects($this->any())
-			->method('count')
-			->will($this->returnValue(1));
-		$create->expects($this->once())
-			->method('getItemTaxQuotes')
-			->will($this->returnValue($dutyQuotesCollection));
-		$fakeDom = Mage::helper('eb2ccore')->getNewDomDocument();
-		$request = $this->_reflectProperty($create, '_domRequest');
-		$request->setValue($create, $fakeDom);
-
-		$dutyFragment = $this
-			->_reflectMethod($create, '_buildDuty')
-			->invoke($create, Mage::getModel('sales/order_item'));
-		$this->assertInstanceOf('DOMNode', $dutyFragment);
 	}
 	/**
 	 * When the observer triggers, the create model should build a new request

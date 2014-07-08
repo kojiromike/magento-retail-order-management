@@ -418,7 +418,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 
 		// Tax on the Merchandise:
 		$merchTaxFragment = $this->_buildTaxDataNodes(
-			$this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE), $item
+			$this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE),
+			$this->_getProductTaxCode($item)
 		);
 		if ($merchTaxFragment->hasChildNodes()) {
 			$merchandise->appendChild($merchTaxFragment);
@@ -437,7 +438,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			);
 
 			$shippingTaxFragment = $this->_buildTaxDataNodes(
-				$this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING), $item, EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING
+				$this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING),
+				Mage::helper('eb2corder')->getConfigModel()->shippingTaxClass
 			);
 			if ($shippingTaxFragment->hasChildNodes()) {
 				$shipping->appendChild($shippingTaxFragment);
@@ -492,45 +494,34 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 
 	/**
-	 * generic method that take product attribute and the product id and return the raw attribute value for the product
-	 * @param string $attribute (tax_code, color, brand_name, etc)
-	 * @param int $productId the entity_id value of a known product in magento
+	 * Return tax_code attribute for the given sales order item.
+	 * @param Mage_Sales_Order_Item $item the item whose tax code you want
 	 * @return string the product attribute value
 	 */
-	protected function _getAttributeValueByProductId($attribute, $productId)
+	protected function _getProductTaxCode(Mage_Sales_Model_Order_Item $item)
 	{
 		return Mage::getResourceModel('catalog/product')->getAttributeRawValue(
-			$productId,
-			$attribute,
+			$item->getProductId(),
+			'tax_code',
 			Mage::helper('core')->getStoreId()
 		);
 	}
 
 	/**
-	 * Build TaxData nodes for the item
+	 * Build TaxData nodes for the collection of quotes we're given
 	 * @see  EbayEnterprise_Eb2cTax_Model_Response_Quote for tax types.
-	 * @param  EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection $taxQuotes Collection of tax quotes to build tax nodes for
-	 * @param  Mage_Sales_Model_Order_Item $item, the quote item to get the product object from
-	 * @return DOMDocumentFragment                  A DOM fragment of the nodes
+	 * @param  EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection $taxQuotes Collection of tax quotes to build tax nodes
+	 * @param  string $taxClass What tax class is used
+	 * @return DOMDocumentFragment A DOM fragment of the nodes
 	 */
-	protected function _buildTaxDataNodes(
-		EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection $taxQuotes,
-		Mage_Sales_Model_Order_Item $item, $taxType=null
-	)
+	protected function _buildTaxDataNodes(EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection $taxQuotes, $taxClass)
 	{
 		$taxFragment = $this->_domRequest->createDocumentFragment();
 		if ($taxQuotes->count()) {
-			$cfg = Mage::helper('eb2corder')->getConfigModel();
 			$taxData = $taxFragment->appendChild(
-				$this->_domRequest->createElement('TaxData', null, $cfg->apiXmlNs)
+				$this->_domRequest->createElement('TaxData', null, Mage::helper('eb2corder')->getConfigModel()->apiXmlNs)
 			);
-			// adding TaxClass node
-			if ($taxType === EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING) {
-				$taxData->createChild('TaxClass', $cfg->shippingTaxClass);
-			} else {
-				$taxData->createChild('TaxClass', $this->_getAttributeValueByProductId('tax_code', $item->getProductId()));
-			}
-
+			$taxData->createChild('TaxClass', $taxClass);
 			$taxes = $taxData->createChild('Taxes');
 			$calc = Mage::getModel('tax/calculation');
 			foreach ($taxQuotes as $taxQuote) {
@@ -538,7 +529,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$this->_taxHeaderError = true;
 				}
 				$taxNode = $taxes->createChild('Tax');
-				// need to actually get these value from somewhere
 				$taxNode->setAttribute('taxType', $taxQuote->getTaxType());
 				$taxNode->setAttribute('taxability', $taxQuote->getTaxability());
 				$taxNode->createChild('Situs', $taxQuote->getSitus());
@@ -588,7 +578,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			}
 			if ($dutyTotal > 0) {
 				$duty->createChild('Amount', $dutyTotal);
-				$dutyTax = $this->_buildTaxDataNodes($dutyQuotes, $item);
+				$dutyTax = $this->_buildTaxDataNodes($dutyQuotes, $this->_getProductTaxCode($item));
 				if ($dutyTax->hasChildNodes()) {
 					$duty->appendChild($dutyTax);
 				}
@@ -1095,7 +1085,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			}
 			// Tax on the Discount
 			$discountTaxFragment = $this->_buildTaxDataNodes(
-				$this->getItemTaxQuotes($item, $type), $item
+				$this->getItemTaxQuotes($item, $type),
+				$this->_getProductTaxCode($item)
 			);
 			if ($discountTaxFragment->hasChildNodes()) {
 				$discount->appendChild($discountTaxFragment);
@@ -1168,7 +1159,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$taxData = ($level === 'order')
 				? $this->_getTaxOnQuote($this->_o, EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING)
 				: $this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::GIFTING);
-			$pricingTaxFragment = $this->_buildTaxDataNodes($taxData, $item);
+			$pricingTaxFragment = $this->_buildTaxDataNodes($taxData, $giftwrapping->getEb2cTaxClass());
 			if ($pricingTaxFragment->hasChildNodes()) {
 				$pricingNode->appendChild($pricingTaxFragment);
 			}

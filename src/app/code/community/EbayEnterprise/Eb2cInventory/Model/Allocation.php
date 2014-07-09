@@ -14,7 +14,8 @@
  */
 
 
-class EbayEnterprise_Eb2cInventory_Model_Allocation extends EbayEnterprise_Eb2cInventory_Model_Abstract
+class EbayEnterprise_Eb2cInventory_Model_Allocation
+	extends Varien_Object
 {
 	const ALLOCATION_QTY_LIMITED_STOCK_MESSAGE = 'EbayEnterprise_Eb2cInventory_Allocation_Qty_Limited_Stock_Message';
 	const ALLOCATION_QTY_OUT_STOCK_MESSAGE = 'EbayEnterprise_Eb2cInventory_Allocation_Qty_Out_Stock_Message';
@@ -26,7 +27,7 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation extends EbayEnterprise_Eb2cI
 	 */
 	public function requiresAllocation(Mage_Sales_Model_Quote $quote)
 	{
-		$managedStockItems = $this->getInventoriedItems($quote->getAllItems());
+		$managedStockItems = Mage::helper('eb2cinventory')->getInventoriedItems($quote->getAllVisibleItems());
 		return !empty($managedStockItems) && (!$this->hasAllocation($quote) || $this->isExpired($quote));
 	}
 
@@ -63,36 +64,32 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation extends EbayEnterprise_Eb2cI
 		$allocationRequestMessage = $domDocument->addElement('AllocationRequestMessage', null, Mage::helper('eb2cinventory')->getXmlNs())->firstChild;
 		$allocationRequestMessage->setAttribute('requestId', Mage::helper('eb2cinventory')->getRequestId($quote->getEntityId()));
 		$allocationRequestMessage->setAttribute('reservationId', Mage::helper('eb2cinventory')->getReservationId($quote->getEntityId()));
-		foreach ($quote->getAllAddresses() as $address) {
-			foreach ($this->getInventoriedItems($address->getAllItems()) as $item) {
-				// creating quoteItem element
-				$quoteItem = $allocationRequestMessage->createChild('OrderItem', null, array('lineId' => $item->getId(), 'itemId' => $item->getSku()));
-				// add quantity - FYI: integer value doesn't get added only string
-				$quoteItem->createChild('Quantity', (string) $item->getQty());
-				$shippingAddress = $quote->getShippingAddress();
-				// creating shipping details
-				$shipmentDetails = $quoteItem->createChild('ShipmentDetails', null);
-				// add shipment method
-				$shipmentDetails->createChild(
-					'ShippingMethod',
-					$coreHelper->lookupShipMethod($shippingAddress->getShippingMethod())
-				);
-				// add ship to address
-				$shipToAddress = $shipmentDetails->createChild('ShipToAddress', null);
-				// add ship to address Line 1
-				$shipToAddress->createChild('Line1', $shippingAddress->getStreet(1), null);
-				// add ship to address City
-				$shipToAddress->createChild('City', $shippingAddress->getCity(), null);
-				$mainDivision = trim($shippingAddress->getRegionCode());
-				if ($mainDivision !== '') {
-					// add ship to address MainDivision
-					$shipToAddress->createChild('MainDivision', $mainDivision, null);
-				}
-				// add ship to address CountryCode
-				$shipToAddress->createChild('CountryCode', $shippingAddress->getCountryId(), null);
-				// add ship to address PostalCode
-				$shipToAddress->createChild('PostalCode', $shippingAddress->getPostcode(), null);
+		$shippingAddress = $quote->getShippingAddress();
+		$shippingMethod = $coreHelper->lookupShipMethod($shippingAddress->getShippingMethod());
+		foreach (Mage::helper('eb2cinventory')->getInventoriedItems($quote->getAllVisibleItems()) as $item) {
+			// creating quoteItem element
+			$quoteItem = $allocationRequestMessage->createChild('OrderItem', null, array('lineId' => $item->getId(), 'itemId' => $item->getSku()));
+			// add quantity - FYI: integer value doesn't get added only string
+			$quoteItem->createChild('Quantity', (string) $item->getQty());
+			// creating shipping details
+			$shipmentDetails = $quoteItem->createChild('ShipmentDetails', null);
+			// add shipment method
+			$shipmentDetails->createChild('ShippingMethod', $shippingMethod);
+			// add ship to address
+			$shipToAddress = $shipmentDetails->createChild('ShipToAddress', null);
+			// add ship to address Line 1
+			$shipToAddress->createChild('Line1', $shippingAddress->getStreet(1), null);
+			// add ship to address City
+			$shipToAddress->createChild('City', $shippingAddress->getCity(), null);
+			$mainDivision = trim($shippingAddress->getRegionCode());
+			if ($mainDivision !== '') {
+				// add ship to address MainDivision
+				$shipToAddress->createChild('MainDivision', $mainDivision, null);
 			}
+			// add ship to address CountryCode
+			$shipToAddress->createChild('CountryCode', $shippingAddress->getCountryId(), null);
+			// add ship to address PostalCode
+			$shipToAddress->createChild('PostalCode', $shippingAddress->getPostcode(), null);
 		}
 
 		return $domDocument;
@@ -156,7 +153,7 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation extends EbayEnterprise_Eb2cI
 	 */
 	protected function _emptyQuoteAllocation(Mage_Sales_Model_Quote $quote)
 	{
-		foreach ($this->getInventoriedItems($quote->getAllItems()) as $item) {
+		foreach (Mage::helper('eb2cinventory')->getInventoriedItems($quote->getAllVisibleItems()) as $item) {
 			// emptying reservation data from quote item
 			$item->unsEb2cReservationId()
 				->unsEb2cReservedAt()
@@ -173,7 +170,7 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation extends EbayEnterprise_Eb2cI
 	 */
 	public function hasAllocation(Mage_Sales_Model_Quote $quote)
 	{
-		foreach ($this->getInventoriedItems($quote->getAllItems()) as $item) {
+		foreach (Mage::helper('eb2cinventory')->getInventoriedItems($quote->getAllVisibleItems()) as $item) {
 			// find the reservation data in the quote item
 			if (trim($item->getEb2cReservationId()) !== '') {
 				return true;
@@ -194,7 +191,7 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation extends EbayEnterprise_Eb2cI
 		$expireMins = (int) Mage::helper('eb2cinventory')->getConfigModel()->allocationExpired;
 		$expiredIfReservedBefore = $now->sub(DateInterval::createFromDateString(sprintf('%d minutes', $expireMins)));
 
-		foreach ($this->getInventoriedItems($quote->getAllItems()) as $item) {
+		foreach (Mage::helper('eb2cinventory')->getInventoriedItems($quote->getAllVisibleItems()) as $item) {
 			// find the reservation data in the quote item
 			if ($item->hasEb2cReservedAt()) {
 				$reservedAt = new DateTime($item->getEb2cReservedAt());

@@ -40,6 +40,11 @@ class EbayEnterprise_Eb2cCore_Model_Session
 		$skuData = array();
 		// use getAllVisibleItems to prevent dupes due to parent config + child used both being included
 		foreach ($quote->getAllVisibleItems() as $item) {
+			// before item's have been saved, getAllVisible items won't properly
+			// filter child items...this extra check fixes it
+			if ($item->getParentItem()) {
+				continue;
+			}
 			$skuData[$item->getSku()] = array(
 				'managed' => $helper->isItemInventoried($item),
 				'virtual' => $item->getIsVirtual(),

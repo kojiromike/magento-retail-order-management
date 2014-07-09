@@ -139,7 +139,8 @@ class EbayEnterprise_Eb2cInventory_Test_Model_QuantityTest
 			$limitedSku => $limitedStock,
 			$unavailSku => 0,
 		);
-
+		$dataHelper = $this->getHelperMock('eb2cinventory/data', array('getInventoriedItems'));
+		$this->replaceByMock('helper', 'eb2cinventory', $dataHelper);
 		$helper = $this->getHelperMock('eb2cinventory/quote', array('removeItemFromQuote', 'updateQuoteItemQuantity'));
 		$this->replaceByMock('helper', 'eb2cinventory/quote', $helper);
 		$quantity = $this->getModelMock('eb2cinventory/quantity', array('getAvailableStockFromResponse'));
@@ -161,6 +162,9 @@ class EbayEnterprise_Eb2cInventory_Test_Model_QuantityTest
 		$nonManagedItem = $this->_mockQuoteItem($nonManagedSku, $nonManagedName, null);
 		$items = array($availableItem, $limitedStockItem, $unavailItem, $nonManagedItem);
 
+		$dataHelper->expects($this->any())
+			->method('getInventoriedItems')
+			->will($this->returnArgument(0));
 		$helper
 			->expects($this->once())
 			->method('removeItemFromQuote')

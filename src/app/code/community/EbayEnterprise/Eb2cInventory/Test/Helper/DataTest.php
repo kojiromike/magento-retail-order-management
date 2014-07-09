@@ -120,45 +120,63 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 		);
 	}
 	/**
-	 * Create a stub Mage_Sales_Model_Quote_Item for checking if the item is inventoried
-	 * @param  boolean $isVirtual Is the item virtual
-	 * @param  boolean $isManaged Is the product managed stock
-	 * @return Mock_Mage_Sales_Model_Quote_Item Stub which will report the item as being virtual and/or with a "managed_stock" stock item
-	 */
-	protected function _stubQuoteItem($isVirtual, $isManaged)
-	{
-		$item = $this->getModelMock('sales/quote_item', array('getProduct', 'getIsVirtual'));
-		$prod = $this->getModelMock('catalog/product', array('getStockItem'));
-		$stockItem = $this->getModelMock('cataloginventory/stock_item', array('getManageStock'));
-		$item
-			->expects($this->any())
-			->method('getIsVirtual')
-			->will($this->returnValue($isVirtual));
-		$item
-			->expects($this->any())
-			->method('getProduct')
-			->will($this->returnValue($prod));
-		$prod
-			->expects($this->any())
-			->method('getStockItem')
-			->will($this->returnValue($stockItem));
-		$stockItem
-			->expects($this->any())
-			->method('getManageStock')
-			->will($this->returnValue($isManaged));
-		return $item;
-	}
-	/**
 	 * Data provider for the testFilterInventoredItem test. Providers a quote item
 	 * and whether that item should be considered an "inventoried" item
 	 * @return array Arguments array with Mage_Sales_Model_Quote_Item and boolean
 	 */
 	public function providerFilterInventoriedItem()
 	{
+		$manageProduct = Mage::getModel(
+			'catalog/product',
+			array(
+				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
+					'manage_stock' => true,
+					'use_config_manage_stock' => false
+				)),
+			)
+		);
+		$noManageProduct = Mage::getModel(
+			'catalog/product',
+			array(
+				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
+					'manage_stock' => false,
+					'use_config_manage_stock' => false
+				)),
+			)
+		);
+
+		$singleItemManaged = Mage::getModel('sales/quote_item', array(
+			'product' => $manageProduct
+		));
+		$singleItemNoManaged = Mage::getModel('sales/quote_item', array(
+			'product' => $noManageProduct
+		));
+		$parentItemManagedChild = Mage::getModel('sales/quote_item', array(
+			'product' => $noManageProduct,
+		));
+		$parentItemNoManagedChild = Mage::getModel('sales/quote_item', array(
+			'product' => $noManageProduct,
+		));
+		$managedChildItem = Mage::getModel('sales/quote_item', array(
+			'product' => $manageProduct,
+			'parent_item_id' => 2,
+		));
+		$noManagedChildItem = Mage::getModel('sales/quote_item', array(
+			'product' => $noManageProduct,
+			'parent_item_id' => null,
+		));
+
+		// this will set up relationships for the parent and child
+		$managedChildItem->setParentItem($parentItemManagedChild);
+		$noManagedChildItem->setParentItem($parentItemNoManagedChild);
+
 		return array(
-			array($this->_stubQuoteItem(true, true), false),
-			array($this->_stubQuoteItem(false, false), false),
-			array($this->_stubQuoteItem(false, true), true),
+			array($singleItemManaged, true),
+			array($singleItemNoManaged, false),
+			array($parentItemManagedChild, true),
+			array($parentItemNoManagedChild, false),
+			array($managedChildItem, false),
+			array($noManagedChildItem, false),
 		);
 	}
 	/**

@@ -38,7 +38,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	{
 		$addressMock = $this->getMock(
 			'Mage_Sales_Model_Quote_Address',
-			array('getShippingMethod', 'getStreet', 'getCity', 'getRegion', 'getCountryId', 'getPostcode', 'getAllItems')
+			array('getShippingMethod', 'getStreet', 'getCity', 'getRegion', 'getCountryId', 'getPostcode')
 		);
 		$addressMock->expects($this->any())
 			->method('getShippingMethod')
@@ -93,11 +93,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 			)
 		);
 
-		$addressMock->expects($this->any())
-			->method('getAllItems')
-			->will($this->returnValue(array($itemMock))
-			);
-
 		$itemMock->expects($this->any())
 			->method('getQty')
 			->will($this->returnValue(1)
@@ -142,7 +137,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 
 		$quoteMock = $this->getMock(
 			'Mage_Sales_Model_Quote',
-			array('getAllItems', 'getShippingAddress', 'getItemById', 'save', 'getAllAddresses', 'deleteItem')
+			array('getAllVisibleItems', 'getShippingAddress', 'getItemById', 'save', 'getAllAddresses', 'deleteItem')
 		);
 
 		$itemMock->expects($this->any())
@@ -151,7 +146,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 			);
 
 		$quoteMock->expects($this->any())
-			->method('getAllItems')
+			->method('getAllVisibleItems')
 			->will($this->returnValue(array($itemMock))
 			);
 		$quoteMock->expects($this->any())
@@ -270,10 +265,10 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 
 		$quoteMock = $this->getMock(
 			'Mage_Sales_Model_Quote',
-			array('getAllItems')
+			array('getAllVisibleItems')
 		);
 		$quoteMock->expects($this->any())
-			->method('getAllItems')
+			->method('getAllVisibleItems')
 			->will($this->returnValue(array($itemMock))
 			);
 
@@ -342,14 +337,14 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 			->method('hasEb2cReservedAt')
 			->will($this->returnValue(true));
 
-		$notExpiredQuote = $this->getModelMock('sales/quote', array('getAllItems'));
+		$notExpiredQuote = $this->getModelMock('sales/quote', array('getAllVisibleItems'));
 		$notExpiredQuote->expects($this->any())
-			->method('getAllItems')
+			->method('getAllVisibleItems')
 			->will($this->returnValue(array($notExpiredItem)));
 
-		$expiredQuote = $this->getModelMock('sales/quote', array('getAllItems'));
+		$expiredQuote = $this->getModelMock('sales/quote', array('getAllVisibleItems'));
 		$expiredQuote->expects($this->any())
-			->method('getAllItems')
+			->method('getAllVisibleItems')
 			->will($this->returnValue(array($expiredItem, $notExpiredItem)));
 
 		return array(
@@ -562,9 +557,9 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	 */
 	protected function _createQuoteStubWithItems($items)
 	{
-		$quote = $this->getModelMock('sales/quote', array('getAllItems'));
+		$quote = $this->getModelMock('sales/quote', array('getAllVisibleItems'));
 		$quote->expects($this->any())
-			->method('getAllItems')
+			->method('getAllVisibleItems')
 			->will($this->returnValue($items));
 		return $quote;
 	}
@@ -656,47 +651,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	}
 
 	/**
-	 * verify the helper is called to translate the shipping method
-	 */
-	public function testBuildAllocationRequestMessageShippingMethod()
-	{
-		$item = $this->getModelMock('sales/quote_item', array('getQty', 'setQty'));
-		$item->expects($this->any())
-			->method('getQty')
-			->will($this->returnValue(1));
-
-		$address = $this->getModelMock('sales/quote_address', array('getShippingMethod', 'getAllItems'));
-		$address->expects($this->any())
-			->method('getShippingMethod')
-			->will($this->returnValue('mage_ship_method'));
-		$address->expects($this->any())
-			->method('getAllItems')
-			->will($this->returnValue(array()));
-
-		$quote = $this->getModelMock('sales/quote', array('getAllAddresses', 'getShippingAddress'));
-		$quote->expects($this->any())
-			->method('getAllAddresses')
-			->will($this->returnValue(array($address)));
-		$quote->expects($this->any())
-			->method('getShippingAddress')
-			->will($this->returnValue($address));
-
-		$helper = $this->getHelperMock('eb2ccore/data', array('lookupShipMethod'));
-		$helper->expects($this->atLeastOnce())
-			->method('lookupShipMethod')
-			->with($this->identicalTo('mage_ship_method'))
-			->will($this->throwException(new Mage_Core_Exception('Test Complete')));
-		$this->replaceByMock('helper', 'eb2ccore', $helper);
-		$this->setExpectedException('Mage_Core_Exception', 'Test Complete');
-
-		$testModel = $this->getModelMock('eb2cinventory/allocation', array('getInventoriedItems'));
-		$testModel->expects($this->once())
-			->method('getInventoriedItems')
-			->will($this->returnValue(array($item)));
-		$this->_reflectMethod($testModel, '_buildAllocationRequestMessage')->invoke($testModel, $quote);
-	}
-
-	/**
 	 * Testing _buildAllocationRequestMessage method
 	 * @test
 	 */
@@ -718,14 +672,11 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 
 		$address = $this->getModelMockBuilder('sales/quote_address')
 			->disableOriginalConstructor()
-			->setMethods(array('getShippingMethod', 'getAllItems', 'getStreet', 'getCity', 'getRegionCode', 'getCountryId', 'getPostcode'))
+			->setMethods(array('getShippingMethod', 'getStreet', 'getCity', 'getRegionCode', 'getCountryId', 'getPostcode'))
 			->getMock();
 		$address->expects($this->once())
 			->method('getShippingMethod')
 			->will($this->returnValue('mage_ship_method'));
-		$address->expects($this->any())
-			->method('getAllItems')
-			->will($this->returnValue(array()));
 		$address->expects($this->once())
 			->method('getStreet')
 			->with($this->equalTo(1))
@@ -745,11 +696,11 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 
 		$quote = $this->getModelMockBuilder('sales/quote')
 			->disableOriginalConstructor()
-			->setMethods(array('getAllAddresses', 'getShippingAddress'))
+			->setMethods(array('getAllVisibleItems', 'getShippingAddress'))
 			->getMock();
 		$quote->expects($this->once())
-			->method('getAllAddresses')
-			->will($this->returnValue(array($address)));
+			->method('getAllVisibleItems')
+			->will($this->returnValue(array($item)));
 		$quote->expects($this->once())
 			->method('getShippingAddress')
 			->will($this->returnValue($address));
@@ -764,13 +715,13 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 			->will($this->returnValue('ANY_STD'));
 		$this->replaceByMock('helper', 'eb2ccore', $helper);
 
-		$testModel = $this->getModelMockBuilder('eb2cinventory/allocation')
-			->disableOriginalConstructor()
-			->setMethods(array('getInventoriedItems'))
-			->getMock();
-		$testModel->expects($this->once())
+		$invHelper = $this->getHelperMock('eb2cinventory/data', array('getInventoriedItems'));
+		$invHelper->expects($this->once())
 			->method('getInventoriedItems')
-			->will($this->returnValue(array($item)));
+			->will($this->returnArgument(0));
+		$this->replaceByMock('helper', 'eb2cinventory', $invHelper);
+
+		$testModel = Mage::getModel('eb2cinventory/allocation');
 		$this->assertInstanceOf(
 			'DOMDocument',
 			$this->_reflectMethod($testModel, '_buildAllocationRequestMessage')->invoke($testModel, $quote)

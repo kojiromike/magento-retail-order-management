@@ -90,15 +90,38 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 		return implode('-', array($cfg->clientId, $cfg->storeId, $entityId));
 	}
 	/**
-	 * Determine if the item's stock is managed via the inventory service. Return true
-	 * if it is, false if not. Items whose product is marked as managed stock and is not
-	 * virtual should be considered to have stock managed via the inventory service.
+	 * Test if the item needs to have its quantity checked for available
+	 * inventory.
 	 * @param  Mage_Sales_Model_Quote_Item $item The item to check
 	 * @return bool True if inventory is managed, false if not
 	 */
 	public function isItemInventoried(Mage_Sales_Model_Quote_Item $item)
 	{
-		return (bool) ($item->getProduct()->getStockItem()->getManageStock() && !$item->getIsVirtual());
+		// never consider a child product as inventoried, allow the parent deal
+		// with inventory and let the child not need to worry about it as the parent
+		// will be the item to keep track of qty being ordered.
+		// Both checks needed as child items will not have a parent item id prior
+		// to being saved and a parent item prior to being added to the parent (e.g.
+		// immediately after being loaded from the DB).
+		if ($item->getParentItemId() || $item->getParentItem()) {
+			return false;
+		}
+		// when dealing with parent items, if any child of the product is managed
+		// stock, consider the entire item as managed stock - allows for the parent
+		// config product in the quote to deal with inventory while allowing child
+		// products to not care individually
+		if ($item->getHasChildren()) {
+			foreach ($item->getChildren() as $childItem) {
+				if ($childItem->getProduct()->getStockItem()->getManageStock()) {
+					return true;
+				}
+			}
+			// if none of the children were managed stock, the parent is not inventoried
+			return false;
+		}
+		// if dealing with a standalone product, no parent or children, use the
+		// manage stock setting of that product
+		return $item->getProduct()->getStockItem()->getManageStock();
 	}
 	/**
 	 * Filter the array of items down to only those that have stock levels managed by the inventory service

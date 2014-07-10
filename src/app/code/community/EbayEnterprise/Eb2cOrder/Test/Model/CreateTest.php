@@ -167,6 +167,9 @@ INVALID_XML;
 			->method('count')
 			->will($this->returnValue(2));
 
+		$create = $this->getModelMockBuilder('eb2corder/create')
+			->getMock();
+
 		$request = $this->_reflectProperty($create, '_domRequest');
 		$request->setValue($create, Mage::helper('eb2ccore')->getNewDomDocument());
 		$taxFragment = $this->_reflectMethod($create, '_buildTaxDataNodes')->invoke($create, $taxQuotesCollection, '77');
@@ -1550,6 +1553,7 @@ INVALID_XML;
 		$ruleSimpleAction = 'by_percent';
 		$type = EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE_PROMOTION;
 		$taxCollection = Mage::getResourceModel('eb2ctax/response_quote_collection');
+		$taxCode = '77'; // A stub value
 
 		$xml = '<_></_>';
 		$doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
@@ -1590,11 +1594,11 @@ INVALID_XML;
 
 		$create = $this->getModelMockBuilder('eb2corder/create')
 			->disableOriginalConstructor()
-			->setMethods(array('_buildTaxDataNodes', 'getItemTaxQuotes'))
+			->setMethods(array('_buildTaxDataNodes', 'getItemTaxQuotes', '_getProductTaxCode'))
 			->getMock();
 		$create->expects($this->once())
 			->method('_buildTaxDataNodes')
-			->with($this->identicalTo($taxCollection), $this->identicalTo($item))
+			->with($this->identicalTo($taxCollection), $this->identicalTo($taxCode))
 			->will($this->returnValue($fragment));
 		$create->expects($this->once())
 			->method('getItemTaxQuotes')
@@ -1603,6 +1607,12 @@ INVALID_XML;
 				$this->identicalTo($type)
 			)
 			->will($this->returnValue($taxCollection));
+		$create->expects($this->once())
+			->method('_getProductTaxCode')
+			->with(
+				$this->identicalTo($item)
+			)
+			->will($this->returnValue($taxCode));
 
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
 

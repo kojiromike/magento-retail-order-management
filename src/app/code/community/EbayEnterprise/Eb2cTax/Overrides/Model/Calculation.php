@@ -22,6 +22,8 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 	const MERCHANDISE_TYPE = 0;
 	const SHIPPING_TYPE = 1;
 	const DUTY_TYPE = 2;
+	const GIFTING_TYPE = 6;
+	const SHIPGROUP_GIFTING_TYPE = 7;
 	/**
 	 * Extract tax data regular or discount
 	 * @param EbayEnterprise_Eb2cTax_Model_Response_Orderitem $itemResponse
@@ -48,9 +50,20 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 		if ($itemResponse) {
 			$taxQuotes = $this->_extractTax($itemResponse, $mode);
 			$taxMethod = $this->_isForAmountMode($mode)? 'getEffectiveRate' : 'getCalculatedTax';
-			$tax = array_reduce($taxQuotes, function ($result, $taxQuote) use ($taxMethod, $type, $amount) {
-				if ($type === $taxQuote->getType()) {
-					$result += ($taxMethod === 'getEffectiveRate')? $amount * $taxQuote->getEffectiveRate() : $taxQuote->getCalculatedTax();
+			/*
+			 * We have to group gift tax types into merchandise, so we keep the correct bottom-line totals
+			 * in Magento. This is a many-to-one squashing of tax amounts.
+			 */
+			$groupedTypes = array($type);
+			if ($type === static::MERCHANDISE_TYPE) {
+				$groupedTypes[] = static::GIFTING_TYPE;
+				$groupedTypes[] = static::SHIPGROUP_GIFTING_TYPE;
+			}
+			$tax = array_reduce($taxQuotes, function ($result, $taxQuote) use ($taxMethod, $groupedTypes, $amount) {
+				foreach ($groupedTypes as $oneType) {
+					if ($oneType === $taxQuote->getType()) {
+						$result += ($taxMethod === 'getEffectiveRate')? $amount * $taxQuote->getEffectiveRate() : $taxQuote->getCalculatedTax();
+					}
 				}
 				return $result;
 			});

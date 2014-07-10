@@ -2158,8 +2158,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML('<root></root>');
 		$docElement = $doc->documentElement;
+		$testQty = 2;
 
-		$quoteItem = array('gw_price' => 10.95);
+		$quoteItem = array('quantity' => $testQty, 'gw_price' => 10.95);
 		$data = array(
 			'eb2c_sku' => '65-GWTEST001',
 			'design' => 'GW Test Design',
@@ -2181,7 +2182,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'</ItemId><ItemDesc>' .
 			$data['design'] .
 			'</ItemDesc><Pricing><Amount>' .
-			$quoteItem['gw_price'] .
+			($quoteItem['gw_price'] * $testQty) .
 			'</Amount><TaxClass>' .
 			$data['eb2c_tax_class'] .
 			'</TaxClass><UnitPrice>' .

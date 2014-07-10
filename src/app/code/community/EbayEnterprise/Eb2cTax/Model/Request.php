@@ -890,10 +890,11 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		Enterprise_GiftWrapping_Model_Wrapping $giftwrapping
 	)
 	{
+		$qty = isset($quoteItem['quantity']) ? $quoteItem['quantity'] : 1;
 		$giftingNode->addChild('ItemId', sprintf('%.20s', $giftwrapping->getEb2cSku()))
 			->addChild('ItemDesc', sprintf('%.20s', $giftwrapping->getDesign()));
 		$pricingNode = $giftingNode->createChild('Pricing');
-		$pricingNode->addChild('Amount', Mage::app()->getStore()->roundPrice($quoteItem['gw_price']))
+		$pricingNode->addChild('Amount', Mage::app()->getStore()->roundPrice($qty*$quoteItem['gw_price']))
 			->addChild('TaxClass', sprintf('%.40s', $giftwrapping->getEb2cTaxClass()));
 		$pricingNode->addChild('UnitPrice', Mage::app()->getStore()->roundPrice($giftwrapping->getBasePrice()));
 

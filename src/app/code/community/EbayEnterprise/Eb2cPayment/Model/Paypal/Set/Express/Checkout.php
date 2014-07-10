@@ -26,6 +26,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 	 *
 	 * @param Mage_Sales_Model_Quote $quote the quote to generate request XML from
 	 * @return DOMDocument The XML document to be sent as request to eb2c.
+	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
 	 */
 	protected function _buildRequest(Mage_Sales_Model_Quote $quote)
 	{
@@ -42,14 +43,28 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 			sprintf('%.02f', (isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0)),
 			array('currencyCode' => $quote->getQuoteCurrencyCode())
 		);
-		// creating lineItems element
 		$lineItems = $payPalSetExpressCheckoutRequest->createChild('LineItems', null);
-		// add LineItemsTotal
+		// LineItemsTotal _must_ come first and I need to add in Gift Wrap. So I end up looping
+		// twice. Surely there's a more efficient way to do this.
+		$lineItemsTotal = isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0;
+		if ($quote) {
+			$lineItemsTotal += $quote->getGwPrice();
+			foreach ($quote->getAllAddresses() as $addresses) {
+				if ($addresses) {
+					foreach ($addresses->getAllItems() as $item) {
+						if ($item->getGwPrice()) {
+							$lineItemsTotal += $item->getGwPrice();
+						}
+					}
+				}
+			}
+		}
 		$lineItems->createChild(
 			'LineItemsTotal',
-			sprintf('%.02f', (isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0)),
+			sprintf('%.02f', $lineItemsTotal),
 			array('currencyCode' => $quote->getQuoteCurrencyCode())
 		);
+
 		// add ShippingTotal
 		$lineItems->createChild(
 			'ShippingTotal',
@@ -63,17 +78,25 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 			array('currencyCode' => $quote->getQuoteCurrencyCode())
 		);
 		if ($quote) {
-			foreach($quote->getAllAddresses() as $addresses){
-				if ($addresses){
+			if ($quote->getGwPrice()) {
+				$lineItem = $lineItems->createChild('LineItem', null);
+				$lineItem->createChild('Name', 'GiftWrap');
+				$lineItem->createChild('Quantity', '1');
+				$lineItem->createChild('UnitAmount', sprintf('%.02f', $quote->getGwPrice()), array('currencyCode' => $quote->getQuoteCurrencyCode()));
+			}
+			foreach($quote->getAllAddresses() as $addresses) {
+				if ($addresses) {
 					foreach ($addresses->getAllItems() as $item) {
-						// creating lineItem element
 						$lineItem = $lineItems->createChild('LineItem', null);
-						// add Name
 						$lineItem->createChild('Name', (string) $item->getName());
-						// add Quantity
 						$lineItem->createChild('Quantity', (string) $item->getQty());
-						// add UnitAmount
 						$lineItem->createChild('UnitAmount', sprintf('%.02f', $item->getPrice()), array('currencyCode' => $quote->getQuoteCurrencyCode()));
+						if ($item->getGwPrice()) {
+							$lineItem = $lineItems->createChild('LineItem', null);
+							$lineItem->createChild('Name', 'ItemGiftWrap');
+							$lineItem->createChild('Quantity', '1');
+							$lineItem->createChild('UnitAmount', sprintf('%.02f', $item->getGwPrice()), array('currencyCode' => $quote->getQuoteCurrencyCode()));
+						}
 					}
 				}
 			}

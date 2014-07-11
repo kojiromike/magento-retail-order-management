@@ -81,15 +81,15 @@ A Magento site operates in either _Import_ or _Export_ mode. This is an XML conf
 * In _Import_ mode, the ROMS platform is the system of record: ROMS sends Item, Content and Pricing information _to_ the Magento platform in the form of data feeds. For a complete description and details about how to configure _Import_ mode, please refer to [Product Import](PRODUCT_IMPORT.md).
 
 * In _Export_ mode, the Magento platform is the system of record: the Magento store sends data to the ROMS Platform. For a complete description and details about how to configure _Export_ mode, please refer to [Magento as a Product Information Management System](PRODUCT_EXPORT.md).
- 
+
 
 ##Features and Capabilities
 Regardless of the mode of operation, the ROM Extension enables all of the following features on the Magento platform.
 
 ### Order Services
-* Orders are accepted realtime into ROMS from the Magento store. Order History is made available to registered users of the store.
+* Orders are accepted realtime into ROMS from the Magento store.
 
-* Order events are periodically published as a _feed_ to the Magento store - e.g., shipping details and/ or price adjustments by customer service.
+* Customer order history for registered users and guest order search is pulled from ROMS in realtime.
 
 ###Product Management
 In an _Import_ mode Magento store, product data, images, pricing information and content are published to the Magento store. All data is automatically updated.
@@ -123,8 +123,8 @@ Payment Service offers automatic updates and seamless processor additions withou
 
 ###Fraud Management
 Automatically collected fraud analysis data is submitted with each order. Industry leading, precise screening leads to fewer false positives and minimizes order delays and cancellations.
- 
- 
+
+
 ###Taxes, Duties and Fees
 Centralize and secure calculation and processing of taxes, duties and fees.
 
@@ -137,7 +137,7 @@ Centralize and secure calculation and processing of taxes, duties and fees.
 
 
 ###Address Validation
-Address Validation Service ensures that complete and accurate customer address information is collected at the time of order. Should an address fail validation, the customer is presented with a (configurable) number of alternative addresses. 
+Address Validation Service ensures that complete and accurate customer address information is collected at the time of order. Should an address fail validation, the customer is presented with a (configurable) number of alternative addresses.
 
 ![address-config](static/rom-ov-address-config.png)
 
@@ -159,4 +159,4 @@ Custom Attributes are fully supported at any level
 *  Order _Item_ level.
 
 A simple XML mapping configuration allows Order Attributes to be handled end to end.  For a complete description and details about how to configure Custom Order Attributes, please refer to [Mapping Order Create Custom Attributes](ORDER_CUSTOM_ATTRIBUTES.md).
- 
+

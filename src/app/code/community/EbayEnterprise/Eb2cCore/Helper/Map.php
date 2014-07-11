@@ -13,21 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-/**
- * Functions to help extracting data from xml.
- *
- * Each function is passed a DOMNodeList of nodes matching the configured xpath expression and the product object currently being processed.
- *
- * @example: public function prototypicalMapFunction(DOMNodeList $nodes, Mage_Catalog_Model_Product $product);
- *
- * <code>
- * // Return the mapped type_id if the product doesn't already have one.
- * // Otherwise return the product's existing value.
- * public function getTypeIdIfNew(DOMNodeList $nodes, Mage_Catalog_Model_Product $product) {
- *   return $product->getTypeId() ?: $nodes->item(0)->nodeValue;
- * }
- * </code>
- */
 class EbayEnterprise_Eb2cCore_Helper_Map
 {
 	/**
@@ -85,11 +70,9 @@ class EbayEnterprise_Eb2cCore_Helper_Map
 	{
 		return false;
 	}
-
 	/**
 	 * return a sum of the data for all elements retrieved by the xpath.
-	 *
-	 * @param DOMNodeList $nodes
+	 * @param DOMNodeList $value
 	 * @return float
 	 */
 	public function extractFloatSum(DOMNodeList $nodes)

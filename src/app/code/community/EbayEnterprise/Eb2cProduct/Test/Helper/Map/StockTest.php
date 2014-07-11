@@ -103,12 +103,16 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_StockTest
 
 		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
-			->setMethods(array('extractNodeVal'))
+			->setMethods(array('extractNodeVal', 'parseBool'))
 			->getMock();
 		$coreHelperMock->expects($this->once())
 			->method('extractNodeVal')
 			->with($this->identicalTo($nodes))
 			->will($this->returnValue($value));
+		$coreHelperMock->expects($this->once())
+			->method('parseBool')
+			->with($this->identicalTo($mapValue))
+			->will($this->returnValue($valueToBool));
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 
 		$stockHelperMock = $this->getHelperMockBuilder('eb2cproduct/map_stock')

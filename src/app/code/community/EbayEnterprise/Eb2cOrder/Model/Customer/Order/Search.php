@@ -15,21 +15,41 @@
 class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Search
 {
 	/**
-	 * Cutomer Order Search from eb2c, when orderId parameter is passed the request to eb2c is filter
-	 * by customerOrderId instead of querying eb2c by the customer id to get all order relating to this customer
+	 * Get order summary data, filtered by a customer id and optionally an
+	 * order id.
+	 * @param  string $customerId
+	 * @param  string $orderId
+	 * @return array Varien_Objects containing summary data
+	 */
+	public function getOrderSummaryData($customerId, $orderId='')
+	{
+		return $this->parseResponse($this->requestOrderSummary($customerId, $orderId));
+	}
+	/**
+	 * Customer Order Search from eb2c, when orderId parameter is passed the
+	 * request to eb2c is filtered by customerOrderId instead of querying eb2c by
+	 * customer id to get all order relating to this customer.
 	 * @param int $customerId, the magento customer id to query eb2c with
 	 * @param string $orderId, the magento order increment id to query eb2c with
 	 * @return string the eb2c response to the request.
 	 */
 	public function requestOrderSummary($customerId, $orderId='')
 	{
-		$cfg = Mage::helper('eb2corder')->getConfig();
-		// make request to eb2c for Customer OrderSummary
-		return Mage::getModel('eb2ccore/api')->request(
-			$this->buildOrderSummaryRequest($customerId, $orderId),
-			$cfg->xsdFileSearch,
-			Mage::helper('eb2ccore')->getApiUri($cfg->apiSearchService, $cfg->apiSearchOperation)
-		);
+		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$helper = Mage::helper('eb2corder');
+		// look for a cached response for this customer id and order id
+		$cachedResponse = $helper->getCachedOrderSummaryResponse($customerId, $orderId);
+		if ($cachedResponse) {
+			$response = $cachedResponse;
+		} else {
+			$response = Mage::getModel('eb2ccore/api')->request(
+				$this->buildOrderSummaryRequest($customerId, $orderId),
+				$cfg->xsdFileSearch,
+				Mage::helper('eb2ccore')->getApiUri($cfg->apiSearchService, $cfg->apiSearchOperation)
+			);
+			$helper->updateOrderSummaryResponseCache($customerId, $orderId, $response);
+		}
+		return $response;
 	}
 
 	/**

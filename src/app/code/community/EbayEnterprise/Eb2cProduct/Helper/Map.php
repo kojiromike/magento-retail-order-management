@@ -28,7 +28,7 @@
  * }
  * </code>
  */
-class EbayEnterprise_Eb2cProduct_Helper_Map extends EbayEnterprise_Eb2cCore_Helper_Map
+class EbayEnterprise_Eb2cProduct_Helper_Map
 {
 	const TYPE_GIFTCARD = 'giftcard';
 	/**
@@ -68,7 +68,6 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends EbayEnterprise_Eb2cCore_Help
 			Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH:
 			Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE;
 	}
-
 	/**
 	 * extract the first element of a dom node list make sure it is lower case
 	 * if there's no item in the DOMNodeList return the default simple product type constant value

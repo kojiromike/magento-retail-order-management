@@ -13,20 +13,16 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Shipment extends Mage_Sales_Block_Order_Shipment
+class EbayEnterprise_Eb2cOrder_Model_Detail_Item
+	extends Mage_Sales_Model_Order_Item
 {
-	/**
-	 * @see parent::getPrintShipmentUrl()
-	 * override the default to ensure the order_id and shipment_id are always included
-	 * in the url.
-	 * @param EbayEnterprise_Eb2cOrder_Model_Detail_Shipment $shipment
-	 * @return string
-	 */
-	public function getPrintShipmentUrl($shipment)
+	protected function _construct()
 	{
-		return Mage::getUrl('*/*/printOrderShipment', array(
-			'order_id' => $this->getOrder()->getId(),
-			'shipment_id' => $shipment->getId()
-		));
+		parent::_construct();
+		// an item must have a valid product id in order for the
+		// reorder link to work see Mage_Sales_Model_Order::_canReorder method
+		if (!$this->getProductId()) {
+			$this->setProductId(Mage::getModel('catalog/product')->getIdBySku($this->getSku()));
+		}
 	}
 }

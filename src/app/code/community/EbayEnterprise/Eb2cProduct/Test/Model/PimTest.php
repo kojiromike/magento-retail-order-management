@@ -453,6 +453,16 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 			->disableOriginalConstructor()
 			->getMock();
 
+		$helperMock = $this->getHelperMockBuilder('eb2ccore/data')
+			->disableOriginalConstructor()
+			->setMethods(array('parseBool'))
+			->getMock();
+		$helperMock->expects($this->once())
+			->method('parseBool')
+			->with($this->identicalTo($isValidate))
+			->will($this->returnValue(true));
+		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
+
 		$pimProductCollection = $this->getModelMockBuilder('eb2cproduct/pim_product_collection')
 			->disableOriginalConstructor()
 			->setMethods(array('getItems'))

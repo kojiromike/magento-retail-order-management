@@ -89,6 +89,13 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 	 */
 	public function testMapEb2cStatus()
 	{
+		// clear out the helper's order status cache so it will get populated
+		// with the fixture data
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
+			Mage::helper('eb2corder'),
+			'_orderStatusCollection',
+			null
+		);
 		$aKnownEb2cStatus = 'Some Test Value Called Horse';
 		$this->assertSame(
 			'reined_in',
@@ -99,6 +106,14 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 		$this->assertSame(
 			'new',
 			Mage::helper('eb2corder')->mapEb2cOrderStatusToMage($anUnknownEb2cStatus)
+		);
+
+		// clear out the helper's order status cache so it doesn't stay populated
+		// with the fixture data
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
+			Mage::helper('eb2corder'),
+			'_orderStatusCollection',
+			null
 		);
 	}
 
@@ -153,51 +168,171 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 		$this->assertSame('1238888888', $orderHelper->removeOrderIncrementPrefix('1238888888'));
 	}
 	/**
-	 * verify only orders that exist in both eb2c and magento are displayed.
+	 * Test getting a collection of orders for use when displaying an order
+	 * history summary.
 	 */
 	public function testGetCurCustomerOrders()
 	{
-		$customerSession = $this->getModelMock('customer/session', array('getCustomer'), false, array(), null, false);
-		$this->replaceByMock('singleton', 'customer/session', $customerSession);
-		$customer = $this->getModelMockBuilder('customer/customer')->disableOriginalConstructor()->getMock();
-		$orderSearch = $this->getModelMock('eb2corder/customer_order_search', array('parseResponse', 'requestOrderSummary'));
+		// data for the order, some of which should end up somewhere on the order
+		$orderIncrementId = '000120000001';
+		$customerPrefix = '0001';
+		$customerId = 7;
+		// expected parsed data coming from the service API call
+		$orderSummaries = array(
+			$orderIncrementId => new Varien_Object(array(
+				'customer_order_id' => $orderIncrementId,
+				'customer_id' => $customerPrefix . $customerId,
+			)),
+			'increment-not-in-mage' => new Varien_Object(array(
+				'customer_order_id' => 'increment-not-in-mage',
+				'customer_id' => $customerPrefix . $customerId,
+			)),
+		);
+
+		// mock out the eb2ccore/data helper's config - script the customer id prefix
+		$coreHelper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$coreHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array('clientCustomerIdPrefix' => $customerPrefix))));
+		$this->replaceByMock('helper', 'eb2ccre', $coreHelper);
+
+		// mock out the order search model which is responsible for getting
+		// the order summary data via an API call
+		$orderSearch = $this->getModelMock('eb2corder/customer_order_search', array('getOrderSummaryData'));
+		$orderSearch->expects($this->once())
+			->method('getOrderSummaryData')
+			->will($this->returnValue($orderSummaries));
 		$this->replaceByMock('model', 'eb2corder/customer_order_search', $orderSearch);
-		$config = $this->buildCoreConfigRegistry(array('clientCustomerIdPrefix' => '8888'));
-		$this->replaceByMock('model', 'eb2ccore/config_registry', $config);
 
-		$customerSession->expects($this->any())->method('getCustomer')->will($this->returnValue($customer));
-		$orderModelStub = $this->getModelMockBuilder('eb2corder/customer_order_detail_order_adapter')
-			->setMethods(array('getId', 'loadByIncrementId'))
-			->disableOriginalConstructor()
-			->getMock();
-		$this->replaceByMock('model', 'eb2corder/customer_order_detail_order_adapter', $orderModelStub);
+		// current logged in customer
+		$customer = Mage::getModel('customer/customer', array('entity_id' => $customerId));
 
-		$orderModelStub->expects($this->any())
-			->method('loadByIncrementId')
+		$orderHelper = $this->getHelperMock('eb2corder/data', array('_getCurrentCustomer'));
+		$orderHelper->expects($this->any())
+			->method('_getCurrentCustomer')
+			->will($this->returnValue($customer));
+
+		$orderCollection = $orderHelper->getCurCustomerOrders();
+		// Ensure an eb2corder/summary_order_collection is returned
+		$this->assertInstanceOf(
+			'EbayEnterprise_Eb2cOrder_Model_Resource_Summary_Order_Collection',
+			$orderCollection
+		);
+		// Using assertEquals false as this don't need to be strictly false, but
+		// must be a falsey value (such as null) to indicate the collection has
+		// yet to be loaded - collection must not have been loaded yet so pagination
+		// or other filters can still be applied. Also means this test must be
+		// careful not to trigger the collection::load.
+		$this->assertEquals(false, $orderCollection->isLoaded());
+		// returned collection must have the customer id matching the customer id
+		// the request was made for - should be Magento customer id, not prefixed
+		$this->assertSame($customerId, $orderCollection->getCustomerId());
+	}
+	/**
+	 * Test getting orders where thare is not a customer logged in. Should return
+	 * an empty order collection.
+	 */
+	public function testGetCurCustomerOrdersNoCustomer()
+	{
+		$emptyCollection = $this->getResourceModelMock('sales/order_collection', array('isLoaded', 'addFieldToFilter'));
+		$emptyCollection->expects($this->any())
+			->method('isLoaded')
+			->will($this->returnValue(true));
+
+		// assertion that the collection is guaranteed to be empty - filter by
+		// entity id, pk, equals null
+		$emptyCollection->expects($this->atLeastOnce())
+			->method('addFieldToFilter')
+			->with($this->identicalTo('entity_id'), $this->isNull())
 			->will($this->returnSelf());
-		// one call will return null to simulate one of
-		// the orders not existing in magento
-		$orderModelStub->expects($this->any())
-			->method('getId')
-			->will($this->onConsecutiveCalls(1, null));
 
-		// stub helper cuz stub mapeb2corderstatustomage called
-		$helper = $this->getHelperMock('eb2corder/data', array('mapEb2cOrderStatusToMage'));
-		$this->replaceByMock('helper', 'eb2corder', $helper);
+		$helper = $this->getHelperMock(
+			'eb2corder/data',
+			array('_getPrefixedCurrentCustomerId', '_getSummaryOrderCollection')
+		);
+		// simulate no current customer
 		$helper->expects($this->any())
-			->method('mapEb2cOrderStatusToMage')
-			->will($this->returnValue('status'));
+			->method('_getPrefixedCurrentCustomerId')
+			->will($this->returnValue(null));
+		// swap out mocked order collection
+		$helper->expects($this->once())
+			->method('_getSummaryOrderCollection')
+			->will($this->returnValue($emptyCollection));
+		// make the call to ensure proper behavior of collection filtering
+		$orders = $helper->getCurCustomerOrders();
+	}
+	/**
+	 * Provide a customer id, configured customer id prefix and the fully prefixed id
+	 * @return array
+	 */
+	public function provideCustomerId()
+	{
+		$prefix = '0001';
+		$customerId = '3';
+		return array(
+			array($customerId, $prefix, $prefix . $customerId),
+			array(null, $prefix, null),
+		);
+	}
+	/**
+	 * Test getting the current user id, prefixed by the configured client
+	 * customer id prefix.
+	 * @param string|null $customer Customer retrieved from the session
+	 * @param string $prefix Client customer id prefix
+	 * @param string|null $prefixedId prefixed customer id
+	 * @dataProvider provideCustomerId
+	 */
+	public function testGetPrefixedCurrentCustomerId($customerId, $prefix, $prefixedId)
+	{
+		$customer = Mage::getModel('customer/customer', array('entity_id' => $customerId));
+		// when no existing customer logged in, session will return empty customer
+		$customerSession = $this->getModelMockBuilder('customer/session')
+			->disableOriginalConstructor()
+			->setMethods(array('getCustomer'))
+			->getMock();
+		$customerSession->expects($this->any())
+			->method('getCustomer')
+			->will($this->returnValue($customer));
+		$customerSession->setCustomer($customer);
+		$this->replaceByMock('singleton', 'customer/session', $customerSession);
 
-		$orderSearch->expects($this->any())
-			->method('parseResponse')
-			->will($this->returnValue(array(
-				'order-exists' => new Varien_Object(),
-				'order-not-exist' => new Varien_Object()
-			)));
+		$coreHelper = $this->getHelperMock('eb2corder/data', array('getConfigModel'));
+		$coreHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array('clientCustomerIdPrefix' => $prefix))));
+		$this->replaceByMock('helper', 'eb2corder', $coreHelper);
 
-		$expectedOrders = array($orderModelStub);
-		$orderCollection = $helper->getCurCustomerOrders();
+		$helper = Mage::helper('eb2corder');
+		$this->assertSame(
+			$prefixedId,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, '_getPrefixedCurrentCustomerId')
+		);
+	}
+	/**
+	 * Test getting an order summary response from cache
+	 */
+	public function testGetCachedOrderSummaryResponse()
+	{
+		$helper = Mage::helper('eb2corder');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
+			$helper,
+			'_orderSummaryResponses',
+			array(
+				'00001-' => '<customerIdOnly/>',
+				'00001-12341234' => '<customerAndOrderId/>',
+			)
+		);
+		// search by just customer id, customer id and order id
+		$this->assertSame('<customerIdOnly/>', $helper->getCachedOrderSummaryResponse('00001', ''));
+		$this->assertSame('<customerAndOrderId/>', $helper->getCachedOrderSummaryResponse('00001', '12341234'));
+		// non-cached searches should return null - nothing found, nothing to return
+		$this->assertNull($helper->getCachedOrderSummaryResponse('00006', '12341234'));
 
-		$this->assertSame($orderCollection->getItems(), $expectedOrders);
+		// empty out the cache so as to not disrupt other test runs
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
+			$helper,
+			'_orderSummaryResponses',
+			array()
+		);
 	}
 }

@@ -22,7 +22,11 @@
 		<models>
 			<eb2corder>
 				<class>EbayEnterprise_Eb2cOrder_Model</class>
+				<resourceModel>eb2corder_resource</resourceModel>
 			</eb2corder>
+			<eb2corder_resource>
+				<class>EbayEnterprise_Eb2cOrder_Model_Resource</class>
+			</eb2corder_resource>
 			<enterprise_rma>
 				<rewrite>
 					<rma>EbayEnterprise_Eb2cOrder_Overrides_Model_Enterprise_Rma</rma>
@@ -36,7 +40,6 @@
 			<sales>
 				<rewrite>
 					<data>EbayEnterprise_Eb2cOrder_Overrides_Helper_Sales</data>
-					<guest>EbayEnterprise_Eb2cOrder_Overrides_Helper_Sales_Guest</guest>
 				</rewrite>
 			</sales>
 			<shipping>
@@ -50,11 +53,7 @@
 				<rewrite>
 					<order_history>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History</order_history>
 					<order_recent>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Recent</order_recent>
-					<order_info>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Info</order_info>
-					<order_view>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_View</order_view>
-					<order_print>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Print</order_print>
 					<order_shipment>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Shipment</order_shipment>
-					<order_print_shipment>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Print_Shipment</order_print_shipment>
 					<order_shipment_items>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Shipment_Items</order_shipment_items>
 				</rewrite>
 			</sales>
@@ -110,10 +109,118 @@
 		</jobs>
 	</crontab>
 	<frontend>
+		<events>
+			<controller_action_layout_render_before_sales_guest_view>
+				<observers>
+					<eb2corder_observer>
+						<class>eb2corder/observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_view>
+			<controller_action_layout_render_before_sales_guest_shipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_shipment>
+			<controller_action_layout_render_before_sales_guest_print>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_print>
+			<controller_action_layout_render_before_sales_guest_printShipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_printShipment>
+			<controller_action_layout_render_before_sales_order_view>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_order_view>
+			<controller_action_layout_render_before_sales_order_shipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_order_shipment>
+			<controller_action_layout_render_before_sales_guest_view>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_view>
+			<controller_action_layout_render_before_sales_guest_shipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_shipment>
+			<controller_action_layout_render_before_sales_order_printOrderShipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>prepareForPrintShipment</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_order_printOrderShipment>
+			<controller_action_layout_render_before_sales_guest_printOrderShipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>prepareForPrintShipment</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_printOrderShipment>
+			<eb2corder_summary_collection_load_after>
+				<observers>
+					<eb2corder_update_order_collection_with_summary_data>
+						<class>eb2corder/observer</class>
+						<method>updateOrdersWithSummaryData</method>
+					</eb2corder_update_order_collection_with_summary_data>
+				</observers>
+			</eb2corder_summary_collection_load_after>
+		</events>
+		<routers>
+			<sales>
+				<args>
+					<modules>
+						<ebayenterprise_eb2corder before="Mage_Sales">EbayEnterprise_Eb2cOrder</ebayenterprise_eb2corder>
+					</modules>
+				</args>
+			</sales>
+		</routers>
 		<layout>
 			<updates>
 				<ebayenterprise_eb2corder module="EbayEnterprise_Eb2cOrder">
-					<file>eb2corder_frontend.xml</file>
+					<file>eb2corder.xml</file>
 				</ebayenterprise_eb2corder>
 			</updates>
 		</layout>
@@ -172,6 +279,16 @@
 			</api>
 			<api_search_service>customers</api_search_service>
 			<api_search_operation>orders/get</api_search_operation>
+			<api_status_handler>
+				<alert_level>silent</alert_level>
+				<status>
+					<client_error>
+						<callback>
+							<method>returnEmpty</method>
+						</callback>
+					</client_error>
+				</status>
+			</api_status_handler>
 			<xsd>
 				<create_file>Order-Service-Create-1.0.xsd</create_file>
 				<cancel_file>Order-Service-Cancel-1.0.xsd</cancel_file>
@@ -468,12 +585,12 @@
 						<method>extractStringValue</method>
 						<xpath>@id</xpath>
 					</increment_id>
-					<tracks_collection>
+					<tracks>
 						<class>eb2corder/map</class>
 						<type>helper</type>
-						<method>extractTrackingData</method>
-						<xpath>a:ShippedItems/*</xpath>
-					</tracks_collection>
+						<method>extractListAsArray</method>
+						<xpath>a:ShippedItems/a:ShippedItem/a:TrackingNumbers</xpath>
+					</tracks>
 					<shipped_item_ids>
 						<class>eb2corder/map</class>
 						<type>helper</type>

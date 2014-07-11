@@ -13,18 +13,33 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore_Test_Base
+class EbayEnterprise_Eb2cCore_Test_Helper_MapTest
+	extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	/**
+	 * @var EbayEnterprise_Dom_Document
+	 */
+	protected $_doc;
+
+	public function setUp()
+	{
+		parent::setUp();
+		$this->_doc = Mage::helper('eb2ccore')->getNewDomDocument();
+	}
+	public function tearDown()
+	{
+		parent::tearDown();
+		$this->_doc = null;
+	}
+	/**
 	 * Test extractStringValue method for the following expectations
-	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cProduct_Helper_Map::extractStringValue method with a known
+	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cCore_Helper_Map::extractStringValue method with a known
 	 *                DOMNodeList object the method is then expected to return a string value extract from the
 	 *                DOMNodeList object
 	 */
 	public function testExtractStringValue()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML(
+		$this->_doc->loadXML(
 			'<ItemMaster>
 				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
 					<ItemId>
@@ -33,29 +48,27 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 				</Item>
 			</ItemMaster>'
 		);
-		$xpath = new DOMXPath($doc);
+		$xpath = Mage::helper('eb2ccore')->getNewDomXPath($this->_doc);
 		$this->assertSame(
 			'45-2BCEC162',
-			Mage::helper('eb2cproduct/map')->extractStringValue(
-				$xpath->query('Item/ItemId/ClientItemId', $doc->documentElement),
+			Mage::helper('eb2ccore/map')->extractStringValue(
+				$xpath->query('Item/ItemId/ClientItemId', $this->_doc->documentElement),
 				Mage::getModel('catalog/product')
 			)
 		);
 	}
-
 	/**
 	 * Test extractBoolValue method for the following expectations
-	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cProduct_Helper_Map::extractBoolValue method with a known
+	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cCore_Helper_Map::extractBoolValue method with a known
 	 *                DOMNodeList object. The method is then expected to return a boolean value extract from the
 	 *                DOMNodeList object
-	 * Expectation 2: the EbayEnterprise_Eb2cProduct_Helper_Data::parseBool method is expected to be given, the extract value
+	 * Expectation 2: the EbayEnterprise_Eb2cCore_Helper_Data::parseBool method is expected to be given, the extract value
 	 *                from the DOMNodeList object object and return a boolean representative of the passed in string
-	 * @mock EbayEnterprise_Eb2cProduct_Helper_Data::parseBool
+	 * @mock EbayEnterprise_Eb2cCore_Helper_Data::parseBool
 	 */
 	public function testExtractBoolValue()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML(
+		$this->_doc->loadXML(
 			'<ItemMaster>
 				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
 					<BaseAttributes>
@@ -64,7 +77,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 				</Item>
 			</ItemMaster>'
 		);
-		$xpath = new DOMXPath($doc);
+		$xpath = Mage::helper('eb2ccore')->getNewDomXPath($this->_doc);
 
 		$productHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
@@ -80,22 +93,20 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 		$this->assertSame(
 			true,
 			Mage::helper('eb2ccore/map')->extractBoolValue(
-				$xpath->query('Item/BaseAttributes/IsDropShipped', $doc->documentElement),
+				$xpath->query('Item/BaseAttributes/IsDropShipped', $this->_doc->documentElement),
 				Mage::getModel('catalog/product')
 			)
 		);
 	}
-
 	/**
 	 * Test extractIntValue method for the following expectations
-	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cProduct_Helper_Map::extractIntValue method with a known
+	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cCore_Helper_Map::extractIntValue method with a known
 	 *                DOMNodeList object the method is then expected to return a string value cast as an integer value
 	 *                DOMNodeList object
 	 */
 	public function testExtractIntValue()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML(
+		$this->_doc->loadXML(
 			'<ItemMaster>
 				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
 					<ExtendedAttributes>
@@ -106,26 +117,24 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 				</Item>
 			</ItemMaster>'
 		);
-		$xpath = new DOMXPath($doc);
+		$xpath = Mage::helper('eb2ccore')->getNewDomXPath($this->_doc);
 		$this->assertSame(
 			999,
 			Mage::helper('eb2ccore/map')->extractIntValue(
-				$xpath->query('Item/ExtendedAttributes/Buyer/BuyerId', $doc->documentElement),
+				$xpath->query('Item/ExtendedAttributes/Buyer/BuyerId', $this->_doc->documentElement),
 				Mage::getModel('catalog/product')
 			)
 		);
 	}
-
 	/**
 	 * Test extractFloatValue method for the following expectations
-	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cProduct_Helper_Map::extractFloatValue method with a known
+	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cCore_Helper_Map::extractFloatValue method with a known
 	 *                DOMNodeList object the method is then expected to return a string value cast as an float value
 	 *                DOMNodeList object
 	 */
 	public function testExtractFloatValue()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML(
+		$this->_doc->loadXML(
 			'<ItemMaster>
 				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
 					<ExtendedAttributes>
@@ -134,11 +143,11 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 				</Item>
 			</ItemMaster>'
 		);
-		$xpath = new DOMXPath($doc);
+		$xpath = Mage::helper('eb2ccore')->getNewDomXPath($this->_doc);
 		$this->assertSame(
 			3.98,
 			Mage::helper('eb2ccore/map')->extractFloatValue(
-				$xpath->query('Item/ExtendedAttributes/Price', $doc->documentElement),
+				$xpath->query('Item/ExtendedAttributes/Price', $this->_doc->documentElement),
 				Mage::getModel('catalog/product')
 			)
 		);
@@ -146,7 +155,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 	/**
 	 * return whatever got pass as parameter
 	 */
-	public function  testPassThrough()
+	public function testPassThrough()
 	{
 		$x = 'anything';
 		$this->assertSame(
@@ -154,6 +163,18 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 			Mage::helper('eb2ccore/map')->passThrough(
 				$x, Mage::getModel('catalog/product')
 			)
+		);
+	}
+	/**
+	 * test summing the float values of a list of nodes
+	 */
+	public function testExtractFloatSum()
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<_><a>1.1</a><b>5.5</b><c>3.0</c></_>');
+		$this->assertSame(
+			9.6,
+			Mage::helper('eb2ccore/map')->extractFloatSum($doc->documentElement->childNodes)
 		);
 	}
 }

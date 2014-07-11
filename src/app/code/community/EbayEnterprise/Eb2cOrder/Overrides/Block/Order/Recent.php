@@ -15,13 +15,23 @@
 
 class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Recent extends Mage_Sales_Block_Order_Recent
 {
-	const TEMPLATE = 'sales/order/recent.phtml';
+	// "default" number of orders to be shown by this block
+	// carried over from the parent class where it is a hard-coded value
+	const ORDERS_TO_SHOW = 5;
 	/**
-	 * Replace internal orders with orders fetched from Eb2c.
+	 * Set the orders to collection of orders that both the OMS and Magento
+	 * know about. Avoid a `parent` call to prevent an additional orders
+	 * collection from being instantiated and immediately replaced.
 	 */
 	public function __construct()
 	{
-		$this->setTemplate(static::TEMPLATE);
-		$this->setOrders(Mage::helper('eb2corder')->getCurCustomerOrders());
+		$this->setOrders(
+			Mage::helper('eb2corder')->getCurCustomerOrders()
+				// This is the created_at in Magento, not OMS. As the sort is done
+				// via the SQL when the collection is loaded, it needs to be sorted by
+				// something Magento knows about.
+				->addAttributeToSort('created_at', 'desc')
+				->setPageSize(self::ORDERS_TO_SHOW)
+		);
 	}
 }

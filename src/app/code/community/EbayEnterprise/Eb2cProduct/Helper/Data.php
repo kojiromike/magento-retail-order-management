@@ -132,14 +132,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 		return Mage::helper('eb2ccore')->mageToXmlLangFrmt($this->_getLocaleCode());
 	}
 	/**
-	 * @return int default attribute set id; possibly un-necessary function @_@
-	 */
-	public function getDefaultProductAttributeSetId()
-	{
-		return $this->_getDefProdAttSetId();
-	}
-
-	/**
+	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * Get Product config instantiated object.
 	 *
 	 * @param null $store

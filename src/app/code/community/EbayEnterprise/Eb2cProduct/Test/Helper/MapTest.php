@@ -44,7 +44,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 			)
 		);
 	}
-
 	/**
 	 * @see testExtractStatusValueWhenActive test, now testing when the extract string is not equal to 'active'
 	 */
@@ -109,7 +108,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 			Mage::helper('eb2cproduct/map')->extractVisibilityValue($nodes)
 		);
 	}
-
 	/**
 	 * Test extracting product links. Should return a serialized array of
 	 * product links in the feed.
@@ -205,7 +203,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 			);
 		}
 	}
-
 	/**
 	 * Test extractSkuValue method with the following expectations
 	 * Expectation 1: when this test invoked this method EbayEnterprise_Eb2cProduct_Helper_Map::extractSkuValue
@@ -247,7 +244,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 
 		$this->assertSame($result, Mage::helper('eb2cproduct/map')->extractSkuValue($nodes));
 	}
-
 	/**
 	 * Test extractProductTypeValue method for the following expectations
 	 * Expectation 1: when this test invoked the method EbayEnterprise_Eb2cProduct_Helper_Map::extractProductTypeValue with
@@ -297,7 +293,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 
 		$this->assertSame($value, $mapMock->extractProductTypeValue($nodes, $product));
 	}
-
 	/**
 	 * Test _isValidProductType method for the following expectations
 	 * Expectation 1: when this test invoked the method EbayEnterprise_Eb2cProduct_Helper_Map::_isValidProductType
@@ -321,7 +316,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_MapTest
 			));
 		}
 	}
-
 	/**
 	 * Test extractHtsCodesValue method for the following expectations
 	 * Expectation 1: this test will invoke the method EbayEnterprise_Eb2cProduct_Helper_Map::extractHtsCodesValue given

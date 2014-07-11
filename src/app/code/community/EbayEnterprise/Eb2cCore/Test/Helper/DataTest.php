@@ -439,4 +439,94 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 			$productMock, $countryCode
 		));
 	}
+	/**
+	 * data provider for self::testParseBool method
+	 * @return array
+	 */
+	public function parseBoolDataProvider()
+	{
+		return array(
+			array(true, true),
+			array(false, false),
+			array(false, array()),
+			array(true, array(range(1, 4))),
+			array(true, '1'),
+			array(true, 'on'),
+			array(true, 't'),
+			array(true, 'true'),
+			array(true, 'y'),
+			array(true, 'yes'),
+			array(false, 'false'),
+			array(false, 'off'),
+			array(false, 'f'),
+			array(false, 'n'),
+		);
+	}
+	/**
+	 * Test parseBool the feed
+	 * @param bool $expect
+	 * @param mixed $s
+	 * @dataProvider parseBoolDataProvider
+	 */
+	public function testParseBool($expect, $s)
+	{
+		$this->assertSame($expect, Mage::helper('eb2ccore')->parseBool($s));
+	}
+	/**
+	 * Testing that the method EbayEnterprise_Eb2cCore_Helper_Data::extractXmlToArray
+	 * when called passed in a DOMNode, an array of callback mapping and a DOMXPath
+	 * it will extract the data using callbacks and return an array of extracted data.
+	 */
+	public function testExtractXmlToArray()
+	{
+		$apiXmlNs = 'http://api.gsicommerce.com/schema/checkout/1.0';
+		$sku = '45-HTCT60';
+		$qty = 4;
+		$xml = '
+			<root xmlns="' . $apiXmlNs . '">
+				<Order>
+					<OrderItems>
+						<OrderItem id="12112">
+							<ItemId>' . $sku . '</ItemId>
+							<Quantity>' . $qty . '</Quantity>
+							<Name>Will not be exracted out</Name>
+						</OrderItem>
+					</OrderItems>
+				</Order>
+			</root>
+		';
+		$helper = Mage::helper('eb2ccore');
+		$doc = $helper->getNewDomDocument();
+		$doc->loadXML($xml);
+		$xpath = $helper->getNewDomXPath($doc);
+		$xpath->registerNamespace('a', $apiXmlNs);
+		$nodes = $doc->documentElement;
+		$mapping = array(
+			'sku' => array(
+				'class' => 'eb2ccore/map',
+				'type' => 'helper',
+				'method' => 'extractStringValue',
+				'xpath' => 'a:Order/a:OrderItems/a:OrderItem/a:ItemId',
+			),
+			'qty_ordered' => array(
+				'class' => 'eb2ccore/map',
+				'type' => 'helper',
+				'method' => 'extractIntValue',
+				'xpath' => 'a:Order/a:OrderItems/a:OrderItem/a:Quantity',
+			),
+			// Proving that any map field with a 'disabled' type will not be extracted
+			'name' => array(
+				'class' => 'eb2ccore/map',
+				'type' => 'disabled',
+				'method' => 'extractStringValue',
+				'xpath' => 'a:Order/a:OrderItems/a:OrderItem/a:Name',
+			),
+		);
+
+		$expectData = array('sku' => $sku, 'qty_ordered' => $qty);
+
+		$this->assertSame($expectData, Mage::helper('eb2ccore')->extractXmlToArray(
+			$nodes, $mapping, $xpath
+		));
+	}
 }

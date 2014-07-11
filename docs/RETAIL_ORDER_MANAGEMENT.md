@@ -19,3 +19,13 @@ When available, gift wrapping may be included for the entire order as well as fo
 This module does not change how Magento determines which gift options are available and which products are eligible for gift messages and gift wrapping.
 
 When making gift options available to customers, it is advised that the user interface be customized to make only the options supported by this extension and agreements with eBay Enterprise available.
+
+## Order History
+
+When displaying orders from ROMS to the customer:
+
+- Order data will be retrieved in realtime to be displayed to the customer.
+- Orders must be in Magento and the Retail Order Management System.
+- Only order information from the Retail Order Management System will be displayed.
+- Invoices will not be shown in the order detail page.
+- The "Recent Orders" and "My Orders" sections of the customer account pages display the "Ship To" name for the order in Magento, not the Retail Order Management System. The templates being used to display this data may be modified to prevent this data from displaying.

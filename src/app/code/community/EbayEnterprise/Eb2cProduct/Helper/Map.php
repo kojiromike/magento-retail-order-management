@@ -28,7 +28,7 @@
  * }
  * </code>
  */
-class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
+class EbayEnterprise_Eb2cProduct_Helper_Map
 {
 	const TYPE_GIFTCARD = 'giftcard';
 	/**
@@ -43,43 +43,6 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 	 * @var Mage_Catalog_Model_Category_Collection
 	 */
 	protected $_categoryCollection = null;
-	/**
-	 * extract the first element of a dom node list and return a string value
-	 * @param DOMNodeList $nodes
-	 * @return string
-	 */
-	public function extractStringValue(DOMNodeList $nodes)
-	{
-		return ($nodes->length)? $nodes->item(0)->nodeValue : null;
-	}
-	/**
-	 * extract the first element of a dom node list and return a boolean
-	 * value of the extract string
-	 * @param DOMNodeList $nodes
-	 * @return bool
-	 */
-	public function extractBoolValue(DOMNodeList $nodes)
-	{
-		return Mage::helper('eb2cproduct')->parseBool(($nodes->length)? $nodes->item(0)->nodeValue : null);
-	}
-	/**
-	 * extract the first element of a dom node list and return the string value cast as integer value
-	 * @param DOMNodeList $nodes
-	 * @return int
-	 */
-	public function extractIntValue(DOMNodeList $nodes)
-	{
-		return ($nodes->length)? (int) $nodes->item(0)->nodeValue : 0;
-	}
-	/**
-	 * extract the first element of a dom node list and return the string value cast as float value
-	 * @param DOMNodeList $nodes
-	 * @return int
-	 */
-	public function extractFloatValue(DOMNodeList $nodes)
-	{
-		return ($nodes->length)? (float) $nodes->item(0)->nodeValue : 0;
-	}
 	/**
 	 * check if the node list has item and if the first item node value equal to 'active' to return
 	 * the status for enable otherwise status for disable
@@ -104,16 +67,6 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 		return (strtolower($catalogClass) === 'regular' || strtolower($catalogClass) === 'always') ?
 			Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH:
 			Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE;
-	}
-	/**
-	 * it return the pass in value parameter
-	 * it's a callback to return static value set in the config
-	 * @param mixed $value
-	 * @return mixed
-	 */
-	public function passThrough($value)
-	{
-		return $value;
 	}
 	/**
 	 * extract the first element of a dom node list make sure it is lower case
@@ -217,14 +170,6 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 		return ($urlKey !== '')?
 			$urlKey . '-' . $product->getStoreId() :
 			'Invalid Product: ' . $product->getSku() . '-' . $product->getStoreId();
-	}
-	/**
-	 * Always return false.
-	 * This is useful for clearing a value to have it fallback to a higher scope.
-	 */
-	public function extractFalse()
-	{
-		return false;
 	}
 	/**
 	 * given a gift card type return the gift card constant mapped to it

@@ -22,7 +22,11 @@
 		<models>
 			<eb2corder>
 				<class>EbayEnterprise_Eb2cOrder_Model</class>
+				<resourceModel>eb2corder_resource</resourceModel>
 			</eb2corder>
+			<eb2corder_resource>
+				<class>EbayEnterprise_Eb2cOrder_Model_Resource</class>
+			</eb2corder_resource>
 			<enterprise_rma>
 				<rewrite>
 					<rma>EbayEnterprise_Eb2cOrder_Overrides_Model_Enterprise_Rma</rma>
@@ -36,7 +40,6 @@
 			<sales>
 				<rewrite>
 					<data>EbayEnterprise_Eb2cOrder_Overrides_Helper_Sales</data>
-					<guest>EbayEnterprise_Eb2cOrder_Overrides_Helper_Sales_Guest</guest>
 				</rewrite>
 			</sales>
 		</helpers>
@@ -45,7 +48,8 @@
 				<rewrite>
 					<order_history>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History</order_history>
 					<order_recent>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Recent</order_recent>
-					<order_view>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_View</order_view>
+					<order_shipment>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Shipment</order_shipment>
+					<order_shipment_items>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Shipment_Items</order_shipment_items>
 				</rewrite>
 			</sales>
 		</blocks>
@@ -78,10 +82,118 @@
 		</jobs>
 	</crontab>
 	<frontend>
+		<events>
+			<controller_action_layout_render_before_sales_guest_view>
+				<observers>
+					<eb2corder_observer>
+						<class>eb2corder/observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_view>
+			<controller_action_layout_render_before_sales_guest_shipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_shipment>
+			<controller_action_layout_render_before_sales_guest_print>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_print>
+			<controller_action_layout_render_before_sales_guest_printShipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_printShipment>
+			<controller_action_layout_render_before_sales_order_view>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_order_view>
+			<controller_action_layout_render_before_sales_order_shipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_order_shipment>
+			<controller_action_layout_render_before_sales_guest_view>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_view>
+			<controller_action_layout_render_before_sales_guest_shipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>replaceCurrentOrder</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_shipment>
+			<controller_action_layout_render_before_sales_order_printOrderShipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>prepareForPrintShipment</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_order_printOrderShipment>
+			<controller_action_layout_render_before_sales_guest_printOrderShipment>
+				<observers>
+					<eb2corder_observer>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cOrder_Model_Observer</class>
+						<method>prepareForPrintShipment</method>
+					</eb2corder_observer>
+				</observers>
+			</controller_action_layout_render_before_sales_guest_printOrderShipment>
+			<eb2corder_summary_collection_load_after>
+				<observers>
+					<eb2corder_update_order_collection_with_summary_data>
+						<class>eb2corder/observer</class>
+						<method>updateOrdersWithSummaryData</method>
+					</eb2corder_update_order_collection_with_summary_data>
+				</observers>
+			</eb2corder_summary_collection_load_after>
+		</events>
+		<routers>
+			<sales>
+				<args>
+					<modules>
+						<ebayenterprise_eb2corder before="Mage_Sales">EbayEnterprise_Eb2cOrder</ebayenterprise_eb2corder>
+					</modules>
+				</args>
+			</sales>
+		</routers>
 		<layout>
 			<updates>
 				<ebayenterprise_eb2corder module="EbayEnterprise_Eb2cOrder">
-					<file>eb2corder_frontend.xml</file>
+					<file>eb2corder.xml</file>
 				</ebayenterprise_eb2corder>
 			</updates>
 		</layout>
@@ -118,6 +230,7 @@
 				<return_format>xml</return_format>
 				<create_operation>create</create_operation>
 				<cancel_operation>cancel</cancel_operation>
+				<detail_operation>get</detail_operation>
 				<create_dom_root_node_name>OrderCreateRequest</create_dom_root_node_name>
 				<cancel_dom_root_node_name>OrderCancelRequest</cancel_dom_root_node_name>
 				<order_type>SALES</order_type>
@@ -128,14 +241,326 @@
 			</api>
 			<api_search_service>customers</api_search_service>
 			<api_search_operation>orders/get</api_search_operation>
+			<api_status_handler>
+				<alert_level>silent</alert_level>
+				<status>
+					<client_error>
+						<callback>
+							<method>returnEmpty</method>
+						</callback>
+					</client_error>
+				</status>
+			</api_status_handler>
 			<xsd>
 				<create_file>Order-Service-Create-1.0.xsd</create_file>
 				<cancel_file>Order-Service-Cancel-1.0.xsd</cancel_file>
 				<search_file>Order-Service-Search-1.0.xsd</search_file>
+				<detail_file>Order-Service-Detail-1.0.xsd</detail_file>
 			</xsd>
 			<shipping>
 				<tax_class>93000</tax_class>
 			</shipping>
+			<detail_mapping>
+				<address_data>
+					<id>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>./@id</xpath>
+					</id>
+					<destination_store_code>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:StoreCode</xpath>
+					</destination_store_code>
+					<email>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:StoreEmail|a:Email/a:EmailAddress</xpath>
+					</email>
+					<lastname>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:PersonName/a:LastName</xpath>
+					</lastname>
+					<firstname>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:PersonName/a:FirstName|a:StoreName</xpath>
+					</firstname>
+					<phone>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Address/a:Phone</xpath>
+					</phone>
+					<street1>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Address/a:Line1</xpath>
+					</street1>
+					<street2>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Address/a:Line2</xpath>
+					</street2>
+					<street3>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Address/a:Line3</xpath>
+					</street3>
+					<street4>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Address/a:Line4</xpath>
+					</street4>
+					<city>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Address/a:City</xpath>
+					</city>
+					<main_division>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Address/a:MainDivision</xpath>
+					</main_division>
+					<country_code>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Address/a:CountryCode</xpath>
+					</country_code>
+					<postal_code>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Address/a:PostalCode</xpath>
+					</postal_code>
+				</address_data>
+				<order_item>
+					<sku>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:ItemId</xpath>
+					</sku>
+					<ref_id>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>./@id</xpath>
+					</ref_id>
+					<qty_ordered>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractFloatValue</method>
+						<xpath>a:Quantity</xpath>
+					</qty_ordered>
+					<qty_shipped>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractFloatValue</method>
+						<xpath>a:ShippedQuantity</xpath>
+					</qty_shipped>
+					<name>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Description</xpath>
+					</name>
+					<price>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractFloatValue</method>
+						<xpath>a:Pricing/a:Merchandise/a:UnitPrice</xpath>
+					</price>
+					<gift_message>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Gift/a:Message/a:Message</xpath>
+					</gift_message>
+					<gift_message_to>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Gift/a:Message/a:Message</xpath>
+					</gift_message_to>
+					<gift_message_from>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Gift/a:Message/a:Message</xpath>
+					</gift_message_from>
+					<row_total>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractFloatValue</method>
+						<xpath>a:Pricing/a:Merchandise/a:Amount</xpath>
+					</row_total>
+					<product_options>
+						<class>eb2corder/map</class>
+						<type>helper</type>
+						<method>extractListAsArray</method>
+						<xpath>a:Item/a:Description/a:Size|a:Item/a:Description/a:Color</xpath>
+					</product_options>
+				</order_item>
+				<order>
+					<real_order_id>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>./@CustomerOrderId</xpath>
+					</real_order_id>
+					<customer_email>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Customer/a:EmailAddress</xpath>
+					</customer_email>
+					<customer_prefix>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Customer/a:Name/a:Honorific</xpath>
+					</customer_prefix>
+					<customer_lastname>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Customer/a:Name/a:LastName</xpath>
+					</customer_lastname>
+					<customer_middlename>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Customer/a:Name/a:MiddleName</xpath>
+					</customer_middlename>
+					<customer_firstname>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Customer/a:Name/a:FirstName</xpath>
+					</customer_firstname>
+					<created_at>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:CreateTime</xpath>
+					</created_at>
+					<order_currency_code>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Currency</xpath>
+					</order_currency_code>
+					<locale>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:Locale</xpath>
+					</locale>
+					<status>
+						<class>eb2corder/map</class>
+						<type>helper</type>
+						<method>extractOrderStatus</method>
+						<xpath>a:Status</xpath>
+					</status>
+					<tax_amount>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractFloatSum</method>
+						<xpath>//a:CalculatedTax</xpath>
+					</tax_amount>
+					<subtotal>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractFloatSum</method>
+						<xpath>//a:Pricing/a:Merchandise/a:Amount</xpath>
+					</subtotal>
+					<shipping_amount>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractFloatSum</method>
+						<xpath>//a:Pricing/a:Shipping/a:Amount</xpath>
+					</shipping_amount>
+					<discount_amount>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractFloatSum</method>
+						<xpath>//a:Pricing/*/a:PromotionalDiscounts/a:Discount/a:Amount</xpath>
+					</discount_amount>
+					<!-- custom attributes go here -->
+				</order>
+				<payment_info_data>
+					<tender_type>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:PaymentContext/a:TenderType</xpath>
+					</tender_type>
+					<account_unique_id>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>a:PaymentContext/a:PaymentAccountUniqueId</xpath>
+					</account_unique_id>
+					<account_id_is_token>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractBoolValue</method>
+						<xpath>a:PaymentContext/a:PaymentAccountUniqueId/@isToken</xpath>
+					</account_id_is_token>
+					<amount>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractFloatValue</method>
+						<xpath>a:Amount</xpath>
+					</amount>
+					<authorized_amount>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractFloatValue</method>
+						<xpath>a:Authorization/a:Amount|a:AmountAuthorized</xpath>
+					</authorized_amount>
+				</payment_info_data>
+				<payment_methods>
+					<!-- see EbayEnterprise_Eb2cOrder_Model_Create::$_ebcPaymentMethodMap -->
+					<CreditCard>pbridge_eb2cpayment_cc</CreditCard>
+					<PayPal>paypal_express</PayPal>
+					<StoredValueCard>free</StoredValueCard>
+				</payment_methods>
+				<shipment_info_data>
+					<increment_id>
+						<class>eb2ccore/map</class>
+						<type>helper</type>
+						<method>extractStringValue</method>
+						<xpath>@id</xpath>
+					</increment_id>
+					<tracks>
+						<class>eb2corder/map</class>
+						<type>helper</type>
+						<method>extractListAsArray</method>
+						<xpath>a:ShippedItems/a:ShippedItem/a:TrackingNumbers</xpath>
+					</tracks>
+					<shipped_item_ids>
+						<class>eb2corder/map</class>
+						<type>helper</type>
+						<method>extractListAsArray</method>
+						<xpath>a:ShippedItems/a:ShippedItem/a:Item/@ref</xpath>
+					</shipped_item_ids>
+				</shipment_info_data>
+			</detail_mapping>
 		</eb2corder>
 	</default>
 	<phpunit>

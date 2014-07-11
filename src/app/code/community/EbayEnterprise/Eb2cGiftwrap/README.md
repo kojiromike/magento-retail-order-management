@@ -60,25 +60,25 @@ For the ```import_attribute_mappings```, the defaul mappings provided by the mod
 			</dummy>
 			<import_attribute_mappings>
 				<design>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
 					<xpath>BaseAttributes/ItemDescription</xpath>
 				</design>
 				<status>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>passThrough</method>
 					<xpath>1</xpath>
 				</status>
 				<base_price>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractFloatValue</method>
 					<xpath>ExtendedAttributes/Price</xpath>
 				</base_price>
 				<image>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>disabled</type>
 					<method>passThrough</method>
 					<xpath></xpath>
@@ -90,7 +90,7 @@ For the ```import_attribute_mappings```, the defaul mappings provided by the mod
 					<xpath>ItemId/ClientItemId</xpath>
 				</eb2c_sku>
 				<eb2c_tax_class>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
 					<xpath>BaseAttributes/TaxCode</xpath>

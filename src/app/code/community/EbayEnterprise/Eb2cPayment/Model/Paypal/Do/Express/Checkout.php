@@ -41,6 +41,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 		$paypal = Mage::getModel('eb2cpayment/paypal');
 		$paypal->loadByQuoteId($quote->getEntityId());
 		$doc = $coreHelper->getNewDomDocument();
+		$gwPrice = $quote->getGwPrice();
+		$gwId = $quote->getGwId();
 		$totals = $quote->getTotals();
 		$grandTotal = isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0;
 		$shippingTotal = isset($totals['shipping']) ? $totals['shipping']->getValue() : 0;
@@ -62,6 +64,13 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 		$lineItems
 			->addChild('ShippingTotal', sprintf('%.02f', $shippingTotal), $curCodeAttr)
 			->addChild('TaxTotal', sprintf('%.02f', $taxTotal), $curCodeAttr);
+		if ($gwId) {
+			$lineItems
+				->createChild('LineItem', null)
+				->addChild('Name', 'GiftWrap')
+				->addChild('Quantity', '1')
+				->addChild('UnitAmount', sprintf('%.02f', $gwPrice), $curCodeAttr);
+		}
 		foreach($quote->getAllAddresses() as $addresses){
 			foreach ($addresses->getAllItems() as $item) {
 				// If gw_price is empty, php will treat it as zero.

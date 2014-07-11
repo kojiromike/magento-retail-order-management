@@ -52,6 +52,7 @@ class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Detail_Order_Adapter
 	{
 		$helper = Mage::helper('eb2corder');
 		$orderDetail = $helper->fetchOrderDetail($incrementId);
+		$this->load($incrementId, 'increment_id');
 		// don't do anything more if the order detail request failed.
 		if (!$orderDetail->getOrder() || !$this->getId()) {
 			return $this;

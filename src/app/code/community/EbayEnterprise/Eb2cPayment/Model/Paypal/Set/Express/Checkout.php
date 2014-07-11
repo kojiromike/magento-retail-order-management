@@ -26,69 +26,71 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 	 *
 	 * @param Mage_Sales_Model_Quote $quote the quote to generate request XML from
 	 * @return DOMDocument The XML document to be sent as request to eb2c.
-	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
 	 */
 	protected function _buildRequest(Mage_Sales_Model_Quote $quote)
 	{
-		/** @var EbayEnterprise_Eb2cCore_Helper_Data $coreHelper */
+		/**
+		 * @var EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
+		 * @var EbayEnterprise_Eb2cPayment_Helper_Data $helper
+		 * @var float $gwPrice price of order level gift wrapping
+		 * @var string $gwId id of giftwrapping object
+		 * @var EbayEnterprise_Dom_Element $request
+		 * @var array $addresses
+		 */
 		$coreHelper = Mage::helper('eb2ccore');
-		$domDocument = $coreHelper->getNewDomDocument();
-		$totals = $quote->getTotals();
-		$curCodeAttr = array('currencyCode' => $quote->getQuoteCurrencyCode());
-		/** @var EbayEnterprise_Dom_Element $payPalSetExpressCheckoutRequest */
-		$payPalSetExpressCheckoutRequest = $domDocument->addElement('PayPalSetExpressCheckoutRequest', null, Mage::helper('eb2cpayment')->getXmlNs())->firstChild;
-		$payPalSetExpressCheckoutRequest->createChild('OrderId', (string) $quote->getEntityId());
-		$payPalSetExpressCheckoutRequest->createChild('ReturnUrl', (string) Mage::getUrl('*/*/return'));
-		$payPalSetExpressCheckoutRequest->createChild('CancelUrl', (string) Mage::getUrl('*/*/cancel'));
-		$payPalSetExpressCheckoutRequest->createChild('LocaleCode', (string) Mage::app()->getLocale()->getDefaultLocale());
-		$payPalSetExpressCheckoutRequest->createChild('Amount', sprintf('%.02f', (isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0)), $curCodeAttr);
-		$lineItems = $payPalSetExpressCheckoutRequest->createChild('LineItems', null);
+		$helper = Mage::helper('eb2cpayment');
+		$doc = $coreHelper->getNewDomDocument();
 		$gwPrice = $quote->getGwPrice();
-		// LineItemsTotal _must_ come first and I need to add in Gift Wrap. So I end up looping
-		// twice. Surely there's a more efficient way to do this.
-		$lineItemsTotal = isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0;
-		$lineItemsTotal += $gwPrice;
-		/** @var array $addresses */
+		$gwId = $quote->getGwId();
+		$totals = $quote->getTotals();
+		$grandTotal = isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0;
+		$shippingTotal = isset($totals['shipping']) ? $totals['shipping']->getValue() : 0;
+		$taxTotal = isset($totals['tax']) ? $totals['tax']->getValue() : 0;
+		$lineItemsTotal = (isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0) + $gwPrice;
+		$curCodeAttr = array('currencyCode' => $quote->getQuoteCurrencyCode());
+		$request = $doc->createElement('PayPalSetExpressCheckoutRequest', null, $helper->getXmlNs());
+		$request
+			->addChild('OrderId', (string) $quote->getEntityId())
+		  ->addChild('ReturnUrl', (string) Mage::getUrl('*/*/return'))
+		  ->addChild('CancelUrl', (string) Mage::getUrl('*/*/cancel'))
+		  ->addChild('LocaleCode', (string) Mage::app()->getLocale()->getDefaultLocale())
+		  ->addChild('Amount', sprintf('%.02f', $grandTotal), $curCodeAttr);
 		$addresses = $quote->getAllAddresses();
-		foreach ($addresses as $address) {
-			foreach ($address->getAllItems() as $item) {
-				// If gw_price is empty, php will treat it as zero.
-				$lineItemsTotal += $item->getGwPrice();
-			}
-		}
 
-		$shippingTotals = isset($totals['shipping']) ? $totals['shipping']->getValue() : 0;
-		$taxTotals = isset($totals['tax']) ? $totals['tax']->getValue() : 0;
-
+		$lineItems = $request->createChild('LineItems', null);
+		$lineItemsTotalNode = $lineItems->createChild('LineItemsTotal', null, $curCodeAttr); // value to be inserted below
 		$lineItems
-			->addChild('LineItemsTotal', sprintf('%.02f', $lineItemsTotal), $curCodeAttr)
-			->addChild('ShippingTotal', sprintf('%.02f', $shippingTotals), $curCodeAttr)
-			->addChild('TaxTotal', sprintf('%.02f', $taxTotals), $curCodeAttr);
+			->addChild('ShippingTotal', sprintf('%.02f', $shippingTotal), $curCodeAttr)
+			->addChild('TaxTotal', sprintf('%.02f', $taxTotal), $curCodeAttr);
 
-		if ($gwPrice) {
-			$lineItem = $lineItems->createChild('LineItem', null);
-			$lineItem
+		if ($gwId) {
+			$lineItems
+				->createChild('LineItem', null)
 				->addChild('Name', 'GiftWrap')
 				->addChild('Quantity', '1')
 				->addChild('UnitAmount', sprintf('%.02f', $gwPrice), $curCodeAttr);
 		}
 		foreach($addresses as $address) {
 			foreach ($address->getAllItems() as $item) {
-				$lineItem = $lineItems->createChild('LineItem', null);
-				$lineItem
+				// If gw_price is empty, php will treat it as zero.
+				$lineItemsTotal += $item->getGwPrice();
+				$lineItems
+					->createChild('LineItem', null)
 					->addChild('Name', (string) $item->getName())
 					->addChild('Quantity', (string) $item->getQty())
 					->addChild('UnitAmount', sprintf('%.02f', $item->getPrice()), $curCodeAttr);
-				if ($item->getGwPrice()) {
-					$lineItem = $lineItems->createChild('LineItem', null);
-					$lineItem
-						->addChild('Name', 'ItemGiftWrap')
+				$itemGwId = $item->getGwId();
+				if ($itemGwId) {
+					$lineItems
+						->createChild('LineItem', null)
+						->addChild('Name', 'GiftWrap')
 						->addChild('Quantity', '1')
 						->addChild('UnitAmount', sprintf('%.02f', $item->getGwPrice()), $curCodeAttr);
 				}
 			}
 		}
-		return $domDocument;
+		$lineItemsTotalNode->nodeValue = sprintf('%.02f', $lineItemsTotal);
+		return $doc;
 	}
 	/**
 	 * Parse PayPal SetExpress reply xml.

@@ -29,35 +29,60 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 	 */
 	protected function _buildRequest(Mage_Sales_Model_Quote $quote)
 	{
+		/**
+		 * @var EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
+		 * @var EbayEnterprise_Eb2cPayment_Helper_Data $helper
+		 * @var EbayEnterprise_Eb2cPayment_Model_Paypal $paypal
+		 * @var Mage_Sales_Model_Quote_Address $quoteShippingAddress
+		 * @var EbayEnterprise_Dom_Element $request
+		 */
+		$coreHelper = Mage::helper('eb2ccore');
+		$helper = Mage::helper('eb2cpayment');
+		$paypal = Mage::getModel('eb2cpayment/paypal');
+		$paypal->loadByQuoteId($quote->getEntityId());
+		$doc = $coreHelper->getNewDomDocument();
 		$totals = $quote->getTotals();
-		$currencyAttr = array('currencyCode' => $quote->getQuoteCurrencyCode());
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$payPalDoExpressCheckoutRequest = $domDocument->addElement('PayPalDoExpressCheckoutRequest', null, Mage::helper('eb2cpayment')->getXmlNs())->firstChild;
-		$payPalDoExpressCheckoutRequest->setAttribute('requestId', Mage::helper('eb2cpayment')->getRequestId($quote->getEntityId()));
-		$payPalDoExpressCheckoutRequest->createChild('OrderId', (string) $quote->getEntityId());
-		$paypal = Mage::getModel('eb2cpayment/paypal')->loadByQuoteId($quote->getEntityId());
-		$payPalDoExpressCheckoutRequest->createChild('Token', (string) $paypal->getEb2cPaypalToken());
-		$payPalDoExpressCheckoutRequest->createChild('PayerId', (string) $paypal->getEb2cPaypalPayerId());
-		$payPalDoExpressCheckoutRequest->createChild('Amount', sprintf('%.02f', isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0), $currencyAttr);
+		$grandTotal = isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0;
+		$shippingTotal = isset($totals['shipping']) ? $totals['shipping']->getValue() : 0;
+		$taxTotal = isset($totals['tax']) ? $totals['tax']->getValue() : 0;
+		$lineItemsTotal = (isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0) + $gwPrice;
+		$curCodeAttr = array('currencyCode' => $quote->getQuoteCurrencyCode());
 		$quoteShippingAddress = $quote->getShippingAddress();
-		$payPalDoExpressCheckoutRequest->createChild('ShipToName', (string) $quoteShippingAddress->getName());
-		$lineItems = $payPalDoExpressCheckoutRequest->createChild('LineItems', null);
-		$lineItems->createChild('LineItemsTotal', sprintf('%.02f', isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0), $currencyAttr);
-		$lineItems->createChild('ShippingTotal', sprintf('%.02f', isset($totals['shipping']) ? $totals['shipping']->getValue() : 0), $currencyAttr);
-		$lineItems->createChild('TaxTotal', sprintf('%.02f', isset($totals['tax']) ? $totals['tax']->getValue() : 0), $currencyAttr);
-		if ($quote) {
-			foreach($quote->getAllAddresses() as $addresses){
-				if ($addresses){
-					foreach ($addresses->getAllItems() as $item) {
-						$lineItem = $lineItems->createChild('LineItem', null);
-						$lineItem->createChild('Name', (string) $item->getName());
-						$lineItem->createChild('Quantity', (string) $item->getQty());
-						$lineItem->createChild('UnitAmount', sprintf('%.02f', $item->getPrice()), $currencyAttr);
-					}
+		$request = $doc->createElement('PayPalDoExpressCheckoutRequest', null, $helper->getXmlNs());
+		$request
+			->addAttribute('requestId', $helper->getRequestId($quote->getEntityId()))
+			->addChild('OrderId', (string) $quote->getEntityId())
+			->addChild('Token', (string) $paypal->getEb2cPaypalToken())
+			->addChild('PayerId', (string) $paypal->getEb2cPaypalPayerId())
+			->addChild('Amount', sprintf('%.02f', $grandTotal), $curCodeAttr)
+			->addChild('ShipToName', (string) $quoteShippingAddress->getName());
+
+		$lineItems = $request->createChild('LineItems', null);
+		$lineItemsTotalNode = $lineItems->createChild('LineItemsTotal', null, $curCodeAttr); // value to be inserted below
+		$lineItems
+			->addChild('ShippingTotal', sprintf('%.02f', $shippingTotal), $curCodeAttr)
+			->addChild('TaxTotal', sprintf('%.02f', $taxTotal), $curCodeAttr);
+		foreach($quote->getAllAddresses() as $addresses){
+			foreach ($addresses->getAllItems() as $item) {
+				// If gw_price is empty, php will treat it as zero.
+				$lineItemsTotal += $item->getGwPrice();
+				$lineItems
+					->createChild('LineItem', null)
+					->addChild('Name', (string) $item->getName())
+					->addChild('Quantity', (string) $item->getQty())
+					->addChild('UnitAmount', sprintf('%.02f', $item->getPrice()), $curCodeAttr);
+				$itemGwId = $item->getGwId();
+				if ($itemGwId) {
+					$lineItems
+						->createChild('LineItem', null)
+						->addChild('Name', 'GiftWrap')
+						->addChild('Quantity', '1')
+						->addChild('UnitAmount', sprintf('%.02f', $item->getGwPrice()), $curCodeAttr);
 				}
 			}
 		}
-		return $domDocument;
+		$lineItemsTotalNode->nodeValue = sprintf('%.02f', $lineItemsTotal);
+		return $doc;
 	}
 	/**
 	 * Parse PayPal DoExpress reply xml.

@@ -13,6 +13,12 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * Class EbayEnterprise_Eb2cPayment_Model_Paypal
+ *
+ * @method getEb2cPaypalToken() : string
+ * @method getEb2cPaypalPayerId() : string
+ */
 class EbayEnterprise_Eb2cPayment_Model_Paypal extends Mage_Core_Model_Abstract
 {
 	public function _construct()

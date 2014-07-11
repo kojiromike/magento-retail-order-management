@@ -132,9 +132,12 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	}
 
 	/**
-	 * @param  string $alias           model alias
-	 * @param  array  $methodActions   mapping of method name to a value or PHPUnit_Framework_MockObject_Stub
-	 * @return object                  mock object with specified methods mocked under the 'any' invokation constraint.
+	 * Build an arbitrary model mock with multiple methods and expectation.
+	 *
+	 * @deprecated
+	 * @param string $alias model alias
+	 * @param array $methods
+	 * @return object mock object with specified methods mocked under the 'any' invokation constraint.
 	 */
 	protected function _buildModelMock($alias, array $methods=array())
 	{

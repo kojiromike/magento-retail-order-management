@@ -50,7 +50,7 @@ class EbayEnterprise_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Templ
 
 	/**
 	 * Determines if there are suggestions to display to the user.
-	 * @return boolean
+	 * @return bool
 	 */
 	public function shouldShowSuggestions()
 	{
@@ -131,6 +131,8 @@ class EbayEnterprise_Eb2cAddress_Block_Suggestions extends Mage_Core_Block_Templ
 	/**
 	 * Get the user facing messages, ensuring they are all run through the
 	 * __() translation method.
+	 *
+	 * @param $name
 	 * @return string
 	 */
 	protected function _getMessage($name)

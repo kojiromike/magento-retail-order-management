@@ -47,7 +47,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	/**
 	 * Test adding of address tax data to the order.
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testAddAddressTaxToOrder($addressTaxes, $orderTaxes)
 	{
@@ -103,7 +102,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 
 	/**
 	 * Generate quote items for use in the testSalesEventOrderAfterSave test
-	 * @return Mock_Mage_Sales_Model_Quote_Item[]
+	 *
+	 * @param $quoteItemIds
+	 * @return array of Mock_Mage_Sales_Model_Quote_Item
 	 */
 	protected function _orderSaveQuoteItemsMock($quoteItemIds)
 	{
@@ -124,8 +125,10 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 
 	/**
 	 * Generate the address mock for the testSalesEventOrderAfterSave test
-	 * @param  Mock_Mage_Sales_Model_Quote_Item[] $quoteItems quote items the address has
-	 * @return Mock_Mage_Sales_Model_Quote_Address
+	 *
+	 * @param Mage_Sales_Model_Quote_Item $quoteItems mock of quote items the address has
+	 * @param $addressId
+	 * @return Mage_Sales_Model_Quote_Address (mock)
 	 */
 	protected function _orderSaveAddressMock($quoteItems, $addressId)
 	{
@@ -164,11 +167,10 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 
 	/**
 	 * Generate the reponse item mock for the testSalesEventOrderAfterSave test
-	 * @param  Mock_EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote
-	 * @param  Mock_EbayEnterprise_Eb2cTax_Model_Response_Quote_Discount $taxQuoteDiscount
-	 * @param  Mock_Mage_Sales_Model_Quote_Item[] $quoteItems
-	 * @param  Mock_Mage_Sales_Model_QuoteAddress $address
-	 * @return Mock_EbayEnterprise_Eb2cTax_Model_Response_OrderItem
+	 *
+	 * @param EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote (mock)
+	 * @param EbayEnterprise_Eb2cTax_Model_Response_Quote_Discount $taxQuoteDiscount (mock)
+	 * @return EbayEnterprise_Eb2cTax_Model_Response_OrderItem (mock)
 	 */
 	protected function _orderSaveResponseItemMock($taxQuote, $taxQuoteDiscount)
 	{
@@ -382,7 +384,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	/**
 	 * Test cleaning up any session flags related to tax. As all of this is handled
 	 * by the helper, basically just means calling the helper method.
-	 * @test
 	 */
 	public function testCleanupTaxRequestFlags()
 	{
@@ -394,7 +395,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify calculation trigger is set and response is attached to the calculator
-	 * @test
 	 */
 	public function testHandleResponse()
 	{
@@ -433,7 +433,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify failTaxRequest is called with invalid response and no calculation is triggered.
-	 * @test
 	 */
 	public function testHandleResponseInvalidResponse()
 	{
@@ -472,7 +471,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify the response is passed to _handleResponse
-	 * @test
 	 */
 	public function testDoRequest()
 	{
@@ -508,7 +506,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	/**
 	 * verify exception will prevent the call to _handleResponse
 	 * verify exception will trigger a call to failTaxRequest
-	 * @test
 	 */
 	public function testDoRequestException()
 	{
@@ -541,7 +538,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify valid request is processed as normal.
-	 * @test
 	 */
 	public function testFetchTaxUpdate()
 	{
@@ -592,7 +588,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify invalid request triggers a call to failTaxRequest.
-	 * @test
 	 */
 	public function testFetchTaxUpdateInvalidRequest()
 	{
@@ -641,7 +636,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 	/**
 	 * verify updated tax information will be fetched if an updated is needed
-	 * @test
 	 */
 	public function testTaxEventSubtotalCollectBefore()
 	{
@@ -670,7 +664,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	 * NOTE: no need to test for the case where address is null since a null address
 	 *       is handled by the underlying call to
 	 *       EbayEnterprise_Eb2cTax_Overrides_Model_Calculation::getTaxRequest
-	 * @test
 	 */
 	public function testTaxEventSubtotalCollectBeforeNoUpdate()
 	{

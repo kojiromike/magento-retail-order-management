@@ -5,7 +5,6 @@ class EbayEnterprise_Eb2cOrder_Test_Block_Overrides_Order_ViewTest extends EbayE
 	 * Testing that when EbayEnterprise_Eb2cOrder_Overrides_Block_Order_View::getOrder
 	 * method is invoked by this test will set the current order in the registry to
 	 * eb2corder/customer_order_detail_order_adapter instance
-	 * @test
 	 */
 	public function testGetOrder()
 	{

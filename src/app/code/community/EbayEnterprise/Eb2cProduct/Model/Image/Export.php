@@ -21,9 +21,10 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 			$this->_buildExport($storeId);
 		}
 	}
+
 	/**
 	 * build image feed per store
-	 * @param int $processed
+	 *
 	 * @param int $storeId
 	 * @return self
 	 */
@@ -235,9 +236,11 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 		}
 		return $mData;
 	}
+
 	/**
 	 * get image dimensions
-	 * @param Varien_Object $image
+	 *
+	 * @param Varien_Object $mageImage
 	 * @return array
 	 */
 	protected function _getImageDimension(Varien_Object $mageImage)

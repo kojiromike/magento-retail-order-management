@@ -54,10 +54,12 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends EbayEnterprise_Eb2cCore_Help
 			Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH:
 			Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE;
 	}
+
 	/**
 	 * extract the first element of a dom node list make sure it is lower case
 	 * if there's no item in the DOMNodeList return the default simple product type constant value
-	 * @param DOMNodeList $node
+	 *
+	 * @param DOMNodeList $nodes
 	 * @param Mage_Catalog_Model_Product $product
 	 * @return string
 	 */
@@ -90,7 +92,8 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends EbayEnterprise_Eb2cCore_Help
 	/**
 	 * This should produce a serialized array of product links to be handled by
 	 * the product cleaner. Arrays should consist of
-	 * @param  DOMNodeList                $node    DOM nodes extracted from the feed
+	 *
+	 * @param DOMNodeList $nodes DOM nodes extracted from the feed
 	 * @return string Serialized array
 	 */
 	public function extractProductLinks(DOMNodeList $nodes)
@@ -203,9 +206,11 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends EbayEnterprise_Eb2cCore_Help
 		}
 		return serialize($htscodes);
 	}
+
 	/**
 	 * extract the attribute set name
-	 * @param DOMNodeList $node
+	 *
+	 * @param DOMNodeList $nodes
 	 * @param Mage_Catalog_Model_Product $product
 	 * @return int
 	 */

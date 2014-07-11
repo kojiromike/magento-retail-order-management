@@ -11,7 +11,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest
 	 * Test the application of taxes to an item.
 	 * @large
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testApplyTaxes($qty, $price, $subtotal, $basePrice, $baseSubtotal)
 	{
@@ -274,7 +273,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest
 
 	/**
 	 * Test the collect method when there are actual items in the address.
-	 * @test
 	 */
 	public function testCollectWithItems()
 	{
@@ -374,7 +372,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest
 
 	/**
 	 * Test the collect method with an address item with a parent item.
-	 * @test
 	 */
 	public function testCollectItemWithParentItem()
 	{
@@ -461,7 +458,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest
 	 * are passed. This means that in order for the test to succeed, the methods must be called in
 	 * the same order they currently are. Any additional calls to the address mock within the test
 	 * are likely to cause a failure.
-	 * @test
 	 */
 	public function testCollectNoItems()
 	{
@@ -525,7 +521,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest
 
 	/**
 	 * verify the subtotal module triggers the eb2ctax_subtotal_collect_before event.
-	 * @test
 	 */
 	public function testCollectSendRequestEvent()
 	{

@@ -206,7 +206,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 	 * Expectation 4: the method EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::addMessage will return itself as asserted in the test
 	 * @mock EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_getLangCode
 	 * @mock EbayEnterprise_Eb2cProduct_Helper_Data::mapPattern
-	 * @test
 	 */
 	public function testAddMessage()
 	{
@@ -484,7 +483,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 	 *                EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::addError with type as first parameter and file name as the
 	 *                second parameter and then calling the method EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::addErrorConfirmation with sku
 	 *                the test can then make the assertion that EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::hasErrorConfirmation will return true
-	 * @test
 	 */
 	public function testHasErrorConfirmation()
 	{

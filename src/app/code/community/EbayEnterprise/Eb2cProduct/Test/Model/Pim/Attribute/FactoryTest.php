@@ -5,7 +5,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 {
 	/**
 	 * Constructor should load and store the PIM feed mappings from the config
-	 * @test
 	 */
 	public function testConstructor()
 	{
@@ -34,7 +33,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 	}
 	/**
 	 * Test creating a PIM Attribute Model for a given product and attribute.
-	 * @test
 	 */
 	public function testGetPimAttribute()
 	{
@@ -77,7 +75,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 	/**
 	 * When a resolved mapping callback returns null due to a mapping being
 	 * disabled, this method should return null instead of a PIM attribute model.
-	 * @test
 	 */
 	public function testGetPimAttributeDisabledMapping()
 	{
@@ -114,7 +111,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 	}
 	/**
 	 * Test getting an attribute mapping
-	 * @test
 	 */
 	public function testGetAttributeMapping()
 	{
@@ -141,7 +137,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 	 * a 'parameters' key including the attribute value, attribute and product.
 	 * The method should return an array of arguments to be passed to the PIM
 	 * Attribute model's constructor.
-	 * @test
 	 */
 	public function testResolveMappedCallback()
 	{
@@ -208,7 +203,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 	/**
 	 * When an attribute configuration is set to the "disabled" type, this method
 	 * should simply return null.
-	 * @test
 	 */
 	public function testResolveMappedCallbackDisabledMapping()
 	{
@@ -248,7 +242,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 	/**
 	 * Create the array of args to pass to the PIM Attribute model constructor
 	 * based on a given attribute mapping, value and product.
-	 * @test
 	 */
 	public function testCreatingPimAttributeArgsWithTranslation()
 	{
@@ -296,7 +289,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 	/**
 	 * When the translate key in the config is set to false/0, the language
 	 * key in the arg array should not be set.
-	 * @test
 	 */
 	public function testCreatingPimAttributeArgsNoTranslation()
 	{

@@ -23,7 +23,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 	 * a _coreFeed property. When invalid, should throw an exception.
 	 * @param  array   $initialData
 	 * @param  boolean $isValid
-	 * @test
 	 * @dataProvider provideConstructorInitialData
 	 */
 	public function testConstructor($initialData, $isValid)
@@ -56,7 +55,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 	 * file, ack the file, move it to a processing directory, pass an array of
 	 * file details (local path, etc.) along to processFile, and move the file
 	 * to an archive directory.
-	 * @test
 	 */
 	public function testProcessFeeds()
 	{
@@ -89,7 +87,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 	}
 	/**
 	 * When an exception occurs while processing a file, log a warning.
-	 * @test
 	 */
 	public function testProcessFeedsFailure()
 	{
@@ -140,7 +137,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 	/**
 	 * Process a single file - load the file into a new DOM document and validate
 	 * the file header. If loading and validation are successful, process the dom.
-	 * @test
 	 */
 	public function testProcessFile()
 	{
@@ -192,7 +188,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 	/**
 	 * When a dom for the feed cannot be successfully loaded (DOM::load and validate)
 	 * do not attempt to process the DOM but ensure the file is still archived.
-	 * @test
 	 */
 	public function testProcessFileDomLoadFails()
 	{
@@ -233,7 +228,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 	/**
 	 * Test loading a validating a file as a DOM Document. When loaded and
 	 * validated successfully, the loaded DOM Document should be returned.
-	 * @test
 	 */
 	public function testLoadDomSuccess()
 	{
@@ -295,7 +289,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_AbstractTest extends EbayEnterpris
 	 * validation fails, the _loadDom method should return null.
 	 * @param  boolean $loadResult
 	 * @param  boolean $validateResult
-	 * @test
 	 * @dataProvider provideLoadDomFailures
 	 */
 	public function testLoadDomFailure($loadResult, $validateResult)

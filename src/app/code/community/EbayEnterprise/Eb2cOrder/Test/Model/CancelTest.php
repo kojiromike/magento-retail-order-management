@@ -14,7 +14,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_CancelTest extends EbayEnterprise_Eb2c
 	 * @param string $reason, the reason
 	 * @dataProvider dataProvider
 	 * @loadExpectation
-	 * @test
 	 */
 	public function testBuildRequest($orderType, $orderId, $reasonCode, $reason)
 	{
@@ -40,7 +39,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_CancelTest extends EbayEnterprise_Eb2c
 	 * Test sending request
 	 * @loadExpectation
 	 * @loadFixture
-	 * @test
 	 */
 	public function testSendRequest()
 	{
@@ -113,7 +111,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_CancelTest extends EbayEnterprise_Eb2c
 	/**
 	 * Test process reponse method with valid response from eb2c
 	 * @loadFixture testSendRequest.yaml
-	 * @test
 	 */
 	public function testProcessResponse()
 	{
@@ -137,7 +134,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_CancelTest extends EbayEnterprise_Eb2c
 	 * Test process reponse method with fail response
 	 * @loadFixture testProcessResponseFailResponse.yaml
 	 * @expectedException EbayEnterprise_Eb2cOrder_Model_Cancel_Exception
-	 * @test
 	 */
 	public function testProcessResponseWithFailedResponse()
 	{

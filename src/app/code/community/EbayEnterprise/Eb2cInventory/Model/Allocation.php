@@ -9,7 +9,7 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 	 * A quote only requires an allocation if it has items with managed stock, does not already have
 	 * an allocation or has an allocation that has expired.
 	 * @param  Mage_Sales_Model_Quote $quote The quote that may be allocation
-	 * @return boolean                       True if the quote needs an allocation. False if it does not.
+	 * @return bool                       True if the quote needs an allocation. False if it does not.
 	 */
 	public function requiresAllocation(Mage_Sales_Model_Quote $quote)
 	{
@@ -152,7 +152,7 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 	 * checking if any quote item has allocation data.
 	 *
 	 * @param Mage_Sales_Model_Quote $quote the quote to check if its items have any allocation data
-	 * @return boolean, true reserved allocation is found, false no allocation data found on any quote item
+	 * @return bool, true reserved allocation is found, false no allocation data found on any quote item
 	 */
 	public function hasAllocation(Mage_Sales_Model_Quote $quote)
 	{
@@ -169,7 +169,7 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 	 * Check if the reserved allocation exceed the maximum expired setting.
 	 *
 	 * @param Mage_Sales_Model_Quote $quote the quote to check if items have any allocation data
-	 * @return boolean, true if any item is expired; false otherwise
+	 * @return bool, true if any item is expired; false otherwise
 	 */
 	public function isExpired($quote)
 	{

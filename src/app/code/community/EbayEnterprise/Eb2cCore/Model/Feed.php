@@ -70,12 +70,15 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 		$feedConfig = $this->getFeedConfig();
 		return isset($feedConfig['event_type']) ? $feedConfig['event_type'] : '';
 	}
+
 	/**
 	 * Ensure the directory at the given path exists or recursively create
 	 * necessary directories. If the directory is given a "name", save the path
 	 * as magic data with that key.
+	 *
 	 * @param string $path the full path to the directory to set up.
 	 * @param string $dirName magic data field to save path to
+	 * @throws EbayEnterprise_Eb2cCore_Exception_Feed_File
 	 * @return self
 	 */
 	protected function _setCheckAndCreateDir($path, $dirName=null)
@@ -259,9 +262,11 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 		);
 		return $filename;
 	}
+
 	/**
-	 * Acknoweldge the XML Feed file at xmlToAckPath.
-	 * @param xmlToAckPath path to a feed we want to acknowledge
+	 * Acknowledge the XML Feed file at xmlToAckPath.
+	 *
+	 * @param string $xmlToAckPath to a feed we want to acknowledge
 	 * @return self
 	 */
 	public function acknowledgeReceipt($xmlToAckPath)

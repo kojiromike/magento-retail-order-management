@@ -136,7 +136,6 @@ XML;
 	/**
 	 * Testing _construct method - valid request/response match xml
 	 *
-	 * @test
 	 */
 	public function testConstructValidRequestResponseMatch()
 	{
@@ -161,7 +160,6 @@ XML;
 	/**
 	 * Testing _construct method - invalid request/response match xml
 	 *
-	 * @test
 	 */
 	public function testConstructInvalidRequestResponseMatch()
 	{
@@ -180,7 +178,6 @@ XML;
 	/**
 	 * Testing _construct method - invalid request/response match xml because of MailingAddress[@id="2"] element is different
 	 *
-	 * @test
 	 */
 	public function testConstructMailingAddressMisMatch()
 	{
@@ -216,7 +213,6 @@ XML;
 		$this->assertSame($expected, $val);
 	}
 	/**
-	 * @test
 	 */
 	public function testItemSplitAcrossShipgroups()
 	{
@@ -243,7 +239,6 @@ XML;
 		$this->assertSame('2', $itemResponse->getLineNumber());
 	}
 	/**
-	 * @test
 	 * @loadExpectation
 	 */
 	public function testDiscounts()
@@ -381,7 +376,6 @@ XML;
 	 * and the first item in each list are case-insensitive equal
 	 * @param  string $responseValue
 	 * @param  string $requestValue
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testCompareNodelistElements($responseValue, $requestValue)

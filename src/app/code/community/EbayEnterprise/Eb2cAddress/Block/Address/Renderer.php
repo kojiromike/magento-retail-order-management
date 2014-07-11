@@ -4,6 +4,7 @@ class EbayEnterprise_Eb2cAddress_Block_Address_Renderer
 {
 	/**
 	 * @param string $format - the template used to format the address
+	 * @return self
 	 */
 	public function initType($format)
 	{

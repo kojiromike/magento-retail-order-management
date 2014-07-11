@@ -82,7 +82,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Indexertest extends EbayEnterprise_Eb2c
 	/**
 	 * Test fire init, after, and finalize dispatchers given a single indexer collection
 	 *
-	 * @test
 	 * @loadFixture testDispatchers.yaml
 	 */
 	public function testDispatchers()

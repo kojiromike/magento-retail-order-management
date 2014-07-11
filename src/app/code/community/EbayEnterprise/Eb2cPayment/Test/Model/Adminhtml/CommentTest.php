@@ -4,7 +4,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Adminhtml_CommentTest
 {
 	/**
 	 * Test getCommentText method
-	 * @test
 	 */
 	public function testGetCommentText()
 	{
@@ -34,7 +33,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Adminhtml_CommentTest
 
 	/**
 	 * Test _getUrl method
-	 * @test
 	 */
 	public function testGetUrl()
 	{

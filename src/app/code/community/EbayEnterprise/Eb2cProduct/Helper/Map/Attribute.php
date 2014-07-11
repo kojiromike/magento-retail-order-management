@@ -63,23 +63,25 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	{
 		return Mage::getModel('eav/entity_attribute')->loadByCode(Mage_Catalog_Model_Product::ENTITY, $name);
 	}
+
 	/**
 	 * Color is a set of nodes - a Code (as the color is known to ROM) and one or more
 	 * Description nodes, each node's value a different language.
+	 *
 	 * @param DOMNodeList $nodeList DOM nodes extracted from the feed
-	 * @return int - the OptionId added or updated | null - the attribute does not exsit
+	 * @param $product
+	 * @return int the OptionId added or updated | null - the attribute does not exist
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function extractColorValue(DOMNodeList $nodeList, $product)
 	{
 		return $this->_addAdminMappedOption('color', 'Code', 'Description', $nodeList);
 	}
+
 	/**
-	 * get a list of option from a given attribute code and store id
 	 * @param string $attributeCode the attribute code (color, size)
-	 * @param int $storeId and actual store entity id
 	 * @param string $optionValue
-	 * @return int list of label/value
+	 * @return int id of the attribute option
 	 */
 	protected function _getAttributeOptionId($attributeCode, $optionValue)
 	{
@@ -92,11 +94,14 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 
 		return (!is_null($option))? (int) $option->getOptionId() : 0;
 	}
+
 	/**
 	 * given a DOMNodeList and a Mage_Catalog_Model_Product make sure this is
 	 * a product of type configurable and then extract the configurable attribute from the node list
 	 * then get the configurable attribute array for each configured attributes
+	 *
 	 * @param DOMNOdeList $nodes the node with configurableAttributes data
+	 * @param Mage_Catalog_Model_Product $product
 	 * @return array | null an array of configurable attribute data if the given product is configurable otherwise null
 	 */
 	public function extractConfigurableAttributesData(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
@@ -149,11 +154,9 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	}
 
 	/**
-	 * return true if the is in a product's attribute set
-	 * @param  string  $attribute
-	 * @param  mixed   $value
-	 * @param  Mage_Catalog_Model_Product $product
-	 * @return boolean
+	 * @param $attributeCode
+	 * @param Mage_Catalog_Model_Product $product
+	 * @return bool true if the attribute with this code is in a product's attribute set
 	 */
 	protected function _isAttributeInSet($attributeCode, $product)
 	{

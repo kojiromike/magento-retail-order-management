@@ -5,7 +5,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Custom_Attribute_OrderTest
 	/**
 	 * Test that EbayEnterprise_Eb2cOrder_Model_Custom_Attribute::extractData
 	 * will return an array of data when invoke by this test
-	 * @test
 	 */
 	public function testExtractData()
 	{

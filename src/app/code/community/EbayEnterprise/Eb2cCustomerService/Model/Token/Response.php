@@ -5,7 +5,7 @@ class EbayEnterprise_Eb2cCustomerService_Model_Token_Response
 {
 	/**
 	 * If given anything but an empty response message, assume it is true.
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isTokenValid()
 	{

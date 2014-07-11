@@ -76,7 +76,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Status_VfsFeedTest extends EbayEnterpr
 
 
 	/**
-	 * @test
 	 * @loadFixture sampleFeeds.yaml
 	 */
 	public function testExtractStatusType()
@@ -89,7 +88,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Status_VfsFeedTest extends EbayEnterpr
 	}
 
 	/**
-	 * @test
 	 * @loadFixture sampleFeeds.yaml
 	 */
 	public function testExtractStatusTimeStamp()
@@ -102,7 +100,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Status_VfsFeedTest extends EbayEnterpr
 	}
 
 	/**
-	 * @test
 	 * @loadFixture sampleFeeds.yaml
 	 */
 	public function testExtractExternalOrderNumber()
@@ -115,7 +112,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Status_VfsFeedTest extends EbayEnterpr
 	}
 
 	/**
-	 * @test
 	 * @loadFixture sampleFeeds.yaml
 	 */
 	public function testExtractor()
@@ -163,7 +159,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Status_VfsFeedTest extends EbayEnterpr
 	}
 
 	/**
-	 * @test
 	 * @loadFixture sampleFeeds.yaml
 	 */
 	public function testFeed()

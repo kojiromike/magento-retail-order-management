@@ -48,7 +48,6 @@ INVALID_XML;
 	}
 	/**
 	 * Test getting tax quotes for a given item
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testGettingTaxQuotesForItem($taxType)
@@ -238,7 +237,6 @@ INVALID_XML;
 	}
 	/**
 	 * Test that we pull the TaxClass for shipping from config.
-	 * @test
 	 */
 	public function testBuildTaxDataNodesShipping()
 	{
@@ -292,7 +290,6 @@ INVALID_XML;
 	 * Build Duty: given a Duty Quote, ensure we'll get a DOMNode back from buildDuty.
 	 * My rationale here is: that's the only thing it should do. Validation is the test
 	 * of whether the node is correctly constructed. I just need to be sure it's a node.
-	 * @test
 	 */
 	public function testBuildDutyMethod()
 	{
@@ -343,7 +340,6 @@ INVALID_XML;
 	/**
 	 * When the observer triggers, the create model should build a new request
 	 * and send it.
-	 * @test
 	 */
 	public function testObserverCreate()
 	{
@@ -366,7 +362,6 @@ INVALID_XML;
 	/**
 	 * Successful sending of the request should take the already constructed OrderCreate
 	 * request and send it via the Eb2cCore Api model	and then process the response.
-	 * @test
 	 */
 	public function testSendRequest()
 	{
@@ -416,7 +411,6 @@ INVALID_XML;
 	 * @param boolean $merchTax Should this item have merchandise taxes
 	 * @param boolean $shippingTax Should this item have shipping taxes
 	 * @param boolean $dutyTax Should this item have duty taxes
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testBuildOrderItemNodes($itemData, $orderData, $merchTax, $shippingTax, $dutyTax)
@@ -529,7 +523,6 @@ INVALID_XML;
 	/**
 	 * verify the delivery window dates are extracted from $item
 	 * verify the dom nodes returned have the correct structure.
-	 * @test
 	 */
 	public function testBuildEstimatedDeliveryDate()
 	{
@@ -581,7 +574,6 @@ INVALID_XML;
 	}
 	/**
 	 * Test _buildOrderCreateRequest method
-	 * @test
 	 */
 	public function testBuildOrderCreateRequest()
 	{
@@ -608,7 +600,6 @@ INVALID_XML;
 	 * service call. Should update the order state based on the success/failure
 	 * of the response as well as store the original request message with the
 	 * order.
-	 * @test
 	 */
 	public function testProcessResponse()
 	{
@@ -659,7 +650,6 @@ INVALID_XML;
 	 * If the response XML exists and has a ResponseStatus node with a value of 'success' in any capitalization,
 	 * we should see a value of STATE_PROCESSING. Otherwise, we should see STATE_NEW.
 	 *
-	 * @test
 	 */
 	public function testExtractResponseState()
 	{
@@ -687,7 +677,6 @@ INVALID_XML;
 	}
 	/**
 	 * Test _buildItems method
-	 * @test
 	 */
 	public function testBuildItems()
 	{
@@ -720,7 +709,6 @@ INVALID_XML;
 	}
 	/**
 	 * Test _buildShip method
-	 * @test
 	 */
 	public function testBuildShip()
 	{
@@ -774,7 +762,6 @@ INVALID_XML;
 	 * @param bool|null $addCard If the order should include a printed card
 	 * @param int|null $giftWrapId ID of the gift wrapping to apply if gift wrapping was added
 	 * @param string $expectationKey Expectation key for the scenario
-	 * @test
 	 * @dataProvider provideGiftMessage
 	 */
 	public function testBuildGiftingNodes($giftMessageId, $addCard, $giftWrapId, $expectationKey)
@@ -846,7 +833,6 @@ INVALID_XML;
 	}
 	/**
 	 * Test buildRequest method
-	 * @test
 	 */
 	public function testBuildRequest()
 	{
@@ -982,7 +968,6 @@ INVALID_XML;
 	 * Test building the payment nodes for stored value cards. Should build the
 	 * <StoreValueCard> and necessary child nodes and attach it to the DOMElement
 	 * passed to the method.
-	 * @test
 	 */
 	public function testBuildPaymentsStoredValue()
 	{
@@ -1075,7 +1060,6 @@ INVALID_XML;
 	 * @param string $panToken Tokenized SVC PAN
 	 * @param bool   $useToken Look for a token, true, or raw value, false
 	 * @param string $expected Value expected to be returned
-	 * @test
 	 * @dataProvider provideOrderPanAndToken
 	 */
 	public function testGetOrderGiftCardPan($pan, $panToken, $useToken, $expected)
@@ -1133,7 +1117,6 @@ INVALID_XML;
 	 *                of Mage_Core_Model_Store object, then the method Mage_Core_Model_Store::isAdmin is called where
 	 *                true to indicate this order was created in admin which will return the class constant
 	 *                EbayEnterprise_Eb2cOrder_Model_Create::BACKEND_ORDER_SOURCE
-	 * @test
 	 * @dataProvider provideForTestGetOrderSource
 	 */
 	public function testGetOrderSource($isAdmin, $fraudReferrer, $expected)
@@ -1278,7 +1261,6 @@ INVALID_XML;
 	}
 	/**
 	 * The context element should be built up from data fetched by the fraud module.
-	 * @test
 	 */
 	public function testBuildContext()
 	{
@@ -1378,7 +1360,6 @@ INVALID_XML;
 
 	/**
 	 * The context element should be built up from data in the order's quote.
-	 * @test
 	 */
 	public function testBuildSessionInfo()
 	{
@@ -1429,7 +1410,6 @@ INVALID_XML;
 
 	/**
 	 * ensure the hostname and charset nodes do not have empty values
-	 * @test
 	 */
 	public function testBuildBrowserDataMissingValues()
 	{
@@ -1473,7 +1453,6 @@ INVALID_XML;
 	/**
 	 * truncate a $str if it is longer than $maxLength.
 	 * if $str evaluates to false, return $default
-	 * @test
 	 * @dataProvider provideForTestXsdStringLength
 	 */
 	public function testXsdStringLength($input, $length, $default, $expected)
@@ -1497,7 +1476,6 @@ INVALID_XML;
 	}
 	/**
 	 * add element only if the value is not empty
-	 * @test
 	 * @dataProvider provideForTestAddElementIfNotEmpty
 	 */
 	public function testAddElementIfNotEmpty($input, $length, $expected)
@@ -1643,7 +1621,6 @@ INVALID_XML;
 	 * Test that EbayEnterprise_Eb2cOrder_Model_Create::_buildCustomAttributesByLevel
 	 * will return itself and that the pass EbayEnterprise_Dom_Element will contain
 	 * the 'CustomAttributes'  node
-	 * @test
 	 */
 	public function testBuildCustomAttributesByLevel()
 	{

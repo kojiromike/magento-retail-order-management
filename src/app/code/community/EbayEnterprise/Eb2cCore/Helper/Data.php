@@ -15,12 +15,15 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	const URI_FORMAT = 'https://%s/v%s.%s/stores/%s/%s/%s%s.%s';
 	const PERMISSION = 0750;
+
 	/**
 	 * Get the API URI for the given service/request.
+	 *
 	 * @param string $service
 	 * @param string $operation
 	 * @param array $params
 	 * @param string $format
+	 * @return string
 	 */
 	public function getApiUri($service, $operation, $params=array(), $format='xml')
 	{
@@ -163,8 +166,9 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Get value of node specified for query. In accordance with existing local custom here,
 	 * named 'extract', and calls extractNodeValue to ensure consistency.
-	 * @param DOMXpath xpath object
-	 * @param xpath query string
+	 *
+	 * @param DOMXpath $xpath
+	 * @param $query
 	 * @return string value found at node found by query
 	 */
 	public function extractQueryNodeValue(DOMXpath $xpath, $query)
@@ -254,8 +258,10 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * abstracting moving a file
+	 *
 	 * @param string $source
 	 * @param string $destination
+	 * @throws EbayEnterprise_Eb2cCore_Exception_Feed_File
 	 * @return void
 	 * @codeCoverageIgnore
 	 */
@@ -267,9 +273,12 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 			throw new EbayEnterprise_Eb2cCore_Exception_Feed_File("Can not move $source to $destination");
 		}
 	}
+
 	/**
 	 * abstracting removing a file
+	 *
 	 * @param string $file
+	 * @throws EbayEnterprise_Eb2cCore_Exception_Feed_File
 	 * @return void
 	 * @codeCoverageIgnore
 	 */

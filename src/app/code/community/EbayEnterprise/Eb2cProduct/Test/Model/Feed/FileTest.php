@@ -25,7 +25,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 * property. When given an invalid set of file details, an error should be triggered.
 	 * @param array  $fileDetails  Argument to the constructor
 	 * @param string $errorMessage Expected error message, if empty, no error is expected
-	 * @test
 	 * @dataProvider provideConstructorDetailsAndErrors
 	 */
 	public function testConstruction($fileDetails, $errorMessage)
@@ -50,7 +49,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 * Test processing of the file, which consists for deleting any products
 	 * marked for deletion in the feed, processing adds/updates for the default
 	 * store view and then processing any translations in the feed.
-	 * @test
 	 */
 	public function testProcess()
 	{
@@ -75,7 +73,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 * helper's splitDomByXslt method, passing through the original DOMDocument,
 	 * the path to the appropriate XSLT and the parameters to be passed through
 	 * to the XSLT.
-	 * @test
 	 */
 	public function testSplitByLanguageCode()
 	{
@@ -118,7 +115,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	/**
 	 * Deleting a product should create a product collection of products marked
 	 * for deletion in the feed and then call the delete method on the collection.
-	 * @test
 	 */
 	public function testRemoveProductsFromWebsites()
 	{
@@ -284,7 +280,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	/**
 	 * Test getting an array of all SKUs contained in a split feed file. Can
 	 * assume that any SKUs to delete have already been stripped out by the XSLT.
-	 * @test
 	 */
 	public function testGetSkusToUpdate()
 	{
@@ -339,7 +334,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 * split the feed file into individual item nodes and create/update the
 	 * product for each item. Finally, the collection should be set within the
 	 * store context the product data should be saved in and save the collection.
-	 * @test
 	 */
 	public function testImportExtractedData()
 	{
@@ -424,7 +418,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 	 * be expected to inlcude products that already exist in Magento. The
 	 * collection should also load as little product data as possible while still
 	 * allowing all of the necessary updates and saves to be performed.
-	 * @test
 	 */
 	public function testBuildProductCollection()
 	{

@@ -10,8 +10,9 @@ class EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup
 
 	/**
 	 * apply default attributes to all valid attribute sets.
-	 * @param  mixed $attributeSet
-	 * @return $this
+	 *
+	 * @param EbayEnterprise_Eb2cProduct_Model_Attributes $attrInfo
+	 * @return self
 	 */
 	public function applyToAllSets($attrInfo)
 	{

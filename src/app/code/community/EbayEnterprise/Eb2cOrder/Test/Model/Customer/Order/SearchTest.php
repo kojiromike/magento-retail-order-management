@@ -17,7 +17,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_SearchTest
 	 * Test the processing of data for a order. customer id is provided via magic setters.
 	 * @param int $customerId, the magento customer id to query eb2c with
 	 * @dataProvider providerRequestOrderSummary
-	 * @test
 	 * @loadFixture loadConfig.yaml
 	 */
 	public function testRequestOrderSummary($customerId)
@@ -68,7 +67,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_SearchTest
 	 * Test the parse response of eb2c call data into varien_object
 	 * @param string $orderSummaryReply the xml response from eb2c
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testParseResponse($orderSummaryReply)
 	{

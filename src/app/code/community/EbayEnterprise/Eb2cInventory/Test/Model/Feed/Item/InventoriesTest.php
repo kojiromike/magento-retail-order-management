@@ -4,7 +4,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 {
 	/**
 	 * Test fs tool is set in the constructor when no parameter passed.
-	 * @test
 	 */
 	public function testConstructor()
 	{
@@ -39,7 +38,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 	}
 	/**
 	 * Test processing of the feeds, success and failure
-	 * @test
 	 */
 	public function testFeedProcessing()
 	{
@@ -65,7 +63,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 	}
 	/**
 	 * Test processing of the feeds, success and failure
-	 * @test
 	 */
 	public function testFeedProcessingNoFilesToProcess()
 	{
@@ -86,7 +83,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 	/**
 	 * Test processing the DOM for a feed file - should used the instances
 	 * extractor to extract feed data and pass it on to updateInventories
-	 * @test
 	 */
 	public function testProcessDom()
 	{
@@ -118,7 +114,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 		$this->assertSame($fii, $fii->processDom($dom, $fileDetails));
 	}
 	/**
-	 * @test
 	 */
 	public function testUpdateInventories()
 	{
@@ -141,7 +136,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 		$fii->updateInventories($sampleFeed); // Just verify the right inner methods are called.
 	}
 	/**
-	 * @test
 	 */
 	public function testSetProdQty()
 	{
@@ -197,7 +191,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 	 * @mock Mage_CatalogInventory_Model_Stock_Item::getMinQty return the expected min qty to be in stock
 	 * @mock Mage_CatalogInventory_Model_Stock_Item::setIsInStock ensure stock item properly set as in or out of stock
 	 * @mock EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories mocked to disable constructor, preventing unwanted side-effects & coverage
-	 * @test
 	 * @dataProvider providerTestUpdateItemIsInStock
 	 */
 	public function testUpdateItemIsInStock($minQty, $updateQty, $isInStock)
@@ -223,7 +216,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 		$this->assertSame($fii, $updateMethod->invoke($fii, $stockItem, $updateQty));
 	}
 	/**
-	 * @test
 	 */
 	public function testExtractSku()
 	{
@@ -237,7 +229,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 		))));
 	}
 	/**
-	 * @test
 	 */
 	public function testUpdateInventory()
 	{

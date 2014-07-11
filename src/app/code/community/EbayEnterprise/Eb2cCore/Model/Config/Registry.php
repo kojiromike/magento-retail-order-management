@@ -89,7 +89,7 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 * Get the configuration value represented by the given configKey
 	 * @param string $configKey
 	 * @param null|string|bool|int|Mage_Core_Model_Store $store
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getConfig($configKey, $store=null)
 	{

@@ -17,6 +17,7 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Get inventory config instantiated object.
 	 *
+	 * @param null $store
 	 * @return EbayEnterprise_Eb2cInventory_Model_Config
 	 */
 	public function getConfigModel($store=null)
@@ -78,7 +79,7 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	 * Test if the item needs to have its quantity checked for available
 	 * inventory.
 	 * @param  Mage_Sales_Model_Quote_Item $item The item to check
-	 * @return boolean True if inventory is managed, false if not
+	 * @return bool True if inventory is managed, false if not
 	 */
 	public function isItemInventoried(Mage_Sales_Model_Quote_Item $item)
 	{

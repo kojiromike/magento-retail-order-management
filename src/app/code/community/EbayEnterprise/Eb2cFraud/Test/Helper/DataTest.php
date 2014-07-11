@@ -16,7 +16,6 @@ class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * Make sure we get back some config data
-	 * @test
 	 * @loadFixture testConfig
 	 */
 	public function testGetConfig()
@@ -27,7 +26,6 @@ class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * Get back sensible URL
-	 * @test
 	 */
 	public function testGetJscUrl()
 	{
@@ -55,7 +53,6 @@ class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
 	/**
 	 * verify an array is returned containing data to populate the fields
 	 * in the SessionInfo element
-	 * @test
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testGetSessionInfo($isLoggedIn)
@@ -128,7 +125,6 @@ class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
 	/**
 	 * Test that when customer/visitor logging is disabled, empty values are
 	 * returned for time spent on site, last login
-	 * @test
 	 */
 	public function testGetSessionInfoMissingLogData()
 	{

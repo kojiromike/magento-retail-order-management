@@ -6,7 +6,6 @@ class EbayEnterprise_Eb2cFraud_Test_Model_ObserverTest extends EcomDev_PHPUnit_T
 {
 	/**
 	 * Is this observer first of all defined?
-	 * @test
 	 */
 	public function testEventObserverDefined()
 	{
@@ -26,7 +25,6 @@ class EbayEnterprise_Eb2cFraud_Test_Model_ObserverTest extends EcomDev_PHPUnit_T
 	 * Test capturing order context, all context data comes from various other
 	 * places so just ensure that the method is attempting to add some data
 	 * for each of the data fields we're expecting to have populated.
-	 * @test
 	 */
 	public function testObserverMethod()
 	{
@@ -163,11 +161,12 @@ class EbayEnterprise_Eb2cFraud_Test_Model_ObserverTest extends EcomDev_PHPUnit_T
 
 	/**
 	 * Returns a mocked object
-	 * @todo: Merge this into test base class?
-	 * @param a Magento Class Alias
-	 * @param array of key / value pairs; key is the method name, value is value returned by that method
 	 *
-	 * @return mocked-object
+	 * @deprecated
+	 * @param string $classAlias Magento configured object factory name
+	 * @param array $mockedMethodSet methods and their expectations for the mock
+	 * @param bool $disableConstructor
+	 * @return object (mock)
 	 */
 	private function _getFullMocker($classAlias, $mockedMethodSet, $disableConstructor=true)
 	{

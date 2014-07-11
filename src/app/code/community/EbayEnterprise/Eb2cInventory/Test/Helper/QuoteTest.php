@@ -47,7 +47,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 	 * given response message loaded. This DOM document should then be used to
 	 * create a DOMXpath object, via the _getNewDomXpath method, which should
 	 * then have the namespace used by inventory responses registered.
-	 * @test
 	 */
 	public function testXPathForMessage()
 	{
@@ -95,7 +94,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 	 * Test adding notices to the cart/checkout session. Message are assumed to
 	 * alreay have been translated via the eb2cinventory/quote helper's `_getCartMessage`
 	 * method. Messages should simply be added to the checkout session.
-	 * @test
 	 */
 	public function testAddNotice()
 	{
@@ -149,7 +147,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 	}
 	/**
 	 * @see self::testAddNotice test. This test will be testing the scenario where the current store is admin
-	 * @test
 	 */
 	public function testAddNoticeAdminStore()
 	{
@@ -205,7 +202,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 	 * Test removing an item from a quote. Method should delete the item from the quote
 	 * and add a user notice. Notice may contain the item name and sku so both should be
 	 * passed to the method adding the notice to the session.
-	 * @test
 	 */
 	public function testRemoveItemFromQuote()
 	{
@@ -300,7 +296,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 	/**
 	 * If attempting to update the quote item quantity to zero, the item should instead
 	 * be removed from the cart - via removeItemFromQuote
-	 * @test
 	 */
 	public function testUpdateQuoteITemQuantityToZeroDeletesItem()
 	{

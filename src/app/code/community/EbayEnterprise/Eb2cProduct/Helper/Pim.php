@@ -232,18 +232,24 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	{
 		return $doc->createAttribute(implode('_', array_filter(explode('_', $nodeAttribute))));
 	}
+
 	/**
 	 * given a value if it is null return null otherwise a DOMNode
+	 *
 	 * @param string $value
+	 * @param DOMDocument $doc
 	 * @return DOMNode | null
 	 */
 	public function createStringNode($value, DOMDocument $doc)
 	{
 		return is_null($value) ? null : $doc->createCDataSection($value);
 	}
+
 	/**
 	 * given a value if it is null return null otherwise a DOMNode
+	 *
 	 * @param string $value
+	 * @param DOMDocument $doc
 	 * @return DOMNode | null
 	 */
 	public function createTextNode($value, DOMDocument $doc)
@@ -407,12 +413,15 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 		}
 		return $frag->hasChildNodes() ? $frag : null;
 	}
+
 	/**
 	 * build out a product link subtree
+	 *
 	 * @param DOMDocumentFragment $frag
-	 * @param string              $type
-	 * @param int                 $position
-	 * @param DOMNode             $value
+	 * @param string $type
+	 * @param int $position
+	 * @param DOMNode $value
+	 * @return DOMDocumentFragment
 	 */
 	protected function _addProductLink(DOMDocumentFragment $frag, $type, $position, DOMNode $value)
 	{

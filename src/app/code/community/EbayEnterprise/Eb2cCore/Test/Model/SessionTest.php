@@ -29,7 +29,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	}
 	/**
 	 * Test extracting quote item sku data from a quote
-	 * @test
 	 */
 	public function testExtractQuoteSkuData()
 	{
@@ -73,7 +72,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 		);
 	}
 	/**
-	 * @test
 	 */
 	public function testExtractAddressData()
 	{
@@ -173,7 +171,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  Mage_Sales_Model_Quote_Address $address         Shipping address for quote
 	 * @param  array                          $addressData     Data extracted from shipping address
 	 * @param  array                          $shippingExtract The exptected array of data
-	 * @test
 	 * @dataProvider providerTestExtractShippingData
 	 */
 	public function testExtractShippingData($quote, $address, $addressData, $shippingExtract)
@@ -195,7 +192,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test extracting the current coupon code from a quote - should just get the
 	 * coupon code from the quote and return it.
-	 * @test
 	 */
 	public function testExtractCouponData()
 	{
@@ -223,7 +219,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * When the quote does not have a billing address, should return an empty array.
 	 * @param  Mage_Sales_Model_Quote_Address|null $billingAddress Quote billing address object
 	 * @param  array                               $extractedData  Data exptected to be extracted
-	 * @test
 	 * @dataProvider providerExtractBillingData
 	 */
 	public function testExtractQuoteBillingData($billingAddress, $extractedData)
@@ -252,7 +247,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 		$this->assertSame($extractedData, $method->invoke($session, $quote));
 	}
 	/**
-	 * @test
 	 * @dataProvider providerExtractBillingData
 	 */
 	public function testExtractQuoteData()
@@ -300,7 +294,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  array  $old  Old billing address
 	 * @param  array  $new  New billing address
 	 * @param  array  $diff Expected diff
-	 * @test
 	 * @dataProvider providerDiffBilling
 	 */
 	public function testDiffBilling($old, $new, $diff)
@@ -330,7 +323,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  string $old  Exiting coupon code
 	 * @param  string $new  New coupon code
 	 * @param  array  $diff Expected diff
-	 * @test
 	 * @dataProvider providerDiffCoupon
 	 */
 	public function testDiffCoupon($old, $new, $diff)
@@ -363,7 +355,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  array  $old  Old address data
 	 * @param  array  $new  New address data
 	 * @param  array  $diff Expected diff of the data
-	 * @test
 	 * @dataProvider providerDiffShipping
 	 */
 	public function testDiffShipping($old, $new, $diff)
@@ -430,7 +421,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  array  $old  Old skus/item data
 	 * @param  array  $new  New skus/item data
 	 * @param  array  $diff Expected diff
-	 * @test
 	 * @dataProvider providerDiffSkus
 	 */
 	public function testDiffSkus($old, $new, $diff)
@@ -470,7 +460,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  array $shipping Diff of shipping data
 	 * @param  array $items    Diff of item data
 	 * @param  array $final    Expected diff of full qoute
-	 * @test
 	 * @dataProvider providerDiffQuoteData
 	 */
 	public function testDiffQuoteData($old, $new, $billing, $coupon, $shipping, $items, $final)
@@ -508,7 +497,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * When the "old" quote data is empty, all of the new quote data should be returned
 	 * as the changes - consider whole quote as having changed.
-	 * @test
 	 */
 	public function testDiffQuoteDataReturnNewQuoteDataWhenOldQuoteIsEmpty()
 	{
@@ -522,7 +510,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * When quote data has expired, the entire new quote should be returned as the
 	 * changes to the quote - consider whole quote as having changed.
-	 * @test
 	 */
 	public function testDiffQuoteDataReturnNewQuoteDataWhenDataExpired()
 	{
@@ -545,7 +532,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test getting the oldest possible unexpired timestamp - time X minutes ago, where
 	 * X is the config setting for the inventory expiration.
-	 * @test
 	 */
 	public function testGetInventoryTimeout()
 	{
@@ -574,7 +560,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * Test checking if quote data in the session has expired
 	 * @param  array   $quoteData Array of quote data, possibly containing a 'last_updated' key
 	 * @param  boolean $isExpired Should the quote data be considered expired
-	 * @test
 	 * @dataProvider providerHasInventoryExpired
 	 */
 	public function testHasInventoryExpired($quoteData, $isExpired)
@@ -594,7 +579,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test getting the tax update required flag. Should just return the
 	 * value of the magic data used to store the flag
-	 * @test
 	 */
 	public function testIsTaxUpdateRequired()
 	{
@@ -607,7 +591,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test getting the quantity update required flag. Should just return the
 	 * value of the magic data used to store the flag
-	 * @test
 	 */
 	public function testIsQuantityUpdateRequired()
 	{
@@ -620,7 +603,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test getting the details update required flag. Should just return the value
 	 * of the magic data used to store the flag
-	 * @test
 	 */
 	public function testIsDetailsUpdateRequired()
 	{
@@ -633,7 +615,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test resetting the tax update required flag. Calling this method should force the
 	 * flag go to be unset.
-	 * @test
 	 */
 	public function testResetTaxUpdateRequired()
 	{
@@ -645,7 +626,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test resetting the inventory quantity update required flag. Calling this method should
 	 * force the flag go to be unset.
-	 * @test
 	 */
 	public function testResetQuantityUpdateRequired()
 	{
@@ -660,7 +640,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test resetting the inventory details update required flag. Calling this method should force the
 	 * flag go to be unset.
-	 * @test
 	 */
 	public function testResetDetailsUpdateRequired()
 	{
@@ -672,7 +651,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test getting the diff of the "old" quote to the new quote. Should just return
 	 * whatever was set in the "magic" data when the quote data was last updated.
-	 * @test
 	 */
 	public function testGetQuoteChanges()
 	{
@@ -708,7 +686,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * be updated based on the changes made to the quote.
 	 * @param  boolean $currFlag    Is details already flagged for updates
 	 * @param  boolean $changeFlag  Should these changes require details updates
-	 * @test
 	 * @dataProvider providerUpdateWithQuote
 	 */
 	public function testUpdateWithQuote($currFlag, $changeFlag) {
@@ -805,7 +782,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	}
 	/**
 	 * Test checking an array to have any item with the given key set to a truthy value.
-	 * @test
 	 */
 	public function testAnyItem()
 	{
@@ -818,7 +794,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test checking for any item in a list of items to include a virtual item - an
 	 * item with a 'virtual' key set to true.
-	 * @test
 	 */
 	public function testItemsIncludeVirtualItem()
 	{
@@ -839,7 +814,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	/**
 	 * Test checking for any item in a list of items to include a managed stock
 	 * item - an item with a 'managed' key set to true.
-	 * @test
 	 */
 	public function testItemsIncludeManagedItem()
 	{
@@ -883,14 +857,17 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			array($quoteData, $noManaged, true,       false,    true,  false, false),
 		);
 	}
+
 	/**
 	 * Test checking the quote diff data for requiring tax data to be updated.
-	 * @param  array   $quoteData  Array of quote data
-	 * @param  array   $diffData   Array of quote changes
-	 * @param  boolean $hasVirtual Does the quote contain virtual items
-	 * @param  boolean $hasManaged Does the quote contain managed stock items
-	 * @param  boolean $flagTax    Should this flag tax
-	 * @test
+	 *
+	 * @param array $quoteData Array of quote data
+	 * @param array $diffData Array of quote changes
+	 * @param boolean $hasVirtual Does the quote contain virtual items
+	 * @param boolean $hasManaged Does the quote contain managed stock items
+	 * @param boolean $flagTax Should this flag tax
+	 * @param $flagQty
+	 * @param $flagDeets
 	 * @dataProvider providerQuoteDiffs
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
@@ -921,7 +898,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  boolean $flagTax    Should this flag tax
 	 * @param  boolean $flagQty    Should this flag quantity
 	 * @param  boolean $flagDeets  Should this flag details
-	 * @test
 	 * @dataProvider providerQuoteDiffs
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
@@ -952,7 +928,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  boolean $flagTax    Should this flag tax
 	 * @param  boolean $flagQty    Should this flag quantity
 	 * @param  boolean $flagDeets  Should this flag details
-	 * @test
 	 * @dataProvider providerQuoteDiffs
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
@@ -979,7 +954,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * extract sku data from the quote and update the "current" quote data in the
 	 * session with the updated list of items. Calling this method should also
 	 * update the "last_updated" timestamp on the quote data.
-	 * @test
 	 */
 	public function testUpdateQuoteInventory()
 	{
@@ -1043,7 +1017,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  bool $init    initial flag value
 	 * @param  bool $current new value
 	 * @param  bool $result  expected result
-	 * @test
 	 * @dataProvider provideTrueFalseSequence()
 	 */
 	public function testSetTaxUpdateRequired($init, $current, $result)
@@ -1061,7 +1034,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  bool $init    initial flag value
 	 * @param  bool $current new value
 	 * @param  bool $result  expected result
-	 * @test
 	 * @dataProvider provideTrueFalseSequence()
 	 */
 	public function testSetQuantityUpdateRequired($init, $current, $result)
@@ -1079,7 +1051,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  bool $init    initial flag value
 	 * @param  bool $current new value
 	 * @param  bool $result  expected result
-	 * @test
 	 * @dataProvider provideTrueFalseSequence()
 	 */
 	public function testDetailsTaxUpdateRequired($init, $current, $result)

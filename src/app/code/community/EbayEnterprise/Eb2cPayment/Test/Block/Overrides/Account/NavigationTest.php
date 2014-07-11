@@ -48,7 +48,6 @@ class EbayEnterprise_Eb2cPayment_Test_Block_Overrides_Account_NavigationTest ext
 	/**
 	 * testing removeLinkByName method
 	 *
-	 * @test
 	 * @dataProvider providerRemoveLinkByName
 	 */
 	public function testRemoveLinkByName($name)

@@ -77,10 +77,12 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount extends Enterpr
 		}
 		return $this->load($this->_requestedCode, 'code');
 	}
+
 	/**
 	 * Update enterprise giftcard account with data from eb2c
-	 * @param EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount $giftCard, the gift card object
-	 * @param array $balanceData, the eb2c stored value balance data
+	 *
+	 * @param Enterprise_GiftCardAccount_Model_Giftcardaccount $giftCard the gift card object
+	 * @param array $balanceData the eb2c stored value balance data
 	 * @return void
 	 */
 	protected function _updateGiftCardWithEb2cData(Enterprise_GiftCardAccount_Model_Giftcardaccount $giftCard, array $balanceData)
@@ -119,10 +121,13 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount extends Enterpr
 			->setDateCreated(Mage::getModel('core/date')->date('Y-m-d'))
 			->save();
 	}
+
 	/**
-	 * overrriding addToCart method in order to save the eb2c pan and pin field in the quote
+	 * overriding addToCart method in order to save the eb2c pan and pin field in the quote
 	 * Add gift card to quote gift card storage
+	 *
 	 * @param bool $saveQuote
+	 * @param null $quote
 	 * @return Enterprise_GiftCardAccount_Model_Giftcardaccount
 	 */
 	public function addToCart($saveQuote=true, $quote=null)

@@ -239,10 +239,12 @@ class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Detail
 		}
 		return $this;
 	}
+
 	/**
 	 * setup a billing address
+	 *
 	 * @param DOMXpath $xpath
-	 * @param mixed    $store
+	 * @return self
 	 */
 	protected function _setBillingAddress(DOMXpath $xpath)
 	{

@@ -21,10 +21,13 @@ class EbayEnterprise_Eb2cOrder_Model_Status_Feed extends EbayEnterprise_Eb2cCore
 		$mageOrder = Mage::getModel('sales/order')->loadByIncrementId($orderId);
 		return $mageOrder;
 	}
+
 	/**
 	 * Is this status older than a status that's already been applied?
+	 *
 	 * @param Mage_Sales_Model_Order
 	 * @param StatusDateTime (as from Eb2c)
+	 * @return bool
 	 */
 	protected function _statusIsExpired($mageOrder, $statusDateTimeStamp)
 	{
@@ -100,10 +103,13 @@ class EbayEnterprise_Eb2cOrder_Model_Status_Feed extends EbayEnterprise_Eb2cCore
 			->setEb2cOrderStatusType($status)
 			->setEb2cOrderStatusTimestamp($statusTimeStamp);
 	}
+
 	/**
 	 * Nothing to do, except log that we received confirmation, and update the order eb2cStatusType
+	 *
 	 * @param $mageOrder Mage_Sales_Model_Order
 	 * @param array $orderDetails line item details
+	 * @param $statusTimeStamp
 	 * @return self
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */

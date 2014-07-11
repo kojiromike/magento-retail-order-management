@@ -3,7 +3,6 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	/**
-	 * @test
 	 */
 	public function testGetXmlNs()
 	{
@@ -12,7 +11,6 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 		$this->assertSame('http://api.gsicommerce.com/schema/payment/1.0', $hlpr->getPaymentXmlNs());
 	}
 	/**
-	 * @test
 	 * @loadFixture loadConfig.yaml
 	 */
 	public function testGetOperationUri()
@@ -101,7 +99,6 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 	}
 
 	/**
-	 * @test
 	 * @loadFixture loadConfig.yaml
 	 * @dataProvider dataProvider
 	 */
@@ -111,7 +108,6 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 	}
 	/**
 	 * Test that we return the correct SVC url for the given PAN
-	 * @test
 	 */
 	public function testGetSvcUri()
 	{
@@ -234,7 +230,6 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 
 	/**
 	 * Test getTenderType method
-	 * @test
 	 */
 	public function testGetTenderType()
 	{

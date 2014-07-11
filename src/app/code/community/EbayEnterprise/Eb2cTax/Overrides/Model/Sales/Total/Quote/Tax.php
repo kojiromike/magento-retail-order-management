@@ -40,10 +40,11 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 		}
 		return $this;
 	}
+
 	/**
 	 * Calculate address total tax based on row total
+	 *
 	 * @param Mage_Sales_Model_Quote_Address $address
-	 * @param Varien_Object $taxRateRequest
 	 * @return Mage_Tax_Model_Sales_Total_Quote
 	 */
 	protected function _calcTaxForAddress(Mage_Sales_Model_Quote_Address $address)
@@ -102,10 +103,11 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 		$address->getQuote()->setTaxesForItems($itemTaxGroups);
 		return $this;
 	}
+
 	/**
 	 * Calculate item tax amount based on row total
-	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
-	 * @param float $rate
+	 *
+	 * @param $itemSelector
 	 * @return Mage_Tax_Model_Sales_Total_Quote
 	 */
 	protected function _calcTaxForItem($itemSelector)
@@ -219,7 +221,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 	/**
 	 * return true if the shipping price includes VAT.
 	 * return false otherwise.
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isShippingPriceTaxInclusive()
 	{
@@ -265,9 +267,12 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 		$address->setTotalAmount('shipping_hidden_tax', 0.0);
 		$address->setBaseTotalAmount('shipping_hidden_tax', 0.0);
 	}
+
 	/**
 	 * Process hidden taxes for items (in accordance with hidden tax type)
-	 * @return void
+	 *
+	 * @param float $baseAmount
+	 * @param $item
 	 */
 	protected function _processItemHiddenTax($baseAmount, $item)
 	{
@@ -279,9 +284,12 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 			$this->_getAddress()->addBaseTotalAmount('hidden_tax', $item->getBaseHiddenTaxAmount());
 		}
 	}
+
 	/**
 	 * Process hidden taxes for shipping (in accordance with hidden tax type)
-	 * @return void
+	 *
+	 * @param $baseAmount
+	 * @param $address
 	 */
 	protected function _processShippingHiddenTax($baseAmount, $address)
 	{

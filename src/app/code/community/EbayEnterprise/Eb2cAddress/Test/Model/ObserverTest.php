@@ -29,7 +29,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ObserverTest
 
 	/**
 	 * When disabled, observer method should do nothing.
-	 * @test
 	 */
 	public function testValidationValidationDisabled()
 	{
@@ -47,7 +46,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ObserverTest
 
 	/**
 	 * When disabled, observer method should do nothing.
-	 * @test
 	 */
 	public function testAddSuggestionsValidationDisabled()
 	{
@@ -69,7 +67,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ObserverTest
 	/**
 	 * Test that when address validation fails, the errors are added to the address
 	 * object's set of errors.
-	 * @test
 	 */
 	public function testValidateAddressValidationErrors()
 	{
@@ -102,7 +99,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ObserverTest
 
 	/**
 	 * Ensure when validation is successful, that no errors are added to the address
-	 * @test
 	 */
 	public function testValidateAddressSuccess()
 	{
@@ -206,7 +202,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ObserverTest
 	/**
 	 * When the response is invalid and there are suggestions to show,
 	 * the response JSON should be modified to include the markup for the suggestions.
-	 * @test
 	 */
 	public function testResponseWithErrors()
 	{
@@ -276,7 +271,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ObserverTest
 	/**
 	 * Suggestions should not be added to the OPC response when the address is valid,
 	 * even if there are errors in the response.
-	 * @test
 	 */
 	public function testResposeValidAddressWithErrors()
 	{

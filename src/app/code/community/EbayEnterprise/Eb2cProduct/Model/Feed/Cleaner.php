@@ -61,7 +61,6 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 	}
 	/**
 	 * Go through all products that need to be cleaned and clean them.
-	 * @return $this object
 	 */
 	public function cleanAllProducts()
 	{
@@ -209,7 +208,7 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 	 * Currently, this means only simple products with a style_id that differs
 	 * from the sku.
 	 * @param  Mage_Catalog_Model_Product $product
-	 * @return boolean True if product is expected to have a parent configurable product, false otherwise.
+	 * @return bool True if product is expected to have a parent configurable product, false otherwise.
 	 */
 	protected function _filterProductWithConfigParent(Mage_Catalog_Model_Product $product)
 	{
@@ -217,10 +216,12 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 			$product->getStyleId() &&
 			$product->getStyleId() !== $product->getSku();
 	}
+
 	/**
 	 * Update any product links.
-	 * @param  Mage_Catalog_Model_Product $product [description]
-	 * @return $this object
+	 *
+	 * @param Mage_Catalog_Model_Product $product
+	 * @return self
 	 */
 	public function cleanProduct(Mage_Catalog_Model_Product $product)
 	{
@@ -238,8 +239,9 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 
 	/**
 	 * Resolved linked products - related, up sell, cross sell
+	 *
 	 * @param  Mage_Catalog_Model_Product $product Product to add links for
-	 * @return $this object
+	 * @return self
 	 */
 	protected function _resolveProductLinks(Mage_Catalog_Model_Product $product)
 	{
@@ -343,8 +345,9 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 
 	/**
 	 * Add products used to configure this product.
+	 *
 	 * @param Mage_Catalog_Model_Product $product Configurable parent product to add children to.
-	 * @return $this object
+	 * @return self
 	 */
 	protected function _addUsedProducts(Mage_Catalog_Model_Product $product)
 	{
@@ -392,8 +395,9 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner
 
 	/**
 	 * Simple product that needs to be added as a configuration to a configurable product.
+	 *
 	 * @param Mage_Catalog_Model_Product $product Simple product used to configure a configurable product.
-	 * @return $this object
+	 * @return self
 	 */
 	protected function _addToConfigurableProduct(Mage_Catalog_Model_Product $product)
 	{

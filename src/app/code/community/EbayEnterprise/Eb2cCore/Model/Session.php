@@ -120,12 +120,14 @@ class EbayEnterprise_Eb2cCore_Model_Session
 			'skus' => $this->_extractQuoteSkuData($quote),
 		);
 	}
+
 	/**
 	 * Diff billing address data between the two. Any change to a billing address
 	 * should force the entire address to be considered to be different
-	 * @param  array  $oldBilling Array of address data extracted from a quote
-	 * @param  array  $newBilling Array of address data extracted from a quote
-	 * @return array Array containing new address data if address has changed, empty array of addresses match
+	 *
+	 * @param $oldAddress Array of address data extracted from a quote
+	 * @param $newAddress Array of address data extracted from a quote
+	 * @return array containing new address data if address has changed, empty array of addresses match
 	 */
 	protected function _diffBilling($oldAddress, $newAddress) {
 		return ($oldAddress !== $newAddress) ?
@@ -203,7 +205,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	 * truthy value.
 	 * @param  array  $items array of item data
 	 * @param  string $key   array key to check
-	 * @return boolean true if any item has a truthy value at the given key
+	 * @return bool true if any item has a truthy value at the given key
 	 */
 	protected function _anyItem($items, $key)
 	{
@@ -217,7 +219,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	/**
 	 * Check the array of items data for virtual items
 	 * @param  array $items Array of items data
-	 * @return boolean True if the data contains virtual items, false if not
+	 * @return bool True if the data contains virtual items, false if not
 	 */
 	protected function _itemsIncludeVirtualItem($items) {
 		return $this->_anyItem($items, 'virtual');
@@ -225,7 +227,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	/**
 	 * Check the array of item data for managed stock items
 	 * @param  array $items Array of items data
-	 * @return boolean True if the data contains virtual items, false if not
+	 * @return bool True if the data contains virtual items, false if not
 	 */
 	protected function _itemsIncludeManagedItem($items) {
 		return $this->_anyItem($items, 'managed');
@@ -245,7 +247,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	 * Check the timestamp in the given quote data array and see if it is older
 	 * than allowed. If no last_updated key exists, assume it was never updated and considered expired.
 	 * @param  array  $quoteData Array containing a 'last_updated' key set to a valid timestamp value
-	 * @return boolean           True if the session data has expired, false otherwise
+	 * @return bool           True if the session data has expired, false otherwise
 	 */
 	protected function _hasInventoryExpired($quoteData)
 	{
@@ -261,7 +263,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	 * - item quantities change
 	 * @param  array $quoteData Array of data extracted from the newest quote object
 	 * @param  array $quoteDiff Array of changes made to the quote
-	 * @return boolean true iff a tax request should be made
+	 * @return bool true iff a tax request should be made
 	 */
 	protected function _changeRequiresTaxUpdate($quoteData, $quoteDiff) {
 		return (isset($quoteData['skus'])) && (
@@ -277,7 +279,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	 * - items with managed stock change
 	 * @param  array $quoteData Array of data extracted from the newest quote object
 	 * @param  array $quoteDiff Array of changes made to the quote
-	 * @return boolean true iff an inventory quantity request should be made
+	 * @return bool true iff an inventory quantity request should be made
 	 */
 	protected function _changeRequiresQuantityUpdate($quoteData, $quoteDiff) {
 		return isset($quoteData['skus']) &&
@@ -290,7 +292,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	 * - items with managed stock change
 	 * @param  array $quoteData Array of data extracted from the newest quote object
 	 * @param  array $quoteDiff Array of changes made to the quote
-	 * @return boolean true iff an inventory details request should be made
+	 * @return bool true iff an inventory details request should be made
 	 */
 	protected function _changeRequiresDetailsUpdate($quoteData, $quoteDiff) {
 		return isset($quoteData['skus']) && (
@@ -298,25 +300,34 @@ class EbayEnterprise_Eb2cCore_Model_Session
 			(isset($quoteDiff['shipping']) && $this->_itemsIncludeManagedItem($quoteData['skus']))
 		);
 	}
+
 	/**
 	 * Update the tax flag.
 	 * NOTE: this method cannot set the flag to be false if the flag was already set to be true.
+	 *
+	 * @param $value
 	 * @return self
 	 */
 	public function setTaxUpdateRequired($value) {
 		return $this->setData('tax_update_required_flag', $value || $this->getTaxUpdateRequiredFlag());
 	}
+
 	/**
 	 * Update the inventory quantity flag.
 	 * NOTE: this method cannot set the flag to be false if the flag was already set to be true.
+	 *
+	 * @param $value
 	 * @return self
 	 */
 	public function setQuantityUpdateRequired($value) {
 		return $this->setData('quantity_update_required_flag', $value || $this->getQuantityUpdateRequiredFlag());
 	}
+
 	/**
 	 * Update the inventory details flag.
 	 * NOTE: this method cannot set the flag to be false if the flag was already set to be true.
+	 *
+	 * @param $value
 	 * @return self
 	 */
 	public function setDetailsUpdateRequired($value) {
@@ -324,21 +335,21 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	}
 	/**
 	 * Get that flag indicating that changes to the quote require tax data to be updated
-	 * @return boolean Should tax details be recollected
+	 * @return bool Should tax details be recollected
 	 */
 	public function isTaxUpdateRequired() {
 		return $this->getTaxUpdateRequiredFlag();
 	}
 	/**
 	 * Get the flag indicating that changes to the quote require inventory quantity to be rechecked.
-	 * @return boolean Should inventory details be rechecked
+	 * @return bool Should inventory details be rechecked
 	 */
 	public function isQuantityUpdateRequired() {
 		return $this->getQuantityUpdateRequiredFlag();
 	}
 	/**
 	 * Get the flag indicating that changes to the quote require inventory details to be recollected.
-	 * @return boolean Should inventory details be recollected
+	 * @return bool Should inventory details be recollected
 	 */
 	public function isDetailsUpdateRequired() {
 		return $this->getDetailsUpdateRequiredFlag();

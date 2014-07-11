@@ -4,7 +4,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 {
 	/**
 	 * verify the observer is configured to listen for necessary events.
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testObserverConfiguration($area, $eventName, $method)
@@ -54,7 +53,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	 * in the add to/update cart process should be blocked.
 	 * @param boolean $isQtyUpdated     Should inventory quantity be checked
 	 * @param boolean $isDetailsUpdated Should inventory details be updated
-	 * @test
 	 * @dataProvider providerCheckInventoryQuantity
 	 */
 	public function testCheckInventory($isQtyUpdated, $isDetailsUpdated)
@@ -168,7 +166,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	 * quote and changes in the quote. If the service call returned a usable response, the session
 	 * data for quote quantities should be updated.
 	 * @param  string $response Response from the inventory quantity service.
-	 * @test
 	 * @dataProvider providerUpdateResponse
 	 */
 	public function testUpdateQuantity($response)
@@ -215,7 +212,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	 * quote and changes to the quote. If the service returns a usable response, the session data
 	 * for quantities and details should be updated.
 	 * @param  string $response Response from inventory service
-	 * @test
 	 * @dataProvider providerUpdateResponse
 	 */
 	public function testUpdateDetails($response)
@@ -259,7 +255,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	/**
 	 * Test the abstract method for making an inventory service request and updating
 	 * the quote with the results.
-	 * @test
 	 */
 	public function testMakeRequestAndUpdate()
 	{
@@ -284,11 +279,10 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 		$method = $this->_reflectMethod($observer, '_makeRequestAndUpdate');
 		$this->assertSame($response , $method->invoke($observer, $request, $quote, $quoteDiff));
 	}
+
 	/**
 	 * When a quote does not have any items that have managed stock, no allocation
 	 * request should be made.
-	 * @param  Varien_Event_Observer $observer
-	 * @test
 	 */
 	public function testNoAllocationRequestWhenNotRequired()
 	{
@@ -314,7 +308,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	 * Test rolling back an allocation - should retrieve the quote the allocation
 	 * was made from from the event observer and pass it through to the
 	 * eb2cinventory/quote helper's rollbackAllocation method.
-	 * @test
 	 */
 	public function testRollbackAllocation()
 	{
@@ -341,7 +334,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	 * When the session contains a flag indicating the allocation should not be
 	 * rolled back, such as in the case that a quote could not be fully allocated,
 	 * do cause the allocation rollback request to be made.
-	 * @test
 	 */
 	public function testRetainAllocationNoRollback()
 	{

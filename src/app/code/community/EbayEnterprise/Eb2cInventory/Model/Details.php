@@ -33,7 +33,7 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	 * Determine if a valid request could be sent for the given quote. In this case, must
 	 * have items (parent check), a shipping address, and shipping method.
 	 * @param  Mage_Sales_Model_Quote $quote The quote the request would be for
-	 * @return boolean True if possible to create valid request from the quote, false otherwise
+	 * @return bool True if possible to create valid request from the quote, false otherwise
 	 */
 	protected function _canMakeRequestWithQuote(Mage_Sales_Model_Quote $quote)
 	{
@@ -145,7 +145,8 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 
 	/**
 	 * Parse inventory details response xml.
-	 * @param DOMXPath $responseMessage DOMXPath that can be used to search the response message
+	 *
+	 * @param DOMXpath $responseXPath used to search the response message
 	 * @return array, an associative array of response data
 	 */
 	public function extractItemDetails(DOMXpath $responseXPath)
@@ -180,9 +181,11 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 		}
 		return $inventoryData;
 	}
+
 	/**
 	 * Extract unavailable items from an inventory details response message.
-	 * @param DOMXPath $responseMessage DOMXPath that can be used to search the response message
+	 *
+	 * @param DOMXPath $responseXPath DOMXPath that can be used to search the response message
 	 * @return array Map of sku => item details, item id and line id
 	 */
 	public function extractUnavailableItems(DOMXPath $responseXPath)

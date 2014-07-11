@@ -4,7 +4,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 {
 	/**
 	 * testing getConfigModel method
-	 * @test
 	 */
 	public function testGetConfigModel()
 	{
@@ -85,7 +84,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	/**
 	 * Test that a product attribute is known if it has an id > 0.
 	 * @param string $name The attribute name
-	 * @test
 	 * @dataProvider providerHasEavAttr
 	 */
 	public function testHasEavAttr($name)
@@ -141,7 +139,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	}
 	/**
 	 * Test the various dummy defaults.
-	 * @test
 	 */
 	public function testGetDefaults()
 	{
@@ -217,7 +214,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$this->assertSame($expected, $getProdTplt->invoke($hlpr));
 	}
 	/**
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testApplyDummyData($sku, $name=null)
@@ -237,7 +233,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	/**
 	 * Given a mapped array containing language, parse should return
 	 * a flattened array, keyed by language
-	 * @test
 	 */
 	public function testParseTranslations()
 	{
@@ -259,7 +254,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	}
 	/**
 	 * Given a null an empty array is returned.
-	 * @test
 	 */
 	public function testParseTranslationsWithNull()
 	{
@@ -269,7 +263,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	}
 	/**
 	 * Test getDefaultLanguageCode the feed
-	 * @test
 	 */
 	public function testGetDefaultLanguageCode()
 	{
@@ -294,7 +287,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	}
 	/**
 	 * Test getDefaultProductAttributeSetId the feed
-	 * @test
 	 */
 	public function testGetDefaultProductAttributeSetId()
 	{
@@ -314,7 +306,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	}
 	/**
 	 * Test getProductAttributeId the feed
-	 * @test
 	 */
 	public function testGetProductAttributeId()
 	{
@@ -334,7 +325,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	}
 	/**
 	 * Test extractNodeVal method
-	 * @test
 	 */
 	public function testExtractNodeVal()
 	{
@@ -345,7 +335,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	}
 	/**
 	 * Test extractNodeAttributeVal method
-	 * @test
 	 */
 	public function testExtractNodeAttributeVal()
 	{
@@ -356,7 +345,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	}
 	/**
 	 * Test prepareProductModel the feed
-	 * @test
 	 */
 	public function testPrepareProductModel()
 	{
@@ -391,7 +379,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	}
 	/**
 	 * Test getCustomAttributeCodeSet the feed
-	 * @test
 	 */
 	public function testGetCustomAttributeCodeSet()
 	{
@@ -457,7 +444,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	 * @mock Mage_Catalog_Model_Product::getTypeId return expected product type id
 	 * @mock Mage_Catalog_Model_Product::getTypeInstance return the stub product type model
 	 * @mock Mage_Catalog_Model_Product_Type_Abstract::getConfigurableAttributesAsArray return expected existing attributes
-	 * @test
 	 * @dataProvider providerTestGetConfigAttributesData
 	 */
 	public function testGetConfigAttributesData($existingId, $existingType, $newType, $existingAttributes, $sourceAttributes, $expectedAttributes)
@@ -520,7 +506,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 
 	/**
 	 * Test mapPattern method
-	 * @test
 	 */
 	public function testMapPattern()
 	{
@@ -547,7 +532,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 
 	/**
 	 * Test generateFileName method
-	 * @test
 	 */
 	public function testGenerateFileName()
 	{
@@ -587,7 +571,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	/**
 	 * Test getting the processing directory set in the configuration, creating
 	 * the directory if it doesn't exist already.
-	 * @test
 	 */
 	public function testGetProcessingDirectory()
 	{
@@ -627,7 +610,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	/**
 	 * Test generateFilePath method, throw exception if the directory did not
 	 * and exists and creating it fail for any reason.
-	 * @test
 	 * @expectedException EbayEnterprise_Eb2cCore_Exception_Feed_File
 	 */
 	public function testGenerateFilePathWithException()
@@ -669,7 +651,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 
 	/**
 	 * Test buildErrorFeedFilename method
-	 * @test
 	 */
 	public function testBuildErrorFeedFilename()
 	{
@@ -701,7 +682,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 
 	/**
 	 * Test generateMessageHeader method
-	 * @test
 	 */
 	public function testGenerateMessageHeader()
 	{
@@ -810,7 +790,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 
 	/**
 	 * Test getStoreViewLanguage method
-	 * @test
 	 */
 	public function testGetStoreViewLanguage()
 	{
@@ -845,7 +824,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 
 	/**
 	 * Test _getDefaultParentCategoryId method
-	 * @test
 	 */
 	public function testGetDefaultParentCategoryId()
 	{
@@ -872,7 +850,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$this->assertSame(1, $helper->getDefaultParentCategoryId());
 	}
 	/**
-	 * @test
 	 */
 	public function testCreateNewProduct()
 	{
@@ -896,7 +873,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	/**
 	 * Test that the method EbayEnterprise_Eb2cProduct_Helper_Data::getCountryCodeByName
 	 * return the proper iso country code when call with the country full name.
-	 * @test
 	 */
 	public function testGetCountryCodeByName()
 	{
@@ -918,7 +894,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	/**
 	 * @see self::testGetCountryCodeByName but this time we are testing that null
 	 *      will be return when an invalid country name is provided
-	 * @test
 	 */
 	public function testGetCountryCodeByNameInvalidCountryReturnNull()
 	{

@@ -6,7 +6,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 
 	/**
 	 * Load callback config and ensure it gets stored on the $_callbacks property.
-	 * @test
 	 */
 	public function testConstructor()
 	{
@@ -30,7 +29,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 	 * Iterate over configured callbacks
 	 * - Query XPath to get DOMNodeList of feed data
 	 * - Invoke callback with callback configuration, including necessary parameters key
-	 * @test
 	 */
 	public function testExtractItem()
 	{
@@ -92,7 +90,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 	 *                parameter of false it will return false, or if the given parameter is a nodeList with no item it will return false
 	 *                if the given parameter is 0 it will return true and if the given parameter is a DOMNodeList with an item in it will
 	 *                return true
-	 * @test
 	 */
 	public function testValidateResultWhenPassEmptyDomNodeListReturnFalse()
 	{
@@ -109,7 +106,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 	 * @see testValidateResultWhenPassEmptyDomNodeListReturnFalse but this time will be passing
 	 *      a DOMNodeList with actual item to EbayEnterprise_Eb2cProduct_Model_Feed_Extractor::_validateResult method and
 	 *      it will return true
-	 * @test
 	 */
 	public function testValidateResultWhenPassDomNodeListWithItemReturnTrue()
 	{
@@ -143,7 +139,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_ExtractorTest
 	/**
 	 * Test extracting a SKU from a DOMNode containing an item.
 	 * @param string $xml XML snipped to extract a SKU from
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testExtractSku($xml)

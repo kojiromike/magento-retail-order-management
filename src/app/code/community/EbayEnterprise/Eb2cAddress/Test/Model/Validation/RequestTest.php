@@ -53,7 +53,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_RequestTest extends EcomD
 
 	/**
 	 * build the message dom for an address.
-	 * @test
 	 * @large
 	 */
 	public function testRequestMessage()
@@ -88,7 +87,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Validation_RequestTest extends EcomD
 
 	/**
 	 * Test that the generated message validates per the xsd schema.
-	 * @test
 	 */
 	public function testRequestMessageValidates()
 	{

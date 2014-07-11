@@ -106,9 +106,12 @@ class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Detail_Order_Adapter
 	{
 		return $this;
 	}
+
 	/**
 	 * get the payment method name for the payment type
-	 * @param  string $paymentTypeName
+	 *
+	 * @param string $paymentTypeName
+	 * @throws EbayEnterprise_Eb2cCore_Exception_Critical
 	 * @return string
 	 */
 	protected function _getPaymentMethod($paymentTypeName)
@@ -121,9 +124,11 @@ class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Detail_Order_Adapter
 		}
 		return $mappings[$paymentTypeName];
 	}
+
 	/**
 	 * get update payment information
-	 * @param  EbayEnterprise_Eb2cOrder_Model_Customer_Order_Detail $payments
+	 *
+	 * @param EbayEnterprise_Eb2cOrder_Model_Customer_Order_Detail $orderDetail
 	 * @return self
 	 */
 	protected function _updatePaymentsFromResponse(EbayEnterprise_Eb2cOrder_Model_Customer_Order_Detail $orderDetail)

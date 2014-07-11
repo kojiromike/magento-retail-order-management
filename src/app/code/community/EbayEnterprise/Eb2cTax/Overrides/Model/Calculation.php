@@ -19,12 +19,14 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 		return ($mode === self::TAX_DISCOUNT || $mode === self::TAX_DISCOUNT_FOR_AMOUNT) ?
 			$itemResponse->getTaxQuoteDiscounts() : $itemResponse->getTaxQuotes();
 	}
+
 	/**
 	 * Calculate tax by mode
-	 * @param float $amount The amount to calculate tax on
+	 *
+	 * @param float|int $amount The amount to calculate tax on
 	 * @param Varien_Object $itemSelector
 	 * @param int $type One of the values of these constants [MERCHANDISE_TYPE, SHIPPING_TYPE, DUTY_TYPE]
-	 * @param string $mode, [regular | discount | discount-for-amount, regular, regular-for-amount]
+	 * @param string $mode [regular | discount | discount-for-amount, regular, regular-for-amount]
 	 * @return float the total tax amount for any discounts
 	 */
 	protected function _calcTaxByMode($amount=0, Varien_Object $itemSelector, $type=self::MERCHANDISE_TYPE, $mode=self::TAX_REGULAR)
@@ -58,10 +60,12 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 	{
 		return in_array($mode, array(self::TAX_DISCOUNT_FOR_AMOUNT, self::TAX_REGULAR_FOR_AMOUNT));
 	}
+
 	/**
 	 * calculate tax amount for an item filtered by $type.
-	 * @param  Varien_Object $itemSelector
-	 * @param  string        $type
+	 *
+	 * @param Varien_Object $itemSelector
+	 * @param int|string $type
 	 * @return float
 	 */
 	public function getTax(Varien_Object $itemSelector, $type=self::MERCHANDISE_TYPE)
@@ -144,10 +148,12 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 	{
 		return $this->unsetData('tax_response');
 	}
+
 	/**
 	 * return the response data for the specified item.
+	 *
 	 * @param  Mage_Sales_Model_Quote_Item $item
-	 * @param  Mage_Salse_Model_Quote_Address $address
+	 * @param Mage_Sales_Model_Quote_Address $address
 	 * @return EbayEnterprise_Eb2cTax_Model_Response_Orderitem
 	 */
 	protected function _getItemResponse(Mage_Sales_Model_Quote_Item $item=null, Mage_Sales_Model_Quote_Address $address=null)

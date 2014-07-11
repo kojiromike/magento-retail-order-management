@@ -14,7 +14,9 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	 * @var array boilerplate for initializing a new product with limited information.
 	 */
 	protected $_prodTplt;
+
 	/**
+	 * @throws EbayEnterprise_Eb2cProduct_Model_Config_Exception
 	 * @return array the static defaults for a new product
 	 */
 	protected function _getProdTplt()
@@ -77,23 +79,30 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 	/**
 	 * abstracting getting locale code
-	 * @return string, the locale code
+	 *
+	 * @return string the locale code
 	 * @codeCoverageIgnore
 	 */
 	protected function _getLocaleCode()
 	{
 		return Mage::app()->getLocale()->getLocaleCode();
 	}
+
 	/**
 	 * Get the base url for a given store
+	 *
+	 * @param $storeId
 	 * @return string the store base url
 	 */
 	public function getStoreUrl($storeId)
 	{
 		return Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
 	}
+
 	/**
 	 * Set the current store context
+	 *
+	 * @param $storeId
 	 * @return self
 	 */
 	public function setCurrentStore($storeId)
@@ -115,8 +124,11 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return $this->_getDefProdAttSetId();
 	}
+
 	/**
 	 * Get Product config instantiated object.
+	 *
+	 * @param null $store
 	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 */
 	public function getConfigModel($store=null)
@@ -126,9 +138,10 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 			->addConfigModel(Mage::getModel('eb2cproduct/config'))
 			->addConfigModel(Mage::getModel('eb2ccore/config'));
 	}
+
 	/**
+	 * @param string $at
 	 * @return bool true if the eav config has at least one instance of the given attribute.
-	 * @param string $attr
 	 */
 	public function hasEavAttr($at)
 	{
@@ -176,10 +189,13 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return ($nodeList->length) ? $nodeList->item(0)->getAttribute($attributeName) : null;
 	}
+
 	/**
 	 * get a model loaded with the data for $sku if it exists;
 	 * otherwise, get a new _UNSAVED_ model populated with dummy data.
+	 *
 	 * @param string $sku
+	 * @param string $name
 	 * @return Mage_Catalog_Model_Product
 	 */
 	public function prepareProductModel($sku, $name='')
@@ -193,7 +209,9 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * instantiate new product object and apply dummy data to it
+	 *
 	 * @param string $sku
+	 * @param string $name
 	 * @return Mage_Catalog_Model_Product
 	 */
 	public function createNewProduct($sku, $name='')
@@ -285,8 +303,10 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * mapped pattern element with actual values
+	 *
 	 * @param array $keyMap a composite array with map key value
 	 * @param string $pattern the string pattern
+	 * @return array
 	 */
 	public function mapPattern(array $keyMap, $pattern)
 	{
@@ -326,6 +346,8 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Get the absolute path to the global processing directory set
 	 * in configuration.
+	 *
+	 * @throws EbayEnterprise_Eb2cCore_Exception_Feed_File
 	 * @return string
 	 */
 	public function getProcessingDirectory()
@@ -408,10 +430,12 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * take dom document object and string xslt file template to transform
 	 * whatever the passed in xslt file template transform the new doc to
+	 *
 	 * @param EbayEnterprise_Dom_Document $doc the document got get the nodelist
 	 * @param string $xsltFilePath the xslt stylesheet template file absolute fulle path
 	 * @param array $params parameters for the xslt
 	 * @param function $postXsltLoadCall function to be called after loading XSLT, but before Processing it
+	 * @param array $websiteFilter
 	 * @return EbayEnterprise_Dom_Document
 	 */
 	public function splitDomByXslt(EbayEnterprise_Dom_Document $doc, $xsltFilePath, array $params=array(), $postXsltLoadCall=null, $websiteFilter=array())
@@ -441,7 +465,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	 * xpath as a string, and build a node and insert it.
 	 * @param DOMDocument xslDoc an already loaded DOM
 	 * @param string xpathExpression to match
-	 * @return boolean true (node inserted), or false (node insert failed)
+	 * @return bool true (node inserted), or false (node insert failed)
 	 */
 	function appendXslTemplateMatchNode($xslDoc, $xpathExpression)
 	{
@@ -457,6 +481,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	 * Loads a key/ value pair with the relevant config fields of each Magento Web Store which allows us
 	 * to match an incoming feed to that specific destination.
 	 *
+	 * @param $mageStoreId
 	 * @return array of key/value pairs mapping an inbound feed to the given Magento Web Store.
 	 */
 	protected function _loadWebsiteFilter($mageStoreId)

@@ -64,7 +64,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_CategoryTest extends EbayEnterp
 	/**
 	 * Confirm that extractCategoryIds returns the expected ids for the given xml nodes.
 	 *
-	 * @test
 	 * @dataProvider provideCategoryNameNodes
 	 */
 	public function testExtractCategoryIds(DOMNodeList $nodes, Mage_Catalog_Model_Resource_Category_Collection $catCol)

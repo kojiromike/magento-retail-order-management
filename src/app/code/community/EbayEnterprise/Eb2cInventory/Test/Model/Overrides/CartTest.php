@@ -63,7 +63,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Overrides_CartTest extends EcomDev
 	/**
 	 * testing addProduct method
 	 *
-	 * @test
 	 * @large
 	 * @dataProvider providerAddProduct
 	 * @loadFixture loadWebsiteConfig.yaml
@@ -88,7 +87,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Overrides_CartTest extends EcomDev
 	/**
 	 * testing addProduct method, with exception being thrown
 	 *
-	 * @test
 	 * @large
 	 * @dataProvider providerAddProduct
 	 * @expectedException Mage_Core_Exception
@@ -135,7 +133,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Overrides_CartTest extends EcomDev
 	/**
 	 * testing addProduct method
 	 *
-	 * @test
 	 * @large
 	 * @expectedException Mage_Core_Exception
 	 * @dataProvider providerAddProductInvalidProductId
@@ -158,7 +155,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Overrides_CartTest extends EcomDev
 	/**
 	 * testing addProduct method
 	 *
-	 * @test
 	 * @large
 	 * @dataProvider providerUpdateItem
 	 * @loadFixture loadWebsiteConfig.yaml
@@ -215,7 +211,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Overrides_CartTest extends EcomDev
 	/**
 	 * testing addProduct method
 	 *
-	 * @test
 	 * @large
 	 * @expectedException Mage_Core_Exception
 	 * @dataProvider providerUpdateItemMissingItemException

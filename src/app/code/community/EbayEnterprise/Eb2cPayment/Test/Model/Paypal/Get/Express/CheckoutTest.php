@@ -42,7 +42,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Get_Express_CheckoutTest
 	/**
 	 * testing parseResponse method
 	 *
-	 * @test
 	 * @dataProvider providerParseResponse
 	 * @loadFixture loadConfig.yaml
 	 */

@@ -34,7 +34,6 @@ class EbayEnterprise_Eb2cAddress_Test_Block_Address_RendererTest
 
 	/**
 	 * Test the setup of the rendered "type" data
-	 * @test
 	 */
 	public function testInitType()
 	{

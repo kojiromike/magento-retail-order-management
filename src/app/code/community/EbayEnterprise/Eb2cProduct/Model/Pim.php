@@ -130,11 +130,13 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 		}
 		return $pimProducts;
 	}
+
 	/**
 	 * build out the dom document with the supplied feed data.
-	 * @param  EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $feedData collection of PIM Product instances
-	 * @param  string $key
-	 * @return EbayEnterprise_Dom_Document                    dom document representing the feed
+	 *
+	 * @param EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts
+	 * @param string $key
+	 * @return EbayEnterprise_Dom_Document dom document representing the feed
 	 */
 	protected function _createDomFromFeedData(EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts, $key)
 	{

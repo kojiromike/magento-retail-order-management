@@ -3,7 +3,8 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Suggestion_GroupTest extends EcomDev
 {
 	/**
 	 * Create a new address object using the provided array of data.
-	 * @param array $addressData
+	 *
+	 * @param $type
 	 * @return Mage_Customer_Model_Address
 	 */
 	protected function _createAddress($type)
@@ -17,7 +18,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Suggestion_GroupTest extends EcomDev
 
 	/**
 	 * Test setting and retrieving validated addresses.
-	 * @test
 	 */
 	public function testValidatedAddress()
 	{
@@ -37,7 +37,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Suggestion_GroupTest extends EcomDev
 
 	/**
 	 * Test the management of the "fresh" suggestions flag
-	 * @test
 	 */
 	public function testFreshSuggestionsFlagOriginalAddresses()
 	{
@@ -75,7 +74,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_Suggestion_GroupTest extends EcomDev
 	/**
 	 * Get the suggested addresses, ensuring the has_fresh_suggestions
 	 * flag is properly managed.
-	 * @test
 	 */
 	public function testFreshSuggestionsFlagSuggestedAddresses()
 	{

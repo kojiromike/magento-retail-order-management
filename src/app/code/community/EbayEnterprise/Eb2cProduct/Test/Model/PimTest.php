@@ -7,7 +7,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	 * Should create an internal DOMDocument to be used to build the feed file
 	 * unless one is provided in a 'dom' key in the parameters arg passed to the
 	 * constructor.
-	 * @test
 	 */
 	public function testConstructor()
 	{
@@ -33,7 +32,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	/**
 	 * Test constructing the PIM Model passing it dependencies. Should expect the
 	 * core feed model to be completely intialized - never call _setUpCoreFeed
-	 * @test
 	 */
 	public function testConstructorWithArgs()
 	{
@@ -52,7 +50,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	 * If the constructor is called with a params argument containing 'docs' key
 	 * value pair, the value must be an array of key mapped to EbayEnterprise_Dom_Document, else an error
 	 * (converted to an Exception in the test) will be triggered.
-	 * @test
 	 */
 	public function testConstructorBadDomError()
 	{
@@ -84,7 +81,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	 * If the constructor is called with a params argument containing s 'core_feed' key
 	 * value pair, the value must be a EbayEnterprise_Eb2cCore_Model_Feed, else an error
 	 * (converted to an Exception in the test) will be triggered.
-	 * @test
 	 */
 	public function testConstructorBadCoreFeed()
 	{
@@ -121,7 +117,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	 * Create XML from feed data.
 	 * Write out file.
 	 * Return path to file created.
-	 * @test
 	 */
 	public function testBuildFeed()
 	{
@@ -219,7 +214,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	 * existing PIM Product from the collection or create a new instance and add
 	 * it to the collection. Then, update the PIM Product model with the product
 	 * in the specific store scope. Finally, return the collection.
-	 * @test
 	 */
 	public function testCreateFeedDataSet()
 	{
@@ -263,7 +257,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	}
 	/**
 	 * Process all of the products within a given store.
-	 * @test
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testProcessProductCollection($isInCollection)
@@ -353,7 +346,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	}
 	/**
 	 * Initialize the DOM Document with a root node and message header.
-	 * @test
 	 */
 	public function testStartDocument()
 	{
@@ -426,7 +418,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	 * Create the DOMDocument representing the feed. Should initialize (add root
 	 * node and message header) the DOMDocument, build out and append fragments
 	 * for each item to be included, and validate the resulting DOM.
-	 * @test
 	 */
 	public function testCreateDomFromFeedData()
 	{
@@ -485,7 +476,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	/**
 	 * Create DOMDocumentFragment with the <Item> node.
 	 * For each pim attribute model given, append DOM to represent the value.
-	 * @test
 	 */
 	public function testBuildItemNode()
 	{
@@ -552,7 +542,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	/**
 	 * Append the nodes necessary DOMNodes to represent the pim attribute to the
 	 * given EbayEnterprise_Dom_Element.
-	 * @test
 	 */
 	public function testAppendAttributeValue()
 	{
@@ -624,7 +613,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	/**
 	 * When the PIM attribute being added does not have a language, property will
 	 * be null, the xml:lang attribute should not be added.
-	 * @test
 	 */
 	public function testAppendAttributeValueNoTranslations()
 	{
@@ -728,7 +716,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	/**
 	 * Use the Eb2cCore API model to validate the DOM against the schema. When
 	 * valid, the method should just return self.
-	 * @test
 	 */
 	public function testValidateDocument()
 	{
@@ -767,7 +754,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	 * Set up a eb2ccore/feed model to handle setting up the dirs for the outbound
 	 * file - all of which is done via constructing the model with a 'dir_config'
 	 * in the constructor args.
-	 * @test
 	 */
 	public function testSetUpCoreFeed()
 	{
@@ -795,7 +781,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	}
 	/**
 	 * generate the full file path for the outbound feed file.
-	 * @test
 	 */
 	public function testGetFeedFilePath()
 	{
@@ -845,7 +830,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	}
 	/**
 	 * setup a collection of products for a specific store.
-	 * @test
 	 */
 	public function testCreateProductCollectionForStore()
 	{
@@ -1052,7 +1036,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 	/**
 	 * verify a node is moved before a previously existing node
 	 * with the same tag name.
-	 * @test
 	 */
 	public function testClumpWithSimilar()
 	{

@@ -46,7 +46,7 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 	 * tax requests (flag also stored in eb2ccore/session but managed solely by tax module)
 	 * and the given address has items
 	 * @param  Mage_Sales_Model_Quote_Address $address Address request would be for
-	 * @return boolean True if request should be made, false otherwise
+	 * @return bool True if request should be made, false otherwise
 	 */
 	public function isRequestForAddressRequired(Mage_Sales_Model_Quote_Address $address)
 	{
@@ -81,7 +81,9 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * return true if the prices already include VAT.
-	 * @return boolean
+	 *
+	 * @param null $store
+	 * @return bool
 	 */
 	public function getVatInclusivePricingFlag($store=null)
 	{

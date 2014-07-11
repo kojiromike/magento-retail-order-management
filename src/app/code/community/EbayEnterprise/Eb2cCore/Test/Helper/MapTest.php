@@ -6,7 +6,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cProduct_Helper_Map::extractStringValue method with a known
 	 *                DOMNodeList object the method is then expected to return a string value extract from the
 	 *                DOMNodeList object
-	 * @test
 	 */
 	public function testExtractStringValue()
 	{
@@ -38,7 +37,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 	 * Expectation 2: the EbayEnterprise_Eb2cProduct_Helper_Data::parseBool method is expected to be given, the extract value
 	 *                from the DOMNodeList object object and return a boolean representative of the passed in string
 	 * @mock EbayEnterprise_Eb2cProduct_Helper_Data::parseBool
-	 * @test
 	 */
 	public function testExtractBoolValue()
 	{
@@ -79,7 +77,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cProduct_Helper_Map::extractIntValue method with a known
 	 *                DOMNodeList object the method is then expected to return a string value cast as an integer value
 	 *                DOMNodeList object
-	 * @test
 	 */
 	public function testExtractIntValue()
 	{
@@ -110,7 +107,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 	 * Expectation 1: this test is expected to call the EbayEnterprise_Eb2cProduct_Helper_Map::extractFloatValue method with a known
 	 *                DOMNodeList object the method is then expected to return a string value cast as an float value
 	 *                DOMNodeList object
-	 * @test
 	 */
 	public function testExtractFloatValue()
 	{
@@ -135,7 +131,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_MapTest extends EbayEnterprise_Eb2cCor
 	}
 	/**
 	 * return whatever got pass as parameter
-	 * @test
 	 */
 	public function  testPassThrough()
 	{

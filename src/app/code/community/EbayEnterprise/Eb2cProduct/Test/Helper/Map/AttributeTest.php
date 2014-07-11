@@ -719,7 +719,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 	}
 	/**
 	 * return true if the attribute is in a product's attribute set
-	 * @test
 	 * @dataProvider provideAttributeCodes
 	 */
 	public function testIsInAttributeSet($attribute, $result)
@@ -746,7 +745,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_Map_AttributeTest
 	/**
 	 * Test that the method EbayEnterprise_Eb2cProduct_Helper_Map_Attribute::_turnOffManageStock
 	 * will turn of manage stock on a product when called by this test.
-	 * @test
 	 */
 	public function testTurnOffManageStock()
 	{

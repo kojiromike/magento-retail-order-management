@@ -12,6 +12,8 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 
 	/**
 	 * Create an address object to pass off to the validator.
+	 *
+	 * @param array $fields
 	 * @return Mage_Customer_Model_Address
 	 */
 	protected function _createAddress($fields=array())
@@ -23,7 +25,9 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 
 	/**
 	 * Replace the eb2ccore/api model with a mock
+	 *
 	 * @param boolean $emptyResponse
+	 * @return EbayEnterprise_Eb2cCore_Model_Api (mock)
 	 */
 	protected function _mockApiModel($emptyResponse=false)
 	{
@@ -72,7 +76,13 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 
 	/**
 	 * Replace the eb2caddress/validation_response model with a mock
-	 * @return PHPUnit_Framework_MockObject_MockObject - the mock respose model
+	 *
+	 * @param bool $isAddressValid
+	 * @param bool $hasSuggestions
+	 * @param null $originalAddress
+	 * @param null $validAddress
+	 * @param array $addressSuggestions
+	 * @return EbayEnterprise_Eb2cAddress_Model_Validation_Response (mock)
 	 */
 	protected function _mockValidationResponse(
 		$isAddressValid=false,
@@ -139,7 +149,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Test the various session interactions when there is not session data
 	 * for address validation initialized.
-	 * @test
 	 */
 	public function testValidatorSessionNotInitialized()
 	{
@@ -155,7 +164,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * EbayEnterprise_Eb2cAddress_Model_Suggestion_Group even if the
 	 * session data where it expects to find the suggestions is polluted
 	 * with something else.
-	 * @test
 	 */
 	public function testGettingAddressCollectionAlwaysReturnsProperObjectType()
 	{
@@ -184,7 +192,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Test updating the submitted address with data from the chosen suggestion.
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testUpdateAddressWithSelections($postValue)
 	{
@@ -262,7 +269,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Test validation when the response indicates the address is correct
 	 * and there are no suggestions or changes.
-	 * @test
 	 */
 	public function testValidateAddressVerified()
 	{
@@ -299,7 +305,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Test validation when the response indicates the address is not correct
 	 * and multiple suggestions are available.
-	 * @test
 	 */
 	public function testValidateAddressMultiSuggestions()
 	{
@@ -365,7 +370,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * validation should assume the address is correct and
 	 * should be successful (no errors returned) and
 	 * should clear out any session data.
-	 * @test
 	 */
 	public function testWithValidatedAddress()
 	{
@@ -388,7 +392,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * Test for when - address does not need to be validated/has already been validated
 	 * and is a billing/use for shipping address.
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testSessionInteractionsNoValidationNecessary($useForShipping)
 	{
@@ -432,7 +435,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Test session interaction.
 	 * Test for when - address is invalid
-	 * @test
 	 */
 	public function testSessionInteractionsInvalidAddress()
 	{
@@ -518,7 +520,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 
 	/**
 	 * Test the removal of session values.
-	 * @test
 	 */
 	public function testCleaningOfSession()
 	{
@@ -534,7 +535,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Asking the validator model to validate a new address should clear out
 	 * any values it has populated in the session.
-	 * @test
 	 */
 	public function ensureSessionClearedOnNewValidation()
 	{
@@ -596,7 +596,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 
 	/**
 	 * This is a very odd scenario and really should never happen.
-	 * @test
 	 */
 	public function errorMessageWithInvalidMessageAndNoSuggestions()
 	{
@@ -631,7 +630,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Test that when no message is received from the address validation service
 	 * the address is considered valid.
-	 * @test
 	 */
 	public function testEmptyReponseFromService()
 	{
@@ -653,7 +651,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * Test retrieval of address objects from the validator by key.
 	 * Each address should have a stash_key which will be used to get
 	 * the address back out of the address collection stored in the session.
-	 * @test
 	 */
 	public function getStashedAddressByKeyByKey()
 	{
@@ -701,7 +698,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 
 	/**
 	 * Trying to get a validated address with an unknown key will return null
-	 * @test
 	 */
 	public function gettingValidatedAddressByUnknownKey()
 	{
@@ -711,7 +707,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 
 	/**
 	 * Test getting the original address out of the session
-	 * @test
 	 */
 	public function testGetOriginalAddress()
 	{
@@ -743,7 +738,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 
 	/**
 	 * Test getting the list of suggested addresses.
-	 * @test
 	 */
 	public function testGetSuggestedAddresses()
 	{
@@ -784,7 +778,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 
 	/**
 	 * Test copying name data form the source address to the destination address.
-	 * @test
 	 */
 	public function testCopyNameData()
 	{
@@ -825,7 +818,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Test checking for fresh suggestions.
 	 * Really just a pass through to another object which is responsible for managing the flag.
-	 * @test
 	 */
 	public function testCheckSessionFreshness()
 	{
@@ -836,7 +828,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Test the test for there to be suggestions.
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testHasSuggestions($shouldHaveSuggestions)
 	{
@@ -862,7 +853,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * Test the should validate method for addresses that have already been validated,
 	 * in particular, addresses that have had a 'has_been_validated' flag set,
 	 * e.g. addresses that have been extracted from the EB2C response message.
-	 * @test
 	 */
 	public function testShouldValidateFlaggedAsValidated()
 	{
@@ -882,7 +872,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * indicating the address has already been validated and should not be validated.
 	 *
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testShouldValidatedAlreadyValidatedAddress($addressType, $postBillingUseForShipping, $validatedType)
 	{
@@ -932,7 +921,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * Test that an address should be validated when:
 	 * - not a checkout address
 	 * - and has not yet been validated.
-	 * @test
 	 */
 	public function testShouldValidateNonCheckouNotValidated()
 	{
@@ -976,7 +964,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 
 	/**
 	 * Test detecting that an address is being used in checkout.
-	 * @test
 	 */
 	public function testDetectingACheckoutAddress()
 	{
@@ -1006,7 +993,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * Test that address being loaded from the address book are not validated when
 	 * used in checkout.
 	 * @dataProvider dataProvider
-	 * @test
 	 * @long
 	 */
 	public function testAddressBookAddressShouldNotBeValidated($id, $customerId, $customerAddressId)
@@ -1042,7 +1028,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * marking the order as a virtual order. As a result,
 	 * this also tests should validate for virtual orders.
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testAddressBeingSavedInAddressBookAndIsVirtual($postType, $postFlag, $checkoutMethod)
 	{
@@ -1097,7 +1082,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * When there is an order present, method should get the isVirtual result
 	 * from it, otherwise should return false.
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testVirtualQuoteAddress($hasQuote, $isVirtual)
 	{
@@ -1129,7 +1113,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * Detect that an address is only used for billing and does not
 	 * need to be validated.
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testShouldValidateBillingOnlyAddress($addressType, $hasBillingPost, $useForShipping)
 	{
@@ -1158,7 +1141,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * being used as a shipping address and bypassing validation.
 	 *
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testSetSameAsBillingFlagWhenAddressIsInvalid($isValid, $sameAsBilling)
 	{
@@ -1222,7 +1204,6 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * Test for the last response from EB2C address validation to have
 	 * contained a valid address.
 	 * @dataProvider dataProvider
-	 * @test
 	 */
 	public function testIsValid($hasResponse, $isValid)
 	{

@@ -54,7 +54,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Subtotal extends 
 	 * Calculate item price and row total including/excluding tax based on unit price rounding level
 	 *
 	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
-	 * @param EbayEnterprise_Eb2cTax_Model_Response_OrderItem $itemResponse
+	 * @param $address
 	 * @return Mage_Tax_Model_Sales_Total_Quote_Subtotal
 	 */
 	protected function _applyTaxes($item, $address)

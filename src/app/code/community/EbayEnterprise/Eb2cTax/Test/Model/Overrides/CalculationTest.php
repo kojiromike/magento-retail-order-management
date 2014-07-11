@@ -245,7 +245,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 	 * @param  EbayEnterprise_Eb2cTax_Model_Response|null $response  The response object stored on the calc
 	 * @param  EbayEnterprise_Eb2cTax_Model_Request $newRequest      The request to be returned by the factory method
 	 * @param  EbayEnterprise_Eb2cTax_Model_Request $expectedRequest The request object that should be returned
-	 * @test
 	 * @dataProvider provideGetTaxRequestNoAddress
 	 */
 	public function testGetTaxRequestNoAddress($response, $newRequest, $expectedRequest)
@@ -298,7 +297,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 	}
 
 	/**
-	 * @test
 	 * @dataProvider provideTrueFalse
 	 * @loadExpectation testGetAppliedRates.yaml
 	 */
@@ -370,7 +368,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 	}
 
 	/**
-	 * @test
 	 * @loadExpectation testGetAppliedRates.yaml
 	 */
 	public function testGetAppliedRatesDuplicateRatesExtraDiscountRates()
@@ -702,7 +699,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 
 	/**
 	 * verify a request object is returned when address is not null
-	 * @test
 	 */
 	public function testGetTaxRequest()
 	{
@@ -739,7 +735,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 	 * verify a request object is always returned.
 	 * verify existing request/response is discarded when quote is not null
 	 * verify same request is returned when quote is null and previous request exists.
-	 * @test
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testGetTaxRequestNullAddress($hasResponse)

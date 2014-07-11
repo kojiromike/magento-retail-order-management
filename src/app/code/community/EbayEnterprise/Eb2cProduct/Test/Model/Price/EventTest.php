@@ -33,7 +33,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Price_EventTest
 	 * @param  string $specialPrice The expected product "special_price" attribute
 	 * @param  string $start        The expected product "special_from_date"
 	 * @param  string $end          The expected product "special_to_date"
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testExtractPriceEvent($xml, $price, $specialPrice, $start, $end)

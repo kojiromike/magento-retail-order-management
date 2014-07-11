@@ -16,7 +16,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Overrides_Stock_ItemTest extends E
 	 * testing canSubtractQty method
 	 *
 	 * @large
-	 * @test
 	 */
 	public function testCanSubtractQty()
 	{

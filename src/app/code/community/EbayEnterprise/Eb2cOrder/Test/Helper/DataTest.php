@@ -24,7 +24,6 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 	/**
 	 * Make sure we get back a EbayEnterprise_Eb2cCore_Model_Config_Registry and that
 	 * we can see some sensible values in it.
-	 * @test
 	 * @loadFixture basicTestConfig.yaml
 	 */
 	public function testGetConfig()
@@ -141,7 +140,6 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 	}
 	/**
 	 * verify only orders that exist in both eb2c and magento are displayed.
-	 * @test
 	 */
 	public function testGetCurCustomerOrders()
 	{

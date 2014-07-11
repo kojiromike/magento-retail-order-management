@@ -20,11 +20,14 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Extractor
 	{
 		$this->_callbacks = Mage::helper('eb2ccore/feed')->getConfigData(self::CALLBACK_CONFIG_PATH);
 	}
+
 	/**
 	 * Extract data from a single item using the callback configuration.
 	 * only callback methods on key value array with type not disabled
-	 * @param  DOMXPath $xpath       DOMXPath object loaded with the DOMDocument to extract data from
-	 * @param  DOMNode  $contextNode DOMNode to be used as the context for all XPath queries
+	 *
+	 * @param DOMXPath $xpath DOMXPath object loaded with the DOMDocument to extract data from
+	 * @param DOMNode $contextNode DOMNode to be used as the context for all XPath queries
+	 * @param Mage_Catalog_Model_Product $product
 	 * @return array Extracted data
 	 */
 	public function extractItem(DOMXPath $xpath, DOMNode $contextNode, Mage_Catalog_Model_Product $product)

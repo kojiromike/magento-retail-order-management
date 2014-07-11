@@ -304,7 +304,7 @@ abstract class EbayEnterprise_Eb2cOrder_Test_Abstract extends EbayEnterprise_Eb2
 	/**
 	 * Replaces the Magento eb2ccore/config_registry model. I.e., this is your config for Eb2cOrder Testing.
 	 *
-	 * @param array ('statusFeedLocalPath' => 'a/path')	A testable path containing Status Feed XML - prefer that this be vfs
+	 * @param array $userConfigValuePairs
 	 */
 	public function replaceCoreConfigRegistry($userConfigValuePairs=array())
 	{
@@ -346,9 +346,11 @@ abstract class EbayEnterprise_Eb2cOrder_Test_Abstract extends EbayEnterprise_Eb2
 	/**
 	 * Returns a mocked object
 	 *
-	 * @param a Magento Class Alias
-	 * @param array of key / value pairs; key is the method name, value is value returned by that method
-	 * @return mocked-object
+	 * @deprecated
+	 * @param $classAlias Magento configured factory model names
+	 * @param $mockedMethodSet array of method names and their expected return values
+	 * @param bool $disableConstructor
+	 * @return object (mock)
 	 */
 	protected function _getFullMocker($classAlias, $mockedMethodSet, $disableConstructor=true)
 	{
@@ -385,11 +387,10 @@ abstract class EbayEnterprise_Eb2cOrder_Test_Abstract extends EbayEnterprise_Eb2
 	/**
 	 * Returns a mocked object, original model constructor disabled - you get only the methods you mocked.
 	 *
-	 * @param a Magento Class Alias
-	 * @param array of key / value pairs; key is the method name, value is value returned by that method
-	 * @param disableOriginalConstructor	true or false, defaults to true
-	 *
-	 * @return mocked-object
+	 * @param $classAlias Magento configured factory model names
+	 * @param $mockedMethodSet array of method names and their expected return values
+	 * @param bool $disableOriginalConstructor
+	 * @return object (mock)
 	 */
 	public function replaceModel($classAlias, $mockedMethodSet, $disableOriginalConstructor=true)
 	{

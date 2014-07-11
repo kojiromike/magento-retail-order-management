@@ -299,9 +299,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$order->createChild('OrderTotal', sprintf('%.02f', $this->_o->getGrandTotal()));
 		return $this;
 	}
+
 	/**
 	 * Build DOM for a complete order
-	 * @param $orderObject a Mage_Sales_Model_Order
+	 *
+	 * @param Mage_Sales_Model_Order $orderObject
 	 * @return self
 	 */
 	public function buildRequest(Mage_Sales_Model_Order $orderObject)
@@ -462,10 +464,12 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 
 	/**
 	 * Build TaxData nodes for the item
-	 * @see  EbayEnterprise_Eb2cTax_Model_Response_Quote for tax types.
-	 * @param  EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection $taxQuotes Collection of tax quotes to build tax nodes for
-	 * @param  Mage_Sales_Model_Order_Item $item, the quote item to get the product object from
-	 * @return DOMDocumentFragment                  A DOM fragment of the nodes
+	 *
+	 * @see EbayEnterprise_Eb2cTax_Model_Response_Quote for tax types
+	 * @param EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection $taxQuotes Collection of tax quotes to build tax nodes for
+	 * @param Mage_Sales_Model_Order_Item $item the quote item to get the product object from
+	 * @param null $taxType
+	 * @return DOMDocumentFragment A DOM fragment of the nodes
 	 */
 	protected function _buildTaxDataNodes(EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection $taxQuotes, Mage_Sales_Model_Order_Item $item, $taxType = null)
 	{
@@ -598,10 +602,12 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$person->createChild('MiddleName', $address->getMiddlename());
 		$person->createChild('FirstName', $address->getFirstname());
 	}
+
 	/**
 	 * Creates MailingAddress/Address element details from address
-	 * @param DomElement addressElement
-	 * @param Mage_Sales_Order_Address address
+	 *
+	 * @param DomElement $addressElement
+	 * @param Mage_Sales_Model_Order_Address $address
 	 * @return void
 	 */
 	protected function _buildAddress(DomElement $addressElement, Mage_Sales_Model_Order_Address $address)
@@ -807,13 +813,14 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		return uniqid('OCR-');
 	}
+
 	/**
 	 * Get the Exchange shipping charge type for the given shipping method.
 	 * Currently, all shipping charges being sent as 'FLATRATE' for order level shipping charges.
 	 * Full implementation supporting order level and item level shippin gamounts
 	 * will likely need to look up the shipping method for the order and
 	 * make a better determination as to the charge type for the shipping.
-	 * @param  Mage_Sales_Model_Order $order Order the shipping charge applies to
+	 *
 	 * @return string Shipping charge type used by Exchange Platform
 	 */
 	protected function _getShippingChargeType()
@@ -919,12 +926,15 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		return ($maxLength ? substr($str, 0, $maxLength) : $str) ?: $default;
 	}
+
 	/**
 	 * create an child element of $parent if the value is not empty.
-	 * @param string  $element
-	 * @param string  $value
+	 *
+	 * @param string $element
+	 * @param string $value
 	 * @param DOMNode $parent
-	 * @param int     $maxLength
+	 * @param int $maxLength
+	 * @return self
 	 */
 	protected function _addElementIfNotEmpty($element, $value, DOMNode $parent, $maxLength=null)
 	{
@@ -934,6 +944,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		}
 		return $this;
 	}
+
 	/**
 	 * Build custom attribute node for the pass in level.
 	 * There are three order levels and they are defined in the class constants as
@@ -942,14 +953,13 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * with an extractData method that know which custom attribute level to extract
 	 * data from. The extracted Data will be used to construct the 'Key' and 'Value'
 	 * node inside the 'CustomAttributes' outer node.
-	 * @param  string $level (static::ORDER_LEVEL, static::ITEM_LEVEL, or static::CONTEXT_LEVEL)
-	 * @param  EbayEnterprise_Dom_Element $orderElement
-	 * @param  Varien_Object $item can in object that inherited the Varien_Object
+	 *
+	 * @param string $level (static::ORDER_LEVEL, static::ITEM_LEVEL, or static::CONTEXT_LEVEL)
+	 * @param EbayEnterprise_Dom_Element $element
+	 * @param Varien_Object $item can in object that inherited the Varien_Object
 	 * @return self
 	 */
-	protected function _buildCustomAttributesByLevel(
-		$level, EbayEnterprise_Dom_Element $element, Varien_Object $item
-	)
+	protected function _buildCustomAttributesByLevel($level, EbayEnterprise_Dom_Element $element, Varien_Object $item)
 	{
 		$levelObject = $this->_getCustomAttributeInstance($level);
 		if ($levelObject instanceof EbayEnterprise_Eb2cOrder_Model_Custom_Attribute) {

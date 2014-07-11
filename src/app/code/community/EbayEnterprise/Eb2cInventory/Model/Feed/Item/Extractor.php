@@ -3,7 +3,10 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Extractor
 {
 	/**
 	 * extract item id data into a varien object
-	 * @param DOMXPath $feedXPath, the xpath object
+	 *
+	 * @param DOMXPath $feedXPath , the xpath object
+	 * @param $itemIndex
+	 * @param $gsiClientId
 	 * @return Varien_Object
 	 */
 	protected function _extractItemId($feedXPath, $itemIndex, $gsiClientId)
@@ -15,7 +18,10 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Extractor
 
 	/**
 	 * extract Measurements data into a varien object
-	 * @param DOMXPath $feedXPath, the xpath object
+	 *
+	 * @param DOMXPath $feedXPath , the xpath object
+	 * @param $itemIndex
+	 * @param $gsiClientId
 	 * @return Varien_Object
 	 */
 	protected function _extractMeasurements($feedXPath, $itemIndex, $gsiClientId)

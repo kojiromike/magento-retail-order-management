@@ -19,7 +19,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 	/**
 	 * testing getXmlNs method
 	 *
-	 * @test
 	 */
 	public function testGetXmlNs()
 	{
@@ -32,7 +31,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 	/**
 	 * testing getOperationUri method
 	 *
-	 * @test
 	 * @loadFixture loadConfig.yaml
 	 */
 	public function testGetOperationUri()
@@ -61,7 +59,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 	/**
 	 * testing getOperationUri method with a store other than the default
 	 *
-	 * @test
 	 * @loadFixture
 	 */
 	public function testGetOperationUriNonDefaultStore()
@@ -86,7 +83,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 	/**
 	 * testing helper data getRequestId method
 	 *
-	 * @test
 	 * @loadFixture loadConfig.yaml
 	 * @dataProvider providerGetRequestId
 	 */
@@ -108,7 +104,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 	/**
 	 * testing helper data getReservationId method
 	 *
-	 * @test
 	 * @loadFixture loadConfig.yaml
 	 * @dataProvider providerGetReservationId
 	 */
@@ -183,7 +178,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 	 * Test detecting an item that is or is not inventoried.
 	 * @param  Mage_Sales_Model_Quote_Item $item          Quote item
 	 * @param  boolean                     $isInventoried Is the item inventoried
-	 * @test
 	 * @dataProvider providerFilterInventoriedItem
 	 */
 	public function testFilterInventoriedItem($item, $isInventoried)
@@ -193,7 +187,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 
 	/**
 	 * Test filtering a list of quote items down to only those that are inventoried items
-	 * @return [type] [description]
 	 */
 	public function testGetInventoriedItemsFromQuote()
 	{

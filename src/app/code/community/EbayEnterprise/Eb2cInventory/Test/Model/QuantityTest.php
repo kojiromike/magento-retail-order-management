@@ -40,7 +40,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_QuantityTest
 	 * testing Building Quantity Request Message
 	 *
 	 * @param Mage_Sales_Model_Quote $quote Quote to build request for
-	 * @test
 	 * @dataProvider providerBuildQuantityRequestMessage
 	 */
 	public function testBuildQuantityRequestMessage($quote)
@@ -78,7 +77,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_QuantityTest
 	/**
 	 * Test parsing quantity data from a quantity response.
 	 * Test handling of empty response message.
-	 * @test
 	 * @dataProvider provideForTestGetAvailStockFromResponse
 	 */
 	public function testGetAvailStockFromResponse($scenario)
@@ -118,7 +116,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_QuantityTest
 	 * When the available quantity is greater or equal to than the requested quantity, it should not change.
 	 * When the available stock is less than the request quantity and greater than 0, it should be set to the available quantity.
 	 * When the available stock is 0, the item should be removed from the quote.
-	 * @test
 	 */
 	public function testUpdateQuoteWithResponse()
 	{
@@ -185,7 +182,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_QuantityTest
 	/**
 	 * When given a false-y value as the response message - empty string, null, false, etc. -
 	 * this method should just return without taking any action.
-	 * @test
 	 */
 	public function testUpdateQuoteWithEmptyResponseDoesNothing()
 	{

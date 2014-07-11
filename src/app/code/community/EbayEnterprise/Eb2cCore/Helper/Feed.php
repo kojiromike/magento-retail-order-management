@@ -44,7 +44,10 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Validate the event type.
-	 * @param bool whether the event type matches for the given feed.
+	 *
+	 * @param DomDocument $doc
+	 * @param string $eventType
+	 * @return bool
 	 */
 	private function _validateEventType($doc, $eventType)
 	{

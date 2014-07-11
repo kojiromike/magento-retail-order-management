@@ -9,8 +9,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal extends Mage_Core_Model_Abstract
 	/**
 	 * Load quote id
 	 *
-	 * @param   int $customerEmail
-	 * @return  EbayEnterprise_Eb2cPayment_Model_Paypal
+	 * @param $quoteId
+	 * @return EbayEnterprise_Eb2cPayment_Model_Paypal
 	 */
 	public function loadByQuoteId($quoteId)
 	{

@@ -37,7 +37,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * @see _isValid
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isValid()
 	{
@@ -63,6 +63,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * add the billing destination data to the request
+	 *
+	 * @param $address
+	 * @throws Mage_Core_Exception
 	 * @return void
 	 */
 	protected function _addBillingDestination($address)
@@ -141,7 +144,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * return true if the quote has enough information to be useful.
 	 * @param  Mage_Sales_Model_Quote  $quote
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _isQuoteUsable(Mage_Sales_Model_Quote $quote=null)
 	{
@@ -156,7 +159,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * return true if the address has enough information to be useful.
 	 * @param Mage_Sales_Model_Quote_Address $address
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _hasValidBillingAddress(Mage_Sales_Model_Quote_Address $address)
 	{
@@ -518,6 +521,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * build the MailingAddress node
+	 *
+	 * @param EbayEnterprise_Dom_Element $parent
+	 * @param array $address
 	 * @return EbayEnterprise_Dom_Element
 	 */
 	protected function _buildMailingAddressNode(EbayEnterprise_Dom_Element $parent, array $address)
@@ -601,9 +607,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * build and append an orderitem node to the parent node.
-	 * @param array    $item
-	 * @param EbayEnterprise_Dom_Element         $parent
-	 * @param Mage_Sales_Model_Quote_Address $address
+	 *
+	 * @param array $item
+	 * @param EbayEnterprise_Dom_Element $parent
 	 */
 	protected function _buildOrderItem(array $item, EbayEnterprise_Dom_Element $parent)
 	{
@@ -674,7 +680,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * generate the code to identify a discount
-	 * @param  Mage_Sales_Model_Quote_Address $item
+	 *
 	 * @param  Mage_Sales_Model_Quote_Address $address
 	 * @return string
 	 */
@@ -704,8 +710,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * Extract and collect shipping origin data. Includes the 'AdminOrigin' and
 	 * 'ShippingOrigin' for the item.
-	 * @param Mage_Sales_Model_Quote_Item $item, the quote item to get inventory detail information from
-	 * @return array, the shipping origin address data
+	 *
+	 * @param Mage_Sales_Model_Quote_Item_Abstract $item the quote item to get inventory detail information from
+	 * @return array the shipping origin address data
 	 */
 	protected function _extractShippingData(Mage_Sales_Model_Quote_Item_Abstract $item)
 	{
@@ -734,7 +741,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * street line, a city and country code. Return true if address meets these
 	 * criteria, false otherwise.
 	 * @param  array   $data address data
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function _validateShipFromData($data)
 	{

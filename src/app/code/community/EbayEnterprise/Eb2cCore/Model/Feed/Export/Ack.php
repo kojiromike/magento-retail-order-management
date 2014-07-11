@@ -65,7 +65,9 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Export_Ack
 
 	/**
 	 * given an imported acknowledgment file extract its related exported file
+	 *
 	 * @param string $ackFile
+	 * @return array
 	 */
 	protected function _extractExportedFile($ackFile)
 	{

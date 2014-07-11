@@ -32,11 +32,13 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 			$this->_failValidation($user, $request, $e);
 		}
 	}
+
 	/**
 	 * Validate the CSR user to ensure it is active and has a role assigned.
-	 * @param  Mage_Admin_Model_User $username
+	 *
+	 * @param Mage_Admin_Model_User $user
+	 * @throws EbayEnterprise_Eb2cCustomerService_Exception_Authentication
 	 * @return self
-	 * @throws EbayEnterprise_Eb2cCustomerService_Exception_Authentication if the user is invalid
 	 */
 	protected function _validateUser(Mage_Admin_Model_User $user)
 	{

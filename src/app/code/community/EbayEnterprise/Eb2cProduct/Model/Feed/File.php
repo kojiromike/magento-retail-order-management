@@ -206,11 +206,14 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 			);
 		});
 	}
+
 	/**
 	 * given an array of website id, and and website id to remove from it
+	 *
 	 * @param array $websiteIds
 	 * @param string $websiteId the id remove from the list of website ids
 	 * @param array
+	 * @return array
 	 */
 	protected function _removeWebsiteId(array $websiteIds, $websiteId)
 	{
@@ -340,9 +343,12 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 		$product->addData($extractor->extractItem($feedXPath, $itemNode, $product));
 		return $this;
 	}
+
 	/**
 	 * Get all languages configured in Magento and process product data for
 	 * each language.
+	 *
+	 * @param $siteFilter
 	 * @return self
 	 */
 	public function processTranslations($siteFilter)
@@ -354,10 +360,12 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 		}
 		return $this;
 	}
+
 	/**
 	 * Process the feed for a single language by extracting data for the given
 	 * language and then importing the data for each store view with that language.
-	 * @param string $languageCode
+	 *
+	 * @param $siteFilter
 	 * @return self
 	 */
 	public function processForLanguage($siteFilter)
@@ -376,10 +384,13 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 		}
 		return $this;
 	}
+
 	/**
 	 * Process the feed for this website. Should process the file using
 	 * the default language XSLT and the language the default store view is
 	 * configured for.
+	 *
+	 * @param $websiteFilter
 	 * @return self
 	 */
 	public function processWebsite($websiteFilter)
@@ -394,9 +405,12 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 			$mageStoreId
 		);
 	}
+
 	/**
 	 * This is a callback; adds additional template handling for configurable variables that XSLT 1.0 just doesn't do.
-	 * @return
+	 *
+	 * @param DOMDocument $xslDoc
+	 * @param array $websiteFilter
 	 */
 	public function xslCallBack(DOMDocument $xslDoc, array $websiteFilter)
 	{

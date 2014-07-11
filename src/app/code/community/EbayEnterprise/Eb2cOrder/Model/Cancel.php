@@ -86,6 +86,8 @@ class EbayEnterprise_Eb2cOrder_Model_Cancel
 
 	/**
 	 * processing the request response from eb2c, throw exception if reponse status is not cancelled
+	 *
+	 * @throws EbayEnterprise_Eb2cOrder_Model_Cancel_Exception
 	 * @return self
 	 */
 	public function processResponse()

@@ -3,7 +3,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_System_Config_Backend_Language_CodeTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	/*
-	 * @test
 	 * Test that our method trims spaces and lower-cases its value
 	 */
 	public function testLanguageCodeToLower()

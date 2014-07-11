@@ -59,7 +59,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_DetailTest
 
 	/**
 	 * .
-	 * @test
 	 */
 	public function testRequestOrderDetail()
 	{
@@ -77,7 +76,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_DetailTest
 
 	/**
 	 * make sure the request is built properly
-	 * @test
 	 */
 	public function testBuildOrderDetailRequest()
 	{
@@ -95,7 +93,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_DetailTest
 
 	/**
 	 * verify payment information is extracted properly
-	 * @test
 	 * @dataProvider provideCounter
 	 */
 	public function testReadPayment($value)
@@ -119,7 +116,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_DetailTest
 
 	/**
 	 * verify the shipping address is extracted properly
-	 * @test
 	 */
 	public function testShippingAddress()
 	{
@@ -155,7 +151,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_DetailTest
             <LastName>Boone</LastName>
             <FirstName>Brian</FirstName>
          </Name>
-         <EmailAddress>test@tester.com</EmailAddress>
          <CustomerTaxId/>
          <TaxExemptFlag>false</TaxExemptFlag>
       </Customer>

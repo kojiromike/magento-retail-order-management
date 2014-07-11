@@ -17,9 +17,11 @@ class EbayEnterprise_Eb2cCore_Model_Xml_Mapper extends Varien_Object
 {
 	/**
 	 * load all mapped data
-	 * @param  DOMNode $contextNode a valid DOMNode that is attached to a document
-	 * @param  array    $mapping
-	 * @param  DOMXPath $xpath 		a preconfigured xpath object
+	 *
+	 * @param DOMNode $contextNode a valid DOMNode that is attached to a document
+	 * @param array $mapping
+	 * @param DOMXPath $xpath a preconfigured xpath object
+	 * @throws EbayEnterprise_Eb2cCore_Exception
 	 * @return self
 	 */
 	public function loadXml(DOMNode $contextNode, array $mapping, DOMXPath $xpath)

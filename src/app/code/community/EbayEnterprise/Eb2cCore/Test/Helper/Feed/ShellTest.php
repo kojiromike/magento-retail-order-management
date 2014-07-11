@@ -3,7 +3,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Feed_ShellTest extends EbayEnterprise_
 {
 	/**
 	 * Test loading of available models from (simluated) core etc/config.xml
-	 * @test
 	 */
 	public function testGetConfiguredFeedModels()
 	{

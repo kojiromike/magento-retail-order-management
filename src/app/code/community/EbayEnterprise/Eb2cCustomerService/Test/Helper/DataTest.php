@@ -6,7 +6,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 	/**
 	 * Test getting a config registry instance with the eb2ccsr
 	 * configuration loaded.
-	 * @test
 	 */
 	public function testGetConfig()
 	{
@@ -26,7 +25,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 	 * Test validating the token by making a request using the token
 	 * request model and checking if the response is valid using the
 	 * response model. When successful, method should simply return self.
-	 * @test
 	 */
 	public function testValidateTokenPass()
 	{
@@ -83,7 +81,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 	/**
 	 * When the token is not valid, throw an exception.
 	 * @param boolean $isCsrEnabled
-	 * @test
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testValidateTokenFail($isCsrEnabled)

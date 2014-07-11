@@ -3,7 +3,6 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_Overrides_Sales_GuestTest extends Eba
 {
 	/**
 	 * Test overriding sales/guest helper, where when there's no post data the parent validator method return false
-	 * @test
 	 */
 	public function testLoadValidOrderParentMethodReturnFalse()
 	{

@@ -59,7 +59,6 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 	/**
 	 * Test the generic method for getting the text contents from a set of XML
 	 * based on a given XPath expression using element as XPath context.
-	 * @test
 	 */
 	public function testTextValueFromXmlPathOnElement()
 	{
@@ -80,7 +79,6 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 	/**
 	 * Test the generic method for getting text contents from a set of XML
 	 * based on a given XPath expression using document as XPath context.
-	 * @test
 	 */
 	public function testTextValueFromXmlPathOnDocument()
 	{
@@ -100,7 +98,6 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 
 	/**
 	 * Test getting the address lines from PhysicalAddressType XML
-	 * @test
 	 */
 	public function testAddressStreetLines()
 	{
@@ -121,7 +118,6 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 
 	/**
 	 * Test getting the city from PhysicalAddressType XML
-	 * @test
 	 */
 	public function testAddressCity()
 	{
@@ -132,7 +128,6 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 
 	/**
 	 * Test getting a Magento region id from PhysicalAddressType XML
-	 * @test
 	 */
 	public function testAddressRegion()
 	{
@@ -143,7 +138,6 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 
 	/**
 	 * Test getting the country id from PhysicalAddressType XML
-	 * @test
 	 */
 	public function testAddressContry()
 	{
@@ -154,7 +148,6 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 
 	/**
 	 * Test getting the postcode from PhysicalAddressType XML
-	 * @test
 	 */
 	public function testAddressPostcode()
 	{
@@ -165,7 +158,6 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 
 	/**
 	 * Test the conversion of an address object to XML
-	 * @test
 	 */
 	public function testAddressToXml()
 	{
@@ -194,7 +186,6 @@ class EbayEnterprise_Eb2cAddress_Test_Helper_DataTest extends EcomDev_PHPUnit_Te
 
 	/**
 	 * Test converting a DOM element representing an address to a proper Mage_Customer_Model_Address object
-	 * @test
 	 */
 	public function testXmlToAddress()
 	{

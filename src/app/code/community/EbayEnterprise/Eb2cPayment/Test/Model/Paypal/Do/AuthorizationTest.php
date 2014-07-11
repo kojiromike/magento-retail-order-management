@@ -55,7 +55,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_AuthorizationTest
 	/**
 	 * testing parseResponse method
 	 *
-	 * @test
 	 * @dataProvider providerParseResponse
 	 * @loadFixture loadConfig.yaml
 	 */

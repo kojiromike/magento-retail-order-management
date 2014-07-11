@@ -30,7 +30,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	);
 	/**
 	 * get whether the response is valid or not.
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isValid()
 	{
@@ -136,10 +136,13 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	/**
 	 * extract all the map key from the map argument and return
 	 * an array of extracted value cast by the type pass to the method
+	 *
 	 * @param DomElement $itemNode
-	 * @param DOMXPath $xpath 
+	 * @param DOMXPath $xpath
 	 * @param array $map
-	 * @param string $type (string, float) * @return array */
+	 * @param string $type (string, float)
+	 * @return array
+	 */
 	protected function _extractByType(DomElement $itemNode, DOMXPath $xpath, array $map, $type='string')
 	{
 		return array_reduce(array_keys($map), function($result=array(), $key) use ($itemNode, $xpath, $map, $type) {

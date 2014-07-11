@@ -26,6 +26,7 @@ class EbayEnterprise_Eb2cPayment_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Get payment config instantiated object.
 	 *
+	 * @param null $store
 	 * @return EbayEnterprise_Eb2cPayment_Model_Config
 	 */
 	public function getConfigModel($store=null)

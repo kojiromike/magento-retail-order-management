@@ -5,7 +5,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_ProductTest
 {
 	/**
 	 * verify loads a product and calls the factory for each pim attribute
-	 * @test
 	 */
 	public function testLoadPimAttributesByProduct()
 	{
@@ -54,7 +53,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_ProductTest
 	}
 	/**
 	 * verify an exception is thrown when missing arguments
-	 * @test
 	 */
 	public function testConstructInvalidArguments()
 	{

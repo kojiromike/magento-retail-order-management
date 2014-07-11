@@ -4,7 +4,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 {
 	/**
 	 * Test getRedeem method
-	 * @test
 	 */
 	public function testGetRedeem()
 	{
@@ -92,7 +91,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 	}
 	/**
 	 * Test getRedeem method, where getSvcUri return an empty url
-	 * @test
 	 */
 	public function testGetRedeemWithEmptyUrl()
 	{
@@ -124,7 +122,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 	/**
 	 * testing parseResponse method
 	 *
-	 * @test
 	 * @dataProvider dataProvider
 	 * @loadFixture loadConfig.yaml
 	 */
@@ -143,7 +140,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 		);
 	}
 	/**
-	 * @test
 	 * @dataProvider dataProvider
 	 * @loadFixture loadConfig.yaml
 	 */

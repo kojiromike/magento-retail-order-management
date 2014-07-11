@@ -6,7 +6,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 	/**
 	 * Test formatting a sku, client id and catalog id into an item identifier
 	 * for an item in the collection.
-	 * @test
 	 */
 	public function testFormatId()
 	{
@@ -23,7 +22,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 	/**
 	 * Create the item's identifier by using the sku, client id and catalog id
 	 * of the item to create an ID.
-	 * @test
 	 */
 	public function testGetItemId()
 	{
@@ -56,7 +54,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 
 	/**
 	 * Test getting an item from the collection for a given product.
-	 * @test
 	 */
 	public function testGetItemForProduct()
 	{
@@ -103,7 +100,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 	}
 	/**
 	 * Will return the first item if there are items in the collection.
-	 * @test
 	 */
 	public function testGetFirstItem()
 	{
@@ -116,7 +112,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 	}
 	/**
 	 * When there are no items in the collection, should thrown an exception.
-	 * @test
 	 */
 	public function testGetFirstItemEmptyCollection()
 	{
@@ -126,7 +121,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 	}
 	/**
 	 * Will return the last item if there are items in the collection.
-	 * @test
 	 */
 	public function testGetLastItem()
 	{
@@ -139,7 +133,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 	}
 	/**
 	 * When there are no items, should throw an exception.
-	 * @test
 	 */
 	public function testGetLastItemEmptyCollection()
 	{
@@ -150,7 +143,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Product_CollectionTest
 	/**
 	 * Cannot be implemented for the PIM Product model so will always raise a
 	 * NotImplemented error (or something like that)
-	 * @test
 	 */
 	public function testGetNewEmptyItem()
 	{

@@ -143,7 +143,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_Express_CheckoutTest exten
 	/**
 	 * testing parseResponse method
 	 *
-	 * @test
 	 * @dataProvider providerParseResponse
 	 * @loadFixture loadConfig.yaml
 	 */

@@ -14,8 +14,9 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Make sure the given string does not exceed the max length specified.
 	 * BTW, wouldn't it be nice if PHP had partial functions?
+	 *
 	 * @param  string $str    String to limit to given length
-	 * @param  ing    $maxLen Max length of the string
+	 * @param  int    $maxLen Max length of the string
 	 * @return string         String which will be at most $maxLen characters
 	 */
 	protected function _limit($str, $maxLen)
@@ -25,6 +26,8 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * get the address validation config model
+	 *
+	 * @param null $store
 	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 */
 	public function getConfigModel($store=null)
@@ -37,6 +40,7 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Generate the xml to represent the Eb2c PhysicalAddressType from an address
+	 *
 	 * @param  Mage_Customer_Model_Address_Abstract
 	 * @param  EbayEnterprise_Dom_Document $doc
 	 * @param  string $nsUri
@@ -68,6 +72,7 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Evaluate the given XPath get get the text content of the returned nodes
+	 *
 	 * @param  DOMNode $context
 	 * @param  string $path
 	 * @return array|string
@@ -93,7 +98,8 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Create a valid address object from Eb2c PhysicalAddressType xml nodes
-	 * @param DOMElement
+	 *
+	 * @param DOMElement $physicalAddressXml
 	 * @return Mage_Customer_Model_Address
 	 */
 	public function physicalAddressXmlToAddress(DOMElement $physicalAddressXml)
@@ -111,6 +117,8 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Get the street lines from a physical address xml element
+	 *
+	 * @param DOMElement $physicalAddressXml
 	 * @return array
 	 */
 	public function physicalAddressStreet(DOMElement $physicalAddressXml)
@@ -120,6 +128,8 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Get the city from a physical address xml element
+	 *
+	 * @param DOMElement $physicalAddressXml
 	 * @return string
 	 */
 	public function physicalAddressCity(DOMElement $physicalAddressXml)
@@ -129,6 +139,8 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Get the region id from a physical address xml element
+	 *
+	 * @param DOMElement $physicalAddressXml
 	 * @return string
 	 */
 	public function physicalAddressRegionId(DOMElement $physicalAddressXml)
@@ -143,6 +155,8 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Get the country id from a physical address xml element
+	 *
+	 * @param DOMElement $physicalAddressXml
 	 * @return string
 	 */
 	public function physicalAddressCountryId(DOMElement $physicalAddressXml)
@@ -152,6 +166,8 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Get the postcode from a physical address xml element
+	 *
+	 * @param DOMElement $physicalAddressXml
 	 * @return string
 	 */
 	public function physicalAddressPostcode(DOMElement $physicalAddressXml)

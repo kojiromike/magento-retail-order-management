@@ -16,11 +16,13 @@
 class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Shipment extends Mage_Sales_Block_Order_Shipment
 {
 	/**
-	 * @see parent::getPrintShipmentUrl()
 	 * overriding this method because shipment will not
 	 * exists in magento therefore we should simply use the
 	 * print all shipment url which uses the order id, which
 	 * should both exists in Magento and OMS.
+	 *
+	 * @see parent::getPrintShipmentUrl()
+	 * @param $shipment
 	 * @return string
 	 */
 	public function getPrintShipmentUrl($shipment)

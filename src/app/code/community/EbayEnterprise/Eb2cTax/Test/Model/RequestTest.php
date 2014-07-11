@@ -69,7 +69,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * Test getting the shipping amount for an address. As Magento has shipping totals
 	 * collected after tax, this method should force the shipping amounts to be collected
 	 * before returning the address' base shipping amount.
-	 * @test
 	 */
 	public function testGetShippingAmount()
 	{
@@ -186,14 +185,16 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * Mock a sales quote item
-	 * @param  integer                         $totalQty           Expected quantity of the item
-	 * @param  Mage_Catalog_Model_Product      $product            Item product
-	 * @param  integer                         $id                 Expected id of the item
-	 * @param  string                          $sku                Expected sku of the item
-	 * @param  Mage_Sales_Model_Quote_Item[]   $children           Array of child items
-	 * @param  boolean                         $childrenCalculated Are children of this item calculated
-	 * @param  integer                         $discountAmt        Expected discount amount of the item
-	 * @return Mock_Mage_Sales_Model_Quote_Item                    The stubbed quote item.
+	 *
+	 * @param Mage_Catalog_Model_Product $product Item product
+	 * @param integer $totalQty Expected quantity of the item
+	 * @param integer $id Expected id of the item
+	 * @param string $sku Expected sku of the item
+	 * @param Mage_Sales_Model_Quote_Item[] $children Array of child items
+	 * @param boolean $childrenCalculated Are children of this item calculated
+	 * @param integer $discountAmt Expected discount amount of the item
+	 * @param null $shipFromData
+	 * @return Mock_Mage_Sales_Model_Quote_Item The stubbed quote item.
 	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
 	 */
 	protected function _stubQuoteItem(
@@ -282,8 +283,8 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * [mockVirtualQuote description]
-	 * @return [type] [description]
+	 * @param $sku
+	 * @return Mage_Sales_Model_Quote (mock)
 	 */
 	protected function _stubQuoteWithSku($sku)
 	{
@@ -337,8 +338,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * [mockVirtualQuote description]
-	 * @return [type] [description]
+	 * @return Mage_Sales_Model_Quote (mock)
 	 */
 	protected function _stubSingleShipSameAsBill()
 	{
@@ -596,8 +596,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * [mockVirtualQuote description]
-	 * @return [type] [description]
+	 * Stub a quote with a virtual product and a single shipping address
+	 *
+	 * @return Mage_Sales_Model_Quote (stub)
 	 */
 	protected function _stubSingleShipVirtual()
 	{
@@ -797,8 +798,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * [mockVirtualQuote description]
-	 * @return [type] [description]
+	 * Stub a quote object with virtual products and shipping same as billing address
+	 *
+	 * @return Mage_Sales_Model_Quote
 	 */
 	protected function _stubSingleShipSameAsBillVirtualMix()
 	{
@@ -1055,8 +1057,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * [mockVirtualQuote description]
-	 * @return [type] [description]
+	 * Stub a multiship quote where shipping is different from billing address
+	 *
+	 * @return Mage_Sales_Model_Quote Stub of a quote
 	 */
 	protected function _stubMultiShipNotSameAsBill()
 	{
@@ -1535,7 +1538,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * @test
 	 */
 	public function testExtractAdminData()
 	{
@@ -1625,13 +1627,13 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * Test extracting shipping information for an item - should include AdminOrigin
 	 * and ShippingOrigin data. AdminOrigin should be collected separately via _extractAdminData.
 	 * ShippingOrigin data should be pulled from the item passed in.
-	 * @test
+	 *
 	 * @dataProvider provideExtractShippingData
-	 * @param array   $itemData
-	 * @param array   $adminOrigin
-	 * @param boolean $virtual
-	 * @param boolean $valid
-	 * @param array   $shipData
+	 * @param array $itemData
+	 * @param array $adminOrigin
+	 * @param $isVirtual
+	 * @param $isValid
+	 * @param array $shipData
 	 */
 	public function testExtractShippingData($itemData, $adminOrigin, $isVirtual, $isValid, $shipData)
 	{
@@ -1714,7 +1716,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	/**
 	 * Test validating a ship from address. When the address is missing the first
 	 * street line, city or country code, the address should be considered invalid.
-	 * @test
 	 * @dataProvider provideShipDataToValidate
 	 */
 	public function testValidateShipFromData($shipData, $isValid)
@@ -1726,7 +1727,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		);
 	}
 	/**
-	 * @test
 	 */
 	public function testBuildAdminOriginNode()
 	{
@@ -1752,7 +1752,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * @test
 	 */
 	public function testBuildShippingOriginNode()
 	{
@@ -1780,7 +1779,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * Test getting the "original price" for an item.
 	 * Provider will give different combinations of prices,
 	 * correct price should always be 12.34.
-	 * @test
 	 * @dataProvider dataProvider
 	 */
 	public function testGettingOriginalPriceForItem($originalCustomPrice, $customPrice, $originalPrice, $basePrice)
@@ -1823,7 +1821,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * Test getting all items for an address - should return all non-nominal, "visible" items
-	 * @test
 	 */
 	public function testGettingItemsForAddress()
 	{
@@ -1851,7 +1848,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * verify item data is extracted properly
-	 * @test
 	 */
 	public function testExtractItemData()
 	{
@@ -1933,7 +1929,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * verify the processaddress function makes calls with the correct argument types.
-	 * @test
 	 */
 	public function testProcessAddress()
 	{
@@ -2020,7 +2015,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * address the item belongs to. When ginen an item with calculated child items,
 	 * the method should iterate through the child items and process each one. When
 	 * given an item without children, the method should add that item to a destination group.
-	 * @test
 	 */
 	public function testProcessItem()
 	{
@@ -2070,7 +2064,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 	/**
 	 * verify the billing destination gets properly extracted
-	 * @test
 	 */
 	public function testAddBillingDestination()
 	{

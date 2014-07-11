@@ -30,74 +30,61 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 	 */
 	protected function _buildRequest(Mage_Sales_Model_Quote $quote)
 	{
+		/** @var EbayEnterprise_Eb2cCore_Helper_Data $coreHelper */
+		$coreHelper = Mage::helper('eb2ccore');
+		$domDocument = $coreHelper->getNewDomDocument();
 		$totals = $quote->getTotals();
-		Mage::log(array_keys($totals['grand_total']->getData()));
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
+		$curCodeAttr = array('currencyCode' => $quote->getQuoteCurrencyCode());
+		/** @var EbayEnterprise_Dom_Element $payPalSetExpressCheckoutRequest */
 		$payPalSetExpressCheckoutRequest = $domDocument->addElement('PayPalSetExpressCheckoutRequest', null, Mage::helper('eb2cpayment')->getXmlNs())->firstChild;
 		$payPalSetExpressCheckoutRequest->createChild('OrderId', (string) $quote->getEntityId());
 		$payPalSetExpressCheckoutRequest->createChild('ReturnUrl', (string) Mage::getUrl('*/*/return'));
 		$payPalSetExpressCheckoutRequest->createChild('CancelUrl', (string) Mage::getUrl('*/*/cancel'));
 		$payPalSetExpressCheckoutRequest->createChild('LocaleCode', (string) Mage::app()->getLocale()->getDefaultLocale());
-		$payPalSetExpressCheckoutRequest->createChild(
-			'Amount',
-			sprintf('%.02f', (isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0)),
-			array('currencyCode' => $quote->getQuoteCurrencyCode())
-		);
+		$payPalSetExpressCheckoutRequest->createChild('Amount', sprintf('%.02f', (isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0)), $curCodeAttr);
 		$lineItems = $payPalSetExpressCheckoutRequest->createChild('LineItems', null);
+		$gwPrice = $quote->getGwPrice();
 		// LineItemsTotal _must_ come first and I need to add in Gift Wrap. So I end up looping
 		// twice. Surely there's a more efficient way to do this.
 		$lineItemsTotal = isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0;
-		if ($quote) {
-			$lineItemsTotal += $quote->getGwPrice();
-			foreach ($quote->getAllAddresses() as $addresses) {
-				if ($addresses) {
-					foreach ($addresses->getAllItems() as $item) {
-						if ($item->getGwPrice()) {
-							$lineItemsTotal += $item->getGwPrice();
-						}
-					}
-				}
+		$lineItemsTotal += $gwPrice;
+		/** @var array $addresses */
+		$addresses = $quote->getAllAddresses();
+		foreach ($addresses as $address) {
+			foreach ($address->getAllItems() as $item) {
+				// If gw_price is empty, php will treat it as zero.
+				$lineItemsTotal += $item->getGwPrice();
 			}
 		}
-		$lineItems->createChild(
-			'LineItemsTotal',
-			sprintf('%.02f', $lineItemsTotal),
-			array('currencyCode' => $quote->getQuoteCurrencyCode())
-		);
 
-		// add ShippingTotal
-		$lineItems->createChild(
-			'ShippingTotal',
-			sprintf('%.02f', (isset($totals['shipping']) ? $totals['shipping']->getValue() : 0)),
-			array('currencyCode' => $quote->getQuoteCurrencyCode())
-		);
-		// add TaxTotal
-		$lineItems->createChild(
-			'TaxTotal',
-			sprintf('%.02f', (isset($totals['tax']) ? $totals['tax']->getValue() : 0)),
-			array('currencyCode' => $quote->getQuoteCurrencyCode())
-		);
-		if ($quote) {
-			if ($quote->getGwPrice()) {
+		$shippingTotals = isset($totals['shipping']) ? $totals['shipping']->getValue() : 0;
+		$taxTotals = isset($totals['tax']) ? $totals['tax']->getValue() : 0;
+
+		$lineItems
+			->addChild('LineItemsTotal', sprintf('%.02f', $lineItemsTotal), $curCodeAttr)
+			->addChild('ShippingTotal', sprintf('%.02f', $shippingTotals), $curCodeAttr)
+			->addChild('TaxTotal', sprintf('%.02f', $taxTotals), $curCodeAttr);
+
+		if ($gwPrice) {
+			$lineItem = $lineItems->createChild('LineItem', null);
+			$lineItem
+				->addChild('Name', 'GiftWrap')
+				->addChild('Quantity', '1')
+				->addChild('UnitAmount', sprintf('%.02f', $gwPrice), $curCodeAttr);
+		}
+		foreach($addresses as $address) {
+			foreach ($address->getAllItems() as $item) {
 				$lineItem = $lineItems->createChild('LineItem', null);
-				$lineItem->createChild('Name', 'GiftWrap');
-				$lineItem->createChild('Quantity', '1');
-				$lineItem->createChild('UnitAmount', sprintf('%.02f', $quote->getGwPrice()), array('currencyCode' => $quote->getQuoteCurrencyCode()));
-			}
-			foreach($quote->getAllAddresses() as $addresses) {
-				if ($addresses) {
-					foreach ($addresses->getAllItems() as $item) {
-						$lineItem = $lineItems->createChild('LineItem', null);
-						$lineItem->createChild('Name', (string) $item->getName());
-						$lineItem->createChild('Quantity', (string) $item->getQty());
-						$lineItem->createChild('UnitAmount', sprintf('%.02f', $item->getPrice()), array('currencyCode' => $quote->getQuoteCurrencyCode()));
-						if ($item->getGwPrice()) {
-							$lineItem = $lineItems->createChild('LineItem', null);
-							$lineItem->createChild('Name', 'ItemGiftWrap');
-							$lineItem->createChild('Quantity', '1');
-							$lineItem->createChild('UnitAmount', sprintf('%.02f', $item->getGwPrice()), array('currencyCode' => $quote->getQuoteCurrencyCode()));
-						}
-					}
+				$lineItem
+					->addChild('Name', (string) $item->getName())
+					->addChild('Quantity', (string) $item->getQty())
+					->addChild('UnitAmount', sprintf('%.02f', $item->getPrice()), $curCodeAttr);
+				if ($item->getGwPrice()) {
+					$lineItem = $lineItems->createChild('LineItem', null);
+					$lineItem
+						->addChild('Name', 'ItemGiftWrap')
+						->addChild('Quantity', '1')
+						->addChild('UnitAmount', sprintf('%.02f', $item->getGwPrice()), $curCodeAttr);
 				}
 			}
 		}
@@ -113,6 +100,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 	{
 		$checkoutObject = new Varien_Object();
 		if (trim($payPalSetExpressCheckoutReply) !== '') {
+			/** @var EbayEnterprise_Dom_Document $doc */
 			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 			$doc->loadXML($payPalSetExpressCheckoutReply);
 			$checkoutXpath = new DOMXPath($doc);

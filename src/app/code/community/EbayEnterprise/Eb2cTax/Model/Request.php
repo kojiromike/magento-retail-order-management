@@ -31,7 +31,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	const CALCULATE_DUTY_ATTRIBUTE  = 'calculateDuty';
 
 	protected $_xml                = '';
-	protected $_doc                = null;
+	/** @var DOMDocument $_doc */
+	protected $_doc;
 	protected $_tdRequest          = null;
 	protected $_namespaceUri       = '';
 	protected $_billingInfoRef     = '';
@@ -85,6 +86,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * add the billing destination data to the request
+	 *
+	 * @param $address
+	 * @throws Mage_Core_Exception
 	 * @return void
 	 */
 	protected function _addBillingDestination($address)
@@ -106,7 +110,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * adding the item to a destination grouping based on the address the item
 	 * ships to.
 	 * @param  Mage_Sales_Model_Quote_Item $item The item to process
-	 * @param  Mage_Sales_Model_Quote_Addres $address The address the item ships to
+	 * @param  Mage_Sales_Model_Quote_Address $address The address the item ships to
 	 * @return self
 	 */
 	protected function _processItem($item, $address)
@@ -121,6 +125,12 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		return $this;
 	}
 
+	/**
+	 * Determine and stash various information about the quote address in $this object.
+	 *
+	 * @param Mage_Sales_Model_Quote_Address $address
+	 * @return self
+	 */
 	public function processAddress(Mage_Sales_Model_Quote_Address $address=null)
 	{
 		try {
@@ -274,12 +284,28 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		return $id;
 	}
 
+	/**
+	 * Get a valid xml:id element for virtual addresses
+	 *
+	 * @param $address
+	 * @return string
+	 */
 	protected function _getVirtualId($address)
 	{
+		// xml ids cannot start with a digit
 		$id = '_' . $address->getId() . '_virtual';
 		return $id;
 	}
 
+	/**
+	 * Extract and validate destination data from the address for tax purposes.
+	 *
+	 * @param $address
+	 * @param bool $isVirtual
+	 * @see EbayEnterprise_Eb2cTax_Model_Request::_validateDestData
+	 * @throws Mage_Core_Exception
+	 * @return array of valid destination address data
+	 */
 	protected function _extractDestData($address, $isVirtual=false)
 	{
 		$id = $this->_getDestinationId($address, $isVirtual);
@@ -389,8 +415,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * Get the unit price for the item, taking into consideration the
 	 * original_custom_price, custom_price, original_price and base_price
-	 * @param  Mage_Sales_Model_Quote_item $item The quote item to get the price of.
-	 * @return float       The original price of the item.
+	 * @param Mage_Sales_Model_Quote_Item_Abstract $item The quote item to get the price of.
+	 * @return float The original price of the item.
 	 */
 	protected function _getItemOriginalPrice($item)
 	{
@@ -420,9 +446,17 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		return (string) $this->_checkLength($taxCode, 1, 40);
 	}
 
+	/**
+	 * Get the base shipping amount from the address.
+	 *
+	 * @param $address
+	 * @return float
+	 */
 	protected function _getShippingAmount($address)
 	{
-		Mage::getModel('sales/quote_address_total_shipping')->collect($address);
+		/** @var Mage_Sales_Model_Quote_Address_Total_Shipping $totaler */
+		$totaler = Mage::getModel('sales/quote_address_total_shipping');
+		$totaler->collect($address);
 		return $address->getBaseShippingAmount();
 	}
 	/**
@@ -510,6 +544,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			// Building TaxDutyQuoteRequest/Shipping/ShipGroups/ShipGroup/Gifting nodes
 			$quoteGwId = $this->getGwId();
 			if ($quoteGwId) {
+				/** @var Enterprise_Giftwrapping_Model_Wrapping $giftwrapping */
 				$giftwrapping = Mage::getModel('enterprise_giftwrapping/wrapping')->load($quoteGwId);
 				if ($giftwrapping->getWrappingId()) {
 					$giftingNode = $shipGroup->createChild('Gifting', null, array('id' => sprintf('%.12s', uniqid())));
@@ -559,6 +594,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * build the MailingAddress node
+	 *
+	 * @param EbayEnterprise_Dom_Element $parent
+	 * @param array $address
 	 * @return EbayEnterprise_Dom_Element
 	 */
 	protected function _buildMailingAddressNode(EbayEnterprise_Dom_Element $parent, array $address)
@@ -701,6 +739,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		}
 
 		if ($item['gw_id']) {
+			/** @var Enterprise_Giftwrapping_Model_Wrapping $giftwrapping */
 			$giftwrapping = Mage::getModel('enterprise_giftwrapping/wrapping')->load($item['gw_id']);
 			if ($giftwrapping->getWrappingId()) {
 				$giftingNode = $orderItem->createChild('Gifting', null, array('id' => sprintf('%.12s', uniqid())));
@@ -737,7 +776,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * generate the code to identify a discount
-	 * @param  Mage_Sales_Model_Quote_Address $item
+	 *
 	 * @param  Mage_Sales_Model_Quote_Address $address
 	 * @return string
 	 */
@@ -764,9 +803,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	}
 
 	/**
-	 * Extract and collect shipping origin data. Includes the 'AdminOrigin' and
-	 * 'ShippingOrigin' for the item.
-	 * @param Mage_Sales_Model_Quote_Item $item, the quote item to get inventory detail information from
+	 * Extract and collect shipping origin data. Includes the 'AdminOrigin' and 'ShippingOrigin' for the item.
+	 *
+	 * @param Mage_Sales_Model_Quote_Item_Abstract $item the quote item to get inventory detail information from
 	 * @return array, the shipping origin address data
 	 */
 	protected function _extractShippingData(Mage_Sales_Model_Quote_Item_Abstract $item)
@@ -876,19 +915,16 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		}
 		return $item;
 	}
+
 	/**
-	 * build 'OrderItem/Gifting' node and its
-	 * inner nested child nodes.
-	 * @param  EbayEnterprise_Dom_Element $merchandiseNode
-	 * @param  array $quoteItem
+	 * build 'OrderItem/Gifting' node and its inner nested child nodes.
+	 *
+	 * @param EbayEnterprise_Dom_Element $giftingNode
+	 * @param array $quoteItem
 	 * @param Enterprise_GiftWrapping_Model_Wrapping $giftwrapping
 	 * @return self
 	 */
-	protected function _buildGiftingNode(
-		EbayEnterprise_Dom_Element $giftingNode,
-		array $quoteItem,
-		Enterprise_GiftWrapping_Model_Wrapping $giftwrapping
-	)
+	protected function _buildGiftingNode(EbayEnterprise_Dom_Element $giftingNode, array $quoteItem, Enterprise_GiftWrapping_Model_Wrapping $giftwrapping)
 	{
 		$qty = isset($quoteItem['quantity']) ? $quoteItem['quantity'] : 1;
 		$giftingNode->addChild('ItemId', sprintf('%.20s', $giftwrapping->getEb2cSku()))

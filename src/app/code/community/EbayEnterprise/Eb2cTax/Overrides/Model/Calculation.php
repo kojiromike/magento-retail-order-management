@@ -35,12 +35,14 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 		return ($mode === self::TAX_DISCOUNT || $mode === self::TAX_DISCOUNT_FOR_AMOUNT) ?
 			$itemResponse->getTaxQuoteDiscounts() : $itemResponse->getTaxQuotes();
 	}
+
 	/**
 	 * Calculate tax by mode
-	 * @param float $amount The amount to calculate tax on
+	 *
+	 * @param float|int $amount The amount to calculate tax on
 	 * @param Varien_Object $itemSelector
 	 * @param int $type One of the values of these constants [MERCHANDISE_TYPE, SHIPPING_TYPE, DUTY_TYPE]
-	 * @param string $mode, [regular | discount | discount-for-amount, regular, regular-for-amount]
+	 * @param string $mode [regular | discount | discount-for-amount, regular, regular-for-amount]
 	 * @return float the total tax amount for any discounts
 	 */
 	protected function _calcTaxByMode($amount=0, Varien_Object $itemSelector, $type=self::MERCHANDISE_TYPE, $mode=self::TAX_REGULAR)
@@ -85,10 +87,12 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 	{
 		return in_array($mode, array(self::TAX_DISCOUNT_FOR_AMOUNT, self::TAX_REGULAR_FOR_AMOUNT));
 	}
+
 	/**
 	 * calculate tax amount for an item filtered by $type.
-	 * @param  Varien_Object $itemSelector
-	 * @param  string        $type
+	 *
+	 * @param Varien_Object $itemSelector
+	 * @param int|string $type
 	 * @return float
 	 */
 	public function getTax(Varien_Object $itemSelector, $type=self::MERCHANDISE_TYPE)
@@ -107,6 +111,11 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 		return $this->_calcTaxByMode($amount, $itemSelector, $type, self::TAX_REGULAR_FOR_AMOUNT);
 	}
 
+	/**
+	 * Get or create the tax response object
+	 *
+	 * @return EbayEnterprise_Eb2cTax_Model_Response
+	 */
 	public function getTaxResponse()
 	{
 		return $this->getData('tax_response') ?: Mage::getModel('eb2ctax/response');
@@ -142,8 +151,9 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 		if ($address) {
 			// delete old response/request
 			$this->unsTaxResponse();
-			return Mage::getModel('eb2ctax/request')
-				->processAddress($address);
+			/** @var EbayEnterprise_Eb2cTax_Model_Request $taxRequest */
+			$taxRequest = Mage::getModel('eb2ctax/request');
+			return $taxRequest->processAddress($address);
 		}
 		$response = $this->getTaxResponse();
 		if ($response) {
@@ -174,7 +184,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 	/**
 	 * return the response data for the specified item.
 	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
-	 * @param Mage_Salse_Model_Quote_Address $address
+	 * @param Mage_Sales_Model_Quote_Address $address
 	 * @return EbayEnterprise_Eb2cTax_Model_Response_Orderitem
 	 */
 	protected function _getItemResponse(Mage_Sales_Model_Quote_Item_Abstract $item=null, Mage_Sales_Model_Quote_Address $address=null)
@@ -195,11 +205,12 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 		$helper       = Mage::helper('eb2ctax');
 		$item         = $itemSelector->getItem();
 		$address      = $itemSelector->getAddress();
+		/** @var Mage_Core_Model_Store $store */
 		$store        = $address->getQuote()->getStore();
 		$result       = array();
 		$itemResponse = $this->_getItemResponse($item, $address);
 		if ($itemResponse) {
-			foreach ($itemResponse->getTaxQuotes() as $index => $taxQuote) {
+			foreach ($itemResponse->getTaxQuotes() as $taxQuote) {
 				$taxRate = $taxQuote->getEffectiveRate();
 				$code    = $taxQuote->getCode();
 				$id      = $code . '-' . $taxRate;
@@ -219,6 +230,9 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 						break;
 					case $taxQuote::SHIPGROUP_GIFTING:
 						$typeStr = 'ShipGroup-Gifting';
+						break;
+					default:
+						$typeStr = '';
 						break;
 				}
 
@@ -267,7 +281,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 				$result[$id]         = $group;
 			}
 			if ($helper->getApplyTaxAfterDiscount($store)) {
-				foreach($itemResponse->getTaxQuoteDiscounts() as $index => $discountQuote) {
+				foreach($itemResponse->getTaxQuoteDiscounts() as $discountQuote) {
 					$taxRate = $discountQuote->getEffectiveRate();
 					$code    = $discountQuote->getCode();
 					$id      = "{$code}-{$taxRate}";

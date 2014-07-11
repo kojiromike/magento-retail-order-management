@@ -68,6 +68,11 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		self::$xsdFile = __DIR__ . '/RequestTest/fixtures/TaxDutyFee-QuoteRequest-1.0.xsd';
 	}
 
+	/**
+	 * Provide tax code and expectation key
+	 *
+	 * @return array
+	 */
 	public function getItemTaxClassProvider()
 	{
 		return array(
@@ -125,7 +130,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * Mock the core store model with the given code and id
 	 * @param  string  $code Expected store code
 	 * @param  integer $id   Expected store id
-	 * @return Mock_Mage_Core_Model_Store
+	 * @return Mage_Core_Model_Store (mock)
 	 */
 	protected function _stubStore($code='usa', $id=0)
 	{
@@ -145,7 +150,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	/**
 	 * Create a simple address mock object
 	 * @param   Mage_Sales_Model_Quote_Item[] $items array of non-nominal items for the address
-	 * @return  Mock_Mage_Sales_Model_Quote_Address
+	 * @return  Mage_Sales_Model_Quote_Address (mock)
 	 */
 	protected function _stubSimpleAddress($items=array())
 	{
@@ -186,7 +191,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * Mock a product model
 	 * @param  boolean $isVirtual Is the product a virtual product or not
 	 * @param  string  $taxCode   Product tax code
-	 * @return Mock_Mage_Catalog_Model_Product
+	 * @return Mage_Catalog_Model_Product (mock)
 	 */
 	protected function _stubProduct($isVirtual=false, $taxCode=null)
 	{
@@ -199,14 +204,16 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * Mock a sales quote item
-	 * @param  integer                         $totalQty           Expected quantity of the item
-	 * @param  Mage_Catalog_Model_Product      $product            Item product
-	 * @param  integer                         $id                 Expected id of the item
-	 * @param  string                          $sku                Expected sku of the item
-	 * @param  Mage_Sales_Model_Quote_Item[]   $children           Array of child items
+	 *
+	 * @param Mage_Catalog_Model_Product $product Item product
+	 * @param integer $totalQty Expected quantity of the item
+	 * @param integer $id Expected id of the item
+	 * @param string $sku Expected sku of the item
+	 * @param Mage_Sales_Model_Quote_Item[] $children Array of child items
 	 * @param  boolean                         $childrenCalculated Are children of this item calculated
-	 * @param  integer                         $discountAmt        Expected discount amount of the item
-	 * @return Mock_Mage_Sales_Model_Quote_Item                    The stubbed quote item.
+	 * @param integer $discountAmt Expected discount amount of the item
+	 * @param null $shipFromData
+	 * @return Mage_Sales_Model_Quote_Item The stubbed quote item.
 	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
 	 */
 	protected function _stubQuoteItem(
@@ -240,7 +247,8 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * Mock a quote model with a virtual product, parent and child item and a single address
-	 * @return Mock_Mage_Sales_Model_Quote
+	 *
+	 * @return Mage_Sales_Model_Quote (mock)
 	 */
 	protected function _stubVirtualQuote()
 	{
@@ -295,8 +303,10 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * [mockVirtualQuote description]
-	 * @return [type] [description]
+	 * Create a stubbed quote object with the given sku
+	 *
+	 * @param $sku
+	 * @return Mage_Sales_Model_Quote (stub)
 	 */
 	protected function _stubQuoteWithSku($sku)
 	{
@@ -350,8 +360,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * [mockVirtualQuote description]
-	 * @return [type] [description]
+	 * Stub a quote with a single shipping address, same as billing
+	 *
+	 * @return Mage_Sales_Model_Quote (stub)
 	 */
 	protected function _stubSingleShipSameAsBill()
 	{
@@ -609,8 +620,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * [mockVirtualQuote description]
-	 * @return [type] [description]
+	 * Stub a quote with a single shipping address and virtual products
+	 *
+	 * @return Mage_Sales_Model_Quote (stub)
 	 */
 	protected function _stubSingleShipVirtual()
 	{
@@ -810,8 +822,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * [mockVirtualQuote description]
-	 * @return [type] [description]
+	 * Stub a quote with a single shipping address, same as billing, some virtual products, some physical
+	 *
+	 * @return Mage_Sales_Model_Quote (stub)
 	 */
 	protected function _stubSingleShipSameAsBillVirtualMix()
 	{
@@ -1068,8 +1081,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	}
 
 	/**
-	 * [mockVirtualQuote description]
-	 * @return [type] [description]
+	 * Stub a quote with multiple shipping addresses
+	 *
+	 * @return Mage_Sales_Model_Quote (stub)
 	 */
 	protected function _stubMultiShipNotSameAsBill()
 	{
@@ -1488,6 +1502,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->will($this->returnValue($discountId));
 		$this->replaceByMock('helper', 'eb2ccore', $helper);
 
+		/** @var EbayEnterprise_Eb2cTax_Model_Request $request */
 		$request = Mage::getModel('eb2ctax/request');
 		$fn = $this->_reflectMethod($request, '_buildDiscountNode');
 		$doc = $request->getDocument();
@@ -1638,12 +1653,13 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * Test extracting shipping information for an item - should include AdminOrigin
 	 * and ShippingOrigin data. AdminOrigin should be collected separately via _extractAdminData.
 	 * ShippingOrigin data should be pulled from the item passed in.
+	 *
 	 * @dataProvider provideExtractShippingData
-	 * @param array   $itemData
-	 * @param array   $adminOrigin
-	 * @param boolean $virtual
-	 * @param boolean $valid
-	 * @param array   $shipData
+	 * @param array $itemData
+	 * @param array $adminOrigin
+	 * @param $isVirtual
+	 * @param $isValid
+	 * @param array $shipData
 	 */
 	public function testExtractShippingData($itemData, $adminOrigin, $isVirtual, $isValid, $shipData)
 	{
@@ -1736,10 +1752,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			$this->_reflectMethod($request, '_validateShipFromData')->invoke($request, $shipData)
 		);
 	}
-	/**
-	 */
 	public function testBuildAdminOriginNode()
 	{
+		/** @var EbayEnterprise_Dom_Document $domDocument */
 		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
 		$parent = $domDocument->addElement('TaxDutyQuoteRequest', null, 'http://api.gsicommerce.com/schema/checkout/1.0')->firstChild;
 		$adminOrigin = array(
@@ -1761,10 +1776,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		);
 	}
 
-	/**
-	 */
 	public function testBuildShippingOriginNode()
 	{
+		/** @var EbayEnterprise_Dom_Document $domDocument */
 		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
 		$parent = $domDocument->addElement('TaxDutyQuoteRequest', null, 'http://api.gsicommerce.com/schema/checkout/1.0')->firstChild;
 		$shippingOrigin = array(
@@ -1936,7 +1950,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'some_discount_thing' => 'this is discount data',
 			'applied_rule_ids' => null,
 			'discount_amount' => null,
-			'discount_amount' => null,
 			'gw_id' => null,
 			'gw_price' => null
 		);
@@ -1974,6 +1987,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->method('getQuote')
 			->will($this->returnValue($quote));
 
+		/** @var EbayEnterprise_Eb2cTax_Model_Request $request */
 		$request = $this->getModelMockBuilder('eb2ctax/request')
 			->setMethods(array(
 				'_isQuoteUsable',
@@ -2013,6 +2027,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		$addressGetter = 'getShippingAddress';
 		$address = $quote->$addressGetter();
 
+		/** @var EbayEnterprise_Eb2cTax_Model_Request $request */
 		$request = $this->getModelMockBuilder('eb2ctax/request')
 			->disableOriginalConstructor()
 			->setMethods(array('_isQuoteUsable',))
@@ -2136,8 +2151,8 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * stub methods on the supplied mock object
-	 * @param  array  $methods    methods to stub
-	 * @param  object $mockObject object to stub methods on
+	 * @param array $methods methods to stub
+	 * @param object $mockObject object to stub methods on
 	 */
 	public function stubMethods(array $methods, $mockObject)
 	{
@@ -2155,6 +2170,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 */
 	public function testBuildGiftingNode()
 	{
+		/** @var EbayEnterprise_Dom_Document $doc */
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML('<root></root>');
 		$docElement = $doc->documentElement;

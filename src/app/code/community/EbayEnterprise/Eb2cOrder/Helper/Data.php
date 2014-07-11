@@ -17,8 +17,20 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
 	/**
+	 * Cache of order summary response messages for customerId-orderId keys.
+	 * As helpers are singletons, this cache should exist thoughout a request
+	 * but no longer.
+	 * @var array String responses from the order summary request
+	 */
+	protected $_orderSummaryResponses = array();
+	/**
+	 * Cache of Magento order states so as to prevent the order status table
+	 * from being queried multiple times.
+	 * @var Mage_Sales_Model_Resource_Model_Status_Collection
+	 */
+	protected $_orderStatusCollection;
+	/**
 	 * Gets a combined configuration model from core and order
-	 *
 	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * @param mixed $store
 	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
@@ -57,54 +69,122 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function mapEb2cOrderStatusToMage($eb2cLabelIn)
 	{
-			$mageState =  Mage::getModel('sales/order_status')
-					->getCollection()
-					->joinStates()
-					->addFieldToFilter('label', array('eq'=>$eb2cLabelIn))
-					->getFirstItem()
-					->getState();
-
-			if (!empty($mageState)) {
-					return $mageState;
-			}
-			return Mage_Sales_Model_Order::STATE_NEW;
+		if (is_null($this->_orderStatusCollection)) {
+			$this->_orderStatusCollection = Mage::getResourceModel('sales/order_status_collection')
+				->joinStates();
+		}
+		$mageStatus = $this->_orderStatusCollection->getItemByColumnValue('label', $eb2cLabelIn);
+		return $mageStatus ? $mageStatus->getState() : Mage_Sales_Model_Order::STATE_NEW;
 	}
 	/**
-	 * Retrieve a collection of orders for order history and recent orders blocks based on the current customer in session.
-	 * Since these are manually constructed from the Eb2c response, we don't use a real Mage_Sales_Model_Resource_Order_Collection.
-	 *
-	 * @return Varien_Data_Collection
+	 * Generate a key for the customer id and order id pair. Order summary
+	 * searches are based upon these two values so just need to make sure that
+	 * given the same customer id and order id, the same response gets returned
+	 * from the cache.
+	 * @param  string $customerId
+	 * @param  string $orderId
+	 * @return string
+	 */
+	protected function _getOrderSummaryCacheKey($customerId, $orderId)
+	{
+		return sprintf('%s-%s', $customerId, $orderId);
+	}
+	/**
+	 * Get a cached response for the customer id and order id if it exists.
+	 * @param  string $customerId
+	 * @param  string $orderId
+	 * @return string|null cached response from the order summary request
+	 */
+	public function getCachedOrderSummaryResponse($customerId, $orderId)
+	{
+		$cacheKey = $this->_getOrderSummaryCacheKey($customerId, $orderId);
+		return isset($this->_orderSummaryResponses[$cacheKey]) ?
+			$this->_orderSummaryResponses[$cacheKey] :
+			null;
+	}
+	/**
+	 * Update the summary response cache. This will overwrite any previously set
+	 * responses if given the same customer id and order id.
+	 * @param  string $customerId
+	 * @param  string $orderId
+	 * @param  string $response
+	 * @return self
+	 */
+	public function updateOrderSummaryResponseCache($customerId, $orderId, $response)
+	{
+		$this->_orderSummaryResponses[$this->_getOrderSummaryCacheKey($customerId, $orderId)] = $response;
+		return $this;
+	}
+	/**
+	 * Get a customer object for the current customer via the customer session.
+	 * @return Mage_Customer_Model_Customer
+	 */
+	protected function _getCurrentCustomer()
+	{
+		return Mage::getSingleton('customer/session')->getCustomer();
+	}
+	/**
+	 * Get a collection of orders for use in the summary display. Only orders
+	 * with an increment id in the given set of increment ids should be included.
+	 * Orders should only include the order entity_id and order increment_id,
+	 * all other data must come from the ROM order summary request so none of it
+	 * should be loaded from Magento.
+	 * @param  array  $incrementIds
+	 * @return Mage_Sales_Model_Resource_Order_Collection
+	 */
+	protected function _getSummaryOrderCollection($incrementIds=array())
+	{
+		return Mage::getResourceModel('eb2corder/summary_order_collection')
+			// this appears to be the minimum data needed by Magento for the order
+			// history/recent orders - increment id to match up w/ summary request,
+			// store id and customer id to enable the "View Order" and "Reorder"
+			// links to work when allowed for the order
+			->addFieldToSelect(array('increment_id', 'store_id', 'customer_id'))
+			->setCustomerId($this->_getCurrentCustomer()->getId())
+			->addFieldToFilter('state', array('in' => Mage::getSingleton('sales/order_config')->getVisibleOnFrontStates()))
+			->addFieldToFilter('increment_id', array('in' => $incrementIds));
+	}
+	/**
+	 * Prefix a customer id with the configured client customer id prefix
+	 * @param  string $customerId
+	 * @return string
+	 */
+	public function prefixCustomerId($customerId)
+	{
+		return Mage::helper('eb2ccore')->getConfigModel()->clientCustomerIdPrefix . $customerId;
+	}
+	/**
+	 * Get the current customer id, prefixed by the client customer prefix
+	 * @return string|null null if no current customer logged in
+	 */
+	protected function _getPrefixedCurrentCustomerId()
+	{
+		$customerId = $this->_getCurrentCustomer()->getId();
+		return $customerId ? $this->prefixCustomerId($customerId) : null;
+	}
+	/**
+	 * Retrieve a collection of orders for the current customer. Orders should
+	 * be based upon data retrieved from the order summary service call. Only
+	 * orders included in the order summary response and Magento should be
+	 * included. Only data from the order summary response + the order entity
+	 * id should be included in the order data.
+	 * @return Mage_Sales_Model_Resource_Order_Collection
 	 */
 	public function getCurCustomerOrders()
 	{
-		$customerId = Mage::getSingleton('customer/session')->getCustomer()->getId();
-		$orderSearchObj = Mage::getModel('eb2corder/customer_order_search');
-		$cfg = Mage::helper('eb2ccore')->getConfigModel();
-		// making eb2c customer order search request base on current session customer id and then
-		// parse result in a collection of varien object
-		$orderHistorySearchResults = $orderSearchObj->parseResponse(
-			$orderSearchObj->requestOrderSummary($cfg->clientCustomerIdPrefix . $customerId)
-		);
-		$orders = new Varien_Data_Collection();
-		$tempId = 0;
-		foreach ($orderHistorySearchResults as $orderId => $ebcData) {
-			$mgtOrder = Mage::getModel('sales/order')->loadByIncrementId($orderId);
-			$gmtShippingAddress = $mgtOrder->getShippingAddress();
-			$orders->addItem(
-				Mage::getModel('sales/order')->addData(array(
-					'created_at' => $ebcData->getOrderDate(),
-					'entity_id' => $mgtOrder->getId() ?: 'ebc-' . ++$tempId,
-					'exist_in_mage' => (bool) $mgtOrder->getId(), // We will never encounter an order id of 0 or "0".
-					'grand_total' => $ebcData->getOrderTotal(),
-					'real_order_id' => $orderId,
-					'status' => Mage::helper('eb2corder')->mapEb2cOrderStatusToMage($ebcData->getStatus()),
-				))->addAddress(Mage::getModel('sales/order_address')->setData(array(
-					'address_type' => 'shipping',
-					'name' => $gmtShippingAddress ? $gmtShippingAddress->getName() : '',
-				)))
-			);
+		$customerId = $this->_getPrefixedCurrentCustomerId();
+		if (is_null($customerId)) {
+			// when there is no customer, there are no orders
+			// return an order collection filtered on a null pk which will ensure the
+			// collection will always be empty
+			return $this->_getSummaryOrderCollection()->addFieldToFilter('entity_id', null);
 		}
-		return $orders;
+		// Search for orders in the OMS for the customer - model handles caching
+		// responses so this shouldn't result in any duplicate requests
+		$orderHistorySearchResults = Mage::getModel('eb2corder/customer_order_search')
+			->getOrderSummaryData($customerId);
+		// search results keyed by order increment ids
+		return $this->_getSummaryOrderCollection(array_keys($orderHistorySearchResults));
 	}
 	/**
 	 * Remove a client order id prefix from the increment id. As the prefix on the

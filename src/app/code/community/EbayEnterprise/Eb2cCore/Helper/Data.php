@@ -131,6 +131,14 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
+	 * Create and return a new Varien_Data_Collection
+	 * @return Varien_Data_Collection
+	 */
+	public function getNewVarienDataCollection()
+	{
+		return new Varien_Data_Collection();
+	}
+	/**
 	 * Validate sftp settings by simply checking if there's actual setting data.
 	 *
 	 * @return bool valid ftp settings
@@ -527,5 +535,52 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 		$ids = explode(',', $appliedRuleIds);
 		$ruleId = !empty($ids)?$ids[0]: 0;
 		return sprintf('%.12s', $cfg->storeId . '-' . $ruleId);
+	}
+	/**
+	 * Parse a string into a boolean.
+	 * @param string $s the string to parse
+	 * @return bool
+	 */
+	public function parseBool($s)
+	{
+		if (!is_string($s)) {
+			return (bool) $s;
+		}
+		$result = false;
+		switch (strtolower($s)) {
+			case '1':
+			case 'on':
+			case 't':
+			case 'true':
+			case 'y':
+			case 'yes':
+				$result = true;
+				break;
+		}
+		return $result;
+	}
+	/**
+	 * Extract data from a passed in DOMNode using an array containing mapping
+	 * of how to extract the data.
+	 * @param  DOMNode $contextNode a valid DOMNode that is attached to a document
+	 * @param  array    $mapping
+	 * @param  DOMXPath $xpath a preconfigured xpath object
+	 * @return array
+	 */
+	public function extractXmlToArray(DOMNode $contextNode, array $mapping, DOMXPath $xpath)
+	{
+		$data = array();
+		$coreHelper = Mage::helper('eb2ccore');
+		foreach ($mapping as $key => $callback) {
+			$callback = $mapping[$key];
+			if ($callback['type'] !== 'disabled') {
+				$result = $xpath->query($callback['xpath'], $contextNode);
+				if ($result->length) {
+					$callback['parameters'] = array($result);
+					$data[$key] = $coreHelper->invokeCallback($callback);
+				}
+			}
+		}
+		return $data;
 	}
 }

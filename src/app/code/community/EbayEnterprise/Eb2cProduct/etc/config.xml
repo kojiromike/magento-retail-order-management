@@ -315,13 +315,13 @@
 					<xpath>CategoryLinks/CategoryLink[@import_mode!="Delete"]/Name</xpath>
 				</category_ids>
 				<country_of_manufacture>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
 					<xpath>ExtendedAttributes/CountryOfOrigin|BaseAttributes/CountryOfOrigin</xpath>
 				</country_of_manufacture>
 				<is_clean>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>passThrough</method>
 					<xpath>0</xpath>
@@ -345,7 +345,7 @@
 					<xpath>ExtendedAttributes/Style/StyleID|StyleID</xpath>
 				</style_id>
 				<tax_code>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
 					<xpath>BaseAttributes/TaxCode</xpath>
@@ -357,19 +357,19 @@
 					<xpath>ProductLinks/ProductLink</xpath>
 				</unresolved_product_links>
 				<name>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
 					<xpath>BaseAttributes/Title</xpath>
 				</name>
 				<description>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
 					<xpath>ExtendedAttributes/LongDescription</xpath>
 				</description>
 				<short_description>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
 					<xpath>ExtendedAttributes/ShortDescription</xpath>
@@ -399,13 +399,13 @@
 					<xpath>Event</xpath>
 				</special_to_date>
 				<msrp>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractFloatValue</method>
 					<xpath>Event/MSRP</xpath>
 				</msrp>
 				<weight>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractFloatValue</method>
 					<xpath>ExtendedAttributes/ItemDimension/Shipping/Mass/Weight</xpath>
@@ -423,7 +423,7 @@
 					<xpath>BaseAttributes/CatalogClass</xpath>
 				</visibility>
 				<tax_class_id>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>passThrough</method>
 					<xpath>0</xpath>

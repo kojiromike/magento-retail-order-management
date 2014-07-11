@@ -76,6 +76,41 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_SearchTest
 		$this->replaceByMock('model', 'eb2ccore/api', $apiModelMock);
 
 		$this->assertSame($this->expected('response')->getXml(), Mage::getModel('eb2corder/customer_order_search')->requestOrderSummary($customerId));
+
+		// The eb2corder/data helper gets the response stored to a protected
+		// property to cache the results in this test. Clean up the data to prevent
+		// unintended interactions with other tests.
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
+			Mage::helper('eb2corder'),
+			'_orderSummaryResponses',
+			array()
+		);
+	}
+	/**
+	 * Test returning the cached response when the eb2corder/data helper already
+	 * has a response cached.
+	 */
+	public function testRequestOrderSummaryCached()
+	{
+		$api = $this->getModelMock('eb2ccore/api', array('request'));
+		// when the response is already cached, should not make an API request
+		$api->expects($this->never())
+			->method('request');
+
+		$helper = Mage::helper('eb2corder');
+		// set up the expected cache
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
+			$helper,
+			'_orderSummaryResponses',
+			array('1234-' => '<mockResponse/>')
+		);
+		// request a search that has already been cached
+		$this->assertSame(
+			'<mockResponse/>',
+			Mage::getModel('eb2corder/customer_order_search')->requestOrderSummary('1234')
+		);
+		// clear out the helper's cache
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($helper, '_orderSummaryResponses', array());
 	}
 	/**
 	 * Test the parse response of eb2c call data into varien_object

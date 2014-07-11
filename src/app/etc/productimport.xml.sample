@@ -101,31 +101,31 @@ Copy this file to productimport.xml and configure the appropriate values below.
 			 -->
 			<feed_attribute_mappings>
 				<gift_message_available>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>disabled</type>
 					<method>extractBoolValue</method>
 					<xpath></xpath>
 				</gift_message_available>
 				<use_config_gift_message_available>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>disabled</type>
 					<method>extractBoolValue</method>
 					<xpath></xpath>
 				</use_config_gift_message_available>
 				<gift_card_tender_code>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>disabled</type>
 					<method>extractStringValue</method>
 					<xpath></xpath>
 				</gift_card_tender_code>
 				<item_type>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
 					<xpath>BaseAttributes/ItemType</xpath>
 				</item_type>
 				<client_alt_item_id>
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>disabled</type>
 					<method>extractStringValue</method>
 					<xpath></xpath>
@@ -432,7 +432,7 @@ Copy this file to productimport.xml and configure the appropriate values below.
 				</msrp>
 				<url_key>
 					<!-- There are some known issues with url_key in multi-store settings. By explicitly forcing the url_key to false, we cause it to fallback up the scope to the default store before saving each time. -->
-					<class>eb2cproduct/map</class>
+					<class>eb2ccore/map</class>
 					<type>helper</type>
 					<method>extractFalse</method>
 					<xpath>.</xpath>

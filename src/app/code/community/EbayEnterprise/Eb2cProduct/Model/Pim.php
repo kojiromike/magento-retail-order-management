@@ -168,7 +168,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 				$pimRoot->appendChild($itemFragment);
 			}
 		}
-		if (Mage::helper('eb2cproduct')->parseBool($map[$key][self::KEY_IS_VALIDATE])) {
+		if (Mage::helper('eb2ccore')->parseBool($map[$key][self::KEY_IS_VALIDATE])) {
 			$this->_validateDocument($key);
 		}
 

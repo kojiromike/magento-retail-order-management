@@ -50,7 +50,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 		$lineItemsTotal = (isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0) + $gwPrice;
 		$curCodeAttr = array('currencyCode' => $quote->getQuoteCurrencyCode());
 		$quoteShippingAddress = $quote->getShippingAddress();
-		$request = $doc->createElement('PayPalDoExpressCheckoutRequest', null, $helper->getXmlNs());
+		$request = $doc->addElement('PayPalDoExpressCheckoutRequest', null, $helper->getXmlNs())->firstChild;
 		$request
 			->addAttribute('requestId', $helper->getRequestId($quote->getEntityId()))
 			->addChild('OrderId', (string) $quote->getEntityId())

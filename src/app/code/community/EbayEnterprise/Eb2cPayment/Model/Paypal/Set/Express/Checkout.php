@@ -48,7 +48,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 		$taxTotal = isset($totals['tax']) ? $totals['tax']->getValue() : 0;
 		$lineItemsTotal = (isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0) + $gwPrice;
 		$curCodeAttr = array('currencyCode' => $quote->getQuoteCurrencyCode());
-		$request = $doc->createElement('PayPalSetExpressCheckoutRequest', null, $helper->getXmlNs());
+		$request = $doc->addElement('PayPalSetExpressCheckoutRequest', null, $helper->getXmlNs())->firstChild;
 		$request
 			->addChild('OrderId', (string) $quote->getEntityId())
 		  ->addChild('ReturnUrl', (string) Mage::getUrl('*/*/return'))

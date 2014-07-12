@@ -41,7 +41,8 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	 */
 	public function __construct(array $feedDetails)
 	{
-		if ($missingKeys = array_diff(array('doc', 'error_file'), array_keys($feedDetails))) {
+		$missingKeys = array_diff(array('doc', 'error_file'), array_keys($feedDetails));
+		if ($missingKeys) {
 			trigger_error(
 				sprintf('%s called without required feed details: %s missing.', __METHOD__, implode(', ', $missingKeys)),
 				E_USER_ERROR

@@ -125,7 +125,8 @@ abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 		// the 'local_file' path to the new location of the file in the
 		// processing directory
 		Mage::log(sprintf('[%s] Processing file %s', __CLASS__, $fileDetail['local_file']), Zend_Log::DEBUG);
-		if ($dom = $this->_loadDom($fileDetail)) {
+		$dom = $this->_loadDom($fileDetail);
+		if ($dom) {
 			$fileDetail['local_file'] = $fileDetail['core_feed']
 				->acknowledgeReceipt($fileDetail['local_file'])
 				->mvToProcessingDirectory($fileDetail['local_file']);

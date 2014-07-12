@@ -135,7 +135,8 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 	{
 		$allocationResult = array();
 		foreach ($allocationData as $data) {
-			if ($item = $quote->getItemById($data['lineId'])) {
+			$item = $quote->getItemById($data['lineId']);
+			if ($item) {
 				$result = $this->_updateQuoteWithEb2cAllocation($item, $data);
 				if ($result) {
 					$allocationResult[] = $result;

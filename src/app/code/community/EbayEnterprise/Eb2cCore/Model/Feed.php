@@ -60,7 +60,8 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 				sprintf("%s 'feed_config' must be an array of feed configuration values.", __CLASS__)
 			);
 		}
-		if ($missingConfig = array_diff($this->_requiredConfigFields, array_keys($feedConfig))) {
+		$missingConfig = array_diff($this->_requiredConfigFields, array_keys($feedConfig));
+		if ($missingConfig) {
 			throw new EbayEnterprise_Eb2cCore_Exception_Feed_File(
 				sprintf("%s missing configuration: '%s'.", __CLASS__, implode("', '", $missingConfig)));
 		}

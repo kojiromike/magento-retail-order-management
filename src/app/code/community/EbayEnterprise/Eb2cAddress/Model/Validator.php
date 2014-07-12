@@ -106,7 +106,8 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 */
 	protected function _isVirtualOrder()
 	{
-		if ($quote = Mage::getSingleton('checkout/session')->getQuote()) {
+		$quote = Mage::getSingleton('checkout/session')->getQuote();
+		if ($quote) {
 			return $quote->isVirtual();
 		}
 		return false;
@@ -296,8 +297,8 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 */
 	protected function _processRequest(Mage_Customer_Model_Address_Abstract $address, &$errorMessage)
 	{
-		$response = null;
-		if ($response = $this->_makeRequestForAddress($address)) {
+		$response = $this->_makeRequestForAddress($address);
+		if ($response) {
 			// copy over validated address data
 			if ($response->isAddressValid()) {
 				$address->addData($response->getValidAddress()->getData());

@@ -24,6 +24,6 @@ class EbayEnterprise_Eb2cOrder_Helper_Map
 	 */
 	public function getAttributeValue(Varien_Object $item, $attributeCode)
 	{
-		return Mage::helper('core')->htmlEscape($item->getDataUsingMethod($attributeCode));
+		return Mage::helper('core')->escapeHtml($item->getDataUsingMethod($attributeCode));
 	}
 }

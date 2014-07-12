@@ -294,7 +294,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	protected function _hasInventoryExpired($quoteData)
 	{
 		return !isset($quoteData['last_updated']) ||
-			(new DateTime($quoteData['last_updated']) < $this->_getInventoryTimeout());
+			((new DateTime($quoteData['last_updated'])) < $this->_getInventoryTimeout());
 	}
 	/**
 	 * Check if changes to the quote require tax data to be updated. Current conditions

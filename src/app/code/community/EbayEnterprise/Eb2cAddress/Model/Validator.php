@@ -67,7 +67,6 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 		if ($address->getHasBeenValidated()) {
 			return true;
 		}
-		$validatedAddress;
 		// when the address is used as a shipping address, must ensure that the validated
 		// address was validated as a shipping address
 		if ($this->_isAddressUsedForShipping($address)) {

@@ -52,7 +52,6 @@ $eb2cStatusToMageStateMap = array(
 	'OGC Activated'                                   => $complete,
 	'OGC Line Created'                                => $processing,
 	'OGC Shipped higher than fulfilled and invoiced'  => $complete,
-	'OrderLine Invoiced'                              => $complete,
 	'OrderLine Invoiced'                              => $processing,
 	'Pending Pickup Cancel'                           => $processing,
 	'Pickup Complete'                                 => $complete,

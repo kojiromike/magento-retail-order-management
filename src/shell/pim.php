@@ -24,10 +24,14 @@ class EbayEnterprise_Eb2c_Shell_Pim extends Mage_Shell_Abstract
 	 * The 'main' of a Mage Shell Script
 	 *
 	 * @see usageHelp
+	 * @return int UNIX exit status
 	 */
 	public function run()
 	{
-		Mage::getModel('eb2cproduct/pim_collector')->runExport();
+		/** @var EbayEnterprise_Eb2cProduct_Model_Pim_Collector $pimCollector */
+		$pimCollector = Mage::getModel('eb2cproduct/pim_collector');
+		$pimCollector->runExport();
+		return 0;
 	}
 }
 

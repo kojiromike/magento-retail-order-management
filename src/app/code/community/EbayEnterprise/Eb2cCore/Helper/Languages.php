@@ -30,7 +30,7 @@ class EbayEnterprise_Eb2cCore_Helper_Languages extends Mage_Core_Helper_Abstract
 			foreach ($website->getGroups() as $group) {
 				foreach ($group->getStores() as $store) {
 					$config->setStore($store->getStoreId());
-					if (!$langCode || ($langCode && $langCode === $config->languageCode)) {
+					if (!$langCode || ($langCode === $config->languageCode)) {
 						$store->setLanguageCode($config->languageCode);
 						$stores[] = $store;
 					}

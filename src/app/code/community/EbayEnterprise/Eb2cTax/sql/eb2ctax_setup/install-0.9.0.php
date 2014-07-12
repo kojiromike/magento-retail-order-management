@@ -15,9 +15,10 @@
 
 Mage::log(sprintf('[%s] Installing Eb2cTax 0.9.0', get_class($this)), Zend_Log::DEBUG);
 
+/** @var Mage_Core_Model_Resource_Setup $installer */
+/** @var Varien_Db_Adapter_Interface $conn */
 $installer = $this;
 $installer->startSetup();
-$conn = $conn;
 $conn->dropTable($installer->getTable('eb2ctax/response_quote'));
 $table = $conn
 	->newTable($installer->getTable('eb2ctax/response_quote'))

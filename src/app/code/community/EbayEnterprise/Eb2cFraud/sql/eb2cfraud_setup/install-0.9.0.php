@@ -15,6 +15,8 @@
 
 /**
  * Add fields to quote/ order for JSC 41st Parameter and associated orderContext fields
+ *
+ * @var Mage_Sales_Model_Resource_Setup $installer
  */
 $installer = $this;
 $installer->startSetup();

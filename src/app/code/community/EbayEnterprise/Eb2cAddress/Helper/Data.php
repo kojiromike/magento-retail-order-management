@@ -69,6 +69,7 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 	)
 	{
 		$frag = $doc->createDocumentFragment();
+		/** @var array $addressLines (upstream docblock lies) */
 		$addressLines = $address->getStreet();
 		foreach ($addressLines as $idx => $line) {
 			$frag->appendChild($doc->createElement('Line' . ($idx + 1), $this->_limit($line, 70), $nsUri));
@@ -95,6 +96,7 @@ class EbayEnterprise_Eb2cAddress_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getTextValueByXPath($path, DOMNode $context)
 	{
+		/** @var DomDocument $doc */
 		$doc = $context->ownerDocument ?: $context;
 		$xpath = new DOMXPath($doc);
 		$ns = $doc->lookupNamespaceUri($doc->namespaceURI);

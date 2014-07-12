@@ -75,12 +75,15 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 		$feedConfig = $this->getFeedConfig();
 		return isset($feedConfig['event_type']) ? $feedConfig['event_type'] : '';
 	}
+
 	/**
 	 * Ensure the directory at the given path exists or recursively create
 	 * necessary directories. If the directory is given a "name", save the path
 	 * as magic data with that key.
+	 *
 	 * @param string $path the full path to the directory to set up.
 	 * @param string $dirName magic data field to save path to
+	 * @throws EbayEnterprise_Eb2cCore_Exception_Feed_File
 	 * @return self
 	 */
 	protected function _setCheckAndCreateDir($path, $dirName=null)
@@ -97,10 +100,11 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 	}
 	/**
 	 * Get a "clean" representation of the given file path.
-	 * @param string $_,...
+	 *
+	 * @param string ... Parts of the path
 	 * @return string
 	 */
-	protected function _normalPaths($_)
+	protected function _normalPaths()
 	{
 		return $this->getFsTool()->getCleanPath(implode(DS, func_get_args()));
 	}
@@ -131,7 +135,7 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 	/**
 	 * Return an array of files matching the given shell glob
 	 * @param  string $pattern shell glob
-	 * @return attay
+	 * @return array
 	 * @codeCoverageIgnore Dependency on the file system makes this trivial code non-trivial to test.
 	 */
 	protected function _glob($pattern)
@@ -264,9 +268,11 @@ class EbayEnterprise_Eb2cCore_Model_Feed extends Varien_Object
 		);
 		return $filename;
 	}
+
 	/**
 	 * Acknoweldge the XML Feed file at xmlToAckPath.
-	 * @param xmlToAckPath path to a feed we want to acknowledge
+	 *
+	 * @param string $xmlToAckPath to a feed we want to acknowledge
 	 * @return self
 	 */
 	public function acknowledgeReceipt($xmlToAckPath)

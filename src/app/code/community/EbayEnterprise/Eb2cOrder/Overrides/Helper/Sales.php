@@ -17,11 +17,17 @@
  * Provide helper functions for Sales including email suppression features.
  * If EB2C is handling email, all the 'canSend*Email' methods should return
  * `false` to prevent Magento from sending transactional emails.
+ *
+ * @noinspection PhpMissingDocCommentInspection
  */
 class EbayEnterprise_Eb2cOrder_Overrides_Helper_Sales extends Mage_Sales_Helper_Data
 {
 	protected $_moduleName = 'Mage_Sales';
 	protected $_useLocalMail;
+
+	/**
+	 * Stash the state of which mail handler we should use so we don't look it up multiple times.
+	 */
 	public function __construct()
 	{
 		$this->_useLocalMail = (Mage::helper('eb2corder')->getConfigModel()->transactionalEmailer !== 'eb2c');

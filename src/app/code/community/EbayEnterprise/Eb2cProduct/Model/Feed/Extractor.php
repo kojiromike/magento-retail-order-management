@@ -56,11 +56,14 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_Extractor
 	{
 		return !($result instanceof DOMNodeList && $result->length === 0);
 	}
+
 	/**
 	 * extract skus given the xpath object the context node and the xpath string.
+	 *
 	 * @param DOMXPath $xpath
 	 * @param DOMNode $contextNode
 	 * @param string $skuXPath
+	 * @return string
 	 */
 	public function extractSku(DOMXPath $xpath, DOMNode $contextNode, $skuXPath)
 	{

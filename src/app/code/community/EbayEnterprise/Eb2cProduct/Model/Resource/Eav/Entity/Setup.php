@@ -24,7 +24,8 @@ class EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup
 
 	/**
 	 * apply default attributes to all valid attribute sets.
-	 * @param  mixed $attributeSet
+	 *
+	 * @param $attrInfo
 	 * @return $this
 	 */
 	public function applyToAllSets($attrInfo)
@@ -50,6 +51,12 @@ class EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup
 		return $this;
 	}
 
+	/**
+	 * Prevent _prepareValues from changing the data.
+	 *
+	 * @param array $data
+	 * @return array (noop)
+	 */
 	protected function _prepareValues($data)
 	{
 		return $data;

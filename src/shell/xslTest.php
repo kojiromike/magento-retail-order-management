@@ -22,6 +22,13 @@ class EbayEnterprise_Eb2c_Xslt_Test extends Mage_Shell_Abstract
 {
 	const DEFAULT_XSLT_SHEET = '/var/www/mage_2014_02_18/src/.modman/eb2c/src/app/code/local/EbayEnterprise/Eb2cProduct/xslt/default-language-template.xsl';
 
+	/**
+	 * Callback to apply after applying xsl transform to document.
+	 * (Must be public to be used as a callback.)
+	 *
+	 * @param DOMDocument $xslDoc
+	 * @param array $siteFilter
+	 */
 	public function xslCallBack(DOMDocument $xslDoc, array $siteFilter)
 	{
 		$helper = Mage::helper('eb2cproduct');

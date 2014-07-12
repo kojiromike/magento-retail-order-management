@@ -60,7 +60,10 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Validate the event type.
-	 * @param bool whether the event type matches for the given feed.
+	 *
+	 * @param DomDocument $doc
+	 * @param string $eventType
+	 * @return bool whether the event type matches for the given feed.
 	 */
 	private function _validateEventType($doc, $eventType)
 	{
@@ -127,9 +130,9 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 
 	/**
 	 * Ensure the Feed's event type matches.
-	 * @param DOMDocument $doc, the loaded Dom xml feed
-	 * @param string eventType - what event type caller is trying to process
 	 *
+	 * @param DOMDocument $doc, the loaded Dom xml feed
+	 * @param string $eventType - what event type caller is trying to process
 	 * @return bool true if this matches our client id, false otherwise
 	 */
 	public function validateHeader($doc, $eventType)

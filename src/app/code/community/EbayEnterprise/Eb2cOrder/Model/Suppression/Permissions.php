@@ -61,6 +61,13 @@ class EbayEnterprise_Eb2cOrder_Model_Suppression_Permissions
 		return $collection;
 	}
 
+	/**
+	 * Callback to clean permissions nodes from config.
+	 * (Must be public to be used as a callback.)
+	 *
+	 * @param $resourceString
+	 * @return mixed
+	 */
 	public function prepareResourceString($resourceString)
 	{
 		return str_replace('.', '/', $resourceString);

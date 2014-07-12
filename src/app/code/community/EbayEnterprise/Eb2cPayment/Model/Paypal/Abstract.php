@@ -75,7 +75,7 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 	{
 		$delim = '';
 		$messages = '';
-		$errorMessages = $xpath->query($errorPath) ?: new NodeList();
+		$errorMessages = $xpath->query($errorPath) ?: new DomNodeList();
 		foreach($errorMessages as $node) {
 			$messages .= $delim . (string) $node->nodeValue;
 			$delim = ' ';

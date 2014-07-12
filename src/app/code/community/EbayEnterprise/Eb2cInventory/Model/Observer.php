@@ -57,8 +57,12 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	 */
 	protected function _updateQuantity(Mage_Sales_Model_Quote $quote)
 	{
-		if ($this->_makeRequestAndUpdate(Mage::getModel('eb2cinventory/quantity'), $quote)) {
-			Mage::getSingleton('eb2ccore/session')->updateQuoteInventory($quote)->resetQuantityUpdateRequired();
+		/** @var EbayEnterprise_Eb2cInventory_Model_Quantity $inventoryQuantity */
+		$inventoryQuantity = Mage::getModel('eb2cinventory/quantity');
+		if ($this->_makeRequestAndUpdate($inventoryQuantity, $quote)) {
+			/** @var EbayEnterprise_Eb2cCore_Model_Session $session */
+			$session = Mage::getSingleton('eb2ccore/session');
+			$session->updateQuoteInventory($quote)->resetQuantityUpdateRequired();
 		}
 		return $this;
 	}
@@ -67,16 +71,21 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	 * If the details request was successful (no unavailable items), also flag the
 	 * inventory as being updated. If any items came back as unavailable, mark the session data as
 	 * invalid as quantity will need to be run again at the next available opportunity.
-	 * @param  Mage_Sales_Model_Quote $quote     Quote object the request is for
+	 * @param  Mage_Sales_Model_Quote $quote Quote object the request is for
 	 * @return self
 	 */
 	protected function _updateDetails(Mage_Sales_Model_Quote $quote)
 	{
-		if ($this->_makeRequestAndUpdate(Mage::getModel('eb2cinventory/details'), $quote)) {
-			Mage::getSingleton('eb2ccore/session')->updateQuoteInventory($quote)->resetDetailsUpdateRequired();
+		/** @var EbayEnterprise_Eb2cInventory_Model_Details $inventoryDetails */
+		$inventoryDetails = Mage::getModel('eb2cinventory/details');
+		if ($this->_makeRequestAndUpdate($inventoryDetails, $quote)) {
+			/** @var EbayEnterprise_Eb2cCore_Model_Session $session */
+			$session = Mage::getSingleton('eb2ccore/session');
+			$session->updateQuoteInventory($quote)->resetDetailsUpdateRequired();
 		}
 		return $this;
 	}
+
 	/**
 	 * Use the given request model to make a request and update the quote accordingly.
 	 * @param  EbayEnterprise_Eb2cInventory_Model_Request_Abstract $requestModel Request object used to
@@ -102,6 +111,7 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	{
 		// get the quote from the event observer
 		$quote = $observer->getEvent()->getQuote();
+		/** @var EbayEnterprise_Eb2cInventory_Model_Allocation $allocation */
 		$allocation = Mage::getModel('eb2cinventory/allocation');
 		// only allow allocation only when, there's no previous allocation or the previous allocation expired
 		if ($allocation->requiresAllocation($quote)) {

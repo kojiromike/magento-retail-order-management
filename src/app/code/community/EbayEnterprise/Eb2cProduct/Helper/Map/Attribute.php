@@ -77,10 +77,13 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	{
 		return Mage::getModel('eav/entity_attribute')->loadByCode(Mage_Catalog_Model_Product::ENTITY, $name);
 	}
+
 	/**
 	 * Color is a set of nodes - a Code (as the color is known to ROM) and one or more
 	 * Description nodes, each node's value a different language.
+	 *
 	 * @param DOMNodeList $nodeList DOM nodes extracted from the feed
+	 * @param $product
 	 * @return int - the OptionId added or updated | null - the attribute does not exsit
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
@@ -106,11 +109,13 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 
 		return (!is_null($option))? (int) $option->getOptionId() : 0;
 	}
+
 	/**
 	 * given a DOMNodeList and a Mage_Catalog_Model_Product make sure this is
 	 * a product of type configurable and then extract the configurable attribute from the node list
 	 * then get the configurable attribute array for each configured attributes
 	 * @param DOMNOdeList $nodes the node with configurableAttributes data
+	 * @param Mage_Catalog_Model_Product $product
 	 * @return array | null an array of configurable attribute data if the given product is configurable otherwise null
 	 */
 	public function extractConfigurableAttributesData(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
@@ -164,9 +169,9 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 
 	/**
 	 * return true if the is in a product's attribute set
-	 * @param  string  $attribute
-	 * @param  mixed   $value
-	 * @param  Mage_Catalog_Model_Product $product
+	 *
+	 * @param $attributeCode
+	 * @param Mage_Catalog_Model_Product $product
 	 * @return bool
 	 */
 	protected function _isAttributeInSet($attributeCode, $product)
@@ -241,7 +246,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	 * @param string $mapCodeNodeName The node name at which we find the value that must map to ROM. Should be 1 and only 1.
 	 * @param string $descriptionNodeName The (maybe >1) node names at which we find the language-specific values
 	 * @param DOMNodeList $nodeList as pulled from a feed
-	 * @return The newly updated or added attributeOptionId
+	 * @return int The newly updated or added attributeOptionId
 	 */
 	protected function _addAdminMappedOption($attributeCode, $mapCodeNodeName, $descriptionNodeName, DOMNodeList $nodeList)
 	{
@@ -254,12 +259,14 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 		}
 		return $this->_setOptionValues($attributeCode, $valueCode, $translations);
 	}
-	/*
+
+	/**
 	 * Set the translations (values) for a specific option id. The option id is identified by adminValueText
+	 *
 	 * @param string $attributeCodeText a product attribute that has options; e.g. color, size, etc.
 	 * @param string $adminValueText This is the Code we received for this option. It is used as the default option value,
 	 *  and is used to retrieve the option
-	 * @param array $translation Option values indexed by a language code, e.g. array['en-us'] = 'English Text'.
+	 * @param $translations array Option values indexed by a language code, e.g. array['en-us'] = 'English Text'.
 	 * @return int the created/ updated Attribute Option's Id
 	 */
 	protected function _setOptionValues($attributeCodeText, $adminValueText, $translations)
@@ -318,9 +325,13 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 		}
 		return $attributeOptionId;
 	}
-	/*
+
+	/**
 	 * Returns an array keyed by store id, each holding that store's value for the given option id
 	 * Return empty array if there's no option id
+	 *
+	 * @param $attribute
+	 * @param $attributeOptionId
 	 * @return array
 	 */
 	protected function _getAllOptionValues($attribute, $attributeOptionId)
@@ -339,8 +350,10 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 		}
 		return $allOptionValues;
 	}
-	/*
+	
+	/**
 	 * Returns the text of the attributeOption for the given store
+	 *
 	 * @param string $attribute a Magento Attribute object
 	 * @param string $attributeOptionId the id of the option whose text value we want
 	 * @param int $storeId which store view we want

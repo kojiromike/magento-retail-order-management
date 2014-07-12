@@ -21,6 +21,9 @@ class EbayEnterprise_Eb2cPayment_Helper_Data extends Mage_Core_Helper_Abstract
 	public $apiModel;
 	protected $_operation;
 
+	/**
+	 * Initialize operation uri mapping.
+	 */
 	public function __construct()
 	{
 		$cfg = $this->getConfigModel(null);

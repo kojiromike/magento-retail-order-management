@@ -25,14 +25,18 @@ class EbayEnterprise_Eb2cCore_Model_Observer
 		Mage::getSingleton('eb2ccore/session')->updateWithQuote($observer->getEvent()->getQuote());
 		return $this;
 	}
+
 	/**
 	 * Perform all processing necessary for the order to be placed with the
 	 * Exchange Platform - allocate inventory, redeem SVC. If any of the observers
 	 * need to indicate that an order should not be created, the observer method
 	 * should throw an exception.
 	 * Observers the 'sales_order_place_before' event.
+	 *
 	 * @see Mage_Sales_Model_Order::place
-	 * @param  Varien_Event_Observer $observer Contains the order being placed which will have a reference to the quote the order was created for
+	 * @param Varien_Event_Observer $observer Contains the order being placed which will have a reference to the quote the order was created for
+	 * @throws EbayEnterprise_Eb2cInventory_Model_Allocation_Exception
+	 * @throws Exception
 	 * @return self
 	 */
 	public function processExchangePlatformOrder(Varien_Event_Observer $observer)

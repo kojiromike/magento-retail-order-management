@@ -81,7 +81,7 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 	/**
 	 * Updating eBay Enterprise payment methods to enable or disable based on the passed value
 	 *
-	 * @param int $value, 0 to turn payment off, 1 to turn payment on.
+	 * @param bool $enabled
 	 * @return self
 	 */
 	public function saveEb2cPaymentMethods($enabled)
@@ -123,7 +123,14 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 		return $this;
 	}
 
-	protected function _disablePaymentMethods($methodConfigs, $scope, $scopeId)
+	/**
+	 * Disable the not-allowed methods in the passed array.
+	 *
+	 * @param array $methodConfigs
+	 * @param string $scope
+	 * @param int $scopeId
+	 */
+	protected function _disablePaymentMethods(array $methodConfigs, $scope, $scopeId)
 	{
 		foreach (array_keys($methodConfigs) as $method) {
 			if (!$this->isMethodAllowed($method)) {
@@ -183,6 +190,7 @@ class EbayEnterprise_Eb2cPayment_Model_Suppression
 
 	/**
 	 * Get all payment methods
+	 * @param null $configSource
 	 * @return array Maps of config values for all payment methods
 	 */
 	public function getPaymentMethods($configSource=null)

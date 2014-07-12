@@ -51,6 +51,7 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		$xsd = $config->xsdFileAddressValidation;
 		$adValRequest = $this->_buildTestRequest();
 
+		/** @var EbayEnterprise_Eb2cCore_Model_Api $api */
 		$api = Mage::getModel('eb2ccore/api');
 		$api->setStatusHandlerPath(self::API_HANDLER_PATH);
 		$response = $api->request($adValRequest, $xsd, $uri, $api::DEFAULT_TIMEOUT, $api::DEFAULT_ADAPTER, null, $apiKey);
@@ -115,15 +116,17 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		$request = Mage::getModel('eb2caddress/validation_request', array('address' => $address));
 		return $request->getMessage();
 	}
+
 	/**
 	 * Validate the store id, API key and hostname settings, ensuring that
 	 * none are empty.
+	 *
 	 * @param  string $host
 	 * @param  string $username
 	 * @param  string $key
 	 * @param  int $port
+	 * @throws EbayEnterprise_Eb2cCore_Exception_Sftp_Configuration
 	 * @return self
-	 * @throws EbayEnterprise_Eb2cCore_Exception_Api_Configuration If any settings are empty
 	 */
 	protected function _validateSftpSettings($host, $username, $key, $port)
 	{
@@ -148,17 +151,17 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		}
 		return $this;
 	}
+
 	/**
 	 * Validate the SFTP configuration by first checking for any obviously invalid
 	 * settings - e.g. missing/empty values - then by making a test connection
 	 * using the given credential.
+	 *
 	 * @param string $host
 	 * @param string $username
 	 * @param string $privateKey
 	 * @param int $port
-	 *
-	 * Ignore UnusedLocalVariable warning from the anon-function used as the
-	 * error handler callback.
+	 * @return array
 	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
 	 */
 	public function testSftpConnection($host, $username, $privateKey, $port)

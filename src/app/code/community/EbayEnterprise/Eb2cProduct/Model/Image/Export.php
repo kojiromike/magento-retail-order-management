@@ -35,9 +35,10 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 			$this->_buildExport($storeId);
 		}
 	}
+
 	/**
 	 * build image feed per store
-	 * @param int $processed
+	 *
 	 * @param int $storeId
 	 * @return self
 	 */
@@ -89,8 +90,8 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	/**
 	 * Create a file from the dom, and return its full path.
 	 * 'protected' so we can test around it.
-	 * @param EbayEnterprise_Dom_Document dom
-	 * @param storeId
+	 * @param EbayEnterprise_Dom_Document $dom
+	 * @param int $storeId
 	 * @return self
 	 */
 	protected function _createFileFromDom(EbayEnterprise_Dom_Document $dom, $storeId)
@@ -116,7 +117,8 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 	}
 	/**
 	 * Build an item's worth of images
-	 * @param EbayEnterprise_Dom_Document node into which itemImages are placed
+	 *
+	 * @param EbayEnterprise_Dom_Document $doc into which itemImages are placed
 	 * @param int $storeId
 	 * @param array $imageData
 	 * @return self
@@ -249,9 +251,11 @@ class EbayEnterprise_Eb2cProduct_Model_Image_Export extends Varien_Object
 		}
 		return $mData;
 	}
+
 	/**
 	 * get image dimensions
-	 * @param Varien_Object $image
+	 *
+	 * @param Varien_Object $mageImage
 	 * @return array
 	 */
 	protected function _getImageDimension(Varien_Object $mageImage)

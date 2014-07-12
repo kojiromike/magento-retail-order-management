@@ -35,7 +35,9 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 		// An empty token should never validate so don't bother trying and just
 		// return nothing.
 		$helper = Mage::helper('eb2ccsr');
-		$user = Mage::getModel('admin/user')->load($helper->getConfigModel()->csrUser);
+		/** @var Mage_Admin_Model_User $user */
+		$user = Mage::getModel('admin/user');
+		$user->load($helper->getConfigModel()->csrUser);
 		try {
 			$this->_validateUser($user);
 			$helper->validateToken($token);
@@ -46,11 +48,13 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 			$this->_failValidation($user, $request, $e);
 		}
 	}
+
 	/**
 	 * Validate the CSR user to ensure it is active and has a role assigned.
-	 * @param  Mage_Admin_Model_User $username
+	 *
+	 * @param Mage_Admin_Model_User $user
+	 * @throws EbayEnterprise_Eb2cCustomerService_Exception_Authentication
 	 * @return self
-	 * @throws EbayEnterprise_Eb2cCustomerService_Exception_Authentication if the user is invalid
 	 */
 	protected function _validateUser(Mage_Admin_Model_User $user)
 	{

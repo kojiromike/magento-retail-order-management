@@ -102,6 +102,8 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 
 	/**
 	 * return true if the prices already include VAT.
+	 *
+	 * @param null $store
 	 * @return bool
 	 */
 	public function getVatInclusivePricingFlag($store=null)
@@ -109,11 +111,19 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 		return $this->getConfigModel($store)->taxVatInclusivePricing;
 	}
 
+	/**
+	 * @param mixed $store
+	 * @return bool configuration flag
+	 */
 	public function getApplyTaxAfterDiscount($store=null)
 	{
 		return $this->getConfigModel($store)->taxApplyAfterDiscount;
 	}
 
+	/**
+	 * @param mixed $store
+	 * @return float
+	 */
 	public function taxDutyAmountRateCode($store=null)
 	{
 		return $this->getConfigModel($store)->taxDutyRateCode;

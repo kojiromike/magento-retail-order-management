@@ -17,6 +17,8 @@ class EbayEnterprise_Eb2cProduct_Model_Observers
 {
 	/**
 	 * This observer locks attributes we've configured as read-only
+	 *
+	 * @param Varien_Event_Observer $observer
 	 * @return void
 	 */
 	public function lockReadOnlyAttributes(Varien_Event_Observer $observer)

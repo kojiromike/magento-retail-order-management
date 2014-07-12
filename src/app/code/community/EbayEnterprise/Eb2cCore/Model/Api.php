@@ -184,9 +184,12 @@ class EbayEnterprise_Eb2cCore_Model_Api
 		$callbackConfig = isset($config['callback']) ? $config['callback'] : array();
 		return Mage::helper('eb2ccore')->invokeCallBack($callbackConfig);
 	}
+
 	/**
 	 * set the path to the config used when determining how to react a response.
+	 *
 	 * @param string $path
+	 * @return self
 	 */
 	public function setStatusHandlerPath($path)
 	{

@@ -79,6 +79,15 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Attribute_Factory
 			array();
 	}
 
+	/**
+	 * Lookup the callable described in the mapping xml to export this attribute for this product.
+	 *
+	 * @param array $callbackMapping
+	 * @param $attribute
+	 * @param Mage_Catalog_Model_Product $product
+	 * @param EbayEnterprise_Dom_Document $doc
+	 * @return array|null
+	 */
 	protected function _resolveMappedCallback(
 		array $callbackMapping=array(),
 		$attribute,

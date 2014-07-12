@@ -128,10 +128,10 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 	 * update quote with allocation response data.
 	 *
 	 * @param Mage_Sales_Model_Quote $quote the quote we use to get allocation response from eb2c
-	 * @param string $allocationData, a parse associative array of eb2c response
-	 * @return array, error results of item that cannot be allocated
+	 * @param array $allocationData parsed from eb2c allocation response
+	 * @return array error results of item that cannot be allocated
 	 */
-	public function processAllocation(Mage_Sales_Model_Quote $quote, $allocationData)
+	public function processAllocation(Mage_Sales_Model_Quote $quote, array $allocationData)
 	{
 		$allocationResult = array();
 		foreach ($allocationData as $data) {

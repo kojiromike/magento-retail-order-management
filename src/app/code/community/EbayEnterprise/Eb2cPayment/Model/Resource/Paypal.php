@@ -24,7 +24,7 @@ class EbayEnterprise_Eb2cPayment_Model_Resource_Paypal extends Mage_Core_Model_R
 	 * @throws Mage_Core_Exception
 	 * @param EbayEnterprise_Eb2cPayment_Model_Paypal $paypal
 	 * @param int $quoteId
-	 * @return EbayEnterprise_Eb2cPayment_Model_Mysql4_Paypal
+	 * @return self
 	 */
 	public function loadByQuoteId(EbayEnterprise_Eb2cPayment_Model_Paypal $paypal, $quoteId)
 	{

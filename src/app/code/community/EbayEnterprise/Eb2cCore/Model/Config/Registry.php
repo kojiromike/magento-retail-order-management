@@ -36,7 +36,7 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	/**
 	 * Add a new config settings model to the collection and update the list of known config paths
 	 * @param EbayEnterprise_Eb2cCore_Model_Config_Interface $configModel
-	 * @return EbayEnterprise_Eb2cCore_Helper_Config $this
+	 * @return self
 	 */
 	public function addConfigModel(EbayEnterprise_Eb2cCore_Model_Config_Interface $configModel)
 	{
@@ -47,7 +47,7 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	/**
 	 * Set a default store to use when getting config values
 	 * @param null|string|bool|int|Mage_Core_Model_Store $store
-	 * @return EbayEnterprise_Eb2cCore_Helper_Config $this
+	 * @return self
 	 */
 	public function setStore($store)
 	{
@@ -67,11 +67,12 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	/**
 	 * Search through registered config models for one that knows about the key
 	 * and get the actual config path from it for the lookup.
+	 *
 	 * @param string $configKey
 	 * @param null|string|bool|int|Mage_Core_Model_Store $store
 	 * @param bool $asFlag
+	 * @throws Mage_Core_Exception if the config path is not found.
 	 * @return string|bool
-	 * @throws Exception Raised if the config path is not found.
 	 */
 	protected function _getStoreConfigValue($configKey, $store, $asFlag)
 	{
@@ -81,10 +82,8 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 				return Mage::$configMethod($configModel->getPathForKey($configKey), $store);
 			}
 		}
-		Mage::throwException('Configuration path specified by ' . $configKey . ' was not found.');
-		// @codeCoverageIgnoreStart
+		throw Mage::exception('Mage_Core', "Configuration path specified by '$configKey' was not found.");
 	}
-	// @codeCoverageIgnoreEnd
 
 	/**
 	 * Get the configuration value represented by the given configKey

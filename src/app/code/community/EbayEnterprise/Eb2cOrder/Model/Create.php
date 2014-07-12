@@ -83,7 +83,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	/**
 	 * @var array, Saves an array of item_id's for use in shipping node
 	 */
-	protected $_orderItemRef;
+	protected $_orderItemRef = array();
 	/**
 	 * @var array, hold magento payment map to eb2c
 	 */
@@ -96,13 +96,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		'PrepaidCashOnDelivery' => 'PrepaidCashOnDelivery', // Not used
 		'Free' => 'StoredValueCard',
 	);
-	public function __construct()
-	{
-		// initiaze these class properties in the constructor.
-		$this->_o = null;
-		$this->_domRequest = null;
-		$this->_orderItemRef = array();
-	}
 	/**
 	 * The event observer version of transmit order
 	 * @param Varien_Event_Observer $event, the observer event
@@ -341,9 +334,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$order->createChild('OrderTotal', sprintf('%.02f', $this->_o->getGrandTotal()));
 		return $this;
 	}
+
 	/**
 	 * Build DOM for a complete order
-	 * @param $orderObject a Mage_Sales_Model_Order
+	 *
+	 * @param Mage_Sales_Model_Order $orderObject a Mage_Sales_Model_Order
 	 * @return self
 	 */
 	public function buildRequest(Mage_Sales_Model_Order $orderObject)
@@ -361,7 +356,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 	/**
 	 * Build customer information node
-	 * @param DomElement customer	where to place customer info
+	 * @param DomElement $customer	where to place customer info
 	 * @return self
 	 */
 	protected function _buildCustomer(DomElement $customer)
@@ -390,12 +385,13 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 	/**
 	 * Builds a single Order Item node inside the Order Items array
-	 * @param DomElement orderItem
-	 * @param Mage_Sales_Model_Order_Item item
-	 * @param integer webLineId	identifier to indicate the line item's sequence within the order
+	 *
+	 * @param EbayEnterprise_Dom_Element $orderItem
+	 * @param Mage_Sales_Model_Order_Item $item
+	 * @param integer $webLineId identifier to indicate the line item's sequence within the order
 	 * @return self
 	 */
-	protected function _buildOrderItem(DomElement $orderItem, Mage_Sales_Model_Order_Item $item, $webLineId)
+	protected function _buildOrderItem(EbayEnterprise_Dom_Element $orderItem, Mage_Sales_Model_Order_Item $item, $webLineId)
 	{
 		$order = $item->getOrder();
 		$quoteId = $order->getQuoteId();
@@ -495,7 +491,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 
 	/**
 	 * Return tax_code attribute for the given sales order item.
-	 * @param Mage_Sales_Order_Item $item the item whose tax code you want
+	 *
+	 * @param Mage_Sales_Model_Order_Item $item the item whose tax code you want
 	 * @return string the product attribute value
 	 */
 	protected function _getProductTaxCode(Mage_Sales_Model_Order_Item $item)
@@ -560,8 +557,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 	/**
 	 * Builds the Duty Node for order
-	 * @param Mage_Sales_Model_Order_Item $item, the order item object
-	 * @return DOMFragment
+	 *
+	 * @param Mage_Sales_Model_Order_Item $item the order item object
+	 * @return DomDocumentFragment
 	 */
 	protected function _buildDuty(Mage_Sales_Model_Order_Item $item)
 	{
@@ -588,7 +586,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 	/**
 	 * Builds the ShipGroup Node for order
-	 * @param DomElement shipGroup Node
+	 * @param DomElement $shipGroup Node
 	 * @return void
 	 */
 	protected function _buildShipGroup(DomElement $shipGroup)
@@ -606,7 +604,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 	/**
 	 * Builds the Shipping Node for order
-	 * @param DomElement shipping Node to contain shipping and billing info
+	 * @param DomElement $shipping Node to contain shipping and billing info
 	 * @return void
 	 */
 	protected function _buildShipping(DomElement $shipping)
@@ -630,8 +628,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 	/**
 	 * Creates PersonName element details from an address
-	 * @param DomElement personName
-	 * @param Mage_Sales_Model_Order_Address address
+	 *
+	 * @param DomElement $person
+	 * @param Mage_Sales_Model_Order_Address $address
 	 * @return void
  	 */
 	protected function _buildPersonName(DomElement $person, Mage_Sales_Model_Order_Address $address)
@@ -641,16 +640,20 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$person->createChild('MiddleName', $address->getMiddlename());
 		$person->createChild('FirstName', $address->getFirstname());
 	}
+
 	/**
 	 * Creates MailingAddress/Address element details from address
-	 * @param DomElement addressElement
-	 * @param Mage_Sales_Order_Address address
+	 *
+	 * @param \DomElement $addressElement addressElement
+	 * @param Mage_Sales_Model_Order_Address $address
 	 * @return void
 	 */
 	protected function _buildAddress(DomElement $addressElement, Mage_Sales_Model_Order_Address $address)
 	{
 		$line = 1;
-		foreach ($address->getStreet() as $streetLine) {
+		/** @var array $streetLines (the upstream docblock lies) */
+		$streetLines = $address->getStreet();
+		foreach ($streetLines as $streetLine) {
 			$addressElement->createChild('Line' . $line, $streetLine);
 			$line++;
 		}
@@ -661,10 +664,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 	/**
 	 * Populate the Payment Element of the request
-	 * @param DomElement payment
+	 *
+	 * @param DomElement $payment
 	 * @return self
 	 */
-	protected function _buildPayment($payment)
+	protected function _buildPayment(DomElement $payment)
 	{
 		$payment->createChild('BillingAddress')->setAttribute(
 			'ref', Mage::helper('eb2corder')->getConfigModel()->apiShipGroupBillingId
@@ -674,7 +678,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 	/**
 	 * Creates the Tender entries within the Payments Element
-	 * @param DomElement payments node into which payment info is placed
+	 * @param DomElement $payments node into which payment info is placed
 	 * @return self
 	 */
 	protected function _buildPayments(DomElement $payments)
@@ -793,10 +797,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 	/**
 	 * Populates the Context element
-	 * @param DomElement context
+	 *
+	 * @param EbayEnterprise_Dom_Element $context
 	 * @return self
 	 */
-	protected function _buildContext(DomElement $context)
+	protected function _buildContext(EbayEnterprise_Dom_Element $context)
 	{
 		$checkout = Mage::getSingleton('checkout/session');
 		$this->_buildBrowserData($context->createChild('BrowserData'));
@@ -807,9 +812,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$this->_buildCustomAttributesByLevel(static::CONTEXT_LEVEL, $context, $this->_o);
 		return $this;
 	}
+
 	/**
 	 * Populates the Context/BrowserData element
-	 * @param DomElement context
+	 *
+	 * @param DomElement $browserData
 	 * @return void
 	 */
 	protected function _buildBrowserData(DomElement $browserData)
@@ -852,25 +859,32 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		return uniqid('OCR-');
 	}
+
 	/**
 	 * Get the Exchange shipping charge type for the given shipping method.
 	 * Currently, all shipping charges being sent as 'FLATRATE' for order level shipping charges.
 	 * Full implementation supporting order level and item level shippin gamounts
 	 * will likely need to look up the shipping method for the order and
 	 * make a better determination as to the charge type for the shipping.
-	 * @param  Mage_Sales_Model_Order $order Order the shipping charge applies to
+	 *
 	 * @return string Shipping charge type used by Exchange Platform
 	 */
 	protected function _getShippingChargeType()
 	{
 		return self::SHIPPING_CHARGE_TYPE_FLATRATE;
 	}
+
+	/**
+	 * @param Mage_Sales_Model_Order_Item $item
+	 * @return float
+	 * @throws Mage_Core_Exception
+	 */
 	protected function _getItemShippingAmount(Mage_Sales_Model_Order_Item $item)
 	{
 		if ($this->_getShippingChargeType($item->getOrder()) === self::SHIPPING_CHARGE_TYPE_FLATRATE) {
 			return (float) $item->getOrder()->getBaseShippingAmount();
 		} else {
-			throw new Exception('Non-flatrate shipping calculations are not yet supported.');
+			throw Mage::exception('Mage_Core', 'Non-flatrate shipping calculations are not yet supported.');
 		}
 	}
 	/**
@@ -924,7 +938,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	}
 	/**
 	 * Parse the credit card expiration date from a pbridge payment
-	 * @param string of php-serialized pbridge_data
+	 *
+	 * @param string $pBridgeData (serialized php data)
 	 * @return array of pbridge_data
 	 */
 	protected function _getPbridgeData($pBridgeData)
@@ -965,12 +980,15 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		return ($maxLength ? substr($str, 0, $maxLength) : $str) ?: $default;
 	}
+
 	/**
 	 * create an child element of $parent if the value is not empty.
-	 * @param string  $element
-	 * @param string  $value
+	 *
+	 * @param string $element
+	 * @param string $value
 	 * @param DOMNode $parent
-	 * @param int     $maxLength
+	 * @param int $maxLength
+	 * @return self
 	 */
 	protected function _addElementIfNotEmpty($element, $value, DOMNode $parent, $maxLength=null)
 	{
@@ -980,6 +998,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		}
 		return $this;
 	}
+
 	/**
 	 * Build custom attribute node for the pass in level.
 	 * There are three order levels and they are defined in the class constants as
@@ -988,9 +1007,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * with an extractData method that know which custom attribute level to extract
 	 * data from. The extracted Data will be used to construct the 'Key' and 'Value'
 	 * node inside the 'CustomAttributes' outer node.
-	 * @param  string $level (static::ORDER_LEVEL, static::ITEM_LEVEL, or static::CONTEXT_LEVEL)
-	 * @param  EbayEnterprise_Dom_Element $orderElement
-	 * @param  Varien_Object $item can in object that inherited the Varien_Object
+	 *
+	 * @param string $level (static::ORDER_LEVEL, static::ITEM_LEVEL, or static::CONTEXT_LEVEL)
+	 * @param EbayEnterprise_Dom_Element $element
+	 * @param Varien_Object $item can in object that inherited the Varien_Object
 	 * @return self
 	 */
 	protected function _buildCustomAttributesByLevel(
@@ -1136,14 +1156,16 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$rule = $this->_loadSalesRule($item);
 		return $rule?$rule->getSimpleAction():null;
 	}
+
 	/**
 	 * @see self::_buildGifting
 	 * Build the "Gifting/Gift" nodes for an order item.
 	 * When an order item has a valid getGwId, we can use that to get
 	 * the giftwrapping associated to it in order to build the
 	 * Gift node under Gifting and attached it to a DOMElement object.
-	 * @param  DOMElement    $giftingNode
+	 * @param  DOMElement $giftingNode
 	 * @param  Varien_Object $item
+	 * @param $wrapId
 	 * @param  string $level possible values (item or order)
 	 * @return self
 	 */

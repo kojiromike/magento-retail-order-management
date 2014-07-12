@@ -18,6 +18,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Observer extends Enterprise_Gif
 	/**
 	 * @see Enterprise_GiftCardAccount_Model_Observer::processOrderCreationData
 	 * overriding the observer method in order to successfully add giftcard order created in the admin
+	 * @param Varien_Event_Observer $observer
 	 * @return self
 	 */
 	public function processOrderCreationData(Varien_Event_Observer $observer)
@@ -79,6 +80,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Observer extends Enterprise_Gif
 	/**
 	 * @see Enterprise_GiftCardAccount_Model_Observer::paymentDataImport
 	 * overriding this method to ensure the proper website id is set in the gifcardaccount model
+	 * @param Varien_Event_Observer $observer
 	 * @return self
 	 */
 	public function paymentDataImport(Varien_Event_Observer $observer)

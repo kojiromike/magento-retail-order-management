@@ -27,7 +27,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 		parent::salesEventOrderAfterSave($observer);
 		$order = $observer->getEvent()->getOrder();
 		if (!$order->hasQuote()) {
-			return;
+			return $this;
 		}
 		// save all of the response quote and response quote discount objects
 		$response = Mage::helper('tax')->getCalculator()->getTaxResponse();

@@ -17,13 +17,13 @@
  * Pim Product model
  *
  * @method string getCatalogId()
- * @method self   setCatalogId(string)
+ * @method EbayEnterprise_Eb2cProduct_Model_Pim_Product setCatalogId(string)
  * @method string getClientId()
- * @method self   setClientId(string)
+ * @method EbayEnterprise_Eb2cProduct_Model_Pim_Product setClientId(string)
  * @method string getSku()
- * @method self   setSku(string)
- * @method array  getPimAttributes()
- * @method self   setPimAttributes(array)
+ * @method EbayEnterprise_Eb2cProduct_Model_Pim_Product setSku(string)
+ * @method array getPimAttributes()
+ * @method EbayEnterprise_Eb2cProduct_Model_Pim_Product setPimAttributes(array)
  *
  * catalog_id     string the external catalog id
  * client_id      string the external client id

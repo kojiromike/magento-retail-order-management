@@ -101,7 +101,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			);
 		} catch (Mage_Core_Exception $e) {
 			$message = 'Unable to extract the billing address: ' . $e->getMessage();
-			throw new Mage_Core_Exception($message);
+			throw Mage::exception('Mage_Core', $message);
 		}
 	}
 	/**
@@ -370,7 +370,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			$value = isset($destData[$field]) ? $destData[$field] : null;
 			if (is_null($value)) {
 				$message = sprintf('field %s: value [%s] is invalid length', $field, $value);
-				throw new Mage_Core_Exception($message);
+				throw Mage::exception('Mage_Core', $message);
 			}
 		}
 		return $this;
@@ -459,10 +459,13 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		$totaler->collect($address);
 		return $address->getBaseShippingAmount();
 	}
+
 	/**
 	 * return the sku truncated down to 20 characters if too long or
 	 * null if the sku doesn't meet minimum size requirements.
+	 *
 	 * @param  array $item
+	 * @throws Mage_Core_Exception
 	 * @return string
 	 */
 	protected function _checkSku($item)
@@ -474,10 +477,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 				$item['id'],
 				$item['item_id']
 			);
-			// @codeCoverageIgnoreStart
-			Mage::throwException($message);
+			throw Mage::exception('Mage_Core', $message);
 		}
-		// @codeCoverageIgnoreEnd
 		if (strlen($newSku) < strlen($item['item_id'])) {
 			$message = 'Item sku "' . $item['item_id'] . '" is too long and has been truncated';
 			Mage::log('[' . __CLASS__ . '] ' . $message, Zend_Log::WARN);
@@ -491,7 +492,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		try {
 			$this->_namespaceUri = $helper->getNamespaceUri();
 			$this->_doc->addElement('TaxDutyQuoteRequest', null, $this->_namespaceUri);
-			$tdRequest          = $this->_doc->documentElement;
+			/** @var EbayEnterprise_Dom_Element $tdRequest */
+			$tdRequest = $this->_doc->documentElement;
 			$billingInformation = $tdRequest
 				->addChild('Currency', $this->getQuoteCurrencyCode())
 				->addChild('VATInclusivePricing', (int) $helper->getVatInclusivePricingFlag($this->_storeId))
@@ -681,10 +683,11 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * build and append an orderitem node to the parent node.
-	 * @param array    $item
-	 * @param EbayEnterprise_Dom_Element         $parent
+	 *
+	 * @param array $item
+	 * @param DomElement $parent
 	 */
-	protected function _buildOrderItem(array $item, EbayEnterprise_Dom_Element $parent)
+	protected function _buildOrderItem(array $item, DomElement $parent)
 	{
 		$sku = $this->_checkSku($item);
 		$orderItem = $parent->createChild('OrderItem')

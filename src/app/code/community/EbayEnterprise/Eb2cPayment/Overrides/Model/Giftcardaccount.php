@@ -26,6 +26,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount extends Enterpr
 	 * @var bool|string
 	 */
 	protected $_requestedPin = false;
+
 	/**
 	 * filter gift card by by pan and pin
 	 * @return EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount
@@ -37,6 +38,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount extends Enterpr
 			->addFieldToFilter('eb2c_pin', array('eq' => $this->_requestedPin)) // add filter by pan.
 			->load();
 	}
+
 	/**
 	 * get pin by pan from giftcardaccount
 	 * @param string $pan, the payment account number from eb2c that's stored in magento
@@ -91,10 +93,12 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount extends Enterpr
 		}
 		return $this->load($this->_requestedCode, 'code');
 	}
+
 	/**
 	 * Update enterprise giftcard account with data from eb2c
-	 * @param EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount $giftCard, the gift card object
-	 * @param array $balanceData, the eb2c stored value balance data
+	 *
+	 * @param Enterprise_GiftCardAccount_Model_Giftcardaccount $giftCard the gift card object
+	 * @param array $balanceData the eb2c stored value balance data
 	 * @return self
 	 */
 	protected function _updateGiftCardWithEb2cData(Enterprise_GiftCardAccount_Model_Giftcardaccount $giftCard, array $balanceData)
@@ -117,10 +121,11 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount extends Enterpr
 			$balanceData
 		);
 	}
+
 	/**
 	 * Update Gift Card Account Data
-	 * @param EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount $giftCard, the gift card object
-	 * @param array $balanceData, the eb2c stored value balance data
+	 * @param \EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount|\Enterprise_GiftCardAccount_Model_Giftcardaccount $giftCard , the gift card object
+	 * @param array $balanceData , the eb2c stored value balance data
 	 * @return self
 	 */
 	protected function _updateGiftCard(Enterprise_GiftCardAccount_Model_Giftcardaccount $giftCard, array $balanceData)
@@ -137,10 +142,14 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount extends Enterpr
 			->save();
 		return $this;
 	}
+
 	/**
 	 * overrriding addToCart method in order to save the eb2c pan and pin field in the quote
 	 * Add gift card to quote gift card storage
+	 *
 	 * @param bool $saveQuote
+	 * @param null $quote
+	 * @throws Mage_Core_Exception
 	 * @return Enterprise_GiftCardAccount_Model_Giftcardaccount
 	 */
 	public function addToCart($saveQuote=true, $quote=null)
@@ -156,13 +165,11 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount extends Enterpr
 			} else {
 				foreach ($cards as $one) {
 					if ($one['i'] == $this->getId()) {
-						Mage::throwException(
+						throw Mage::exception('Mage_Core',
 							Mage::helper('enterprise_giftcardaccount')->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_ACCOUNT_EXISTS)
 						);
-						// @codeCoverageIgnoreStart
 					}
 				}
-				// @codeCoverageIgnoreEnd
 			}
 			$cards[] = array(
 				'i' => $this->getId(),

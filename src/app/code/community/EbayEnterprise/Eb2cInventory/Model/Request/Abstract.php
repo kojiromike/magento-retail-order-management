@@ -48,10 +48,12 @@ abstract class EbayEnterprise_Eb2cInventory_Model_Request_Abstract
 		}
 		return $responseMessage;
 	}
+
 	/**
 	 * Update the quote with the response from the inventory service.
-	 * @param  Mage_Sale_Model_Quote $quote           Quote to update.
-	 * @param  string                $responseMessage Response message from the inventory service.
+	 *
+	 * @param Mage_Sales_Model_Quote $quote Quote to update.
+	 * @param string $responseMessage Response message from the inventory service.
 	 * @return self
 	 */
 	abstract public function updateQuoteWithResponse(Mage_Sales_Model_Quote $quote, $responseMessage);

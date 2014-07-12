@@ -37,6 +37,8 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * If a selection has been made, update the address object with data
 	 * from the stashed address. This will include copying over the
 	 * has_been_validated flag, which will bypass re-validating the address.
+	 *
+	 * @param Mage_Customer_Model_Address_Abstract $address
 	 * @return Mage_Customer_Model_Address_Abstract
 	 */
 	protected function _updateAddressWithSelection(Mage_Customer_Model_Address_Abstract $address)
@@ -156,10 +158,11 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	{
 		return $this->_isBillingAddress($address) && !$this->_isAddressUsedForShipping($address);
 	}
+
 	/**
 	 * Determine if the address is to be saved in the address book as part of
 	 * onepage checkout.
-	 * @param Mage_Customer_Model_Address_Abstract $address
+	 *
 	 * @return bool
 	 */
 	protected function _isAddressBeingSaved()
@@ -251,6 +254,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 		$log->logWarn('[%s] Address validation service returned empty response.', array(__CLASS__));
 		return null;
 	}
+
 	/**
 	 * Validate an address via the EB2C Address Validation service.
 	 * Calls the EB2C API and feeds the results into a response model.
@@ -258,6 +262,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * the response from EB2C and suggested addresses are stashed in the session
 	 * for later use.
 	 * @param Mage_Customer_Model_Address_Abstract $address
+	 * @param null $area
 	 * @return string the error message generated in validation
 	 */
 	public function validateAddress(Mage_Customer_Model_Address_Abstract $address, $area=null)
@@ -284,9 +289,13 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	}
 
 	/**
-	 * To reduce Cyclomatic Complexity error, this was broken out:
+	 * Send the request and parse the response.
+	 *
+	 * @param Mage_Customer_Model_Address_Abstract $address
+	 * @param string $errorMessage
+	 * @return EbayEnterprise_Eb2cAddress_Model_Validation_Response|null
 	 */
-	protected function _processRequest($address, &$errorMessage)
+	protected function _processRequest(Mage_Customer_Model_Address_Abstract $address, &$errorMessage)
 	{
 		$response = null;
 		if ($response = $this->_makeRequestForAddress($address)) {
@@ -380,7 +389,8 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	 * Address are stored in a EbayEnterprise_Eb2cAddress_Model_Suggestion_Group.
 	 * Addresses get merged with the submitted address to fill in any
 	 * gaps between what the user gives us and what EB2C returns (like name and phone).
-	 * @param Mage_Customer_Model_Address_Abstract $address
+	 *
+	 * @param Mage_Customer_Model_Address_Abstract $requestAddress
 	 * @param EbayEnterprise_Eb2cAddress_Model_Validation_Response $response
 	 * @return EbayEnterprise_Eb2cAddress_Model_Validator $this
 	 */
@@ -466,6 +476,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 	/**
 	 * Get the validated_address object from the session, this will be
 	 * just the address data from the last address validated by Eb2c
+	 * @param $type
 	 * @return Mage_Customer_Model_Address_Abstract
 	 */
 	public function getValidatedAddress($type)
@@ -533,6 +544,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 
 	/**
 	 * return true if the address contains enough data to be submitted for verification
+	 * @param Mage_Customer_Model_Address_Abstract $address
 	 * @return bool
 	 */
 	protected function _isMissingRequiredFields(Mage_Customer_Model_Address_Abstract $address)

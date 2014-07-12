@@ -33,7 +33,9 @@ class EbayEnterprise_Eb2c_Shell_Increment extends Mage_Shell_Abstract
 
 	/**
 	 * The 'main' of a Mage Shell Script
+	 *
 	 * @see usageHelp
+	 * @return int UNIX exit status
 	 */
 	public function run()
 	{
@@ -66,6 +68,7 @@ class EbayEnterprise_Eb2c_Shell_Increment extends Mage_Shell_Abstract
 				printf("Current Increment Order Id is %d\n", $lastIncrementId);
 			}
 		}
+		return 0;
 	}
 
 	/**

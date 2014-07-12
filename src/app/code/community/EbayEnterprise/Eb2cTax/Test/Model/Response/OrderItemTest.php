@@ -39,9 +39,11 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 	}
 
 	/**
-	 * helper methods to get item node
+	 * Get item node
+	 *
 	 * @param DOMDocument $doc
 	 * @param DOMXPath $xpath
+	 * @throws Exception
 	 * @return DomElement
 	 */
 	protected function _getItemNode(DOMDocument $doc, DOMXPath $xpath)
@@ -53,6 +55,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 				return $item;
 			}
 		}
+		throw new Exception('Item node not found.');
 	}
 
 	/**

@@ -159,7 +159,8 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 
 	/**
 	 * Parse inventory details response xml.
-	 * @param DOMXPath $responseMessage DOMXPath that can be used to search the response message
+	 *
+	 * @param DOMXpath $responseXPath used to search the response message
 	 * @return array, an associative array of response data
 	 */
 	public function extractItemDetails(DOMXpath $responseXPath)
@@ -194,9 +195,11 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 		}
 		return $inventoryData;
 	}
+
 	/**
 	 * Extract unavailable items from an inventory details response message.
-	 * @param DOMXPath $responseMessage DOMXPath that can be used to search the response message
+	 *
+	 * @param DOMXPath $responseXPath used to search the response message
 	 * @return array Map of sku => item details, item id and line id
 	 */
 	public function extractUnavailableItems(DOMXPath $responseXPath)
@@ -212,9 +215,10 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	}
 	/**
 	 * Update quote with inventory details response data.
-	 * @param Mage_Sales_Model_Quote $quote           the quote we use to get inventory details from eb2c
-	 * @param string                 $responseMessage xml text from the response
-	 * @return void
+	 *
+	 * @param Mage_Sales_Model_Quote $quote the quote we use to get inventory details from eb2c
+	 * @param string $responseMessage xml from the response
+	 * @return self
 	 */
 	public function updateQuoteWithResponse(Mage_Sales_Model_Quote $quote, $responseMessage)
 	{
@@ -236,9 +240,10 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	}
 	/**
 	 * Update quote with inventory details response data.
+	 *
 	 * @param Mage_Sales_Model_Quote_Item $quoteItem the item to be updated with eb2c data
 	 * @param array $inventoryData the data from eb2c for the quote-item
-	 * @return void
+	 * @return self
 	 */
 	protected function _updateQuoteItemWithDetails(Mage_Sales_Model_Quote_Item $quoteItem, array $inventoryData)
 	{

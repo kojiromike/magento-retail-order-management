@@ -30,10 +30,7 @@ class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getJscUrl()
 	{
-		return Mage::getBaseUrl(
-			Mage_Core_Model_Store::URL_TYPE_JS,
-			array('_secure' => true)
-		) . self::JSC_JS_PATH;
+		return Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_JS, true) . self::JSC_JS_PATH;
 	}
 	/**
 	 * Find the generated JS data from the given request's POST data. This uses
@@ -54,6 +51,10 @@ class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getSessionInfo()
 	{
+		/**
+		 * @var Mage_Customer_Model_Session $session
+		 * @var Mage_Log_Model_Visitor $visitorLog
+		 */
 		$session = Mage::getSingleton('customer/session');
 		$visitorLog = Mage::getModel('log/visitor')
 			->load($session->getEncryptedSessionId(), 'session_id');

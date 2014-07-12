@@ -32,10 +32,12 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Feed_Import_Items
 	 * @see EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface::createNewItem
 	 * @param string $sku
 	 * @param array $additionalData optional
-	 * @return Mage_Catalog_Model_Giftwrap
+	 * @return Enterprise_GiftWrapping_Model_Wrapping
 	 */
 	public function createNewItem($sku, array $additionalData=array())
 	{
-		return Mage::helper('eb2cgiftwrap')->createNewGiftwrapping($sku, $additionalData);
+		/** @var EbayEnterprise_Eb2cGiftwrap_Helper_Data $helper */
+		$helper = Mage::helper('eb2cgiftwrap');
+		return $helper->createNewGiftwrapping($sku, $additionalData);
 	}
 }

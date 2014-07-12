@@ -60,7 +60,9 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Attribute
 	{
 		$missingArgs = array_diff(array('destination_xpath', 'sku', 'value'), array_keys($initParams));
 		if ($missingArgs) {
-			Mage::helper('eb2ccore')->triggerError(sprintf(
+			/** @var EbayEnterprise_Eb2cCore_Helper_Data $coreHelper */
+			$coreHelper = Mage::helper('eb2ccore');
+			$coreHelper->triggerError(sprintf(
 				self::ERROR_MISSING_ARGS, __METHOD__, implode(', ', $missingArgs))
 			);
 			// @codeCoverageIgnoreStart

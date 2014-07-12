@@ -75,7 +75,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection
 	 * a new empty item when the collection is empty cannot be achieved here,
 	 * (@see self::getNewEmptyItem) this method will throw an exception if called
 	 * on an empty collection.
-	 * @return EbayEnterprise_Eb2cProduct_Pim_Product
+	 * @return EbayEnterprise_Eb2cProduct_Model_Pim_Product
 	 * @throws EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection_Exception If collection is empty
 	 */
 	public function getFirstItem()
@@ -92,7 +92,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection
 	 * a new empty item when the collection is empty cannot be achieved here,
 	 * (@see self::getNewEmptyItem) this method will throw an exception if called
 	 * on an empty collection.
-	 * @return EbayEnterprise_Eb2cProduct_Pim_Product
+	 * @return EbayEnterprise_Eb2cProduct_Model_Pim_Product
 	 * @throws EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection_Exception If collection is empty
 	 */
 	public function getLastItem()

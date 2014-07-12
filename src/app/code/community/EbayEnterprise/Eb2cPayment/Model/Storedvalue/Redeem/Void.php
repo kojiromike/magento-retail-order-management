@@ -17,9 +17,10 @@ class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem_Void
 {
 	/**
 	 * Void the SVC redemption and return the parsed response data.
+	 *
 	 * @param string $pan either a raw PAN or a token representing a PAN
 	 * @param string $pin personal identification number or code associated with a gift card or gift certificate
-	 * @param string $entityId sales/quote entity_id value
+	 * @param $quoteId
 	 * @param string $amount amount to redeem void
 	 * @return string eb2c response to the request
 	 */

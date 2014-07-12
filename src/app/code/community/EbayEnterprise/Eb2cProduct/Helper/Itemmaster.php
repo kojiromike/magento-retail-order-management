@@ -211,8 +211,9 @@ class EbayEnterprise_Eb2cProduct_Helper_Itemmaster
 	}
 	/**
 	 * Get the color eav attribute option model used by the product.
+	 *
 	 * @param  Mage_Catalog_Model_Product $product
-	 * @return Mage_Eav_Model_Entity_Attirbute_Option|null
+	 * @return Mage_Eav_Model_Entity_Attribute_Option|null
 	 */
 	private function _getColorOptionForProduct(Mage_Catalog_Model_Product $product)
 	{

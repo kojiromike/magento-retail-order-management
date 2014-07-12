@@ -53,7 +53,8 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 	}
 	/**
 	 * Process downloaded feeds from eb2c.
-	 * @return void
+	 *
+	 * @return int number of feeds processed
 	 */
 	public function processFeeds()
 	{

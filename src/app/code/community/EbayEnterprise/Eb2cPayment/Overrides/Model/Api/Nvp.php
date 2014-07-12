@@ -305,21 +305,18 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 	/**
 	 * When PayPal via EB2C is enabled, any calls to this method would be from an API
 	 * call going direct to PayPal, not to EB2C.
-	 * @param  string $methodName
-	 * @param  array  $request
+	 *
+	 * @param string $methodName
+	 * @param array $request
+	 * @throws Mage_Core_Exception
 	 * @return array
-	 * @throws  Mage_Core_Exception
 	 */
 	public function call($methodName, array $request)
 	{
 		if (Mage::helper('eb2cpayment')->getConfigModel()->isPaymentEnabled) {
-			Mage::throwException(sprintf('[%s]: Non-EB2C PayPal API call attempted for %s.', __CLASS__, $methodName));
-			// @codeCoverageIgnoreStart
+			throw Mage::exception('Mage_Core', sprintf('[%s]: Non-EB2C PayPal API call attempted for %s.', __CLASS__, $methodName));
 		} else {
-			// @codeCoverageIgnoreEnd
 			return parent::call($methodName, $request);
 		}
-		// @codeCoverageIgnoreStart
 	}
-	// @codeCoverageIgnoreEnd
 }

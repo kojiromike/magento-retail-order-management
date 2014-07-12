@@ -87,7 +87,6 @@ class EbayEnterprise_Eb2c_Shell_Feed extends Mage_Shell_Abstract
 	 * Log a message
 	 *
 	 * @param string $message to log
-	 * @param log level
 	 */
 	private function _log($message)
 	{

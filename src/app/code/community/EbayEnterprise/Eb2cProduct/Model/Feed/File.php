@@ -204,11 +204,13 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 				);
 			});
 	}
+
 	/**
 	 * given an array of website id, and and website id to remove from it
+	 *
 	 * @param array $websiteIds
 	 * @param string $websiteId the id remove from the list of website ids
-	 * @param array
+	 * @return array
 	 */
 	protected function _removeWebsiteId(array $websiteIds, $websiteId)
 	{
@@ -291,18 +293,20 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 		}
 		return $this;
 	}
+
 	/**
 	 * Update a single product with data from the feed. Should check for the
 	 * product to already exist in the collection and when it does, update the
 	 * product in the collection. When the product doesn't exist yet, it should
 	 * create a new product, set the extracted data on it and add it to the
 	 * collection.
-	 * @param  DOMXPath $feedXPath
-	 * @param  DOMNode $itemNode
-	 * @param  EbayEnterprise_Eb2cProduct_Model_Resource_Feed_Product_Collection $productCollection
-	 * @param  int $storeId
-	 * @param  array $cfgData
-	 * @param  EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
+	 *
+	 * @param DOMXPath $feedXPath
+	 * @param DOMNode $itemNode
+	 * @param Varien_Data_Collection $itemCollection
+	 * @param int $storeId
+	 * @param array $cfgData
+	 * @param EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface $items
 	 * @return self
 	 */
 	protected function _updateItem(
@@ -392,7 +396,6 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 	}
 	/**
 	 * This is a callback; adds additional template handling for configurable variables that XSLT 1.0 just doesn't do.
-	 * @return
 	 */
 	protected function _xslCallBack(DOMDocument $xslDoc, array $websiteFilter)
 	{
@@ -403,6 +406,5 @@ class EbayEnterprise_Eb2cProduct_Model_Feed_File
 			$helper->appendXslTemplateMatchNode($xslDoc, "/*/{$nodeToMatch}[(@gsi_store_id and @gsi_store_id!='{$websiteFilter['store_id']}')]");
 		}
 		$xslDoc->loadXML($xslDoc->saveXML());
-		return;
 	}
 }

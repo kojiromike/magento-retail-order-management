@@ -112,6 +112,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Collector
 
 	/**
 	 * abstracting getting an instance of Zend_Date
+	 *
 	 * @return Zend_Date
 	 * @codeCoverageIgnore
 	 */

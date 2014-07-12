@@ -25,6 +25,11 @@ class EbayEnterprise_Eb2cFraud_Model_Observer
 	 */
 	public function captureOrderContext($observer)
 	{
+		/**
+		 * @var EbayEnterprise_Eb2cFraud_Helper_Http $http
+		 * @var EbayEnterprise_Eb2cFraud_Helper_Data $hlpr
+		 * @var Mage_Customer_Model_Session $sess
+		 */
 		$timestamp = new DateTime();
 		$http = Mage::helper('eb2cfraud/http');
 		$hlpr = Mage::helper('eb2cfraud');

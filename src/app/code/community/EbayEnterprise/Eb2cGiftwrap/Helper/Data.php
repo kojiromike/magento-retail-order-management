@@ -56,7 +56,9 @@ class EbayEnterprise_Eb2cGiftwrap_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function createNewGiftwrapping($sku, array $additionalData=array())
 	{
-		return $this->_applyDummyData(Mage::getModel('enterprise_giftwrapping/wrapping'), $sku, $additionalData);
+		/** @var Enterprise_GiftWrapping_Model_Wrapping $giftWrapping */
+		$giftWrapping = Mage::getModel('enterprise_giftwrapping/wrapping');
+		return $this->_applyDummyData($giftWrapping, $sku, $additionalData);
 	}
 	/**
 	 * Fill a gift wrapping model with dummy data so that it can be saved and edited later.

@@ -16,11 +16,17 @@
 class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
+	/**
+	 * @var array $_operation mapping of inventory operations to service urls
+	 */
 	protected $_operation;
 
+	/**
+	 * Initialize _operation urls.
+	 */
 	public function __construct()
 	{
-		$cfg = $this->getConfigModel(null);
+		$cfg = $this->getConfigModel();
 		$this->_operation = array(
 			'allocate_inventory'    => $cfg->apiOptInventoryAllocation,
 			'check_quantity'        => $cfg->apiOptInventoryQty,

@@ -18,9 +18,12 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_REMOVED = 'EbayEnterprise_Eb2cPayment_GiftCard_Removed';
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_WRONG_ACCOUNT = 'EbayEnterprise_Eb2cPayment_GiftCard_Wrong_Account';
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_NOT_REDEEMABLE = 'EbayEnterprise_Eb2cPayment_GiftCard_Not_Redeemable';
+
 	/**
 	 * Redeem any gift card when 'eb2c_redeem_giftcard' event is dispatched
+	 *
 	 * @param Varien_Event_Observer $observer
+	 * @throws Mage_Core_Exception
 	 * @return void
 	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
 	 */
@@ -46,10 +49,8 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 								Mage::getSingleton('checkout/session')->addSuccess(
 									$helper->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_REMOVED, Mage::helper('core')->escapeHtml($card['pan']))
 								);
-								Mage::throwException($helper->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_WRONG_ACCOUNT));
-								// @codeCoverageIgnoreStart
+								throw Mage::exception('Mage_Core', $helper->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_WRONG_ACCOUNT));
 							} else {
-							// @codeCoverageIgnoreEnd
 								$card['panToken'] = $redeemData['paymentAccountUniqueId'];
 								$giftCard[$idx] = $card;
 							}

@@ -18,10 +18,10 @@
  *
  * Stores all of the session data used by address validation.
  *
- * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setOriginalAddress(Mage_Customer_Model_Address_Abstract)
- * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setSuggestedAddresses(Mage_Customer_Model_Address_Abstract[])
+ * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setOriginalAddress(Mage_Customer_Model_Address_Abstract $address)
+ * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setSuggestedAddresses(array $addresses)
  * @method EbayEnterprise_Eb2cAddress_Model_Validation_Response getResponseMessage()
- * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setResponseMessage(EbayEnterprise_Eb2cAddress_Model_Validation_Response)
+ * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setResponseMessage(EbayEnterprise_Eb2cAddress_Model_Validation_Response $response)
  * @method bool getHasFreshSuggestions()
  * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setHasFreshSuggestions(bool)
  */

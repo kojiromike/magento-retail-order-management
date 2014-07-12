@@ -58,7 +58,8 @@ class EbayEnterprise_Eb2cAddress_Model_Validation_Response extends Varien_Object
 
 	/**
 	 * Pass through to the EbayEnterprise_Eb2cAddress_Helper_Data::getTextValueByXPath method.
-	 * @param string $path - XPath expressions
+	 *
+	 * @param string $pathKey
 	 * @param DOMNode $context - when unspecified, will use the stored DOMDocument for the message - $this->_doc
 	 * @return string|array
 	 */

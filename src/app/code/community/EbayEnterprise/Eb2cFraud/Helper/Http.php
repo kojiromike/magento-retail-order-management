@@ -61,7 +61,7 @@ class EbayEnterprise_Eb2cFraud_Helper_Http extends Mage_Core_Helper_Http
 
 	/**
 	 * Retrieve the remote client's host name
-	 * @param bool $clean clean non UTF-8 characters
+	 *
 	 * @return string
 	 */
 	public function getRemoteHost()

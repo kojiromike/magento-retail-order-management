@@ -43,7 +43,9 @@ class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Balance
 
 	/**
 	 * Build gift card balance request.
-	 * @param Mage_Sales_Model_Quote $quote the quote to generate request XML from
+	 *
+	 * @param $pan
+	 * @param $pin
 	 * @return DOMDocument to be sent as request to eb2c.
 	 */
 	public function buildStoredValueBalanceRequest($pan, $pin)

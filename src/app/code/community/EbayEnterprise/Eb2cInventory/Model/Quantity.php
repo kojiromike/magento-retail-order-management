@@ -33,7 +33,7 @@ class EbayEnterprise_Eb2cInventory_Model_Quantity
 	protected function _buildRequestMessage(Mage_Sales_Model_Quote $quote)
 	{
 		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$quantityRequestMessage = $domDocument->addElement('QuantityRequestMessage', 
+		$quantityRequestMessage = $domDocument->addElement('QuantityRequestMessage',
 			null, Mage::helper('eb2cinventory')->getXmlNs())->firstChild;
 		$skuSet = array();
 		foreach (Mage::helper('eb2cinventory')->getInventoriedItems($quote->getAllVisibleItems()) as $item) {

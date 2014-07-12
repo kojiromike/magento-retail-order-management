@@ -26,8 +26,13 @@ function _createTempDir() {
 	@mkdir($dir, 0700);
 	return $dir;
 }
+
 /**
  * Create a tar or the extension and return the location of the create .tar
+ *
+ * @param $location
+ * @param $archiveName
+ * @param array $extensions
  * @return string
  */
 function _createArchive($location, $archiveName, array $extensions) {

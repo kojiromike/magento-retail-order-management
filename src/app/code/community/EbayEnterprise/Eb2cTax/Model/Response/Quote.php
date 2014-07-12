@@ -15,10 +15,12 @@
 
 /**
  * represents a tax quote from the response.
- * requires the following data to be passed to the constructor
- * @param  int                        type
- * @param  EbayEnterprise_Dom_Element node
- * @param  bool                    calculationError
+ * expects the following data to be passed in the Magento constructor array:
+ * array(
+ *   'type' => int,
+ *   'node' => EbayEnterprise_Dom_Element,
+ *   'calculationError' => bool,
+ * );
  */
 class EbayEnterprise_Eb2cTax_Model_Response_Quote extends Mage_Core_Model_Abstract
 {

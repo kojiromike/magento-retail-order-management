@@ -18,7 +18,7 @@ require_once 'abstract.php';
 /**
  * Product Attribute removal script for DE1585/ TA20295
  * This script should only be run as a patch for systems which incorrectly have Export
- * attributes but are operating in an Import mode. 
+ * attributes but are operating in an Import mode.
  */
 class EbayEnterprise_Eb2c_Shell_Attribute_Remover extends Mage_Shell_Abstract
 {

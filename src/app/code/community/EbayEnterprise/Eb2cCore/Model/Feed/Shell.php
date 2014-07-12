@@ -41,7 +41,7 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Shell extends Varien_Object
 	 * Instantiate and Validate that this model name implements 'EbayEnterprise_Eb2cCore_Model_Feed_Interface' - that ensure we'll
 	 * have a processFeeds method. That will convince me that this is an OK feed processor.
 	 *
-	 * @param $modelName a Model to validate
+	 * @param string $modelName a Model to validate
 	 * @return bool null - Not a valid 'EbayEnterprise_Eb2cCore_Model_Feed_Interface'
 	 * @return Mage::getModel() - valid model for feed processing.
 	 */
@@ -67,8 +67,9 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Shell extends Varien_Object
 	 * Given a partial feed name (or full model/method name), return the approriate model for that feed.
 	 * The name must resovle uniquely - if you pass just 'feed' for example, you'll fail - too many matches.
 	 *
+	 * @param $partialFeedName
 	 * @return bool null - Not a valid 'EbayEnterprise_Eb2cCore_Model_Feed_Interface'
-	 * @return Mage::getModel() - valid model for feed processing.
+	 * @return bool ::getModel() - valid model for feed processing.
 	 */
 	public function getFeedModel($partialFeedName)
 	{
@@ -84,16 +85,16 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Shell extends Varien_Object
 	/**
 	 * Given a partial feed name, run the processFeedsMethod
 	 *
+	 * @param $partialFeedName
+	 * @throws Mage_Core_Exception
 	 * @return Number of files processed
 	 */
 	public function runFeedModel($partialFeedName)
 	{
 		$model = $this->getFeedModel($partialFeedName);
 		if( !$model ) {
-			Mage::throwException('No valid model found for feed type ' . $partialFeedName);
-			// @codeCoverageIgnoreStart
+			throw Mage::exception('Mage_Core', 'No valid model found for feed type ' . $partialFeedName);
 		}
-		// @codeCoverageIgnoreEnd
 		return $model->processFeeds();
 	}
 

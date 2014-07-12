@@ -15,10 +15,12 @@
 
 /**
  * represents an OrderItem.
- * requires the following data to be passed to the constructor
- * @param  int                        type
- * @param  EbayEnterprise_Dom_Element node
- * @param  bool                    calculationError
+ * expects the following data to be passed to the Magento constructor array:
+ * array(
+ *   'type' => int,
+ *   'node' => EbayEnterprise_Dom_Element,
+ *   'calculationError' => bool,
+ * )
  */
 class EbayEnterprise_Eb2cTax_Model_Response_Quote_Discount extends EbayEnterprise_Eb2cTax_Model_Response_Quote
 {

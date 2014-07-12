@@ -17,10 +17,11 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
 	/**
-	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * Gets a combined configuration model from core and order
+	 *
+	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * @param mixed $store
-	 * @return EbayEnterprise_Eb2cCore_Config_Registry
+	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 */
 	public function getConfigModel($store=null)
 	{

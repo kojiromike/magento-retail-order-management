@@ -155,14 +155,16 @@ class EbayEnterprise_Eb2cCore_Model_Session
 			'amounts' => $this->_extractQuoteAmounts($quote),
 		);
 	}
+
 	/**
 	 * Diff billing address data between the two. Any change to a billing address
 	 * should force the entire address to be considered to be different
-	 * @param  array  $oldBilling Array of address data extracted from a quote
-	 * @param  array  $newBilling Array of address data extracted from a quote
+	 *
+	 * @param array $oldAddress Array of address data extracted from a quote
+	 * @param array $newAddress Array of address data extracted from a quote
 	 * @return array Array containing new address data if address has changed, empty array of addresses match
 	 */
-	protected function _diffBilling($oldAddress, $newAddress) {
+	protected function _diffBilling(array $oldAddress, array $newAddress) {
 		return ($oldAddress !== $newAddress) ?
 			array('billing' => $newAddress) :
 			array();
@@ -170,6 +172,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	/**
 	 * Diff the old coupon to the new coupon. Return array of coupon data if coupon
 	 * has changed, empty array otherwise.
+	 *
 	 * @param  array $oldCoupon previous coupon data
 	 * @param  array $newCoupon current coupon data
 	 * @return array Array of coupon data if coupon has changed, empty array otherwise
@@ -276,6 +279,10 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	protected function _itemsIncludeManagedItem($items) {
 		return $this->_anyItem($items, 'managed');
 	}
+
+	/**
+	 * @return DateTime inventoryExpirationTime minutes ago
+	 */
 	protected function _getInventoryTimeout()
 	{
 		return new DateTime(
@@ -345,25 +352,31 @@ class EbayEnterprise_Eb2cCore_Model_Session
 			(isset($quoteDiff['shipping']) && $this->_itemsIncludeManagedItem($quoteData['skus']))
 		);
 	}
+
 	/**
 	 * Update the tax flag.
 	 * NOTE: this method cannot set the flag to be false if the flag was already set to be true.
+	 * @param $value
 	 * @return self
 	 */
 	public function setTaxUpdateRequired($value) {
 		return $this->setData('tax_update_required_flag', $value || $this->getTaxUpdateRequiredFlag());
 	}
+
 	/**
 	 * Update the inventory quantity flag.
 	 * NOTE: this method cannot set the flag to be false if the flag was already set to be true.
+	 * @param $value
 	 * @return self
 	 */
 	public function setQuantityUpdateRequired($value) {
 		return $this->setData('quantity_update_required_flag', $value || $this->getQuantityUpdateRequiredFlag());
 	}
+
 	/**
 	 * Update the inventory details flag.
 	 * NOTE: this method cannot set the flag to be false if the flag was already set to be true.
+	 * @param $value
 	 * @return self
 	 */
 	public function setDetailsUpdateRequired($value) {

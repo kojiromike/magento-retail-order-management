@@ -119,8 +119,8 @@ class EbayEnterprise_Eb2cProduct_Model_Error_Confirmations
 
 	/**
 	 * abstracting instantiating SplFileInfo
+	 *
 	 * @param string $file file with full path
-	 * @param string $mode optional default to writable
 	 * @return SplFileInfo
 	 * @codeCoverageIgnore
 	 */

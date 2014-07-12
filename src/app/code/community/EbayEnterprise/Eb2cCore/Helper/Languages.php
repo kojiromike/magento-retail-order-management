@@ -17,7 +17,8 @@ class EbayEnterprise_Eb2cCore_Helper_Languages extends Mage_Core_Helper_Abstract
 {
 	/**
 	 * Return an array of stores and attach a language code to them, Varien_Object style
-	 * @param string langCode (optional) if passed, only stores using that langCode are returned.
+	 *
+	 * @param string $langCode (optional) if passed, only stores using that langCode are returned.
 	 * @return array of Mage_Core_Model_Store, each element of which has new magic getter 'getLanguageCode()'
 	 */
 	public function getStores($langCode=null)

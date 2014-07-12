@@ -13,6 +13,13 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * Class EbayEnterprise_Eb2cFraud_Block_Jsc
+ *
+ * @method EbayEnterprise_Eb2cFraud_Block_Jsc setCacheLifetime(int) Seconds to cache this block
+ * @method EbayEnterprise_Eb2cFraud_Block_Jsc setCollectors(array) JavaScript collector files to use
+ * @method array getCollectors() If not supplied, will get from jsc.xml
+ */
 class EbayEnterprise_Eb2cFraud_Block_Jsc extends Mage_Core_Block_Template
 {
 	const EB2C_FRAUD_COLLECTOR_PATH = 'default/eb2cfraud/collectors';

@@ -14,11 +14,15 @@
  */
 
 /**
- * The purpose of the backend model is to take its value, strip whitespace, and convert to lowercase
+ * Clean the provided language code value so it can be consistent with BCP47
  */
-class EbayEnterprise_Eb2cCore_Model_System_Config_Backend_Language_Code
-	extends Mage_Core_Model_Config_Data
+class EbayEnterprise_Eb2cCore_Model_System_Config_Backend_Language_Code extends Mage_Core_Model_Config_Data
 {
+	/**
+	 * Attempt to canonicalize the provided language code.
+	 *
+	 * @return self
+	 */
 	public function _beforeSave()
 	{
 		parent::_beforeSave();

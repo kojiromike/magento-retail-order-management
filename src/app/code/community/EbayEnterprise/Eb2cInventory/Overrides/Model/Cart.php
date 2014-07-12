@@ -21,9 +21,10 @@ class EbayEnterprise_Eb2cInventory_Overrides_Model_Cart extends Mage_Checkout_Mo
 	/**
 	 * Overriding Add product to shopping cart (quote)
 	 *
-	 * @param   int|Mage_Catalog_Model_Product $productInfo
-	 * @param   mixed $requestInfo
-	 * @return  Mage_Checkout_Model_Cart
+	 * @param int|Mage_Catalog_Model_Product $productInfo
+	 * @param mixed $requestInfo
+	 * @throws Mage_Core_Exception
+	 * @return Mage_Checkout_Model_Cart
 	 */
 	public function addProduct($productInfo, $requestInfo=null)
 	{
@@ -55,12 +56,10 @@ class EbayEnterprise_Eb2cInventory_Overrides_Model_Cart extends Mage_Checkout_Mo
 				if ($this->getCheckoutSession()->getUseNotice() === null || trim($this->getCheckoutSession()->getUseNotice()) === '') {
 					$this->getCheckoutSession()->setUseNotice(true);
 				}
-				Mage::throwException($result);
-				// @codeCoverageIgnoreStart
+				throw Mage::exception('Mage_Core', $result);
 			}
-			// @codeCoverageIgnoreEnd
 		} else {
-			Mage::throwException(
+			throw Mage::exception('Mage_Core',
 				Mage::helper('checkout')->__(self::EBAY_ENTERPRISE_EB2CINVENTORY_PRODUCT_NOT_EXIST)
 			);
 		}
@@ -78,8 +77,8 @@ class EbayEnterprise_Eb2cInventory_Overrides_Model_Cart extends Mage_Checkout_Mo
 	 * @param int $itemId
 	 * @param int|array|Varien_Object $requestInfo
 	 * @param null|array|Varien_Object $updatingParams
+	 * @throws Mage_Core_Exception
 	 * @return Mage_Sales_Model_Quote_Item|string
-	 *
 	 * @see Mage_Sales_Model_Quote::updateItem()
 	 */
 	public function updateItem($itemId, $requestInfo=null, $updatingParams=null)
@@ -87,12 +86,10 @@ class EbayEnterprise_Eb2cInventory_Overrides_Model_Cart extends Mage_Checkout_Mo
 		try {
 			$item = $this->getQuote()->getItemById($itemId);
 			if (!$item) {
-				Mage::throwException(
+				throw Mage::exception('Mage_Core',
 					Mage::helper('checkout')->__(self::EBAY_ENTERPRISE_EB2CINVENTORY_QUOTE_ITEM_NOT_EXIST)
 				);
-				// @codeCoverageIgnoreStart
 			}
-			// @codeCoverageIgnoreEnd
 			$productId = $item->getProduct()->getId();
 			$product = $this->_getProduct($productId);
 			$request = $this->_getProductRequest($requestInfo);
@@ -111,10 +108,8 @@ class EbayEnterprise_Eb2cInventory_Overrides_Model_Cart extends Mage_Checkout_Mo
 			if ($this->getCheckoutSession()->getUseNotice() === null || trim($this->getCheckoutSession()->getUseNotice()) === '') {
 				$this->getCheckoutSession()->setUseNotice(true);
 			}
-			Mage::throwException($result);
-			// @codeCoverageIgnoreStart
+			throw Mage::exception('Mage_Core', $result);
 		}
-		// @codeCoverageIgnoreEnd
 		Mage::dispatchEvent('checkout_cart_product_update_after', array(
 			'quote_item' => $result,
 			'product' => $product

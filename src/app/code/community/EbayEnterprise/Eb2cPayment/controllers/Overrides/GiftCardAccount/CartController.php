@@ -13,8 +13,16 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
 require_once('Enterprise/GiftCardAccount/controllers/CartController.php');
+
+/**
+ * Class EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount_CartController
+ *
+ * Convert Magento Enterprise Gift Card frontend into eBay Enterprise Retail Order Management Stored Value Card frontend
+ * by overriding addAction and quickCheckAction.
+ *
+ * @see EbayEnterprise_Eb2cPayment_Overrides_Model_GiftCardAccount
+ */
 class EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount_CartController extends Enterprise_GiftCardAccount_CartController
 {
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_INVALID_PAN = 'EbayEnterprise_Eb2cPayment_GiftCard_Invalid_Pan';
@@ -30,7 +38,6 @@ class EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount_CartController extend
 	/**
 	 * Overriding Enterprise add gift card to cart controller
 	 * Add Gift Card to current quote
-	 *
 	 */
 	public function addAction()
 	{
@@ -40,16 +47,12 @@ class EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount_CartController extend
 			$pin = $data['giftcard_pin']; // getting pin data from user input
 			try {
 				if (strlen($code) > static::GIFT_CARD_PAN_MAX_LENGTH) {
-					Mage::throwException(Mage::helper('enterprise_giftcardaccount')->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_INVALID_PAN));
-					// @codeCoverageIgnoreStart
+					throw Mage::exception('Mage_Core', Mage::helper('enterprise_giftcardaccount')->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_INVALID_PAN));
 				}
-				// @codeCoverageIgnoreEnd
 
 				if (strlen($pin) > static::GIFT_CARD_PIN_MAX_LENGTH) {
-					Mage::throwException(Mage::helper('enterprise_giftcardaccount')->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_INVALID_PIN));
-					// @codeCoverageIgnoreStart
+					throw Mage::exception('Mage_Core', Mage::helper('enterprise_giftcardaccount')->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_INVALID_PIN));
 				}
-				// @codeCoverageIgnoreEnd
 
 				// override this method to make eb2c stored value balance check request for actual valid gift card
 				Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->loadByPanPin($code, $pin)
@@ -72,7 +75,6 @@ class EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount_CartController extend
 	/**
 	 * Overriding gift card quick check
 	 * Check a gift card account availability
-	 *
 	 */
 	public function quickCheckAction()
 	{

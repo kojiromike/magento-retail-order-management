@@ -20,7 +20,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 {
 	/**
 	 * the sales/quote_address object
-	 * @var Mage_Sales_Quote_Address
+	 * @var Mage_Sales_Model_Quote_Address
 	 */
 	protected $_address = null;
 
@@ -114,11 +114,17 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 			$this->_responseItems[$addressId][$sku] : null;
 		return $orderItem;
 	}
+
+	/**
+	 * Fetch the data in the session from an earlier tax response
+	 */
 	public function loadResponseData()
 	{
+		/** @var EbayEnterprise_Eb2cCore_Model_Session $session */
 		$session = Mage::getSingleton('eb2ccore/session');
 		foreach ((array) $session->getEb2cTaxResponseData() as $addressId => $addressItems) {
 			foreach ($addressItems as $sku => $orderItemData) {
+				/** @var EbayEnterprise_Eb2cTax_Model_Response_Orderitem $orderItem */
 				$orderItem = Mage::getModel('eb2ctax/response_orderitem');
 				$orderItem->setOrderItemData($orderItemData);
 				$this->_responseItems[$addressId][$sku] = $orderItem;
@@ -126,6 +132,10 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 		}
 		$this->_isValid = (bool) $this->_responseItems;
 	}
+
+	/**
+	 * Stash the data from the tax response in the session for use later.
+	 */
 	public function storeResponseData()
 	{
 		$data = array();
@@ -135,6 +145,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 				$data[$addressId][$sku] = $orderItem->getOrderItemData();
 			}
 		}
+		/** @var EbayEnterprise_Eb2cCore_Model_Session $session */
 		$session = Mage::getSingleton('eb2ccore/session');
 		$session->setEb2cTaxResponseData($data);
 	}
@@ -470,8 +481,8 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 	/**
 	 * compare two nodelist element
 	 *
-	 * @param NodeList $response, the response element nodelist to be compared
-	 * @param NodeList $request, the request element nodelist to be compared
+	 * @param DomNodeList $response the response element nodelist to be compared
+	 * @param DomNodeList $request the request element nodelist to be compared
 	 *
 	 * @return bool, true request and response nodelist element are the same, otherwise, not the same
 	 */
@@ -513,7 +524,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 			libxml_clear_errors();
 			libxml_use_internal_errors(false);
 			if ($message) {
-				Mage::throwException($message);
+				throw Mage::exception('Mage_Core', $message);
 			}
 		} catch (Exception $e) {
 			$result = false;

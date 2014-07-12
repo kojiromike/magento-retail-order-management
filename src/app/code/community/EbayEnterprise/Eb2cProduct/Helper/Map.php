@@ -40,7 +40,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 	/**
 	 * Keep from having to reinstantiate this collection when doing the product imports.
 	 *
-	 * @var Mage_Catalog_Model_Category_Collection
+	 * @var Mage_Catalog_Model_Resource_Category_Collection
 	 */
 	protected $_categoryCollection = null;
 	/**
@@ -115,10 +115,12 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 	{
 		return $value;
 	}
+
 	/**
 	 * extract the first element of a dom node list make sure it is lower case
 	 * if there's no item in the DOMNodeList return the default simple product type constant value
-	 * @param DOMNodeList $node
+	 *
+	 * @param DOMNodeList $nodes
 	 * @param Mage_Catalog_Model_Product $product
 	 * @return string
 	 */
@@ -151,7 +153,8 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 	/**
 	 * This should produce a serialized array of product links to be handled by
 	 * the product cleaner. Arrays should consist of
-	 * @param  DOMNodeList                $node    DOM nodes extracted from the feed
+	 *
+	 * @param DOMNodeList $nodes DOM nodes extracted from the feed
 	 * @return string Serialized array
 	 */
 	public function extractProductLinks(DOMNodeList $nodes)
@@ -276,9 +279,11 @@ class EbayEnterprise_Eb2cProduct_Helper_Map extends Mage_Core_Helper_Abstract
 		}
 		return serialize($htscodes);
 	}
+
 	/**
 	 * extract the attribute set name
-	 * @param DOMNodeList $node
+	 *
+	 * @param DOMNodeList $nodes
 	 * @param Mage_Catalog_Model_Product $product
 	 * @return int
 	 */

@@ -112,7 +112,7 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 		$website = $event->getWebsite();
 
 		$store = ($store instanceof Mage_Core_Model_Store)? $store : $helper->getDefaultStore();
-		$website = ($website instanceof Mage_Core_Mode_Website)? $website : $helper->getDefaultWebsite();
+		$website = ($website instanceof Mage_Core_Model_Website)? $website : $helper->getDefaultWebsite();
 
 		$suppressor = Mage::getModel('eb2cpayment/suppression', array(
 			'store' => $store,

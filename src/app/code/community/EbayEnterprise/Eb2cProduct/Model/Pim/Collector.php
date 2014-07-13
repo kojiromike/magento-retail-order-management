@@ -39,7 +39,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Collector
 		$this->_startDate = $date->toString('c');
 		Mage::helper('ebayenterprise_magelog')->logInfo(
 			'[%s] Starting PIM Export with cutoff date "%s"',
-			array(__class__, $this->_startDate)
+			array(__CLASS__, $this->_startDate)
 		);
 		$this->_loadConfig();
 		$products = $this->_getExportableProducts();
@@ -47,7 +47,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Collector
 		$entityIds = $products->getColumnValues('entity_id');
 		Mage::helper('ebayenterprise_magelog')->logDebug(
 			"[%s] Exportable Entity Ids:\n%s",
-			array(__class__, json_encode($entityIds))
+			array(__CLASS__, json_encode($entityIds))
 		);
 		if (count($entityIds)) {
 			try {
@@ -62,7 +62,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Collector
 		$this->_updateCutoffDate();
 		Mage::helper('ebayenterprise_magelog')->logInfo(
 			'[%s] Finished PIM Export',
-			array(__class__)
+			array(__CLASS__)
 		);
 		return $this;
 	}
@@ -97,7 +97,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Collector
 	{
 		Mage::helper('ebayenterprise_magelog')->logDebug(
 			'[%s] Updateding cutoff date to "%s"',
-			array(__class__, $this->_startDate)
+			array(__CLASS__, $this->_startDate)
 		);
 		$config = Mage::getModel('core/config_data');
 		$config->addData(array(

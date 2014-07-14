@@ -15,6 +15,11 @@
 
 class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_View extends Mage_Sales_Block_Order_View
 {
+	/**
+	 * Inject Order Data from Service Call
+	 *
+	 * @return Mage_Sales_Model_Order
+	 */
 	public function getOrder()
 	{
 		$order = parent::getOrder();

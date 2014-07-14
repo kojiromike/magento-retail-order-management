@@ -14,8 +14,9 @@ class EbayEnterprise_Eb2cOrder_Model_Status_Feed_Extractor
 
 	/**
 	 * Given an OrderStatus node, extract the Status Time Stamp from the DOM in orderStatus
+	 *
 	 * @param EbayEnterprise_Dom_Element orderStatus
-	 * return string StatusTimeStamp
+	 * @return string
 	 */
 	public function extractStatusTimeStamp(EbayEnterprise_Dom_Element $anOrderStatusNode)
 	{

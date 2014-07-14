@@ -39,31 +39,28 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 	/**
 	 * ensure the tax code is readable
 	 * @loadFixture
-	 * @large
-	 * NOTE: ticket EB2C-14
-	 * NOTE: marked large because this is an integration test that invokes several
-	 * queries to/from the database.
+	 *
 	 */
 	public function testReadingAttributeValue()
 	{
 		$taxCode = 'thecode';
-		$product = Mage::getModel('catalog/product')
-			->getCollection()
-			->addAttributeToSelect('*')
-			->addFieldToFilter('entity_id', array('eq' => 1))
+		/**
+		 * @var Mage_Catalog_Model_Resource_Product_Collection $prodCol
+		 * @var Mage_Catalog_Model_Product $product
+		 * @var Mage_Catalog_Model_Product_Action $prodAction
+		 */
+		$prodCol = Mage::getResourceModel('catalog/product_collection');
+		$product = $prodCol
+			->addAttributeToSelect('tax_code')
+			->addFieldToFilter('entity_id', 1)
+			->setPageSize(1)
 			->getFirstItem();
 		$this->assertNotNull($product->getId());
-		$this->assertArrayHasKey('tax_code', $product->getData());
 		$this->assertSame($taxCode, $product->getTaxCode());
 		$data = array('tax_code' => 'thecode2');
-		Mage::getSingleton('catalog/product_action')
-			->updateAttributes(array($product->getId()), $data, 0);
-		unset($product);
-		$product = Mage::getModel('catalog/product')
-			->getCollection()
-			->addAttributeToSelect('*')
-			->addFieldToFilter('entity_id', array('eq' => 1))
-			->getFirstItem();
+		$prodAction = Mage::getSingleton('catalog/product_action');
+		$prodAction->updateAttributes(array($product->getId()), $data, 0);
+		$product = $prodCol->clear()->getFirstItem();
 		$this->assertSame('thecode2', $product->getTaxCode());
 	}
 

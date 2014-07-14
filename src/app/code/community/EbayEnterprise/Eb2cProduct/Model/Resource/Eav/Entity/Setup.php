@@ -53,7 +53,9 @@ class EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup
 
 	/**
 	 * Prevent _prepareValues from changing the data.
+	 * It's never made clear why this is necessary.
 	 *
+	 * @deprecated
 	 * @param array $data
 	 * @return array (noop)
 	 */

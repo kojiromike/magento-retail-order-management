@@ -6,7 +6,7 @@ $installer->startSetup();
 // Status and Status State tables
 $statusTable      = $installer->getTable('sales/order_status');
 $statusStateTable = $installer->getTable('sales/order_status_state');
- 
+
 // The states are assigned to variables so that our big array is more legible.
 $canceled   = Mage_Sales_Model_Order::STATE_CANCELED;
 $complete   = Mage_Sales_Model_Order::STATE_COMPLETE;

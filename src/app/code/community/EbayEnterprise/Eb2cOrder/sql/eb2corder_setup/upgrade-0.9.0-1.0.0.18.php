@@ -38,7 +38,7 @@ try{
 			)
 		),
 		array(
-			'name'    => 'status_type',      
+			'name'    => 'status_type',
 			'options' => array (
 				'type'     => Varien_Db_Ddl_Table::TYPE_TEXT,
 				'visible'  => true,

@@ -223,7 +223,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 		if( !empty($shipError)) {
 			$errorTypes[] = EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING;
 		}
-		return $errorTypes; 
+		return $errorTypes;
 	}
 
 	protected function _validate()

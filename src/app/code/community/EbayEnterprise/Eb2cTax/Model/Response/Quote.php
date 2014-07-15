@@ -22,7 +22,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Quote extends Mage_Core_Model_Abstra
 		$tax = $this->getNode();
 
 		/*
-		 * If we have an error, we are in write Mode. If we have no tax node, we 
+		 * If we have an error, we are in write Mode. If we have no tax node, we
 		 * are working with the specific Tax Type (i.e., Merch, Ship, Duty) that had the error.
 		 * Since no Tax Data is returned, we create an all-zero response. OrderCreate will
 		 * test for presence of taxability (an attribute required by XSD) and will suppress
@@ -45,7 +45,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Quote extends Mage_Core_Model_Abstra
 			));
 		}
 		if ($tax) {
-			/* 
+			/*
 			 * Here again, if we have $tax, we are in write mode. If we have CalculationError,
 			 * we'll need to set it. It's possible to receive a CalculationError for an item earlier
 			 * and then have a subsequent request correct the error.

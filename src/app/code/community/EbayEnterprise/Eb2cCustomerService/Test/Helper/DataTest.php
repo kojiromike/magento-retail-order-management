@@ -80,7 +80,7 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 	}
 	/**
 	 * When the token is not valid, throw an exception.
-	 * @param boolean $isCsrEnabled
+	 * @param bool $isCsrEnabled
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testValidateTokenFail($isCsrEnabled)

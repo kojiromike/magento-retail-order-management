@@ -177,7 +177,7 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 	/**
 	 * Test detecting an item that is or is not inventoried.
 	 * @param  Mage_Sales_Model_Quote_Item $item          Quote item
-	 * @param  boolean                     $isInventoried Is the item inventoried
+	 * @param bool $isInventoried Is the item inventoried
 	 * @dataProvider providerFilterInventoriedItem
 	 */
 	public function testFilterInventoriedItem($item, $isInventoried)

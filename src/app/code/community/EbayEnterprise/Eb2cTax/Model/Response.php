@@ -36,7 +36,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 
 	/**
 	 * is the response valid
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $_isValid = false;
 

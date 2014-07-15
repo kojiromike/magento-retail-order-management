@@ -7,7 +7,7 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Overrides_Admin_SessionTest
 	 * Test getting the current user in session's start page url, running it
 	 * through the adminhtml/url method is necessary to account for url secret
 	 * key validation
-	 * @param  boolean $useSecretKey
+	 * @param bool $useSecretKey
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testGetStartpageUri($useSecretKey)
@@ -64,8 +64,8 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Overrides_Admin_SessionTest
 	}
 	/**
 	 * Test validating the user account to be active and have a role assigned.
-	 * @param  boolean $isActive
-	 * @param  boolean $hasAssignedToRole
+	 * @param bool $isActive
+	 * @param bool $hasAssignedToRole
 	 * @dataProvider provideActiveAndAssigned
 	 */
 	public function testValidateUser($isActive, $hasAssignedToRole)

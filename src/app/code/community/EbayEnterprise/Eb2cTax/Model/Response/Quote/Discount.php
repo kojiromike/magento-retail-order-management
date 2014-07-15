@@ -4,7 +4,7 @@
  * requires the following data to be passed to the constructor
  * @param  int                        type
  * @param  EbayEnterprise_Dom_Element node
- * @param  boolean                    calculationError
+ * @param bool calculationError
  */
 class EbayEnterprise_Eb2cTax_Model_Response_Quote_Discount extends EbayEnterprise_Eb2cTax_Model_Response_Quote
 {

@@ -51,8 +51,8 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	 * the update quantity method should be called, a PHPUnit_Framework_MockObject_Matcher_InvokedCount
 	 * for the number of times details should be updated, and whether or not the check should result
 	 * in the add to/update cart process should be blocked.
-	 * @param boolean $isQtyUpdated     Should inventory quantity be checked
-	 * @param boolean $isDetailsUpdated Should inventory details be updated
+	 * @param bool $isQtyUpdated     Should inventory quantity be checked
+	 * @param bool $isDetailsUpdated Should inventory details be updated
 	 * @dataProvider providerCheckInventoryQuantity
 	 */
 	public function testCheckInventory($isQtyUpdated, $isDetailsUpdated)

@@ -437,7 +437,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 
 	/**
 	 * Get the address returned as the "original" address from EB2C.
-	 * @param boolean $keepFresh - flag passed to the session's method
+	 * @param bool $keepFresh - flag passed to the session's method
 	 * @return Mage_Customer_Model_Address
 	 */
 	public function getOriginalAddress($keepFresh=false)
@@ -447,7 +447,7 @@ class EbayEnterprise_Eb2cAddress_Model_Validator
 
 	/**
 	 * Get the suggested address returned by EB2C
-	 * @param boolean $keepFresh - flag passed to the session's method
+	 * @param bool $keepFresh - flag passed to the session's method
 	 * @return Mage_Customer_Model_Address[]
 	 */
 	public function getSuggestedAddresses($keepFresh=false)

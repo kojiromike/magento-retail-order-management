@@ -156,7 +156,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 	/**
 	 * Test adding the redirect to the saveOrder action response when an the
 	 * Exchange Platform order could not be created.
-	 * @param  boolean $isCreateFailed Session flag for is the order create failed or not
+	 * @param bool $isCreateFailed Session flag for is the order create failed or not
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testAddOnePageCheckoutRedirect($isCreateFailed)

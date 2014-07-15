@@ -4,7 +4,7 @@ class EbayEnterprise_Eb2cFraud_Helper_Http extends Mage_Core_Helper_Http
 	/**
 	 * Retrieve HTTP Accept header
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
-	 * @param boolean $clean clean non UTF-8 characters
+	 * @param bool $clean clean non UTF-8 characters
 	 * @return string
 	 */
 	public function getHttpAccept($clean=true)
@@ -15,7 +15,7 @@ class EbayEnterprise_Eb2cFraud_Helper_Http extends Mage_Core_Helper_Http
 	/**
 	 * Retrieve HTTP Accept-Encoding header
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.3
-	 * @param boolean $clean clean non UTF-8 characters
+	 * @param bool $clean clean non UTF-8 characters
 	 * @return string
 	 */
 	public function getHttpAcceptEncoding($clean=true)
@@ -26,7 +26,7 @@ class EbayEnterprise_Eb2cFraud_Helper_Http extends Mage_Core_Helper_Http
 	/**
 	 * Retrieve HTTP Accept-Language header
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
-	 * @param boolean $clean clean non UTF-8 characters
+	 * @param bool $clean clean non UTF-8 characters
 	 * @return string
 	 */
 	public function getHttpAcceptLanguage($clean=true)
@@ -37,7 +37,7 @@ class EbayEnterprise_Eb2cFraud_Helper_Http extends Mage_Core_Helper_Http
 	/**
 	 * Retrieve HTTP Connection header
 	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.10
-	 * @param boolean $clean clean non UTF-8 characters
+	 * @param bool $clean clean non UTF-8 characters
 	 * @return string
 	 */
 	public function getHttpConnection($clean=true)

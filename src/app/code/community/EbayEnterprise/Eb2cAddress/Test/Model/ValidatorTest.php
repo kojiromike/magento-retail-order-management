@@ -26,7 +26,7 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	/**
 	 * Replace the eb2ccore/api model with a mock
 	 *
-	 * @param boolean $emptyResponse
+	 * @param bool $emptyResponse
 	 * @return EbayEnterprise_Eb2cCore_Model_Api (mock)
 	 */
 	protected function _mockApiModel($emptyResponse=false)
@@ -133,7 +133,7 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 	 * Setup the session data with the supplied addresses.
 	 * @param Mage_Customer_Model_Address_Abstract $original
 	 * @param Mage_Customer_Model_Address_Abstract[] $suggestions
-	 * @param boolean $hasFreshSuggestions
+	 * @param bool $hasFreshSuggestions
 	 */
 	protected function _setupSessionWithSuggestions($original, $suggestions, $hasFreshSuggestions=true)
 	{

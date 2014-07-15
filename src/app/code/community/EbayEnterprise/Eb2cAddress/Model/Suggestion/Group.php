@@ -7,8 +7,8 @@
  * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setSuggestedAddresses(Mage_Customer_Model_Address_Abstract[])
  * @method EbayEnterprise_Eb2cAddress_Model_Validation_Response getResponseMessage()
  * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setResponseMessage(EbayEnterprise_Eb2cAddress_Model_Validation_Response)
- * @method boolean getHasFreshSuggestions()
- * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setHasFreshSuggestions(boolean)
+ * @method bool getHasFreshSuggestions()
+ * @method EbayEnterprise_Eb2cAddress_Model_Suggestion_Group setHasFreshSuggestions(bool)
  */
 class EbayEnterprise_Eb2cAddress_Model_Suggestion_Group extends Varien_Object
 {
@@ -62,7 +62,7 @@ class EbayEnterprise_Eb2cAddress_Model_Suggestion_Group extends Varien_Object
 	 * indicating that these values have been retrieved already.
 	 * This is mainly used on the frontend to prevent suggestions from being
 	 * shown more than once.
-	 * @param boolean $keepFresh
+	 * @param bool $keepFresh
 	 * @return Mage_Customer_Model_Address_Abstract
 	 */
 	public function getOriginalAddress($keepFresh=false)
@@ -77,7 +77,7 @@ class EbayEnterprise_Eb2cAddress_Model_Suggestion_Group extends Varien_Object
 	 * indicating that these values have been retrieved already.
 	 * This is mainly used on the frontend to prevent suggestions from being
 	 * shown more than once.
-	 * @param boolean $keepFresh
+	 * @param bool $keepFresh
 	 * @return Mage_Customer_Model_Address_Abstract
 	 */
 	public function getSuggestedAddresses($keepFresh=false)

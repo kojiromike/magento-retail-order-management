@@ -55,8 +55,8 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 * and get the actual config path from it for the lookup.
 	 * @param string $configKey
 	 * @param null|string|bool|int|Mage_Core_Model_Store $store
-	 * @param boolean $asFlag
-	 * @return string|boolean
+	 * @param bool $asFlag
+	 * @return bool|string
 	 * @throws Exception Raised if the config path is not found.
 	 */
 	protected function _getStoreConfigValue($configKey, $store, $asFlag)
@@ -115,7 +115,7 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 * Uses the stored store.
 	 *
 	 * @param string $name The property name
-	 * @return null|string|boolean|Mage_Core_Model_Store Boolean if the property name ends with "Flag",
+	 * @return null|string|bool|Mage_Core_Model_Store Boolean if the property name ends with "Flag",
 	 *         Mage_Core_Model_Store if the property is "store", string otherwise.
 	 */
 	public function __get($name)

@@ -151,7 +151,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	 * Test scenarios of the SVC void request. When the request fails,
 	 * a warning should be logged. When it succeeds, nothing should happen.
 	 * @param  array $response Response data
-	 * @param  boolean $isSuccess Was the request successful
+	 * @param bool $isSuccess Was the request successful
 	 * @dataProvider provideRedeemVoidFailureData
 	 */
 	public function testRedeemVoidGiftCard($response, $isSuccess)

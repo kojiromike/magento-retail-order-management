@@ -170,7 +170,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 	/**
 	 * Mock a product model
-	 * @param  boolean $isVirtual Is the product a virtual product or not
+	 * @param bool $isVirtual Is the product a virtual product or not
 	 * @param  string  $taxCode   Product tax code
 	 * @return Mock_Mage_Catalog_Model_Product
 	 */
@@ -191,7 +191,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 * @param integer $id Expected id of the item
 	 * @param string $sku Expected sku of the item
 	 * @param Mage_Sales_Model_Quote_Item[] $children Array of child items
-	 * @param boolean $childrenCalculated Are children of this item calculated
+	 * @param bool $childrenCalculated Are children of this item calculated
 	 * @param integer $discountAmt Expected discount amount of the item
 	 * @param null $shipFromData
 	 * @return Mock_Mage_Sales_Model_Quote_Item The stubbed quote item.

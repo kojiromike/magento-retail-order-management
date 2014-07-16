@@ -51,9 +51,8 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 	public function testGetNewDomXPath()
 	{
 		$helper = $this->getHelperMock('eb2cinventory/quote', null);
-		$method = $this->_reflectMethod($helper, '_getNewDomXPath');
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$this->assertInstanceOf('DOMXPath', $method->invoke($helper, $doc));
+		$this->assertInstanceOf('DOMXPath', EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, '_getNewDomXPath', array($doc)));
 	}
 	/**
 	 * Test creating a DOMXPath object for use in querying a response message.

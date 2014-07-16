@@ -359,7 +359,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_GiftcardaccountTest
 		$giftCardAccount = Mage::getModel('enterprise_giftcardaccount/giftcardaccount');
 		$this->assertSame(
 			$collection,
-			$this->_reflectMethod($giftCardAccount, '_filterGiftCardByPanPin')->invoke($giftCardAccount)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($giftCardAccount, '_filterGiftCardByPanPin')
 		);
 	}
 	/**

@@ -57,8 +57,7 @@ XML;
 		$response = $this->getModelMockBuilder('eb2ctax/response')
 			->disableOriginalConstructor()
 			->getMock();
-		$fn = $this->_reflectMethod($response, '_getFaultLogMessage');
-		$this->assertSame($message, $fn->invoke($response, $document));
+		$this->assertSame($message, EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_getFaultLogMessage', array($document)));
 	}
 	/**
 	 * verify xml parsing errors are properly formated to a log message.
@@ -84,8 +83,7 @@ XML;
 		$response = $this->getModelMockBuilder('eb2ctax/response')
 			->disableOriginalConstructor()
 			->getMock();
-		$fn = $this->_reflectMethod($response, '_getXmlErrorLogMessage');
-		$message = $fn->invoke($response, array($warning, $error), $xml);
+		$message = EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_getXmlErrorLogMessage', array(array($warning, $error), $xml));
 		$expectedMessage = 'XML Parser Warning warncode: the warning message Line: 1 Column: 0: `.........1.........2.........3.........4`' . "\n" .
 			'XML Parser Error errorcode: the error message Line: 1 Column: 30: `.........2.........3.........4`';
 		$this->assertSame($expectedMessage, $message);
@@ -140,10 +138,10 @@ XML;
 		$initData = array('xml' => self::$_respXml, 'request' => $request);
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML(self::$_respXml);
-		$this->_reflectProperty($response, '_doc')->setValue($response, $doc);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($response, '_doc', $doc);
 		$response->setData($initData);
 		// run the test
-		$this->_reflectMethod($response, '_construct')->invoke($response);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_construct');
 		// check final result
 		$this->assertSame((bool) $e->getIsValid(), $response->isValid());
 	}
@@ -161,15 +159,8 @@ XML;
 		$addressMock->expects($this->any())
 			->method('getId')
 			->will($this->returnValue(1));
-		$responseReflector = new ReflectionObject($response);
-		$addressProperty = $responseReflector->getProperty('_address');
-		$addressProperty->setAccessible(true);
-		$addressProperty->setValue($response, $addressMock);
-		$constructMethod = $responseReflector->getMethod('_construct');
-		$constructMethod->setAccessible(true);
-		$this->assertNull(
-			$constructMethod->invoke($response)
-		);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($response, '_address', $addressMock);
+		$this->assertNull(EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_construct'));
 	}
 	/**
 	 * Testing _construct method - invalid request/response match xml
@@ -182,12 +173,7 @@ XML;
 			'xml' => self::$_respXml,
 			'request' => $request
 		));
-		$responseReflector = new ReflectionObject($response);
-		$constructMethod = $responseReflector->getMethod('_construct');
-		$constructMethod->setAccessible(true);
-		$this->assertNull(
-			$constructMethod->invoke($response)
-		);
+		$this->assertNull(EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_construct'));
 	}
 	/**
 	 * Testing _construct method - invalid request/response match xml because of MailingAddress[@id="2"] element is different
@@ -199,12 +185,7 @@ XML;
 			'xml' => self::$_respXml,
 			'request' => null,
 		));
-		$responseReflector = new ReflectionObject($response);
-		$constructMethod = $responseReflector->getMethod('_construct');
-		$constructMethod->setAccessible(true);
-		$this->assertNull(
-			$constructMethod->invoke($response)
-		);
+		$this->assertNull(EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_construct'));
 	}
 	/**
 	 * @dataProvider shipGroupXmlProvider
@@ -218,12 +199,8 @@ XML;
 			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
-		$responseDoc = new ReflectionProperty($response, '_doc');
-		$responseDoc->setAccessible(true);
-		$responseDoc->setValue($response, $doc);
-		$fn = new ReflectionMethod($response, '_getAddressId');
-		$fn->setAccessible(true);
-		$val = $fn->invoke($response, $doc->documentElement);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($response, '_doc', $doc);
+		$val = EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_getAddressId', array($doc->documentElement));
 		$this->assertSame($expected, $val);
 	}
 	/**
@@ -446,7 +423,7 @@ XML;
 	public function testCheckXml($xml, $expected)
 	{
 		$response = $this->_mockResponse();
-		$val = $this->_reflectMethod($response, '_checkXml')->invoke($response, $xml);
+		$val = EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_checkXml', array($xml));
 		$this->assertSame($expected, $val);
 	}
 	public function testValidateResponseItemsWithEmptyDocs()
@@ -459,7 +436,7 @@ XML;
 		$docB = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
 		$docA->preserveWhiteSpace = false;
 		$docB->preserveWhiteSpace = false;
-		$val = $this->_reflectMethod($response, '_validateResponseItems')->invoke($response, $docA, $docB);
+		$val = EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_validateResponseItems', array($docA, $docB));
 		$this->assertSame(false, $val);
 	}
 	public function xmlProviderForCheckXml()
@@ -537,7 +514,7 @@ XML;
 			->method('_validateDestinations')
 			->will($this->returnValue(true));
 		$response->setData($initData);
-		$this->_reflectMethod($response, '_construct')->invoke($response);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_construct');
 		return $response;
 	}
 	/**

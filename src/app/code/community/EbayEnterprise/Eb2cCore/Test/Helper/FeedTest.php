@@ -196,7 +196,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 
 		$this->assertSame(
 			$return,
-			$this->_reflectMethod($feedHelperMock, '_doConfigTranslation')->invoke($feedHelperMock, $map)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($feedHelperMock, '_doConfigTranslation', array($map))
 		);
 	}
 	/**
@@ -238,7 +238,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 		}
 
 		$helper = Mage::helper('eb2ccore/feed');
-		$this->assertSame($expect, $this->_reflectMethod($helper, 'invokeCallback')->invoke($helper, $meta));
+		$this->assertSame($expect, EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'invokeCallback', array($meta)));
 	}
 
 	/**

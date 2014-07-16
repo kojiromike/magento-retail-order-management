@@ -85,7 +85,7 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 				'apiOptPaypalGetExpressCheckout' => 'paypal/getExpress',
 				'apiOptPaypalSetExpressCheckout' => 'paypal/setExpress',
 			)));
-		$this->_reflectProperty($hlpr, '_operation')->setValue($hlpr, array(
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($hlpr, '_operation', array(
 			'get_gift_card_balance' => 'storedvalue/balance/GS',
 			'get_gift_card_redeem' => 'storedvalue/redeem/GS',
 			'get_gift_card_redeem_void' => 'storedvalue/redeemvoid/GS',

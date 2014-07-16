@@ -44,7 +44,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_SuppressionTest
 			'isPaymentEnabled' => $paymentState
 		));
 		$testModel = Mage::getModel('eb2cpayment/suppression');
-		$this->_reflectProperty($testModel, '_allowedPaymentMethods')->setValue($testModel, $allowedGroups);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($testModel, '_allowedPaymentMethods', $allowedGroups);
 		$result = $testModel->isConfigSuppressed($sectionName, $groupName);
 
 		$this->assertSame(

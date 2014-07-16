@@ -176,10 +176,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 			->method('_updateItemIsInStock')
 			->with($this->identicalTo($stockItem), $this->identicalTo($qty))
 			->will($this->returnSelf());
-		$ref = new ReflectionObject($fii);
-		$setProdQty = $ref->getMethod('_setProdQty');
-		$setProdQty->setAccessible(true);
-		$setProdQty->invoke($fii, $id, $qty); // Just verify the right inner methods are called.
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($fii, '_setProdQty', array($id, $qty)); // Just verify the right inner methods are called.
 	}
 	/**
 	 * Data provider for testUpdateItemIsInStock, gives quantities where update is greater than,
@@ -225,21 +222,17 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
-		$updateMethod = $this->_reflectMethod($fii, '_updateItemIsInStock');
-		$this->assertSame($fii, $updateMethod->invoke($fii, $stockItem, $updateQty));
+		$this->assertSame($fii, EcomDev_Utils_Reflection::invokeRestrictedMethod($fii, '_updateItemIsInStock', array($stockItem, $updateQty)));
 	}
 	/**
 	 */
 	public function testExtractSku()
 	{
 		$fii = Mage::getModel('eb2cinventory/feed_item_inventories');
-		$ref = new ReflectionObject($fii);
-		$extractSku = $ref->getMethod('_extractSku');
-		$extractSku->setAccessible(true);
-		$this->assertSame('foo-bar', $extractSku->invoke($fii, new Varien_Object(array(
+		$this->assertSame('foo-bar', EcomDev_Utils_Reflection::invokeRestrictedMethod($fii, '_extractSku', array(new Varien_Object(array(
 			'catalog_id' => 'foo',
 			'item_id' => new Varien_Object(array('client_item_id' => 'bar')),
-		))));
+		))))); // LISP
 	}
 	/**
 	 */
@@ -258,9 +251,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 			->method('_setProdQty')
 			->with($this->equalTo(123), $this->equalTo(1))
 			->will($this->returnSelf());
-		$refFii = new ReflectionObject($fii);
-		$updateInventory = $refFii->getMethod('_updateInventory');
-		$updateInventory->setAccessible(true);
-		$updateInventory->invoke($fii, '45-987', 1); // Just verify the right inner methods are called.
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($fii, '_updateInventory', array('45-987', 1)); // Just verify the right inner methods are called.
 	}
 }

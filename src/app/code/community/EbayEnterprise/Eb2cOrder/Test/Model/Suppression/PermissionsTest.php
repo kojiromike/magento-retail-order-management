@@ -21,7 +21,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Suppression_PermissionsTest extends Eb
 	public function testGetResourceConfigNode()
 	{
 		$testModel = Mage::getModel('eb2corder/suppression_permissions');
-		$result = $this->_reflectMethod($testModel, '_getResourceConfigNode')->invoke($testModel);
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_getResourceConfigNode');
 		$this->assertInstanceOf('Mage_Core_Model_Config_Element', $result);
 		$this->assertSame('permissions', $result->getName());
 	}
@@ -41,7 +41,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Suppression_PermissionsTest extends Eb
 			->will($this->returnValue(
 				$config->getNode(EbayEnterprise_Eb2cOrder_Model_Suppression_Permissions::RESOURCE_CONFIG_PATH)
 			));
-		$result = $this->_reflectMethod($testModel, '_loadResources')->invoke($testModel);
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_loadResources');
 		$e = $this->expected('permissions_array');
 		$this->assertSame($e->getDeny(), $result['deny']);
 		$this->assertSame($e->getAllow(), $result['allow']);
@@ -122,7 +122,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Suppression_PermissionsTest extends Eb
 		$this->replaceByMock('resource_model', 'admin/role_collection', $collection);
 
 		$testModel = Mage::getModel('eb2corder/suppression_permissions');
-		$result = $this->_reflectMethod($testModel, '_getRolesToModify')->invoke($testModel);
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_getRolesToModify');
 		$this->assertInstanceOf('Mage_Admin_Model_Resource_Role_Collection', $result);
 	}
 
@@ -174,7 +174,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Suppression_PermissionsTest extends Eb
 			->will($this->returnValue($roleType));
 
 		$testModel = Mage::getModel('eb2corder/suppression_permissions');
-		$result = $this->_reflectMethod($testModel, '_getRules')->invoke($testModel, $role, $resourceList);
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_getRules', array($role, $resourceList));
 		$this->assertInstanceOf('Mage_Admin_Model_Resource_Permissions_Collection', $result);
 	}
 
@@ -251,6 +251,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Suppression_PermissionsTest extends Eb
 			->method('getRoleType')
 			->will($this->returnValue($roleType));
 
-		$this->_reflectMethod($testModel, '_applyPermissionsToRole')->invoke($testModel, $role, $resourceList, $action);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_applyPermissionsToRole', array($role, $resourceList, $action));
 	}
 }

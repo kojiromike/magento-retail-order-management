@@ -104,8 +104,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 		$calc->setTaxResponse($response);
 		$item    = $this->getModelMock('sales/quote_item');
 		$address = $this->getModelMock('sales/quote_address');
-		$fn      = $this->_reflectMethod($calc, '_getItemResponse');
-		$val     = $fn->invoke($calc, $item, $address);
+		$val = EcomDev_Utils_Reflection::invokeRestrictedMethod($calc, '_getItemResponse', array($item, $address));
 		$this->assertInstanceOf('EbayEnterprise_Eb2cTax_Model_Response_Orderitem', $val);
 		$this->assertEmpty($val->getTaxQuotes());
 		$this->assertEmpty($val->getTaxQuoteDiscounts());
@@ -523,8 +522,8 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 		$taxDiscounts = array($discountQuote, $shipDiscountQuote);
 		$orderItem    = Mage::getModel('eb2ctax/response_orderitem');
 		$orderItem->setData(array('duty_amount' => 8.21));
-		$this->_reflectProperty($orderItem, '_taxQuotes')->setValue($orderItem, $taxQuotes);
-		$this->_reflectProperty($orderItem, '_taxQuoteDiscounts')->setValue($orderItem, $taxDiscounts);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem, '_taxQuotes', $taxQuotes);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem, '_taxQuoteDiscounts', $taxDiscounts);
 		$response = $this->buildResponseMock(array(
 			'getResponseForItem' => $this->returnValue($orderItem),
 			'isValid'            => $this->returnValue(true),
@@ -580,8 +579,8 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 		$taxDiscounts = array($discountQuote, $shipDiscountQuote);
 		$orderItem    = Mage::getModel('eb2ctax/response_orderitem');
 		$orderItem->setData(array('duty_amount' => 8.21));
-		$this->_reflectProperty($orderItem, '_taxQuotes')->setValue($orderItem, $taxQuotes);
-		$this->_reflectProperty($orderItem, '_taxQuoteDiscounts')->setValue($orderItem, $taxDiscounts);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem, '_taxQuotes', $taxQuotes);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem, '_taxQuoteDiscounts', $taxDiscounts);
 		$response = $this->buildResponseMock(array(
 			'getResponseForItem' => $this->returnValue($orderItem),
 			'isValid'            => $this->returnValue(true),
@@ -645,8 +644,8 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 		$taxDiscounts = array($discountQuoteOne, $discountQuoteTwo, $unknownDiscountQuote);
 		$orderItem    = Mage::getModel('eb2ctax/response_orderitem');
 		$orderItem->setData(array('duty_amount' => 8.21));
-		$this->_reflectProperty($orderItem, '_taxQuotes')->setValue($orderItem, $taxQuotes);
-		$this->_reflectProperty($orderItem, '_taxQuoteDiscounts')->setValue($orderItem, $taxDiscounts);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem, '_taxQuotes', $taxQuotes);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem, '_taxQuoteDiscounts', $taxDiscounts);
 		$response = $this->buildResponseMock(array(
 			'getResponseForItem' => $this->returnValue($orderItem),
 			'isValid'            => $this->returnValue(true),

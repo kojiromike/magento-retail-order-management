@@ -729,7 +729,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 		$testModel = Mage::getModel('eb2cinventory/allocation');
 		$this->assertInstanceOf(
 			'DOMDocument',
-			$this->_reflectMethod($testModel, '_buildAllocationRequestMessage')->invoke($testModel, $quote)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_buildAllocationRequestMessage', array($quote))
 		);
 	}
 }

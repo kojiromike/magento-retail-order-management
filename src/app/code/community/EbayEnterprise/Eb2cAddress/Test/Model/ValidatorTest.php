@@ -246,11 +246,7 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 		$expectationKey = str_replace('/', '', $postValue);
 
 		$validator = Mage::getModel('eb2caddress/validator');
-		$reflection = new ReflectionClass('EbayEnterprise_Eb2cAddress_Model_Validator');
-		$method = $reflection->getMethod('_updateAddressWithSelection');
-		$method->setAccessible(true);
-
-		$method->invoke($validator, $submittedAddress);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($validator, '_updateAddressWithSelection', array($submittedAddress));
 
 		$this->assertSame(
 			$this->expected($expectationKey)->getStreet1(),
@@ -805,11 +801,7 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 		$sourceAddr = $this->_createAddress($sourceData);
 
 		$validator = Mage::getModel('eb2caddress/validator');
-		$reflection = new ReflectionClass('EbayEnterprise_Eb2cAddress_Model_Validator');
-		$method = $reflection->getMethod('_copyAddressName');
-		$method->setAccessible(true);
-
-		$method->invoke($validator, $destAddr, $sourceAddr);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($validator, '_copyAddressName', array($destAddr, $sourceAddr));
 
 		// first and last name should be copied to the dest address
 		$this->assertSame($sourceAddr->getFirstname(), $destAddr->getFirstname());
@@ -980,17 +972,14 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 		));
 
 		$validator = Mage::getModel('eb2caddress/validator');
-		$reflection = new ReflectionClass('EbayEnterprise_Eb2cAddress_Model_Validator');
-		$method = $reflection->getMethod('_isCheckoutAddress');
-		$method->setAccessible(true);
 
 		// checkout address will have a quote_id
 		$address->setData('quote_id', 12);
-		$this->assertTrue($method->invoke($validator, $address));
+		$this->assertTrue(EcomDev_Utils_Reflection::invokeRestrictedMethod($validator, '_isCheckoutAddress', array($address)));
 
 		// non-checkout address will not
 		$address->unsetData('quote_id');
-		$this->assertFalse($method->invoke($validator, $address));
+		$this->assertFalse(EcomDev_Utils_Reflection::invokeRestrictedMethod($validator, '_isCheckoutAddress', array($address)));
 	}
 
 	/**
@@ -1106,11 +1095,7 @@ class EbayEnterprise_Eb2cAddress_Test_Model_ValidatorTest
 		$this->replaceByMock('singleton', 'checkout/session', $sessionMock);
 
 		$validator = Mage::getModel('eb2caddress/validator');
-		$reflection = new ReflectionClass('EbayEnterprise_Eb2cAddress_Model_Validator');
-		$method = $reflection->getMethod('_isVirtualOrder');
-		$method->setAccessible(true);
-
-		$this->assertSame($isVirtual, $method->invoke($validator));
+		$this->assertSame($isVirtual, EcomDev_Utils_Reflection::invokeRestrictedMethod($validator, '_isVirtualOrder'));
 	}
 
 	/**

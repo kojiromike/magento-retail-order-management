@@ -83,11 +83,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest exte
 
 		// set up the SUT
 		$taxModel = Mage::getModel('tax/sales_total_quote_tax');
-		$this->_reflectProperty($taxModel, '_store')->setValue($taxModel, Mage::app()->getStore());
-		$this->_reflectProperty($taxModel, '_calculator')->setValue($taxModel, $calcMock);
-		$calcTaxForItemMethod = $this->_reflectMethod($taxModel, '_calcTaxForItem');
-		$this->_reflectProperty($taxModel, '_address')
-			->setValue($taxModel, $address);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($taxModel, '_store', Mage::app()->getStore());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($taxModel, '_calculator', $calcMock);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($taxModel, '_address', $address);
 
 		// precondition check
 		$this->assertSame(1, count($items), 'number of items (' . count($items) . ') is not 1');
@@ -140,7 +138,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest exte
 				->will($this->returnSelf());
 
 			$itemSelector->setItem($item);
-			$calcTaxForItemMethod->invoke($taxModel, $itemSelector);
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($taxModel, '_calcTaxForItem', array($itemSelector));
 		}
 	}
 
@@ -355,12 +353,11 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest exte
 
 		// set up the SUT
 		$taxModel = Mage::getModel('tax/sales_total_quote_tax');
-		$this->_reflectMethod($taxModel, '_initBeforeCollect')->invoke($taxModel, $address);
-		$this->_reflectProperty($taxModel, '_calculator')->setValue($taxModel, $calc);
-		$this->_reflectProperty($taxModel, '_store')->setValue($taxModel, Mage::app()->getStore());
-		$this->_reflectProperty($taxModel, '_shippingTaxTotals')->setValue($taxModel, array(15 => 0.0));
-		$this->_reflectProperty($taxModel, '_shippingTaxSubTotals')->setValue($taxModel, array(15 => 0.0));
-		$calcTaxForItemMethod = $this->_reflectMethod($taxModel, '_calcTaxForItem');
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($taxModel, '_initBeforeCollect', array($address));
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($taxModel, '_calculator', $calc);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($taxModel, '_store', Mage::app()->getStore());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($taxModel, '_shippingTaxTotals', array(15 => 0.0));
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($taxModel, '_shippingTaxSubTotals', array(15 => 0.0));
 
 		// precondition check
 		$this->assertSame(2, count($items), 'number of items (' . count($items) . ') is not 2');
@@ -372,7 +369,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest exte
 			$expectationPath = "{$scenario}-" . $item->getId();
 			$e = $this->expected($expectationPath);
 
-			$calcTaxForItemMethod->invoke($taxModel, $itemSelector);
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($taxModel, '_calcTaxForItem', array($itemSelector));
 
 			$this->assertEquals(
 				$e->getTaxAmount(),
@@ -537,11 +534,10 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest exte
 		// create the tax model after mocking the calculator
 		// so that it gets initialized with the mock
 		$taxModel = Mage::getModel('tax/sales_total_quote_tax');
-		$this->_reflectProperty($taxModel, '_calculator')->setValue($taxModel, $calc);
-		$this->_reflectProperty($taxModel, '_store')->setValue($taxModel, Mage::app()->getStore());
-		$this->_reflectProperty($taxModel, '_address')->setValue($taxModel, $address);
-		$calcTaxForAddressMethod = $this->_reflectMethod($taxModel, '_calcTaxForAddress');
-		$calcTaxForAddressMethod->invoke($taxModel, $address);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($taxModel, '_calculator', $calc);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($taxModel, '_store', Mage::app()->getStore());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($taxModel, '_address', $address);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($taxModel, '_calcTaxForAddress', array($address));
 
 		$this->assertSame(2, count($address->getAppliedTaxes()));
 		$process = 1;
@@ -701,8 +697,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_TaxTest exte
 			->will($this->returnSelf());
 
 		$taxModel = Mage::getModel('tax/sales_total_quote_tax');
-		$saveAppliedTaxesMethod = $this->_reflectMethod($taxModel, '_saveAppliedTaxes');
-		$saveAppliedTaxesMethod->invoke($taxModel, $address, $applied, $amount, $baseAmount, $rate);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($taxModel, '_saveAppliedTaxes', array($address, $applied, $amount, $baseAmount, $rate));
 	}
 
 	/**

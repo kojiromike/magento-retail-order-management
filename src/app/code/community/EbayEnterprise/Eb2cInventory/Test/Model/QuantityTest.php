@@ -75,10 +75,9 @@ class EbayEnterprise_Eb2cInventory_Test_Model_QuantityTest
 			</QuantityRequestMessage>'
 		);
 		$qty = Mage::getModel('eb2cinventory/quantity');
-		$meth = $this->_reflectMethod($qty, '_buildRequestMessage');
 		$this->assertSame(
 			$qtyRequestMsg->C14N(),
-			$meth->invoke($qty, $quote)->C14N()
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($qty, '_buildRequestMessage', array($quote))->C14N()
 		);
 	}
 	public function provideForTestGetAvailStockFromResponse()

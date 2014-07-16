@@ -28,14 +28,10 @@ class EbayEnterprise_Eb2cCore_Test_Model_System_Config_Backend_Language_CodeTest
 		$backendMock = $this->getModelMockBuilder('eb2ccore/system_config_backend_language_code')
 			->setMethods(array( 'isValueChanged',))
 			->getMock();
-		$backendRefl = new ReflectionObject($backendMock);
-		$beforeSave = $backendRefl->getMethod('_beforeSave');
-		$beforeSave->setAccessible(true);
 		$backendMock->expects($this->once())
 			->method('isValueChanged')
 			->will($this->returnValue(true));
 
-		$this->assertSame('en-us',
-			$backendMock->setValue("\r\n\t EN-US")->_beforeSave()->getValue());
+		$this->assertSame('en-us', EcomDev_Utils_Reflection::invokeRestrictedMethod($backendMock->setValue("\r\n\t EN-US"), '_beforeSave')->getValue());
 	}
 }

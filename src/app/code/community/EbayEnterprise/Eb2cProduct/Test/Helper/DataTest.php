@@ -146,10 +146,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$hlpr->expects($this->once())
 			->method('getConfigModel')
 			->will($this->returnValue($fakeCfg));
-		$hlpRef = new ReflectionObject(Mage::helper('eb2cproduct'));
-		$getProdTplt = $hlpRef->getMethod('_getProdTplt');
-		$getProdTplt->setAccessible(true);
-		$getProdTplt->invoke($hlpr);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getProdTplt');
 	}
 	/**
 	 * Test the various dummy defaults.
@@ -157,19 +154,10 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	public function testGetDefaults()
 	{
 		$hlpr = Mage::helper('eb2cproduct');
-		$hlpRef = new ReflectionObject($hlpr);
-		$getAllWebsiteIds = $hlpRef->getMethod('_getAllWebsiteIds');
-		$getDefProdAttSetId = $hlpRef->getMethod('_getDefProdAttSetId');
-		$getDefStoreId = $hlpRef->getMethod('_getDefStoreId');
-		$getDefStoreRootCatId = $hlpRef->getMethod('_getDefStoreRootCatId');
-		$getAllWebsiteIds->setAccessible(true);
-		$getDefProdAttSetId->setAccessible(true);
-		$getDefStoreId->setAccessible(true);
-		$getDefStoreRootCatId->setAccessible(true);
-		$this->assertInternalType('array', $getAllWebsiteIds->invoke($hlpr));
-		$this->assertInternalType('integer', $getDefProdAttSetId->invoke($hlpr));
-		$this->assertInternalType('integer', $getDefStoreId->invoke($hlpr));
-		$this->assertInternalType('integer', $getDefStoreRootCatId->invoke($hlpr));
+		$this->assertInternalType('array', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getAllWebsiteIds'));
+		$this->assertInternalType('integer', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getDefProdAttSetId'));
+		$this->assertInternalType('integer', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getDefStoreId'));
+		$this->assertInternalType('integer', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getDefStoreRootCatId'));
 	}
 	public function testBuildDummyBoilerplate()
 	{
@@ -222,10 +210,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 			'website_ids' => array(980),
 			'weight' => 79,
 		);
-		$hlpRef = new ReflectionObject(Mage::helper('eb2cproduct'));
-		$getProdTplt = $hlpRef->getMethod('_getProdTplt');
-		$getProdTplt->setAccessible(true);
-		$this->assertSame($expected, $getProdTplt->invoke($hlpr));
+		$this->assertSame($expected, EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getProdTplt'));
 	}
 	/**
 	 * @dataProvider dataProvider
@@ -237,10 +222,7 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$hlpr->expects($this->once())
 			->method('_getProdTplt')
 			->will($this->returnValue(array()));
-		$hlpRef = new ReflectionObject(Mage::helper('eb2cproduct'));
-		$applyDummyDataMethod = $hlpRef->getMethod('_applyDummyData');
-		$applyDummyDataMethod->setAccessible(true);
-		$prod = $applyDummyDataMethod->invoke($hlpr, Mage::getModel('catalog/product'), $sku, $additionalData);
+		$prod = EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_applyDummyData', array(Mage::getModel('catalog/product'), $sku, $additionalData));
 		$this->assertSame($sku, $prod->getSku());
 		$this->assertSame($name ?: "Invalid Product: $sku", $prod->getName());
 		$this->assertSame($sku, $prod->getUrlKey());
@@ -421,17 +403,17 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 		$this->replaceByMock('model', 'catalog/product_attribute_api', $apiModelMock);
 		$helper = Mage::helper('eb2cproduct');
 		// setting _customAttributeCodeSets property back to an empty array
-		$this->_reflectProperty($helper, '_customAttributeCodeSets')->setValue($helper, array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($helper, '_customAttributeCodeSets', array());
 		$this->assertSame(
 			array('brand_name', 'brand_description', 'is_drop_shipped', 'drop_ship_supplier_name'),
 			Mage::helper('eb2cproduct')->getCustomAttributeCodeSet(172)
 		);
 		$this->assertSame(
 			array(172 => array('brand_name', 'brand_description', 'is_drop_shipped', 'drop_ship_supplier_name')),
-			$this->_reflectProperty($helper, '_customAttributeCodeSets')->getValue($helper)
+			EcomDev_Utils_Reflection::getRestrictedPropertyValue($helper, '_customAttributeCodeSets')
 		);
-		// reseting _customAttributeCodeSets property back to an empty array
-		$this->_reflectProperty($helper, '_customAttributeCodeSets')->setValue($helper, array());
+		// resetting _customAttributeCodeSets property back to an empty array
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($helper, '_customAttributeCodeSets', array());
 	}
 	/**
 	 * Data provider for testGetConfigAttributesData

@@ -97,8 +97,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 		$exceptionName = 'EbayEnterprise_Eb2cProduct_Model_Attributes_Exception';
 		$this->setExpectedException($exceptionName, $message);
 		$model = Mage::getModel('eb2cproduct/attributes');
-		$fn = $this->_reflectMethod($model, '_formatScope');
-		$fn->invoke($model, $value);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($model, '_formatScope', array($value));
 	}
 
 	/**
@@ -222,8 +221,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_AttributesTest extends EbayEnterpris
 	public function testGetDefaultValueFieldName($frontendType, $expected)
 	{
 		$model = Mage::getModel('eb2cproduct/attributes');
-		$value = $this->_reflectMethod($model, '_getDefaultValueFieldName')
-			->invoke($model, $frontendType);
+		$value = EcomDev_Utils_Reflection::invokeRestrictedMethod($model, '_getDefaultValueFieldName', array($frontendType));
 		$this->assertSame($expected, $value);
 	}
 

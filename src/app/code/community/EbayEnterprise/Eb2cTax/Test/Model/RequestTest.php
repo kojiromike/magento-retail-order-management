@@ -106,7 +106,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		$request = Mage::getModel('eb2ctax/request');
 		$this->assertSame(
 			5,
-			$this->_reflectMethod($request, '_getShippingAmount')->invoke($request, $address)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_getShippingAmount', array($address))
 		);
 	}
 	/**
@@ -122,8 +122,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
-		$this->_reflectMethod($request, '_extractDestData')
-			->invoke($request, $address, $isVirtual);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_extractDestData', array($address, $isVirtual));
 	}
 
 	/**
@@ -1485,7 +1484,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		$product = $this->_stubProduct(false, $taxCode);
 		$item = $this->_buildModelMock('sales/quote_item', array('getProduct' => $this->returnValue($product)));
 		$request = Mage::getModel('eb2ctax/request');
-		$val = $this->_reflectMethod($request, '_getItemTaxClass')->invoke($request, $item);
+		$val = EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_getItemTaxClass', array($item));
 		$e = $this->expected($expectation);
 		$this->assertSame($e->getTaxCode(), $val);
 	}
@@ -1504,7 +1503,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 
 		/** @var EbayEnterprise_Eb2cTax_Model_Request $request */
 		$request = Mage::getModel('eb2ctax/request');
-		$fn = $this->_reflectMethod($request, '_buildDiscountNode');
 		$doc = $request->getDocument();
 		$doc->loadXML('<root xmlns="http://example.com/foo"></root>');
 		$node = $doc->documentElement;
@@ -1514,7 +1512,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'discount_amount' => 10.0
 		);
 
-		$fn->invoke($request, $node, $discount);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_buildDiscountNode', array($node, $discount));
 		$xpath = new DOMXPath($doc);
 		$xpath->registerNamespace('a', $doc->documentElement->namespaceURI);
 
@@ -1526,7 +1524,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	public function testExtractItemDiscountData()
 	{
 		$request = Mage::getModel('eb2ctax/request');
-		$fn = $this->_reflectMethod($request, '_extractItemDiscountData');
 		$mockQuote = $this->getModelMock('sales/quote', array('getAppliedRuleIds'));
 		$request->setQuote($mockQuote);
 		$mockQuoteAddress = $this->getModelMock('sales/quote_address', array('getBaseShippingDiscountAmount', 'getCouponCode'));
@@ -1543,7 +1540,8 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		$mockItem->expects($this->any())
 			->method('getAppliedRuleIds')
 			->will($this->returnValue(''));
-		$outData = $fn->invoke($request, $mockItem, $mockQuoteAddress);
+		$outData = EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_extractItemDiscountData', array($mockItem, $mockQuoteAddress));
+
 		$keys = array(
 			'merchandise_discount_code',
 			'merchandise_discount_amount',
@@ -1595,10 +1593,6 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			)));
 		$this->replaceByMock('model', 'eb2ccore/config_registry', $mockConfig);
 
-		$requestReflector = new ReflectionObject($request);
-		$extractAdminDataMethod = $requestReflector->getMethod('_extractAdminData');
-		$extractAdminDataMethod->setAccessible(true);
-
 		$this->assertSame(
 			array(
 				'Lines'        => array('1075 First Ave', 'STE 123', 'BLDG 4', ''),
@@ -1607,7 +1601,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 				'CountryCode'  => 'US',
 				'PostalCode'   => '19406'
 			),
-			$extractAdminDataMethod->invoke($request)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_extractAdminData')
 		);
 	}
 
@@ -1716,13 +1710,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->with($this->identicalTo($itemData))
 			->will($this->returnValue($isValid));
 
-		$requestReflector = new ReflectionObject($request);
-		$extractShippingDataMethod = $requestReflector->getMethod('_extractShippingData');
-		$extractShippingDataMethod->setAccessible(true);
-
 		$this->assertSame(
 			$shipData,
-			$extractShippingDataMethod->invoke($request, $mockQuoteItem)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_extractShippingData', array($mockQuoteItem))
 		);
 	}
 	/**
@@ -1749,7 +1739,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		$request = Mage::getModel('eb2ctax/request');
 		$this->assertSame(
 			$isValid,
-			$this->_reflectMethod($request, '_validateShipFromData')->invoke($request, $shipData)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_validateShipFromData', array($shipData))
 		);
 	}
 	public function testBuildAdminOriginNode()
@@ -1765,11 +1755,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'PostalCode'   => '19406',
 		);
 		$request = Mage::getModel('eb2ctax/request');
-
-		$requestReflector = new ReflectionObject($request);
-		$buildAdminOriginNodeMethod = $requestReflector->getMethod('_buildAdminOriginNode');
-		$buildAdminOriginNodeMethod->setAccessible(true);
-		$buildAdminOriginNodeMethod->invoke($request, $parent, $adminOrigin);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_buildAdminOriginNode', array($parent, $adminOrigin));
 		$this->assertSame(
 			'<TaxDutyQuoteRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><AdminOrigin><Line1>1075 First Avenue</Line1><Line2>STE 123</Line2><Line3>BLDG 2</Line3><City>King Of Prussia</City><MainDivision>PA</MainDivision><CountryCode>US</CountryCode><PostalCode>19406</PostalCode></AdminOrigin></TaxDutyQuoteRequest>',
 			$parent->C14N()
@@ -1789,10 +1775,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'PostalCode'   => '19406',
 		);
 		$request = Mage::getModel('eb2ctax/request');
-		$requestReflector = new ReflectionObject($request);
-		$buildShippingOriginNodeMethod = $requestReflector->getMethod('_buildShippingOriginNode');
-		$buildShippingOriginNodeMethod->setAccessible(true);
-		$buildShippingOriginNodeMethod->invoke($request, $parent, $shippingOrigin);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_buildShippingOriginNode', array($parent, $shippingOrigin));
 		$this->assertSame(
 			'<TaxDutyQuoteRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><ShippingOrigin><Line1>1075 First Avenue</Line1><City>King Of Prussia</City><MainDivision>PA</MainDivision><CountryCode>US</CountryCode><PostalCode>19406</PostalCode></ShippingOrigin></TaxDutyQuoteRequest>',
 			$parent->C14N()
@@ -1838,8 +1821,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->method('getBasePrice')
 			->will($this->returnValue($basePrice));
 		$request = Mage::getModel('eb2ctax/request');
-		$getItemOriginalPrice = $this->_reflectMethod($request, '_getItemOriginalPrice');
-		$price = $getItemOriginalPrice->invoke($request, $item);
+		$price = EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_getItemOriginalPrice', array($item));
 		$this->assertSame(12.34, $price);
 	}
 
@@ -1863,8 +1845,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->will($this->returnValue($items));
 
 		$request = Mage::getModel('eb2ctax/request');
-		$method = $this->_reflectMethod($request, '_getItemsForAddress');
-		$itemsForAddress = $method->invoke($request, $address);
+		$itemsForAddress = EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_getItemsForAddress', array($address));
 
 		$this->assertSame(1, count($itemsForAddress));
 		$this->assertSame($items[1], $itemsForAddress[0]);
@@ -1930,9 +1911,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 				$this->identicalTo($address)
 			)
 			->will($this->returnValue(array('some_discount_thing' => 'this is discount data')));
-		$result = $this->_reflectMethod($request, '_extractItemData')
-			->invoke($request, $item, $address);
-
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_extractItemData', array($item, $address));
 		$itemData = array(
 			'id' => 1,
 			'line_number' => 0,
@@ -2017,7 +1996,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 				$this->isInstanceOf('Mage_Sales_Model_Quote_Address')
 			);
 		$request->processAddress($address);
-		$this->assertSame(99, $this->_reflectProperty($request, '_storeId')->getValue($request));
+		$this->assertSame(99, EcomDev_Utils_Reflection::getRestrictedPropertyValue($request, '_storeId'));
 		$this->assertTrue($request->isValid());
 	}
 
@@ -2087,8 +2066,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->method('_addToDestination')
 			->with($this->identicalTo($child), $this->identicalTo($address), $this->identicalTo(false));
 
-		$method = $this->_reflectMethod($request, '_processItem');
-		$this->assertSame($request, $method->invoke($request, $parentItem, $address));
+		$this->assertSame($request, EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_processItem', array($parentItem, $address)));
 	}
 	/**
 	 * verify the billing destination gets properly extracted
@@ -2119,9 +2097,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->with($this->identicalTo($address))
 			->will($this->returnValue(array('destination data')));
 
-		$this->_reflectMethod($request, '_addBillingDestination')->invoke($request, $address);
-		$this->assertSame('destinationid', $this->_reflectProperty($request, '_billingInfoRef')->getValue($request));
-		$destinations = $this->_reflectProperty($request, '_destinations')->getValue($request);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_addBillingDestination', array($address));
+		$this->assertSame('destinationid', EcomDev_Utils_Reflection::getRestrictedPropertyValue($request, '_billingInfoRef'));
+		$destinations = EcomDev_Utils_Reflection::getRestrictedPropertyValue($request, '_destinations');
 		$this->assertSame(array('destinationid' => array('destination data')), $destinations);
 	}
 
@@ -2146,7 +2124,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			->method('_extractDestData')
 			->will($this->throwException(new Mage_Core_Exception('test exception')));
 		$this->setExpectedException('Mage_Core_Exception', 'Unable to extract the billing address: ');
-		$this->_reflectMethod($request, '_addBillingDestination')->invoke($request, $address);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_addBillingDestination', array($address));
 	}
 
 	/**

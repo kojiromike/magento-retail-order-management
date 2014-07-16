@@ -48,28 +48,25 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_AttributeTest
 			->getMock();
 		$dom = Mage::helper('eb2ccore')->getNewDomDocument();
 
-		$method = new ReflectionMethod($attrModel, '_stringifyValue');
-		$method->setAccessible(true);
-
 		$n = $dom->createDocumentFragment();
 		$n->appendChild($dom->createElement('Foo', 'Value'));
 		$n->appendChild($dom->createElement('Bar', 'Thing'));
 		$attrModel->value = $n;
 		$this->assertSame(
 			'<Foo>Value</Foo><Bar>Thing</Bar>',
-			$method->invoke($attrModel)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($attrModel, '_stringifyValue')
 		);
 		$n = $dom->createCDATASection('Some String Value');
 		$attrModel->value = $n;
 		$this->assertSame(
 			'Some String Value',
-			$method->invoke($attrModel)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($attrModel, '_stringifyValue')
 		);
 		$n = $dom->createElement('Foo', 'Bar');
 		$attrModel->value = $n;
 		$this->assertSame(
 			'<Foo>Bar</Foo>',
-			$method->invoke($attrModel)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($attrModel, '_stringifyValue')
 		);
 	}
 	public function testToString()

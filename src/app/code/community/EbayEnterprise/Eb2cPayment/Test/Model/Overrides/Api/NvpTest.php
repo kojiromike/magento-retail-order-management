@@ -267,15 +267,10 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	public function testCallSetExpressCheckoutDisabled()
 	{
 		$this->replaceByMockPaypalSetExpressCheckoutModel();
-		$nvpReflector = new ReflectionObject($this->_nvp);
 		$configObject = new Mage_Paypal_Model_Config();
-		$config = $nvpReflector->getProperty('_config');
-		$config->setAccessible(true);
-		$config->setValue($this->_nvp, $configObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
 		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		$cart = $nvpReflector->getProperty('_cart');
-		$cart->setAccessible(true);
-		$cart->setValue($this->_nvp, $cartObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
 		// adding profiles
 		$item = new Varien_Object();
 		$item->setScheduleDescription('Unit Test Contents');
@@ -292,15 +287,10 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	public function testCallGetExpressCheckoutDetailsDisabled()
 	{
 		$this->replaceByMockPaypalGetExpressCheckoutModel();
-		$nvpReflector = new ReflectionObject($this->_nvp);
 		$configObject = new Mage_Paypal_Model_Config();
-		$config = $nvpReflector->getProperty('_config');
-		$config->setAccessible(true);
-		$config->setValue($this->_nvp, $configObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
 		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		$cart = $nvpReflector->getProperty('_cart');
-		$cart->setAccessible(true);
-		$cart->setValue($this->_nvp, $cartObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
 		$this->assertNull($this->_nvp->callGetExpressCheckoutDetails());
 	}
 	/**
@@ -312,15 +302,10 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	public function testCallDoExpressCheckoutPayment()
 	{
 		$this->replaceByMockPaypalDoExpressCheckoutModel();
-		$nvpReflector = new ReflectionObject($this->_nvp);
 		$configObject = new Mage_Paypal_Model_Config();
-		$config = $nvpReflector->getProperty('_config');
-		$config->setAccessible(true);
-		$config->setValue($this->_nvp, $configObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
 		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		$cart = $nvpReflector->getProperty('_cart');
-		$cart->setAccessible(true);
-		$cart->setValue($this->_nvp, $cartObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
 		$this->_nvp->setAddress(new Varien_Object());
 		$this->assertNull($this->_nvp->callDoExpressCheckoutPayment());
 	}
@@ -334,15 +319,10 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	public function testCallDoExpressCheckoutPaymentDisabled()
 	{
 		$this->replaceByMockPaypalDoExpressCheckoutModel();
-		$nvpReflector = new ReflectionObject($this->_nvp);
 		$configObject = new Mage_Paypal_Model_Config();
-		$config = $nvpReflector->getProperty('_config');
-		$config->setAccessible(true);
-		$config->setValue($this->_nvp, $configObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
 		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		$cart = $nvpReflector->getProperty('_cart');
-		$cart->setAccessible(true);
-		$cart->setValue($this->_nvp, $cartObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
 		$this->assertNull($this->_nvp->callDoExpressCheckoutPayment());
 	}
 	/**
@@ -354,15 +334,10 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	public function testCallDoAuthorization()
 	{
 		$this->replaceByMockPaypalDoAuthorizationModel();
-		$nvpReflector = new ReflectionObject($this->_nvp);
 		$configObject = new Mage_Paypal_Model_Config();
-		$config = $nvpReflector->getProperty('_config');
-		$config->setAccessible(true);
-		$config->setValue($this->_nvp, $configObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
 		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		$cart = $nvpReflector->getProperty('_cart');
-		$cart->setAccessible(true);
-		$cart->setValue($this->_nvp, $cartObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
 		$this->assertInstanceOf(
 			'EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp',
 			$this->_nvp->callDoAuthorization()
@@ -378,15 +353,10 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	public function testCallDoAuthorizationDisabled()
 	{
 		$this->replaceByMockPaypalDoAuthorizationModel();
-		$nvpReflector = new ReflectionObject($this->_nvp);
 		$configObject = new Mage_Paypal_Model_Config();
-		$config = $nvpReflector->getProperty('_config');
-		$config->setAccessible(true);
-		$config->setValue($this->_nvp, $configObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
 		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		$cart = $nvpReflector->getProperty('_cart');
-		$cart->setAccessible(true);
-		$cart->setValue($this->_nvp, $cartObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
 		$this->assertInstanceOf(
 			'EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp',
 			$this->_nvp->callDoAuthorization()
@@ -401,15 +371,10 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	public function testCallDoVoid()
 	{
 		$this->replaceByMockPaypalDoVoidModel();
-		$nvpReflector = new ReflectionObject($this->_nvp);
 		$configObject = new Mage_Paypal_Model_Config();
-		$config = $nvpReflector->getProperty('_config');
-		$config->setAccessible(true);
-		$config->setValue($this->_nvp, $configObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
 		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		$cart = $nvpReflector->getProperty('_cart');
-		$cart->setAccessible(true);
-		$cart->setValue($this->_nvp, $cartObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
 		$this->assertNull($this->_nvp->callDoVoid());
 	}
 	/**
@@ -422,15 +387,10 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	public function testCallDoVoidDisabled()
 	{
 		$this->replaceByMockPaypalDoVoidModel();
-		$nvpReflector = new ReflectionObject($this->_nvp);
 		$configObject = new Mage_Paypal_Model_Config();
-		$config = $nvpReflector->getProperty('_config');
-		$config->setAccessible(true);
-		$config->setValue($this->_nvp, $configObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
 		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		$cart = $nvpReflector->getProperty('_cart');
-		$cart->setAccessible(true);
-		$cart->setValue($this->_nvp, $cartObject);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
 		$this->assertNull($this->_nvp->callDoVoid());
 	}
 	/**

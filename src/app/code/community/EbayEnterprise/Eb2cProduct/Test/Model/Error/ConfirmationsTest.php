@@ -96,10 +96,10 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 			->will($this->returnValue($splFileInfoMock));
 
 		// set the class protected property '_fileStream' to a known state of null
-		$this->_reflectProperty($confirmationsModelMock, '_fileStream')->setValue($confirmationsModelMock, null);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmationsModelMock, '_fileStream', null);
 
 		$this->assertSame($confirmationsModelMock, $confirmationsModelMock->loadFile($fileName));
-		$this->assertSame($splFileInfoMock, $this->_reflectProperty($confirmationsModelMock, '_fileStream')->getValue($confirmationsModelMock));
+		$this->assertSame($splFileInfoMock, EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmationsModelMock, '_fileStream'));
 	}
 
 	/**
@@ -144,7 +144,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 		$confirmations = Mage::getModel('eb2cproduct/error_confirmations');
 
 		// set the class property '_fileStream' to a known state of the mock object SplFileInfo
-		$this->_reflectProperty($confirmations, '_fileStream')->setValue($confirmations, $splFileInfoMock);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_fileStream', $splFileInfoMock);
 
 		$this->assertSame($confirmations, $confirmations->append($content));
 	}
@@ -164,7 +164,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 		$confirmations = Mage::getModel('eb2cproduct/error_confirmations');
 
 		// set the class property '_fileStream' to a known state of null
-		$this->_reflectProperty($confirmations, '_fileStream')->setValue($confirmations, null);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_fileStream', null);
 
 		$confirmations->append($content);
 	}
@@ -197,13 +197,13 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 			->with($this->equalTo(EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::XML_CLOSE_ROOT_NODE))
 			->will($this->returnSelf());
 
-		$this->_reflectProperty($confirmationsModelMock, '_fileStream')->setValue($confirmationsModelMock, $splFileInfoMock);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmationsModelMock, '_fileStream', $splFileInfoMock);
 
 		$this->assertSame($confirmationsModelMock, $confirmationsModelMock->close());
-		$this->assertNull($this->_reflectProperty($confirmationsModelMock, '_fileStream')->getValue($confirmationsModelMock));
-		$this->assertEmpty($this->_reflectProperty($confirmationsModelMock, '_queueMessage')->getValue($confirmationsModelMock));
-		$this->assertEmpty($this->_reflectProperty($confirmationsModelMock, '_queueError')->getValue($confirmationsModelMock));
-		$this->assertEmpty($this->_reflectProperty($confirmationsModelMock, '_queueConfirmation')->getValue($confirmationsModelMock));
+		$this->assertNull(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmationsModelMock, '_fileStream'));
+		$this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmationsModelMock, '_queueMessage'));
+		$this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmationsModelMock, '_queueError'));
+		$this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmationsModelMock, '_queueConfirmation'));
 	}
 
 	/**
@@ -244,7 +244,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 
 		$confirmations = Mage::getModel('eb2cproduct/error_confirmations');
 		// class property _queueMessage to a known state
-		$this->_reflectProperty($confirmations, '_queueMessage')->setValue($confirmations, array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueMessage', array());
 
 		$this->assertInstanceOf('EbayEnterprise_Eb2cProduct_Model_Error_Confirmations', $confirmations->addMessage(
 			$confirmations::SKU_NOT_REMOVE, 'UnitTest Simulate Throw Exception on Dom load'
@@ -252,7 +252,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 
 		$this->assertSame(
 			array('<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>'),
-			$this->_reflectProperty($confirmations, '_queueMessage')->getValue($confirmations)
+			EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, '_queueMessage')
 		);
 	}
 
@@ -301,10 +301,10 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 
 		$confirmations = Mage::getModel('eb2cproduct/error_confirmations');
 		// class property _queueMessage and _queueError to a known state
-		$this->_reflectProperty($confirmations, '_queueMessage')->setValue($confirmations, array(
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueMessage', array(
 			'<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>'
 		));
-		$this->_reflectProperty($confirmations, '_queueError')->setValue($confirmations, array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueError', array());
 
 		$this->assertSame($confirmations, $confirmations->addError('ItemMaster', 'ItemMaster_TestSubset.xml'));
 
@@ -312,10 +312,10 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 			array('<Error event_type="ItemMaster" file_name="ItemMaster_TestSubset.xml" reported_from="WMS">
 <Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>
 </Error>'),
-			$this->_reflectProperty($confirmations, '_queueError')->getValue($confirmations)
+			EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, '_queueError')
 		);
 
-		$this->assertEmpty($this->_reflectProperty($confirmations, '_queueMessage')->getValue($confirmations));
+		$this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, '_queueMessage'));
 	}
 
 	/**
@@ -348,12 +348,12 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 
 		$confirmations = Mage::getModel('eb2cproduct/error_confirmations');
 		// class property _queueConfirmation and _queueError to a known state
-		$this->_reflectProperty($confirmations, '_queueError')->setValue($confirmations, array(
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueError', array(
 			'<Error event_type="ItemMaster" file_name="ItemMaster_TestSubset.xml" reported_from="WMS">
 				<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>
 			</Error>'
 		));
-		$this->_reflectProperty($confirmations, '_queueConfirmation')->setValue($confirmations, array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueConfirmation', array());
 
 		$this->assertSame($confirmations, $confirmations->addErrorConfirmation('SK-ABC-1334'));
 
@@ -364,10 +364,10 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 			</Error>
 </ErrorConfirmation>'
 			),
-			$this->_reflectProperty($confirmations, '_queueConfirmation')->getValue($confirmations)
+			EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, '_queueConfirmation')
 		);
 
-		$this->assertEmpty($this->_reflectProperty($confirmations, '_queueError')->getValue($confirmations));
+		$this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, '_queueError'));
 	}
 
 	/**
@@ -396,7 +396,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 			->will($this->returnSelf());
 
 		// class property _queueConfirmation to a known state
-		$this->_reflectProperty($confirmationsModelMock, '_queueConfirmation')->setValue($confirmationsModelMock, array('<ErrorConfirmation unique_id="SK-ABC-1334">
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmationsModelMock, '_queueConfirmation', array('<ErrorConfirmation unique_id="SK-ABC-1334">
 <Error event_type="ItemMaster" file_name="ItemMaster_TestSubset.xml" reported_from="WMS">
 				<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>
 			</Error>
@@ -405,7 +405,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 
 		$this->assertSame($confirmationsModelMock, $confirmationsModelMock->flush());
 
-		$this->assertEmpty($this->_reflectProperty($confirmationsModelMock, '_queueConfirmation')->getValue($confirmationsModelMock));
+		$this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmationsModelMock, '_queueConfirmation'));
 	}
 
 	/**
@@ -427,7 +427,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 		);
 
 		foreach ($testData as $data) {
-			$this->assertSame($data['expect'], $this->_reflectMethod($confirmations, '_getErrorTemplate')->invoke($confirmations, $data['type'], $data['fileName']));
+			$this->assertSame($data['expect'], EcomDev_Utils_Reflection::invokeRestrictedMethod($confirmations, '_getErrorTemplate', array($data['type'], $data['fileName'])));
 		}
 	}
 
@@ -448,7 +448,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 		$confirmations = Mage::getModel('eb2cproduct/error_confirmations');
 
 		// set the class property '_queueMessage' to a known state
-		$this->_reflectProperty($confirmations, '_queueMessage')->setValue($confirmations, array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueMessage', array());
 		$this->assertSame(false, $confirmations->hasMessage());
 
 		$confirmations->addMessage($confirmations::SKU_NOT_REMOVE, 'UnitTest Simulate Throw Exception on Dom load');
@@ -474,8 +474,8 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 		$confirmations = Mage::getModel('eb2cproduct/error_confirmations');
 
 		// set the class property '_queueMessage' and '_queueError' to a known state
-		$this->_reflectProperty($confirmations, '_queueMessage')->setValue($confirmations, array());
-		$this->_reflectProperty($confirmations, '_queueError')->setValue($confirmations, array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueMessage', array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueError', array());
 		$this->assertSame(false, $confirmations->hasError());
 
 		$confirmations->addMessage($confirmations::SKU_NOT_REMOVE, 'UnitTest Simulate Throw Exception on Dom load')
@@ -503,9 +503,9 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 		$confirmations = Mage::getModel('eb2cproduct/error_confirmations');
 
 		// set the class property '_queueMessage', '_queueError' and '_queueConfirmation' to a known state
-		$this->_reflectProperty($confirmations, '_queueMessage')->setValue($confirmations, array());
-		$this->_reflectProperty($confirmations, '_queueError')->setValue($confirmations, array());
-		$this->_reflectProperty($confirmations, '_queueConfirmation')->setValue($confirmations, array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueMessage', array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueError', array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueConfirmation', array());
 		$this->assertSame(false, $confirmations->hasErrorConfirmation());
 
 		$confirmations->addMessage($confirmations::SKU_NOT_REMOVE, 'UnitTest Simulate Throw Exception on Dom load')

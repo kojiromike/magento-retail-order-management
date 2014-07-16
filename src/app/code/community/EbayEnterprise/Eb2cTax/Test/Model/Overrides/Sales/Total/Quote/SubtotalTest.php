@@ -240,19 +240,15 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_Sales_Total_Quote_SubtotalTest
 			->getMock();
 
 		// inject the mocks into the subtotal model properties
-		$this->_reflectProperty($subtotal, '_calculator')->setValue($subtotal, $calculator);
-		$this->_reflectProperty($subtotal, '_config')->setValue($subtotal, $config);
-		$this->_reflectProperty($subtotal, '_store')->setValue($subtotal, $store);
-		$this->_reflectProperty($subtotal, '_helper')->setValue(
-			$subtotal,
-			$this->getHelperMock('tax/data', array())
-		);
-		$applyTaxes = $this->_reflectMethod($subtotal, '_applyTaxes');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($subtotal, '_calculator', $calculator);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($subtotal, '_config', $config);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($subtotal, '_store', $store);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($subtotal, '_helper', $this->getHelperMock('tax/data', array()));
 
 		// make sure the method returns itself for chainability
 		$this->assertSame(
 			$subtotal,
-			$applyTaxes->invoke($subtotal, $item, $address)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($subtotal, '_applyTaxes', array($item, $address))
 		);
 	}
 

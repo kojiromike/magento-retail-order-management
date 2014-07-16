@@ -261,7 +261,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 			)
 			->will($this->returnValue($xslt));
 
-		$this->_reflectProperty($file, '_feedDetails')->setValue($file, array(
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($file, '_feedDetails', array(
 			'doc' => $doc,
 			'local' => '/EbayEnterprise/Eb2c/Feed/Product/ItemMaster/outbound/ItemMaster_Subset.xml',
 			'remote' => '/ItemMaster/',

@@ -32,10 +32,10 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 	public function testValidate()
 	{
 		$orderItem = Mage::getModel('eb2ctax/response_orderitem');
-		$this->assertTrue($this->_reflectProperty($orderItem, '_isValid')->getValue($orderItem));
+		$this->assertTrue(EcomDev_Utils_Reflection::getRestrictedPropertyValue($orderItem, '_isValid'));
 		$orderItem->unsSku()->unsLineNumber();
-		$this->assertNull($this->_reflectMethod($orderItem, '_validate')->invoke($orderItem));
-		$this->assertFalse($this->_reflectProperty($orderItem, '_isValid')->getValue($orderItem));
+		$this->assertNull(EcomDev_Utils_Reflection::invokeRestrictedMethod($orderItem, '_validate'));
+		$this->assertFalse(EcomDev_Utils_Reflection::getRestrictedPropertyValue($orderItem, '_isValid'));
 	}
 
 	/**
@@ -169,12 +169,12 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 				array($xpath, $itemNode, true, array())
 			)));
 		// setting class property _xpath to a known state
-		$this->_reflectProperty($orderitemModelMock, '_xpath')->setValue($orderitemModelMock, $xpath);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderitemModelMock, '_xpath', $xpath);
 
 		// setting class property _isValid to a known state
-		$this->_reflectProperty($orderitemModelMock, '_isValid')->setValue($orderitemModelMock, true);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderitemModelMock, '_isValid', true);
 
-		$this->assertNull($this->_reflectMethod($orderitemModelMock, '_extractData')->invoke($orderitemModelMock));
+		$this->assertNull(EcomDev_Utils_Reflection::invokeRestrictedMethod($orderitemModelMock, '_extractData'));
 	}
 
 	/**
@@ -276,12 +276,12 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 				array($xpath, $itemNode, true, array()),
 			)));
 		// setting class property _xpath to a known state
-		$this->_reflectProperty($orderitemModelMock, '_xpath')->setValue($orderitemModelMock, $xpath);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderitemModelMock, '_xpath', $xpath);
 
 		// setting class property _isValid to a known state
-		$this->_reflectProperty($orderitemModelMock, '_isValid')->setValue($orderitemModelMock, true);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderitemModelMock, '_isValid', true);
 
-		$this->assertNull($this->_reflectMethod($orderitemModelMock, '_extractData')->invoke($orderitemModelMock));
+		$this->assertNull(EcomDev_Utils_Reflection::invokeRestrictedMethod($orderitemModelMock, '_extractData'));
 	}
 
 	/**
@@ -324,7 +324,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 				'shipping_amount' => 10.00,
 				'duty_amount' => 2.00
 			),
-			$this->_reflectMethod($orderItem, '_extractByType')->invoke($orderItem, $itemNode, $xpath, $mapFloat, 'float')
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($orderItem, '_extractByType', array($itemNode, $xpath, $mapFloat, 'float'))
 		);
 
 		$mapString = array(
@@ -342,7 +342,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 				'item_desc' => 'Test Item 1',
 				'hts_code' => 'duty code'
 			),
-			$this->_reflectMethod($orderItem, '_extractByType')->invoke($orderItem, $itemNode, $xpath, $mapString, 'string')
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($orderItem, '_extractByType', array($itemNode, $xpath, $mapString, 'string'))
 		);
 	}
 }

@@ -75,14 +75,13 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
-		$method = $this->_reflectMethod($session, '_extractQuoteSkuData');
 		$this->assertSame(
 			array(
 				'45-123' => array('managed' => true, 'virtual' => false, 'qty' => 3),
 				'45-234' => array('managed' => false, 'virtual' => false, 'qty' => 1),
 				'45-345' => array('managed' => false, 'virtual' => true, 'qty' => 1),
 			),
-			$method->invoke($session, $quote)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_extractQuoteSkuData', array($quote))
 		);
 	}
 	/**
@@ -125,8 +124,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
-		$method = $this->_reflectMethod($session, '_extractAddressData');
-		$this->assertSame($addressData, $method->invoke($session, $address));
+		$this->assertSame($addressData, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_extractAddressData', array($address)));
 	}
 	public function providerTestExtractShippingData()
 	{
@@ -200,8 +198,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 				->with($this->identicalTo($address))
 				->will($this->returnValue($addressData));
 		}
-		$method = $this->_reflectMethod($session, '_extractQuoteShippingData');
-		$this->assertSame($shippingExtract, $method->invoke($session, $quote));
+		$this->assertSame($shippingExtract, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_extractQuoteShippingData', array($quote)));
 	}
 	/**
 	 * Test extracting the current coupon code from a quote - should just get the
@@ -217,8 +214,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 
 		$quote = $this->getModelMock('sales/quote', array('getCouponCode'));
 		$quote->expects($this->once())->method('getCouponCode')->will($this->returnValue($couponCode));
-		$method = $this->_reflectMethod($session, '_extractQuoteCouponData');
-		$this->assertSame($couponCode, $method->invoke($session, $quote));
+		$this->assertSame($couponCode, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_extractQuoteCouponData', array($quote)));
 	}
 	public function providerExtractBillingData()
 	{
@@ -257,8 +253,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 				->method('_extractAddressData');
 		}
 
-		$method = $this->_reflectMethod($session, '_extractQuoteBillingData');
-		$this->assertSame($extractedData, $method->invoke($session, $quote));
+		$this->assertSame($extractedData, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_extractQuoteBillingData', array($quote)));
 	}
 	/**
 	 * Test extracting quote amounts from a quote object. Should return an array
@@ -326,7 +321,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 		$session->expects($this->once())->method('_extractQuoteSkuData')->with($this->identicalTo($quote))->will($this->returnValue($skuData));
 		$session->expects($this->once())->method('_extractQuoteAmounts')->with($this->identicalTo($quote))->will($this->returnValue($amountData));
 
-		$method = $this->_reflectMethod($session, '_extractQuoteData');
 		$this->assertSame(
 			array(
 				'billing' => $billData,
@@ -335,7 +329,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 				'skus' => $skuData,
 				'amounts' => $amountData,
 			),
-			$method->invoke($session, $quote)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_extractQuoteData', array($quote))
 		);
 	}
 	/**
@@ -365,8 +359,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	public function testDiffBilling($old, $new, $diff)
 	{
 		$session = $this->getModelMockBuilder('eb2ccore/session')->disableOriginalConstructor()->setMethods(null)->getMock();
-		$method = $this->_reflectMethod($session, '_diffBilling');
-		$this->assertSame($diff, $method->invoke($session, $old, $new));
+		$this->assertSame($diff, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_diffBilling', array($old, $new)));
 	}
 	/**
 	 * Data provider for the diffCoupon test. Providers old coupon code,
@@ -394,8 +387,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	public function testDiffCoupon($old, $new, $diff)
 	{
 		$session = $this->getModelMockBuilder('eb2ccore/session')->disableOriginalConstructor()->setMethods(null)->getMock();
-		$method = $this->_reflectMethod($session, '_diffCoupon');
-		$this->assertSame($diff, $method->invoke($session, $old, $new));
+		$this->assertSame($diff, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_diffCoupon', array($old, $new)));
 	}
 	/**
 	 * Data provider for the diffShipping test. Providers a set of
@@ -426,8 +418,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	public function testDiffShipping($old, $new, $diff)
 	{
 		$session = $this->getModelMockBuilder('eb2ccore/session')->disableOriginalConstructor()->setMethods(null)->getMock();
-		$method = $this->_reflectMethod($session, '_diffShipping');
-		$this->assertSame($diff, $method->invoke($session, $old, $new));
+		$this->assertSame($diff, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_diffShipping', array($old, $new)));
 	}
 	/**
 	 * Data provider for the diffSkus test. Provides set of "old" sku data,
@@ -495,8 +486,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
-		$method = $this->_reflectMethod($session, '_diffSkus');
-		$this->assertSame($diff, $method->invoke($session, $old, $new));
+		$this->assertSame($diff, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_diffSkus', array($old, $new)));
 	}
 	/**
 	 * Provide old and new quote amounts and the expected diff of the two
@@ -524,8 +514,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
-		$method = $this->_reflectMethod($session, '_diffAmounts');
-		$this->assertSame($diff, $method->invoke($session, $old, $new));
+		$this->assertSame($diff, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_diffAmounts', array($old, $new)));
 	}
 
 	public function providerDiffQuoteData()
@@ -601,8 +590,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->with($this->identicalTo($old['amounts']), $this->identicalTo($new['amounts']))
 			->will($this->returnValue($amounts));
 
-		$method = $this->_reflectMethod($session, '_diffQuoteData');
-		$this->assertSame($final, $method->invoke($session, $old, $new));
+		$this->assertSame($final, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_diffQuoteData', array($old, $new)));
 	}
 	/**
 	 * When the "old" quote data is empty, all of the new quote data should be returned
@@ -614,8 +602,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 		$old = array();
 		$new = array('all', 'of', 'this', 'should', 'be', 'returned', 'as', 'is');
 
-		$method = $this->_reflectMethod($session, '_diffQuoteData');
-		$this->assertSame($new, $method->invoke($session, $old, $new));
+		$this->assertSame($new, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_diffQuoteData', array($old, $new)));
 	}
 	/**
 	 * When quote data has expired, the entire new quote should be returned as the
@@ -636,8 +623,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->with($this->identicalTo($old))
 			->will($this->returnValue(true));
 
-		$method = $this->_reflectMethod($session, '_diffQuoteData');
-		$this->assertSame($new, $method->invoke($session, $old, $new));
+		$this->assertSame($new, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_diffQuoteData', array($old, $new)));
 	}
 	/**
 	 * Test getting the oldest possible unexpired timestamp - time X minutes ago, where
@@ -646,9 +632,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	public function testGetInventoryTimeout()
 	{
 		$session = $this->getModelMockBuilder('eb2ccore/session')->disableOriginalConstructor()->setMethods(null)->getMock();
-		$method = $this->_reflectMethod($session, '_getInventoryTimeout');
 		$this->replaceCoreConfigRegistry(array('inventoryExpirationTime' => 15));
-		$this->assertInstanceOf('DateTime', $method->invoke($session));
+		$this->assertInstanceOf('DateTime', EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_getInventoryTimeout'));
 	}
 	/**
 	 * Data provider for the testHasQuoteExpired tests. Provide the quote data
@@ -683,8 +668,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->method('_getInventoryTimeout')
 			->will($this->returnValue(new DateTime('15 minutes ago')));
 
-		$method = $this->_reflectMethod($session, '_hasInventoryExpired');
-		$this->assertSame($isExpired, $method->invoke($session, $quoteData));
+		$this->assertSame($isExpired, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_hasInventoryExpired', array($quoteData)));
 	}
 	/**
 	 * Test getting the tax update required flag. Should just return the
@@ -897,9 +881,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	{
 		$items = array(array('foo' => true, 'bar' => false), array('foo' => false, 'bar' => false), array('foo' => true));
 		$session = $this->getModelMockBuilder('eb2ccore/session')->disableOriginalConstructor()->setMethods(null)->getMock();
-		$method = $this->_reflectMethod($session, '_anyItem');
-		$this->assertTrue($method->invoke($session, $items, 'foo'));
-		$this->assertFalse($method->invoke($session, $items, 'bar'));
+		$this->assertTrue(EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_anyItem', array($items, 'foo')));
+		$this->assertFalse(EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_anyItem', array($items, 'bar')));
 	}
 	/**
 	 * Test checking for any item in a list of items to include a virtual item - an
@@ -918,8 +901,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->method('_anyItem')
 			->with($this->identicalTo($items), $this->identicalTo('virtual'))
 			->will($this->returnValue(true));
-		$method = $this->_reflectMethod($session, '_itemsIncludeVirtualItem');
-		$this->assertTrue($method->invoke($session, $items));
+		$this->assertTrue(EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_itemsIncludeVirtualItem', array($items)));
 	}
 	/**
 	 * Test checking for any item in a list of items to include a managed stock
@@ -938,8 +920,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->method('_anyItem')
 			->with($this->identicalTo($items), $this->identicalTo('managed'))
 			->will($this->returnValue(true));
-		$method = $this->_reflectMethod($session, '_itemsIncludeManagedItem');
-		$this->assertTrue($method->invoke($session, $items));
+		$this->assertTrue(EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_itemsIncludeManagedItem', array($items)));
 	}
 	/**
 	 * Data provider of sample quote data changes. Providers an array of changes,
@@ -994,8 +975,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->expects($this->any())
 			->method('_itemsIncludeManagedItem')
 			->will($this->returnValue($hasManaged));
-		$method = $this->_reflectMethod($session, '_changeRequiresTaxUpdate');
-		$this->assertSame($flagTax, $method->invoke($session, $quoteData, $diffData));
+		$this->assertSame($flagTax, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_changeRequiresTaxUpdate', array($quoteData, $diffData)));
 	}
 	/**
 	 * Test checking the quote diff data for requiring tax data to be updated.
@@ -1024,8 +1004,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->expects($this->any())
 			->method('_itemsIncludeManagedItem')
 			->will($this->returnValue($hasManaged));
-		$method = $this->_reflectMethod($session, '_changeRequiresQuantityUpdate');
-		$this->assertSame($flagQty, $method->invoke($session, $quoteData, $diffData));
+		$this->assertSame($flagQty, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_changeRequiresQuantityUpdate', array($quoteData, $diffData)));
 	}
 	/**
 	 * Test checking the quote diff data for requiring tax data to be updated.
@@ -1054,8 +1033,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 			->expects($this->any())
 			->method('_itemsIncludeManagedItem')
 			->will($this->returnValue($hasManaged));
-		$method = $this->_reflectMethod($session, '_changeRequiresDetailsUpdate');
-		$this->assertSame($flagDeets, $method->invoke($session, $quoteData, $diffData));
+		$this->assertSame($flagDeets, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_changeRequiresDetailsUpdate', array($quoteData, $diffData)));
 	}
 	/**
 	 * Test updating quote inventory details with a given qoute. Should

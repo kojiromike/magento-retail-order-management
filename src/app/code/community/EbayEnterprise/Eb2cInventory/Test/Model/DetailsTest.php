@@ -28,19 +28,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 	}
 
 	/**
-	 * Invoke a protected method and return the results.
-	 * @param mixed $obj the object that has the method
-	 * @param string $meth the method name to invoke
-	 * @param array $args the arguments to pass
-	 * @return mixed
-	 */
-	protected function _invokeProt($obj, $meth, $args)
-	{
-		$protMethod = $this->_reflectMethod($obj, $meth);
-		return $protMethod->invokeArgs($obj, $args);
-	}
-
-	/**
 	 * Get a simple address object.
 	 * @param  array $data If specified, address object will be created with the given data. Otherwise with some sample data.
 	 * @return Mage_Sales_Model_Quote_Address
@@ -118,7 +105,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 			->will($this->returnArgument(0));
 
 		$details = Mage::getModel('eb2cinventory/details');
-		$this->assertSame($canMakeRequest, $this->_invokeProt($details, '_canMakeRequestWithQuote', array($quote)));
+		$this->assertSame($canMakeRequest, EcomDev_Utils_Reflection::invokeRestrictedMethod($details, '_canMakeRequestWithQuote', array($quote)));
 	}
 	/**
 	 * Test that buildInventoryDetailsRequestMessage takes a quote,
@@ -151,7 +138,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 			->with($this->isType('array'), $this->isInstanceOf('Mage_Sales_Model_Quote_Address'))
 			->will($this->returnValue('<OrderItemStub></OrderItemStub>'));
 
-		$invDeetReqMsg = $this->_invokeProt($deets, '_buildRequestMessage', array($quote));
+		$invDeetReqMsg = EcomDev_Utils_Reflection::invokeRestrictedMethod($deets, '_buildRequestMessage', array($quote));
 		$this->assertInstanceOf('DOMDocument', $invDeetReqMsg);
 		$this->assertSame(
 			'<InventoryDetailsRequestMessage xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><OrderItemStub></OrderItemStub></InventoryDetailsRequestMessage>',
@@ -184,7 +171,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 			->method('_buildOrderItemXml')
 			->with($this->isInstanceOf('Mage_Sales_Model_Quote_Item'), $this->equalTo('<ShipStub/>'), $this->greaterThanOrEqual(0))
 			->will($this->returnValueMap($itemXmlMap));
-		$this->assertSame($xmlOne . $xmlTwo, $this->_invokeProt($deets, '_buildOrderItemsXml', array(
+		$this->assertSame($xmlOne . $xmlTwo, EcomDev_Utils_Reflection::invokeRestrictedMethod($deets, '_buildOrderItemsXml', array(
 			array($itemOne, $itemTwo),
 			Mage::getModel('sales/quote_address')
 		)));
@@ -585,8 +572,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 			->with($this->identicalTo($itemData))
 			->will($this->returnSelf());
 		$details = Mage::getModel('eb2cinventory/details');
-		$method = $this->_reflectMethod($details, '_updateQuoteItemWithDetails');
-		$this->assertSame($details, $method->invoke($details, $item, $inventoryData));
+		$this->assertSame($details, EcomDev_Utils_Reflection::invokeRestrictedMethod($details, '_updateQuoteItemWithDetails', array($item, $inventoryData)));
 	}
 }
 

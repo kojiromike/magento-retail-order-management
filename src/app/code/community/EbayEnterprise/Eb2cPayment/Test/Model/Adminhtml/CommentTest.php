@@ -67,7 +67,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Adminhtml_CommentTest
 
 		$this->assertSame(
 			'http://example.com/admin/system_config/edit/section/payment/key/12233/',
-			$this->_reflectMethod($commentModelMock, '_getUrl')->invoke($commentModelMock)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($commentModelMock, '_getUrl')
 		);
 	}
 }

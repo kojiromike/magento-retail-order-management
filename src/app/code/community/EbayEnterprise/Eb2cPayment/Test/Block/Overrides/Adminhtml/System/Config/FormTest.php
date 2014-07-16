@@ -58,10 +58,7 @@ class EbayEnterprise_Eb2cPayment_Test_Block_Overrides_Adminhtml_System_Config_Fo
 			->will($this->returnValue(true));
 		$this->replaceByMock('helper', 'Core', $mageHelper);
 		$this->assertInstanceOf('Varien_Simplexml_Element', $cfg->getNode('sections/payment/groups/allowed_group'));
-		$result = $this->_reflectMethod($testModel, '_canShowField')->invoke(
-			$testModel,
-			$cfg->getNode('sections/payment/groups/allowed_group')
-		);
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_canShowField', array($cfg->getNode('sections/payment/groups/allowed_group')));
 		$this->assertTrue((bool) $result);
 	}
 
@@ -94,10 +91,7 @@ class EbayEnterprise_Eb2cPayment_Test_Block_Overrides_Adminhtml_System_Config_Fo
 			->will($this->returnValue(true));
 		$this->replaceByMock('model', 'eb2cpayment/suppression', $suppression);
 		$this->assertInstanceOf('Varien_Simplexml_Element', $cfg->getNode('sections/payment/groups/disallowed_group'));
-		$result = $this->_reflectMethod($testModel, '_canShowField')->invoke(
-			$testModel,
-			$cfg->getNode('sections/payment/groups/disallowed_group')
-		);
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_canShowField', array($cfg->getNode('sections/payment/groups/disallowed_group')));
 		$this->assertFalse((bool) $result);
 	}
 
@@ -133,16 +127,10 @@ class EbayEnterprise_Eb2cPayment_Test_Block_Overrides_Adminhtml_System_Config_Fo
 			->will($this->returnValue(true));
 		$this->replaceByMock('helper', 'Core', $mageHelper);
 
-		$result = $this->_reflectMethod($testModel, '_canShowField')->invoke(
-			$testModel,
-			$cfg->getNode('sections/payment')
-		);
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_canShowField', array($cfg->getNode('sections/payment')));
 		$this->assertTrue((bool) $result);
 
-		$result = $this->_reflectMethod($testModel, '_canShowField')->invoke(
-			$testModel,
-			$cfg->getNode('sections/payment/groups/some_group/invalid_group')
-		);
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_canShowField', array($cfg->getNode('sections/payment/groups/some_group/invalid_group')));
 		$this->assertTrue((bool) $result);
 	}
 }

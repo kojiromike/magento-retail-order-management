@@ -56,8 +56,7 @@ INVALID_XML;
 	public function testParsePbridgeAdditionalData()
 	{
 		$create = Mage::getModel('eb2corder/create');
-		$method = $this->_reflectMethod($create, '_getPbridgeData');
-		$testPbridge = $method->invoke($create, self::SAMPLE_PBRIDGE_ADDITIONAL_DATA);
+		$testPbridge = EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getPbridgeData', array(self::SAMPLE_PBRIDGE_ADDITIONAL_DATA));
 		$this->assertEquals('VI', $testPbridge['cc_type']);
 	}
 	/**
@@ -170,9 +169,8 @@ INVALID_XML;
 		$create = $this->getModelMockBuilder('eb2corder/create')
 			->getMock();
 
-		$request = $this->_reflectProperty($create, '_domRequest');
-		$request->setValue($create, Mage::helper('eb2ccore')->getNewDomDocument());
-		$taxFragment = $this->_reflectMethod($create, '_buildTaxDataNodes')->invoke($create, $taxQuotesCollection, '77');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_domRequest', Mage::helper('eb2ccore')->getNewDomDocument());
+		$taxFragment = EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildTaxDataNodes', array($taxQuotesCollection, '77'));
 		// probe the tax fragment a bit to hopefully ensure the nodes are all populated right
 		$this->assertSame(1, $taxFragment->childNodes->length);
 		$this->assertSame('TaxData', $taxFragment->firstChild->nodeName);
@@ -266,8 +264,7 @@ INVALID_XML;
 			->method('_processResponse')
 			->with($this->identicalTo(self::SAMPLE_SUCCESS_XML))
 			->will($this->returnSelf());
-		$createRequest = $this->_reflectProperty($create, '_domRequest');
-		$createRequest->setValue($create, $requestDoc);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_domRequest', $requestDoc);
 		$create->sendRequest();
 	}
 	/**
@@ -342,10 +339,8 @@ INVALID_XML;
 			->method('_buildDiscount')
 			->will($this->returnSelf());
 
-		$orderProp = $this->_reflectProperty($create, '_o');
-		$orderProp->setValue($create, $order);
-		$buildOrderItemMethod = $this->_reflectMethod($create, '_buildOrderItem');
-		$buildOrderItemMethod->invoke($create, $itemElement, $item, 1);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildOrderItem', array($itemElement, $item, 1));
 		// the itemElement should have been modified, adding the item nodes onto it
 		$this->assertTrue($itemElement->hasChildNodes(), 'No child nodes added to Item node');
 		$expectedChildNodes = array('ItemId', 'Quantity', 'Description', 'Pricing', 'ShippingMethod', 'ReservationId');
@@ -390,7 +385,7 @@ INVALID_XML;
 			->getMock();
 		$this->assertSame(
 			$collection,
-			$this->_reflectMethod($testModel, '_getNewOrders')->invoke($testModel)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_getNewOrders')
 		);
 	}
 	/**
@@ -427,8 +422,7 @@ INVALID_XML;
 			->disableOriginalConstructor()
 			->setMethods(array('none'))
 			->getMock();
-		$this->_reflectMethod($testModel, '_buildEstimatedDeliveryDate')
-			->invoke($testModel, $orderItem, $item);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_buildEstimatedDeliveryDate', array($orderItem, $item));
 		$x = new DomXPath($doc);
 		$paths = array(
 			'EstimatedDeliveryDate/DeliveryWindow/From[.="2014-01-28T20:46:34+00:00"]',
@@ -457,8 +451,7 @@ INVALID_XML;
 		$createModelMock->expects($this->once())
 			->method('_getRequestId')
 			->will($this->returnValue('12838-383848-944'));
-		$this->_reflectProperty($createModelMock, '_domRequest')->setValue($createModelMock, Mage::helper('eb2ccore')->getNewDomDocument());
-
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($createModelMock, '_domRequest', Mage::helper('eb2ccore')->getNewDomDocument());
 		$helperMock = $this->getHelperMock('eb2corder/data', array('getConfigModel'));
 		$helperMock->expects($this->any())
 			->method('getConfigModel')
@@ -471,7 +464,7 @@ INVALID_XML;
 
 		$this->assertInstanceOf(
 			'EbayEnterprise_Dom_Element',
-			$this->_reflectMethod($createModelMock, '_buildOrderCreateRequest')->invoke($createModelMock)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($createModelMock, '_buildOrderCreateRequest')
 		);
 	}
 	/**
@@ -537,21 +530,12 @@ INVALID_XML;
 		$this->replaceByMock('helper', 'eb2corder', $translateHelper);
 
 		$create = Mage::getModel('eb2corder/create');
-		$crRefl = new ReflectionClass($create);
-		$extRespSt = $crRefl->getMethod('_extractResponseState');
-		$extRespSt->setAccessible(true);
-		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, $extRespSt->invoke($create, ''));
-		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, $extRespSt->invoke($create, '<fail/>'));
-		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, $extRespSt->invoke(
-			$create,
-			'<_><ResponseStatus>nobodyhome!</ResponseStatus></_>'
-		));
-		$this->assertSame(
-			Mage_Sales_Model_Order::STATE_PROCESSING,
-			$extRespSt->invoke($create, '<_><ResponseStatus>sUcCeSs</ResponseStatus></_>')
-		);
+		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseState', array('')));
+		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseState', array('<fail/>')));
+		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseState', array('<_><ResponseStatus>nobodyhome!</ResponseStatus></_>')));
+		$this->assertSame(Mage_Sales_Model_Order::STATE_PROCESSING, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseState', array('<_><ResponseStatus>sUcCeSs</ResponseStatus></_>')));
 		$this->setExpectedException('EbayEnterprise_Eb2cOrder_Exception_Order_Create_Fail');
-		$extRespSt->invoke($create, '<_><ResponseStatus>fail</ResponseStatus></_>');
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseState', array('<_><ResponseStatus>fail</ResponseStatus></_>'));
 	}
 	/**
 	 * Test _buildItems method
@@ -579,10 +563,10 @@ INVALID_XML;
 			->method('_buildOrderItem')
 			->with($this->isInstanceOf('DOMElement'), $this->isInstanceOf('Mage_Sales_Model_Order_Item'), $this->equalTo(1))
 			->will($this->returnValue(null));
-		$this->_reflectProperty($createModelMock, '_o')->setValue($createModelMock, $orderModelMock);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($createModelMock, '_o', $orderModelMock);
 		$this->assertInstanceOf(
 			'EbayEnterprise_Eb2cOrder_Model_Create',
-			$this->_reflectMethod($createModelMock, '_buildItems')->invoke($createModelMock, $doc->documentElement)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($createModelMock, '_buildItems', array($doc->documentElement))
 		);
 	}
 	/**
@@ -610,7 +594,7 @@ INVALID_XML;
 			->will($this->returnValue(null));
 		$this->assertInstanceOf(
 			'EbayEnterprise_Eb2cOrder_Model_Create',
-			$this->_reflectMethod($createModelMock, '_buildShip')->invoke($createModelMock, $doc->documentElement)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($createModelMock, '_buildShip', array($doc->documentElement))
 		);
 	}
 	/**
@@ -836,9 +820,9 @@ INVALID_XML;
 			->will($this->returnValue(50.00));
 
 		$create = Mage::getModel('eb2corder/create');
-		$this->_reflectProperty($create, '_o')->setValue($create, $order);
-		$this->_reflectProperty($create, '_ebcPaymentMethodMap')->setValue($create, array('Paypal_express' => 'PayPal'));
-		$this->assertSame($create, $this->_reflectMethod($create, '_buildPayments')->invoke($create, $doc->documentElement));
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_ebcPaymentMethodMap', array('Paypal_express' => 'PayPal'));
+		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayments', array($doc->documentElement)));
 
 		$this->assertSame(sprintf($this->expected('paypal')->getPaymentNode(), "\n"), trim($doc->saveXML()));
 	}
@@ -897,8 +881,8 @@ INVALID_XML;
 			->will($this->returnValue(array($payment)));
 
 		$create = Mage::getModel('eb2corder/create');
-		$this->_reflectProperty($create, '_o')->setValue($create, $order);
-		$this->assertSame($create, $this->_reflectMethod($create, '_buildPayments')->invoke($create, $doc->documentElement));
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayments', array($doc->documentElement)));
 
 		$resultDoc = new DOMDocument();
 		$resultDoc->loadXML(sprintf(

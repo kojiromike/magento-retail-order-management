@@ -113,9 +113,7 @@ class EbayEnterprise_Eb2cOrder_Test_Block_Overrides_Order_ViewTest extends EbayE
 			->method('__construct')
 			->will($this->returnSelf());
 		$this->replaceByMock('block', 'sales/order_view', $orderViewBlockMock);
-
-		$prepareLayout = $this->_reflectMethod($orderViewBlockMock, '_prepareLayout');
-		$prepareLayout->invoke($orderViewBlockMock);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($orderViewBlockMock, '_prepareLayout');
 	}
 
 	/**
@@ -237,8 +235,7 @@ class EbayEnterprise_Eb2cOrder_Test_Block_Overrides_Order_ViewTest extends EbayE
 			->will($this->returnSelf());
 		$this->replaceByMock('block', 'sales/order_view', $orderViewBlockMock);
 
-		$prepareLayout = $this->_reflectMethod($orderViewBlockMock, '_prepareLayout');
-		$prepareLayout->invoke($orderViewBlockMock);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($orderViewBlockMock, '_prepareLayout');
 	}
 
 	/**
@@ -350,8 +347,7 @@ class EbayEnterprise_Eb2cOrder_Test_Block_Overrides_Order_ViewTest extends EbayE
 			->will($this->returnSelf());
 		$this->replaceByMock('block', 'sales/order_view', $orderViewBlockMock);
 
-		$prepareLayout = $this->_reflectMethod($orderViewBlockMock, '_prepareLayout');
-		$prepareLayout->invoke($orderViewBlockMock);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($orderViewBlockMock, '_prepareLayout');
 	}
 
 	/**
@@ -475,8 +471,7 @@ class EbayEnterprise_Eb2cOrder_Test_Block_Overrides_Order_ViewTest extends EbayE
 			->will($this->returnSelf());
 		$this->replaceByMock('block', 'sales/order_view', $orderViewBlockMock);
 
-		$prepareLayout = $this->_reflectMethod($orderViewBlockMock, '_prepareLayout');
-		$prepareLayout->invoke($orderViewBlockMock);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($orderViewBlockMock, '_prepareLayout');
 	}
 
 }

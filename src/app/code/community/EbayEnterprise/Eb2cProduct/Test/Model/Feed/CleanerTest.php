@@ -478,7 +478,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_CleanerTest extends EbayEnterpr
 
 		$this->assertInstanceOf(
 			'EbayEnterprise_Eb2cProduct_Model_Feed_Cleaner',
-			$this->_reflectMethod($feedCleanerModelProductMock, '_resolveProductLinks')->invoke($feedCleanerModelProductMock, $product)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($feedCleanerModelProductMock, '_resolveProductLinks', array($product))
 		);
 	}
 

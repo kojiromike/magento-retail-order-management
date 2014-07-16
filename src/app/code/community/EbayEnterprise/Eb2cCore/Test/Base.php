@@ -32,15 +32,6 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	}
 
 	/**
-	 * invoke a restricted method using EcomDev's Reflection utility class.
-	 * @see lib/EcomDev/Utils/Reflection.php
-	 */
-	public function invokeRestrictedMethod($object, $methodName, $args=array())
-	{
-		return EcomDev_Utils_Reflection::invokeRestrictedMethod($object, $methodName, $args);
-	}
-
-	/**
 	 * @todo Is this the best way to do this?
 	 * Mocks an Observer, use this as an configuration option as shown. Needed a 'null' stubObserver to bypass
 	 *  dispatch functionality in a specific test.
@@ -109,7 +100,7 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	public function clearStoreConfigCache($store=null)
 	{
 		$store = EcomDev_PHPUnit_Test_Case_Util::app()->getStore($store);
-		$this->_reflectProperty($store, '_configCache')->setValue($store, array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($store, '_configCache', array());
 	}
 
 	/**
@@ -129,20 +120,6 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	{
 		Mage::app()->setCurrentStore(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID);
 		EcomDev_PHPUnit_Test_Case_Util::tearDown();
-	}
-
-	protected function _reflectProperty($object, $propName, $accessible=true)
-	{
-		$p = new ReflectionProperty($object, $propName);
-		$p->setAccessible($accessible);
-		return $p;
-	}
-
-	protected function _reflectMethod($object, $methodName, $accessible=true)
-	{
-		$p = new ReflectionMethod($object, $methodName);
-		$p->setAccessible($accessible);
-		return $p;
 	}
 
 	/**

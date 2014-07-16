@@ -58,7 +58,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 			->method('_setUpDirs')
 			->will($this->returnSelf());
 
-		$this->_reflectMethod($feedModelMock, '_construct')->invoke($feedModelMock);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($feedModelMock, '_construct');
 	}
 	/**
 	 * Constructing an instance of the core feed model with invalid config should
@@ -88,7 +88,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 			->method('_setUpDirs');
 
 		$this->setExpectedException('EbayEnterprise_Eb2cCore_Exception_Feed_File');
-		$this->_reflectMethod($feedModelMock, '_construct')->invoke($feedModelMock);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($feedModelMock, '_construct');
 	}
 	/**
 	 * Provide a set of feed configuration and, if the config is invalid, the
@@ -123,11 +123,11 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 
 		if ($exceptionMessage) {
 			$this->setExpectedException('EbayEnterprise_Eb2cCore_Exception_Feed_File', $exceptionMessage);
-			$this->_reflectMethod($feedModelMock, '_validateFeedConfig')->invoke($feedModelMock);
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($feedModelMock, '_validateFeedConfig');
 		} else {
 			$this->assertSame(
 				$feedModelMock,
-				$this->_reflectMethod($feedModelMock, '_validateFeedConfig')->invoke($feedModelMock)
+				EcomDev_Utils_Reflection::invokeRestrictedMethod($feedModelMock, '_validateFeedConfig')
 			);
 		}
 	}
@@ -169,8 +169,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 
 		$this->assertSame(
 			$feedModelMock,
-			$this->_reflectMethod($feedModelMock, '_setCheckAndCreateDir')
-				->invoke($feedModelMock, $dir, 'local_directory')
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($feedModelMock, '_setCheckAndCreateDir', array($dir, 'local_directory'))
 		);
 		$this->assertSame($dir, $feedModelMock->getLocalDIrectory());
 	}
@@ -196,8 +195,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 			->will($this->returnValue($fileMock));
 
 		$this->setExpectedException('EbayEnterprise_Eb2cCore_Exception_Feed_File', "Unable to create directory '{$dir}'. Access forbidden.");
-		$this->_reflectMethod($feedModelMock, '_setCheckAndCreateDir')
-			->invoke($feedModelMock, $dir);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($feedModelMock, '_setCheckAndCreateDir', array($dir));
 	}
 	/**
 	 * Test joining parts of a path and getting a normalized, joined path.
@@ -254,7 +252,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 				array($cleanLocal, $feed),
 				array($cleanSent, $feed),
 			)));
-		$this->_reflectMethod($feed, '_setUpDirs')->invoke($feed);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($feed, '_setUpDirs');
 	}
 	/**
 	 * Test setUpDirs method when a local directory but no sent directory configured
@@ -281,7 +279,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 			->method('_setCheckAndCreateDir')
 			->with($this->identicalTo($cleanLocal))
 			->will($this->returnSelf());
-		$this->_reflectMethod($feed, '_setUpDirs')->invoke($feed);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($feed, '_setUpDirs');
 	}
 	/**
 	 * Test lsLocalDirectory method when local dir already set up
@@ -372,8 +370,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 
 		$this->assertSame(
 			$feedModelMock,
-			$this->_reflectMethod($feedModelMock, '_mv')
-				->invoke($feedModelMock, $srcFile, $targetFile)
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($feedModelMock, '_mv', array($srcFile, $targetFile))
 		);
 	}
 	/**
@@ -401,8 +398,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 			->will($this->returnValue($fileMock));
 
 		$this->setExpectedException('EbayEnterprise_Eb2cCore_Exception_Feed_File', "Could not move {$srcFile} to {$targetFile}");
-		$this->_reflectMethod($feedModelMock, '_mv')
-			->invoke($feedModelMock, $srcFile, $targetFile);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($feedModelMock, '_mv', array($srcFile, $targetFile));
 	}
 	/**
 	 * Should call _mv with the local directory as the target directory.
@@ -559,8 +555,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_FeedTest extends EbayEnterprise_Eb2cCor
 
 		$this->assertSame(
 			$shouldBeFileName,
-			$this->_reflectMethod($feedModelMock, '_getBaseAckFileName')
-				->invoke($feedModelMock, 'utEventType')
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($feedModelMock, '_getBaseAckFileName', array('utEventType'))
 		);
 	}
 }

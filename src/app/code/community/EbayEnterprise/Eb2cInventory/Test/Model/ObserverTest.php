@@ -217,8 +217,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			$session->expects($this->never())->method('resetQuantityUpdateRequired');
 		}
 
-		$method = $this->_reflectMethod($observer, '_updateQuantity');
-		$this->assertSame($observer, $method->invoke($observer, $quote));
+		$this->assertSame($observer, EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_updateQuantity', array($quote)));
 	}
 	/**
 	 * Test updating a quote with a inventory details request. Method should make the request and update
@@ -263,8 +262,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			$session->expects($this->never())->method('resetDetailsUpdateRequired');
 		}
 
-		$method = $this->_reflectMethod($observer, '_updateDetails');
-		$this->assertSame($observer, $method->invoke($observer, $quote));
+		$this->assertSame($observer, EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_updateDetails', array($quote)));
 	}
 	/**
 	 * Test the abstract method for making an inventory service request and updating
@@ -290,8 +288,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			->method('updateQuoteWithResponse')
 			->with($this->identicalTo($quote), $this->identicalTo($response));
 
-		$method = $this->_reflectMethod($observer, '_makeRequestAndUpdate');
-		$this->assertSame($response , $method->invoke($observer, $request, $quote, $quoteDiff));
+		$this->assertSame($response , EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_makeRequestAndUpdate', array($request, $quote, $quoteDiff)));
 	}
 	/**
 	 * When a quote does not have any items that have managed stock, no allocation

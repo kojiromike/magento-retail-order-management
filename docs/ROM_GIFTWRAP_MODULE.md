@@ -1,4 +1,4 @@
-![ebay logo](docs/static/logo-vert.png)
+![ebay logo](static/logo-vert.png)
 #Retail Order Management (ROM) Magento Extension Gift Wrap Module
 
 - [Retail Order Management (ROM) Magento Extension Gift Wrap Module](#retail-order-management-rom-magento-extension-gift-wrap-module)
@@ -152,4 +152,4 @@ The following table describes how elements in the XML gift wrapping feeds are im
 ## Magento Admin
 To support full gift wrapping features of ROM, two fields are added to the Magento admin panel as shown. These fields appear on the Sales > Gift Wrapping > Edit panel.
 
-![gw-admin-fields](docs/static/gw-admin-fields.png)
+![gw-admin-fields](static/gw-admin-fields.png)

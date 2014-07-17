@@ -41,8 +41,14 @@ class EbayEnterprise_Eb2cOrder_Model_Eav_Entity_Increment_Order
 	{
 		// remove any order prefixes from the last increment id
 		$last = Mage::helper('eb2corder')->removeOrderIncrementPrefix($this->getLastId());
+		// Increment ids may be relatively large "numbers" - greater than PHP_INT_MAX.
+		// Letting PHP handle the type juggling will safely prevent overflows by
+		// using integers when it can and floats when it must.
 		$next = $last + 1;
-		return $this->format($next);
+		// Make sure the number is represented as a string of digits - necessary
+		// when PHP needs to cast $last as a float and inconsequential when cast to
+		// an integer
+		return $this->format(sprintf('%.0f', $next));
 	}
 	/**
 	 * Prefix the order with the Client Order Id Prefix configured for the

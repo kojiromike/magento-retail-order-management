@@ -91,22 +91,37 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Eav_Entity_Increment_OrderTest
 		parent::tearDown();
 	}
 	/**
-	 * Test getting the next increment id when in a frontend/non-admin store
+	 * Provide order increment ids for the last id and next id
+	 * @return array
 	 */
-	public function testGetNextId()
+	public function provideNextLastIncrementId()
+	{
+		return array(
+			array($this->lastId, $this->nextId),
+			// testing for ids > max int size (in this case larger than PHP_INT_MAX on 64-bit system)
+			array('55519223372036854775807', '55519223372036854775808'),
+		);
+	}
+	/**
+	 * Test getting the next increment id when in a frontend/non-admin store
+	 * @param string $lastId
+	 * @param string $nextId
+	 * @dataProvider provideNextLastIncrementId
+	 */
+	public function testGetNextId($lastId, $nextId)
 	{
 		$this->testApp->expects($this->any())
 			->method('getStore')
 			->will($this->returnValue($this->targetStore));
-		$this->replaceByMock('helper', 'eb2ccore', $this->orderHelper);
+		$this->replaceByMock('helper', 'eb2corder', $this->orderHelper);
 		$this->incrementModel->setData(array(
-			'last_id' => $this->lastId,
+			'last_id' => $lastId,
 			'prefix' => 'fake_prefix',
 			'pad_length' => 8,
 			'pad_char' => 0,
 		));
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue('Mage', '_app', $this->testApp);
-		$this->assertSame($this->nextId, $this->incrementModel->getNextId());
+		$this->assertSame($nextId, $this->incrementModel->getNextId());
 	}
 	/**
 	 * Test getting the next increment id when in the admin store
@@ -118,7 +133,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Eav_Entity_Increment_OrderTest
 		$this->testApp->expects($this->any())
 			->method('getStore')
 			->will($this->returnValue($this->adminStore));
-		$this->replaceByMock('helper', 'eb2ccore', $this->orderHelper);
+		$this->replaceByMock('helper', 'eb2corder', $this->orderHelper);
 		$this->incrementModel->setData(array(
 			'last_id' => $this->lastId,
 			'prefix' => 'fake_prefix',

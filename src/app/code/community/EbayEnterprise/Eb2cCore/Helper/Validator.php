@@ -13,7 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
 class EbayEnterprise_Eb2cCore_Helper_Validator
 {
 	const API_HANDLER_PATH = 'eb2ccore/api/test_connection_status_handlers';
@@ -37,7 +36,8 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	public function testApiConnection($storeId, $apiKey, $hostname)
 	{
 		// use the Eb2cAddress config go with the address validation request to be made
-		$config = Mage::helper('eb2caddress')->getConfigModel();
+		$coreConfig = Mage::helper('eb2ccore')->getConfigModel();
+		$addressConfig = Mage::helper('eb2caddress')->getConfigModel();
 		try {
 			$this->_validateApiSettings($storeId, $apiKey, $hostname);
 		} catch (EbayEnterprise_Eb2cCore_Exception_Api_Configuration $e) {
@@ -47,8 +47,8 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		}
 		// need to manually build the URI as the eb2ccore/helper method doesn't
 		// allow specifying the store id and doesn't really make sense for it to
-		$uri = $this->_getApiUri($hostname, $storeId, $config->apiMajorVersion, $config->apiMinorVersion);
-		$xsd = $config->xsdFileAddressValidation;
+		$uri = $this->_getApiUri($hostname, $storeId, $coreConfig->apiMajorVersion, $coreConfig->apiMinorVersion);
+		$xsd = $addressConfig->xsdFileAddressValidation;
 		$adValRequest = $this->_buildTestRequest();
 
 		/** @var EbayEnterprise_Eb2cCore_Model_Api $api */

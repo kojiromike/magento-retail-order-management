@@ -66,15 +66,6 @@
 					</createrequest_observer>
 				</observers>
 			</sales_order_place_after>
-			<filetransfer_import_complete>
-				<observers>
-					<eb2c_order_process_feeds>
-						<class>eb2corder/status_feed</class>
-						<method>processFeeds</method>
-						<type>model</type>
-					</eb2c_order_process_feeds>
-				</observers>
-			</filetransfer_import_complete>
 		</events>
 	</global>
 	<crontab>
@@ -120,17 +111,6 @@
 			<email>
 				<transactional_emailer>'mage'</transactional_emailer>
 			</email>
-			<feed>
-				<filetransfer_imports>
-					<order_status_feed>
-						<local_directory>ExchangePlatform/Feed/inbox/order</local_directory>
-						<root_node_name>OrderStatuses</root_node_name>
-						<event_type>OrderStatus</event_type>
-						<xsd>Order-Status-1 0.xsd</xsd>
-						<header_version>2.3.0</header_version>
-					</order_status_feed>
-				</filetransfer_imports>
-			</feed>
 		</eb2ccore>
 		<eb2corder>
 			<api>

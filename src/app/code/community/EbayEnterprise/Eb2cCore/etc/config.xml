@@ -249,9 +249,6 @@
 					<eb2cinventory>
 						<feed_item_inventories>1</feed_item_inventories>
 					</eb2cinventory>
-					<eb2corder>
-						<status_feed>1</status_feed>
-					</eb2corder>
 					<eb2cproduct>
 						<feed>1</feed>
 					</eb2cproduct>
@@ -263,11 +260,6 @@
 						<remote_directory>/Inbox</remote_directory>
 						<file_pattern>*Ack*.xml</file_pattern>
 					</acknowledgements>
-					<order_status_feed>
-						<local_directory>ExchangePlatform/Feed/inbox/order</local_directory>
-						<remote_directory>/Inbox/</remote_directory>
-						<file_pattern>*OrderStatus_*.xml</file_pattern>
-					</order_status_feed>
 				</filetransfer_imports>
 				<filetransfer_exports>
 					<acknowledgements>

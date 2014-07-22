@@ -22,6 +22,8 @@
   - [Transactional Emails](#transactional-emails)
   - [Customer Service](#customer-service)
   - [Custom Order Attributes](#custom-order-attributes)
+  - [Gift Wrap and Messaging](ROM_GIFTWRAP_MODULE.md)
+
 
 
 ##Intended Audience

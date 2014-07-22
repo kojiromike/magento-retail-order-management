@@ -10,7 +10,6 @@ This extension is a unique set of integrated omnichannel-enabling capabilities, 
 1. [Installation and Configuration](docs/INSTALL.md)
 1. [Importing Products](docs/PRODUCT_IMPORT.md)
 1. [Exporting Products](docs/PRODUCT_EXPORT.md)
-1. [Gift Wrap Module](docs/ROM_GIFTWRAP_MODULE.md)
 1. [Troubleshooting Guide](docs/ROM_TROUBLESHOOTING.md)
 1. [Contributing to This Project](CONTRIBUTING.md)
 

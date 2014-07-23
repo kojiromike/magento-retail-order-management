@@ -37,8 +37,7 @@ src/app/design/adminhtml/default/default/layout/eb2caddress.xml app/design/admin
 src/app/design/adminhtml/default/default/template/eb2caddress app/design/adminhtml/default/default/template/eb2caddress
 
 # Order
-src/app/design/frontend/base/default/layout/eb2corder_frontend.xml app/design/frontend/base/default/layout/eb2corder_frontend.xml
-src/app/design/frontend/base/default/template/eb2corder_frontend app/design/frontend/base/default/template/eb2corder_frontend
+src/app/design/frontend/base/default/layout/eb2corder.xml app/design/frontend/base/default/layout/eb2corder.xml
 
 # Payment
 src/app/design/adminhtml/default/default/layout/eb2cpayment.xml app/design/adminhtml/default/default/layout/eb2cpayment.xml

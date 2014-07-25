@@ -55,8 +55,9 @@ class EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount_CartController extend
 				}
 
 				// override this method to make eb2c stored value balance check request for actual valid gift card
-				Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->loadByPanPin($code, $pin)
-					->addToCart();
+				$giftCardAccount = Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->loadByCode($code);
+				Mage::helper('eb2cpayment/giftcard')->synchStoreValue($code, $pin, $giftCardAccount);
+				$giftCardAccount->addToCart();
 				Mage::getSingleton('checkout/session')->addSuccess(
 					$this->__('Gift Card "%s" was added.', Mage::helper('core')->escapeHtml($code))
 				);
@@ -78,10 +79,11 @@ class EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount_CartController extend
 	 */
 	public function quickCheckAction()
 	{
-		$card = Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->loadByPanPin(
-			$this->getRequest()->getParam('giftcard_code', ''),
-			$this->getRequest()->getParam('giftcard_pin', '')
-		);
+		$code = $this->getRequest()->getParam('giftcard_code', '');
+		$pin = $this->getRequest()->getParam('giftcard_pin', '');
+		$card = Mage::getModel('enterprise_giftcardaccount/giftcardaccount')
+			->loadByCode($code);
+		Mage::helper('eb2cpayment/giftcard')->synchStoreValue($code, $pin, $card);
 		Mage::register('current_giftcardaccount', $card);
 		try {
 			$card->isValid(true, true, true, false);

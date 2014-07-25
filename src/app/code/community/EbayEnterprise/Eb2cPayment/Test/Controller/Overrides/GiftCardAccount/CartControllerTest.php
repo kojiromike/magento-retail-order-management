@@ -204,11 +204,11 @@ class EbayEnterprise_Eb2cPayment_Test_Controller_Overrides_GiftCardAccount_CartC
 	public function replaceByMockGiftCardAccountModel()
 	{
 		$mockGiftCardAccount = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
-			->setMethods(array('loadByPanPin', 'isValid', 'addToCart'))
+			->setMethods(array('loadByCode', 'isValid', 'addToCart'))
 			->getMock();
 
 		$mockGiftCardAccount->expects($this->any())
-			->method('loadByPanPin')
+			->method('loadByCode')
 			->will($this->returnSelf());
 		$mockGiftCardAccount->expects($this->any())
 			->method('isValid')
@@ -228,11 +228,11 @@ class EbayEnterprise_Eb2cPayment_Test_Controller_Overrides_GiftCardAccount_CartC
 	public function replaceByMockGiftCardAccountModelAddToCartThrowException()
 	{
 		$mockGiftCardAccount = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
-			->setMethods(array('loadByPanPin', 'isValid', 'addToCart'))
+			->setMethods(array('loadByCode', 'isValid', 'addToCart'))
 			->getMock();
 
 		$mockGiftCardAccount->expects($this->any())
-			->method('loadByPanPin')
+			->method('loadByCode')
 			->will($this->returnSelf());
 		$mockGiftCardAccount->expects($this->any())
 			->method('isValid')
@@ -252,11 +252,11 @@ class EbayEnterprise_Eb2cPayment_Test_Controller_Overrides_GiftCardAccount_CartC
 	public function replaceByMockGiftCardAccountModelIsValidThrowException()
 	{
 		$mockGiftCardAccount = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
-			->setMethods(array('loadByPanPin', 'isValid', 'addToCart', 'unsetData'))
+			->setMethods(array('loadByCode', 'isValid', 'addToCart', 'unsetData'))
 			->getMock();
 
 		$mockGiftCardAccount->expects($this->any())
-			->method('loadByPanPin')
+			->method('loadByCode')
 			->will($this->returnSelf());
 		$mockGiftCardAccount->expects($this->any())
 			->method('isValid')

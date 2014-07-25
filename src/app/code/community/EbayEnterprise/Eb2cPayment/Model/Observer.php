@@ -43,7 +43,7 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 							// making sure we have the right data
 							if (isset($redeemData['responseCode']) && strtoupper(trim($redeemData['responseCode'])) === 'FAIL') {
 								// removed gift card from the shopping cart
-								Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->loadByPanPin($card['pan'], $card['pin'])
+								Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->loadByCode($card['pan'])
 									->removeFromCart();
 								$helper = Mage::helper('enterprise_giftcardaccount');
 								Mage::getSingleton('checkout/session')->addSuccess(

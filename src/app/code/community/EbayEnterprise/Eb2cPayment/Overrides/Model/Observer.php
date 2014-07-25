@@ -60,8 +60,9 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Observer extends Enterprise_Gif
 			$websiteId = $this->_getApp()->getStore($quote->getStoreId())->getWebsite()->getId();
 
 			$giftcardaccount = $this->_getModel('enterprise_giftcardaccount/giftcardaccount')
-				->loadByPanPin($code, $pin)
-				->setWebsiteId($websiteId);
+				->loadByCode($code);
+			Mage::helper('eb2cpayment/giftcard')->synchStoreValue($code, $pin, $giftcardaccount);
+			$giftcardaccount->setWebsiteId($websiteId);
 
 			try {
 				$giftcardaccount->addToCart(true, $quote);
@@ -112,7 +113,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Observer extends Enterprise_Gif
 		$websiteId = $website->getId();
 		foreach ($cards as $one) {
 			$this->_getModel('enterprise_giftcardaccount/giftcardaccount')
-				->loadByPanPin($one['pan'], $one['pin'])
+				->loadByCode($one['pan'])
 				->setWebsiteId($websiteId)
 				->isValid(true, true, $website);
 		}

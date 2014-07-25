@@ -130,11 +130,11 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 
 		// let's mock the enterprise gift card class so that removeFromCart method don't thrown an exception
 		$giftCardAccountMock = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
-			->setMethods(array('loadByPanPin', 'removeFromCart'))
+			->setMethods(array('loadByCode', 'removeFromCart'))
 			->getMock();
 
 		$giftCardAccountMock->expects($this->any())
-			->method('loadByPanPin')
+			->method('loadByCode')
 			->will($this->returnSelf()
 			);
 		$giftCardAccountMock->expects($this->any())

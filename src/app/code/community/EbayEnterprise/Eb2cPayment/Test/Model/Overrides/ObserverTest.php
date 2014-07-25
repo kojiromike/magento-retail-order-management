@@ -149,7 +149,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_ObserverTest
 	 *                Mage_Core_Model_Website class.
 	 * Expectation 2: the website id will be given from calling the method Mage_Core_Model_Website::getId with will be
 	 *                pass to the method Enterprise_Giftcardaccount_Model_Giftcardaccount::setWebsiteId and the pan and pin
-	 *                will then be given to Enterprise_Giftcardaccount_Model_Giftcardaccount::loadByPanPin method
+	 *                will then be given to Enterprise_Giftcardaccount_Model_Giftcardaccount::loadByCode method
 	 */
 	public function testProcessGiftcardAdd()
 	{
@@ -216,11 +216,11 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_ObserverTest
 
 		$giftcardAccountMock = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
 			->disableOriginalConstructor()
-			->setMethods(array('loadByPanPin', 'addToCart', 'setWebsiteId'))
+			->setMethods(array('loadByCode', 'addToCart', 'setWebsiteId'))
 			->getMock();
 		$giftcardAccountMock->expects($this->once())
-			->method('loadByPanPin')
-			->with($this->identicalTo($requestData['giftcard_add']), $this->identicalTo($requestData['giftcard_pin']))
+			->method('loadByCode')
+			->with($this->identicalTo($requestData['giftcard_add']))
 			->will($this->returnSelf());
 		$giftcardAccountMock->expects($this->once())
 			->method('setWebsiteId')
@@ -230,6 +230,17 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_ObserverTest
 			->method('addToCart')
 			->with($this->identicalTo(true), $this->identicalTo($quoteMock))
 			->will($this->returnSelf());
+
+		$giftcardHelperMock = $this->getHelperMock('eb2cpayment/giftcard', array('synchStoreValue'));
+		$giftcardHelperMock->expects($this->once())
+			->method('synchStoreValue')
+			->with(
+				$this->identicalTo($requestData['giftcard_add']),
+				$this->identicalTo($requestData['giftcard_pin']),
+				$this->identicalTo($giftcardAccountMock)
+			)
+			->will($this->returnSelf());
+		$this->replaceByMock('helper', 'eb2cpayment/giftcard', $giftcardHelperMock);
 
 		$giftcardAccountObserverMock = $this->getModelMockBuilder('enterprise_giftcardaccount/observer')
 			->disableOriginalConstructor()
@@ -329,11 +340,11 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_ObserverTest
 
 		$giftcardAccountMock = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
 			->disableOriginalConstructor()
-			->setMethods(array('loadByPanPin', 'addToCart', 'setWebsiteId'))
+			->setMethods(array('loadByCode', 'addToCart', 'setWebsiteId'))
 			->getMock();
 		$giftcardAccountMock->expects($this->once())
-			->method('loadByPanPin')
-			->with($this->identicalTo($requestData['giftcard_add']), $this->identicalTo($requestData['giftcard_pin']))
+			->method('loadByCode')
+			->with($this->identicalTo($requestData['giftcard_add']))
 			->will($this->returnSelf());
 		$giftcardAccountMock->expects($this->once())
 			->method('setWebsiteId')
@@ -342,7 +353,18 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_ObserverTest
 		$giftcardAccountMock->expects($this->once())
 			->method('addToCart')
 			->with($this->identicalTo(true), $this->identicalTo($quoteMock))
-			->will($this->throwException(new Mage_Core_Exception($exceptionMessage)));
+			->will($this->throwException(Mage::exception('Mage_Core', $exceptionMessage)));
+
+		$giftcardHelperMock = $this->getHelperMock('eb2cpayment/giftcard', array('synchStoreValue'));
+		$giftcardHelperMock->expects($this->once())
+			->method('synchStoreValue')
+			->with(
+				$this->identicalTo($requestData['giftcard_add']),
+				$this->identicalTo($requestData['giftcard_pin']),
+				$this->identicalTo($giftcardAccountMock)
+			)
+			->will($this->returnSelf());
+		$this->replaceByMock('helper', 'eb2cpayment/giftcard', $giftcardHelperMock);
 
 		$giftcardAccountObserverMock = $this->getModelMockBuilder('enterprise_giftcardaccount/observer')
 			->disableOriginalConstructor()
@@ -458,11 +480,11 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_ObserverTest
 
 		$giftcardAccountMock = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
 			->disableOriginalConstructor()
-			->setMethods(array('loadByPanPin', 'addToCart', 'setWebsiteId'))
+			->setMethods(array('loadByCode', 'addToCart', 'setWebsiteId'))
 			->getMock();
 		$giftcardAccountMock->expects($this->once())
-			->method('loadByPanPin')
-			->with($this->identicalTo($requestData['giftcard_add']), $this->identicalTo($requestData['giftcard_pin']))
+			->method('loadByCode')
+			->with($this->identicalTo($requestData['giftcard_add']))
 			->will($this->returnSelf());
 		$giftcardAccountMock->expects($this->once())
 			->method('setWebsiteId')
@@ -472,6 +494,17 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_ObserverTest
 			->method('addToCart')
 			->with($this->identicalTo(true), $this->identicalTo($quoteMock))
 			->will($this->throwException($exception));
+
+		$giftcardHelperMock = $this->getHelperMock('eb2cpayment/giftcard', array('synchStoreValue'));
+		$giftcardHelperMock->expects($this->once())
+			->method('synchStoreValue')
+			->with(
+				$this->identicalTo($requestData['giftcard_add']),
+				$this->identicalTo($requestData['giftcard_pin']),
+				$this->identicalTo($giftcardAccountMock)
+			)
+			->will($this->returnSelf());
+		$this->replaceByMock('helper', 'eb2cpayment/giftcard', $giftcardHelperMock);
 
 		$giftcardAccountObserverMock = $this->getModelMockBuilder('enterprise_giftcardaccount/observer')
 			->disableOriginalConstructor()
@@ -611,11 +644,11 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_ObserverTest
 
 		$giftcardAccountMock = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
 			->disableOriginalConstructor()
-			->setMethods(array('loadByPanPin', 'setWebsiteId', 'isValid'))
+			->setMethods(array('loadByCode', 'setWebsiteId', 'isValid'))
 			->getMock();
 		$giftcardAccountMock->expects($this->once())
-			->method('loadByPanPin')
-			->with($this->identicalTo($giftcards[0]['pan']), $this->identicalTo($giftcards[0]['pin']))
+			->method('loadByCode')
+			->with($this->identicalTo($giftcards[0]['pan']))
 			->will($this->returnSelf());
 		$giftcardAccountMock->expects($this->once())
 			->method('setWebsiteId')

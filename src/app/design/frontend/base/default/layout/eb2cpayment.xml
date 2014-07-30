@@ -14,20 +14,25 @@
 -->
 <layout version="0.1.0">
 	<checkout_cart_index>
-		<reference name="checkout.cart">
-			<block type="enterprise_giftcardaccount/checkout_cart_giftcardaccount" template="eb2cpayment/giftcardaccount/cart/block.phtml" name="checkout.cart.giftcardaccount" as="giftcards"/>
+		<reference name="checkout.cart.giftcardaccount">
+			<action method="setTemplate">
+				<template>eb2cpayment/giftcardaccount/cart/block.phtml</template>
+			</action>
 		</reference>
 	</checkout_cart_index>
 	<customer_account>
 		<reference name="customer_account_navigation">
-			<!--Disabled Gift Card in Customer Account page-->
-			<action method="removeLinkByName">
-				<name>enterprise_giftcardaccount</name>
-			</action>
 			<!--Disabled Stored Credit in Customer Account page-->
 			<action method="removeLinkByName">
 				<name>enterprise_customerbalance</name>
 			</action>
 		</reference>
 	</customer_account>
+	<enterprise_giftcardaccount_customer_index>
+		<reference name="redeem">
+			<action method="setTemplate">
+				<template>eb2cpayment/giftcardaccount/account/redeem.phtml</template>
+			</action>
+		</reference>
+	</enterprise_giftcardaccount_customer_index>
 </layout>

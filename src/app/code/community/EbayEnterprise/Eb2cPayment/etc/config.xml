@@ -66,6 +66,11 @@
 					<account_navigation>EbayEnterprise_Eb2cPayment_Overrides_Block_Account_Navigation</account_navigation>
 				</rewrite>
 			</customer>
+			<enterprise_giftcardaccount>
+				<rewrite>
+					<account_redeem>EbayEnterprise_Eb2cPayment_Overrides_Block_Giftcardaccount_Account_Redeem</account_redeem>
+				</rewrite>
+			</enterprise_giftcardaccount>
 			<adminhtml>
 				<rewrite>
 					<system_config_form>EbayEnterprise_Eb2cPayment_Overrides_Block_Adminhtml_System_Config_Form</system_config_form>

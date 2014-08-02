@@ -34,48 +34,11 @@ class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem
 		return Mage::getModel('eb2ccore/api')
 			->setStatusHandlerPath(EbayEnterprise_Eb2cPayment_Helper_Data::STATUS_HANDLER_PATH)
 			->request(
-				$this->buildStoredValueRedeemRequest($pan, $pin, $entityId, $amount),
+				$hlpr->buildRedeemRequest($pan, $pin, $entityId, $amount, false),
 				$hlpr->getConfigModel()->xsdFileStoredValueRedeem,
 				$uri
 			);
 	}
-	/**
-	 * Build gift card Redeem request.
-	 * @param string $pan, the payment account number
-	 * @param string $pin, the personal identification number
-	 * @param string $entityId, the sales/quote entity_id value
-	 * @param string $amount, the amount to redeem
-	 * @return DOMDocument The xml document, to be sent as request to eb2c.
-	 */
-	public function buildStoredValueRedeemRequest($pan, $pin, $entityId, $amount)
-	{
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$storedValueRedeemRequest = $domDocument
-			->addElement('StoredValueRedeemRequest', null, Mage::helper('eb2cpayment')->getXmlNs())
-			->firstChild;
-		$storedValueRedeemRequest->setAttribute(
-			'requestId',
-			Mage::helper('eb2cpayment')->getRequestId($entityId)
-		);
-
-		// creating PaymentContent element
-		$paymentContext = $storedValueRedeemRequest->createChild('PaymentContext', null);
-
-		// creating OrderId element
-		$paymentContext->createChild('OrderId', $entityId);
-
-		// creating PaymentAccountUniqueId element
-		$paymentContext->createChild('PaymentAccountUniqueId', $pan, array('isToken' => 'false'));
-
-		// add Pin
-		$storedValueRedeemRequest->createChild('Pin', (string) $pin);
-
-		// add amount
-		$storedValueRedeemRequest->createChild('Amount', $amount, array('currencyCode' => 'USD'));
-
-		return $domDocument;
-	}
-
 	/**
 	 * Parse gift card Redeem response xml.
 	 * @param string $storeValueRedeemReply the xml response from eb2c

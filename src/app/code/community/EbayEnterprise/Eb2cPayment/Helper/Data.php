@@ -136,4 +136,43 @@ class EbayEnterprise_Eb2cPayment_Helper_Data extends Mage_Core_Helper_Abstract
 		$uri = $this->getOperationUri($optIndex);
 		return preg_replace('/GS\.xml$/', "{$tenderType}.xml", $uri);
 	}
+	/**
+	 * Build gift card Redeem or Redeem Void request.
+	 * @param string $pan the payment account number
+	 * @param string $pin the personal identification number
+	 * @param string $entityId the sales/quote entity_id value
+	 * @param string $amount the amount to redeem
+	 * @param bool $isVoid a flag to determine if we are creating a redeem or a redeem void request
+	 * @return DOMDocument the xml document to be sent as request to the ROM API
+	 */
+	public function buildRedeemRequest($pan, $pin, $entityId, $amount, $isVoid=false)
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$rootNode = $isVoid ? 'StoredValueRedeemVoidRequest' : 'StoredValueRedeemRequest';
+		$svRequest = $doc
+			->addElement($rootNode, null, $this->getXmlNs())
+			->firstChild;
+		$svRequest->setAttribute('requestId', $this->getRequestId($entityId));
+
+		// creating PaymentContent node
+		$svRequest->createChild('PaymentContext', null)
+			->addChild('OrderId', $entityId)
+			->addChild('PaymentAccountUniqueId', $pan, array('isToken' => 'false'));
+
+		$svRequest
+			->addChild('Pin', (string) $pin)
+			->addChild('Amount', $amount, array('currencyCode' => $this->_getCurrencyCode()));
+
+		return $doc;
+	}
+	/**
+	 * Get the current store currency code.
+	 * @see Mage_Core_Model_Store::getCurrentCurrencyCode
+	 * @return string
+	 * @codeCoverageIgnore
+	 */
+	protected function _getCurrencyCode()
+	{
+		return Mage::app()->getStore()->getCurrentCurrencyCode();
+	}
 }

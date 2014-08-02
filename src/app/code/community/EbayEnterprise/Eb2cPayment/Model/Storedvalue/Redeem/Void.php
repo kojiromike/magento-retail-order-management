@@ -27,7 +27,7 @@ class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem_Void
 	public function voidCardRedemption($pan, $pin, $quoteId, $amount)
 	{
 		return $this->_parseResponse($this->_makeVoidRequest(
-			$pan, $this->_buildRequest($pan, $pin, $quoteId, $amount)
+			$pan, Mage::helper('eb2cpayment')->buildRedeemRequest($pan, $pin, $quoteId, $amount, true)
 		));
 	}
 	/**
@@ -53,38 +53,6 @@ class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem_Void
 				$uri
 			);
 	}
-	/**
-	 * Build gift card Redeem Void request.
-	 * @param string $pan, the payment account number
-	 * @param string $pin, the personal identification number
-	 * @param string $entityId, the sales/quote entity_id value
-	 * @param string $amount, the amount to Redeem Void
-	 * @return DOMDocument The xml document, to be sent as request to eb2c.
-	 */
-	protected function _buildRequest($pan, $pin, $entityId, $amount)
-	{
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$storedValueRedeemVoidRequest = $domDocument->addElement('StoredValueRedeemVoidRequest', null, Mage::helper('eb2cpayment')->getXmlNs())->firstChild;
-		$storedValueRedeemVoidRequest->setAttribute('requestId', Mage::helper('eb2cpayment')->getRequestId($entityId));
-
-		// creating PaymentContent element
-		$paymentContext = $storedValueRedeemVoidRequest->createChild('PaymentContext', null);
-
-		// creating OrderId element
-		$paymentContext->createChild('OrderId', $entityId);
-
-		// creating PaymentAccountUniqueId element
-		$paymentContext->createChild('PaymentAccountUniqueId', $pan, array('isToken' => 'false'));
-
-		// add Pin
-		$storedValueRedeemVoidRequest->createChild('Pin', (string) $pin);
-
-		// add amount
-		$storedValueRedeemVoidRequest->createChild('Amount', $amount, array('currencyCode' => 'USD'));
-
-		return $domDocument;
-	}
-
 	/**
 	 * Parse gift card Redeem Void response xml.
 	 * @param string $storeValueRedeemVoidReply the xml response from eb2c

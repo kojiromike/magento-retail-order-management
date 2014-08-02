@@ -21,12 +21,19 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 	 */
 	public function testGetRedeem()
 	{
+		$pan = '80000000000000';
+		$pin = '1234';
+		$entityId = 1;
+		$amount = 1.0;
+		$isVoid = false;
+		$operation = 'get_gift_card_redeem';
+
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML(
 			'<StoredValueRedeemRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0" requestId="1">
 				<PaymentContext>
 					<OrderId>1</OrderId>
-					<PaymentAccountUniqueId isToken="false">80000000000000</PaymentAccountUniqueId>
+					<PaymentAccountUniqueId isToken="false">' . $pan . '</PaymentAccountUniqueId>
 				</PaymentContext>
 				<Pin>1234</Pin>
 				<Amount currencyCode="USD">1.0</Amount>
@@ -35,17 +42,27 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 
 		$paymentHelperMock = $this->getHelperMockBuilder('eb2cpayment/data')
 			->disableOriginalConstructor()
-			->setMethods(array('getSvcUri', 'getConfigModel'))
+			->setMethods(array('getSvcUri', 'getConfigModel', 'buildRedeemRequest'))
 			->getMock();
 		$paymentHelperMock->expects($this->once())
 			->method('getSvcUri')
-			->with($this->equalTo('get_gift_card_redeem'), $this->equalTo('80000000000000'))
+			->with($this->equalTo($operation), $this->equalTo($pan))
 			->will($this->returnValue('https://api.example.com/vM.m/stores/storeId/payments/storedvalue/redeem/GS.xml'));
 		$paymentHelperMock->expects($this->once())
 			->method('getConfigModel')
 			->will($this->returnValue((object) array(
 				'xsdFileStoredValueRedeem' => 'Payment-Service-StoredValueRedeem-1.0.xsd'
 			)));
+		$paymentHelperMock->expects($this->once())
+			->method('buildRedeemRequest')
+			->with(
+				$this->equalTo($pan),
+				$this->equalTo($pin),
+				$this->equalTo($entityId),
+				$this->equalTo($amount),
+				$this->equalTo($isVoid)
+			)
+			->will($this->returnValue($doc));
 		$this->replaceByMock('helper', 'eb2cpayment', $paymentHelperMock);
 		$apiModelMock = $this->getModelMockBuilder('eb2ccore/api')
 			->setMethods(array('request', 'setStatusHandlerPath'))
@@ -64,7 +81,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 				'<StoredValueRedeemReply xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
 					<PaymentContext>
 						<OrderId>1</OrderId>
-						<PaymentAccountUniqueId isToken="false">80000000000000</PaymentAccountUniqueId>
+						<PaymentAccountUniqueId isToken="false">' . $pan . '</PaymentAccountUniqueId>
 					</PaymentContext>
 					<ResponseCode>Success</ResponseCode>
 					<AmountRedeemed currencyCode="USD">1.00</AmountRedeemed>
@@ -73,34 +90,28 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 			));
 		$this->replaceByMock('model', 'eb2ccore/api', $apiModelMock);
 
-		$redeemModelMock = $this->getModelMockBuilder('eb2cpayment/storedvalue_redeem')
-			->setMethods(array('buildStoredValueRedeemRequest'))
-			->getMock();
-		$redeemModelMock->expects($this->once())
-			->method('buildStoredValueRedeemRequest')
-			->with($this->equalTo('80000000000000'), $this->equalTo('1234'), $this->equalTo(1), $this->equalTo(1.0))
-			->will($this->returnValue($doc));
-
 		$testData = array(
 			array(
 				'expect' => '<StoredValueRedeemReply xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
 					<PaymentContext>
 						<OrderId>1</OrderId>
-						<PaymentAccountUniqueId isToken="false">80000000000000</PaymentAccountUniqueId>
+						<PaymentAccountUniqueId isToken="false">' . $pan . '</PaymentAccountUniqueId>
 					</PaymentContext>
 					<ResponseCode>Success</ResponseCode>
 					<AmountRedeemed currencyCode="USD">1.00</AmountRedeemed>
 					<BalanceAmount currencyCode="USD">1.00</BalanceAmount>
 				</StoredValueRedeemReply>',
-				'pan' => '80000000000000',
-				'pin' => '1234',
-				'entityId' => 1,
-				'amount' => 1.0
+				'pan' => $pan,
+				'pin' => $pin,
+				'entityId' => $entityId,
+				'amount' => $amount
 			),
 		);
 
 		foreach ($testData as $data) {
-			$this->assertSame($data['expect'], $redeemModelMock->getRedeem($data['pan'], $data['pin'], $data['entityId'], $data['amount']));
+			$this->assertSame($data['expect'], Mage::getModel('eb2cpayment/storedvalue_redeem')->getRedeem(
+				$data['pan'], $data['pin'], $data['entityId'], $data['amount']
+			));
 		}
 	}
 	/**
@@ -112,6 +123,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 		$pin = '1234';
 		$entityId = 1;
 		$amount = 1.0;
+		$operation = 'get_gift_card_redeem';
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML(
 			"<StoredValueRedeemRequest xmlns='http://api.gsicommerce.com/schema/checkout/1.0' requestId='1'>
@@ -128,7 +140,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 			->getMock();
 		$payHelper->expects($this->once())
 			->method('getSvcUri')
-			->with($this->equalTo('get_gift_card_redeem'), $this->equalTo('00000000000000'))
+			->with($this->equalTo($operation), $this->equalTo($pan))
 			->will($this->returnValue(''));
 		$this->replaceByMock('helper', 'eb2cpayment', $payHelper);
 		$this->assertSame('', Mage::getModel('eb2cpayment/storedvalue_redeem')->getRedeem($pan, $pin, $entityId, $amount));
@@ -151,26 +163,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 				'balanceAmount'          => 150.00,
 			),
 			Mage::getModel('eb2cpayment/storedvalue_redeem')->parseResponse($storeValueRedeemReply)
-		);
-	}
-	/**
-	 * @dataProvider dataProvider
-	 * @loadFixture loadConfig.yaml
-	 */
-	public function testBuildStoredValueRedeemRequest($pan, $pin, $entityId, $amount)
-	{
-		$this->assertSame(
-			preg_replace('/[ ]{2,}|[\t]/', '', str_replace(array("\r\n", "\r", "\n"), '',
-				'<StoredValueRedeemRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0" requestId="clientId-storeId-1">
-					<PaymentContext>
-						<OrderId>1</OrderId>
-						<PaymentAccountUniqueId isToken="false">4111111ak4idq1111</PaymentAccountUniqueId>
-					</PaymentContext>
-					<Pin>1234</Pin>
-					<Amount currencyCode="USD">50.00</Amount>
-				</StoredValueRedeemRequest>'
-			)),
-			trim(Mage::getModel('eb2cpayment/storedvalue_redeem')->buildStoredValueRedeemRequest($pan, $pin, $entityId, $amount)->C14N())
 		);
 	}
 }

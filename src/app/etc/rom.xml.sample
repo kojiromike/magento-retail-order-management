@@ -28,6 +28,11 @@ Copy this file to rom.xml and configure the appropriate values below.
 					<cron_expr>*/15 * * * *</cron_expr>
 				</schedule>
 			</eb2corder_order_create_retry>
+			<eb2corder_consume_order_event_messages>
+				<schedule>
+					<cron_expr>*/1 * * * *</cron_expr>
+				</schedule>
+			</eb2corder_consume_order_event_messages>
 		</jobs>
 	</crontab>
 	<default>

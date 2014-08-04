@@ -443,4 +443,30 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 			$nodes, $mapping, $xpath
 		));
 	}
+	/**
+	 * Provide test strings to convert from camelCase to underscores
+	 * @return array Args array of strings to convert
+	 */
+	public function provideStringToUnderscore()
+	{
+		return array(
+			array('nocase', 'nocase'),
+			array('camelCase', 'camel_case'),
+			array('CamelCase', 'camel_case'),
+			array('', ''),
+		);
+	}
+	/**
+	 * Test converting a camelCase string to an underscore_delimited string
+	 * @param  string $testString   input
+	 * @param  string $targetString expected output
+	 * @dataProvider provideStringToUnderscore
+	 */
+	public function testUnderscore($testString, $targetString)
+	{
+		$this->assertSame(
+			$targetString,
+			Mage::helper('eb2ccore')->underscoreWords($testString)
+		);
+	}
 }

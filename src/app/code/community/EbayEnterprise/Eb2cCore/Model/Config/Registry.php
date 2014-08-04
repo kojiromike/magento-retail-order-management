@@ -112,18 +112,6 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	}
 
 	/**
-	 * Convert the magic method name, minus the "get"/"is" to a
-	 * potential config key.
-	 * Changes CamelCase to underscore_words
-	 * @param string $name
-	 * @return string
-	 */
-	protected function _magicNameToConfigKey($name)
-	{
-		return strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', $name));
-	}
-
-	/**
 	 * Catch any unknown property references to try to magically retrieve config values.
 	 * Uses the stored store.
 	 *
@@ -135,8 +123,9 @@ class EbayEnterprise_Eb2cCore_Model_Config_Registry
 	{
 		$store = $this->getStore();
 		$isFlag = preg_match('/Flag$/', $name); // It's a flag if it ends with "Flag"
-		// Strip the "Flag" part if it exists.
-		$configKey = $this->_magicNameToConfigKey(substr($name, 0, strlen($name) - 4 * $isFlag));
+		// Get the string config key the path is mapped to - camelCase -> undersore_case
+		// and remove the trailing "Flag" if the name used is a flag
+		$configKey = Mage::helper('eb2ccore')->underscoreWords(substr($name, 0, strlen($name) - 4 * $isFlag));
 		try {
 			// Retrieve the actual config value, passing the $isFlag arg.
 			return $this->_getStoreConfigValue($configKey, $store, $isFlag);

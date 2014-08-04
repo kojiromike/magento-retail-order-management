@@ -24,12 +24,18 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	 */
 	protected $_orderCfg;
 	/**
-	 * @return self
+	 * @var EbayEnterprise_Eb2cOrder_Helper_Event
+	 */
+	protected $_orderEventHelper;
+	/**
+	 * Setup dependencies
+	 * @return void
 	 */
 	public function __construct()
 	{
 		$this->_log = Mage::helper('ebayenterprise_magelog');
 		$this->_orderCfg = Mage::helper('eb2corder')->getConfigModel();
+		$this->_orderEventHelper = Mage::helper('eb2corder/event');
 	}
 	/**
 	 * Replace the currently loaded order with a new instance containing
@@ -219,6 +225,35 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 				);
 			}
 		}
+	}
+	/*
+	 * Observer AMQP Messages for order events and dispatch additional specific
+	 * events based on the OrderEvent message received.
+	 * @param  Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function handleOrderEventMessage($observer)
+	{
+		$message = $observer->getEvent()->getMessage();
+		$eventName = $this->_orderEventHelper->getMessageEventName($message->body);
+		$this->_log->logDebug('[%s] Dispatching event %s', array(__CLASS__, $eventName));
+		Mage::dispatchEvent($eventName, array('message' => $message->body));
+		return $this;
+	}
+	/**
+	 * Consume order event messages from the AMQP queue
+	 * @return self
+	 */
+	public function consumeOrderEventMessages()
+	{
+		AmqpAutoload_Autoload::register();
+		$amqpConfig = Mage::getModel('ebayenterprise_amqp/config', array(
+			'config_path' => 'eb2ccore/order_events',
+			'store' => Mage::app()->getStore(),
+		));
+		$consumer = Mage::getModel('ebayenterprise_amqp/consumer', array('config' => $amqpConfig));
+		$consumer->consumeQueue();
+		AmqpAutoload_Autoload::unregister();
 		return $this;
 	}
 	/**

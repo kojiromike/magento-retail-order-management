@@ -13,6 +13,11 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+// need to manually include these as the Magento autoloader is unable to load
+// file via namespaces
+require_once Mage::getBaseDir('lib') . DS . 'PhpAmqpLib' . DS . 'Wire' . DS . 'GenericContent.php';
+require_once Mage::getBaseDir('lib') . DS . 'PhpAmqpLib' . DS . 'Message' . DS . 'AMQPMessage.php';
+
 class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	// @var Varien_Event
@@ -389,7 +394,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			->with($this->isInstanceOf('Mage_Sales_Model_Order'), $this->isType('string'), $this->isType('string'))
 			->will($this->returnSelf());
 		$this->assertSame($observer, $observer->updateRejectedStatus($eventObserver));
-	}
+		}
 	/**
 	 * Test that the event 'ebayenterprise_order_event_back_order' is defined.
 	 */
@@ -425,6 +430,21 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			'eb2corder/observer',
 			'updateCanceledStatus'
 		);
+	}
+	/**
+	 * Test routing the generic event to specific OrderEvent events.
+	 */
+	public function testHandleOrderEventMessage()
+	{
+		$message = new PhpAmqpLib\Message\AMQPMessage('<?xml version="1.0"?>
+<OrderEvent>
+	<MessageHeader><stuff/></MessageHeader>
+	<OrderAccepted EventType="Accepted"><Order>Foobar</Order></OrderAccepted>
+</OrderEvent>');
+
+		$this->event->setData(array('message' => $message));
+		Mage::getModel('eb2corder/observer')->handleOrderEventMessage($this->observer);
+		$this->assertEventDispatched('ebayenterprise_order_event_accepted');
 	}
 	/**
 	 * Verify an xpath is generated that will select order id's for cancel

@@ -592,4 +592,13 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 		return $data;
 	}
+	/**
+	 * Convert camelCase to underscore_case
+	 * @param  string $value
+	 * @return string
+	 */
+	public function underscoreWords($value)
+	{
+		return strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', $value));
+	}
 }

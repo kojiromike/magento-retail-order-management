@@ -88,6 +88,14 @@
 					</eb2corder_update_event_order_status_rejected>
 				</observers>
 			</ebayenterprise_order_event_rejected>
+			<amqp_message_received_order_event>
+				<observers>
+					<ebayenterprise_amqp>
+						<class>eb2corder/observer</class>
+						<method>handleOrderEventMessage</method>
+					</ebayenterprise_amqp>
+				</observers>
+			</amqp_message_received_order_event>
 			<ebayenterprise_order_event_cancel>
 				<observers>
 					<eb2corder_update_event_order_status_cancel>
@@ -106,6 +114,11 @@
 					<model>eb2corder/create::retryOrderCreate</model>
 				</run>
 			</eb2corder_order_create_retry>
+			<eb2corder_consume_order_event_messages>
+				<run>
+					<model>eb2corder/observer::consumeOrderEventMessages</model>
+				</run>
+			</eb2corder_consume_order_event_messages>
 		</jobs>
 	</crontab>
 	<frontend>
@@ -250,6 +263,39 @@
 			<email>
 				<transactional_emailer>'mage'</transactional_emailer>
 			</email>
+			<order_management>
+				<event_order_status_backorder>holded</event_order_status_backorder>
+				<event_order_status_rejected>canceled</event_order_status_rejected>
+			</order_management>
+			<order_events>
+				<!-- necessary to get the config value auto-decrypted -->
+				<password backend_model="adminhtml/system_config_backend_encrypted" />
+				<!-- sensible defaults for this module -->
+				<vhost>/</vhost>
+				<port>5672</port>
+				<connection_type>PhpAmqpLib\Connection\AMQPConnection</connection_type>
+				<connection_insist>0</connection_insist>
+				<connection_login_method></connection_login_method>
+				<connection_locale>en-US</connection_locale>
+				<connection_timeout>3</connection_timeout>
+				<connection_read_write_timeout>3</connection_read_write_timeout>
+				<connection_context></connection_context>
+				<exchange_type>direct</exchange_type>
+				<exchange_name></exchange_name>
+				<exchange_passive>0</exchange_passive>
+				<exchange_durable>0</exchange_durable>
+				<exchange_auto_delete>0</exchange_auto_delete>
+				<exchange_internal>0</exchange_internal>
+				<exchange_nowait>0</exchange_nowait>
+				<queue_passive>0</queue_passive>
+				<queue_durable>1</queue_durable>
+				<queue_exclusive>0</queue_exclusive>
+				<queue_auto_delete>0</queue_auto_delete>
+				<queue_nowait>0</queue_nowait>
+				<route_keys></route_keys>
+				<queue_binding_nowait>0</queue_binding_nowait>
+				<message_event_suffix>order_event</message_event_suffix>
+			</order_events>
 		</eb2ccore>
 		<eb2corder>
 			<api>

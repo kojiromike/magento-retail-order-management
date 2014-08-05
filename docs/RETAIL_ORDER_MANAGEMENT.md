@@ -20,6 +20,14 @@ This module does not change how Magento determines which gift options are availa
 
 When making gift options available to customers, it is advised that the user interface be customized to make only the options supported by this extension and agreements with eBay Enterprise available.
 
+## Order Creation
+
+The eBay Enterprise Retail Order Management Extension will save and resubmit orders that fail due to temporary issues or downtime with the Retail Order Management API.
+
+- Orders will be created in a state of _new_ with status of _unsubmitted_.
+- When an order is successfully created using the Retail Order Management API, the order status will be updated to _pending_.
+- A cron job will regularly look for orders with an _unsubmitted_ status and resubmit those orders.
+
 ## Order History
 
 When displaying orders from ROMS to the customer:

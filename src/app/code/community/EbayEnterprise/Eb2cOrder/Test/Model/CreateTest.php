@@ -103,7 +103,7 @@ INVALID_XML;
 	 *                real EbayEnterprise_Eb2cTax_Model_Response_Quote object elements with data loaded to them. Each iteration from the
 	 *                EbayEnterprise_Eb2cTax_Model_Resource_Response_Quote_Collection::getIterator result will call the
 	 *                Mage_Tax_Model_Calculation::round method 3 times
-	 * Expectation 4: the class property EbayEnterprise_Eb2cOrder_Model_Create::_domRequest is expected to be initalized with an object of
+	 * Expectation 4: the class property EbayEnterprise_Eb2cOrder_Model_Create::_domRequest is expected to be initialized with an object of
 	 *                EbayEnterprise_Dom_Document type, so the test set this property to a known state with the instantiation of
 	 *                EbayEnterprise_Dom_Document class
 	 * @mock Mage_Tax_Model_Calculation::round
@@ -208,6 +208,9 @@ INVALID_XML;
 	 */
 	public function testObserverCreate()
 	{
+		$expectedInitialState = 'new';
+		$expectedInitialStatus = 'unsubmitted';
+
 		$order = Mage::getModel('sales/order');
 		$event = new Varien_Event(array('order' => $order));
 		$observer = new Varien_Event_Observer(array('event' => $event));
@@ -223,6 +226,12 @@ INVALID_XML;
 			->method('sendRequest')
 			->will($this->returnSelf());
 		$create->observerCreate($observer);
+
+		// assert that the initial order state is new.
+		$this->assertSame($expectedInitialState, $order->getState());
+
+		// assert that the initial order status is unsubmitted.
+		$this->assertSame($expectedInitialStatus, $order->getStatus());
 	}
 	/**
 	 * Successful sending of the request should take the already constructed OrderCreate
@@ -358,35 +367,24 @@ INVALID_XML;
 	{
 		$collection = $this->getResourceModelMockBuilder('sales/order_collection')
 			->disableOriginalConstructor()
-			->setMethods(array(
-				'addAttributeToSelect',
-				'addFieldToFilter',
-				'load',
-			))
+			->setMethods(array('addAttributeToSelect', 'addFieldToFilter'))
 			->getMock();
-		$collection->expects($this->once())
+		$collection->expects($this->any())
 			->method('addAttributeToSelect')
 			->with($this->identicalTo('*'))
 			->will($this->returnSelf());
-		$collection->expects($this->once())
+		$collection->expects($this->any())
 			->method('addFieldToFilter')
-			->with(
-				$this->identicalTo('state'),
-				$this->identicalTo(array('eq' => 'new'))
-			)
-			->will($this->returnSelf());
-		$collection->expects($this->once())
-			->method('load')
-			->will($this->returnSelf());
+			->will($this->returnValueMap(array(
+				array('state', array('eq' => 'new'), $collection),
+				array('status', array('eq' => 'unsubmitted'), $collection)
+			)));
 		$this->replaceByMock('resource_model', 'sales/order_collection', $collection);
-		$testModel = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
-			->setMethods(array('none'))
-			->getMock();
-		$this->assertSame(
-			$collection,
-			EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_getNewOrders')
-		);
+
+		$create = Mage::getModel('eb2corder/create');
+		$this->assertSame($collection, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$create, '_getNewOrders', array()
+		));
 	}
 	/**
 	 * verify the delivery window dates are extracted from $item
@@ -477,13 +475,13 @@ INVALID_XML;
 	{
 		$mockRequestMessage = '<MockRequest/>';
 		$mockResponseMessage = '<MockResponse/>';
-		$expectedState = 'NEW';
+		$expectedStatus = 'unsubmitted';
 
 		$orderCreate = $this->getModelMockBuilder('eb2corder/create')
 			->disableOriginalConstructor()
-			->setMethods(array('_extractResponseState'))
+			->setMethods(array('_extractResponseStatus'))
 			->getMock();
-		$order = $this->getModelMock('sales/order', array('setState', 'setEb2cOrderCreateRequest'));
+		$order = $this->getModelMock('sales/order', array('setStatus', 'setEb2cOrderCreateRequest'));
 		$requestDom = new DOMDocument();
 		$requestDom->loadXML($mockRequestMessage);
 
@@ -495,8 +493,8 @@ INVALID_XML;
 		);
 
 		$order->expects($this->once())
-			->method('setState')
-			->with($this->identicalTo($expectedState))
+			->method('setStatus')
+			->with($this->identicalTo($expectedStatus))
 			->will($this->returnSelf());
 		$order->expects($this->once())
 			->method('setEb2cOrderCreateRequest')
@@ -504,9 +502,9 @@ INVALID_XML;
 			->will($this->returnSelf());
 
 		$orderCreate->expects($this->once())
-			->method('_extractResponseState')
+			->method('_extractResponseStatus')
 			->with($this->identicalTo($mockResponseMessage))
-			->will($this->returnValue($expectedState));
+			->will($this->returnValue($expectedStatus));
 
 		$this->assertSame(
 			$orderCreate,
@@ -522,7 +520,7 @@ INVALID_XML;
 	 * we should see a value of STATE_PROCESSING. Otherwise, we should see STATE_NEW.
 	 *
 	 */
-	public function testExtractResponseState()
+	public function testExtractResponseStatus()
 	{
 		// stub out the order helper used for translating the failure message
 		$translateHelper = $this->getHelperMock('eb2corder/data', array('__'));
@@ -530,12 +528,27 @@ INVALID_XML;
 		$this->replaceByMock('helper', 'eb2corder', $translateHelper);
 
 		$create = Mage::getModel('eb2corder/create');
-		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseState', array('')));
-		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseState', array('<fail/>')));
-		$this->assertSame(Mage_Sales_Model_Order::STATE_NEW, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseState', array('<_><ResponseStatus>nobodyhome!</ResponseStatus></_>')));
-		$this->assertSame(Mage_Sales_Model_Order::STATE_PROCESSING, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseState', array('<_><ResponseStatus>sUcCeSs</ResponseStatus></_>')));
+		$this->assertSame(
+			EbayEnterprise_Eb2cOrder_Model_Create::STATUS_UNSUBMITTED,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseStatus', array(''))
+		);
+		$this->assertSame(
+			EbayEnterprise_Eb2cOrder_Model_Create::STATUS_UNSUBMITTED,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseStatus', array('<fail/>'))
+		);
+		$this->assertSame(
+			EbayEnterprise_Eb2cOrder_Model_Create::STATUS_UNSUBMITTED,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseStatus', array('<_><ResponseStatus>nobodyhome!</ResponseStatus></_>'))
+		);
+		$this->assertSame(
+			EbayEnterprise_Eb2cOrder_Model_Create::STATUS_PENDING,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseStatus', array('<_><ResponseStatus>sUcCeSs</ResponseStatus></_>'))
+		);
+
 		$this->setExpectedException('EbayEnterprise_Eb2cOrder_Exception_Order_Create_Fail');
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_extractResponseState', array('<_><ResponseStatus>fail</ResponseStatus></_>'));
+		EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$create, '_extractResponseStatus', array('<_><ResponseStatus>fail</ResponseStatus></_>')
+		);
 	}
 	/**
 	 * Test _buildItems method

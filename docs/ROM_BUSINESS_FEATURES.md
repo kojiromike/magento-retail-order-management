@@ -90,7 +90,7 @@ Regardless of the mode of operation, the ROM Extension enables all of the follow
 
 ### Order Services
 * Orders are accepted realtime into ROMS from the Magento store.
-
+* Fail orders will be resubmitted into ROMS via an automated cron job.
 * Customer order history for registered users and guest order search is pulled from ROMS in realtime.
 
 ###Product Management

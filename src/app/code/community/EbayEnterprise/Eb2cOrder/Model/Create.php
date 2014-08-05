@@ -67,6 +67,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const DISCOUNT_DESCRIPTION_NODE = 'Description';
 	const DISCOUNT_EFFECT_TYPE_NODE = 'EffectType';
 
+	// The initial status of an order
+	const STATUS_UNSUBMITTED = 'unsubmitted';
+	// The status when ROM order create return success
+	const STATUS_PENDING = 'pending';
+
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -103,7 +108,18 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	public function observerCreate($event)
 	{
-		$this->buildRequest($event->getEvent()->getOrder())
+		$order = $event->getEvent()->getOrder();
+		// Depending on the payment method use for this order
+		// and the configured setting the initial state might not
+		// be 'new'. Ensuring the state is 'new' if not reset it back to new.
+		// @see Mage_Sales_Model_Order_Payment::place
+		if ($order->getState() !== Mage_Sales_Model_Order::STATE_NEW) {
+			$order->setState(Mage_Sales_Model_Order::STATE_NEW);
+		}
+		// always set the initial status of the order to 'unsubmitted'.
+		$order->setStatus(static::STATUS_UNSUBMITTED);
+
+		$this->buildRequest($order)
 			->sendRequest();
 	}
 	/**
@@ -125,17 +141,17 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	/**
 	 * Extract the response status from the response xml string. When the service
 	 * indicates a success, assume the order has been received by the OMS and
-	 * is being processed - place the order in "STATE_PROCESSING". When the
+	 * is being processed - place the order in "STATUS_PENDING". When the
 	 * service explicitly indicates a failure, assume the order cannot be placed
 	 * into the OMS and cannot be created - throw exception to prevent order
 	 * creation. Under any other circumstances, assume some transient error has
 	 * prevented the OMS from receiving the order so keep the order to be retried
-	 * later - place the order in "STATE_NEW".
+	 * later - place the order in "STATUS_UNSUBMITTED".
 	 * @param string $response, the response string xml from eb2c request
-	 * @return string, Mage_Sales_Model_Order::STATE_PROCESSING | Mage_Sales_Model_Order::STATE_NEW
+	 * @return string, self::STATUS_PENDING | self::STATUS_UNSUBMITTED
 	 * @throws EbayEnterprise_Eb2cOrder_Exception_Order_Create_Fail if the response indicates a failure
 	 */
-	protected function _extractResponseState($response)
+	protected function _extractResponseStatus($response)
 	{
 		if (trim($response) !== '') {
 			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
@@ -143,14 +159,14 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$statusEle = $doc->getElementsByTagName('ResponseStatus')->item(0);
 			$status = $statusEle ? strtoupper(trim($statusEle->nodeValue)) : '';
 			if ($status === static::RESPONSE_SUCCESS_STATUS) {
-				return Mage_Sales_Model_Order::STATE_PROCESSING;
+				return static::STATUS_PENDING;
 			} elseif ($status === static::RESPONSE_FAILURE_STATUS) {
 				throw new EbayEnterprise_Eb2cOrder_Exception_Order_Create_Fail(
 					Mage::helper('eb2corder')->__(static::ORDER_CREATE_FAIL_MESSAGE)
 				);
 			}
 		}
-		return Mage_Sales_Model_Order::STATE_NEW;
+		return static::STATUS_UNSUBMITTED;
 	}
 	/**
 	 * processing the request response from eb2c by extracting the response message if the current state of the order
@@ -163,18 +179,18 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _processResponse($response)
 	{
-		$state = $this->_extractResponseState($response);
-		$this->_o->setState($state, true);
+		$status = $this->_extractResponseStatus($response);
+		$this->_o->setStatus($status, true);
 		Mage::helper('ebayenterprise_magelog')->logDebug(
-			'[%s] setting order (%s) state to %s',
-			array(__METHOD__, $this->_o->getIncrementId(), $state)
+			'[%s] setting order (%s) status to %s',
+			array(__METHOD__, $this->_o->getIncrementId(), $status)
 		);
 		Mage::dispatchEvent('eb2c_order_create_succeeded', array('order' => $this->_o));
 		$this->_o->setEb2cOrderCreateRequest($this->_domRequest->saveXML());
 		return $this;
 	}
 	/**
-	 * to be implented in the future, if we have gms extension that can provide the url source and type
+	 * to be implemented in the future, if we have GMS extension that can provide the URL source and type
 	 * As this is just a placeholder method for future implementation, no need to cover it
 	 * @codeCoverageIgnore
 	 * @return array, source data
@@ -303,7 +319,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		return $this;
 	}
 	/**
-	 * Build DOM additonal node
+	 * Build DOM additional node
 	 * @param EbayEnterprise_Dom_Element $order
 	 * @return self
 	 */
@@ -842,8 +858,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			->addChild('CharSet', $this->_xsdString($this->_o->getEb2cFraudCharSet()));
 	}
 	/**
-	 * getting the referrer value as self::BACKEND_ORDER_SOURCE when the order is placed via admin
-	 * otherwise theis order is being placed in the frontend return this constant value self::FRONTEND_ORDER_SOURCE
+	 * getting the referrer value as self::BACKEND_ORDER_SOURCE when the order is placed via ADMIN
+	 * otherwise this order is being placed in the FRONTEND return this constant value self::FRONTEND_ORDER_SOURCE
 	 * @return string
 	 */
 	protected function _getOrderSource()
@@ -863,7 +879,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	/**
 	 * Get the Exchange shipping charge type for the given shipping method.
 	 * Currently, all shipping charges being sent as 'FLATRATE' for order level shipping charges.
-	 * Full implementation supporting order level and item level shippin gamounts
+	 * Full implementation supporting order level and item level shipping amounts
 	 * will likely need to look up the shipping method for the order and
 	 * make a better determination as to the charge type for the shipping.
 	 *
@@ -926,15 +942,15 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		return $this;
 	}
 	/**
-	 * fetch all order with state new
+	 * Fetch all orders with state 'new' and status 'unsubmitted'.
 	 * @return Mage_Sales_Model_Order_Resource_Collection
 	 */
 	protected function _getNewOrders()
 	{
 		return Mage::getResourceModel('sales/order_collection')
 			->addAttributeToSelect('*')
-			->addFieldToFilter('state', array('eq' => 'new'))
-			->load();
+			->addFieldToFilter('state', array('eq' => Mage_Sales_Model_Order::STATE_NEW))
+			->addFieldToFilter('status', array('eq' => static::STATUS_UNSUBMITTED));
 	}
 	/**
 	 * Parse the credit card expiration date from a pbridge payment

@@ -283,12 +283,67 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		// emulate the expected side-effect of the replaceCurrentOrder method.
 		$observerModel->expects($this->once())
 			->method('replaceCurrentOrder')
-			->will($this->returnCallback(function () use ($order) {
-				Mage::unregister('current_order');
-				Mage::register('current_order', $order);
-			}));
+			->will($this->returnCallback(
+				function () use ($order) {
+					Mage::unregister('current_order');
+					Mage::register('current_order', $order);
+				}));
 		$observerModel->prepareForPrintShipment($this->observer);
 		// ensure the shipment model we expect has been stored in the registry.
 		$this->assertSame($this->shipment, Mage::registry('current_shipment'));
+	}
+	/**
+	 * Test that the event 'ebayenterprise_order_event_back_order' will be dispatched
+	 * by this test and the EbayEnterprise_Eb2cOrder_Model_Observer::updateBackOrderStatus
+	 * method will observer it, extract the proper data and modified order state
+	 * and status accordingly.
+	 * @param int $id
+	 * @param bool $isException flag to determine when to mock the sales/order::save
+	 *        method to throw an excecption
+	 * @dataProvider dataProvider
+	 */
+	public function testUpdateBackOrderStatus($id, $isException)
+	{
+		$message = file_get_contents(__DIR__ . '/ObserverTest/fixtures/OrderBackordered.xml', true);
+		$state = Mage_Sales_Model_Order::STATE_HOLDED;
+		$status = 'holded';
+
+		$exceptionMsg = 'Simulate Backordered Status Fail to save order';
+		$orderMock = $this->getModelMock('sales/order', array('loadByIncrementId', 'save'));
+		$orderMock->expects($this->any())
+			->method('loadByIncrementId')
+			->will($this->returnSelf());
+		$orderMock->expects($this->any())
+			->method('save')
+			->will(
+				$isException ? $this->throwException(Mage::exception('Mage_Core', $exceptionMsg)) : $this->returnSelf()
+			);
+		$orderMock->setId($id);
+
+		$collection = Mage::helper('eb2ccore')->getNewVarienDataCollection();
+		$collection->addItem($orderMock);
+
+		$helperMock = $this->getHelperMock('eb2corder/data', array(
+			'getConfigModel', 'getOrderCollectionByIncrementIds'
+		));
+		$helperMock->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'eventOrderStatusBackorder' => $status
+			))));
+		$helperMock->expects($this->any())
+			->method('getOrderCollectionByIncrementIds')
+			->will($this->returnValue($collection));
+		$this->replaceByMock('helper', 'eb2corder', $helperMock);
+
+		// Dispatching backordered event to make sure the obsever is listening.
+		Mage::dispatchEvent('ebayenterprise_order_event_back_order', array('message' => $message));
+
+		if (!$isException && $id) {
+			// Asserting that the order state has been set to holded.
+			$this->assertSame($state, $orderMock->getState());
+			// Asserting that the order status has been set to backordered status configured value.
+			$this->assertSame($status, $orderMock->getStatus());
+		}
 	}
 }

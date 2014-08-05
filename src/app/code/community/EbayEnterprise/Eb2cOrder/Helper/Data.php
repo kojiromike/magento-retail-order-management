@@ -26,7 +26,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Cache of Magento order states so as to prevent the order status table
 	 * from being queried multiple times.
-	 * @var Mage_Sales_Model_Resource_Model_Status_Collection
+	 * @var Mage_Sales_Model_Resource_Order_Status_Collection
 	 */
 	protected $_orderStatusCollection;
 	/**
@@ -206,5 +206,49 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 		// must return a string
 		return (string) $incrementId;
+	}
+	/**
+	 * Build option array for populating dropdown select input fields.
+	 * @see EbayEnterprise_Eb2cOrder_Model_System_Config_Source_Event_Order_Status_Backorder::toOptionArray
+	 * @param string $state
+	 * @return array
+	 */
+	public function getOrderStatusOptionArrayByState($state)
+	{
+		return Mage::getResourceModel('sales/order_status_collection')
+			->joinStates()
+			->addStateFilter($state)
+			->toOptionArray();
+	}
+	/**
+	 * Extract all increment ids from an order event xml string.
+	 * @param string $xml
+	 * @return array
+	 */
+	public function extractOrderEventIncrementId($xml)
+	{
+		$helper = Mage::helper('eb2ccore');
+		$data = array();
+		$doc = $helper->getNewDomDocument();
+		$doc->loadXML($xml);
+		$xpath = $helper->getNewDomXPath($doc);
+		$nodeList = $xpath->query('//Order', $doc->documentElement);
+		foreach ($nodeList as $nodes) {
+			$list = $xpath->query('IncrementId', $nodes);
+			if ($list->length) {
+				$data[] = $list->item(0)->nodeValue;
+			}
+		}
+		return $data;
+	}
+	/**
+	 * Getting a collection of sales/order object that's in an array of increment ids.
+	 * @param  array  $incrementIds
+	 * @return Mage_Sales_Model_Resource_Order_Collection
+	 */
+	public function getOrderCollectionByIncrementIds(array $incrementIds=array())
+	{
+		return Mage::getResourceModel('sales/order_collection')
+			->addFieldToFilter('increment_id', array('in' => $incrementIds));
 	}
 }

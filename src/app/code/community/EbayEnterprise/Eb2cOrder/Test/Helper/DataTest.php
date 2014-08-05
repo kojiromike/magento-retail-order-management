@@ -263,7 +263,7 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 			->method('_getSummaryOrderCollection')
 			->will($this->returnValue($emptyCollection));
 		// make the call to ensure proper behavior of collection filtering
-		$orders = $helper->getCurCustomerOrders();
+		$helper->getCurCustomerOrders();
 	}
 	/**
 	 * Provide a customer id, configured customer id prefix and the fully prefixed id

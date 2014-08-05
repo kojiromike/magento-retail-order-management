@@ -15,6 +15,23 @@
 
 class EbayEnterprise_Eb2cOrder_Model_Observer
 {
+	const BACKORDER_EVENT_NAME = 'backorder';
+	/**
+	 * @var EbayEnterprise_MageLog_Helper_Data
+	 */
+	protected $_log;
+	/**
+	 * @var EbayEnterprise_Eb2cCore_Model_Config_Registry
+	 */
+	protected $_orderCfg;
+	/**
+	 * @return self
+	 */
+	public function __construct()
+	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_orderCfg = Mage::helper('eb2corder')->getConfigModel();
+	}
 	/**
 	 * Replace the currently loaded order with a new instance containing
 	 * data from the order detail response.
@@ -92,6 +109,7 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	}
 	/**
 	 * register the order and the shipment from the detail response.
+	 * @param  Varien_Event_Observer $observer
 	 * @return self
 	 */
 	public function prepareForPrintShipment(Varien_Event_Observer $observer)
@@ -102,6 +120,69 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 		Mage::register('current_shipment', $order->getShipmentsCollection()->getItemById(
 			Mage::app()->getRequest()->getParam('shipment_id')
 		));
+		return $this;
+	}
+	/**
+	 * Listened to the event 'ebayenterprise_order_event_back_order' when it get
+	 * dispatch in order to consume and extract order increment ids load a collection
+	 * with it and then proceed to update each order state and status to 'holded'
+	 * and the configured status respectively.
+	 * @param Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function updateBackOrderStatus(Varien_Event_Observer $observer)
+	{
+		$orders = $this->_loadOrdersFromXml(trim($observer->getEvent()->getMessage()));
+		if ($orders) {
+			foreach ($orders as $order) {
+				$this->_updateOrderStatus(
+					$order, Mage_Sales_Model_Order::STATE_HOLDED,
+					$this->_orderCfg->eventOrderStatusBackorder,
+					static::BACKORDER_EVENT_NAME
+				);
+			}
+		}
+		return $this;
+	}
+	/**
+	 * Responsible for extracting order increment ids from a passed in xml string
+	 * and then load a collection of sales/order that's in the list of increment ids.
+	 * @param string $xml
+	 * @return Mage_Sales_Model_Resource_Order_Collection | null
+	 */
+	protected function _loadOrdersFromXml($xml)
+	{
+		if ($xml) {
+			$orderHelper = Mage::helper('eb2corder');
+			return $orderHelper->getOrderCollectionByIncrementIds(
+				$orderHelper->extractOrderEventIncrementId($xml)
+			);
+		}
+		return null;
+	}
+	/**
+	 * Attempt to update the state and status of a passed in order with the passed
+	 * in status and state. Logged any exception that get thrown when saving
+	 * the sales/order object.
+	 * @param  Mage_Sales_Model_Order $order
+	 * @param  string $state
+	 * @param  string $status
+	 * @param  string $eventName
+	 * @return self
+	 */
+	protected function _updateOrderStatus(Mage_Sales_Model_Order $order, $state, $status, $eventName)
+	{
+		$order->setState($state, $status);
+		try {
+			$order->save();
+		} catch (Exception $e) {
+			// Catching any exception that might be thrown due to saving an order
+			// with a configured status and state.
+			$this->_log->logInfo(
+				'[%s] Exception "%s" was thrown while saving status for order #: %s for the following event %s status.',
+				array(__CLASS__, $e->getMessage(), $order->getIncrementId(), $eventName)
+			);
+		}
 		return $this;
 	}
 }

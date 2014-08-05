@@ -572,7 +572,6 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 		$data = array();
 		$coreHelper = Mage::helper('eb2ccore');
 		foreach ($mapping as $key => $callback) {
-			$callback = $mapping[$key];
 			if ($callback['type'] !== 'disabled') {
 				$result = $xpath->query($callback['xpath'], $contextNode);
 				if ($result->length) {

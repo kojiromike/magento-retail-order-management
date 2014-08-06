@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="http://api.gsicommerce.com/schema/events/1.0.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://api.gsicommerce.com/schema/events/1.0.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="types/OrderItem.xsd"/>
+	<xs:include schemaLocation="types/Relationship.xsd"/>
+	<xs:element name="Order" type="OrderType"/>
+	<xs:complexType name="OrderType">
+		<xs:sequence>
+			<xs:element name="Retrigger" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Specifies if this order has been submitted previously.
+Allowable Values: Boolean
+True - This order is a retrigger, and has been submitted previously
+Falsoe - This order has not been submitted previously 
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EmailEvent" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Specifies the type of email event associated with this order.
+Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OrderHeader" type="OrderHeaderType" nillable="false"/>
+			<xs:element name="HeaderCharges" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Holds all Header Level Charges within this as multiple HeaderCharge elements. Each HeaderCharge element has a
+type attribute associated which identifies what type of Charge/Surcharge/Fees it is</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="HeaderCharge">
+							<xs:annotation>
+								<xs:documentation>HeaderCharge is Header level Charges/Surcharges that can be applied on the Order. Certain examples are CODSurcharge, CVSSurcharge.</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:simpleContent>
+									<xs:extension base="xs:string">
+										<xs:attribute name="type" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>Defines the surcharge.
+Allowable Values: 
+CODSurcharge
+CVSSurchage
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:attribute>
+									</xs:extension>
+								</xs:simpleContent>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Status" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OrderIsCancellable" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Indicates if the order is cancellable.
+Allowable Values: Boolean
+True - order is cancellable
+False - order is not cancellable
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OrderAuditRef1" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OrderHistoryURL" type="xs:anyURI" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Webstore URL that points the user to the history of order.This can be combined with the  tracking number to direct the user to p;ackage tracking website
+Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OrderItems" type="OrderItemsType" minOccurs="0"/>
+			<xs:element name="CancelRefNumber" type="xs:string" minOccurs="0"/>
+			<xs:element name="ShippingSequenceNumber" type="xs:int" minOccurs="0"/>
+			<xs:element name="AlternateCustomerNumber" type="xs:double" minOccurs="0"/>
+			<xs:element name="OrderCancelReason" type="OrderCancelReasonType" minOccurs="0"/>
+			<xs:element name="GiftCertificate" type="ElectronicGiftCertificateType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="TenderIssuedList" type="TenderIssuedListType" minOccurs="0"/>
+			<xs:element name="InvoiceTendersPresent" type="InvoiceTendersListType" minOccurs="0"/>
+			<xs:element name="OrderSubTotalAmount" type="PriceType" minOccurs="0"/>
+			<xs:element name="OrderShippingAmount" type="PriceType" minOccurs="0"/>
+			<xs:element name="OrderTaxAmount" type="OrderTaxAmountType" minOccurs="0"/>
+			<xs:element name="OrderDutyAmount" type="PriceType" minOccurs="0"/>
+			<xs:element name="OrderTaxTotal" type="OrderTaxTotalType" minOccurs="0"/>
+			<xs:element name="OrderFeesAmount" type="PriceType" minOccurs="0"/>
+			<xs:element name="MerchandiseSubTotal" type="PriceType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>This is Order subtotal exclusive of promos</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OrderSpecialHandlingAmount" type="PriceType" minOccurs="0"/>
+			<xs:element name="OrderGiftWrapAmount" type="PriceType" minOccurs="0"/>
+			<xs:element name="OrderDiscountAmount" type="PriceType" minOccurs="0"/>
+			<xs:element name="OrderTotalAmount" type="PriceType" minOccurs="0"/>
+			<xs:element name="ShippingAddress" type="OrderAddressType" minOccurs="0"/>
+			<xs:element name="BillingAddress" type="OrderAddressType" minOccurs="0"/>
+			<xs:element name="AccountNumber" type="xs:string" minOccurs="0"/>
+			<xs:element name="ApplicationType" type="xs:string" minOccurs="0"/>
+			<xs:element name="Organization" type="xs:string" minOccurs="0"/>
+			<xs:element name="BrowserId" type="xs:anyURI" minOccurs="0"/>
+			<xs:element name="ORSOCode" type="xs:string" minOccurs="0"/>
+			<xs:element name="OrderSourceType" type="xs:string" minOccurs="0"/>
+			<xs:element name="CVSPaymentId" type="xs:string" minOccurs="0"/>
+			<xs:element name="CVSPaymentGroup" type="xs:string" minOccurs="0"/>
+			<xs:element name="CVSUrl" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="MarketplaceOrderReference1" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="MarketplaceOrderReference2" type="xs:string" minOccurs="0"/>
+			<xs:element name="AOSIdentifiers" type="AOSIdentifiersType" minOccurs="0"/>
+			<xs:element name="DonationFlag" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="Donation" type="DonationIdentifierType" minOccurs="0"/>
+			<xs:element name="HasVAT" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="TotalVAT" type="PriceType" minOccurs="0"/>
+			<xs:element name="MessageSource" type="xs:string" minOccurs="0"/>
+			<xs:element name="ShippingDelayType" type="ShippingDelayType" minOccurs="0"/>
+			<xs:element name="AreItemsInSingleInvoiceShippedInMultiplePackages" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="ReturnOrCredit" type="ReturnOrCreditType" minOccurs="0"/>
+			<xs:element name="ReplacementOrderGenerated" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="ShipToStoreMessage" type="ShipToStoreMessageType" minOccurs="0"/>
+			<xs:element name="Shipments" type="ShipmentList" minOccurs="0"/>
+			<xs:element name="IsItemLarge" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="ShippingMethod" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>ShippingMethod is the actual SCAC Code that was used for this Shipment. Used in emails for Tracking URL formation as well.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ShippingMethodName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>ShippingMethodName is the free form localized string that will appear on Email templates to be sent to the end customer as to what the actual ShippingMethod was. This field is for display purposes only</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CarrierServiceCode" type="xs:string" minOccurs="0"/>
+			<xs:element name="OrderShipmentType" type="OrderShipmentType" minOccurs="0"/>
+			<xs:element name="RequestedDate" type="xs:date" minOccurs="0"/>
+			<xs:element name="Fees" type="FeeListType" minOccurs="0"/>
+			<xs:element name="ShopRunnerAuthenticationToken" type="xs:string" minOccurs="0"/>
+			<xs:element name="ShopRunnerMessage" type="xs:string" minOccurs="0"/>
+			<xs:element name="TaxAndDutyDisplayCode" type="xs:string" minOccurs="0"/>
+			<xs:element name="ModificationTypes" type="ModificationTypesType" minOccurs="0"/>
+			<xs:element name="OrderModifications" type="ModificationsType" minOccurs="0"/>
+			<xs:element name="TaxCredit" type="TaxCreditType" minOccurs="0"/>
+			<xs:element name="LoyaltyProgram" type="OrderLoyaltyProgramType" minOccurs="0"/>
+			<xs:element name="AdditionalValues" type="KeyValuePairList" minOccurs="0"/>
+			<xs:element name="Relationships" type="OrderItemRelationships" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OrderTaxTotalType">
+		<xs:sequence>
+			<xs:element name="Tax" type="TaxType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OrderTaxAmountType">
+		<xs:sequence>
+			<xs:element name="TotalTaxAmount" type="PriceType" nillable="false"/>
+			<xs:element name="CASalesTax" type="CASalesTaxType" minOccurs="0"/>
+			<xs:element name="USSalesTax" type="USSalesTaxKind" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CASalesTaxType">
+		<xs:sequence>
+			<xs:element name="CAGoodsTax" type="PriceType" minOccurs="0"/>
+			<xs:element name="CAHarmonizedSalesTax" type="PriceType" minOccurs="0"/>
+			<xs:element name="CAProvinceTax" type="CAProvinceTaxType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CAProvinceTaxType">
+		<xs:sequence>
+			<xs:element name="CAProvincialSalesTax" type="PriceType" minOccurs="0"/>
+			<xs:element name="CAQuebecSalesTax" type="PriceType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="USSalesTaxKind">
+		<xs:sequence>
+			<xs:element name="TaxAmount" type="PriceType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OrderItemsType">
+		<xs:sequence>
+			<xs:element name="OrderItem" type="OrderItem" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ModificationTypesType">
+		<xs:sequence>
+			<xs:element name="ModificationType" type="ModificationTypeType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ModificationTypeType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="Name" type="xs:string" use="optional"/>
+				<xs:attribute name="ScreenName" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="OrderShipmentType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Final"/>
+			<xs:enumeration value="Partial"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TenderType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Enumeration of the tender types supported by the retail engine. 
+				Reissue is used for scenarios where the refund is issued in the form of a new tender.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="CreditCard"/>
+			<xs:enumeration value="GiftCard"/>
+			<xs:enumeration value="GiftCertificate"/>
+			<xs:enumeration value="PayPal"/>
+			<xs:enumeration value="BillMeLater"/>
+			<xs:enumeration value="CashOnDelivery"/>
+			<xs:enumeration value="ConvenienceStorePayment"/>
+			<xs:enumeration value="Points"/>
+			<xs:enumeration value="Reissue"/>
+			<xs:enumeration value="PurchaseOrder"/>
+			<xs:enumeration value="OpenInvoice"/>
+			<xs:enumeration value="BankTransfer"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="TenderIssuedListType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">This type is used to contain a list of  Tenders that are given to a customer as credit for a return</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TenderItem" type="TenderItemType" nillable="false" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TenderItemType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">This item is used to contain details of Tender given to a customer as credit for a return</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TenderType" type="TenderType" nillable="false" minOccurs="0"/>
+			<xs:element name="TenderCodeType" type="TenderCodeType" nillable="false" minOccurs="0"/>
+			<xs:element name="TenderCardNumber" type="xs:string" nillable="false" minOccurs="0"/>
+			<xs:element name="TenderCardType" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Type of card used as tender (ex. VISA/MasterCard)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TenderCardDescription" type="xs:string" minOccurs="0"/>
+			<xs:element name="ExpirationDate" type="ExpDateType" nillable="false" minOccurs="0"/>
+			<xs:element name="TransactionId" type="xs:string" nillable="false" minOccurs="0"/>
+			<xs:element name="AuthorizationCode" type="xs:string" nillable="false" minOccurs="0"/>
+			<xs:element name="TenderAmount" type="PriceType" minOccurs="0"/>
+			<xs:element name="PointsRedeemed" type="xs:decimal" minOccurs="0"/>
+			<xs:element name="PaymentID" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>This is the unique reference ID used in OMS to identify the PaymentTransaction for PaymentMethods - CVS(ConvenienceStore) and COD (CashOnDelivery)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ConvenienceStoreName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>This is ConvenienceStoreName at which payment will be made by the Customer when Method of Payment = CVS is used</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PurchaseOrderNumber" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ElectronicGiftCertificateType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">GiftCertSecondaryCode is used when a different, secondary code number is associated with a gift certificate, such as a barcode. 
+				GiftCertFaceIdentifier is used to identify any type of asset associated with this giftcard, like an image to use as a cardface.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="GiftCertificateAction" type="xs:string" minOccurs="0"/>
+			<xs:element name="Denomination" type="PriceType"/>
+			<xs:element name="CreditAmount" type="PriceType" minOccurs="0"/>
+			<xs:element name="GiftCertCode" type="xs:string" minOccurs="0"/>
+			<xs:element name="GiftCertSecondaryCode" type="xs:string" minOccurs="0"/>
+			<xs:element name="GiftCertPin" type="xs:string" minOccurs="0"/>
+			<xs:element name="GiftCertFaceIdentifier" type="xs:string" minOccurs="0"/>
+			<xs:element name="Message" type="OrderItemMessageType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AOSIdentifiersType">
+		<xs:sequence>
+			<xs:element name="AOSIdentifier" type="AOSIdentifierType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AOSIdentifierType">
+		<xs:sequence>
+			<xs:element name="AssociateId" type="xs:string"/>
+			<xs:element name="AssociateType" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DonationIdentifierType">
+		<xs:sequence>
+			<xs:element name="DonationType" type="DonationType" minOccurs="0"/>
+			<xs:element name="DonationAmount" type="PriceType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="DonationType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ToysForTots"/>
+			<xs:enumeration value="AutismSpeaks"/>
+			<xs:enumeration value="SaveChild"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="OrderCancelReasonType">
+		<xs:annotation>
+			<xs:documentation>
+						STS = Ship-To-Store
+						MX = Multi-channel
+						CustomerRequested - Customer Request (Pre-Payment) 
+						STSProductReceivedDamagedExterior - Product Received Damaged (STS only) (Post Payment)
+						STSPackageNotReceived - Package not received (Post Payment) 
+						STSProductReceivedDamagedInterior - Product Received Damaged (Post Payment)
+						STSWrongProductReceived - Wrong Product Received
+						STSProductNotReceived - Product not received (Post Payment)
+						SystemError - Introduced for Rakuten "SYS_ERR" 
+						cancelling order but can be reused for other client systems
+					</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="OrderCancelReasonTypeEnum">
+				<xs:attribute name="reasonCode" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<xs:simpleType name="OrderCancelReasonTypeEnum">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="InvalidBillingAddress"/>
+			<xs:enumeration value="InvalidShippingAddress"/>
+			<xs:enumeration value="FraudLikely"/>
+			<xs:enumeration value="CreditFailure"/>
+			<xs:enumeration value="CancelDuplicateOrder"/>
+			<xs:enumeration value="CancelInventoryDiscrepancy"/>
+			<xs:enumeration value="CancelCustomerInitiated"/>
+			<xs:enumeration value="CancelGeneric"/>
+			<xs:enumeration value="CancelCredit"/>
+			<xs:enumeration value="FTCCancel"/>
+			<xs:enumeration value="ZeroCostReship"/>
+			<xs:enumeration value="CVSAutoCancel"/>
+			<xs:enumeration value="CODAutoCancel"/>
+			<xs:enumeration value="CancelMXCustomerAbandon"/>
+			<xs:enumeration value="CancelMXCreditCustomerRefusal"/>
+			<xs:enumeration value="CancelMXStoreInactivity"/>
+			<xs:enumeration value="CancelMXOutOfStock"/>
+			<xs:enumeration value="CustomerRequested"/>
+			<xs:enumeration value="STSProductReceivedDamagedExterior"/>
+			<xs:enumeration value="STSPackageNotReceived"/>
+			<xs:enumeration value="STSProductReceivedDamagedInterior"/>
+			<xs:enumeration value="STSWrongProductReceived"/>
+			<xs:enumeration value="STSProductNotReceived"/>
+			<xs:enumeration value="PhoneActivationDeclined"/>
+			<xs:enumeration value="SystemError"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ShipmentList">
+		<xs:sequence>
+			<xs:element name="Shipment" type="Shipment" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Shipment">
+		<xs:sequence>
+			<xs:element name="ShipmentId" type="xs:ID">
+				<xs:annotation>
+					<xs:documentation>Unique Shipment Identifier.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice>
+				<xs:element name="ShippingAddress" type="OrderAddressType" minOccurs="0"/>
+				<xs:element name="StoreFrontDetail" type="StoreLocation" minOccurs="0"/>
+			</xs:choice>
+			<xs:element name="ShipmentCostSubtotal" type="PriceType" minOccurs="0"/>
+			<xs:element name="ShipmentShippingCost" type="PriceType" minOccurs="0"/>
+			<xs:element name="ShipmentSalesTax" type="PriceType" minOccurs="0"/>
+			<xs:element name="ShipmentTotalCost" type="PriceType" minOccurs="0"/>
+			<xs:element name="ShippingMethod" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>ShippingMethod is the actual SCAC Code that was used for this Shipment. Used in emails for Tracking URL formation as well.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ShippingMethodName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>ShippingMethodName is the free form localized string that will appear on Email templates to be sent to the end customer as to what the actual ShippingMethod was. This field is for display purposes only</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ShippingType" type="xs:string" minOccurs="0"/>
+			<xs:element name="Duty" type="PriceType" minOccurs="0"/>
+			<xs:element name="ImportHandlingFee" type="PriceType" minOccurs="0"/>
+			<xs:element name="ShipDate" type="xs:string" minOccurs="0"/>
+			<xs:element name="OrderItems" type="OrderItemsType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="ReturnOrCreditIssuedType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Return"/>
+			<xs:enumeration value="CreditIssued"/>
+			<xs:enumeration value="Exchange"/>
+			<xs:enumeration value="ZCRCharge"/>
+			<xs:enumeration value="ZCRReturnedLate"/>
+			<xs:enumeration value="ZCRReturnedOnTime"/>
+			<xs:enumeration value="ZCRReturnReminder"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ReturnOrCreditType">
+		<xs:sequence>
+			<xs:element name="ReturnOrCreditIssued" type="ReturnOrCreditIssuedType" minOccurs="0"/>
+			<xs:element name="CreditRefNumber" type="xs:string" minOccurs="0"/>
+			<xs:element name="ReturnLabelIdentifier" type="xs:string" minOccurs="0"/>
+			<xs:element name="ReturnLabelFee" type="PriceType" nillable="false"/>
+			<xs:element name="ShippingCredit" type="PriceType" minOccurs="0"/>
+			<xs:element name="GiftWrapCredit" type="PriceType" minOccurs="0"/>
+			<xs:element name="TotalCredit" type="PriceType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="ShipToStoreType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="ReadyForPickup"/>
+			<xs:enumeration value="ThankYouCompleted"/>
+			<xs:enumeration value="ReturnStatus"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ShipToStoreMessageType">
+		<xs:sequence>
+			<xs:element name="ShipToStore" type="ShipToStoreType"/>
+			<xs:element name="StoreAddress" type="OrderAddressType" minOccurs="0"/>
+			<xs:element name="MapLocationUrl" type="xs:string" minOccurs="0"/>
+			<xs:element name="RemainingItemList" type="OrderItemsType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="ExpDateType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="8"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="OrderLoyaltyProgramType">
+		<xs:sequence>
+			<xs:element name="LoyaltyProgramName" type="xs:string" minOccurs="0"/>
+			<xs:element name="OrderTotalPointsEarned" type="xs:decimal" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

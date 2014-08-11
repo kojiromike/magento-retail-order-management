@@ -13,7 +13,7 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-require_once('Enterprise/GiftCardAccount/controllers/CartController.php');
+require_once 'Enterprise/GiftCardAccount/controllers/CartController.php';
 
 /**
  * Class EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount_CartController

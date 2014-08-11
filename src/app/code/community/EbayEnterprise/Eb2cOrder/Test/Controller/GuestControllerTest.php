@@ -13,7 +13,7 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-require_once Mage::getModuleDir('controllers', 'EbayEnterprise_Eb2cOrder') . DS . 'GuestController.php';
+require_once 'EbayEnterprise/Eb2cOrder/controllers/GuestController.php';
 
 class EbayEnterprise_Eb2cOrder_Controller_GuestControllerTest extends EbayEnterprise_Eb2cCore_Test_Base
 {

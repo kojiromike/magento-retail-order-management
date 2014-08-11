@@ -13,7 +13,7 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-require_once(Mage::getModuleDir('controllers', 'EbayEnterprise_Eb2cCore') . DS . 'Exchange/System/Config/ValidateController.php');
+require_once 'EbayEnterprise/Eb2cCore/controllers/Exchange/System/Config/ValidateController.php';
 
 class EbayEnterprise_Eb2cCore_Test_Controller_Exchange_System_Config_ValidateControllerTest
 	extends EbayEnterprise_Eb2cCore_Test_Base

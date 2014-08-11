@@ -40,6 +40,7 @@ class EbayEnterprise_Eb2cOrder_Model_Config extends EbayEnterprise_Eb2cCore_Mode
 		'detail_shipment_info_mapping'   => 'eb2corder/detail_mapping/shipment_info_data',
 		'eb2c_payments_enabled'          => 'eb2cpayment/enabled',
 		'event_order_status_backorder'   => 'eb2ccore/order_management/event_order_status_backorder',
+		'event_order_status_rejected'    => 'eb2ccore/order_management/event_order_status_rejected',
 		'shipping_tax_class'             => 'eb2corder/shipping/tax_class',
 		'status_feed_directory_config'   => 'eb2ccore/feed/filetransfer_imports/order_status_feed',
 		'status_feed_event_type'         => 'eb2ccore/feed/filetransfer_imports/order_status_feed/event_type',

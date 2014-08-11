@@ -293,13 +293,11 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		$this->assertSame($this->shipment, Mage::registry('current_shipment'));
 	}
 	/**
-	 * Test that the event 'ebayenterprise_order_event_back_order' will be dispatched
-	 * by this test and the EbayEnterprise_Eb2cOrder_Model_Observer::updateBackOrderStatus
-	 * method will observer it, extract the proper data and modified order state
-	 * and status accordingly.
+	 * Test that EbayEnterprise_Eb2cOrder_Model_Observer::updateBackOrderStatus
+	 * method when invoked will sets the given order state and status accordingly.
 	 * @param int $id
 	 * @param bool $isException flag to determine when to mock the sales/order::save
-	 *        method to throw an excecption
+	 *        method to throw an exception
 	 * @dataProvider dataProvider
 	 */
 	public function testUpdateBackOrderStatus($id, $isException)
@@ -309,10 +307,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		$status = 'holded';
 
 		$exceptionMsg = 'Simulate Backordered Status Fail to save order';
-		$orderMock = $this->getModelMock('sales/order', array('loadByIncrementId', 'save'));
-		$orderMock->expects($this->any())
-			->method('loadByIncrementId')
-			->will($this->returnSelf());
+		$orderMock = $this->getModelMock('sales/order', array('save'));
 		$orderMock->expects($this->any())
 			->method('save')
 			->will(
@@ -336,8 +331,14 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			->will($this->returnValue($collection));
 		$this->replaceByMock('helper', 'eb2corder', $helperMock);
 
-		// Dispatching backordered event to make sure the obsever is listening.
-		Mage::dispatchEvent('ebayenterprise_order_event_back_order', array('message' => $message));
+		$eventObserver = new Varien_Event_Observer(
+			array('event' => new Varien_Event(
+				array('message' => $message)
+			))
+		);
+
+		$observer = Mage::getModel('eb2corder/observer');
+		$this->assertSame($observer, $observer->updateBackOrderStatus($eventObserver));
 
 		if (!$isException && $id) {
 			// Asserting that the order state has been set to holded.
@@ -345,5 +346,84 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			// Asserting that the order status has been set to backordered status configured value.
 			$this->assertSame($status, $orderMock->getStatus());
 		}
+	}
+	/**
+	 * Test that EbayEnterprise_Eb2cOrder_Model_Observer::updateRejectedStatus
+	 * method when invoked will sets the given order state and status accordingly.
+	 * @param int $id
+	 * @param bool $isException flag to determine when to mock the sales/order::save
+	 *        method to throw an exception
+	 * @dataProvider dataProvider
+	 */
+	public function testUpdateRejectedStatus($id, $isException)
+	{
+		$message = file_get_contents(__DIR__ . '/ObserverTest/fixtures/OrderRejected.xml', true);
+		$state = Mage_Sales_Model_Order::STATE_CANCELED;
+		$status = 'canceled';
+
+		$exceptionMsg = 'Simulate Rejected Status Fail to save order';
+		$orderMock = $this->getModelMock('sales/order', array('save'));
+		$orderMock->expects($this->any())
+			->method('save')
+			->will(
+				$isException ? $this->throwException(Mage::exception('Mage_Core', $exceptionMsg)) : $this->returnSelf()
+			);
+		$orderMock->setId($id);
+
+		$collection = Mage::helper('eb2ccore')->getNewVarienDataCollection();
+		$collection->addItem($orderMock);
+
+		$helperMock = $this->getHelperMock('eb2corder/data', array(
+			'getConfigModel', 'getOrderCollectionByIncrementIds'
+		));
+		$helperMock->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'eventOrderStatusRejected' => $status
+			))));
+		$helperMock->expects($this->any())
+			->method('getOrderCollectionByIncrementIds')
+			->will($this->returnValue($collection));
+		$this->replaceByMock('helper', 'eb2corder', $helperMock);
+
+		$eventObserver = new Varien_Event_Observer(
+			array('event' => new Varien_Event(
+				array('message' => $message)
+			))
+		);
+
+		$observer = Mage::getModel('eb2corder/observer');
+		$this->assertSame($observer, $observer->updateRejectedStatus($eventObserver));
+
+		if (!$isException && $id) {
+			// Asserting that the order state has been set to canceled.
+			$this->assertSame($state, $orderMock->getState());
+			// Asserting that the order status has been set to rejected status configured value.
+			$this->assertSame($status, $orderMock->getStatus());
+		}
+	}
+	/**
+	 * Test that the event 'ebayenterprise_order_event_back_order' is defined.
+	 */
+	public function testBackOrderEventIsDefined()
+	{
+		EcomDev_PHPUnit_Test_Case_Config::assertEventObserverDefined(
+			'global',
+			'ebayenterprise_order_event_back_order',
+			'eb2corder/observer',
+			'updateBackOrderStatus'
+		);
+	}
+	/**
+	 * Test that the event 'ebayenterprise_order_event_rejected' is defined.
+	 */
+	public function testRejectedEventIsDefined()
+	{
+		EcomDev_PHPUnit_Test_Case_Config::assertEventObserverDefined(
+			'global',
+			'ebayenterprise_order_event_rejected',
+			'eb2corder/observer',
+			'updateRejectedStatus'
+		);
 	}
 }

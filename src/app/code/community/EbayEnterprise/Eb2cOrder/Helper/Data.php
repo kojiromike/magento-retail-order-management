@@ -227,19 +227,38 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function extractOrderEventIncrementId($xml)
 	{
-		$helper = Mage::helper('eb2ccore');
-		$data = array();
-		$doc = $helper->getNewDomDocument();
-		$doc->loadXML($xml);
-		$xpath = $helper->getNewDomXPath($doc);
-		$nodeList = $xpath->query('//Order', $doc->documentElement);
-		foreach ($nodeList as $nodes) {
-			$list = $xpath->query('IncrementId', $nodes);
-			if ($list->length) {
-				$data[] = $list->item(0)->nodeValue;
-			}
+		if ($xml) {
+			$doc = $this->_loadXml($xml);
+			$xpath = Mage::helper('eb2ccore')->getNewDomXPath($doc);
+			return $this->_extractData($xpath->query(
+				'//Order//IncrementId[1]/text()', $doc->documentElement
+			));
 		}
-		return $data;
+		return array();
+	}
+	/**
+	 * Take an XML string and load a DOMDocument object.
+	 * @param string $xml
+	 * @return DOMDocument
+	 */
+	protected function _loadXml($xml)
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML($xml);
+		return $doc;
+	}
+	/**
+	 * Given a DOMNodeList extract all data in it into an array.
+	 * @param  DOMNodeList $nodeList
+	 * @return array
+	 */
+	protected function _extractData(DOMNodeList $nodeList)
+	{
+		$extractedData = array();
+		foreach ($nodeList as $node) {
+			$extractedData[] = $node->nodeValue;
+		}
+		return $extractedData;
 	}
 	/**
 	 * Getting a collection of sales/order object that's in an array of increment ids.

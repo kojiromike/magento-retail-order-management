@@ -53,6 +53,15 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>1</show_in_store>
 						</event_order_status_backorder>
+						<event_order_status_rejected translate="label">
+							<label>Rejected</label>
+							<frontend_type>select</frontend_type>
+							<source_model>eb2corder/system_config_source_event_order_status_rejected</source_model>
+							<sort_order>2</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>1</show_in_store>
+						</event_order_status_rejected>
 					</fields>
 				</order_management>
 			</groups>

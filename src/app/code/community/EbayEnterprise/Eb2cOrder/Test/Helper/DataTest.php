@@ -339,4 +339,75 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 			array()
 		);
 	}
+	/**
+	 * Test that the method EbayEnterprise_Eb2cOrder_Helper_Data::getOrderStatusOptionArrayByState
+	 * when invoked with a passing order status state of 'holded' will return
+	 * an array of key label and value of all order status related to the backorder order status.
+	 */
+	public function testGetOrderStatusOptionArrayByState()
+	{
+		$state = Mage_Sales_Model_Order::STATE_HOLDED;
+		$optionArray = array(
+			array(
+				'value' => 'backordered',
+				'label' => 'Backordered'
+			),
+			array(
+				'value' => 'holded',
+				'label' => 'On Hold'
+			),
+			array(
+				'value' => 'ready_for_pickup',
+				'label' => 'Ready For Pickup'
+			),
+			array(
+				'value' => 'unexpected_backorder',
+				'label' => 'Unexpected BackOrder'
+			),
+		);
+
+		$orderStatusCollection = $this->getResourceModelMock(
+			'sales/order_status_collection',
+			array('joinStates', 'addStateFilter', 'toOptionArray')
+		);
+		$orderStatusCollection->expects($this->once())
+			->method('joinStates')
+			->will($this->returnSelf());
+		$orderStatusCollection->expects($this->once())
+			->method('addStateFilter')
+			->with($this->identicalTo($state))
+			->will($this->returnSelf());
+		$orderStatusCollection->expects($this->once())
+			->method('toOptionArray')
+			->will($this->returnValue($optionArray));
+		$this->replaceByMock('resource_model', 'sales/order_status_collection', $orderStatusCollection);
+
+		$this->assertSame($optionArray, Mage::helper('eb2corder')->getOrderStatusOptionArrayByState($state));
+	}
+	/**
+	 * Test that the method EbayEnterprise_Eb2cOrder_Helper_Data::getOrderCollectionByIncrementIds
+	 * return a Mage_Sales_Model_Resource_Order_Collection object.
+	 */
+	public function testGetOrderCollectionByIncrementIds()
+	{
+		$incrementIds = array('0004600007', '0004600009', '0004600011');
+		$orderCollection = $this->getResourceModelMock('sales/order_collection', array(
+			'addFieldToFilter'
+		));
+		$orderCollection->expects($this->once())
+			->method('addFieldToFilter')
+			->with($this->identicalTo('increment_id'), $this->identicalTo( array('in' => $incrementIds)))
+			->will($this->returnSelf());
+		$this->replaceByMock('resource_model', 'sales/order_collection', $orderCollection);
+
+		$this->assertSame($orderCollection, Mage::helper('eb2corder')->getOrderCollectionByIncrementIds($incrementIds));
+	}
+	/**
+	 * Test that the method EbayEnterprise_Eb2cOrder_Helper_Data::extractOrderEventIncrementId
+	 * whill return an empty array when an empty xml string is passed to it.
+	 */
+	public function testExtractOrderEventIncrementId()
+	{
+		$this->assertSame(array(), Mage::helper('eb2corder')->extractOrderEventIncrementId(''));
+	}
 }

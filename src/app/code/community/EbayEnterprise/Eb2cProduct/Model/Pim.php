@@ -134,12 +134,33 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 */
 	protected function _createFeedDataSet(array $productIds, $key)
 	{
+		/* The DOM nodes must be in a specific order. Because it has all product details, we process the default store first -
+		 * as a side-effect, Other store views contain only the differences from the default store. If those views were
+		 * processed first, the DOM nodes would be created out of order.
+		 *
+		 * The curating of the productIds array is another side-effect of _createProductCollectionForStore. During each pass,
+		 * Exceptions thrown on invalid products /remove/ those products from $pimProducts. We also need to remove elements
+		 * from the productIds array so subsequent passes don't try to process them.
+		 */
+		$defaultStoreId = Mage::helper('eb2cproduct')->getDefaultStoreViewId();
+		/** @var EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts */
 		$pimProducts = Mage::getModel('eb2cproduct/pim_product_collection');
-		foreach (Mage::helper('eb2ccore/languages')->getStores() as $store) {
+		$stores= Mage::helper('eb2ccore/languages')->getStores();
+		$pimProducts = $this->_processProductCollection(
+			$this->_createProductCollectionForStore($productIds, $stores[$defaultStoreId]),
+			$pimProducts,
+			$key,
+			$productIds
+		);
+		unset($stores[$defaultStoreId]); // So we don't process the default again.
+
+		/* Process the remaining store views: */
+		foreach ($stores as $store) {
 			$pimProducts = $this->_processProductCollection(
 				$this->_createProductCollectionForStore($productIds, $store),
 				$pimProducts,
-				$key
+				$key,
+				$productIds
 			);
 		}
 		return $pimProducts;
@@ -195,9 +216,12 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 */
 	protected function _processProductCollection(
 		Mage_Catalog_Model_Resource_Product_Collection $products,
-		EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts, $key
+		EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts,
+		$key,
+		array &$productIds = null
 	)
 	{
+		$excludedProductIds = array();
 		$currentStoreId = $products->getStoreId();
 		$config = Mage::helper('eb2cproduct')->getConfigModel($currentStoreId);
 		$clientId = $config->clientId;
@@ -220,8 +244,12 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 					'[%s] Product excluded from export (%s)',
 					array( __METHOD__, $e->getMessage())
 				);
+				$excludedProductIds[]= $product->getId();
 				$pimProducts->deleteItem($pimProduct);
 			}
+		}
+		if($productIds) {
+			$productIds = array_diff($productIds, $excludedProductIds);
 		}
 		return $pimProducts;
 	}

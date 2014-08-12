@@ -39,7 +39,11 @@ class EbayEnterprise_Eb2cCore_Test_Helper_LanguagesTest
 	{
 		// We have 3 stores configured, across several websites
 		$stores = Mage::helper('eb2ccore/languages')->getStores();
-		foreach ($stores as $store) {
+		foreach ($stores as $key=>$store) {
+			$this->assertEquals(		// Array key is the StoreId
+				$key,
+				$store->getStoreId()
+			);
 			switch ($store->getStoreId())
 			{
 			case 2: // Test Team USA Store is configured to default to website language
@@ -71,7 +75,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_LanguagesTest
 		// StoreId 3 is configured for 'store3_lang'
 		$defaultLangStores = Mage::helper('eb2ccore/languages')->getStores('store3_lang');
 		$this->assertEquals(1, count($defaultLangStores));
-		$store = $defaultLangStores[0];
+		$store = $defaultLangStores[key($defaultLangStores)];
 		$this->assertEquals(3, $store->getStoreId());
 	}
 }

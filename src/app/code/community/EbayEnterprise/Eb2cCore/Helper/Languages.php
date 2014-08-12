@@ -17,9 +17,8 @@ class EbayEnterprise_Eb2cCore_Helper_Languages extends Mage_Core_Helper_Abstract
 {
 	/**
 	 * Return an array of stores and attach a language code to them, Varien_Object style
-	 *
 	 * @param string $langCode (optional) if passed, only stores using that langCode are returned.
-	 * @return array of Mage_Core_Model_Store, each element of which has new magic getter 'getLanguageCode()'
+	 * @return array of Mage_Core_Model_Store, keyed by StoreId. Each store has a new magic getter 'getLanguageCode()'
 	 */
 	public function getStores($langCode=null)
 	{
@@ -29,10 +28,11 @@ class EbayEnterprise_Eb2cCore_Helper_Languages extends Mage_Core_Helper_Abstract
 		foreach (Mage::app()->getWebsites() as $website) {
 			foreach ($website->getGroups() as $group) {
 				foreach ($group->getStores() as $store) {
-					$config->setStore($store->getStoreId());
+					$storeId = $store->getStoreId();
+					$config->setStore($storeId);
 					if (!$langCode || ($langCode === $config->languageCode)) {
 						$store->setLanguageCode($config->languageCode);
-						$stores[] = $store;
+						$stores[$storeId] = $store;
 					}
 				}
 			}

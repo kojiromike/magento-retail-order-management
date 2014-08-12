@@ -235,7 +235,13 @@ class EbayEnterprise_Eb2cProduct_Test_Model_PimTest
 		$key = 'item_map';
 
 		$store = $this->getModelMockBuilder('core/store')->disableOriginalConstructor()->getMock();
-		$stores = array($store);
+		$stores = array(1=>$store);
+
+		$helperMock = $this->getHelperMock('eb2cproduct/data', array('getDefaultStoreViewId'));
+		$helperMock->expects($this->once())
+			->method('getDefaultStoreViewId')
+			->will($this->returnValue(1));
+		$this->replaceByMock('helper', 'eb2cproduct', $helperMock);
 
 		$pimProductCollection = $this->getModelMock('eb2cproduct/pim_product_collection');
 		$langHelper = $this->getHelperMock('eb2ccore/languages', array('getStores'));

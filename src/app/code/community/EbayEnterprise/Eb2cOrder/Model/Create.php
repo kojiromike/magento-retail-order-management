@@ -40,8 +40,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 
 	const GIFT_MESSAGE_PRINTED_CARD_NODE = 'GiftCard';
 	const GIFT_MESSAGE_PACKSLIP_NODE = 'Packslip';
-	const RETRY_BEGIN_MESSAGE = '[ %s ]: Begin order retry now: %s. Found %s new order to be retried';
-	const RETRY_END_MESSAGE = '[ %s ]: Order retried finish at: %s';
+	const RETRY_BEGIN_MESSAGE = '[ %s ]: Begin order retry at: %s. Found %s order(s) to be retried';
+	const RETRY_END_MESSAGE = '[ %s ]: Order retry finished at: %s';
+	const RETRY_NOT_FOUND_MESSAGE = '[ %s ]: Original OrderCreateRequest not found: %s';
 	// Response status reported by OrderCreateResponse message orders successfully created
 	const RESPONSE_SUCCESS_STATUS = 'SUCCESS';
 	// Response status reported by OrderCreateResponse message orders that filed to be created
@@ -864,10 +865,15 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$logger->logDebug(self::RETRY_BEGIN_MESSAGE, array(__METHOD__, $currentDate, $orders->count()));
 
 		foreach ($orders as $order) {
-			// running same code to send request create eb2c orders
-			$this->_o = $order;
-			$this->_loadRequest($order->getEb2cOrderCreateRequest())
-				->sendRequest();
+			$xmlCreateRequest = $order->getEb2cOrderCreateRequest();
+			if (empty($xmlCreateRequest)) {
+				// Original request empty, log at Warn level and move on
+				$logger->logWarn(self::RETRY_NOT_FOUND_MESSAGE, array(__METHOD__, $order->getIncrementId()));
+			} else {
+				// running same code to send request create eb2c orders
+				$this->_o = $order;
+				$this->_loadRequest($xmlCreateRequest)->sendRequest();
+			}
 		}
 		$orders->save();
 

@@ -1395,12 +1395,16 @@ INVALID_XML;
 		$order = Mage::getModel(
 			'sales/order', array('eb2c_order_create_request' => $orderCreateRequest)
 		);
+		$invalidOrder = Mage::getModel(
+			'sales/order', array('eb2c_order_create_request' => null)
+		);
 		$collection = $this->getResourceModelMock(
 			'sales/order_collection',
 			// mock out methods that will cause DB interactions that we don't want here
 			array('save', 'load')
 		);
 		$collection->addItem($order);
+		$collection->addItem($invalidOrder);
 
 		// Ensure the collection is saved so any changes to orders based upon the
 		// request retries get saved
@@ -1413,22 +1417,12 @@ INVALID_XML;
 
 		$logHelperMock = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
 			->disableOriginalConstructor()
-			->setMethods(array('logDebug'))
+			->setMethods(array('logDebug', 'logWarn'))
 			->getMock();
-		$logHelperMock->expects($this->exactly(2))
-			->method('logDebug')
-			->will($this->returnValueMap(array(
-				array(
-					EbayEnterprise_Eb2cOrder_Model_Create::RETRY_BEGIN_MESSAGE,
-					array('EbayEnterprise_Eb2cOrder_Model_Create::retryOrderCreate', $dateTime, $collection->count()),
-					$logHelperMock
-				),
-				array(
-					EbayEnterprise_Eb2cOrder_Model_Create::RETRY_END_MESSAGE,
-					array('EbayEnterprise_Eb2cOrder_Model_Create::retryOrderCreate', $dateTime),
-					$logHelperMock
-				)
-			)));
+		// Test that logWarn gets called once, because my invalidOrder has no XML data:
+		$logHelperMock->expects($this->once())
+			->method('logWarn')
+			->will($this->returnSelf());
 		$this->replaceByMock('helper', 'ebayenterprise_magelog', $logHelperMock);
 
 		$dateMock = $this->getModelMockBuilder('core/date')

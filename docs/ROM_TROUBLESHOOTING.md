@@ -14,6 +14,7 @@
   - [Web Services](#web-services)
   - [XML Configuration](#xml-configuration)
   - [Payments - Enabled, But Payment Bridge Disabled/ Not Configured](#payments---enabled-but-payment-bridge-disabled-not-configured)
+  - [Order Create Retry](#order-create-retry)
 - [Troubleshooting: Using the System and Exception Logs](#troubleshooting-using-the-system-and-exception-logs)
   - [ROM Extended Magento Logging](#rom-extended-magento-logging)
   - [Reading the System Log](#reading-the-system-log)
@@ -109,8 +110,21 @@ It is possible to Enable ROM Payments Credit Cards and not enable Payment Bridge
 
 ![ts-paymentbridge](static/rom-ts-paymentbridge-config.png)
 
----
+### Order Create Retry
 
+The cron job ```eb2c_order_create_retry``` attempts to resend OrderCreateRequests for orders that were successfully processed through payment, but for some reason, had not been submitted to the OMS.
+
+If the eb2c_order_create_retry is unable to retrieve the original OrderCreateRequest (which is stored along with the order), it will log a message at the _warn_ level, and leave the order status unchanged.
+
+This means that the eb2c_order_create_retry job will continue to try to resubmit the order. Manual intervention will be needed to resolve the issue.
+
+The warning message will look something like this:
+
+```2014-08-13T17:28:21+00:00 WARN (4): [ EbayEnterprise_Eb2cOrder_Model_Create::retryOrderCreate ]: Original OrderCreateRequest not found: 00054100000031```
+
+In this example, Magento Order 00054100000031 will need manual attention in order to be processed.
+
+---
 
 ##Troubleshooting: Using the System and Exception Logs
 Troubleshooting typically involves reviewing configuration options and occasionally enabling logging in order to review system and exception logs.

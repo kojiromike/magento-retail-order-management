@@ -1228,7 +1228,7 @@ INVALID_XML;
 
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildContext', array($element));
-		$this->assertSame($expect->saveXML(), $doc->saveXML());
+		$this->assertXmlStringEqualsXmlString($expect->C14N(), $doc->C14N());
 	}
 
 	/**
@@ -1313,9 +1313,10 @@ INVALID_XML;
 		$doc->loadXML('<root/>');
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildBrowserData', array($doc->documentElement));
 		$xml = $doc->saveXML();
-		$this->assertContains('<HostName><![CDATA[null]]></HostName>', $xml);
-		$this->assertContains('<CharSet><![CDATA[null]]></CharSet>', $xml);
-		$this->assertNotContains('<Cookies>', $xml);
+
+		$this->assertTag(array('tag' => 'HostName'), $xml, '', false);
+		$this->assertTag(array('tag' => 'CharSet'), $xml, '', false);
+		$this->assertNotTag(array('tag' => 'Cookies'), $xml, '', false);
 	}
 
 	public function provideForTestXsdStringLength()
@@ -1331,17 +1332,14 @@ INVALID_XML;
 	 * if $str evaluates to false, return $default
 	 * @dataProvider provideForTestXsdStringLength
 	 */
-	public function testXsdStringLength($input, $length, $default, $expected)
+	public function testRestrictTextLength($input, $length, $default, $expected)
 	{
-		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
-			->setMethods(array('none'))
-			->getMock();
-		$args = array($input, $length, $default);
-		$this->assertSame(
-			$expected,
-			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_xsdString', $args)
+		$create = Mage::getModel('eb2corder/create');
+		$actual = EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$create, '_restrictText', array($input, $length, $default)
 		);
+
+		$this->assertSame($expected, $actual->nodeValue);
 	}
 	public function provideForTestAddElementIfNotEmpty()
 	{

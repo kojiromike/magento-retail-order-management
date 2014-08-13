@@ -118,6 +118,16 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return new DOMXPath($doc);
 	}
+	/**
+	 * Create and return a new instance of DOMText.
+	 * @param string $value
+	 * @return DOMText
+	 * @codeCoverageIgnore
+	 */
+	public function getNewDomText($value)
+	{
+		return new DOMText($value);
+	}
 
 	/**
 	 * Create and return a new instance of SplObjectStorage.

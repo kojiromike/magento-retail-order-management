@@ -822,7 +822,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		$checkout = Mage::getSingleton('checkout/session');
 		$this->_buildBrowserData($context->createChild('BrowserData'));
-		$context->addChild('TdlOrderTimestamp', $this->_xsdString($checkout->getEb2cFraudTimestamp()));
+		$context->addChild('TdlOrderTimestamp', $this->_restrictText($checkout->getEb2cFraudTimestamp()));
 		$this->_buildSessionInfo($checkout->getEb2cFraudSessionInfo(), $context);
 		// According to the XSD the 'CustomAttributes' node at the order context
 		// level must be inserted as the last node just after the 'PayPalPayerInfo' node
@@ -839,24 +839,24 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _buildBrowserData(DomElement $browserData)
 	{
 		$checkout = Mage::getSingleton('checkout/session');
-		$browserData->addChild('HostName', $this->_xsdString($this->_o->getEb2cFraudHostName(), 50))
-			->addChild('IPAddress', $this->_xsdString($this->_o->getEb2cFraudIpAddress()))
-			->addChild('SessionId', $this->_xsdString($this->_o->getEb2cFraudSessionId(), 255))
-			->addChild('UserAgent', $this->_xsdString($this->_o->getEb2cFraudUserAgent(), 255))
-			->addChild('Connection', $this->_xsdString($checkout->getEb2cFraudConnection(), 25));
+		$browserData->addChild('HostName', $this->_restrictText($this->_o->getEb2cFraudHostName(), 50))
+			->addChild('IPAddress', $this->_restrictText($this->_o->getEb2cFraudIpAddress(), 45))
+			->addChild('SessionId', $this->_restrictText($this->_o->getEb2cFraudSessionId(), 255))
+			->addChild('UserAgent', $this->_restrictText($this->_o->getEb2cFraudUserAgent(), 255))
+			->addChild('Connection', $this->_restrictText($checkout->getEb2cFraudConnection(), 25));
 		$cookieArr = (array) $checkout->getEb2cFraudCookies();
 		$cookieStr = implode(self::COOKIES_DELIMITER, array_map(function($name) use ($cookieArr) {
 				return "$name={$cookieArr[$name]}";
 			}, array_keys($cookieArr)));
 		$this->_addElementIfNotEmpty('Cookies', $cookieStr, $browserData, 50);
 		$browserData->addChild('JavascriptData', $this->_o->getEb2cFraudJavascriptData())
-			->addChild('Referrer', $this->_xsdString($this->_getOrderSource(), 1024));
+			->addChild('Referrer', $this->_restrictText($this->_getOrderSource(), 1024));
 		// start the HTTPAcceptData subtree
 		$browserData->createChild('HTTPAcceptData')
-			->addChild('ContentTypes', $this->_xsdString($this->_o->getEb2cFraudContentTypes(), 1024))
-			->addChild('Encoding', $this->_xsdString($this->_o->getEb2cFraudEncoding(), 50))
-			->addChild('Language', $this->_xsdString($this->_o->getEb2cFraudLanguage(), 255))
-			->addChild('CharSet', $this->_xsdString($this->_o->getEb2cFraudCharSet()));
+			->addChild('ContentTypes', $this->_restrictText($this->_o->getEb2cFraudContentTypes(), 1024, null))
+			->addChild('Encoding', $this->_restrictText($this->_o->getEb2cFraudEncoding(), 50, null))
+			->addChild('Language', $this->_restrictText($this->_o->getEb2cFraudLanguage(), 255, null))
+			->addChild('CharSet', $this->_restrictText($this->_o->getEb2cFraudCharSet(), 50, null));
 	}
 	/**
 	 * getting the referrer value as self::BACKEND_ORDER_SOURCE when the order is placed via ADMIN
@@ -991,16 +991,20 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		}
 	}
 	/**
-	 * truncate a $str if it is longer than $maxLength.
-	 * if $str evaluates to false, return $default
+	 * Create new DOMText object with value of parameter $str or a truncated
+	 * value of parameter $str to match XSD requirement which is defined base on
+	 * the passed in $maxLength parameter where if the $str parameter is longer
+	 * than the $maxLength parameter otherwise use the $default parameter.
 	 * @param  string $str
 	 * @param  int    $maxLength
 	 * @param  string $default
-	 * @return string
+	 * @return DOMText
 	 */
-	protected function _xsdString($str, $maxLength=0, $default='null')
+	protected function _restrictText($str, $maxLength=0, $default='')
 	{
-		return ($maxLength ? substr($str, 0, $maxLength) : $str) ?: $default;
+		return Mage::helper('eb2ccore')->getNewDomText(
+			($maxLength ? substr($str, 0, $maxLength) : $str) ?: $default
+		);
 	}
 
 	/**
@@ -1014,9 +1018,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _addElementIfNotEmpty($element, $value, DOMNode $parent, $maxLength=null)
 	{
-		$val = $this->_xsdString($value, $maxLength, '');
-		if ($val) {
-			$parent->createChild($element, $val);
+		if (!empty($value)) {
+			$parent->createChild($element, $this->_restrictText($value, $maxLength, ''));
 		}
 		return $this;
 	}

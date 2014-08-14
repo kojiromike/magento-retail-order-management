@@ -403,11 +403,11 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 		$this->assertSame($orderCollection, Mage::helper('eb2corder')->getOrderCollectionByIncrementIds($incrementIds));
 	}
 	/**
-	 * Test that the method EbayEnterprise_Eb2cOrder_Helper_Data::extractOrderEventIncrementId
+	 * Test that the method EbayEnterprise_Eb2cOrder_Helper_Data::extractOrderEventIncrementIds
 	 * whill return an empty array when an empty xml string is passed to it.
 	 */
-	public function testExtractOrderEventIncrementId()
+	public function testextractOrderEventIncrementIds()
 	{
-		$this->assertSame(array(), Mage::helper('eb2corder')->extractOrderEventIncrementId(''));
+		$this->assertSame(array(), Mage::helper('eb2corder')->extractOrderEventIncrementIds('', '//some/x/path'));
 	}
 }

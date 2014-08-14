@@ -17,8 +17,8 @@
 		<HeaderVersion>1.0</HeaderVersion>
 	</MessageHeader>
 	<OrderBackOrder>
-		<Order>
-			<IncrementId>0007500055556</IncrementId>
-		</Order>
+		<OrderHeader>
+			<WebstoreOrderNumber>0007500055556</WebstoreOrderNumber>
+		</OrderHeader>
 	</OrderBackOrder>
 </OrderEvent>

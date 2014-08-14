@@ -1,9 +1,6 @@
 -
   - 1
-  - false
+  - /ObserverTest/fixtures/OrderRejected.xml
 -
   - 0
-  - false
--
-  - 1
-  - true
+  - /ObserverTest/fixtures/OrderRejected.xml

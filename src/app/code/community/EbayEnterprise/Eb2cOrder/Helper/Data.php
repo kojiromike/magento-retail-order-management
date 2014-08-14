@@ -223,16 +223,16 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Extract all increment ids from an order event xml string.
 	 * @param string $xml
+	 * @param string $xpath
 	 * @return array
 	 */
-	public function extractOrderEventIncrementId($xml)
+	public function extractOrderEventIncrementIds($xml)
 	{
+		$xPath = '//WebstoreOrderNumber|//WebOrderId';
 		if ($xml) {
 			$doc = $this->_loadXml($xml);
-			$xpath = Mage::helper('eb2ccore')->getNewDomXPath($doc);
-			return $this->_extractData($xpath->query(
-				'//Order//IncrementId[1]/text()', $doc->documentElement
-			));
+			$x = Mage::helper('eb2ccore')->getNewDomXPath($doc);
+			return $this->_extractData($x->query($xPath));
 		}
 		return array();
 	}

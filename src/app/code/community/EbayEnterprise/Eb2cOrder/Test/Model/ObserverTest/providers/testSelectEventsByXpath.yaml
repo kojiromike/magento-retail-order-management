@@ -1,0 +1,4 @@
+-
+  - /ObserverTest/fixtures/OrderCancel.xml
+  - "//Cancel[contains(' FullCancel OtherReason2 ', concat(' ', descendant::OrderCancelReason, ' '))]"
+  - /ObserverTest/fixtures/OrderCancelFiltered.xml

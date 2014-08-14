@@ -17,8 +17,6 @@
 		<HeaderVersion>1.0</HeaderVersion>
 	</MessageHeader>
 	<OrderRejected>
-		<Order>
-			<IncrementId>0008600033721</IncrementId>
-		</Order>
+		<WeborderId>0008600033721</WeborderId>
 	</OrderRejected>
 </OrderEvent>

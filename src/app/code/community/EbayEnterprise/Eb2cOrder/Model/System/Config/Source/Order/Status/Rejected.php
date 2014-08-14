@@ -13,16 +13,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cOrder_Model_System_Config_Source_Event_Order_Status_Rejected
+class EbayEnterprise_Eb2cOrder_Model_System_Config_Source_Order_Status_Rejected
+	extends EbayEnterprise_Eb2cOrder_Model_System_Config_Source_Order_Status_Abstract
 {
-	/**
-	 * build option array of all order statuses with a state 'canceled'.
-	 * @return array
-	 */
-	public function toOptionArray()
-	{
-		return Mage::helper('eb2corder')->getOrderStatusOptionArrayByState(
-			Mage_Sales_Model_Order::STATE_CANCELED
-		);
-	}
+	const STATE = Mage_Sales_Model_Order::STATE_CANCELED;
 }

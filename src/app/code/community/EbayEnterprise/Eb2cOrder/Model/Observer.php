@@ -149,25 +149,49 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	 */
 	public function updateRejectedStatus(Varien_Event_Observer $observer)
 	{
-		$this->_updateOrderStatus(
-			$this->_loadOrdersFromXml(trim($observer->getEvent()->getMessage())),
-			Mage_Sales_Model_Order::STATE_CANCELED,
-			$this->_orderCfg->eventOrderStatusRejected,
-			$observer->getEvent()->getName()
-		);
+		$orderCollection = $this->_loadOrdersFromXml(trim($observer->getEvent()->getMessage()));
+		$status =  $this->_orderCfg->eventOrderStatusRejected;
+		$eventName = $observer->getEvent()->getName();
+		foreach ($orderCollection as $order) {
+			$this->_attemptCancelOrder($order, $status, $eventName);
+		}
 		return $this;
 	}
 	/**
-	 * Responsible for extracting order increment ids from a passed in xml string
-	 * and then load a collection of sales/order that's in the list of increment ids.
-	 * @param string $xml
+	 * Listen for an order cancel event.
+	 * Load a collection using the extracted order increment ids.
+	 * Update each order's state and status to 'canceled' and the associated status respectively.
+	 * @param Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function updateCanceledStatus(Varien_Event_Observer $observer)
+	{
+		$message = trim($observer->getEvent()->getMessage());
+		Mage::helper('ebayenterprise_magelog')->logDebug("\n[%s]: received cancel event with message:\n%s", array(__CLASS__, $message));
+		foreach ($this->_orderCfg->eventCancelReasons as $statusVar => $reasons) {
+			// extract id's of orders that have OrderCancelReason in $reasons
+			$doc = $this->_selectEventsByXPath($message, $this->_getCancelablesXpath($reasons));
+			$orderCollection = $this->_loadOrdersFromXml($doc->saveXML());
+			$status = $this->_orderCfg->$statusVar;
+			$eventName = $observer->getEvent()->getName();
+			foreach ($orderCollection as $order) {
+				$this->_attemptCancelOrder($order, $status, $eventName);
+			}
+		}
+		return $this;
+	}
+	/**
+	 * Responsible for extracting order increment ids from a passed in DOM document
+	 * and then load a collection of sales/order instances for any increment ids in
+	 * the document.
+	 * @param  string $xml
 	 * @return Varien_Data_Collection
 	 */
 	protected function _loadOrdersFromXml($xml)
 	{
 		$orderHelper = Mage::helper('eb2corder');
 		return $orderHelper->getOrderCollectionByIncrementIds(
-			$orderHelper->extractOrderEventIncrementId($xml)
+			$orderHelper->extractOrderEventIncrementIds($xml)
 		);
 	}
 	/**
@@ -196,5 +220,70 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 			}
 		}
 		return $this;
+	}
+	/**
+	 * Attempt to cancel the order.
+	 * Check if the order was actually canceled before setting the new status.
+	 * @param  Mage_Sales_Model_Order $order
+	 * @param  string                 $status
+	 * @param  string                 $eventName
+	 */
+	protected function _attemptCancelOrder(Mage_Sales_Model_Order $order, $status, $eventName)
+	{
+		$order->cancel();
+		if ($order->getState() === Mage_Sales_Model_Order::STATE_CANCELED) {
+			// set the state if the order passed all of the other checks
+			$order->setState(Mage_Sales_Model_Order::STATE_CANCELED, $status);
+			try {
+				Mage::helper('ebayenterprise_magelog')->logDebug('[%s]: saving cancelation of order %s', array(__CLASS__, $order->getIncrementId()));
+				$order->save();
+			} catch (Exception $e) {
+				// Catching any exception that might be thrown due to saving an order
+				// with a configured status and state.
+				$this->_log->logWarn(
+					'[%s] Exception "%s" was thrown while saving status for order #: %s for the following event %s status.',
+					array(__CLASS__, $e->getMessage(), $order->getIncrementId(), $eventName)
+				);
+			}
+		} else {
+			$this->_log->logWarn(
+				'[%s] Failed to properly cancel order (id: %s) for the %s status event.',
+				array(__CLASS__, $order->getIncrementId(), $eventName)
+			);
+		}
+	}
+	/**
+	 * Construct an xpath selects order id's where the order's cancel
+	 * reason is in the supplied list.
+	 * @param  string $reasons list of cancel reason strings
+	 * @return string the constructed xpath
+	 */
+	protected function _getCancelablesXPath($reasons)
+	{
+		return sprintf(
+			"//Cancel[contains(' %s ', concat(' ', descendant::OrderCancelReason, ' '))]",
+			$reasons
+		);
+	}
+	/**
+	 * Create a new document containing the elements from $xml that match
+	 * the given XPath.
+	 * @param  string $xml
+	 * @param  string $xPath
+	 * @return EbayEnterprise_DomDocument
+	 */
+	protected function _selectEventsByXPath($xml, $xPath)
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML($xml);
+		$x = new DOMXPath($doc);
+		$events = $x->query($xPath);
+		// create a new document to contain the selected nodes
+		$filteredDoc = Mage::helper('eb2ccore')->getNewDomDocument()
+			->addElement('SelectedEvents');
+		foreach ($events as $event) {
+			$filteredDoc->documentElement->appendChild($filteredDoc->importNode($event, true));
+		}
+		return $filteredDoc;
 	}
 }

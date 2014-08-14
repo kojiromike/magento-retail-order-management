@@ -48,3 +48,11 @@ Order status in Magento stores can be configured this way:
 - Go under the 'system -> Configuration' menu.
 - Click the 'Retail Order Management' tab.
 - Under 'Order Management' section there will be a number of order statuses that can be configured in Magento per Retail Order Management System order status event.
+
+## Supported Events
+
+| Order Event | Description |
+|-------------|-------------|
+| Cancel      | Orders will be canceled and the status will be set to what is configured for the following reasons: |
+|             |   - [Full Order Cancel](#order-event-to-magento-status-mappings) |
+|             |   - [Payment Authorization Failure](#order-event-to-magento-status-mappings) |

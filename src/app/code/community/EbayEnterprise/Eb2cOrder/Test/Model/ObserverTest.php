@@ -31,6 +31,8 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 	public $order;
 	// @var EbayEnterprise_Eb2cOrder_Model_Resource_Summary_Order_Collection (stub)
 	public $orderCollection;
+	// @var EbayEnterprise_Eb2cOrder_Model_Resource_Summary_Order_Collection (stub)
+	public $orderCollection2;
 	// @var Varien_Data_Collection
 	public $shipmentCollection;
 	// @var Mock_EbayEnterprise_Eb2cOrder_Model_Detail_Shipment
@@ -110,10 +112,18 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			->will($this->returnValue($this->detailOrder));
 
 		// set up an order for the collection
-		$this->order = Mage::getModel(
-			'sales/order',
-			array('entity_id' => $this->orderEntityId, 'increment_id' => $this->orderIncId)
+		$this->order = $this->getModelMock('sales/order',
+			array('save', 'cancel', 'setState', 'getState'),
+			false,
+			array(array('entity_id' => $this->orderEntityId, 'increment_id' => $this->orderIncId))
 		);
+		// Create the mock summary order collection and prevent it from doing any actual DB loads
+		$this->orderCollection2 = $this->getResourceModelMock('sales/order_collection', array('isLoaded'));
+		$this->orderCollection2->expects($this->any())
+			->method('isLoaded')
+			->will($this->returnValue(true));
+		$this->orderCollection2->addItem($this->order);
+
 		// Create the mock summary order collection and prevent it from doing any actual DB loads
 		$this->orderCollection = $this->getResourceModelMock('eb2corder/summary_order_collection', array('isLoaded'));
 		$this->orderCollection->expects($this->any())
@@ -300,9 +310,9 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 	 *        method to throw an exception
 	 * @dataProvider dataProvider
 	 */
-	public function testUpdateBackOrderStatus($id, $isException)
+	public function testUpdateBackOrderStatus($id, $isException, $xmlFilePath)
 	{
-		$message = file_get_contents(__DIR__ . '/ObserverTest/fixtures/OrderBackordered.xml', true);
+		$message = file_get_contents(__DIR__ . $xmlFilePath, true);
 		$state = Mage_Sales_Model_Order::STATE_HOLDED;
 		$status = 'holded';
 
@@ -331,11 +341,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			->will($this->returnValue($collection));
 		$this->replaceByMock('helper', 'eb2corder', $helperMock);
 
-		$eventObserver = new Varien_Event_Observer(
-			array('event' => new Varien_Event(
-				array('message' => $message)
-			))
-		);
+		$eventObserver = $this->_buildEventObserver(array('message' => $message));
 
 		$observer = Mage::getModel('eb2corder/observer');
 		$this->assertSame($observer, $observer->updateBackOrderStatus($eventObserver));
@@ -355,52 +361,36 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 	 *        method to throw an exception
 	 * @dataProvider dataProvider
 	 */
-	public function testUpdateRejectedStatus($id, $isException)
+	public function testUpdateRejectedStatus($id, $xmlFilePath)
 	{
-		$message = file_get_contents(__DIR__ . '/ObserverTest/fixtures/OrderRejected.xml', true);
+		$message = file_get_contents(__DIR__ . $xmlFilePath, true);
 		$state = Mage_Sales_Model_Order::STATE_CANCELED;
 		$status = 'canceled';
 
 		$exceptionMsg = 'Simulate Rejected Status Fail to save order';
 		$orderMock = $this->getModelMock('sales/order', array('save'));
-		$orderMock->expects($this->any())
-			->method('save')
-			->will(
-				$isException ? $this->throwException(Mage::exception('Mage_Core', $exceptionMsg)) : $this->returnSelf()
-			);
 		$orderMock->setId($id);
 
 		$collection = Mage::helper('eb2ccore')->getNewVarienDataCollection();
 		$collection->addItem($orderMock);
 
-		$helperMock = $this->getHelperMock('eb2corder/data', array(
-			'getConfigModel', 'getOrderCollectionByIncrementIds'
-		));
+		$helperMock = $this->getHelperMock('eb2corder/data', array('getConfigModel'));
+		$this->replaceByMock('helper', 'eb2corder', $helperMock);
 		$helperMock->expects($this->any())
 			->method('getConfigModel')
 			->will($this->returnValue($this->buildCoreConfigRegistry(array(
 				'eventOrderStatusRejected' => $status
 			))));
-		$helperMock->expects($this->any())
-			->method('getOrderCollectionByIncrementIds')
+		$eventObserver = $this->_buildEventObserver(array('message' => $message, 'name' => 'someevent'));
+		$observer = $this->getModelMock('eb2corder/observer', array('_attemptCancelOrder', '_loadOrdersFromXml'));
+		$observer->expects($this->any())
+			->method('_loadOrdersFromXml')
 			->will($this->returnValue($collection));
-		$this->replaceByMock('helper', 'eb2corder', $helperMock);
-
-		$eventObserver = new Varien_Event_Observer(
-			array('event' => new Varien_Event(
-				array('message' => $message)
-			))
-		);
-
-		$observer = Mage::getModel('eb2corder/observer');
+		$observer->expects($this->once())
+			->method('_attemptCancelOrder')
+			->with($this->isInstanceOf('Mage_Sales_Model_Order'), $this->isType('string'), $this->isType('string'))
+			->will($this->returnSelf());
 		$this->assertSame($observer, $observer->updateRejectedStatus($eventObserver));
-
-		if (!$isException && $id) {
-			// Asserting that the order state has been set to canceled.
-			$this->assertSame($state, $orderMock->getState());
-			// Asserting that the order status has been set to rejected status configured value.
-			$this->assertSame($status, $orderMock->getStatus());
-		}
 	}
 	/**
 	 * Test that the event 'ebayenterprise_order_event_back_order' is defined.
@@ -425,5 +415,117 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			'eb2corder/observer',
 			'updateRejectedStatus'
 		);
+	}
+	/**
+	 * Verify the cancel event is configured.
+	 */
+	public function testCancelEventIsDefined()
+	{
+		EcomDev_PHPUnit_Test_Case_Config::assertEventObserverDefined(
+			'global',
+			'ebayenterprise_order_event_cancel',
+			'eb2corder/observer',
+			'updateCanceledStatus'
+		);
+	}
+	/**
+	 * Verify an xpath is generated that will select order id's for cancel
+	 * events are for a specific set of reasons.
+	 */
+	public function testGetCancelablesXpath()
+	{
+		$cancelReasons = 'cancelreason1 cancelreason2';
+		$observer = Mage::getModel('eb2corder/observer');
+		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_getCancelablesXpath', array(
+			$cancelReasons
+		));
+		$this->assertSame(
+			"//Cancel[contains(' cancelreason1 cancelreason2 ', concat(' ', descendant::OrderCancelReason, ' '))]",
+			$result
+		);
+	}
+	/**
+	 * Attempt to cancel the order.
+	 * Check if the order was actually canceled before setting the new status.
+	 */
+	public function testAttemptCancelOrder()
+	{
+		$state = Mage_Sales_Model_Order::STATE_CANCELED;
+		$status = 'some_canceled_status';
+		$observer = Mage::getModel('eb2corder/observer');
+		$this->order->expects($this->once())
+			->method('cancel')
+			->will($this->returnSelf());
+		$this->order->expects($this->once())
+			->method('getState')
+			->will($this->returnValue($state));
+		$this->order->expects($this->once())
+			->method('setState')
+			->with($this->identicalTo($state), $this->identicalTo($status))
+			->will($this->returnSelf());
+		EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$observer,
+			'_attemptCancelOrder',
+			array($this->order, $status, 'someevent')
+		);
+	}
+	/**
+	 * Attempt to cancel the order.
+	 * Log a warning and do nothing if the order didn't cancel.
+	 */
+	public function testAttemptCancelOrderFailed()
+	{
+		$state = Mage_Sales_Model_Order::STATE_CANCELED;
+		$status = 'some_canceled_status';
+		$observer = Mage::getModel('eb2corder/observer');
+		$this->order->expects($this->once())
+			->method('cancel')
+			->will($this->returnSelf());
+		$this->order->expects($this->once())
+			->method('getState')
+			->will($this->returnValue('not_canceled'));
+		$this->order->expects($this->never())
+			->method('setState');
+		EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$observer,
+			'_attemptCancelOrder',
+			array($this->order, $status, 'someevent')
+		);
+	}
+	/**
+	 * Log a warning if there's an exception and continue on.
+	 */
+	public function testAttemptCancelOrderException()
+	{
+		$state = Mage_Sales_Model_Order::STATE_CANCELED;
+		$status = 'some_canceled_status';
+		$observer = Mage::getModel('eb2corder/observer');
+		$this->order->expects($this->once())
+			->method('cancel')
+			->will($this->returnSelf());
+		$this->order->expects($this->once())
+			->method('getState')
+			->will($this->returnValue($state));
+		$this->order->expects($this->once())
+			->method('save')
+			->will($this->throwException(Mage::exception('Mage_Core', 'some error')));
+		EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$observer,
+			'_attemptCancelOrder',
+			array($this->order, $status, 'someevent')
+		);
+	}
+	/**
+	 * Verify a document is returned containing only elements that match the given xpath.
+	 * @param string $xmlFilePath
+	 * @dataProvider dataProvider
+	 */
+	public function testSelectEventsByXpath($xmlFilePath, $xPath, $expectedFilePath)
+	{
+		$xml = file_get_contents(__DIR__ . '/' . $xmlFilePath);
+		$expXML = file_get_contents(__DIR__ . '/' . $expectedFilePath);
+		$observer = Mage::getModel('eb2corder/observer');
+		$doc = EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_selectEventsByXPath', array($xml, $xPath));
+		$this->assertSelectCount('Cancel', 2, $doc->saveXML());
 	}
 }

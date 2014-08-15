@@ -15,14 +15,11 @@ src/shell/* shell/
 # Layout
 src/app/design/adminhtml/default/default/layout/* app/design/adminhtml/default/default/layout/
 src/app/design/frontend/base/default/layout/* app/design/frontend/base/default/layout/
-src/app/design/frontend/enterprise/default/layout/* app/design/frontend/enterprise/default/layout/
-src/app/design/frontend/rwd/enterprise/layout/* app/design/frontend/rwd/enterprise/layout/
 
 # Templates
 src/app/design/adminhtml/default/default/template/* app/design/adminhtml/default/default/template/
 src/app/design/frontend/base/default/template/* app/design/frontend/base/default/template/
 src/app/design/frontend/enterprise/default/template/* app/design/frontend/enterprise/default/template/
-src/app/design/frontend/rwd/enterprise/template/* app/design/frontend/rwd/enterprise/template/
 
 # Skin CSS & JS
 src/skin/frontend/base/default/css/* skin/frontend/base/default/css/

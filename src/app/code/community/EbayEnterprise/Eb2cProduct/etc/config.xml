@@ -34,12 +34,12 @@
 			</eb2cproduct>
 		</helpers>
 		<resources>
-			<eb2cproduct_attributes_setup>
+			<eb2cproduct_setup>
 				<setup>
 					<module>EbayEnterprise_Eb2cProduct</module>
-					<class>EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup</class>
+					<class>Mage_Catalog_Model_Resource_Setup</class>
 				</setup>
-			</eb2cproduct_attributes_setup>
+			</eb2cproduct_setup>
 		</resources>
 		<events>
 			<catalog_product_edit_action>
@@ -162,91 +162,6 @@
 			</feed>
 		</eb2ccore>
 		<eb2cproduct>
-			<attributes>
-				<base_data>
-					<is_global>0</is_global>
-					<frontend_input>text</frontend_input>
-					<default_value_text/>
-					<default_value_yesno>0</default_value_yesno>
-					<default_value_date/>
-					<default_value_textarea/>
-					<is_unique>0</is_unique>
-					<is_required>0</is_required>
-					<frontend_class/>
-					<is_searchable>1</is_searchable>
-					<is_visible_in_advanced_search>1</is_visible_in_advanced_search>
-					<is_comparable>1</is_comparable>
-					<is_used_for_promo_rules>0</is_used_for_promo_rules>
-					<is_html_allowed_on_front>1</is_html_allowed_on_front>
-					<is_visible_on_front>0</is_visible_on_front>
-					<used_in_product_listing>0</used_in_product_listing>
-					<used_for_sort_by>0</used_for_sort_by>
-					<is_configurable>0</is_configurable>
-					<is_filterable>0</is_filterable>
-					<is_filterable_in_search>0</is_filterable_in_search>
-					<backend_type>varchar</backend_type>
-					<default_value/>
-				</base_data>
-				<default>
-					<size>
-						<scope>Website</scope>
-						<label>Size</label>
-						<group>General</group>
-						<input_type>text</input_type>
-						<unique>N</unique>
-						<product_types><![CDATA[simple,configurable,bundle]]></product_types>
-						<default/>
-					</size>
-					<style_id>
-						<scope>Website</scope>
-						<label>Style Id</label>
-						<group>General</group>
-						<input_type>text</input_type>
-						<unique>N</unique>
-						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-						<default/>
-					</style_id>
-					<is_clean>
-						<scope>Website</scope>
-						<label>Is Clean</label>
-						<group>Retail Order Management</group>
-						<input_type>boolean</input_type>
-						<unique>N</unique>
-						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-						<default>N</default>
-						<backend_type>int</backend_type>
-					</is_clean>
-					<unresolved_product_links>
-						<scope>Website</scope>
-						<label>Unresolved Product Links</label>
-						<group>Retail Order Management</group>
-						<input_type>textarea</input_type>
-						<unique>N</unique>
-						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-						<default/>
-						<backend_type>text</backend_type>
-					</unresolved_product_links>
-					<hts_codes>
-						<scope>Website</scope>
-						<label>HTS Codes</label>
-						<group>Retail Order Management</group>
-						<input_type>textarea</input_type>
-						<unique>N</unique>
-						<product_types><![CDATA[simple,configurable,virtual,bundle,downloadable,giftcard]]></product_types>
-						<default/>
-						<backend_type>text</backend_type>
-					</hts_codes>
-					<tax_code>
-						<scope>Website</scope>
-						<label>Tax Code</label>
-						<group>Prices</group>
-						<input_type>text</input_type>
-						<unique>0</unique>
-						<is_required>1</is_required>
-						<product_types><![CDATA[simple,virtual,bundle,downloadable,giftcard]]></product_types>
-					</tax_code>
-				</default>
-			</attributes>
 			<!-- These attributes will display in the admin panel, but cannot be edited -->
 			<readonly_attributes><![CDATA[hts_codes,is_clean,unresolved_product_links]]></readonly_attributes>
 			<dummy>

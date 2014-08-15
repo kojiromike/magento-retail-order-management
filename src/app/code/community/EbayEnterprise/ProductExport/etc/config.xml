@@ -26,12 +26,12 @@
 			</ebayenterprise_productexport>
 		</helpers>
 		<resources>
-			<productexport_attributes_setup>
+			<productexport_setup>
 				<setup>
 					<module>EbayEnterprise_ProductExport</module>
-					<class>EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup</class>
+					<class>Mage_Catalog_Model_Resource_Setup</class>
 				</setup>
-			</productexport_attributes_setup>
+			</productexport_setup>
 		</resources>
 	</global>
 	<default/>

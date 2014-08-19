@@ -45,8 +45,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
 	public function testExtractQuoteSkuData()
 	{
 		$quote = $this->getModelMock('sales/quote', array('getAllVisibleItems'));
-		$helper = $this->getHelperMock('eb2cinventory/data', array('isItemInventoried'));
-		$this->replaceByMock('helper', 'eb2cinventory', $helper);
+		$helper = $this->getHelperMock('eb2ccore/quote_item', array('isItemInventoried'));
+		$this->replaceByMock('helper', 'eb2ccore/quote_item', $helper);
 
 		// first item is managed, second is not
 		$items = array(

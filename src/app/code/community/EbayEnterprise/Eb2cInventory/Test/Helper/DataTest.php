@@ -129,77 +129,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 		);
 	}
 	/**
-	 * Data provider for the testFilterInventoredItem test. Providers a quote item
-	 * and whether that item should be considered an "inventoried" item
-	 * @return array Arguments array with Mage_Sales_Model_Quote_Item and boolean
-	 */
-	public function providerFilterInventoriedItem()
-	{
-		$manageProduct = Mage::getModel(
-			'catalog/product',
-			array(
-				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
-					'manage_stock' => true,
-					'use_config_manage_stock' => false
-				)),
-			)
-		);
-		$noManageProduct = Mage::getModel(
-			'catalog/product',
-			array(
-				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
-					'manage_stock' => false,
-					'use_config_manage_stock' => false
-				)),
-			)
-		);
-
-		$singleItemManaged = Mage::getModel('sales/quote_item', array(
-			'product' => $manageProduct
-		));
-		$singleItemNoManaged = Mage::getModel('sales/quote_item', array(
-			'product' => $noManageProduct
-		));
-		$parentItemManagedChild = Mage::getModel('sales/quote_item', array(
-			'product' => $noManageProduct,
-		));
-		$parentItemNoManagedChild = Mage::getModel('sales/quote_item', array(
-			'product' => $noManageProduct,
-		));
-		$managedChildItem = Mage::getModel('sales/quote_item', array(
-			'product' => $manageProduct,
-			'parent_item_id' => 2,
-		));
-		$noManagedChildItem = Mage::getModel('sales/quote_item', array(
-			'product' => $noManageProduct,
-			'parent_item_id' => null,
-		));
-
-		// this will set up relationships for the parent and child
-		$managedChildItem->setParentItem($parentItemManagedChild);
-		$noManagedChildItem->setParentItem($parentItemNoManagedChild);
-
-		return array(
-			array($singleItemManaged, true),
-			array($singleItemNoManaged, false),
-			array($parentItemManagedChild, true),
-			array($parentItemNoManagedChild, false),
-			array($managedChildItem, false),
-			array($noManagedChildItem, false),
-		);
-	}
-	/**
-	 * Test detecting an item that is or is not inventoried.
-	 * @param  Mage_Sales_Model_Quote_Item $item          Quote item
-	 * @param  bool                     $isInventoried Is the item inventoried
-	 * @dataProvider providerFilterInventoriedItem
-	 */
-	public function testFilterInventoriedItem($item, $isInventoried)
-	{
-		$this->assertSame($isInventoried, Mage::helper('eb2cinventory')->isItemInventoried($item));
-	}
-
-	/**
 	 * Test filtering a list of quote items down to only those that are inventoried items
 	 * @return [type] [description]
 	 */
@@ -210,8 +139,8 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 			Mage::getModel('sales/quote_item'),
 		);
 		$inventoryItems = array($items[0]);
-		$helper = $this->getHelperMock('eb2cinventory/data', array('isItemInventoried'));
-		$this->replaceByMock('helper', 'eb2cinventory', $helper);
+		$helper = $this->getHelperMock('eb2ccore/quote_item', array('isItemInventoried'));
+		$this->replaceByMock('helper', 'eb2ccore/quote_item', $helper);
 		$helper
 			->expects($this->exactly(2))
 			->method('isItemInventoried')
@@ -222,7 +151,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 			Mage::helper('eb2cinventory')->getInventoriedItems($items)
 		);
 	}
-
 	/**
 	 * Test EbayEnterprise_Eb2cInventory_Helper_Data::hasRequiredShippingDetail method for the following expectations
 	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cInventory_Helper_Data::hasRequiredShippingDetail

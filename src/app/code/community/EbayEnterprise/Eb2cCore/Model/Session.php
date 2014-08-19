@@ -53,7 +53,6 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 */
 	protected function _extractQuoteSkuData(Mage_Sales_Model_Quote $quote)
 	{
-		$helper = Mage::helper('eb2cinventory');
 		$skuData = array();
 		// use getAllVisibleItems to prevent dupes due to parent config + child used both being included
 		foreach ($quote->getAllVisibleItems() as $item) {
@@ -63,7 +62,7 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 				continue;
 			}
 			$skuData[$item->getSku()] = array(
-				'managed' => $helper->isItemInventoried($item),
+				'managed' => Mage::helper('eb2ccore/quote_item')->isItemInventoried($item),
 				'virtual' => $item->getIsVirtual(),
 				'qty' => $item->getQty(),
 			);

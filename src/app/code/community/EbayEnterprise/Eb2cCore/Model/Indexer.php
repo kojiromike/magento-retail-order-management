@@ -20,21 +20,25 @@ class EbayEnterprise_Eb2cCore_Model_Indexer
 	 */
 	public function reindexAll()
 	{
-		$indexerCollection = Mage::getModel('enterprise_index/indexer')->getProcessesCollection();
+		/**
+		 * @var EbayEnterprise_MageLog_Helper_Data $log
+		 * @var Enterprise_Index_Model_Indexer $indexer
+		 * @var Enterprise_Index_Model_Process $process
+		 */
+		$log = Mage::helper('ebayenterprise_magelog');
+		$indexer = Mage::getModel('enterprise_index/indexer');
+		$indexerCollection = $indexer->getProcessesCollection();
 
 		Mage::dispatchEvent('shell_reindex_init_process');
 		foreach ($indexerCollection as $process) {
-			if ($process->getIndexer()->isVisible() !== false) {
+				$idx = $process->getIndexer();
+				if ($idx->isVisible() !== false) {
 				try {
 					$process->reindexEverything();
 					Mage::dispatchEvent($process->getIndexerCode() . '_shell_reindex_after');
-					Mage::log('[' . __CLASS__ . '] ' . $process->getIndexer()->getName() . ' index rebuilt successfully', Zend_Log::INFO);
-				} catch (Mage_Core_Exception $e) {
-					// @codeCoverageIgnoreStart
-					Mage::logException($e);
+					$log->logInfo('[%s] Index rebuilt successfully: %s', array(__CLASS__, $idx->getName()));
 				} catch (Exception $e) {
-					Mage::logException($e);
-					// @codeCoverageIgnoreEnd
+					$log->logErr('[%s] %s', array(__CLASS__, $e->getMessage()));
 				}
 			}
 		}

@@ -15,6 +15,13 @@
 
 class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
+	public function __construct()
+	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
 	/**
 	 * Get gift card redeem from eb2c.
 	 * @param string $pan Either a raw PAN or a token representing a PAN
@@ -28,7 +35,7 @@ class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem
 		$hlpr = Mage::helper('eb2cpayment');
 		$uri = $hlpr->getSvcUri('get_gift_card_redeem', $pan);
 		if ($uri === '') {
-			Mage::log(sprintf('[%s] pan "%s" is out of range of any configured tender type bin.', __CLASS__, $pan), Zend_Log::ERR);
+			$this->_log->logWarn('[%s] pan "%s" is not in any configured tender type bin.', array(__CLASS__, $pan));
 			return '';
 		}
 		return Mage::getModel('eb2ccore/api')

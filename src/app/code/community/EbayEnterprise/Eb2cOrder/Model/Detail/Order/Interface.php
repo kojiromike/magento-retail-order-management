@@ -21,11 +21,10 @@ interface EbayEnterprise_Eb2cOrder_Model_Detail_Order_Interface {
 	 * @return Varien_Data_Collection
 	 */
 	public function getAddressesCollection();
+
 	/**
 	 * Prevent the sales/order object from loading
 	 * sales items data from the database.
-	 * @param array $filterByTypes optional
-	 * @param bool $nonChildrenOnly optional
 	 * @return Varien_Data_Collection
 	 */
 	public function getItemsCollection();
@@ -35,10 +34,10 @@ interface EbayEnterprise_Eb2cOrder_Model_Detail_Order_Interface {
 	 * @return Varien_Data_Collection
 	 */
 	public function getPaymentsCollection();
+
 	/**
 	 * Prevent the sales/order object from loading
 	 * sales status history data from the database.
-	 * @param bool $reload optional
 	 * @return Varien_Data_Collection
 	 */
 	public function getStatusHistoryCollection();

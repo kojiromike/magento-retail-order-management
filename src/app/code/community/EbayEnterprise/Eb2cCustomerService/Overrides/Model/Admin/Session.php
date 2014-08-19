@@ -17,6 +17,15 @@
 class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 	extends Mage_Admin_Model_Session
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
+	public function __construct()
+	{
+		parent::__construct();
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * Attempt to authenticate and login the CSR user using the provided token.
 	 * This method mimics the login method except it will only attempt to login
@@ -31,7 +40,7 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 	 */
 	public function loginCSRWithToken($token, Mage_Core_Controller_Request_Http $request=null)
 	{
-		Mage::log(sprintf('[%s] Attempting CSR login using token.', __CLASS__), Zend_Log::DEBUG);
+		$this->_log->logDebug('[%s] Attempting CSR login using token.', array(__CLASS__));
 		// An empty token should never validate so don't bother trying and just
 		// return nothing.
 		$helper = Mage::helper('eb2ccsr');
@@ -82,11 +91,9 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 	 * @return null
 	 * @codeCoverageIgnore All side-effects taken from Magento auth/login process
 	 */
-	protected function _passValidation(
-		Mage_Admin_Model_User $user,
-		Mage_Core_Controller_Request_Http $request=null)
+	protected function _passValidation(Mage_Admin_Model_User $user, Mage_Core_Controller_Request_Http $request=null)
 	{
-		Mage::log(sprintf('[%s] Successfully authenticated using token.', __CLASS__), Zend_Log::DEBUG);
+		$this->_log->logDebug('[%s] Successfully authenticated using token.', array(__CLASS__));
 		// This may potentially cause some issues as the user password is not
 		// included since we never receive it when loggin in with the token. So far
 		// it doesn't seem to be causing any issues but may have some impact on the
@@ -143,7 +150,7 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 		Mage_Core_Controller_Request_Http $request=null,
 		Mage_Core_Exception $authException)
 	{
-		Mage::log(sprintf('[%s] Failed to authenticated using token.', __CLASS__), Zend_Log::DEBUG);
+		$this->_log->logDebug('[%s] Failed to authenticate using token.', array(__CLASS__));
 		// This may be problematic due to the missing user password. It is never
 		// given while doing the token auth so we don't have one to pass. So far
 		// it doesn't seem to be causing any issues but may have some impact on the

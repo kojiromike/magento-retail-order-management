@@ -208,11 +208,14 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 			->addAttributeToSelect('*')
 			->addFieldToFilter('entity_id', array('in' => $productIds));
 	}
+
 	/**
 	 * Process all of the products within a given store.
-	 * @param  Mage_Catalog_Model_Resource_Product_Collection      $products    products for a specific store
+	 *
+	 * @param  Mage_Catalog_Model_Resource_Product_Collection $products products for a specific store
 	 * @param  EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts collection of PIM Product instances
 	 * @param  string $key
+	 * @param array $productIds
 	 * @return EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts collection of PIM Product instances
 	 */
 	protected function _processProductCollection(

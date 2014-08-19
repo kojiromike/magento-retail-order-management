@@ -13,16 +13,14 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
-class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
-	extends EbayEnterprise_Eb2cCore_Test_Base
+class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	/**
 	 * Create a stub quote item scripted to return the given sku and qty
 	 * @param  string  $sku       Quote item sku
 	 * @param  int     $qty       Qty of the item in the cart
 	 * @param  bool $isVirtual Is the item virtual
-	 * @return Mock_Mage_Sales_Model_Quote_Item The stub quote item
+	 * @return Mage_Sales_Model_Quote_Item The stub quote item
 	 */
 	protected function _stubQuoteItem($sku, $qty, $isVirtual)
 	{
@@ -778,17 +776,19 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * should then be examined for indicating that an update is needed to tax and/or inventory
 	 * requests. After running this method, the quote data, diff data and all flags should
 	 * be updated based on the changes made to the quote.
+	 *
 	 * @param  bool $currFlag    Is details already flagged for updates
 	 * @param  bool $changeFlag  Should these changes require details updates
 	 * @dataProvider providerUpdateWithQuote
 	 */
 	public function testUpdateWithQuote($currFlag, $changeFlag) {
 		$quote = $this->getModelMock('sales/quote');
+		// Stub 'init' method instead of disabling constructor
+		// to avoid headers already sent error.
 		$session = $this->getModelMockBuilder('eb2ccore/session')
-			->disableOriginalConstructor()
 			->setMethods(array(
 				'getCurrentQuoteData', 'setCurrentQuoteData', 'setQuoteChanges',
-				'_extractQuoteData', '_diffQuoteData',
+				'_extractQuoteData', '_diffQuoteData', 'init',
 				'getTaxUpdateRequiredFlag', 'getQuantityUpdateRequiredFlag', 'getDetailsUpdateRequiredFlag',
 				'setTaxUpdateRequiredFlag', 'setQuantityUpdateRequiredFlag', 'setDetailsUpdateRequiredFlag',
 				'_changeRequiresTaxUpdate', '_changeRequiresQuantityUpdate', '_changeRequiresDetailsUpdate',

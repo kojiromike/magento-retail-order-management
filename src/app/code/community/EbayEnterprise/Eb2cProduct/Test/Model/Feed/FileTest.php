@@ -53,10 +53,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 		$feedFile = Mage::getModel('eb2cproduct/feed_file', $fileDetails);
 
 		if (!$errorMessage) {
-			$this->assertSame(
-				$fileDetails,
-				EcomDev_Utils_Reflection::getRestrictedPropertyValue($feedFile, '_feedDetails')
-			);
+			$this->assertSame($fileDetails, EcomDev_Utils_Reflection::getRestrictedPropertyValue($feedFile, '_feedDetails'));
 		}
 	}
 	/**
@@ -83,10 +80,13 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 			->will($this->returnValue($siteFilter));
 		$this->replaceByMock('helper', 'eb2cproduct', $helper);
 
+		// Disable constructor to avoid setting up complex $details argument.
 		$file = $this->getModelMockBuilder('eb2cproduct/feed_file')
 			->disableOriginalConstructor()
 			->setMethods(array('_removeItemsFromWebsites', '_processWebsite', '_processTranslations'))
 			->getMock();
+		// Replace _log property because of the disabled constructor.
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($file, '_log', Mage::helper('ebayenterprise_magelog'));
 		$file->expects($this->once())
 			->method('_removeItemsFromWebsites')
 			->will($this->returnSelf());
@@ -137,10 +137,13 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 			->with($this->identicalTo($skus))
 			->will($this->returnValue($collectionMock));
 
+		// Disable constructor to avoid setting up complex $details argument.
 		$fileModelMock = $this->getModelMockBuilder('eb2cproduct/feed_file')
 			->disableOriginalConstructor()
 			->setMethods(array('_getSkusToRemoveFromWebsites', '_removeFromWebsites'))
 			->getMock();
+		// Replace _log property because of the disabled constructor.
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($fileModelMock, '_log', Mage::helper('ebayenterprise_magelog'));
 		$fileModelMock->expects($this->once())
 			->method('_getSkusToRemoveFromWebsites')
 			->will($this->returnValue($dData));
@@ -149,9 +152,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 			->with($this->identicalTo($collectionMock), $this->identicalTo($dData))
 			->will($this->returnSelf());
 
-		$this->assertSame($fileModelMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$fileModelMock, '_removeItemsFromWebsites', array($cfgData, $items)
-		));
+		$this->assertSame($fileModelMock, EcomDev_Utils_Reflection::invokeRestrictedMethod($fileModelMock, '_removeItemsFromWebsites', array($cfgData, $items)));
 
 		$this->assertEventDispatched('product_feed_process_operation_type_error_confirmation');
 	}
@@ -319,93 +320,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 		$this->assertSame($skus, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$file, '_getSkusToUpdate', array($xpath, $cfgData)
 		));
-	}
-	/**
-	 * To extract data from the feed, the feed file needs to be loaded into a new
-	 * DOMXPath, creating a product collection based on SKUs present in the feed,
-	 * split the feed file into individual item nodes and create/update the
-	 * product for each item. Finally, the collection should be set within the
-	 * store context the product data should be saved in and save the collection.
-	 */
-	public function testImportExtractedData()
-	{
-		$cfgData = array('feed_type' => 'product', 'base_item_xpath' => '/Items/Item');
-		// DOMDocument containing data to be imported
-		$doc = $this->getMockBuilder('EbayEnterprise_Dom_Document')->disableOriginalConstructor()->getMock();
-		// store context to save the products in
-		$storeId = 1;
-		// skus extracted from the DOM to be added/updated - in this case one to add
-		$skus = array('skus-to-update');
-		// DOMNode containing data for the product
-		$contextNode = $this->getMockBuilder('DOMNode')->disableOriginalConstructor()->getMock();
-		// DOMNodeList of all items in the feed. Using an array instead of actual
-		// DOMNodeList as it isn't possible, so far as I can tell, to mock a
-		// DOMNodeList to behave as desired. As all this method really needs is a
-		// Traversable object containing DOMNodes, the array substitution works.
-		$itemNodeList = array($contextNode);
-
-		$file = $this->getModelMockBuilder('eb2cproduct/feed_file')
-			->disableOriginalConstructor()
-			->setMethods(array('_getSkusToUpdate', '_updateItem'))
-			->getMock();
-		$coreHelper = $this->getHelperMock('eb2ccore/data', array('getNewDomXPath'));
-		$xpath = $this->getMockBuilder('DOMXPath')
-			->disableOriginalConstructor()
-			->setMethods(array('query'))
-			->getMock();
-
-		$productCollection = $this->getResourceModelMockBuilder('eb2cproduct/feed_product_collection')
-			->disableOriginalConstructor()
-			->setMethods(array('setStore', 'save', 'count'))
-			->getMock();
-
-		$items = $this->getModelMock('eb2cproduct/feed_import_items', array('buildCollection'));
-		$items->expects($this->once())
-			->method('buildCollection')
-			->with($this->identicalTo($skus))
-			->will($this->returnValue($productCollection));
-
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
-
-		$coreHelper->expects($this->once())
-			->method('getNewDomXPath')
-			->with($this->identicalTo($doc))
-			->will($this->returnValue($xpath));
-
-		$file->expects($this->once())
-			->method('_getSkusToUpdate')
-			->with($this->identicalTo($xpath))
-			->will($this->returnValue($skus));
-		$file->expects($this->once())
-			->method('_updateItem')
-			->with(
-				$this->identicalTo($xpath),
-				$this->identicalTo($contextNode),
-				$this->identicalTo($productCollection)
-			)
-			->will($this->returnSelf());
-
-		$xpath->expects($this->once())
-			->method('query')
-			->with($this->identicalTo('/Items/Item'))
-			->will($this->returnValue($itemNodeList));
-
-		$productCollection->expects($this->once())
-			->method('setStore')
-			->with($this->identicalTo($storeId))
-			->will($this->returnSelf());
-		$productCollection->expects($this->once())
-			->method('save')
-			->will($this->returnSelf());
-
-		$this->assertSame(
-			$file,
-			EcomDev_Utils_Reflection::invokeRestrictedMethod(
-				$file,
-				'_importExtractedData',
-				array($doc, $storeId, $cfgData, $items)
-			)
-		);
 	}
 	/**
 	 * Test EbayEnterprise_Eb2cProduct_Model_Feed_File::_removeFromWebsites method for the following expectations

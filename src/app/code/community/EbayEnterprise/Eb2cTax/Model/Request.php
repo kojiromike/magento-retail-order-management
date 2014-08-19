@@ -31,6 +31,10 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	const CALCULATE_DUTY_ATTRIBUTE  = 'calculateDuty';
 
 	protected $_xml                = '';
+
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
 	/** @var DOMDocument $_doc */
 	protected $_doc;
 	protected $_tdRequest          = null;
@@ -58,6 +62,11 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 */
 	protected $_skuItemMap = array();
 
+	protected function _construct()
+	{
+		parent::_construct();
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
 	/**
 	 * @see _isValid
 	 * @return bool
@@ -164,12 +173,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			$this->_isValid = true;
 		}
 		catch (Exception $e) {
-			$message = sprintf(
-				'[ %s ] Error gathering data for the tax request: %s',
-				__CLASS__,
-				$e->getMessage()
-			);
-			Mage::log($message, Zend_Log::WARN);
+			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
 			$this->_isValid = false;
 		}
 		return $this;
@@ -481,7 +485,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		}
 		if (strlen($newSku) < strlen($item['item_id'])) {
 			$message = 'Item sku "' . $item['item_id'] . '" is too long and has been truncated';
-			Mage::log('[' . __CLASS__ . '] ' . $message, Zend_Log::WARN);
+			$this->_log->logWarn('[%s] SKU "%s" was truncated', array(__CLASS__, $item['item_id']));
 		}
 		return $newSku;
 	}
@@ -506,7 +510,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			$destinations     = $shipping->createChild('Destinations');
 			$this->_processAddresses($destinations, $shipGroups);
 		} catch (Mage_Core_Exception $e) {
-			Mage::log('[' . __CLASS__ . '] TaxDutyQuoteRequest Error: ' . $e->getMessage(), Zend_Log::WARN);
+			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
 		}
 	}
 

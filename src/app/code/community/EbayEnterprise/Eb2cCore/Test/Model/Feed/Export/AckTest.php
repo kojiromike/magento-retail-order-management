@@ -13,8 +13,7 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
-	extends EbayEnterprise_Eb2cCore_Test_Base
+class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	/**
 	 * Test _getConfigMapValue method for the following expectations
@@ -53,12 +52,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($ackMock, '_configMap', array());
 
-		$this->assertSame($map[$cfgKey], EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$ackMock,
-			'_getConfigMapValue',
-			array($cfgKey)
-		));
-
+		$this->assertSame($map[$cfgKey], EcomDev_Utils_Reflection::invokeRestrictedMethod($ackMock, '_getConfigMapValue', array($cfgKey)));
 		$this->assertSame($map, EcomDev_Utils_Reflection::getRestrictedPropertyValue($ackMock, '_configMap'));
 	}
 
@@ -89,9 +83,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 			->with($this->identicalTo($absolutePath))
 			->will($this->returnValue($exportedFiles));
 
-		$this->assertSame($exportedFiles, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$ackMock, '_listFilesByCfgKey', array($cfgKey)
-		));
+		$this->assertSame($exportedFiles, EcomDev_Utils_Reflection::invokeRestrictedMethod($ackMock, '_listFilesByCfgKey', array($cfgKey)));
 	}
 
 	/**
@@ -132,9 +124,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 				array($listImportedFiles[1], $importedFiles[1]),
 			)));
 
-		$this->assertSame($importedFiles, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$ackMock, '_getImportedAckFiles', array()
-		));
+		$this->assertSame($importedFiles, EcomDev_Utils_Reflection::invokeRestrictedMethod($ackMock, '_getImportedAckFiles', array()));
 	}
 
 	/**
@@ -169,9 +159,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 			->with($this->identicalTo($ackFile), $this->identicalTo($exportedDir))
 			->will($this->returnValue($map));
 
-		$this->assertSame($map, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$ackMock, '_extractExportedFile', array($ackFile)
-		));
+		$this->assertSame($map, EcomDev_Utils_Reflection::invokeRestrictedMethod($ackMock, '_extractExportedFile', array($ackFile)));
 	}
 
 	/**
@@ -250,9 +238,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 			->setMethods(null)
 			->getMock();
 
-		$this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$ackMock, '_extractAckExportedFile', array($ackFile, $exportedDir)
-		));
+		$this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($ackMock, '_extractAckExportedFile', array($ackFile, $exportedDir)));
 	}
 
 	/**
@@ -285,9 +271,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 
 		$ack = Mage::getModel('eb2ccore/feed_export_ack');
 		foreach ($testData as $data) {
-			$this->assertSame($data['expect'], EcomDev_Utils_Reflection::invokeRestrictedMethod(
-				$ack, '_getAck', array($data['exportedFile'], $data['importedAck'])
-			));
+			$this->assertSame($data['expect'], EcomDev_Utils_Reflection::invokeRestrictedMethod($ack, '_getAck', array($data['exportedFile'], $data['importedAck'])));
 		}
 	}
 
@@ -321,7 +305,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$ackMock = $this->getModelMockBuilder('eb2ccore/feed_export_ack')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildPath'))
 			->getMock();
 		$ackMock->expects($this->once())
@@ -329,9 +312,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 			->with($this->identicalTo($cfgKey))
 			->will($this->returnValue($absolutePath));
 
-		$this->assertSame($ackMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$ackMock, '_mvTo', array($sourceFile, $cfgKey)
-		));
+		$this->assertSame($ackMock, EcomDev_Utils_Reflection::invokeRestrictedMethod($ackMock, '_mvTo', array($sourceFile, $cfgKey)));
 	}
 
 	/**
@@ -356,7 +337,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$ackMock = $this->getModelMockBuilder('eb2ccore/feed_export_ack')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildPath'))
 			->getMock();
 		$ackMock->expects($this->once())
@@ -364,9 +344,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 			->with($this->identicalTo($cfgKey))
 			->will($this->returnValue($absolutePath));
 
-		$this->assertSame($ackMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$ackMock, '_mvTo', array($sourceFile, $cfgKey)
-		));
+		$this->assertSame($ackMock, EcomDev_Utils_Reflection::invokeRestrictedMethod($ackMock, '_mvTo', array($sourceFile, $cfgKey)));
 	}
 
 	/**
@@ -395,7 +373,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$ackMock = $this->getModelMockBuilder('eb2ccore/feed_export_ack')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildPath'))
 			->getMock();
 		$ackMock->expects($this->once())
@@ -403,9 +380,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 			->with($this->identicalTo($cfgKey))
 			->will($this->returnValue($absolutePath));
 
-		$this->assertSame($ackMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$ackMock, '_mvTo', array($sourceFile, $cfgKey)
-		));
+		$this->assertSame($ackMock, EcomDev_Utils_Reflection::invokeRestrictedMethod($ackMock, '_mvTo', array($sourceFile, $cfgKey)));
 	}
 
 	/**
@@ -431,7 +406,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$ackMock = $this->getModelMockBuilder('eb2ccore/feed_export_ack')
-			->disableOriginalConstructor()
 			->setMethods(array('_getConfigMapValue'))
 			->getMock();
 		$ackMock->expects($this->once())
@@ -439,9 +413,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 			->with($this->identicalTo($cfgKey))
 			->will($this->returnValue($cfgValue));
 
-		$this->assertSame($absolutePath, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$ackMock, '_buildPath', array($cfgKey)
-		));
+		$this->assertSame($absolutePath, EcomDev_Utils_Reflection::invokeRestrictedMethod($ackMock, '_buildPath', array($cfgKey)));
 	}
 
 	/**
@@ -470,7 +442,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$ackMock = $this->getModelMockBuilder('eb2ccore/feed_export_ack')
-			->disableOriginalConstructor()
 			->setMethods(array('_getConfigMapValue'))
 			->getMock();
 		$ackMock->expects($this->once())
@@ -478,9 +449,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 			->with($this->identicalTo(EbayEnterprise_Eb2cCore_Model_Feed_Export_Ack::CFG_WAIT_TIME_LIMIT))
 			->will($this->returnValue($cfgValue));
 
-		$this->assertSame($rValue, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$ackMock, '_isResendable', array($sourceFile)
-		));
+		$this->assertSame($rValue, EcomDev_Utils_Reflection::invokeRestrictedMethod($ackMock, '_isResendable', array($sourceFile)));
 	}
 
 	/**
@@ -502,7 +471,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 		);
 
 		$ackMock = $this->getModelMockBuilder('eb2ccore/feed_export_ack')
-			->disableOriginalConstructor()
 			->setMethods(array('_listFilesByCfgKey', '_getImportedAckFiles', '_getAck', '_mvTo'))
 			->getMock();
 		$ackMock->expects($this->once())
@@ -544,7 +512,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_Feed_Export_AckTest
 		$resendable = true;
 
 		$ackMock = $this->getModelMockBuilder('eb2ccore/feed_export_ack')
-			->disableOriginalConstructor()
 			->setMethods(array(
 				'_listFilesByCfgKey', '_getImportedAckFiles', '_getAck', '_isResendable', '_mvTo'
 			))

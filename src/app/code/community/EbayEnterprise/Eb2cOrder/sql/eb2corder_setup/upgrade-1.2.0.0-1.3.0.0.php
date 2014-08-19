@@ -23,8 +23,6 @@
  * 'new' and status 'unsubmitted'.
  */
 
-Mage::log(sprintf('[%s] Upgrading Eb2cOrder 1.2.0.0 -> 1.3.0.0', get_class($this)), Zend_Log::INFO);
-
 /** @var $installer Mage_Core_Model_Resource_Setup */
 $installer = $this;
 $installer->startSetup();

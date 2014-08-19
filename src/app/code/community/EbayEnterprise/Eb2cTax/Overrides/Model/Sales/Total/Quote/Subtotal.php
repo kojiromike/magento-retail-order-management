@@ -33,7 +33,6 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Subtotal extends 
 			'quote' => $address->getQuote()
 		));
 		Mage_Sales_Model_Quote_Address_Total_Abstract::collect($address);
-		Mage::log('calculating tax subtotal', Zend_Log::DEBUG);
 		$this->_store   = $address->getQuote()->getStore();
 		$this->_address = $address;
 		$this->_subtotalInclTax     = 0;

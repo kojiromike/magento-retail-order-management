@@ -70,9 +70,10 @@ class EbayEnterprise_Eb2cCore_Helper_Map
 	{
 		return false;
 	}
+
 	/**
 	 * return a sum of the data for all elements retrieved by the xpath.
-	 * @param DOMNodeList $value
+	 * @param DOMNodeList $nodes
 	 * @return float
 	 */
 	public function extractFloatSum(DOMNodeList $nodes)

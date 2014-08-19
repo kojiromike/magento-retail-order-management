@@ -18,6 +18,9 @@
  */
 class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_Tax_Model_Sales_Total_Quote_Tax
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
 	/**
 	 * running total of tax amount for the address.
 	 */
@@ -26,6 +29,12 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 	 * running total of tax amount for the address.
 	 */
 	protected $_shippingTaxTotals = array();
+
+	public function __construct()
+	{
+		parent::__construct();
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
 	/**
 	 * Collect tax totals for quote address
 	 * @param Mage_Sales_Model_Quote_Address $address
@@ -33,28 +42,28 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 	 */
 	public function collect(Mage_Sales_Model_Quote_Address $address)
 	{
-		Mage::log(sprintf('[%s] Calculating tax for address %s', __CLASS__, $address->getAddressType()), Zend_Log::DEBUG);
-		try{
-		$this->_initBeforeCollect($address);
-		$this->_roundingDeltas = array();
-		$this->_baseRoundingDeltas = array();
-		$this->_hiddenTaxes = array();
-		$address->setShippingTaxAmount(0);
-		$address->setBaseShippingTaxAmount(0);
-		// zero amounts for the address.
-		$this->_store = $address->getQuote()->getStore();
-		$items = $this->_getAddressItems($address);
-		if (count($items)) {
-			$this->_calcTaxForAddress($address);
-			// adds extra tax amounts to the address
-			$this->_addAmount($address->getExtraTaxAmount());
-			$this->_addBaseAmount($address->getBaseExtraTaxAmount());
-			$this->_calcShippingTaxes($address);
-			//round total amounts in address
-			$this->_roundTotals($address);
-		}
+		$this->_log->logDebug('[%s] Collecting tax for address "%s"', array(__CLASS__, $address->getAddressType()));
+		try {
+			$this->_initBeforeCollect($address);
+			$this->_roundingDeltas = array();
+			$this->_baseRoundingDeltas = array();
+			$this->_hiddenTaxes = array();
+			$address->setShippingTaxAmount(0);
+			$address->setBaseShippingTaxAmount(0);
+			// zero amounts for the address.
+			$this->_store = $address->getQuote()->getStore();
+			$items = $this->_getAddressItems($address);
+			if (count($items)) {
+				$this->_calcTaxForAddress($address);
+				// adds extra tax amounts to the address
+				$this->_addAmount($address->getExtraTaxAmount());
+				$this->_addBaseAmount($address->getBaseExtraTaxAmount());
+				$this->_calcShippingTaxes($address);
+				//round total amounts in address
+				$this->_roundTotals($address);
+			}
 		} catch (Exception $e) {
-			Mage::log(sprintf('[%s] Exception Message: %s', __METHOD__, $e->getMessage()), Zend_Log::DEBUG);
+			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
 		}
 		return $this;
 	}

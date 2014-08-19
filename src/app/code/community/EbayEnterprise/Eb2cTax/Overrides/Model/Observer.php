@@ -15,7 +15,12 @@
 
 class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Observer
 {
-	protected $_tax;
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+	public function __construct()
+	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
 	/**
 	 * Save order tax information
 	 *
@@ -108,16 +113,9 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 			->getTaxRequest($address);
 
 		if ($request->isValid()) {
-			Mage::log(
-				'[' . __CLASS__ . '] Sending TaxDutyQuote request for quote address ' . $address->getId(),
-				Zend_Log::DEBUG
-			);
 			$this->_doRequest($request);
 		} else {
-			Mage::log(
-				'[' . __CLASS__ . '] Unable to send TaxDutyQuote request: The request was empty or invalid',
-				Zend_Log::DEBUG
-			);
+			$this->_log->logWarn('[%s] Refusing to send invalid request', array(__CLASS__));
 			Mage::helper('eb2ctax')->failTaxRequest();
 		}
 		return $this;
@@ -133,12 +131,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 			$response = Mage::helper('eb2ctax')->sendRequest($request);
 			$this->_handleResponse($response);
 		} catch (Mage_Core_Exception $e) {
-			Mage::log(sprintf(
-				'[%s] Exception encountered making the TaxDutyQuote request: %s',
-				__CLASS__,
-				$e->getMessage()),
-				Zend_Log::WARN
-			);
+			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
 			Mage::helper('eb2ctax')->failTaxRequest();
 		}
 		return $this;
@@ -154,10 +147,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 		if ($response->isValid()) {
 			$calc->setTaxResponse($response);
 		} else {
-			Mage::log(
-				'[' . __CLASS__ . '] Unsuccessful TaxDutyQuote request: valid request received an invalid response',
-				Zend_Log::WARN
-			);
+			$this->_log->logWarn('[%s] Invalid response to valid request', array(__CLASS__));
 			Mage::helper('eb2ctax')->failTaxRequest();
 		}
 		return $this;

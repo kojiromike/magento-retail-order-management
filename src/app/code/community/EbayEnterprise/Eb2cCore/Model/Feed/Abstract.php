@@ -19,6 +19,10 @@
 abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 {
 	protected $_coreFeed; // Handles file moving, listing, etc.
+
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
 	/**
 	 * Validate that the feed model has necessary configuration for the core
 	 * feed model. Instantiate and store a core feed model using config data
@@ -29,6 +33,8 @@ abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 	 */
 	protected function _construct()
 	{
+		parent::_construct();
+		$this->_log = Mage::helper('ebayenterprise_magelog');
 		if(!$this->hasFeedConfig()) {
 			throw new EbayEnterprise_Eb2cCore_Exception_Feed_Configuration(__CLASS__ . ' no configuration specifed.');
 		}
@@ -74,10 +80,7 @@ abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 				$this->processFile($feedFile);
 				$filesProcessed++;
 			} catch (Mage_Core_Exception $e) {
-				Mage::helper('ebayenterprise_magelog')->logWarn(
-					'[%s] Failed to process file, %s. %s',
-					array(__CLASS__, basename($feedFile['local_file']), $e->getMessage())
-				);
+				$this->_log->logWarn('[%s] Failed to process file, %s. %s', array(__CLASS__, basename($feedFile['local_file']), $e->getMessage()));
 			}
 		}
 		return $filesProcessed;
@@ -91,19 +94,14 @@ abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 	protected function _loadDom($fileDetail)
 	{
 		$dom = Mage::helper('eb2ccore')->getNewDomDocument();
+		$basename = basename($fileDetail['local_file']);
 		if (!$dom->load($fileDetail['local_file'])) {
-			Mage::log(
-				sprintf('[%s] File %s: Failed to load as a DOM Document', __CLASS__, basename($fileDetail['local_file'])),
-				Zend_Log::ERR
-			);
+			$this->_log->logWarn('[%s] DomDocument could not load file "%s"', array(__CLASS__, $basename));
 			return null;
 		}
 		// Validate Eb2c Header Information
 		if (!Mage::helper('eb2ccore/feed')->validateHeader($dom, $fileDetail['core_feed']->getEventType())) {
-			Mage::log(
-				sprintf('[%s] File %s: Invalid header', __CLASS__, basename($fileDetail['local_file'])),
-				Zend_Log::ERR
-			);
+			$this->_log->logWarn('[%s] Invalid header for file "%s"', array(__CLASS__, $basename));
 			return null;
 		}
 		return $dom;
@@ -124,7 +122,6 @@ abstract class EbayEnterprise_Eb2cCore_Model_Feed_Abstract extends Varien_Object
 		// after ack'ing the file, move it to the processing directory and reset
 		// the 'local_file' path to the new location of the file in the
 		// processing directory
-		Mage::log(sprintf('[%s] Processing file %s', __CLASS__, $fileDetail['local_file']), Zend_Log::DEBUG);
 		$dom = $this->_loadDom($fileDetail);
 		if ($dom) {
 			$fileDetail['local_file'] = $fileDetail['core_feed']

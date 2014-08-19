@@ -13,7 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
 class EbayEnterprise_Eb2cCustomerService_Model_Token_Request
 	extends Varien_Object
 {
@@ -34,7 +33,7 @@ class EbayEnterprise_Eb2cCustomerService_Model_Token_Request
 	{
 		// if there's no token, don't attempt to validate it
 		if (!$this->getToken()) {
-			Mage::log('[%s] No token to make request for', __CLASS__, Zend_Log::INFO);
+			Mage::helper('ebayenterprise_magelog')->logInfo('[%s] No token to make request for', array(__CLASS__));
 			return '';
 		}
 		$response = Mage::getModel('eb2ccore/api')

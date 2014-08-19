@@ -15,6 +15,15 @@
 
 class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Model_Api_Nvp
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
+	protected function _construct()
+	{
+		parent::_construct();
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * Get paypal cart instantiated object.
 	 *
@@ -89,9 +98,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			// Eb2c PaypalSetExpressCheckout is disabled, continue as normal with direct call to the paypal api
 			$response = $this->call(self::SET_EXPRESS_CHECKOUT, $request);
 		}
-
-		Mage::log(sprintf("[%s] Received response:\n", __METHOD__) . print_r($response, true), Zend_Log::DEBUG);
-
+		$this->_logResponse($response);
 		$this->_importFromResponse($this->_setExpressCheckoutResponse, $response);
 	}
 
@@ -149,7 +156,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			$response = $this->call(self::GET_EXPRESS_CHECKOUT_DETAILS, $request);
 		}
 
-		Mage::log(sprintf("[%s] Received response:\n", __METHOD__) . print_r($response, true), Zend_Log::DEBUG);
+		$this->_logResponse($response);
 
 		$this->_importFromResponse($this->_paymentInformationResponse, $response);
 		$this->_exportAddressses($response);
@@ -206,7 +213,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			$response = $this->call(self::DO_EXPRESS_CHECKOUT_PAYMENT, $request);
 		}
 
-		Mage::log(sprintf("[%s] Received response:\n", __METHOD__) . print_r($response, true), Zend_Log::DEBUG);
+		$this->_logResponse($response);
 
 		$this->_importFromResponse($this->_paymentInformationResponse, $response);
 		$this->_importFromResponse($this->_doExpressCheckoutPaymentResponse, $response);
@@ -255,7 +262,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			$response = $this->call(self::DO_AUTHORIZATION, $request);
 		}
 
-		Mage::log(sprintf("[%s] Received response:\n", __METHOD__) . print_r($response, true), Zend_Log::DEBUG);
+		$this->_logResponse($response);
 
 		$this->_importFromResponse($this->_paymentInformationResponse, $response);
 		$this->_importFromResponse($this->_doAuthorizationResponse, $response);
@@ -299,7 +306,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			$response = $this->call(self::DO_VOID, $request);
 		}
 
-		Mage::log(sprintf("[%s] Received response:\n", __METHOD__) . print_r($response, true), Zend_Log::DEBUG);
+		$this->_logResponse($response);
 	}
 
 	/**
@@ -318,5 +325,13 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 		} else {
 			return parent::call($methodName, $request);
 		}
+	}
+
+	/**
+	 * @param $response
+	 */
+	protected function _logResponse($response)
+	{
+		$this->_log->logDebug('[%s] Received response:\n%s', array(__CLASS__, print_r($response, true)));
 	}
 }

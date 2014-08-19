@@ -91,10 +91,10 @@ class EbayEnterprise_Eb2cProduct_Helper_Map_Attribute extends Mage_Core_Helper_A
 	{
 		return $this->_addAdminMappedOption('color', 'Code', 'Description', $nodeList);
 	}
+
 	/**
 	 * get a list of option from a given attribute code and store id
 	 * @param string $attributeCode the attribute code (color, size)
-	 * @param int $storeId and actual store entity id
 	 * @param string $optionValue
 	 * @return int list of label/value
 	 */

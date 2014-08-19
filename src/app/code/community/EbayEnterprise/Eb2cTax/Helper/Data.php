@@ -57,7 +57,6 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function failTaxRequest()
 	{
-		Mage::log(sprintf('[%s] Failing tax request', __CLASS__), Zend_Log::DEBUG);
 		Mage::getSingleton('eb2ccore/session')->setHaveTaxRequestsFailed(true);
 	}
 	/**

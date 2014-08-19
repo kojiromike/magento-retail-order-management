@@ -24,9 +24,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_CollectorTest
 	 *                a mocked Zend_Date object and expected the method Zend_Date::toString to be called given string value
 	 *                and return a know time stamp string which will be assigned to the class property
 	 *                EbayEnterprise_Eb2cProduct_Model_Pim_Collector::_startDate
-	 * Expectation 2: the method EbayEnterprise_Magelog_Helper_Data::logInfo is expected to be called 2 time and the method
-	 *                EbayEnterprise_Magelog_Helper_Data::logDebug is expected to called 1 time
-	 * Expectation 3: the method EbayEnterprise_Eb2cProduct_Model_Pim_Collector::_loadConfig is expected to be called once
+	 * Expectation 2: the method EbayEnterprise_Eb2cProduct_Model_Pim_Collector::_loadConfig is expected to be called once
 	 *                then the method EbayEnterprise_Eb2cProduct_Model_Pim_Collector::_getExportableProducts is expected
 	 *                to be invoked once and return mock of Mage_Catalog_Model_Resource_Product_Collection object
 	 *                then the method Mage_Catalog_Model_Resource_Product_Collection::getColumnValues is expected to be called
@@ -39,21 +37,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_CollectorTest
 		$startTime = '2014-03-27T13:56:32+00:00';
 		$entityIds = array(87, 98);
 
-		$logData = array(
-			array(
-				'msg_template' => '[%s] Starting PIM Export with cutoff date "%s"',
-				'msg_data' => array('EbayEnterprise_Eb2cProduct_Model_Pim_Collector', $startTime)
-			),
-			array(
-				'msg_template' => "[%s] Exportable Entity Ids:\n%s",
-				'msg_data' => array('EbayEnterprise_Eb2cProduct_Model_Pim_Collector', json_encode($entityIds))
-			),
-			array(
-				'msg_template' => '[%s] Finished PIM Export',
-				'msg_data' => array('EbayEnterprise_Eb2cProduct_Model_Pim_Collector')
-			)
-		);
-
 		$zendDateMock = $this->getMockBuilder('Zend_Date')
 			->disableOriginalConstructor()
 			->setMethods(array('toString'))
@@ -62,33 +45,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_CollectorTest
 			->method('toString')
 			->with($this->identicalTo('c'))
 			->will($this->returnValue($startTime));
-
-		$magelogHelperMock = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
-			->disableOriginalConstructor()
-			->setMethods(array('logInfo', 'logDebug'))
-			->getMock();
-		$magelogHelperMock->expects($this->at(0))
-			->method('logInfo')
-			->with(
-				$this->identicalTo($logData[0]['msg_template']),
-				$this->identicalTo($logData[0]['msg_data'])
-			)
-			->will($this->returnSelf());
-		$magelogHelperMock->expects($this->at(2))
-			->method('logInfo')
-			->with(
-				$this->identicalTo($logData[2]['msg_template']),
-				$this->identicalTo($logData[2]['msg_data'])
-			)
-			->will($this->returnSelf());
-		$magelogHelperMock->expects($this->at(1))
-			->method('logDebug')
-			->with(
-				$this->identicalTo($logData[1]['msg_template']),
-				$this->identicalTo($logData[1]['msg_data'])
-			)
-			->will($this->returnSelf());
-		$this->replaceByMock('helper', 'ebayenterprise_magelog', $magelogHelperMock);
 
 		$collectionMock = $this->getResourceModelMockBuilder('catalog/product_collection')
 			->disableOriginalConstructor()
@@ -313,36 +269,18 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_CollectorTest
 	/**
 	 * Test EbayEnterprise_Eb2cProduct_Model_Pim_Collector::_updateCutoffDate method for the following expectations
 	 * Expectation 1: the method EbayEnterprise_Eb2cProduct_Model_Pim_Collector::_updateCutoffDate is expected to be called
-	 *                by this test and expected the method EbayEnterprise_Magelog_Helper_Data::logDebug to be called once
-	 *                given a know string and an array, then the method Mage_Core_Model_Config_Data::addData is expected
+	 *                by this test, then the method Mage_Core_Model_Config_Data::addData is expected
 	 *                to be called given an array of data
 	 */
 	public function testUpdateCutoffDate()
 	{
 		$startTime = '2014-03-27T13:56:32+00:00';
-		$logData = array(
-			'msg_template' => '[%s] Updateding cutoff date to "%s"',
-			'msg_data' => array('EbayEnterprise_Eb2cProduct_Model_Pim_Collector', $startTime)
-		);
 		$data = array(
 			'path' => EbayEnterprise_Eb2cProduct_Model_Pim_Collector::CUTOFF_DATE_PATH,
 			'value' => $startTime,
 			'scope' => 'default',
 			'scope_id' => 0,
 		);
-
-		$magelogHelperMock = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
-			->disableOriginalConstructor()
-			->setMethods(array('logDebug'))
-			->getMock();
-		$magelogHelperMock->expects($this->once())
-			->method('logDebug')
-			->with(
-				$this->identicalTo($logData['msg_template']),
-				$this->identicalTo($logData['msg_data'])
-			)
-			->will($this->returnSelf());
-		$this->replaceByMock('helper', 'ebayenterprise_magelog', $magelogHelperMock);
 
 		$configMock = $this->getModelMockBuilder('core/config_data')
 			->disableOriginalConstructor()

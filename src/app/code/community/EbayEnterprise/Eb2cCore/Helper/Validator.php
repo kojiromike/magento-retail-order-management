@@ -23,6 +23,15 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	const INVALID_SFTP_AUTHENTICATION_CONFIG = 'EbayEnterprise_Eb2cCore_Sftp_Invalid_Authentication_Configuration';
 	const SFTP_CONNECTION_SUCCESS = 'EbayEnterprise_Eb2cCore_Sftp_Conection_Success';
 	const SFTP_CONNECTION_FAILED = 'EbayEnterprise_Eb2cCore_Sftp_Connection_Failed';
+
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
+	public function __construct()
+	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * Get the API test message by making a test request, using AdVal with a
 	 * hard-coded address, and using the response to determine if the configuration
@@ -188,10 +197,10 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		try {
 			$sftp->connect()->login();
 		} catch (EbayEnterprise_Eb2cCore_Exception_Sftp_Configuration $e) {
-			Mage::log($e->getMessage(), Zend_Log::INFO);
+			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
 			$resp = array('message' => $helper->__(self::INVALID_SFTP_CONNECTION), 'success' => false);
 		} catch (EbayEnterprise_FileTransfer_Exception_Authentication $e) {
-			Mage::log($e->getMessage(), Zend_Log::INFO);
+			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
 			$resp = array('message' => $helper->__(self::INVALID_SFTP_AUTHENTICATION_CONFIG), 'success' => false);
 		}
 		// Restore the error handler to get rid of the exception throwing one.

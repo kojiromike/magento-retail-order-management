@@ -13,8 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-Mage::log(sprintf('[%s] Upgrade Eb2cTax %s', get_class($this), basename(__FILE__)), Zend_Log::DEBUG);
-
 $installer = $this;
 $installer->startSetup();
 

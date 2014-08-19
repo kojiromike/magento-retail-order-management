@@ -30,9 +30,11 @@
  * quantity_update_required_flag => flag indicating that inventory quantity needs to be updated
  * details_update_required_flag => flag indicating that inventory details needs to be updated
  */
-class EbayEnterprise_Eb2cCore_Model_Session
-	extends Mage_Core_Model_Session_Abstract
+class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abstract
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
 	/**
 	 * Class constructor - initialize the session namespace.
 	 * This method is going to be nigh impossible to cover - calling it in the test
@@ -41,6 +43,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 	 */
 	public function __construct()
 	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
 		$this->init('eb2ccore');
 	}
 	/**
@@ -452,8 +455,7 @@ class EbayEnterprise_Eb2cCore_Model_Session
 		// if nothing has changed in the quote, no need to update flags, or
 		// quote data as none of them will change
 		if (!empty($quoteDiff)) {
-			Mage::log(sprintf('[%s] Changes found in quote for: %s', __CLASS__, implode(', ', array_keys($quoteDiff))), Zend_Log::DEBUG);
-
+			$this->_log->logDebug('[%s] Changes found in quote for: %s', array(__CLASS__, implode(', ', array_keys($quoteDiff))));
 			$this
 				// set the update required flags - any flags that are already true should remain true
 				// flags should only be unset explicitly by the reset methods

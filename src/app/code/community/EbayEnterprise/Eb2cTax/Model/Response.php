@@ -18,6 +18,8 @@
  */
 class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
 	/**
 	 * the sales/quote_address object
 	 * @var Mage_Sales_Model_Quote_Address
@@ -73,6 +75,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 	 */
 	protected function _construct()
 	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
 		$this->_doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
 		$this->_doc->preserveWhiteSpace = false;
 		// Magic 'xml' data set when instantiated with the results of a tax response
@@ -194,7 +197,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 		if (!$id) {
 			$this->_isValid = false;
 			$message = "Unable to parse the address ID from the ShipGroup '$idRef'";
-			Mage::log('[' . __CLASS__ . '] ' . $message, Zend_Log::WARN);
+			$this->_log->logWarn('[%s] Unable to parse the address id from the shipgroup "%s"', array(__CLASS__, $idRef));
 		}
 		return $id;
 	}
@@ -283,10 +286,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 					$isValid = $isValid && $responseXpath->query($resPath)->length === 1;
 					$orderItemPath = $sgPath . '/a:Items/a:OrderItem/a:ItemId[.="' . $val . '"]/..';
 					if (!$isValid) {
-						Mage::log('[' . __CLASS__ . '] ' .
-							sprintf('%s: sku "%s" not found in the response.', $heading, $val),
-							Zend_Log::WARN
-						);
+						$this->_log->logWarn('[%s] SKU "%s" not found in the response', array(__CLASS__, $val));
 						// don't bother checking any other fields since they will not be found
 						break;
 					}
@@ -296,10 +296,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 					$resPath = $sgPath . '/a:Items/a:OrderItem[@lineNumber="' . $val . '"]/a:ItemId[.="' . $itemSku . '"]';
 					$isMatch = $responseXpath->query($resPath)->length === 1;
 					if (!$isMatch) {
-						Mage::log('[' . __CLASS__ . '] ' .
-							sprintf('%s: %s "%s" not found in response for %s.', $heading, $itemSku, $val, 'lineNumber'),
-							Zend_Log::WARN
-						);
+						$this->_logMissingInResponse($itemSku, $val, 'lineNumber');
 					}
 
 					// create paths for each value to check
@@ -308,10 +305,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 					$resPath = $orderItemPath . '/a:Quantity[.="' . $val . '"]';
 					$isValid = $isValid && $responseXpath->query($resPath)->length === 1;
 					if (!$isValid) {
-						Mage::log('[' . __CLASS__ . '] ' .
-							sprintf('%s: %s "%s" not found in response for %s.', $heading, $itemSku, $val, 'Quantity'),
-							Zend_Log::WARN
-						);
+						$this->_logMissingInResponse($itemSku, $val, 'Quantity');
 					}
 
 					// create paths for each value to check
@@ -320,10 +314,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 					$resPath = $orderItemPath . '/a:Pricing/a:Merchandise/a:UnitPrice[.="' . $val . '"]';
 					$isValid = $isValid && $responseXpath->query($resPath)->length === 1;
 					if (!$isValid) {
-						Mage::log('[' . __CLASS__ . '] ' .
-							sprintf('%s: %s "%s" not found in response for %s.', $heading, $itemSku, $val, 'Pricing/Merchandise/UnitPrice'),
-							Zend_Log::WARN
-						);
+						$this->_logMissingInResponse($itemSku, $val, 'Pricing/Merchandise/UnitPrice');
 					}
 
 					// create paths for each value to check
@@ -332,10 +323,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 					$resPath = $orderItemPath . '/a:Pricing/a:Shipping/a:Amount[.="' . $val . '"]';
 					$isMatch = $responseXpath->query($resPath)->length === 1;
 					if (!$isMatch) {
-						Mage::log('[' . __CLASS__ . '] ' .
-							sprintf('%s: %s "%s" not found in response for %s.', $heading, $itemSku, $val, 'Pricing/a:Shipping/a:Amount'),
-							Zend_Log::DEBUG
-						);
+						$this->_logMissingInResponse($itemSku, $val, 'Pricing/Shipping/Amount');
 					}
 
 					// create paths for each value to check
@@ -344,10 +332,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 					$resPath = $orderItemPath . '/a:ItemDesc[.="' . $val . '"]';
 					$isMatch = $responseXpath->query($resPath)->length === 1;
 					if (!$isMatch) {
-						Mage::log('[' . __CLASS__ . '] ' .
-							sprintf('%s: %s "%s" not found in response for %s.', $heading, $itemSku, $val, 'ItemDesc'),
-							Zend_Log::DEBUG
-						);
+						$this->_logMissingInResponse($itemSku, $val, 'ItemDesc');
 					}
 
 					// create paths for each value to check
@@ -356,10 +341,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 					$resPath = $orderItemPath . '/a:HTSCode[.="' . $val . '"]';
 					$isMatch = $responseXpath->query($resPath)->length === 1;
 					if (!$isMatch) {
-						Mage::log('[' . __CLASS__ . '] ' .
-							sprintf('%s: %s "%s" not found in response for %s.', $heading, $itemSku, $val, 'HTSCode'),
-							Zend_Log::DEBUG
-						);
+						$this->_logMissingInResponse($itemSku, $val, 'HTSCode');
 					}
 
 					// create paths for each value to check
@@ -368,10 +350,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 					$resPath = $orderItemPath . '/a:Pricing/a:Merchandise/a:Amount[.="' . $val . '"]';
 					$isValid = $isValid && $responseXpath->query($resPath)->length === 1;
 					if (!$isValid) {
-						Mage::log('[' . __CLASS__ . '] ' .
-							sprintf('%s: %s "%s" not found in response for %s.', $heading, $itemSku, $val, 'Pricing/a:Merchandise/a:Amount'),
-							Zend_Log::WARN
-						);
+						$this->_logMissingInResponse($itemSku, $val, 'Pricing/Merchandise/Amount');
 					}
 				}
 			}
@@ -419,59 +398,38 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 
 				if (!$this->isSameNodelistElement($responseFirstName, $requestFirstName)) {
 					$valid = false;
-					Mage::log('[' . __CLASS__ . '] ' .
-						sprintf('%s: FirstName "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseFirstName->item(0)->nodeValue),
-						Zend_Log::DEBUG
-					);
+					$this->_logNoMatchInReq('FirstName', $responseFirstName->item(0)->nodeValue);
 				}
 
 				if (!$this->isSameNodelistElement($responseLastName, $requestLastName)) {
 					$valid = false;
-					Mage::log('[' . __CLASS__ . '] ' .
-						sprintf('%s: LastName "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseLastName->item(0)->nodeValue),
-						Zend_Log::DEBUG
-					);
+					$this->_logNoMatchInReq('LastName',  $responseLastName->item(0)->nodeValue);
 				}
 
 				if (!$this->isSameNodelistElement($responseLineAddress, $requestLineAddress)) {
 					$valid = false;
-					Mage::log('[' . __CLASS__ . '] ' .
-						sprintf('%s: Address Line 1 "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseLineAddress->item(0)->nodeValue),
-						Zend_Log::DEBUG
-					);
+					$this->_logNoMatchInReq('Address Line 1', $responseLineAddress->item(0)->nodeValue);
 				}
 
 				if (!$this->isSameNodelistElement($responseCity, $requestCity)) {
 					$valid = false;
-					Mage::log('[' . __CLASS__ . '] ' .
-						sprintf('%s: City "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseCity->item(0)->nodeValue),
-						Zend_Log::DEBUG
-					);
+					$this->_logNoMatchInReq('City', $responseCity->item(0)->nodeValue);
 				}
 
 				if ($requestMainDivision->length > 0 && !$this->isSameNodelistElement($responseMainDivision, $requestMainDivision)) {
 					$valid = false;
 					$mainDivision = $responseMainDivision->length?$responseMainDivision->item(0)->nodeValue: '';
-					Mage::log('[' . __CLASS__ . '] ' .
-						sprintf('%s: Main Division "%s" not match in the request.', 'TaxDutyQuoteResponse', $mainDivision),
-						Zend_Log::DEBUG
-					);
+					$this->_logNoMatchInReq('Main Division', $mainDivision);
 				}
 
 				if (!$this->isSameNodelistElement($responseCountryCode, $requestCountryCode)) {
 					$valid = false;
-					Mage::log('[' . __CLASS__ . '] ' .
-						sprintf('%s: Country Code "%s" not match in the request.', 'TaxDutyQuoteResponse', $responseCountryCode->item(0)->nodeValue),
-						Zend_Log::DEBUG
-					);
+					$this->_logNoMatchInReq('Country Code', $responseCountryCode->item(0)->nodeValue);
 				}
 
 				if (!$this->isSameNodelistElement($responsePostalCode, $requestPostalCode)) {
 					$valid = false;
-					Mage::log('[' . __CLASS__ . '] ' .
-						sprintf('%s: Postal Code "%s" not match in the request.', 'TaxDutyQuoteResponse', $responsePostalCode->item(0)->nodeValue),
-						Zend_Log::DEBUG
-					);
+					$this->_logNoMatchInReq('Postal Code', $responsePostalCode->item(0)->nodeValue);
 				}
 			}
 		}
@@ -528,8 +486,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 			}
 		} catch (Exception $e) {
 			$result = false;
-			$message = '[' . __CLASS__ . '] Unable to read the response: ' . $e->getMessage();
-			Mage::log($message, Zend_Log::WARN);
+			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
 		}
 		return $result;
 	}
@@ -591,5 +548,24 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 			$message .= "`{$snippet}`";
 		}
 		return $message;
+	}
+
+	/**
+	 * @param $itemSku
+	 * @param $val
+	 * @param $xpathExpr
+	 */
+	protected function _logMissingInResponse($itemSku, $val, $xpathExpr)
+	{
+		$this->_log->logWarn('[%s] %s "%s" not found in the response for %s', array(__CLASS__, $itemSku, $val, $xpathExpr));
+	}
+
+	/**
+	 * @param $name
+	 * @param $val
+	 */
+	protected function _logNoMatchInReq($name, $val)
+	{
+		$this->_log->logWarn('[%s] %s "%s" did not match in the request', array(__CLASS__, $name, $val));
 	}
 }

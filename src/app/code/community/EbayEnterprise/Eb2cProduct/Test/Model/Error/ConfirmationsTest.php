@@ -649,7 +649,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 		$productCollection = Mage::getResourceModel('catalog/product_collection');
 
 		$errorConfirmationMock = $this->getModelMockBuilder('eb2cproduct/error_confirmations')
-			->disableOriginalConstructor()
 			->setMethods(array('loadFile', '_getProductCollectionBySkus', '_addDeleteErrors'))
 			->getMock();
 		$errorConfirmationMock->expects($this->once())
@@ -665,7 +664,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 			->with($this->identicalTo($productCollection), $this->identicalTo(basename($file)), $this->identicalTo($type))
 			->will($this->returnSelf());
 
-		$this->assertSame($errorConfirmationMock, $errorConfirmationMock->processByOperationType($observerMock));
+		$errorConfirmationMock->processByOperationType($observerMock);
 	}
 
 	/**

@@ -241,8 +241,7 @@ abstract class EbayEnterprise_Eb2cOrder_Test_Abstract extends EbayEnterprise_Eb2
 		);
 	}
 	/**
- 	 * Let us mock a Mage_Sales_Model_Order_Payment
-	 *
+	 * Let us mock a Mage_Sales_Model_Order_Payment
 	 */
 	private function _getMockSalesOrderPayment()
 	{
@@ -270,8 +269,7 @@ abstract class EbayEnterprise_Eb2cOrder_Test_Abstract extends EbayEnterprise_Eb2
 	}
 
 	/**
- 	 * Let us mock a Mage_Sales_Model_Order_Payment
-	 *
+	 * Let us mock a Mage_Sales_Model_Order_Payment
 	 */
 	private function _getMockSalesOrderPayment2()
 	{
@@ -293,8 +291,7 @@ abstract class EbayEnterprise_Eb2cOrder_Test_Abstract extends EbayEnterprise_Eb2
 	}
 
 	/**
- 	 * Let us mock a Mage_Sales_Model_Order_Payment
-	 *
+	 * Let us mock a Mage_Sales_Model_Order_Payment
 	 */
 	private function _getMockSalesOrderPayment3()
 	{

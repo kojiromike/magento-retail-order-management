@@ -16,6 +16,14 @@
 class EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup
 	extends Mage_Catalog_Model_Resource_Setup
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_log;
+
+	public function __construct($resourceName)
+	{
+		parent::__construct($resourceName);
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
 	/**
 	 * base log message template.
 	 * @var string
@@ -71,7 +79,7 @@ class EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup
 	 */
 	protected function _logWarn($msg)
 	{
-		Mage::log(sprintf('[%s] %s', __CLASS__, $msg), Zend_Log::WARN);
+		$this->_log->logWarn('[%s] %s', array(__CLASS__, $msg));
 	}
 
 	/**
@@ -81,7 +89,7 @@ class EbayEnterprise_Eb2cProduct_Model_Resource_Eav_Entity_Setup
 	 */
 	protected function _logDebug($msg)
 	{
-		Mage::log(sprintf('[%s] %s', __CLASS__, $msg), Zend_Log::DEBUG);
+		$this->_log->logDebug('[%s] %s', array(__CLASS__, $msg));
 	}
 
 	/**

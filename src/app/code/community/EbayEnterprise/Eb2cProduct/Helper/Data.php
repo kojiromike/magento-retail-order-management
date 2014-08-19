@@ -16,6 +16,14 @@
 class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
+	public function __construct()
+	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * @var int, the default category id
 	 */
@@ -300,8 +308,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 				&& $productTypeId === Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
 				&& $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product))
 		{
-			Mage::log('Can\'t change existing configurable attributes; update discarded for sku ' . $product->getSku(),
-				Zend_log::WARN);
+			$this->_log->logWarn('[%s] Cannot change existing configurable attributes; update discarded for SKU "%s"', array(__CLASS__, $product->getSku()));
 			return null;
 		}
 		return $source->getData('configurable_attributes_data');
@@ -460,7 +467,7 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 		$transformed = $helper->getNewDomDocument();
 		$transformed->loadXML($xslProcessor->transformToXML($doc));
 		preg_match_all('/<ClientItemId ?.*>(.*)<\/ClientItemId>/', $transformed->saveXML(), $matches);
-		Mage::log(sprintf("[%s] transformed, SKUs eligible: (%s)", __METHOD__, implode(", ", $matches[1])), Zend_Log::DEBUG);
+		$this->_log->logDebug('[%s] transformed, SKUs eligible: (%s)', array(__CLASS__, implode(", ", $matches[1])));
 		return $transformed;
 	}
 

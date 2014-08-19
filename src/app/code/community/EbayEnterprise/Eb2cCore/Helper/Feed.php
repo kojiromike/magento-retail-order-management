@@ -31,6 +31,14 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	const KEY_OUTBOUND = 'outbound';
 	const KEY_EVENT_TYPE = 'event_type';
 
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_log;
+
+	public function __construct()
+	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * This method will derive a map of event type to header configuration path
 	 * using the event type in the file transfer import/export configuration section.
@@ -72,7 +80,8 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 		if ($matches->length) {
 			return true;
 		} else {
-			Mage::log(sprintf('[%s] Feed does not have "%s" EventType node.', __CLASS__, $eventType), Zend_Log::WARN);
+			$msg = '[%s] Feed does not have an EventType node "%s".';
+			$this->_log->logWarn($msg, array(__CLASS__, $eventType));
 			return false;
 		}
 	}
@@ -117,10 +126,8 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 			$default = filemtime($filename);
 			// if that doesn't work use the start of the epoch
 			$dateObj = DateTime::createFromFormat('U', $default === false ? 0 : $default);
-			Mage::log(
-				'[' . __CLASS__ . "] Unable to read the message date from file [$filename]",
-				Zend_Log::WARN
-			);
+			$msg = '[%s] Unable to read the message date from file "%s"';
+			$this->_log->logWarn($msg, array(__CLASS__, $filename));
 		} else {
 			$dateNode = $reader->expand();
 			$dateObj = DateTime::createFromFormat('Y-m-d\TH:i:sO', $dateNode->nodeValue);

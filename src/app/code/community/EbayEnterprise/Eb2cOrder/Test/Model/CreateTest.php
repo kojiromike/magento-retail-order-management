@@ -18,13 +18,13 @@ class EbayEnterprise_Eb2cOrder_Test_Model_CreateTest extends EbayEnterprise_Eb2c
 	const SAMPLE_SUCCESS_XML = <<<SUCCESS_XML
 <?xml version="1.0" encoding="UTF-8"?>
 <OrderCreateResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
-  <ResponseStatus>Success</ResponseStatus>
+	<ResponseStatus>Success</ResponseStatus>
 </OrderCreateResponse>
 SUCCESS_XML;
 	const SAMPLE_FAILED_XML = <<<FAILED_XML
 <?xml version="1.0" encoding="UTF-8"?>
 <OrderCreateResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
-  <ResponseStatus>Failed</ResponseStatus>
+	<ResponseStatus>Failed</ResponseStatus>
 </OrderCreateResponse>
 FAILED_XML;
 	const SAMPLE_INVALID_XML = <<<INVALID_XML

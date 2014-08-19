@@ -196,7 +196,6 @@ XML;
 		$doc->preserveWhiteSpace = false;
 		$doc->loadXML($xml);
 		$response = $this->getModelMockBuilder('eb2ctax/response')
-			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($response, '_doc', $doc);

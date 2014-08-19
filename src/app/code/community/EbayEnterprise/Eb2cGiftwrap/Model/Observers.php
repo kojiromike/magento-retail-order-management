@@ -33,7 +33,6 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Observers
 
 		// only process the import if the event type is in the allowabled event type configuration for this feed
 		if (in_array($feedConfig['event_type'], explode(',', $importData['allowable_event_type']))) {
-			Mage::log(sprintf('[%s] processing %s', __CLASS__, $fileDetail['local_file']), Zend_Log::DEBUG);
 			$fileDetail['doc'] = $event->getDoc();
 			Mage::getModel('eb2cproduct/feed_file', $fileDetail)->process(
 				$importConfig, Mage::getModel('eb2cgiftwrap/feed_import_items')

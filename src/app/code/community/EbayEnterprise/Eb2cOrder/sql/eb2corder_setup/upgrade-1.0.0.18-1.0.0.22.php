@@ -13,7 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-Mage::log('[' . __CLASS__ . '] Upgrading Eb2cOrder 1.0.0.18 -> 1.0.0.19', Zend_Log::INFO);
 $installer = $this;
 $installer->startSetup();
 
@@ -77,55 +76,42 @@ $eb2cStatusToMageStateMap = array(
 	'Warranty Line Processed'                         => $complete,
 );
 
-try{
-	// New values for Order Status Translation:
-	$newStatusSet	  = array();
-	$newStatusStateSet = array();
+// New values for Order Status Translation:
+$newStatusSet	  = array();
+$newStatusStateSet = array();
 
-	foreach ($eb2cStatusToMageStateMap as $eb2cStatusLabel => $mageState) {
-		/*
-		 * This conversion of a Label to a Code works here and here only - it was written for
-		 * this specific array. It is not a genric Magento-code creator.
-	 	 */
-		$eb2cStatusCode = str_replace(' ', '_',
-			strtolower(
-				preg_replace( '/[^0-9a-zA-Z ]/', '', $eb2cStatusLabel)
-			)
-		);
-
-		$newStatusSet[] = array(
-			'status' => $eb2cStatusCode,
-			'label'  => $eb2cStatusLabel,
-		);
-
-		$newStatusStateSet[] = array(
-			'status'     => $eb2cStatusCode,
-			'state'      => $mageState,
-			'is_default' => 0,
-		);
-	}
-
-	// Insert Status entries
-	$installer->getConnection()->insertArray(
-		$statusTable,
-		array(
-			'status',
-			'label'
-		),
-		$newStatusSet
+foreach ($eb2cStatusToMageStateMap as $eb2cStatusLabel => $mageState) {
+	/**
+	 * This conversion of a Label to a Code works here and here only - it was written for
+	 * this specific array. It is not a genric Magento-code creator.
+	 */
+	$eb2cStatusCode = str_replace(' ', '_',
+		strtolower(preg_replace( '/[^0-9a-zA-Z ]/', '', $eb2cStatusLabel))
 	);
 
-	// Insert Status State entries:
-	$installer->getConnection()->insertArray(
-		$statusStateTable,
-		array(
-			'status',
-			'state',
-			'is_default'
-		),
-		$newStatusStateSet
+	$newStatusSet[] = array(
+		'status' => $eb2cStatusCode,
+		'label'  => $eb2cStatusLabel,
 	);
-} catch (Exception $e) {
-	Mage::logException($e);
+
+	$newStatusStateSet[] = array(
+		'status'     => $eb2cStatusCode,
+		'state'      => $mageState,
+		'is_default' => 0,
+	);
 }
+
+// Insert Status entries
+$installer->getConnection()->insertArray(
+	$statusTable,
+	array('status', 'label'),
+	$newStatusSet
+);
+
+// Insert Status State entries:
+$installer->getConnection()->insertArray(
+	$statusStateTable,
+	array('status', 'state', 'is_default'),
+	$newStatusStateSet
+);
 $installer->endSetup();

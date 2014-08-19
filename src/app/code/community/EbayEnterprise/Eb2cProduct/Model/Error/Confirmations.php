@@ -78,6 +78,14 @@ class EbayEnterprise_Eb2cProduct_Model_Error_Confirmations
 	// umask used when creating the error file
 	const ERROR_FILE_PERMISSIONS_MASK = 0027;
 
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_log;
+
+	public function __construct()
+	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * @var array hold message string xml node
 	 */
@@ -348,13 +356,8 @@ class EbayEnterprise_Eb2cProduct_Model_Error_Confirmations
 
 		$this->loadFile($errorFile);
 
-		Mage::log(
-			sprintf(
-				'[%s] start error confirmation for %d %sed product(s) on file (%s).',
-				__CLASS__, count($skus), $operationType, $fileName
-			),
-			Zend_Log::DEBUG
-		);
+		$msg = '[%s] Generate error confirmation for %d %sed product(s) on file "%s".';
+		$this->_log->logDebug($msg, array(__CLASS__, count($skus), $operationType, $fileName));
 
 		return ($operationType === 'delete')?
 			$this->_addDeleteErrors($collection, $fileName, $type) :

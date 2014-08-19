@@ -23,18 +23,17 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Shell extends Varien_Object
 {
 	private $_availableFeeds;
 
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
 	/**
 	 * Loads the configured feed models.
-	 *
 	 */
 	public function _construct()
 	{
-		if( $this->hasFeedSet() ) {
-			$this->_availableFeeds = $this->getFeedSet();
-		}
-		else {
-			$this->_availableFeeds = Mage::helper('eb2ccore/feed_shell')->getConfiguredFeedModels();
-		}
+		parent::_construct();
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_availableFeeds = $this->hasFeedSet() ? $this->getFeedSet() : Mage::helper('eb2ccore/feed_shell')->getConfiguredFeedModels();
 	}
 
 	/**
@@ -49,14 +48,14 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Shell extends Varien_Object
 	{
 		try {
 			$model = Mage::getModel($modelName);
-		} catch( Exception $e ) {
-			Mage::logException($e);
+		} catch (Exception $e) {
+			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
 			return false;
 		}
-		if( $model ) {
+		if ($model) {
 			$reflector = new ReflectionClass($model);
-			if( !$reflector->implementsInterface('EbayEnterprise_Eb2cCore_Model_Feed_Interface')) {
-				Mage::log( '[' . __CLASS__ . '] ' . get_class($model) . ' does not implement appropriate interface(s).', Zend_Log::ERR);
+			if (!$reflector->implementsInterface('EbayEnterprise_Eb2cCore_Model_Feed_Interface')) {
+				$this->_log->logWarn('[%s] "%s" does not implement appropriate interface(s).', array(__CLASS__, get_class($model)));
 				return false;
 			}
 		}

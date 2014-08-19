@@ -649,7 +649,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * @param DomElement $person
 	 * @param Mage_Sales_Model_Order_Address $address
 	 * @return void
- 	 */
+	 */
 	protected function _buildPersonName(DomElement $person, Mage_Sales_Model_Order_Address $address)
 	{
 		$person->createChild('Honorific', $address->getPrefix());

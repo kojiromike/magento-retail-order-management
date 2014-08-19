@@ -38,6 +38,14 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Export_Ack
 	const ACK_KEY = 'ack';
 	const RELATED_KEY = 'related';
 
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
+	public function __construct()
+	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * @var array hold key config value map
 	 */
@@ -159,17 +167,17 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Export_Ack
 
 		try{
 			$helper->moveFile($sourceFile, $destination);
-			Mage::log(sprintf('[%s] Moving file %s to %s', __CLASS__, $sourceFile, $destination), Zend_Log::DEBUG);
+			$this->_log->logDebug('[%s] Moving file %s to %s', array(__CLASS__, $sourceFile, $destination));
 		} catch (EbayEnterprise_Eb2cCore_Exception_Feed_File $e) {
 			$isDeletable = false;
-			Mage::log(sprintf('[%s] moving file cause this exception: %s', __CLASS__, $e->getMessage()), Zend_Log::WARN);
+			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
 		}
 
 		if ($isDeletable) {
 			try{
 				$helper->removeFile($sourceFile);
 			} catch (EbayEnterprise_Eb2cCore_Exception_Feed_File $e) {
-				Mage::log(sprintf('[%s] removing file cause this exception: %s', __CLASS__, $e->getMessage()), Zend_Log::WARN);
+				$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
 			}
 		}
 
@@ -229,11 +237,7 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Export_Ack
 	 */
 	public function process()
 	{
-		Mage::log(
-			sprintf('[%s] Begin acknowledging exported files were acknowledge by eb2c.',
-				__METHOD__),
-			Zend_Log::INFO
-		);
+		$this->_log->logInfo('[%s] Processing incoming acks', array(__CLASS__));
 		$exportedList = $this->_listFilesByCfgKey(self::CFG_EXPORTED_FEED_DIR);
 		if (!empty($exportedList)) {
 			$importedList = $this->_getImportedAckFiles();
@@ -247,11 +251,6 @@ class EbayEnterprise_Eb2cCore_Model_Feed_Export_Ack
 				}
 			}
 		}
-		Mage::log(
-			sprintf('[%s] Acknowledging exported files were acknowledge by eb2c has successful ran',
-				__METHOD__),
-			Zend_Log::INFO
-		);
 		return $this;
 	}
 }

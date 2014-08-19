@@ -15,6 +15,9 @@
 
 class EbayEnterprise_Eb2cAddress_Model_Observer
 {
+	/**
+	 * @return bool Whether or not address validation is enabled
+	 */
 	protected function _isEnabled()
 	{
 		return Mage::helper('eb2caddress')->getConfigModel()->isValidationEnabled;

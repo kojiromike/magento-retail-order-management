@@ -18,6 +18,9 @@
  */
 class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
 	/** @var DomXPath $_xpath */
 	protected $_xpath;
 	protected $_isValid           = true;
@@ -70,6 +73,8 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 
 	protected function _construct()
 	{
+		parent::_construct();
+		$this->_log = Mage::helper('ebayenterprise_magelog');
 		if ($this->getNode()) {
 			$xpath = new DOMXPath($this->getNode()->ownerDocument);
 			$xpath->registerNamespace('a', $this->getNode()->namespaceURI);
@@ -251,11 +256,8 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	protected function _validate()
 	{
 		if (!$this->getSku()) {
+			$this->_log->logWarn('[%s] OrderItem received with an empty sku.', array(__CLASS__));
 			$this->_isValid = false;
-			Mage::log('[' . __CLASS__ . '] TaxDutyResponse: OrderItem received with an empty sku.');
-		}
-		if (!$this->getLineNumber()) {
-			Mage::log('[' . __CLASS__ . '] TaxDutyResponse: OrderItem received with an empty lineNumber attribute.');
 		}
 	}
 }

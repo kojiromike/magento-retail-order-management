@@ -44,9 +44,9 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	 */
 	public function testApiConnection($storeId, $apiKey, $hostname)
 	{
-		// use the Eb2cAddress config go with the address validation request to be made
+		// use the Address config go with the address validation request to be made
 		$coreConfig = Mage::helper('eb2ccore')->getConfigModel();
-		$addressConfig = Mage::helper('eb2caddress')->getConfigModel();
+		$addressConfig = Mage::helper('ebayenterprise_address')->getConfigModel();
 		try {
 			$this->_validateApiSettings($storeId, $apiKey, $hostname);
 		} catch (EbayEnterprise_Eb2cCore_Exception_Api_Configuration $e) {
@@ -79,8 +79,8 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	{
 		return sprintf(EbayEnterprise_Eb2cCore_Helper_Data::URI_FORMAT,
 			$hostname, $major, $minor, $storeId,
-			EbayEnterprise_Eb2cAddress_Model_Validation_Request::API_SERVICE,
-			EbayEnterprise_Eb2cAddress_Model_Validation_Request::API_OPERATION,
+			EbayEnterprise_Address_Model_Validation_Request::API_SERVICE,
+			EbayEnterprise_Address_Model_Validation_Request::API_OPERATION,
 			'', 'xml'
 		);
 	}
@@ -122,7 +122,7 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 			'street' => array('935 1st Ave'), 'city' => 'King of Prussia', 'region_id' => '51',
 			'country_id' => 'US', 'postcode' => '19406'
 		));
-		$request = Mage::getModel('eb2caddress/validation_request', array('address' => $address));
+		$request = Mage::getModel('ebayenterprise_address/validation_request', array('address' => $address));
 		return $request->getMessage();
 	}
 

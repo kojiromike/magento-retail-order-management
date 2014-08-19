@@ -1,0 +1,2 @@
+config:
+  default/ebayenterprise_address/general/max_suggestions: 5

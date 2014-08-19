@@ -1,8 +1,0 @@
-getSuggestedAddressMessage:
-  message: EbayEnterprise_Eb2cAddress_Suggestions_Label
-getSuggestionLabel:
-  message: EbayEnterprise_Eb2cAddress_Suggested_Address_Label
-getOriginalAddressLabel:
-  message: EbayEnterprise_Eb2cAddress_Original_Address_Label
-getNewAddressLabel:
-  message: EbayEnterprise_Eb2cAddress_New_Address_Label

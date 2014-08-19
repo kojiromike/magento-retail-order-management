@@ -18,7 +18,7 @@
   - [Payment Processing](#payment-processing)
   - [Fraud Management](#fraud-management)
   - [Tax, Duties and Fees](#tax-duties-and-fees)
-  - [Address Validation](#address-validation)
+  - [Address Validation](/src/app/code/community/EbayEnterprise/Address/README.md)
   - [Transactional Emails](#transactional-emails)
   - [Customer Service](#customer-service)
   - [Custom Order Attributes](#custom-order-attributes)
@@ -136,12 +136,6 @@ Centralize and secure calculation and processing of taxes, duties and fees.
 * Full VAT collection support for EU
 
 ![taxes-config](static/rom-ov-taxes-config.png)
-
-
-###Address Validation
-Address Validation Service ensures that complete and accurate customer address information is collected at the time of order. Should an address fail validation, the customer is presented with a (configurable) number of alternative addresses.
-
-![address-config](static/rom-ov-address-config.png)
 
 ###Transactional Emails
 Transactional emails can either be handled by the local Magento site, or you can elect to have emails handled by the ROMS platform, further reducing the complexity of running the Magento store.

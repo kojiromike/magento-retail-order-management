@@ -230,7 +230,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		$xPath = '//WebstoreOrderNumber|//WebOrderId';
 		if ($xml) {
-			$doc = $this->_loadXml($xml);
+			$doc = $this->loadXml($xml);
 			$x = Mage::helper('eb2ccore')->getNewDomXPath($doc);
 			return $this->_extractData($x->query($xPath));
 		}
@@ -241,7 +241,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	 * @param string $xml
 	 * @return DOMDocument
 	 */
-	protected function _loadXml($xml)
+	public function loadXml($xml)
 	{
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML($xml);

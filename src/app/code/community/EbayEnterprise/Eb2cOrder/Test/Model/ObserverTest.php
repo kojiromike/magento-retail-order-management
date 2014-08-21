@@ -549,4 +549,48 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		$doc = EcomDev_Utils_Reflection::invokeRestrictedMethod($obs, '_selectEventsByXPath', array($in, $xPath));
 		$this->assertXmlStringEqualsXmlFile(__DIR__ . DS . $filteredXmlPath, $doc->saveXml());
 	}
+	/**
+	 * Test 'EbayEnterprise_Eb2cOrder_Model_Observer::processShipment' method to make sure it is
+	 * behaving as implemented.
+	 * @param string $message
+	 * @param array $shipmentData
+	 * @param array $incrementIds
+	 * @param array $itemData
+	 * @dataProvider dataProvider
+	 */
+	public function testProcessShipment($message, array $shipmentData, array $incrementIds, array $itemData)
+	{
+		$existIncrementId = '000760000311310';
+		$order = Mage::getModel('sales/order', array('increment_id' => $existIncrementId));
+		foreach ($itemData as $sku => $data) {
+			$orderItem = Mage::getModel('sales/order_item', array('sku' => $sku, 'qty_ordered' => $data['qty']));
+			$order->addItem($orderItem);
+			$orderItem->setItemId($data['item_id']);
+		}
+		$collection = Mage::helper('eb2ccore')->getNewVarienDataCollection();
+		$collection->addItem($order);
+
+		$shipmentHelper = $this->getHelperMock('eb2corder/event_shipment', array('extractShipmentData', 'process'));
+		$shipmentHelper->expects($this->once())
+			->method('extractShipmentData')
+			->with($this->identicalTo($message))
+			->will($this->returnValue($shipmentData));
+		$shipmentHelper->expects($this->once())
+			->method('process')
+			->with($this->identicalTo($order), $this->identicalTo($shipmentData[$existIncrementId]))
+			->will($this->returnSelf());
+		$this->replaceByMock('helper', 'eb2corder/event_shipment', $shipmentHelper);
+
+		$helper = $this->getHelperMock('eb2corder/data', array('getOrderCollectionByIncrementIds'));
+		$helper->expects($this->once())
+			->method('getOrderCollectionByIncrementIds')
+			->with($this->identicalTo($incrementIds))
+			->will($this->returnValue($collection));
+		$this->replaceByMock('helper', 'eb2corder', $helper);
+
+		$eventObserver = $this->_buildEventObserver(array('message' => $message));
+
+		$observer = Mage::getModel('eb2corder/observer');
+		$this->assertSame($observer, $observer->processShipment($eventObserver));
+	}
 }

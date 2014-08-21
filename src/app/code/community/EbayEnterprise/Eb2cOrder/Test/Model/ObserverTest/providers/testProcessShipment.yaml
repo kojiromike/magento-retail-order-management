@@ -1,0 +1,41 @@
+-
+  - <OrderEvents/>
+  -
+      000760000311310: # Increment Id
+        o89ladjjp2383ssa: # Shipment Id
+          -
+            sku: ABCD1234
+            quantity: 1.0
+            tracking:
+              -
+                 tracking_number: 039378372726726262
+                 tracking_url: https://tools.usps.com/go/TrackConfirmAction!input.action
+          -
+            sku: EFGH5678
+            quantity: 3.0
+            tracking:
+             -
+               tracking_number: 398834898827332
+               tracking_url: https://www.fedex.com/fedextrack/html/index.html?action=track&r=g
+      000017367388001121:
+        ads8aDsss8331511:
+          -
+            sku: ZYXW4321
+            quantity: 2.0
+            tracking:
+              -
+                 tracking_number: 88272990011183113
+                 tracking_url: http://www.ups.com/tracking/tracking.html
+  -
+    000760000311310
+    000017367388001121
+  -
+    ABCD1234:
+      qty: 1
+      item_id: 5
+    EFGH5678:
+      qty: 2
+      item_id: 9
+    ZYXW4321:
+      qty: 3
+      item_id: 53

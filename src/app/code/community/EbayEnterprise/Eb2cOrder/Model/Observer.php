@@ -156,7 +156,7 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	public function updateRejectedStatus(Varien_Event_Observer $observer)
 	{
 		$orderCollection = $this->_loadOrdersFromXml(trim($observer->getEvent()->getMessage()));
-		$status =  $this->_orderCfg->eventOrderStatusRejected;
+		$status = $this->_orderCfg->eventOrderStatusRejected;
 		$eventName = $observer->getEvent()->getName();
 		foreach ($orderCollection as $order) {
 			$this->_attemptCancelOrder($order, $status, $eventName);
@@ -320,5 +320,33 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 			$filteredDoc->documentElement->appendChild($filteredDoc->importNode($event, true));
 		}
 		return $filteredDoc;
+	}
+	/**
+	 * Listens to the 'ebayenterprise_order_event_shipment_confirmation' event in order to
+	 * add ‘sales/order‘ shipment and tracking information.
+	 * @param Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function processShipment(Varien_Event_Observer $observer)
+	{
+		$shipmentHelper = Mage::helper('eb2corder/event_shipment');
+		// Parsing the XML message string into an array of data.
+		$shipmentData = $shipmentHelper->extractShipmentData(trim($observer->getEvent()->getMessage()));
+		$orderCollection = Mage::helper('eb2corder')->getOrderCollectionByIncrementIds(array_keys($shipmentData));
+		$logMsgOrderNotFound = '[%s] The shipment could not be added. The order (id: %s) was not found in this Magento store.';
+		$logMsgOrderNotShippable = '[%s] Order (%s) can not be shipped.';
+		foreach ($shipmentData as $incrementId => $data) {
+			$order = $orderCollection->getItemByColumnValue('increment_id', $incrementId);
+			if (is_null($order)) {
+				$this->_log->logWarn($logMsgOrderNotFound, array(__CLASS__, $incrementId));
+				continue;
+			}
+			if (!$order->canShip()) {
+				$this->_log->logWarn($logMsgOrderNotShippable, array(__CLASS__, $incrementId));
+				continue;
+			}
+			$shipmentHelper->process($order, $data);
+		}
+		return $this;
 	}
 }

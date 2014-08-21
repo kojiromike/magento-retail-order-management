@@ -1,0 +1,26 @@
+-
+  -
+     -
+       sku: ABCD1234
+       quantity: 1.0
+       tracking:
+        -
+           tracking_number: 039378372726726262
+           tracking_url: https://tools.usps.com/go/TrackConfirmAction!input.action
+     -
+       sku: EFGH5678
+       quantity: 3.0
+       tracking:
+         -
+           tracking_number: 00398834898827332
+           tracking_url: https://www.fedex.com/fedextrack/html/index.html?action=track&r=g
+  -
+    -
+      item_id: 8
+      sku: ABCD1234
+    -
+      item_id: 12
+      sku: EFGH5678
+  -
+    8: 1.0
+    12: 3.0

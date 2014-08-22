@@ -290,11 +290,11 @@
 			<order_management>
 				<event_order_status_backorder>holded</event_order_status_backorder>
 				<event_order_status_rejected>canceled</event_order_status_rejected>
-				<event_order_status_cancel>canceled</event_order_status_cancel>
-				<event_order_status_payment_auth_failure>canceled</event_order_status_payment_auth_failure>
+				<event_order_status_canceled>canceled</event_order_status_canceled>
+				<event_order_status_payment_authfailed>canceled</event_order_status_payment_authfailed>
 				<cancel_reasons>
-					<eventOrderStatusCancel>InvalidBillingAddress InvalidShippingAddress FraudLikely CancelDuplicateOrder CancelInventoryDiscrepancy CancelCustomerInitiated CancelGeneric FTCCancel ZeroCostReship CVSAutoCancel CODAutoCancel CancelMXCustomerAbandon CancelMXCreditCustomerRefusal CancelMXStoreInactivity CancelMXOutOfStock CustomerRequested STSProductReceivedDamagedExterior STSPackageNotReceived STSProductReceivedDamagedInterior STSWrongProductReceived STSProductNotReceived PhoneActivationDeclined SystemError</eventOrderStatusCancel>
-					<eventOrderStatusPaymentAuthFailure>CancelCredit CreditFailure</eventOrderStatusPaymentAuthFailure>
+					<eventOrderStatusCanceled>InvalidBillingAddress InvalidShippingAddress FraudLikely CancelDuplicateOrder CancelInventoryDiscrepancy CancelCustomerInitiated CancelGeneric FTCCancel ZeroCostReship CVSAutoCancel CODAutoCancel CancelMXCustomerAbandon CancelMXCreditCustomerRefusal CancelMXStoreInactivity CancelMXOutOfStock CustomerRequested STSProductReceivedDamagedExterior STSPackageNotReceived STSProductReceivedDamagedInterior STSWrongProductReceived STSProductNotReceived PhoneActivationDeclined SystemError</eventOrderStatusCanceled>
+					<eventOrderStatusPaymentAuthfailed>CancelCredit CreditFailure</eventOrderStatusPaymentAuthfailed>
 				</cancel_reasons>
 			</order_management>
 			<detail_mapping>

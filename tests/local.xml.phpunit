@@ -21,7 +21,9 @@
           <dbname>jenkins_mage_eb2c</dbname>
         </connection>
       </default_setup>
-    </resources>
+		</resources>
+		<!-- Assumes Magento Root Dir is two directories above where vendor is, as it would be with build/magento -->
+		<composer_vendor_path><![CDATA[{{root_dir}}/../../vendor]]></composer_vendor_path>
   </global>
   <default>
     <web>

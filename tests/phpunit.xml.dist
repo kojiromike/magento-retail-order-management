@@ -14,7 +14,6 @@
 -->
 <!-- initial phpunit configuration file, that you can modify for your project needs -->
 <phpunit cacheTokens="true"
-	colors="true"
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"

@@ -6,11 +6,11 @@ Actually, a bit more involved...
 
 ## Root Composer File
 
-A sample Composer file is at [`deploy/composer.json.sample`](/deploy/composer.json.sample). This file is targeted at CI/CD builds but may also be used as a root Composer file to set up development environments. It will install the eBayEnterprise/magento-retail-order-management extension and its dependencies into an existing Magento instance. Other extensions that are typically included in a new build but not a hard dependency of the extension, e.g. AOE_Scheduler, are also included. As this file is going to be system specific, it will need some modification to get the whole thing working on a given system.
+A Composer file for Jenkins is at [`tests/composer.jenkins.json`](/tests/composer.jenkins.json). This file is targeted at CI/CD builds but may also be used as a root Composer file to set up development environments. It will install the eBayEnterprise/magento-retail-order-management extension and its dependencies into an existing Magento instance. You will probably want to modify the Jenkins Composer file to use it on your own system. For example, you may want to include other extensions for your convenience that are not strictly required for automated testing, e.g. AOE_Scheduler.
 
 ## Magento Composer Installer
 
-The sample Composer file includes the Magento Composer Installer. This package provides a custom installer for deploying Magento modules  into a Magento instance.
+The Jenkins Composer file includes the Magento Composer Installer. This package provides a custom installer for deploying Magento modules into a Magento instance.
 
 The installer uses sets of mappings to link files into the appropriate place in Magento. This mapping can be in one of three forms: mappings in the composer.json file, a package.xml file, a `modman` file. The eBayEnterprise/magento-retail-order-management module includes a `modman` file with the necessary mappings.
 
@@ -20,7 +20,7 @@ The installer uses sets of mappings to link files into the appropriate place in 
 
 ### Repositories
 
-This is a list of alternate sources for packages. In the sample file, this includes the firegento package repository as well as some "git" sources. To meet specific needs of a local system, update the "url" to point to the desired source. For example, the following will use a fork of EcomDev_PHPUnit (ivanchepurnyi/ecomdev_phpunit) as the source:
+This is a list of alternate sources for packages. In the Jenkins file, this includes the firegento package repository as well as some "git" sources. To meet specific needs of a local system, update the "url" to point to the desired source. For example, the following will use a fork of EcomDev_PHPUnit (ivanchepurnyi/ecomdev_phpunit) as the source:
 
 ```json
 {
@@ -35,15 +35,15 @@ This is a list of alternate sources for packages. In the sample file, this inclu
 }
 ```
 
-One important thing to note is that only the root Composer file may specify repositories. This allows the root Composer file to specify the source of every required package. This includes sources for dependencies of dependencies.
+One important thing to note is that only the root Composer file may specify repositories. This means every required package (including dependencies of dependencies) must be listed either in the [default Packagist repository](https://getcomposer.org/doc/05-repositories.md#repository) or in the root composer file. Repository specifications in dependencies themselves will be ignored.
 
 In the root Composer file, you'll likely want to adjust the repositories to point to forks or local repositories. This will likely just involve the eBayEnterprise repositories, but maybe others as well.
 
-The sample Composer file points to the local git repositories used by Jenkins.
+The Jenkins Composer file points to the local git repositories used by Jenkins.
 
 ### Magento Root Dir
 
-In the "extra" section of the composer.json.sample file, there is a property for "magento-root-dir". This should point to the root directory of the Magento instance to install the module on. This will likely vary based upon the local environment.
+In the "extra" section of the composer.jenkins.json file, there is a property for "magento-root-dir". This should point to the root directory of the Magento instance to install the module on. This will likely vary based upon the local environment.
 
 ### Magento Deploy Strategy
 
@@ -53,23 +53,13 @@ This option controls how the Magento Composer Installer installs modules into th
 - `none` - Does not copy any files
 - `symlink` - Deploys files as a symlink (default)
 
-The sample file replaces the default `symlink` setting with `copy`. For local development, it may work better to restore the default `symlink` setting.
+The Jenkins Composer file replaces the default `symlink` setting with `copy`. For local development, it may work better to restore the default `symlink` setting.
 
 [Magento Composer Install Deploy Documentation](https://github.com/magento-hackathon/magento-composer-installer/blob/master/doc/Deploy.md)
 
 ### Magento Force
 
 The "magento-force" option causes the files being deployed to replace any existing files. This mimics the behavior of `modman deploy --force`. The "magento-force" option is set to true for Jenkins builds. It may be safer to set this to false while in development to be alerted of any unexpected overwrites.
-
-## Composer Command Integrator
-
-The sample Composer file includes the Composer Command Integrator as a dependency. This package provides a framework for integrating commands into Composer. One such command is `magento-modules-deploy` which will redeploy the modules. This is like `modman redeploy-all`.
-
-Redeploy Magento Modules:
-
-```bash
-vendor/bin/composerCommandIntegrator.php magento-module-deploy
-```
 
 ## Notes, Gotchas, FAQs
 

@@ -169,7 +169,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 * @param string $langCode, the language code
 	 * @return string, the magento expected format
 	 */
-	public static function mageToXmlLangFrmt($langCode)
+	public function mageToXmlLangFrmt($langCode)
 	{
 		return str_replace('_', '-', $langCode);
 	}

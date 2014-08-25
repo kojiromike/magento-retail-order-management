@@ -364,10 +364,8 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 	public function testUpdateRejectedStatus($id, $xmlFilePath)
 	{
 		$message = file_get_contents(__DIR__ . $xmlFilePath, true);
-		$state = Mage_Sales_Model_Order::STATE_CANCELED;
 		$status = 'canceled';
 
-		$exceptionMsg = 'Simulate Rejected Status Fail to save order';
 		$orderMock = $this->getModelMock('sales/order', array('save'));
 		$orderMock->setId($id);
 
@@ -475,7 +473,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 	 */
 	public function testAttemptCancelOrderFailed()
 	{
-		$state = Mage_Sales_Model_Order::STATE_CANCELED;
 		$status = 'some_canceled_status';
 		$observer = Mage::getModel('eb2corder/observer');
 		$this->order->expects($this->once())
@@ -515,17 +512,21 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			array($this->order, $status, 'someevent')
 		);
 	}
+
 	/**
 	 * Verify a document is returned containing only elements that match the given xpath.
-	 * @param string $xmlFilePath
+	 *
+	 * @param string $rawXmlPath
+	 * @param string $xPath
+	 * @param string $filteredXmlPath
 	 * @dataProvider dataProvider
 	 */
-	public function testSelectEventsByXpath($xmlFilePath, $xPath, $expectedFilePath)
+	public function testSelectEventsByXpath($rawXmlPath, $xPath, $filteredXmlPath)
 	{
-		$xml = file_get_contents(__DIR__ . '/' . $xmlFilePath);
-		$expXML = file_get_contents(__DIR__ . '/' . $expectedFilePath);
-		$observer = Mage::getModel('eb2corder/observer');
-		$doc = EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_selectEventsByXPath', array($xml, $xPath));
-		$this->assertSelectCount('Cancel', 2, $doc->saveXML());
+		$in = file_get_contents(__DIR__ . DS . $rawXmlPath);
+		/** @var EbayEnterprise_Eb2cOrder_Model_Observer $obs */
+		$obs = Mage::getModel('eb2corder/observer');
+		$doc = EcomDev_Utils_Reflection::invokeRestrictedMethod($obs, '_selectEventsByXPath', array($in, $xPath));
+		$this->assertXmlStringEqualsXmlFile($filteredXmlPath, $doc->saveXml());
 	}
 }

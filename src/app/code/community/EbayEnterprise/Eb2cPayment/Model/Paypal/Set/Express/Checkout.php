@@ -74,11 +74,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 			foreach ($address->getAllItems() as $item) {
 				// If gw_price is empty, php will treat it as zero.
 				$lineItemsTotal += $item->getGwPrice();
-				$lineItems
-					->createChild('LineItem', null)
-					->addChild('Name', (string) $item->getName())
-					->addChild('Quantity', (string) $item->getQty())
-					->addChild('UnitAmount', sprintf('%.02f', $item->getPrice()), $curCodeAttr);
+				$this->_addLineItem($lineItems, $item, $curCodeAttr);
 				$itemGwId = $item->getGwId();
 				if ($itemGwId) {
 					$lineItems
@@ -119,5 +115,22 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 			));
 		}
 		return $checkoutObject;
+	}
+
+	/**
+	 * @param DOMNode $parent
+	 * @param string $name
+	 * @param string $qty
+	 * @param string $price
+	 * @param array $curCodeAttr
+	 * @return void
+	 */
+	protected function _addLineItem(EbayEnterprise_Dom_Element $parent, $name, $qty, $price, $curCodeAttr)
+	{
+		$parent
+			->createChild('LineItem', null)
+			->addChild('Name', $name)
+			->addChild('Quantity', $qty)
+			->addChild('UnitAmount', sprintf('%.02f', $price), $curCodeAttr);
 	}
 }

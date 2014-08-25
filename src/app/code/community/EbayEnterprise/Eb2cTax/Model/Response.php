@@ -196,7 +196,6 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 		}
 		if (!$id) {
 			$this->_isValid = false;
-			$message = "Unable to parse the address ID from the ShipGroup '$idRef'";
 			$this->_log->logWarn('[%s] Unable to parse the address id from the shipgroup "%s"', array(__CLASS__, $idRef));
 		}
 		return $id;
@@ -256,7 +255,6 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 		$requestXpath->registerNamespace('a', $requestDoc->documentElement->namespaceURI);
 		$responseXpath = new DOMXPath($responseDoc);
 		$responseXpath->registerNamespace('a', $responseDoc->documentElement->namespaceURI);
-		$heading = 'TaxDutyQuoteResponse';
 
 		// foreach request shipgroup
 		$requestShipgroups = $requestXpath->query('//a:ShipGroup');

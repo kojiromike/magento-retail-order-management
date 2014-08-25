@@ -83,7 +83,7 @@ fi
 
 (
 # Run phpunit
-cd build/magento && php ../../vendor/bin/phpunit "$@" # This argument list should usually be empty, but can be switched to --debug or other flags for quick checks. Such as when phpunit suddenly starts segfaulting on Jenkins.
+cd build/magento && php -d memory_limit=1G ../../vendor/bin/phpunit "$@" # This argument list should usually be empty, but can be switched to --debug or other flags for quick checks. Such as when phpunit suddenly starts segfaulting on Jenkins.
 )
 
 kill $(<mysql/mysql.pid)

@@ -527,6 +527,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		/** @var EbayEnterprise_Eb2cOrder_Model_Observer $obs */
 		$obs = Mage::getModel('eb2corder/observer');
 		$doc = EcomDev_Utils_Reflection::invokeRestrictedMethod($obs, '_selectEventsByXPath', array($in, $xPath));
-		$this->assertXmlStringEqualsXmlFile($filteredXmlPath, $doc->saveXml());
+		$this->assertXmlStringEqualsXmlFile(__DIR__ . DS . $filteredXmlPath, $doc->saveXml());
 	}
 }

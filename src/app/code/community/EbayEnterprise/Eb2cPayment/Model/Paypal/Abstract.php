@@ -22,6 +22,26 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 	const SUCCESSWITHWARNINGS = 'SUCCESSWITHWARNINGS';
 	const ERROR_MESSAGE_ELEMENT = '';
 
+	/** @var EbayEnterprise_Eb2cPayment_Helper_Data $_helper */
+	protected $_helper;
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data $_coreHelper */
+	protected $_coreHelper;
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+	/** @var string $_xmlNs The xml namespace for the payment service */
+	protected $_xmlNs;
+
+	/**
+	 * Initialize members
+	 */
+	public function __construct()
+	{
+		$this->_helper = Mage::helper('eb2cpayment');
+		$this->_coreHelper = Mage::helper('eb2ccore');
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_xmlNs = $this->_helper->getXmlNs();
+	}
+
 	/**
 	 * Do paypal express checkout from eb2c.
 	 *
@@ -30,7 +50,7 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 	 */
 	public function processExpressCheckout(Mage_Sales_Model_Quote $quote)
 	{
-		$helper = Mage::helper('eb2cpayment');
+		$helper = $this->_helper;
 		$response = Mage::getModel('eb2ccore/api')
 			->setStatusHandlerPath(EbayEnterprise_Eb2cPayment_Helper_Data::STATUS_HANDLER_PATH)
 			->request(
@@ -96,17 +116,76 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 		if ($responseCode !== static::SUCCESS) {
 			$messages = $this->_extractMessages(static::ERROR_MESSAGE_ELEMENT, $xpath);
 			if ($responseCode === static::SUCCESSWITHWARNINGS) {
-				Mage::helper('ebayenterprise_magelog')
-					->logWarn(static::PAYPAL_REQUEST_WARNING_FORMAT, array($messages));
+				$this->_log->logWarn(static::PAYPAL_REQUEST_WARNING_FORMAT, array($messages));
 			} else {
 				$e = new EbayEnterprise_Eb2cPayment_Model_Paypal_Exception(
-					Mage::helper('eb2cpayment')
-						->__(static::PAYPAL_REQUEST_FAILED_TRANSLATE_KEY, $messages)
+					$this->_helper->__(static::PAYPAL_REQUEST_FAILED_TRANSLATE_KEY, $messages)
 				);
 				// this exception is logged when caught in
 				// Mage_Paypal_Controller_Express_Abstract::placeOrderAction
 				throw $e;
 			}
 		}
+	}
+
+	/**
+	 * Build common request for set and do.
+	 *
+	 * @param Mage_Sales_Model_Quote $quote the quote to generate request XML from
+	 * @return EbayEnterprise_Dom_Document The XML document to be sent as request to eb2c.
+	 */
+	protected function _buildRequest(Mage_Sales_Model_Quote $quote)
+	{
+		/**
+		 * @var float $gwPrice price of order level gift wrapping
+		 * @var string $gwId id of giftwrapping object
+		 * @var EbayEnterprise_Dom_Element $request
+		 * @var array $addresses
+		 */
+		$gwPrice = $quote->getGwPrice();
+		$gwId = $quote->getGwId();
+		$totals = $quote->getTotals();
+		$grandTotal = isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0;
+		$shippingTotal = isset($totals['shipping']) ? $totals['shipping']->getValue() : 0;
+		$taxTotal = isset($totals['tax']) ? $totals['tax']->getValue() : 0;
+		$lineItemsTotal = (isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0) + $gwPrice;
+		$curCodeAttr = array('currencyCode' => $quote->getQuoteCurrencyCode());
+		$doc = $this->_getRequest($quote, $grandTotal, $curCodeAttr);
+		$request = $doc->documentElement;
+
+		$lineItems = $request->createChild('LineItems', null);
+		$lineItemsTotalNode = $lineItems->createChild('LineItemsTotal', null, $curCodeAttr); // value to be inserted below
+		$lineItems
+			->addChild('ShippingTotal', sprintf('%.02f', $shippingTotal), $curCodeAttr)
+			->addChild('TaxTotal', sprintf('%.02f', $taxTotal), $curCodeAttr);
+
+		if ($gwId) {
+			$lineItems
+				->createChild('LineItem', null)
+				->addChild('Name', 'GiftWrap')
+				->addChild('Quantity', '1')
+				->addChild('UnitAmount', sprintf('%.02f', $gwPrice), $curCodeAttr);
+		}
+		foreach($quote->getAllAddresses() as $addresses){
+			foreach ($addresses->getAllItems() as $item) {
+				// If gw_price is empty, php will treat it as zero.
+				$lineItemsTotal += $item->getGwPrice();
+				$lineItems
+					->createChild('LineItem', null)
+					->addChild('Name', (string) $item->getName())
+					->addChild('Quantity', (string) $item->getQty())
+					->addChild('UnitAmount', sprintf('%.02f', $item->getPrice()), $curCodeAttr);
+				$itemGwId = $item->getGwId();
+				if ($itemGwId) {
+					$lineItems
+						->createChild('LineItem', null)
+						->addChild('Name', 'GiftWrap')
+						->addChild('Quantity', '1')
+						->addChild('UnitAmount', sprintf('%.02f', $item->getGwPrice()), $curCodeAttr);
+				}
+			}
+		}
+		$lineItemsTotalNode->nodeValue = sprintf('%.02f', $lineItemsTotal);
+		return $doc;
 	}
 }

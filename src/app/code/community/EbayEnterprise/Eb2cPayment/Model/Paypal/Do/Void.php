@@ -24,7 +24,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Void
 	 */
 	public function doVoid(Mage_Sales_Model_Quote $quote)
 	{
-		$helper = Mage::helper('eb2cpayment');
+		$helper = $this->_helper;
 		return Mage::getModel('eb2ccore/api')
 			->setStatusHandlerPath(EbayEnterprise_Eb2cPayment_Helper_Data::STATUS_HANDLER_PATH)
 			->request(
@@ -42,9 +42,9 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Void
 	 */
 	public function buildPayPalDoVoidRequest($quote)
 	{
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$payPalDoVoidRequest = $domDocument->addElement('PayPalDoVoidRequest', null, Mage::helper('eb2cpayment')->getXmlNs())->firstChild;
-		$payPalDoVoidRequest->setAttribute('requestId', Mage::helper('eb2cpayment')->getRequestId($quote->getEntityId()));
+		$domDocument = $this->_coreHelper->getNewDomDocument();
+		$payPalDoVoidRequest = $domDocument->addElement('PayPalDoVoidRequest', null, $this->_xmlNs)->firstChild;
+		$payPalDoVoidRequest->setAttribute('requestId', $this->_helper->getRequestId($quote->getEntityId()));
 		$payPalDoVoidRequest->createChild(
 			'OrderId',
 			(string) $quote->getEntityId()
@@ -69,10 +69,10 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Void
 	{
 		$checkoutObject = new Varien_Object();
 		if (trim($payPalDoVoidReply) !== '') {
-			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+			$doc = $this->_coreHelper->getNewDomDocument();
 			$doc->loadXML($payPalDoVoidReply);
-			$checkoutXpath = new DOMXPath($doc);
-			$checkoutXpath->registerNamespace('a', Mage::helper('eb2cpayment')->getXmlNs());
+			$checkoutXpath = $this->_coreHelper->getNewDomXPath($doc);
+			$checkoutXpath->registerNamespace('a', $this->_xmlNs);
 			$nodeOrderId = $checkoutXpath->query('//a:OrderId');
 			$nodeResponseCode = $checkoutXpath->query('//a:ResponseCode');
 			$this->_blockIfRequestFailed($nodeResponseCode->item(0)->nodeValue, $checkoutXpath);

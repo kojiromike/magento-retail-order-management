@@ -67,19 +67,18 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest
 		$errorMessages = "{$errorMessage1} {$errorMessage2}";
 
 		$helper = $this->getHelperMock('eb2cpayment/data', array('__'));
-		$abstract = $this->getModelMock('eb2cpayment/paypal_abstract', array('_extractMessages'), true);
+		$helper->expects($this->once())
+			->method('__')
+			->with($this->identicalTo($translateKey), $this->identicalTo($errorMessages))
+			->will($this->returnValue($translatedMessage));
+		$this->replaceByMock('helper', 'eb2cpayment', $helper);
 
+		$abstract = $this->getModelMock('eb2cpayment/paypal_abstract', array('_extractMessages'), true);
 		$abstract->expects($this->once())
 			->method('_extractMessages')
 			->with($this->isType('string'), $this->isInstanceOf('DOMXPath'))
 			->will($this->returnValue($errorMessages));
 
-		$helper->expects($this->once())
-			->method('__')
-			->with($this->identicalTo($translateKey), $this->identicalTo($errorMessages))
-			->will($this->returnValue($translatedMessage));
-
-		$this->replaceByMock('helper', 'eb2cpayment', $helper);
 		$this->setExpectedException('EbayEnterprise_Eb2cPayment_Model_Paypal_Exception', $translatedMessage);
 
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();

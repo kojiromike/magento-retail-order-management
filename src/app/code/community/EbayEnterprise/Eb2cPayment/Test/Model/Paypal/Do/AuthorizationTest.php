@@ -89,12 +89,12 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_AuthorizationTest
 			->disableOriginalConstructor()
 			->setMethods(array('getConfigModel', 'getOperationUri'))
 			->getMock();
+		$this->replaceByMock('model', 'eb2ccore/api', $api);
+		$this->replaceByMock('helper', 'eb2cpayment', $helper);
+
 		$auth = $this->getModelMock('eb2cpayment/paypal_do_authorization', array('buildPayPalDoAuthorizationRequest'));
 		$config = $this->buildCoreConfigRegistry(array('xsdFilePaypalDoAuth' => 'xsdfile'));
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-
-		$this->replaceByMock('model', 'eb2ccore/api', $api);
-		$this->replaceByMock('helper', 'eb2cpayment', $helper);
 
 		$helper->expects($this->once())
 			->method('getConfigModel')

@@ -38,21 +38,4 @@ When displaying orders from ROMS to the customer:
 - Invoices will not be shown in the order detail page.
 - The "Recent Orders" and "My Orders" sections of the customer account pages display the "Ship To" name for the order in Magento, not the Retail Order Management System. The templates being used to display this data may be modified to prevent this data from displaying.
 
-## Order Event Status
-
-Order event status will synch orders in Retail Order Management System with configured order status in Magento store orders.
-
-Order status in Magento stores can be configured this way:
-
-- Logged in the administrative backend portal.
-- Go under the 'system -> Configuration' menu.
-- Click the 'Retail Order Management' tab.
-- Under 'Order Management' section there will be a number of order statuses that can be configured in Magento per Retail Order Management System order status event.
-
-## Supported Events
-
-| Order Event | Description |
-|-------------|-------------|
-| Cancel      | Orders will be canceled and the status will be set to what is configured for the following reasons: |
-|             |   - [Full Order Cancel](#order-event-to-magento-status-mappings) |
-|             |   - [Payment Authorization Failure](#order-event-to-magento-status-mappings) |
+## [Order Status Events](/src/app/code/community/EbayEnterprise/Eb2cOrder/docs/ORDER_EVENTS.md)

@@ -33,11 +33,32 @@ Configuration is provided by the AMQP module via Active Config.
 
 The following configuration values are provided by the module and removed from the admin config:
 
-| Configuration Name | Provided Value |
-|--------------------|----------------|
-| Connection Type | PhpAmqpLib\Connection\AMQPSSLConnection |
-| Connection Additional | `<ssl_options><verify_peer>0</verify_peer></ssl_options>` |
-| Event Suffix | order_event_message_received |
+| Relative Config Path | Provided Value |
+|-----------------|-------------|
+| vhost | / |
+| port | 5672 |
+| connection_type | PhpAmqpLib\Connection\AMQPConnection |
+| connection_insist | 0 |
+| connection_login_method |  |
+| connection_locale | en-US |
+| connection_timeout | 3 |
+| connection_read_write_timeout | 3 |
+| connection_context |  |
+| exchange_type | direct |
+| exchange_name |  |
+| exchange_passive | 0 |
+| exchange_durable | 0 |
+| exchange_auto_delete | 0 |
+| exchange_internal | 0 |
+| exchange_nowait | 0 |
+| queue_passive | 0 |
+| queue_durable | 1 |
+| queue_exclusive | 0 |
+| queue_auto_delete | 0 |
+| queue_nowait | 0 |
+| route_keys |  |
+| queue_binding_nowait | 0 |
+| message_event_suffix | order_event |
 
 ## Order Event to Magento Status Mappings
 
@@ -45,8 +66,7 @@ Much of the support for order events consists of updating the order to be in an 
 
 ## Supported Events
 
-This section will include a list of order events support is included for and a brief description of what level of support is provided.
-
 | Order Event | Description |
 |-------------|-------------|
 | BackOrder   | Orders will be placed into a "holded" state in Magento and the status [configured for Backorder](#order-event-to-magento-status-mappings). |
+| Cancel      | Orders will be canceled and the status will be set to what is configured for the following reasons: [Full Order Cancel](#order-event-to-magento-status-mappings) and [Payment Authorization Failure](#order-event-to-magento-status-mappings) |

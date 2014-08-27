@@ -9,7 +9,7 @@
 * EbayEnterprise_Eb2cCore
 * EbayEnterprise_MageLog
 
-## Non-Magento Modules
+## Other Dependencies
 
 * EbayEnterprise_Dom
 

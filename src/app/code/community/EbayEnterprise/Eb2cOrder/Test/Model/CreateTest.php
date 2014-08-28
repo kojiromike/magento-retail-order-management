@@ -826,7 +826,7 @@ INVALID_XML;
 
 		$order = $this->getModelMockBuilder('sales/order')
 			->disableOriginalConstructor()
-			->setMethods(array('getAllPayments', 'getGrandTotal'))
+			->setMethods(array('getAllPayments', 'getGrandTotal', 'getIncrementId'))
 			->getMock();
 		$order->expects($this->once())
 			->method('getAllPayments')
@@ -834,6 +834,9 @@ INVALID_XML;
 		$order->expects($this->once())
 			->method('getGrandTotal')
 			->will($this->returnValue(50.00));
+		$order->expects($this->once())
+			->method('getIncrementId')
+			->will($this->returnValue('012345678'));
 
 		$create = Mage::getModel('eb2corder/create');
 		$this->_reflectProperty($create, '_o')->setValue($create, $order);
@@ -853,6 +856,7 @@ INVALID_XML;
 		$doc->loadXML('<root/>');
 
 		$paymentId = 12;
+		$orderIncrementId = '012345678';
 		$svcPan = '1234567890';
 		$svcPanToken = 'abcdefghij';
 		$svcPin = '1234';
@@ -888,7 +892,7 @@ INVALID_XML;
 			array('getAllPayments'),
 			false,
 			array(array(
-				'gift_cards_amount' => $gcAmount,
+				'increment_id' => $orderIncrementId, 'gift_cards_amount' => $gcAmount,
 				'gift_cards' => serialize(array(array('pan' => $svcPan, 'panToken' => $svcPanToken, 'pin' => $svcPin)))
 			))
 		);
@@ -902,8 +906,8 @@ INVALID_XML;
 
 		$resultDoc = new DOMDocument();
 		$resultDoc->loadXML(sprintf(
-			'<?xml version="1.0"?><root><StoredValueCard><PaymentContext><PaymentSessionId>payment%1$s</PaymentSessionId><TenderType>%2$s</TenderType><PaymentAccountUniqueId isToken="true">%3$s</PaymentAccountUniqueId></PaymentContext><CreateTimeStamp>%5$s</CreateTimeStamp><Pin>%6$s</Pin><Amount>%4$.2f</Amount></StoredValueCard></root>',
-			$paymentId, $svcTenderType, $svcPanToken, $gcAmount, $paymentCreatedAt, $svcPin
+			'<?xml version="1.0"?><root><StoredValueCard><PaymentContext><PaymentSessionId>%1$s</PaymentSessionId><TenderType>%2$s</TenderType><PaymentAccountUniqueId isToken="true">%3$s</PaymentAccountUniqueId></PaymentContext><CreateTimeStamp>%5$s</CreateTimeStamp><Pin>%6$s</Pin><Amount>%4$.2f</Amount></StoredValueCard></root>',
+			$orderIncrementId, $svcTenderType, $svcPanToken, $gcAmount, $paymentCreatedAt, $svcPin
 		));
 		$this->assertSame(
 			$resultDoc->C14N(),

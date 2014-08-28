@@ -26,6 +26,3 @@
               -
                  tracking_number: 00272990011183113
                  tracking_url: http://www.ups.com/tracking/tracking.html
--
-  - ShipmentTest/fixtures/EmptyOrderShipments.xml
-  -

@@ -577,7 +577,7 @@ INVALID_XML;
 			'EstimatedDeliveryDate/ShippingWindow/From[.="2014-01-21T17:36:08+00:00"]',
 			'EstimatedDeliveryDate/ShippingWindow/To[.="2014-01-27T17:36:08+00:00"]',
 			'EstimatedDeliveryDate/Mode[.="LEGACY"]',
-			'EstimatedDeliveryDate/MessageType[.="NONE"]',
+			'EstimatedDeliveryDate/MessageType[.="DeliveryDate"]',
 		);
 		foreach ($paths as $path) {
 			$this->assertNotNull(
@@ -1658,5 +1658,24 @@ INVALID_XML;
 		));
 
 		$this->assertSame($result, $doc->C14N());
+	}
+	/**
+	 * Test 'EbayEnterprise_Eb2cOrder_Model_Create::_buildEstimatedDeliveryDate' method when invoke will
+	 * add a 'MessageType' node with the value 'DeliveryDate'.
+	 * @param string $xml
+	 * @param array $itemData
+	 * @param string $expected
+	 * @dataProvider dataProvider
+	 */
+	public function testMessageTypeNodeValue($xml, array $itemData, $expected)
+	{
+		$helper = Mage::helper('eb2ccore');
+		$doc = $helper->getNewDomDocument();
+		$doc->loadXML($xml);
+		$xpath = $helper->getNewDomXPath($doc);
+		$orderItem = Mage::getModel('sales/order_item', $itemData);
+		$create = Mage::getModel('eb2corder/create');
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildEstimatedDeliveryDate', array($doc->documentElement, $orderItem));
+		$this->assertSame($expected, $xpath->evaluate('string(//EstimatedDeliveryDate/MessageType)'));
 	}
 }

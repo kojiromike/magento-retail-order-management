@@ -663,7 +663,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$payId = $payment->getId();
 					$thisPayment = $payments->createChild($payMethodNode);
 					$paymentContext = $thisPayment->createChild('PaymentContext');
-					$paymentContext->createChild('PaymentSessionId', sprintf('payment%s', $payId));
+					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
 					$paymentContext->createChild('TenderType', $payment->getAdditionalInformation('tender_code'));
 					$paymentContext->createChild('PaymentAccountUniqueId', $payment->getAdditionalInformation('gateway_transaction_id'))
 						->setAttribute('isToken', 'true');
@@ -686,7 +686,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGrandTotal()));
 					$thisPayment->createChild('AmountAuthorized', sprintf('%.02f', $payment->getAmountAuthorized()));
 					$paymentContext = $thisPayment->createChild('PaymentContext');
-					$paymentContext->createChild('PaymentSessionId', sprintf('payment%s', $payment->getId()));
+					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
 					$paymentContext->createChild('TenderType', self::PAYPAL_TENDER_TYPE);
 					$paymentContext->createChild('PaymentAccountUniqueId', $payment->getId())->setAttribute('isToken', 'true');
 					$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
@@ -698,7 +698,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					if ($this->_o->getGiftCardsAmount() > 0) {
 						$thisPayment = $payments->createChild($payMethodNode);
 						$paymentContext = $thisPayment->createChild('PaymentContext');
-						$paymentContext->createChild('PaymentSessionId', sprintf('payment%s', $payment->getId()));
+						$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
 						// this **must always** use the raw PAN to be able to look up the tender type
 						$paymentContext->createChild(
 							'TenderType',

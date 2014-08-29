@@ -93,7 +93,7 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	 */
 	public function getMessageDate($filename)
 	{
-		$messageDate = $this->_getDateTimeNodeFromFeed($filename);
+		$messageDate = $this->_getDateTimeFromFeed($filename);
 		if (!$messageDate) {
 			$this->_log->logWarn('[%s] Unable to read the message date from file "%s"', array(__CLASS__, $filename));
 			// When no CreateDateAndTime node found in the feed, fallback
@@ -112,7 +112,7 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	 * @param string $filename path to XML file
 	 * @return string|null
 	 */
-	protected function _getDateTimeNodeFromFeed($filename)
+	protected function _getDateTimeFromFeed($filename)
 	{
 		$reader = new XMLReader();
 		$reader->open($filename);

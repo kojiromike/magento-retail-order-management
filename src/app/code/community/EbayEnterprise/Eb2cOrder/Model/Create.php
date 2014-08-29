@@ -34,6 +34,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	const SHIPPING_CHARGE_TYPE_FLATRATE = 'FLATRATE';
 	const PAYPAL_TENDER_TYPE = 'PY';
+	const PAYPAL_PAYMENT_METHOD = 'PayPal';
 	const BACKEND_ORDER_SOURCE = 'phone';
 	const FRONTEND_ORDER_SOURCE = 'web';
 	const COOKIES_DELIMITER = ';';
@@ -802,7 +803,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$checkout = Mage::getSingleton('checkout/session');
 		$this->_buildBrowserData($context->createChild('BrowserData'));
 		$context->addChild('TdlOrderTimestamp', $this->_restrictText($checkout->getEb2cFraudTimestamp()));
-		$this->_buildSessionInfo($checkout->getEb2cFraudSessionInfo(), $context);
+		$this->_buildSessionInfo($checkout->getEb2cFraudSessionInfo(), $context)
+			->_buildPayPalPayerInfo($context);
+
 		// According to the XSD the 'CustomAttributes' node at the order context
 		// level must be inserted as the last node just after the 'PayPalPayerInfo' node
 		$this->_buildCustomAttributesByLevel(static::CONTEXT_LEVEL, $context, $this->_o);
@@ -958,6 +961,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$context->createChild('SessionInfo')
 				->appendChild($doc->importNode($frag));
 		}
+		return $this;
 	}
 	/**
 	 * Create new DOMText object with value of parameter $str or a truncated
@@ -1206,5 +1210,50 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$ids[] = $item->getId();
 		}
 		return $ids;
+	}
+	/**
+	 * Build the '<PayPalPayerInfo>' node under the passed in DOMDocument context node
+	 * object when the ROM Payment Extension is enabled and the payment method of the
+	 * order object in this class property is 'PayPal'.
+	 * @param EbayEnterprise_Dom_Element $context
+	 * @return self
+	 */
+	protected function _buildPayPalPayerInfo(EbayEnterprise_Dom_Element $context)
+	{
+		if (Mage::helper('eb2cpayment')->getConfigModel()->isPaymentEnabled) {
+			$payment = $this->_getPaypalPayment($this->_o->getAllPayments());
+			if ($payment) {
+				$context->createChild('PayPalPayerInfo')
+					->addChild('PayPalPayerID', $this->_restrictText($payment->getAdditionalInformation('paypal_payer_id'), 50))
+					->addChild('PayPalPayerStatus', $this->_restrictText($payment->getAdditionalInformation('paypal_payer_status'), 50))
+					->addChild('PayPalAddressStatus', $this->_restrictText($payment->getAdditionalInformation('paypal_address_status'), 50));
+			}
+		}
+		return $this;
+	}
+	/**
+	 * Return an instance of the ‘sales/order_payment’ class when it has a ‘PayPal’
+	 * payment method, otherwise return false.
+	 * @param  array $payments An array of sales/order_payment instances in an order
+	 * @return Mage_Sales_Model_Order_Payment | false The payment instance with Payment
+	 *         method 'PayPal', false when no payment has the 'PayPal' payment method.
+	 */
+	protected function _getPaypalPayment(array $payments)
+	{
+		foreach ($payments as $payment) {
+			if ($this->_hasPaypalPaymentMethod($payment)) {
+				return $payment;
+			}
+		}
+		return false;
+	}
+	/**
+	 * Check if the passed in ‘sales/order_payment’ object has a PayPal payment method.
+	 * @param  Mage_Sales_Model_Order_Payment $payment
+	 * @return bool true the passed in payment object has a PayPal payment method otherwise false
+	 */
+	protected function _hasPaypalPaymentMethod(Mage_Sales_Model_Order_Payment $payment)
+	{
+		return ($this->_ebcPaymentMethodMap[ucfirst($payment->getMethod())] === static::PAYPAL_PAYMENT_METHOD);
 	}
 }

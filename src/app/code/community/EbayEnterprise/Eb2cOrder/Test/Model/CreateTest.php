@@ -1727,4 +1727,42 @@ INVALID_XML;
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildEstimatedDeliveryDate', array($doc->documentElement, $orderItem));
 		$this->assertSame($expected, $xpath->evaluate('string(//EstimatedDeliveryDate/MessageType)'));
 	}
+	/**
+	 * Test 'EbayEnterprise_Eb2cOrder_Model_Create::_buildPayPalPayerInfo' method by passing in a DOMElement
+	 * context node parameter, and then injects a known  'sales/order' object in the ‘eb2corder/create’ class property,
+	 * then expects it to build the `<PayPalPayerInfo>` node under the `OrderCreateRequest/Context` parent nodes.
+	 * This will occur when the passed in order object has a PayPal payment method and the ROM payment extension is enabled.
+	 * @param string $xml
+	 * @param array $paymentData
+	 * @param bool $isPaymentEnabled
+	 * @param string $expected
+	 * @dataProvider dataProvider
+	 */
+	public function testBuildPayPalPayerInfo($xml, array $paymentData, $isPaymentEnabled, $expected)
+	{
+		$order = Mage::getModel('sales/order');
+		$order->addPayment(Mage::getModel('sales/order_payment', $paymentData));
+
+		$helper = $this->getHelperMockBuilder('eb2cpayment/data')
+			/** @see EbayEnterprise_Eb2cPayment_Helper_Data::__construct **/
+			// Mocking the ‘eb2ccore/config_registry’ has inadvertently caused errors in the
+			// ‘eb2cpayment/data:: __construct’ method; however, disabling the constructor seems
+			// the best solution since it isn’t needed for this test.
+			->disableOriginalConstructor()
+			->setMethods(array('getConfigModel'))
+			->getMock();
+		$helper->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array('isPaymentEnabled' => $isPaymentEnabled))));
+		$this->replaceByMock('helper', 'eb2cpayment', $helper);
+
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML($xml);
+
+		$create = Mage::getModel('eb2corder/create');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayPalPayerInfo', array($doc->documentElement, $order));
+
+		$this->assertXmlStringEqualsXmlString($expected, $doc->C14N());
+	}
 }

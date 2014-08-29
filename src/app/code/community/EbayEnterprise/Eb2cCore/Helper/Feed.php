@@ -38,6 +38,14 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 		'PIMExport' => 'eb2cproduct/pim_export_feed/outbound/message_header',
 	);
 
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_log;
+
+	public function __construct()
+	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * @var EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 */
@@ -76,16 +84,37 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * get a DateTime object for when the message was created.
-	 * if no date can be retrieved a datetime object with a unix timestamp
-	 * of 0 will be returned.
-	 * @param  string  $filename path to the xml file
+	 * Get a DateTime object for when the file was created. This will
+	 * initially attempt to use the value of the CreateDateTimeNode
+	 * in the XML contained in the file. If the node cannot be found in
+	 * the file, the mtime of the file will be used. Should both methods
+	 * fail to produce a usable DateTime, beginning of the Unix epoch will be used.
+	 * @param string $filename path to the xml file
 	 * @return DateTime
-	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
 	 */
 	public function getMessageDate($filename)
 	{
-		$dateObj = null;
+		$messageDate = $this->_getDateTimeNodeFromFeed($filename);
+		if (!$messageDate) {
+			$this->_log->logWarn('[%s] Unable to read the message date from file "%s"', array(__CLASS__, $filename));
+			// When no CreateDateAndTime node found in the feed, fallback
+			// to the file's mtime.
+			$mtime = filemtime($filename);
+			// Get a formatted date from the unix mtime, when filemtime
+			// failed, the resulting date('c', false) call will result in
+			// the same thing as date('c', 0), which is the expected final fallback value
+			$messageDate = date('c', $mtime);
+		}
+		return $this->_getDateTimeForMessage($messageDate);
+	}
+	/**
+	 * Get the value of the CreateDateAndTime node from the XML in the given file.
+	 * If the node doesn't exist in the file, will return null.
+	 * @param string $filename path to XML file
+	 * @return string|null
+	 */
+	protected function _getDateTimeNodeFromFeed($filename)
+	{
 		$reader = new XMLReader();
 		$reader->open($filename);
 		// the following 2 variables prevent the edge case where we get a large file
@@ -110,22 +139,26 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 			// otherwise go to the next instance of it
 			$dateNode = $reader->expand();
 		}
-		if (!($dateNode && $dateNode->nodeValue)) {
-			// use the file's local modified time as the failover
-			$default = filemtime($filename);
-			// if that doesn't work use the start of the epoch
-			$dateObj = DateTime::createFromFormat('U', $default === false ? 0 : $default);
-			Mage::log(
-				'[' . __CLASS__ . "] Unable to read the message date from file [$filename]",
-				Zend_Log::WARN
-			);
-		} else {
-			$dateNode = $reader->expand();
-			$dateObj = DateTime::createFromFormat('Y-m-d\TH:i:sO', $dateNode->nodeValue);
-		}
-		return $dateObj;
+		return $dateNode ? $dateNode->nodeValue : null;
 	}
-
+	/**
+	 * Get a DateTime object for the given message date time.
+	 * When an invalid date time is given, either an unrecognizable format or
+	 * none at all, a DateTime object representing beginning of Unix epoch will be used
+	 * @param string $messageDateTime Date and time of the message.
+	 * @return DateTime
+	 */
+	protected function _getDateTimeForMessage($messageDateTime)
+	{
+		// Need to ensure this will *always* return a DateTime. Either the
+		// strtotime or DateTime::createFromFormat may if the passed date time
+		// is not parsable by strtotime or the time created falls outside unix time
+		// (dates prior to unix epoch time 0 for example). If the two combined
+		// functions are unable to produce a valid time, fall back to the unix
+		// time `0` so something can be returned.
+		return DateTime::createFromFormat('U', strtotime($messageDateTime)) ?:
+			DateTime::createFromFormat('U', 0);
+	}
 	/**
 	 * Ensure the Feed's event type matches.
 	 * @param DOMDocument $doc, the loaded Dom xml feed

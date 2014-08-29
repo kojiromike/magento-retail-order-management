@@ -17,12 +17,45 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	const FEED_PATH = '/FeedTest/fixtures/';
+	// Time zone tests can expect to be the default timezone while running
+	const EXPECTED_TIME_ZONE = 'GMT';
+	/**
+	 * @var string time zone configured by the environment
+	 */
+	protected $_initTimeZone;
+	/**
+	 * Stash the initial default timezone and reset the default timezone
+	 * to the one expected in tests.
+	 */
+	public function setUp()
+	{
+		$this->_initTimeZone = date_default_timezone_get();
+		date_default_timezone_set(self::EXPECTED_TIME_ZONE);
+	}
+	/**
+	 * Reset the default timezone to the initial timezone.
+	 */
+	public function tearDown()
+	{
+		date_default_timezone_set($this->_initTimeZone);
+	}
+
+	/**
+	 * Get an EbayEnterprise_DomDocument for the given feed relative
+	 * to a constant fixture path.
+	 * @param  string $feed
+	 * @return EbayEnterprise_DomDocument
+	 */
 	private function _getDoc($feed)
 	{
 		$d = Mage::helper('eb2ccore')->getNewDomDocument();
 		$d->load(__DIR__ . self::FEED_PATH . $feed . '.xml');
 		return $d;
 	}
+	/**
+	 * Provide XML fixture file names for testing validating message headers.
+	 * @return array
+	 */
 	public function providerValidateHeader()
 	{
 		return array(
@@ -33,6 +66,9 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 	}
 
 	/**
+	 * Test getting the date time of the XML message via the
+	 * CreateDateAndTime element in the XML.
+	 * @param string $feedDir vfs directory setup in the fixture
 	 * @dataProvider dataProvider
 	 * @loadFixture
 	 * @loadExpectation
@@ -51,6 +87,22 @@ class EbayEnterprise_Eb2cCore_Test_Helper_FeedTest
 		);
 	}
 
+	/**
+	 * Test getting a DateTime object for a CreateDateAndTime from an import feed
+	 * @param string|null $feedTime  Create date and time in feed
+	 * @param string $dateTimeStamp Expected timestamp
+	 * @dataProvider dataProvider
+	 */
+	public function testGetDateTimeForFeedTime($feedTime, $dateTimeDate)
+	{
+		$feedHelper = Mage::helper('eb2ccore/feed');
+		$dateTime = EcomDev_Utils_Reflection::invokeRestrictedMethod($feedHelper, '_getDateTimeForMessage', array($feedTime));
+		$this->assertInstanceOf('DateTime', $dateTime, 'Must always return a DateTime object');
+		$this->assertSame(
+			$dateTimeDate,
+			$dateTime->getTimeStamp()
+		);
+	}
 	/**
 	 * @dataProvider dataProvider
 	 * @loadFixture

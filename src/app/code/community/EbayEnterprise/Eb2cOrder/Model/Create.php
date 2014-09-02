@@ -650,6 +650,18 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		return $this;
 	}
 	/**
+	 * Get the paypal-specific value for the payment account unique id field.
+	 * NOTE: The parameters are purposely left unused to reduce the chances of
+	 * 			 needing to change the method signature in the future.
+	 * @param  Mage_Sales_Model_Order_Payment $payment
+	 * @param  string                         $paymentMethod
+	 * @return string
+	 */
+	protected function _getPaypalAccountUniqueId(Mage_Sales_Model_Order_Payment $payment, $paymentMethod)
+	{
+		return 'PAYPAL';
+	}
+	/**
 	 * Creates the Tender entries within the Payments Element
 	 * @param DomElement payments node into which payment info is placed
 	 * @return self
@@ -689,7 +701,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$paymentContext = $thisPayment->createChild('PaymentContext');
 					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
 					$paymentContext->createChild('TenderType', self::PAYPAL_TENDER_TYPE);
-					$paymentContext->createChild('PaymentAccountUniqueId', $payment->getId())->setAttribute('isToken', 'true');
+					$paymentContext->createChild('PaymentAccountUniqueId', $this->_getPaypalAccountUniqueId($payment, $payMethod))
+						->setAttribute('isToken', 'true');
 					$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
 					$thisPayment->createChild('PaymentRequestId', sprintf('payment%s', $payment->getId()));
 					$auth = $thisPayment->createChild('Authorization');

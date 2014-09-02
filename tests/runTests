@@ -86,7 +86,5 @@ fi
 cd build/magento && php -d memory_limit=1G ../../vendor/bin/phpunit "$@" # This argument list should usually be empty, but can be switched to --debug or other flags for quick checks. Such as when phpunit suddenly starts segfaulting on Jenkins.
 )
 st=$?
-
 kill $(<mysql/mysql.pid)
-
-exit "$st"
+exit $st

@@ -843,6 +843,9 @@ INVALID_XML;
 		$this->_reflectProperty($create, '_ebcPaymentMethodMap')->setValue($create, array('Paypal_express' => 'PayPal'));
 		$this->assertSame($create, $this->_reflectMethod($create, '_buildPayments')->invoke($create, $doc->documentElement));
 
+		// ensure the payment account unique id is set correctly.
+		$x = new DOMXPath($doc);
+		$this->assertSame(1, $x->query('PayPal/PaymentContext/PaymentAccountUniqueId[@isToken="true" and . = "PAYPAL"]')->length);
 		$this->assertSame(sprintf($this->expected('paypal')->getPaymentNode(), "\n"), trim($doc->saveXML()));
 	}
 	/**

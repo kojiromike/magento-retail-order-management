@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2012 sp1 (http://www.altova.com) by user (Manish Vijayvergiya) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation>InventoryStatus API NGP1.0.0</xs:documentation>
+		<xs:documentation>20100112-Manish-Changed-Fixed the Grammatical Errors </xs:documentation>
+		<xs:documentation>20100118-Manish-Changed - required/optional as per API </xs:documentation>
+		<xs:documentation>20100118-Manish-Added-ExternalShipmentId </xs:documentation>
+		<xs:documentation>20100420-Manish-Changed-OMSItemId made optional</xs:documentation>
+		<xs:documentation>20110121-Rob Olden-Changed-ClientAltItemId length extended to 15</xs:documentation>
+		<xs:documentation>20110209-Bill Linebarger-Fixed guide layout and data </xs:documentation>
+		<xs:documentation>20110628-Bill Linebarger-ClientId, FacilityId, ExternalFacilityId all made String.32 </xs:documentation>
+		<xs:documentation>20110901-Bill Linebarger-Added annotations where documentation was lacking.  Removed APIEnumerations Import. </xs:documentation>
+		<xs:documentation>20120111-Manish Vijayvergiya-Validated the schema and removed extra elements, fixed enumerations</xs:documentation>
+		<xs:documentation>20130227-Manish Vijayvergiya-Added-Future Inventory related elements, gsi_client_id, GSICatalogId</xs:documentation>
+		<xs:documentation>20130227-Manish Vijayvergiya-Changed-CorrelationId to optional.</xs:documentation>
+		<xs:documentation>20130621-Manish Vijayvergiya-updated the documentation and changed the length to be 4 for StockingUOM.</xs:documentation>
+		<xs:documentation>20131111-Manish Vijayvergiya-Changed-length of ClientItemId to be 35 from 15, GsiCatalogId from 32 to 4 to be in sync with product hub</xs:documentation>
+		<xs:documentation>20140409 - Leslie Polss - Update terminology in annotations, from GSI and EB2C to eBay Enterprise and Exchange Platform.</xs:documentation>
+	</xs:annotation>
+	<xs:element name="InventoryStatus">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="MessageHeader">
+					<xs:annotation>
+						<xs:documentation>Encapsulates message routing data. The elements included in this grouping are standard across all messages.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Standard" type="String_10">
+								<xs:annotation>
+									<xs:documentation>Code identifying the schema controlling agency, for example, GSI.
+Allowable Values: Text string
+Required: Yes
+Length: 10
+Default Value: GSI
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="HeaderVersion" type="String_10">
+								<xs:annotation>
+									<xs:documentation>Version of the message being used, for example NGP1.0.0. Each new version whole number represents a significant change from a previous whole version and reflects a need for upgrades. For example, a change from Version 1.X to 2.X  or 2.X to NGP1.0.0 represents a substantial change in the framework and would be a recommended upgrade point. A change in the number after the decimal represents a minor upgrade/modification to the framework.
+Allowable Values: Text string
+Required: Yes
+Length: 10
+Default Value: NGP1.0.0 or current version on which partner is launched
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="VersionReleaseNumber" type="String_15">
+								<xs:annotation>
+									<xs:documentation>Release number within the current message header version which is same as HeaderVersion in most of the cases.
+Allowable Values: Text string
+Required: Yes
+Length: 15
+Default Value: NGP1.0.0 or current version on which partner is launched
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="SourceData">
+								<xs:annotation>
+									<xs:documentation>Encapsulates data related to the Source or the Sending system.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="SourceId" type="String_20">
+											<xs:annotation>
+												<xs:documentation>Unique identifier of the System that originated the message. The SourceId is a unique identifier provided by the initiator of the message. For those messages originating from an Order Management System (OMS), it would be the unique OMS identifier. For those messages originating from a Warehouse Management System (WMS), it would be the unique WMS identifier.
+Allowable Values: Text string
+Required: Yes
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="SourceType" type="String_10">
+											<xs:annotation>
+												<xs:documentation>The descriptive category/name/code used to define the system that originated the message.
+Allowable Values: 
+OMS = Order Management System
+WMS = Warehouse Management System
+Required: Yes
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="DestinationData" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Encapsulates data related to the Destination or Receiving system.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="DestinationId" type="String_20">
+											<xs:annotation>
+												<xs:documentation>Unique identifier of the System that is the intended recipient of the message. There can be multiple DestinationId/DestinationType sets per message to allow for one message to be sent to multiple receiving systems.
+Allowable Values: Text string
+Required: Yes
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="DestinationType" type="String_10">
+											<xs:annotation>
+												<xs:documentation>The descriptive category used to define the system that is the intended recipient of the message. 
+Allowable Values: 
+OMS = Order Management System, 
+WMS = Warehouse Management System, 
+FH= Fulfillment Hub.
+Required: Yes
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="EventType" type="String_35">
+								<xs:annotation>
+									<xs:documentation>The name of the event to which the message pertains.
+Allowable Values: InventoryStatus
+Required: Yes
+Length: 35
+Default Value: InventoryStatus
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="MessageData">
+								<xs:annotation>
+									<xs:documentation>Encapsulates message identification information </xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="MessageId" type="String_20">
+											<xs:annotation>
+												<xs:documentation>Globally unique identifier for each Message. The MessageId is populated from the Source system and must be a global identifier for eBay Enterprise.
+Allowable Values: Text string
+Required: Yes
+Length: 20
+Default Value: any non blank value
+Restrictions: In cases when the Product Hub or Fulfillment Hub originates the message, this field is the unique Business Process ID (BPID). 
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="CorrelationId" type="String_20" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>When present, it must contain the MessageId value of an earlier eBay Enterprise Message to which this message relates.
+Allowable Values: Text string
+Required: No
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="CreateDateAndTime" type="xs:dateTime">
+								<xs:annotation>
+									<xs:documentation>Original message creation date and time assigned by the Source. 
+Allowable Values: ISO 8601 standard with offset from UTC in xsd:datetime data format which is yyyy-mm-ddTHH:mm:ss-hh:mm for e.g. 2012-01-11T14:19:05-06:00, 2012-01-11T14:19:05Z.
+Required: Yes
+Length: xsd:datetime.
+Default Value: Current Date Time
+Restrictions: Needs to be complying with yyyy-mm-ddTHH:mm:ss-hh:mm format
+Aliases: N/A 
+Offering: Exchange Platform, Webstore</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ItemInventory">
+					<xs:annotation>
+						<xs:documentation>Encapsulates the inventory header data to identify the eBay Enterprise client, catalog and facility information</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="ClientId" type="String_32" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>The identifier provided by eBay Enterprise for an individual or organization that has a contractual relationship with eBay Enterprise in which eBay Enterprise is providing e-commerce, fulfillment or other services for the individual or organization. This is obsolete in newer releases and should not be used for any partner getting launched after 11.2 release.
+Allowable Values: Text string
+Required: No
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="gsi_client_id" type="String_32">
+								<xs:annotation>
+									<xs:documentation>The identifier provided by eBay Enterprise for an individual or organization that has a contractual relationship with eBay Enterprise in which eBay Enterprise is providing e-commerce, fulfillment or other services for the individual or organization. This refers to the V11/ ECP1.0.0 gsi_client_id. e.g. TMSNA.
+Allowable Values: Text string
+Required: Yes
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="FacilityId" type="String_32">
+								<xs:annotation>
+									<xs:documentation>Unique identifier provided by eBay Enterprise that designates the facility housing the goods. Typically a distribution center of physical warehouse.
+Allowable Values: Text string
+Required: Yes
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="ExternalFacilityId" type="String_32" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>The unique identifier that maps to what an external client/facility uses to identify their facility. This is for information purpose only.
+Allowable Values: Text string
+Required: No
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="InventoryStatusType">
+								<xs:annotation>
+									<xs:documentation>Identifies whether this is a Full snapshot or a Delta. Delta could be Incremental or Replacement. Full SnapShot is always a complete replacement.
+Allowable Values: 
+FS - full snapshot - Changes/overrides the inventory count in OMS. Zeros out items which were not sent in the feed. This feed applies to the entire catalog. This can include offline sales that need to be accounted for in inventory. This is typically done once a day or less often to clean up the incremental/replacement counts and roll them into the larger inventory. Typically used in conjunction with the incremental rather than the replacement feed.
+INC - incremental adjustment - Increases / decreases the inventory count for just the items in the feed.  For example, if a store has in-store pickup, using this feed to send changes allows faster, more frequent intra-day inventory counts for items that are selling. Or if two TV’s are broken, the store can quickly send a -2. This feed can be sent multiple times per day.
+REP - replacement - Changes/overrides the inventory count for just the items in the feed. Similar to the incremental feed, but replaces, rather than increments/decrements the inventory count.  So if, for example, all but three TVs are damaged and not sellable, the replacement count would be 3. This feed is not used frequently. It could be used to apply an emergency patch.  
+Required: Yes
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+								</xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base="xs:string">
+										<xs:maxLength value="10"/>
+										<xs:whiteSpace value="collapse"/>
+										<xs:enumeration value="FS">
+											<xs:annotation>
+												<xs:documentation>Full Snap Shot - replace the entire catalog</xs:documentation>
+											</xs:annotation>
+										</xs:enumeration>
+										<xs:enumeration value="INC">
+											<xs:annotation>
+												<xs:documentation>Delta increment - increase/decrease the inventory count for specific items</xs:documentation>
+											</xs:annotation>
+										</xs:enumeration>
+										<xs:enumeration value="REP">
+											<xs:annotation>
+												<xs:documentation>Delta Replacement - replace the inventory count for specific items</xs:documentation>
+											</xs:annotation>
+										</xs:enumeration>
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:element>
+							<xs:element name="InventoryDateTime" type="xs:dateTime">
+								<xs:annotation>
+									<xs:documentation>The date and time of the inventory snapshot.  
+Allowable Values: ISO 8601 standard with offset from UTC in xsd:datetime data format which is yyyy-mm-ddTHH:mm:ss-hh:mm for e.g. 2012-01-11T14:19:05-06:00, 2012-01-11T14:19:05Z.
+Required: Yes
+Length: xsd:datetime.
+Default Value: Current Date Time
+Restrictions: Needs to be complying with yyyy-mm-ddTHH:mm:ss-hh:mm format
+Aliases: N/A</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="ExtendedAttributes" type="ExtendedAttributes" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Encapsulates the customizable section of the message which allows for additional details to be added. </xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="Item" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Allows for multiple items sent within same xml message for a given FacilityId and gsi_client_id. for multiple facilities the message needs to be sent seperately. The Item tag should only repeat when sending inventory update for more than one item. ItemInventory tag level data are very static for a given xml message. for e.g. any inventory xml message can only contain single InventoryStatusType for a given facility</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="SellableQuantity" type="Int_7">
+											<xs:annotation>
+												<xs:documentation>Total number of the items in the warehouse which could be sold - whether it is allocated against an order or not. eBay Enterprise will then subtract allocated items in the OMS in determining how many are available for sale. eBay Enterprise requires items that are allocated to other OMS's to not be included in this number.
+Allowable Values: Integer
+Required: Yes
+Length: 7
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="ItemId">
+											<xs:annotation>
+												<xs:documentation>Encapsulates the set of verious references that can be used to identify an item/SKU.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="GsiCatalogId" type="String_4" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>eBay Enterprise assigned unique V11 catalog id for each client (gsi_client_id). 
+Allowable Values: Text string
+Required: This is required if ClientItemId is used as an unique id to send the inventory against(gsi_client_id)
+Length: 4
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ClientItemId" type="String_35">
+														<xs:annotation>
+															<xs:documentation>The retailer/client unique item ID or SKU used to identify the item. This is the unique id  which is being sent on the Item Master catalog.
+Allowable Values: Text string
+Required: Yes
+Length: 35
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="OMSItemId" type="Int_9" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The eBay Enterprise Internally assigned unique identifier, AKA JDA SKU or GSI SKU or OMS SKU or GII or eBay Enterprise SKU. Not applicable for 3rd Party fulfillment model in V11 platform.
+Allowable Values: Integer
+Required: No
+Length: 9
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ClientAltItemId" type="String_15" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>An alternative item identifier provided by the client.
+Allowable Values: Text string
+Required: No
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore
+</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ItemAttributes" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Additional information at item level. Specially needed in case of future inventory model.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="LotId" type="String_20" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>An identifier for a batch or group of items. The identification of this grouping normally comes from the manufacturer and normally applies to items that are dependent on matching of colors or detailed tracking requirements. 
+Allowable Values: Text string
+Required: No
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore
+</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ArrivalDate" type="xs:date" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The item’s receipt date or ETA within the WMS.
+Allowable Values: ISO 8601 standard in xsd:date data format which is yyyy-mm-dd for e.g. 2012-01-11.
+Required: No
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore
+ </xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="StockLocationNumber" type="String_30" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The location of the item within the physical facility. AKA SLN.
+Allowable Values: Text string
+Required: No
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="StockingUOM" type="String_4" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The unit of measure for the storage of the item, for example, "EACH."
+Allowable Values: Text string
+Required: No
+Length: 4
+Default Value: EACH
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="AdjustmentType" type="String_15" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>This represents the type of the adjustment done in case of Delta Inventory Feeds when InventoryStatusType = INC.
+Allowable Values: ADJUSTMENT, RECEIPT
+Required: No.
+Length: 15
+Default Value: ADJUSTMENT
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="SupplyType" type="String_32" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>This represents if the Inventory is On Hand or Future. Any value other than "ONHAND" represents the future Inventory.
+Allowable Values: ONHAND,  PO,  PO_PLACED,  PO_RELEASED, INTRANSIT are some of the allowable values
+Required: No
+Length: 32
+Default Value: ONHAND
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="SupplyReferenceType" type="String_40" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The reference type for the given supply type, only applicable in case of future inventory. For example. PO, ASN etc.
+Allowable Values: Text string
+Required: No
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="SupplyReference" type="String_100" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The value for the given SupplyReferenceType, only applicable in case of future inventory. For e.g. P123 [ a PO Number] , A230 [ an ASN Number]</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="SupplyLineReference" type="String_24" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>This indicates the line number for the given SupplyReference for which this inventory update is sent, only applicable in case of future inventory. For e.g. 002 [ the Line Number on a PO].
+Allowable Values: Text string
+Required: No
+Length: 24
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="OriginalArrivalDate" type="xs:date" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Encapsulates the original ETA or arrival date. This is only used when receipt is done against the future inventory.
+Allowable Values: ISO 8601 standard in xsd:date data format which is yyyy-mm-dd for e.g. 2012-01-11.
+Required: No
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ExtendedAttributes" type="ExtendedAttributes" minOccurs="0" maxOccurs="unbounded"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="ExtendedAttributes">
+		<xs:annotation>
+			<xs:documentation>Encapsulates the customizable section of the message which allows for additional details to be added.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Name" type="String_30" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The short title of the additional attribute, for example "CatalogId."
+Allowable Values: Text string
+Required: No
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Description" type="String_100" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>A brief description of the additional attribute.
+Allowable Values: Text string
+Required: No
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Value" type="String_100" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The specific value of the additional attribute.
+Allowable Values: Text string
+Required: No
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="String_3">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_4">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_10">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_15">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="15"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_20">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_24">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="24"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_30">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="30"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_32">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="32"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_35">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="35"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_40">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="40"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_100">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="100"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Int_7">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="7"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Int_9">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="9"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

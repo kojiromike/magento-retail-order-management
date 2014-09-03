@@ -656,6 +656,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * @param  Mage_Sales_Model_Order_Payment $payment
 	 * @param  string                         $paymentMethod
 	 * @return string
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	protected function _getPaypalAccountUniqueId(Mage_Sales_Model_Order_Payment $payment, $paymentMethod)
 	{
@@ -706,7 +707,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
 					$thisPayment->createChild('PaymentRequestId', sprintf('payment%s', $payment->getId()));
 					$auth = $thisPayment->createChild('Authorization');
-					$auth->createChild('ResponseCode', $payment->getCcStatus());
+					$auth->createChild('ResponseCode', $this->_getResponseCode($payment, $payMethodNode));
 				} elseif ($payMethodNode === 'StoredValueCard') {
 					// the payment method is free and there is gift card for the order
 					if ($this->_o->getGiftCardsAmount() > 0) {
@@ -1083,5 +1084,18 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _hasPaypalPaymentMethod(Mage_Sales_Model_Order_Payment $payment)
 	{
 		return ($this->_ebcPaymentMethodMap[ucfirst($payment->getMethod())] === static::PAYPAL_PAYMENT_METHOD);
+	}
+	/**
+	 * Get the payment response code from a passed in 'sales/order_payment' instance
+	 * parameter and a passed in payment method string.
+	 * @param  Mage_Sales_Model_Order_Payment $payment Not yet implemented, however, in the future we hope to use
+	 *         this parameter to determine the real response code
+	 * @param  string $paymentMethod Not yet implemented
+	 * @return string
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	protected function _getResponseCode(Mage_Sales_Model_Order_Payment $payment, $paymentMethod)
+	{
+		return 'APPROVED';
 	}
 }

@@ -1751,11 +1751,11 @@ INVALID_XML;
 			/** @see EbayEnterprise_Eb2cPayment_Helper_Data::__construct **/
 			// Mocking the ‘eb2ccore/config_registry’ has inadvertently caused errors in the
 			// ‘eb2cpayment/data:: __construct’ method; however, disabling the constructor seems
-			// the best solution since it isn’t needed for this test.
+			// the best solution since it isn't needed for this test.
 			->disableOriginalConstructor()
 			->setMethods(array('getConfigModel'))
 			->getMock();
-		$helper->expects($this->once())
+		$helper->expects($this->any())
 			->method('getConfigModel')
 			->will($this->returnValue($this->buildCoreConfigRegistry(array('isPaymentEnabled' => $isPaymentEnabled))));
 		$this->replaceByMock('helper', 'eb2cpayment', $helper);
@@ -1765,8 +1765,57 @@ INVALID_XML;
 
 		$create = Mage::getModel('eb2corder/create');
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayPalPayerInfo', array($doc->documentElement, $order));
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayPalPayerInfo', array($doc->documentElement));
 
 		$this->assertXmlStringEqualsXmlString($expected, $doc->C14N());
+	}
+	/**
+	 * Test that the method 'EbayEnterprise_Eb2cOrder_Model_Create::_getResponseCode' will be invoked once.
+	 * It will be passed in a 'sales/order_payment' instance as its first parameter. It will then be passed
+	 * in a string payment method as its second parameter. Finally, it will return a known response code string.
+	 * This will all happen when this test invokes the method
+	 * 'EbayEnterprise_Eb2cOrder_Model_Create::_buildPayments' passing it a known DOMElement and injecting the
+	 * class property 'eb2corder/create::_o' with a known 'sales/order' object with known 'sales/order_payment'
+	 * instance attached to it. The 'sales/order_payment' object will have data specifically targeting the
+	 * building of 'PayPal' payment nodes.
+	 * @param string $xml
+	 * @param array $paymentData
+	 * @param string $paymentMethod
+	 * @param string $responseCode
+	 * @dataProvider dataProvider
+	 */
+	public function testResponseCode($xml, array $paymentData, $paymentMethod, $responseCode)
+	{
+		$order = Mage::getModel('sales/order');
+		$orderPayment = Mage::getModel('sales/order_payment', $paymentData);
+		$order->addPayment($orderPayment);
+		$isPaymentEnabled = true;
+
+		$helper = $this->getHelperMockBuilder('eb2cpayment/data')
+			/** @see EbayEnterprise_Eb2cPayment_Helper_Data::__construct **/
+			// Mocking the ‘eb2ccore/config_registry’ has inadvertently caused errors in the
+			// ‘eb2cpayment/data:: __construct’ method; however, disabling the constructor seems
+			// the best solution since it isn't needed for this test.
+			->disableOriginalConstructor()
+			->setMethods(array('getConfigModel'))
+			->getMock();
+		$helper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array('isPaymentEnabled' => $isPaymentEnabled))));
+		$this->replaceByMock('helper', 'eb2cpayment', $helper);
+
+		$coreHelper = Mage::helper('eb2ccore');
+		$doc = $coreHelper->getNewDomDocument();
+		$doc->loadXML($xml);
+
+		$create = $this->getModelMock('eb2corder/create', array('_getResponseCode'));
+		$create->expects($this->once())
+			->method('_getResponseCode')
+			->with($this->identicalTo($orderPayment), $this->identicalTo($paymentMethod))
+			->will($this->returnValue($responseCode));
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+
+		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayments', array($doc->documentElement)));
 	}
 }

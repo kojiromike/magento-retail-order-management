@@ -1,0 +1,2985 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 sp1 (x64) (http://www.altova.com) by manish (private) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<!--xs:include schemaLocation="APIEnumerations.xsd"/-->
+	<xs:annotation>
+		<xs:documentation>CONFRONTING API NGP1_0_0</xs:documentation>
+		<xs:documentation>20100112-Manish-Changed-Fixed the Grammatical Errors </xs:documentation>
+		<xs:documentation>20100112-Manish-Added-Gift and Comments at Order Header Level </xs:documentation>
+		<xs:documentation>20100112-Manish-Changed - length of payment reference to be 30 from 8 </xs:documentation>
+		<xs:documentation>20100118-Manish-Changed - required/optional as per API </xs:documentation>
+		<xs:documentation>20100118-Manish-Added-ExternalShipmentId </xs:documentation>
+		<xs:documentation>20100118-Manish-Corrected decimal/integer fields as per API </xs:documentation>
+		<xs:documentation>20100207-Manish-Added Tax and Payment Invoices for VAT </xs:documentation>
+		<xs:documentation>20100307-Manish-Changed- Taken the spaces out after the element name address/telephone </xs:documentation>
+		<xs:documentation>20100519-Manish-Changed - Enumeration off for CarrierId/ServiceLevel </xs:documentation>
+		<xs:documentation>20100630-Manish-Changed - Enumeration for GiftMessageType, CustomType and CommentType </xs:documentation>
+		<xs:documentation>20100802-Manish-Changed - Taken off the Enumeration from all the elements </xs:documentation>
+		<xs:documentation>20110121-Rob Olden-Changed - Extended lengths of CustomerID, FirstName, LastName, EmailAddress, CompanyName, AddressLine1, AddressLine2, AddressLine3, City, StateOrProvince, PostalCode, Basis Amount, TaxCode, TaxRate, CatalogID, FullName, FullTelphoneNumber, ExternalReferenceFacilityID, OMSOrderID, CommentType, ItemDescription, and ClientAltItemID to match GSI OM</xs:documentation>
+		<xs:documentation>20110209-Bill Linebarger-Fixed guide layout and data </xs:documentation>
+		<xs:documentation>20110209-Bill Linebarger-Change length of ClientId, FacilityId, ExternalReferenceFacilityId, FulfillmentChannel, OrderType, OMSOrderId, OrderEntryDateTime, InvoiceCreateDateTime, PromiseShipDate, PromiseReceiptDate, CustomerId, CarrierId, CarrierServiceLevel, GiftMessageType, TaxType, CommentType, GiftMessageType, CurrencyCode.  Added complex elements Promotions and UPCList.</xs:documentation>
+		<xs:documentation>20111221-Bill Linebarger-In OrderDetail.Customization changed the size of CustomizationSequence to 5 and added the following fields: ContentDescription, CustomOMSItemId and the complex element ExtendedAttributes. </xs:documentation>
+		<xs:documentation>20120111-Manish Vijayvergiya-Added- ProxyPickup Info for Multi Channel and formatted the schema</xs:documentation>
+		<xs:documentation>20120401-Manish Vijayvergiya-Added-GsiCatalogId at Item Level, Changed-Length of JurisdictionLevel from 20 to 40 chars, InstructionDescription and Content from 256 chars to 1024 chars, removed MonetaryAmount and Currency Code under ReturnLabel and made ReturnLabelFee as amount. Made ProxyPickUp optional</xs:documentation>
+		<xs:documentation>20120619-Manish Vijayvergiya-PromiseShipDate and PromiseReceiptDate changed to dateTime from date, moved element Promotions before LineAmount, made the tax sectional optional </xs:documentation>
+		<xs:documentation>20130227-Manish Vijayvergiya-Added-AOS details, OrderLineRelationships, ServicesInstructions, ChargeName, ProductLine, gsi_client_id, gsi_store_id, PointsReward, TaxExemptionId, KitLines.</xs:documentation>
+		<xs:documentation>20130227-Manish Vijayvergiya-Changed-ChargeCategory to Required, LastName and CorrelationId to optional, length of AccountNumber to 40 and PurchaseOrderNumber to 100.</xs:documentation>
+		<xs:documentation>20131003-Manish Vijayvergiya-Changed-Length of CommentText from 254 to 4000, PostalCode made Optional, length of ClientItemId to be 35 from 15, GsiCatalogId from 32 to 4 to be in sync with product hub</xs:documentation>
+		<xs:documentation>20131003-Manish Vijayvergiya-Added-ProxyRelationshipType andProxyPickupAddress, CommentName for open invoice, VATInoiceNumber for VAT Invoice</xs:documentation>
+		<xs:documentation>20131018-Manish Vijayvergiya-Added-length for Associate details, Customization section deprecated as ServicesInstructions was added  </xs:documentation>
+		<xs:documentation>20140409 - Leslie Polss - Update terminology in annotations, from GSI and EB2C to eBay Enterprise and Exchange Platform.</xs:documentation>
+	</xs:annotation>
+	<xs:element name="OrdersToFulfill">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="MessageHeader">
+					<xs:annotation>
+						<xs:documentation>Encapsulates message routing data.  The elements included in this grouping are standard across all messages.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Standard" type="String_10">
+								<xs:annotation>
+									<xs:documentation>Code identifying the schema controlling agency, for example, GSI.
+Allowable Values: Text string
+Required: Yes
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="HeaderVersion" type="String_10">
+								<xs:annotation>
+									<xs:documentation>Version of the message being used.  Each new version whole number represents a significant change from a previous whole version and reflects a need for upgrades.  For example, a change from Version 1.X to 2.X represents a substantial change in the framework and would be a recommended upgrade point.  A change in the number after the decimal represents a minor upgrade/modification to the framework.
+Allowable Values: Text string
+Required: Yes
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="VersionReleaseNumber" type="String_15">
+								<xs:annotation>
+									<xs:documentation>Release number within the current message header version number.
+Allowable Values: Text string
+Required: Yes
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="SourceData">
+								<xs:annotation>
+									<xs:documentation>Encapsulates data related to the Source or the Sending system.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="SourceId" type="String_20">
+											<xs:annotation>
+												<xs:documentation>Unique identifier of the System that originated the message. The SourceId is a unique identifier provided by the initiator of the message.  For those messages originating from an Order Management System (OMS), it would be the unique OMS identifier.  For those messages originating from a Warehouse Management System (WMS), it would be the unique WMS identifier.
+Allowable Values: Text string
+Required: Yes
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="SourceType" type="String_10">
+											<xs:annotation>
+												<xs:documentation>The descriptive category/name/code used to define the system that originated the message.
+Allowable Values: 
+OMS = Order Management System
+WMS = Warehouse Management System
+Required: Yes
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="DestinationData" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Encapsulates data related to the Destination or Receiving system.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="DestinationId" type="String_20">
+											<xs:annotation>
+												<xs:documentation>Unique identifier of the System that is the intended recipient of the message.  There can be multiple DestinationId/DestinationType sets per message to allow for one message to be sent to multiple receiving systems.
+Allowable Values: Text string
+Required: Yes
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="DestinationType" type="String_10">
+											<xs:annotation>
+												<xs:documentation>The descriptive category used to define the system that is the intended recipient of the message. 
+Allowable Values: 
+OMS = Order Management System, 
+WMS = Warehouse Management System, 
+FH= Fulfillment Hub.
+Required: Yes
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="EventType" type="String_35">
+								<xs:annotation>
+									<xs:documentation>The name of the event to which the message pertains.
+Allowable Values: Varies depending on the feed, for example InventoryStatus
+Required: Yes
+Length: 35
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="MessageData">
+								<xs:annotation>
+									<xs:documentation>Encapsulates message identification information. </xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="MessageId" type="String_20">
+											<xs:annotation>
+												<xs:documentation>Globally unique identifier for each Message. The Message ID is populated from the Source system and must be a global identifier for eBay Enterprise Xchange.
+Allowable Values: Text string
+Required: Yes
+Length: 20
+Default Value: blank
+Restrictions: In cases when the Product Hub or Fulfillment Hub originates the message, this field is the unique Business Process ID (BPID). 
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="CorrelationId" type="String_20" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>When present, it must contain the MessageId value of an earlier eBay Enterprise Xchange Message to which this message relates.
+Allowable Values: Text string
+Required: No
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="CreateDateAndTime" type="xs:dateTime">
+								<xs:annotation>
+									<xs:documentation>Original message creation date and time assigned by the Source. 
+Allowable Values: ISO 8601 standard with offset from UTC in:datetime data format which is yyyy-mm-ddTHH:mm:ss-hh:mm for e.g. 2012-01-11T14:19:05-06:00
+Required: Yes
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Order" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Encapsulates the order header and order line data to allow for multiple orders to be contained within a single message.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="OrderHeader">
+								<xs:annotation>
+									<xs:documentation>Encapsulates the order invoice header information that applies to all lines on the invoice.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="ClientId" type="String_32">
+											<xs:annotation>
+												<xs:documentation>The identifier provided by eBay Enterprise for an individual or organization that has a contractual relationship with eBay Enterprise in which eBay Enterprise is providing e-commerce, fulfillment or other services for the individual or organization. 
+Allowable Values: Text string
+Required: Yes
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="gsi_client_id" type="String_32">
+											<xs:annotation>
+												<xs:documentation>The identifier provided by eBay Enterprise for an individual or organization that has a contractual relationship with eBay Enterprise in which eBay Enterprise is providing e-commerce, fulfillment or other services for the individual or organization. This refers to the V11 gsi_client_id. e.g. TMSNA.
+Allowable Values: Text string
+Required: Yes
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="gsi_store_id" type="String_32">
+											<xs:annotation>
+												<xs:documentation>The identifier provided by eBay Enterprise for an individual or organization that has a contractual relationship with eBay Enterprise in which eBay Enterprise is providing e-commerce, fulfillment or other services for the individual or organization. This refers to the V11 gsi_store_id. e.g. TMSUS.
+Allowable Values: Text string
+Required: Yes
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="FacilityId" type="String_32">
+											<xs:annotation>
+												<xs:documentation>Unique identifier provided by eBay Enterprise that designates the facility housing the goods.  Typically a distribution center of physical warehouse.
+Allowable Values: Text string
+Required: Yes
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="ExternalReferenceFacilityId" type="String_32" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>The unique identifier that maps to what an external client/facility uses to identify their facility.
+Allowable Values: Text string
+Required: No
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: ExternaFacilityId</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="FulfillmentChannel" type="String_40">
+											<xs:annotation>
+												<xs:documentation>Identifies the type of fulfillment outlet for this order.  For example an Instore pickup fulfillment channel vs. a warehouse to consumer fulfillment channel. 
+Allowable Values: 
+SHIP_FROM_STORE - Order is shipped from the store to the customer
+SHIP_TO_HOME - Order is shipped from a non-store location to the customer
+SHIP_TO_STORE - Order is shipped from a non-store location to the store. The customer has paid for it and will pick it up at the store upon its arrival.
+STORE_PICK_UP - Order is available in the store and paid for by the customer, who will pick it up there. 
+STORE_RESERVATION - Order is available in the store and reserved for the customer, who will pay for it when he receives it
+Required: Yes
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="OrderType">
+											<xs:annotation>
+												<xs:documentation>Defines the category for the order.  See the Appendix of the OTF API Guide for list.
+Allowable Values: Text string
+Required: Yes
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="20"/>
+													<xs:enumeration value="CSROMS">
+														<xs:annotation>
+															<xs:documentation>CSR OMS Order</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="CSRWEB">
+														<xs:annotation>
+															<xs:documentation>CSR Webstore Orders</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="EB2C">
+														<xs:annotation>
+															<xs:documentation>External B2B Orders</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="GAOS">
+														<xs:annotation>
+															<xs:documentation>Associate Ordering System</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="GROUP_SALES">
+														<xs:annotation>
+															<xs:documentation>Group Sales</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="LEGACY">
+														<xs:annotation>
+															<xs:documentation>Legacy data migrated from V9/V10</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="MOBILE">
+														<xs:annotation>
+															<xs:documentation>Mobile Device Order Source</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="MPCAAMAZON">
+														<xs:annotation>
+															<xs:documentation>Marketplace Amazon via Channel Advisor</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="MPCABUY">
+														<xs:annotation>
+															<xs:documentation>Marketplace Buy via Channel Advisor</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="MPCAEBAY">
+														<xs:annotation>
+															<xs:documentation>Marketplace Ebay via Channel Advisor</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="MPRAKUTEN">
+														<xs:annotation>
+															<xs:documentation>Marketplace Rakuten</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="MPYAHOO">
+														<xs:annotation>
+															<xs:documentation>Marketplace Yahoo</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="PHONE">
+														<xs:annotation>
+															<xs:documentation>Phone order via IVR</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="WEB">
+														<xs:annotation>
+															<xs:documentation>Webstore Order Source</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="XLEGACY">
+														<xs:annotation>
+															<xs:documentation>External Legacy data migrated when launching a new store on V11</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="XMOBILE">
+														<xs:annotation>
+															<xs:documentation>External Mobile Store</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+													<xs:enumeration value="XWEB">
+														<xs:annotation>
+															<xs:documentation>External Webstore</xs:documentation>
+														</xs:annotation>
+													</xs:enumeration>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="OMSOrderId" type="Int_15">
+											<xs:annotation>
+												<xs:documentation>The OMS OrderId created internally by the OMS.  This is typically not known by the consumer.  The OMS Order ID is a combination of the 12-digit OMS Order Number and the 3-digit release sequence.
+Allowable Values: Integer
+Required: Yes
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="CustomerOrderId" type="String_30">
+											<xs:annotation>
+												<xs:documentation>The OrderId that is visible to the consumer, typically this is known as the Web Order ID.
+Allowable Values: Integer
+Required: Yes
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="VATInvoiceNumber" type="String_256" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>The VAT Invoice number generated in OMS to identify VAT for the given release.
+Allowable Values: Integer
+Required: No
+Length: 256
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="PurchaseOrderNumber" type="String_100" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>The reference number related to the request from a purchasing organization to an external supplier (vendor, manufacturer) to deliver a quantity of items or to perform services at a certain point in time. This is ExternalOrder.
+Allowable Values: Text string
+Required: No
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="ReturnOrderNumber" type="String_30" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Client Generated In Store return Order Number.
+Allowable Values: Text string
+Required: No
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="ExternalShipmentId" type="String_30" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>A third-party fulfiller’s Shipment Identifier.
+Allowable Values: Text string
+Required: No
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="SplitOrderIndicator" type="String_1" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Indicates if the order has been divided into multiple shipment groups.  
+Allowable Values: 
+Y = Yes,
+N = No.
+Required: No
+Length: 1
+Default Value:  If not sent, then default = N.
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="OrderEntryDateTime" type="xs:dateTime">
+											<xs:annotation>
+												<xs:documentation>Date/Time that the order was entered at the Webstore or Order Entry Point.
+Allowable Values: ISO 8601 standard with offset from UTC in datetime data format which is yyyy-mm-ddTHH:mm:ss-hh:mm for e.g. 2012-01-11T14:19:05-06:00
+Required: Yes
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="InvoiceCreateDateTime" type="xs:dateTime">
+											<xs:annotation>
+												<xs:documentation>Date/Time that the order was released for fulfillment  in the OMS. Follows ISO 8601 standard with offset from UTC.
+Allowable Values: ISO 8601 standard with offset from UTC in datetime data format which is yyyy-mm-ddTHH:mm:ss-hh:mm for e.g. 2012-01-11T14:19:05-06:00
+Required: Yes
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="PromiseShipDate" type="xs:dateTime" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>The Expected date of when the merchandise contained in the order will be shipped by.
+Allowable Values: ISO 8601 standard with offset from UTC in datetime data format which is yyyy-mm-ddTHH:mm:ss-hh:mm for e.g. 2012-01-11T14:19:05-06:00
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="PromiseReceiptDate" type="xs:dateTime" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>The Expected date of when the merchandise contained in the order will be received by the facility. 
+Allowable Values: ISO 8601 standard with offset from UTC in datetime data format which is yyyy-mm-ddTHH:mm:ss-hh:mm for e.g. 2012-01-11T14:19:05-06:00
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="ExpeditedOrderIndicator" type="String_1" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Indicates if the order has been flagged as an expedited order requiring immediate shipment.
+Allowable Values: 
+Y - Order has expedited shipping
+N - Order does not have expedited shipping
+Required: No
+Length: 1
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="CatalogId" type="String_12" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Catalog number for paper mail catalogs. This is not the GSI Catalog ID assigned to each client.
+Allowable Values: Text string
+Required: No
+Length: 12
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="DeliveryInstructions" type="String_60" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Provides an area for the customer to detail specific delivery instructions for the shipment of the package.  This is commonly used in the UK.
+Allowable Values: Text string
+Required: No
+Length: 60
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="Locale" type="String_5">
+											<xs:annotation>
+												<xs:documentation>The locale code of the environment in which the order was placed.  The locale defines the language and country rules to be applied to the data.  
+Allowable Values: Text string. The format is "ll_CC" where ll is the language argument and is a valid ISO Language Code. These codes are the lower_case, two_letter codes as defined by ISO_639.  CC is the upper_case, two_letter codes as defined by ISO_3166 ISO country code. 
+Common values:
+en_US - English/United States
+fr_CA - French/Canada
+en_GB - English/United Kingdom
+de_DE - German/Germany
+fr_FR - French/France
+Required: Yes
+Length: 5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A.</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="BillTo" type="Customer"/>
+										<xs:element name="ShipTo" type="Customer"/>
+										<xs:element name="Carrier">
+											<xs:annotation>
+												<xs:documentation>Encapsulates the information regarding the individual/organization responsible for the trasportation of the goods from source location to the destination location.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Name" type="String_30" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The name of the company responsible for the transportation of goods from the source location to the destination location.
+Allowable Values: Text string
+Required: No
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="CarrierId" type="String_4">
+														<xs:annotation>
+															<xs:documentation>The unique reference for the external party that transports merchandise and/or supply items from their source to the destination and from the destination back to their source.
+Allowable Values: Text string
+Required: Yes
+Length: 4
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="CarrierServiceLevel" type="String_40">
+														<xs:annotation>
+															<xs:documentation>The eBay Enterprise-assigned value that indicates the method used to ship the order to the destination.
+Allowable Values: Text string. Common values might include 1DAY, 2DAY, GROUND
+Required: Yes
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="InvoiceAmount" type="Amount" maxOccurs="unbounded">
+											<xs:annotation>
+												<xs:documentation>Encapsulates the invoice amounts that can be provided for an order</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="Payment" maxOccurs="unbounded">
+											<xs:annotation>
+												<xs:documentation>Encapsulates the payment and tender details</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="PaymentReference" type="String_30">
+														<xs:annotation>
+															<xs:documentation>Defines the payment reference for tender type.
+Allowable Values: Text string. 
+Common values 
+BR - Marketplace
+CC - Credit Card
+GC - Gift Card
+GS - Gift Certificate
+Required: Yes
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="TenderType" type="String_32" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>This defines the CreditCardType or tender type for the PaymentReference. 
+Allowable Values: Text string. Common values = VISA; AMEX, MC, FV
+Required: Yes
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="AdditionalPaymentDetails" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Additional Payment information.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="PaymentReference1" type="String_100" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Defines the additional payment reference in case of the Market Place tender types.
+Allowable Values: Text string. Common values = GS, GC, CC, BR
+Required: No
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																		<xs:documentation> for e.g. PaymentReference is BR, TenderType is CC and AdditionalPaymentReference is VISA</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="PaymentReference2" type="String_100" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Additional reference value for the Payment information.</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="PaymentReference3" type="String_100" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Additional reference value for the Payment information. for e.g. PLCC</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="DisplayCreditCardNumber" type="String_30" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Tokenized and Masked value for the Payment information.
+Allowable Values: Text string
+Required: No
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="SoldToAccountNumber" type="String_40" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Defines Customer Sold To Account Number when the "PO" is used a tender.
+Allowable Values: Text string
+Required: No
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="PurchaseOrderNumber" type="String_100" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Defines PO Number when the "PO" is used a tender.
+Allowable Values: Text string
+Required: No
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="ExtendedAttributes" type="ExtendedAttributes" minOccurs="0" maxOccurs="unbounded"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="TaxInvoice" minOccurs="0" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="TaxInvoiceType" type="InvoiceType">
+														<xs:annotation>
+															<xs:documentation>Encapsulates the VAT tax information , TaxType. For e.g. VAT</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Locale" type="String_5" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The locale code of the environment in which the order was placed.  The locale defines the language and country rules to be applied to the data. 
+Allowable Values: The format is "ll_CC" where ll is the language argument and is a valid ISO language code. These codes are the lower case, two letter codes as defined by ISO_639. CC is the upper case, two letter codes as defined by ISO 3166 country code.
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="CurrencyCode" type="String_3">
+														<xs:annotation>
+															<xs:documentation>The type of currency (dollars, francs, etc.) associated with the monetary amount.
+Allowable Values: ISO 4217 currency code. http://www.iso.org/iso/support/currency_codes_list-1.htm
+Required: Yes
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ConversionRate" type="Decimal_6_5" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The conversion rate applied from 1 of the charged currency to this many of the local currency.
+Allowable Values: Decimal
+Required: No
+Length: 6.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="SendWithShipmentIndicator" type="String_1">
+														<xs:annotation>
+															<xs:documentation>Specifies if an invoice is sent wth the shipment.
+Allowable Values: 
+Y - send invoice with the shipment  
+N - do not send invoice with the shipment
+Required: Yes
+Length: 1
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="InvoiceTemplate" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Encapsulates the invoice template details on which the tax invoice will be printed</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="InvoiceTemplateId" type="String_20" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>If multiple templates are used by the warehouse, this is an identifying field.
+Allowable Values: Text string
+Required: No
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="InvoiceTemplateLanguage" type="String_2" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Two character identifier if a language is required.  
+Allowable Values: Lower-case, two-letter codes as defined by ISO-639.
+Required: No
+Length: 2
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="TaxInvoiceData">
+														<xs:annotation>
+															<xs:documentation>Encapsulates all the details for VAT invoice.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="TaxInvoiceId" type="InvoiceId">
+																	<xs:annotation>
+																		<xs:documentation>The VAT invoice ID or a unique identification id for the invoice.
+Allowable Values: Text string
+Required: Yes
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="TaxInvoiceDate" type="xs:date">
+																	<xs:annotation>
+																		<xs:documentation>The invoice date of the VAT invoice.  Typically the date of allocation of the order.  Follows ISO 8601 standard.
+Allowable Values: ISO 8601 standard with offset from UTC in datetime data format which is yyyy-mm-ddTHH:mm:ss-hh:mm for e.g. 2012-01-11T14:19:05-06:00.
+Required: Yes
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="CustomerFiscalDetail" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Optional  but required in case of the Exchange Platform transactions</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="CustomerTaxId" type="TaxId" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>Typically only required on a Exchange Platform sale.  It is the VAT ID of the customer company.  
+Allowable Values: Text string
+Required: No
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="CustomerTaxRegistrationCountry" type="CountryCode2" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>The country code of VAT registration for the customer. 
+Allowable Values: Country code following the ISO 3166-2 standard
+Required: No
+Length: 2
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="Salutation" type="String_15" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>The salutation of the Bill-to customer.  Typically "Dr.", "Mr.", "Ms." etc.
+Allowable Values: Text string.
+Required: No
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: Salutation</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="FirstName" type="String_64">
+																				<xs:annotation>
+																					<xs:documentation>The first name of the person.
+Allowable Values: Text string.
+Required: Yes
+Length: 64
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="LastName" type="String_64" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>The surname of the person.
+Allowable Values: Text string.
+Required: Yes
+Length: 64
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A   </xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="Address" type="Address"/>
+																			<xs:element name="Telephone" type="Telephone" minOccurs="0" maxOccurs="unbounded"/>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="SupplierAdministrativeDetail" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Encapsulates the Supplier's Administrative Address and name details</xs:documentation>
+																	</xs:annotation>
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="SupplierTaxId" type="TaxId" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>The VAT ID of the selling party.  Typically required for VAT invoices.  Format varies by registration country.</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="SupplierTaxRegistrationCountry" type="CountryCode2" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>The country code of VAT registration for the supplier following the ISO 3166-2 standard.</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="Address" type="Address"/>
+																			<xs:element name="Telephone" type="Telephone" minOccurs="0" maxOccurs="unbounded"/>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="PaymentInvoice" minOccurs="0" maxOccurs="unbounded">
+											<xs:annotation>
+												<xs:documentation>Encapsulates the Payment details for tax</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="PaymentInvoiceType" type="InvoiceType">
+														<xs:annotation>
+															<xs:documentation>Indicates the payment type. For e.g. OpenInvoice etc.
+Allowable Values: Text string. User-defined.
+Required: Yes
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="PaymentInvoiceId" type="InvoiceId" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Identifier for the payment invoice. For e.g. OpenInvoiceId 
+etc. 
+Allowable Values: Text string
+Required: No
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Locale" type="String_5">
+														<xs:annotation>
+															<xs:documentation>The locale code of the environment in which the order was placed.  The locale defines the language and country rules to be applied to the data.  
+Allowable Values: Text string. The format is "ll_CC" where ll is the language argument and is a valid ISO Language Code. These codes are the lower_case, two_letter codes as defined by ISO_639.  CC is the upper_case, two_letter codes as defined by ISO_3166 ISO country code. 
+Common values:
+en_US - English/United States
+fr_CA - French/Canada
+en_GB - English/United Kingdom
+de_DE - German/Germany
+fr_FR - French/France
+Required: Yes
+Length: 5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A.</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="PaymentTerms" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Specify the payment terms and conditions</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="TermsTypeCode" type="String_2" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Code identifying type of payment terms. Example ZZ=Mutually Defined. 
+Allowable Values: Text string. User-defined.
+Required: No
+Length: 2
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="TermsBasisDateCode" type="String_2" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Code identifying the beginning of the terms period. Example ZZ=Mutually Defined. 
+Allowable Values: Text string. User-defined
+Required: No
+Length: 2
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="TermsNetdays" type="Int_3" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>When the customer owes money for the order (such as open invoice) this is the number of days when payment is due. 
+Allowable Values: Integer
+Required: .If TermsNetDueDate is not present then TermsNetDays is required
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="TermsNetDueDate" type="xs:date" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>When the customer owes money for the order (such as open invoice) this is the date payment is due. Follows ISO 8601 standard. 
+Allowable Values: ISO 8601 standard with offset from UTC in datetime data format which is yyyy-mm-ddTHH:mm:ss-hh:mm for e.g. 2012-01-11T14:19:05-06:00.
+Required: If TermsNetday is not present then TermsNetDueDate is required.
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="CommentText" type="String_4000" minOccurs="0" maxOccurs="unbounded">
+																	<xs:annotation>
+																		<xs:documentation>Free form comments and description related to payment terms.
+Allowable Values: Text string
+Required: No
+Length: 4000
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="PaymentDetails" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="PaymentMethod" type="String_2" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>A Payment method identifier that a customer would use to pay for the invoice. For e.g. DD=DirectDebit.
+Allowable Values: Text string. User-defined.
+Required: No
+Length: 2
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="PaymentChannel" type="String_25" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>For most suppliers, this will be a part of the template for open invoices.
+Allowable Values: Text string
+Required: No
+Length: 25
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="AccountDetails" minOccurs="0">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="BankCode" type="Int_10" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>Bank Code.
+Allowable Values: Integer
+Required: No
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="AccountNumber" type="String_40" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>Account Number.
+Allowable Values: Text string
+Required: No
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="AccountHolderName" type="String_35" minOccurs="0">
+																				<xs:annotation>
+																					<xs:documentation>Name of the Account Holder.
+Allowable Values: Text string
+Required: No
+Length: 35
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																			<xs:element name="Instructions" type="String_254" minOccurs="0" maxOccurs="unbounded">
+																				<xs:annotation>
+																					<xs:documentation>Additional instructions or information needed for the payment.
+Allowable Values: Text string
+Required: No
+Length: 254
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																				</xs:annotation>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+																<xs:element name="BalanceCleared" type="Decimal_16_5" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>The total amount of the order already paid in the transaction currency.
+Allowable Values: Decimal
+Required: No
+Length: 16.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="PayableAmount" type="Decimal_16_5" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>The total amount still due on the order in the transaction currency.
+Allowable Values: Decimal
+Required: No
+Length: 16.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="CurrencyCode" type="String_3" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>The type of currency (dollars, francs, etc.) associated with the monetary amount.
+Allowable Values: ISO 4217 currency code. http://www.iso.org/iso/support/currency_codes_list-1.htm
+Required: Yes
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="ConversionRate" type="Decimal_6_5" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>The conversion rate applied from 1 of the charged currency to this many of the local currency.
+Allowable Values: Decimal
+Required: No
+Length: 6.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ReturnLabel" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Encapsulates the data required to create the shipping return label provided with some orders.  The shipping return label is provided with certain items to allow the customer the ability to easily return  an item without printing an additional return shipping label.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ReturnLabelNumber" type="String_48">
+														<xs:annotation>
+															<xs:documentation>Return Label ID</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="SecondaryReturnLabelNumber" type="String_48">
+														<xs:annotation>
+															<xs:documentation>Secondary Return Label ID</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="MaxiCode" type="String_256">
+														<xs:annotation>
+															<xs:documentation>MaxiCode</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="PostalBarCode" type="String_256">
+														<xs:annotation>
+															<xs:documentation>Postal Bar Code</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="PackageWeight" type="String_15">
+														<xs:annotation>
+															<xs:documentation>Package Weight</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ReturnLabelFee" type="Decimal_16_5">
+														<xs:annotation>
+															<xs:documentation>The monetary amount associated with the return label.
+Allowable Values: Decimal
+Required: Yes
+Length: 16.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ReturnAddress" type="Address" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Encapsulates the address of the return location to be included on the return label. </xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ReturnLabelType" type="String_2">
+														<xs:annotation>
+															<xs:documentation>The Return Label Type.
+Allowable Values: Text string. User-defined.
+Required: Yes
+Length: 2
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="PackageNumber" type="Int_8">
+														<xs:annotation>
+															<xs:documentation>Unique package number assigned to the return label. 
+Allowable Values: Text string 
+Required: Yes
+Length: 8
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="PermitNumber" type="String_20" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The permit number assigned to the return label. 
+Allowable Values: Text string
+Required: No
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="Comment" type="Comment" minOccurs="0" maxOccurs="unbounded">
+											<xs:annotation>
+												<xs:documentation>Encapsulates details needed to add order specific comments to a pack slip, shipping label, the distribution center personnel, etc.</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="Gift" type="Gift" minOccurs="0" maxOccurs="unbounded">
+											<xs:annotation>
+												<xs:documentation>Encapsulates details needed for Gift Wrap at the order level.  When Gift Wrap is present at the order level then it can not be at the item level and vice versa.</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="OrderLineRelationships" type="OrderLineRelationships" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Container for OrderLineRelationship.</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="AssociateDetails" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Defines the AOS Associate details for the order placed</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="AssociateName" type="String_150" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Associate (employee) name for AOS (in-store) orders. 
+Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="AssociateNumber" type="String_20" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Associate (employee) number for AOS (in-store) orders. 
+Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="AssociateStore" type="String_20" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Store number for AOS (in-store) orders. 
+Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="AdditionalOrderAttributes" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Encapsulates the addtional order header level attributes pass thru from Webstore.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="TaxExemptionId" type="String_40" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Tax Exemption Certificate information for the order. 
+Allowable Values: Text string
+Required: No
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ExtendedAttributes" type="ExtendedAttributes" minOccurs="0" maxOccurs="unbounded"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="OrderDetail" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Encapsulates the order line details for the order invoice.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="LineNumber" type="Int_4">
+											<xs:annotation>
+												<xs:documentation>The line sequence number.
+Allowable Values: Integer
+Required: Yes
+Length: 4
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="ItemId">
+											<xs:annotation>
+												<xs:documentation>Encapsulates the order line details for the order invoice.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="GsiCatalogId" type="String_4">
+														<xs:annotation>
+															<xs:documentation>eBay Enterprise assigned unique V11 catalog id for each client (gsi_client_id). 
+Allowable Values: Text string
+Required: Yes
+Length: 4
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ClientItemId" type="String_35">
+														<xs:annotation>
+															<xs:documentation>The retailer's/client's/partner's SKU number or unique item identifier. (Partner Item Number). 
+Allowable Values: Text string
+Required: Yes
+Length: 35
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="OMSItemId" type="Int_9">
+														<xs:annotation>
+															<xs:documentation>The Order Management Systems internally assigned SKU or unique item identifier.
+Allowable Values: Integer
+Required: Yes
+Length: 9
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ClientAltItemId" type="String_15" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>An Alternative item identifier provided by the client.  Typically used for reference information only and not to identify/locate an item.
+Allowable Values: Text string
+Required: No
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="SupplierItemId" type="String_15" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The code assigned by the supplier to uniquely identify the Item. (Vendor SKU, Vendor Item Number). 
+Allowable Values: Text string
+Required: No
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ManufacturerItemId" type="String_15" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The code assigned to the item by the manufacturer to uniquely identify the item.  Manufacturer's SKU or item number.
+Allowable Values: Text string
+Required: No
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="UPCList" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Encapsulates the UPC information on the item.</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="ItemUPC" maxOccurs="unbounded">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="UPC">
+																				<xs:annotation>
+																					<xs:documentation>UPCs (Universal Product Code) or GTINs (Global Trade Identification Number) refer to a specific barcode encoding used mainly in the United States and Canada and are most commonly 12, 13 or 14 digits long.  
+Allowable Values: Text string
+Required: Yes
+Length: 128
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:maxLength value="128"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																			<xs:element name="UPCType">
+																				<xs:annotation>
+																					<xs:documentation>The type of UPC (ex. A).
+Allowable Values: Text string
+Required: Yes
+Length: 128
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																				</xs:annotation>
+																				<xs:simpleType>
+																					<xs:restriction base="xs:string">
+																						<xs:maxLength value="128"/>
+																					</xs:restriction>
+																				</xs:simpleType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="ExtendedAttributes" type="ExtendedAttributes" minOccurs="0" maxOccurs="unbounded"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ItemAttributes">
+											<xs:annotation>
+												<xs:documentation>Encapsulates descriptive information regarding the identified item.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ItemDescription" type="String_4000">
+														<xs:annotation>
+															<xs:documentation>Title or Short Description of the Item of the client’s item.
+Allowable Values: Text string
+Required: Yes
+Length: 4000
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="SizeDescription" type="String_4000" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The size of the item purchased.
+Allowable Values: Text string
+Required: No
+Length: 4000
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ColorDescription" type="String_4000" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The color of the item purchased.
+Allowable Values: Text string
+Required: No
+Length: 4000
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="OrderedQuantity" type="Decimal_10_2">
+														<xs:annotation>
+															<xs:documentation>The number of items ordered.
+Allowable Values: Decimal
+Required: Yes
+Length: 10.2
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="OriginalUnitPrice" type="Decimal_16_5">
+														<xs:annotation>
+															<xs:documentation>The price for one unit of the item.
+Allowable Values: Decimal
+Required: Yes
+Length: 16.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="OriginalRetailUnitPrice" type="Decimal_16_5" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The original price for one unit of the item.
+Allowable Values: Decimal
+Required: Yes
+Length: 16.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="CurrencyCode" type="String_3">
+														<xs:annotation>
+															<xs:documentation>The type of currency (dollars, francs, etc.) associated with the monetary amount.
+Allowable Values: ISO 4217 currency code. http://www.iso.org/iso/support/currency_codes_list-1.htm
+Required: Yes
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ProductLine" type="String_40" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Defines the hierarchy [Department] of the item in the format of Dept.SubDept.Class.SubClass. 
+Allowable Values: Text string
+Required: No
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ConfigurationId" type="String_30" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Defines the configuration id for CTO items. 
+Allowable Values: Text string
+Required: No
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="KitCode" type="String_30" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Defines the kit code for the kit lines. if present then defines the item to be CTO. 
+Allowable Values: Text string
+Required: No
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ReshipFlag" type="xs:boolean" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Will be used to indicate whether line is a is a reship - default false.
+Allowable Values:
+true - item is a reship
+false - item is not a reship
+Required: No
+Length: TBD
+Default Value: false
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ExtendedAttributes" type="ExtendedAttributes" minOccurs="0" maxOccurs="unbounded"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="KitLines" minOccurs="0">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="KitLine" minOccurs="0" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="ClientItemId" type="String_35">
+																	<xs:annotation>
+																		<xs:documentation>The retailer's/client's/partner's SKU number or unique item identifier. (Partner Item Number). 
+Allowable Values: Text string
+Required: Yes
+Length: 35
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="OMSItemId" type="Int_9" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>The Order Management Systems internally assigned SKU or unique item identifier.
+Allowable Values: Integer
+Required: No
+Length: 9
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="KitQty" type="Decimal_16_5">
+																	<xs:annotation>
+																		<xs:documentation>quantity for the kit item. 
+Allowable Values: Decimal
+Required: Yes
+Length: 16.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="ProductClass" type="String_30">
+																	<xs:annotation>
+																		<xs:documentation>Product class for the kit item. 
+Allowable Values: Text string
+Required: Yes
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="UnitOfMeasure" type="String_30">
+																	<xs:annotation>
+																		<xs:documentation>Product class for the kit item. 
+Allowable Values: Text string. Possible values include:
+in
+cm
+lb
+kg
+Required: Yes
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="Promotions" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Encapsulates all promotions on the line</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Promotion" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="PromotionId" type="String_100">
+																	<xs:annotation>
+																		<xs:documentation>The unique identifier of the promotion.
+Allowable Values: Text string
+Required: Yes
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="LineAmount" type="Amount" maxOccurs="unbounded">
+											<xs:annotation>
+												<xs:documentation>Encapsulates the various set of amounts that can be provided for an order.</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="Tax" minOccurs="0" maxOccurs="unbounded">
+											<xs:annotation>
+												<xs:documentation>Total line level tax amount</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="TaxType" type="String_20">
+														<xs:annotation>
+															<xs:documentation>The type of tax being imposed.
+Allowable Values: 
+CONSUMERS_USE - use Tax applied to purchaser
+IMPORT_VAT - VAT applied to the import of an item
+NONE - No tax applied
+SALES - Sales tax
+SELLER_USE - Use tax applied to the selling organization
+VAT - Value Added Tax
+Required: Yes
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Exemption" type="String_1">
+														<xs:annotation>
+															<xs:documentation>This defines if the item has Zero tax or not based on the tax amount.
+Allowable Values: 
+Y - yes item is tax-exempt
+N - no, item is not tax exempt
+Required: Yes
+Length: 1
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Situs" type="String_30">
+														<xs:annotation>
+															<xs:documentation>Address used in determining tax governance. 
+Allowable Values: 
+ADMINISTRATIVE_DESTINATION - Tax address of the receiving entity
+ADMINISTRATIVE_ORIGIN - Tax address of the shipping entity
+DESTINATION - Ship-to location
+PHYSICAL_ORIGIN - Ship-from location
+Required: Yes
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Jurisdiction" type="String_100" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The name of the jurisdiction to which the tax is applied.
+Allowable Values: Text strings
+Required: No
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="JurisdictionLevel" type="String_40" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The level of the jurisdiction (ex. State, City). 
+Allowable Values: See the Appendix of the OrdersToFulfill API Guide for allowable values.
+Required: No
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="JurisdictionId" type="Int_9" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The Vertex-specific number that identifies a juridiction. 
+Allowable Values: Integer
+Required: No
+Length: 9
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Imposition" type="String_60" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The name of the imposition to which the relevant tax rule belongs.  This is assigned either by Vertex or by the user when setting up a user-defined imposition in Vertex. 
+Allowable Values: Text string
+Required: No
+Length: 60
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ImpositionType" type="String_60" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The type description assigned to the imposition.  When multiple impositions are imposed within a jurisdiction, each must have a different type. This is assigned either by Vertex or by the user when setting up a user-defined imposition in Vertex. 
+Allowable Values: Text string
+Required: No
+Length: 60
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="TaxRate" type="Decimal_8_5" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The tax rate percentage that is being applied to the basis amount. 
+Allowable Values: Decimal
+Required: No
+Length: 8.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="BasisAmount" type="Decimal_16_5" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The amount of the line for which the tax is applicable.
+Allowable Values: Decimal
+Required: No
+Length: 16.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="TransactionalTaxAmount" type="Decimal_16_5">
+														<xs:annotation>
+															<xs:documentation>The monetary amount of sales tax calculated by applying a set percentage to the line item. These percentages can vary by county, state and country.
+Allowable Values: Decimal
+Required: Yes
+Length: 16.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ChargeCategory" type="String_20">
+														<xs:annotation>
+															<xs:documentation>The different categories of items/services for which the tax was charged. 
+Allowable Values: See the Appendix of the OrdersToFulfill API Guide for allowable values.
+Required: Yes
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ChargeName" type="String_40" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The Name or Id associated with the Charge or Discount categories of items/services for which the tax was charged.
+Allowable Values: Text string
+Required: No
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<!--xs:element name="Customization" minOccurs="0" maxOccurs="unbounded">
+											<xs:annotation>
+												<xs:documentation>Encapsulates details needed for items requiring custom work or value added services. This section is depricated in V11</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="CustomItemId" type="String_15" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The identifier or SKU to define the customization needed.
+Allowable Values: Text string
+Required: No
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="CustomizationSequence" type="Int_5" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Sequence of the comment typically used when multiple customizations are provided against the same line.
+Allowable Values: Integer
+Required: No
+Length: 5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="CustomType" type="String_10" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The type of customization needed. 
+Allowable Values: 
+DELIVERY - Delivery instructions
+DST_GIFT - Destination-level gifting instructions
+DST_PACK - Destination level packslip instructions
+GIFT - Line-level gifting instructions
+OTHER - Miscellaneous
+PACK - Line-level packslip instructions
+SHOPRUNNER - Shoprunner instructions
+SHPGRPNAME - Ship group name
+Required: No
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Instructions" type="String_254" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Additional instructions needed for the customization.
+Allowable Values: Text string
+Required: No
+Length: 254
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="InstructionsDescription" type="String_1024" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Further detail about the instructions
+Allowable Values: Text string
+Required: No
+Length: 1024
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Content" type="String_1024" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Specific content to be included as part of the customization.
+Allowable Values: Text string
+Required: No
+Length: 1024
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ContentDescription" type="String_254" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Further description of the content
+Allowable Values: Text string
+Required: No
+Length: 254
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="CustomOMSItemId" type="Int_9" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The item identifier of the custom item.
+Allowable Values: Integer
+Required: No
+Length: 9
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ExtendedAttributes" type="ExtendedAttributes" minOccurs="0" maxOccurs="unbounded"/>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element-->
+										<xs:element name="Comment" type="Comment" minOccurs="0" maxOccurs="unbounded"/>
+										<xs:element name="Gift" type="Gift" minOccurs="0" maxOccurs="unbounded"/>
+										<xs:element name="ShipGroup" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Encapsulates the shipping group information for items that are required to ship together.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ShipGroupNumber" type="String_5" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Ship Group Number is used in the order management system to group lines so  they can ship together. In the OMS, we wait until all items are in stock before dropping the detail line with the same ship group number to the warehouse. Use of Ship Group Number does not require (and usually does not have) a Ship Group Type or Ship Group Name.
+Allowable Values: Text string
+Required: No
+Length: 5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ShipGroupType" type="String_3" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Primarily used to print an indented pack slip.  
+Allowable Values: KIT
+Required: No
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="ShipGroupName" type="String_50" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>The indenting along with the Ship Group Name help warehouse personnel "assembles" the order.
+Allowable Values: Text string
+Required: No
+Length: 50
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="GroupId" type="Int_2" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Identifies groupings of items.
+Allowable Values: Integer
+Required: No
+Length: 2
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="SpecialHandlingCode" type="String_20" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Code used to define additional special shipping/handling items. 
+Allowable Values: Text string
+Required: No
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="AccessCode" type="String_20" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>PIN Number, Access Code for the item. 
+Allowable Values: Text string
+Required: No
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="ProxyPickupInfo" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Contains information about the person, other than the buyer, who is designated to take delivery of a paid for purchase in a store.</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ProxyPickupEmail">
+														<xs:annotation>
+															<xs:documentation>Email of the person taking delivery of the order.
+Allowable Values: Text string
+Required: Yes
+Length: 150
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:maxLength value="150"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="ProxyPickupName">
+														<xs:annotation>
+															<xs:documentation>Name of the person taking delivery of the order.
+Allowable Values: Text string
+Required: Yes
+Length: 168
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:maxLength value="168"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="ProxyPickupPhoneNumber">
+														<xs:annotation>
+															<xs:documentation>Phone number of the person taking delivery of the order.
+Allowable Values: Text string
+Required: Yes
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:maxLength value="40"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="ProxyRelationshipType" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>relationship between the customer and the person taking delivery of the order.
+Allowable Values: Text string
+Required: Yes
+Length: 150
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:maxLength value="150"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="ProxyPickupAddress" type="Address" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Additional information for the person picking up the order to minimize the fraud</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="OrderLineRelationships" type="OrderLineRelationships" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Container for OrderLineRelationship.</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="ServicesInstructions" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Defines the special instructions for each service types.e.g. CUSTOM, ENGRAVING</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="ServicesInstruction" minOccurs="0" maxOccurs="unbounded">
+														<xs:annotation>
+															<xs:documentation>Defines the special instructions for each service types</xs:documentation>
+														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="InstructionSeq" type="xs:string" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>The sequence in which this instruction falls.
+Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="InstructionType" type="xs:string" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>The name in a name/value pair of special instructions, for example, StickVogelReadyID Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="InstructionTypeDesc" type="xs:string" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Provides a text description of the instruction type.
+Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="InstructionValue" type="xs:string" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>The value in the name/value pair of speicial instructions.
+Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="InstructionValueDesc" type="xs:string" minOccurs="0">
+																	<xs:annotation>
+																		<xs:documentation>Provides a text description of the instruction value. 
+Allowable Values: Text string
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="RewardPoints" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>Points earned for the given line.To calculate the total points earned per line use OrderedQuantity * PerUnit + Bonus</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="PerUnit" type="xs:integer" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Indicates the total points earned per unit for the line. 
+Allowable Values: Integer
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Bonus" type="xs:integer" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Indicates the total Bonus points earned for the line. 
+Allowable Values: Integer
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+													<xs:element name="Multiplier" type="Decimal_16_5" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Indicates the multiplier used to calculate the RewardPointsPerUnit.
+Allowable Values: Decimal
+Required: No
+Length: 16.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ExtendedAttributes" type="ExtendedAttributes" minOccurs="0" maxOccurs="unbounded"/>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- complexTypes -->
+	<xs:complexType name="Customer">
+		<xs:sequence>
+			<xs:element name="CustomerId" type="String_40">
+				<xs:annotation>
+					<xs:documentation>The customer account number typically provided by the web store.
+Allowable Values: Text string
+Required: Yes
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FullName" type="String_168" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Contains the entire name. This is a legacy field that can be used when connected systems do not support multi-field names.
+Allowable Values: Text string.
+Required: No
+Length: 168
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Salutation" type="String_15" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>A title you can assign to a person. Typically "Dr.", "Mr.", "Ms." etc.
+Allowable Values: Text string.
+Required: No
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: Salutation</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FirstName" type="String_64">
+				<xs:annotation>
+					<xs:documentation>The first name of the person.
+Allowable Values: Text string.
+Required: Yes
+Length: 64
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="LastName" type="String_64" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The surname of the person.
+Allowable Values: Text string.
+Required: Yes
+Length: 64
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A  </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EmailAddress" type="String_150" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Customer Email address, for example: mike@gsicommerce.com. 
+Allowable Values: Text string
+Required: Yes
+Length: 150 characters
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A  </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PreferredLanguageCode" type="String_5" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The locale code of the environment where the order is being billed.  The locale defines the language and country rules to be applied to the data.  
+Allowable Values: Text string. The format is "ll_CC" where ll is the language argument and is a valid ISO Language Code. These codes are the lower_case, A two_letter codes as defined by ISO_639.  CC is the upper_case, two_letter codes as defined by ISO_3166 ISO country code. 
+Common values:
+en_US - English/United States
+fr_CA - French/Canada
+en_GB - English/United Kingdom
+de_DE - German/Germany
+fr_FR - French/France
+Required: No
+Length: 5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Address" type="Address"/>
+			<xs:element name="Telephone" type="Telephone" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Telephone">
+		<xs:sequence>
+			<xs:element name="TelephoneType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Indicates where the phone number is located (home, business, mobile, etc.). 
+Allowable Values: 
+DayFaxNo - Daytiem Fax Number
+DayPhone - Daytime Phone Number
+EveningFaxNo - Evening Fax Number
+EveningPhone - Evening Phone Number
+MobilePhone - Mobile Phone Number
+OtherPhone - Other Phone Number
+Required: No
+Length: 18
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="18"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="AreaCode" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Specifies the region within a country where the phone number is located.
+Allowable Values: Text string
+Required: No
+Length: 5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="5"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="CountryCode" type="CountryCode3" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Specifies the country where the phone number is located.
+Allowable Values: Text string
+Required: No
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ExtensionNumber" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Specifies the extension within an organization where the phone number is located.
+Allowable Values: Text string
+Required: No
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="5"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="TelephoneNumber" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The telephone number as entered without a country code.
+Allowable Values: Text string.
+Required: No
+Length: 18
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="18"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="FullTelephoneNumber" type="String_40" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The telephone number as entered with a country code. If the country code is not entered, his field and the TelephoneNumber field are the same.
+Allowable Values: Text string.
+Required: No
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Address">
+		<xs:sequence>
+			<xs:element name="CompanyName" type="String_50" minOccurs="0"/>
+			<xs:element name="AddressLine1" type="String_70">
+				<xs:annotation>
+					<xs:documentation>The "AddressLine#" components contain the street address and, if necessary, suite and building identifiers for the physical address. 
+Allowable Values: Text string
+Required: Line1 is required. Other Line# components are optional.
+Length: 70
+Default Value: blank
+Restrictions: For U.S. addresses, the last Line# component valued before the U.S. state must contain the number and street. Additional address information, such as a building name or a department mustt precede it.
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AddressLine2" type="String_70" minOccurs="0"/>
+			<xs:element name="AddressLine3" type="String_70" minOccurs="0"/>
+			<xs:element name="City" type="String_35">
+				<xs:annotation>
+					<xs:documentation>Name of the city.
+Allowable Values: Text string
+Required: Yes
+Length: 35
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="StateOrProvince" type="String_35" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The state, province or other country sub-division code for the store address.
+Allowable Values: Text string. ISO 3166-2 country sub-division code.
+Required: No
+Length: 35
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CountyOrLocality" type="String_20" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Additonal information about the address
+Allowable Values: Text string
+Required: Yes
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CountryCode" type="CountryCode3">
+				<xs:annotation>
+					<xs:documentation>The country code for the address.
+Allowable Values: Text string. ISO 3166 alpha-2 country code.
+Required: Yes
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PostalCode" type="String_35" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>An additional part of an address that further clarifies the location, for example, the zip code in the United States. 
+Allowable Values: Text string
+Required: No
+Length: 35
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ExtendedAttributes">
+		<xs:annotation>
+			<xs:documentation>Encapsulates the customizable section of the message which allows for additional details to be added.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Name" type="String_30" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The short title of the additional attribute. 
+Allowable Values: Text string
+Required: No
+Length: 30
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Description" type="String_100" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>A brief description of the additional attribute. 
+Allowable Values: Text string
+Required: No
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Value" type="String_100" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The specific value of the additional attribute. 
+Allowable Values: Text string
+Required: No
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Amount">
+		<xs:sequence>
+			<xs:element name="Amount">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="AmountType" type="String_40">
+							<xs:annotation>
+								<xs:documentation>Defines the type of amount included in the -Value- element.  See Appendix A for allowable values.
+Allowable Values: Text string.
+Required: Yes
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="MonetaryAmount" type="Decimal_16_5">
+							<xs:annotation>
+								<xs:documentation>The monetary amount for the defined amount type.
+Allowable Values: Decimal
+Required: Yes
+Length: 16.5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="CurrencyCode" type="String_3">
+							<xs:annotation>
+								<xs:documentation>The type of currency (dollars, francs, etc.) associated with the monetary amount.
+Allowable Values: ISO 4217 currency code. http://www.iso.org/iso/support/currency_codes_list-1.htm
+Required: Yes
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="ChargeName" type="String_40" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>The name of LineCharge or HeaderCharge. Charge Category and Charge Name together make a unique key for any line/header charge.
+Allowable Values: Text string
+Required: No
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Gift">
+		<xs:sequence>
+			<xs:element name="GiftWrapId" type="String_15" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Identifier for the type of gift wrapping paper that should be used.
+Allowable Values: Text string
+Required: No
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WrapGroupNumber" type="Int_5" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Used when items are to be wrapped together.
+Allowable Values: Integer
+Required: No
+Length: 5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GiftMessageSequence" type="Int_4" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Sequence of the comment typically used when multiple messages are provided on the same line.
+Allowable Values: Integer
+Required: No
+Length: 4
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GiftMessageType" type="String_10" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The type of gift message needed. 
+Allowable Values: 
+DST_GIFT - Destination-level gifting instructions
+GIFT - Line level gifting instructions
+Required: No
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GiftMessage" type="String_254" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The text of the gift message.
+Allowable Values: Text string
+Required: No
+Length: 254
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Comment">
+		<xs:sequence>
+			<xs:element name="CommentSequence" type="Int_4" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Sequence of the comment typically used when multiple comments are provided on the same line.
+Allowable Values: Integer
+Required: No
+Length: 4
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CommentType" type="String_10" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The type of customization needed.
+Allowable Values: See the Appendix of the OrdersToFulfill API Guide for allowable values.
+Required: No
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CommentText" type="String_4000" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Additional instructions needed for the comment type.
+Allowable Values: Text string
+Required: No
+Length: 4000
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CommentName" type="String_4000" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name to identify the comment text for a given CommentType.
+Allowable Values: Text string
+Required: No
+Length: 4000
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OrderLineRelationships">
+		<xs:sequence>
+			<xs:element name="OrderLineRelationship" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines the relationship between a parent line and its children lines. </xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="RelationshipType" type="String_40">
+							<xs:annotation>
+								<xs:documentation>Defines the type of relationship between the parent line and a child line. E.g. WARRANTY, INSTALL, CUSTOM, ACCESSORY
+Allowable Values: Text string
+Required: Yes
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="ParentLine" type="Int_5">
+							<xs:annotation>
+								<xs:documentation>Indicates the parent line number of the order.
+Allowable Values: Integer
+Required: Yes
+Length: 5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="ChildLine" type="Int_5">
+							<xs:annotation>
+								<xs:documentation>Indicates the child line number of the order.
+Allowable Values: Integer
+Required: Yes
+Length: 5
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- simpleTypes -->
+	<xs:simpleType name="InvoiceType">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="15"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TaxId">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="InvoiceId">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CountryCode3">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CountryCode2">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_1">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_2">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_3">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_4">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_5">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="5"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_10">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_12">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="12"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_15">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="15"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_18">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="18"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_20">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_25">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="25"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_30">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="30"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_32">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="32"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_35">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="35"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_40">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="40"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_48">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="48"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_50">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="50"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_60">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="60"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_64">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="64"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_70">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="70"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_100">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="100"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_150">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="150"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_168">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="168"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_254">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="254"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_256">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="256"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_1024">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="1024"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="String_4000">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="4000"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Decimal_6_5">
+		<xs:restriction base="xs:decimal">
+			<xs:totalDigits value="6"/>
+			<xs:fractionDigits value="5"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Decimal_8_5">
+		<xs:restriction base="xs:decimal">
+			<xs:totalDigits value="8"/>
+			<xs:fractionDigits value="5"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Decimal_10_2">
+		<xs:restriction base="xs:decimal">
+			<xs:totalDigits value="10"/>
+			<xs:fractionDigits value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Decimal_16_5">
+		<xs:restriction base="xs:decimal">
+			<xs:totalDigits value="16"/>
+			<xs:fractionDigits value="5"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Int_2">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Int_3">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Int_4">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="4"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Int_5">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="5"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Int_8">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="8"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Int_9">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="9"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Int_10">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Int_15">
+		<xs:restriction base="xs:integer">
+			<xs:totalDigits value="15"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

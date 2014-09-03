@@ -1,0 +1,981 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 (http://www.altova.com) by Lloyd Foss (GSI Commerce) -->
+<!-- added types for all elements -->
+<!-- 20110311 added Message Header and CommonTypes.xsd -->
+<!-- 20110321 added ISOCountryCodeType-V2006.xsd -->
+<!--          added complex types-->
+<!--          added annotation documentation for all elements and types -->
+<!-- 20111005 removed maxOccurs="unbounded" from storefronts -->
+<!--          made environment attribute required -->
+<!--          renamed state to state_code -->
+<!--          changed definition of state_code -->
+<!--          made state_code required -->
+<!--          renamed Simple.state type to Simple.state_code -->
+<!--          made country_code required -->
+<!--          changed order of elements to state_code, country_code, postal_code -->
+<!--          removed state element from storefront_locale -->
+<!--          removed country element from storefront_locale -->
+<!-- 20120220 made state_code optional -->
+<!-- 20120501 Added ISO standards names to locale_code attribute definitions -->
+<!--          Changed status enumeration to only allow A and I -->
+<!-- 20120810 Added minLength = "1" to Simple.marker_image_id type -->
+<!--          Added minLength = "1" to Simple.location_code type -->
+<!--          Removed Simple.locale_country type -->
+<!--          Removed Simple.locale_state type -->
+<!--          Added minLength = "1" to Simple.state_code type -->
+<!--          Added minLength = "1" to Simple.postal_code type -->
+<!--          Added minLength = "1" to Simple.location_name type -->
+<!--          Added Simple.address_line_not_empty type -->
+<!--          Changed address1 element to Simple.address_line_not_empty type -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!-- Include schemas -->
+	<xs:include schemaLocation="CommonTypes.xsd"/>
+	<!-- Define Simple Types -->
+	<xs:simpleType name="Simple.address_line">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.address_line simple type.  Simple.address_line is a string(200).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="200"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.address_line_not_empty">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.address_line_not_empty simple type.  Simple.address_line_not_empty is a string(200).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="200"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.attrib_tag">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.attrib_tag simple type. Simple.attrib tag is a string(20). Matching the pattern: "[A-Z][\w_]*" Starts with a capital letter followed by any combination of alpahnumeric characters and underscores.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="60"/>
+			<xs:pattern value="[A-Z][\w_]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.attrib_text_value">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.attrib_text_value simple type. Simple.attrib text_value is a string(1000).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="1000"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.boolean_or_empty">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.boolean_or_empty simple type.  Simple.boolean_or_empty is a boolean or it can be blank or empty.</xs:documentation>
+		</xs:annotation>
+		<xs:union memberTypes="xs:boolean">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.effective_date_or_empty">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.effective date_or_empty.  Simple.effective date_or_empty is a xs:date, matching the pattern: "[^:Z]*"  Normal date format, but timezone cannot be 'Z'. </xs:documentation>
+		</xs:annotation>
+		<xs:union>
+			<xs:simpleType>
+				<xs:restriction base="xs:date">
+					<xs:pattern value="[^:Z]*"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.email_address">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.email_address simple type.  Simple.email_address is a string(100).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.100"/>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.environment">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.environment simple type.  Simple.environment is a string(20) The identifier to specify what type of database to be loaded. Examples are DEVELOPMENT, QA1, QA2, PRODUCTION.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.20"/>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.fax_number">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.fax_number simple type.  Simple.fax_number is a string(20).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.20"/>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.feed_update_type">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.feed_update_type simple type.  Simple.feed_update_type is a enumerated xs:string. The enumerated values are "full" and "delta."</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="FULL"/>
+			<xs:enumeration value="DELTA"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.latitude">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.latitude simple type.  Simple.latitude is a Decimal with 1 to 2 leading digits and 1 to 6 fractional digits with an optional +/- sign.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="[+\-]?\d{1,2}\.\d{1,7}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.locale_city">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.locale_city simple type.  Simple.locale_city is a string(50).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.50">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.locale_code">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.locale_code simple type.  Simple.locale_code is a string(5) with the first 2 characters being lowercase letters, followed by an underscore, an the last 2 characters being uppercase letters. ISO Language Codes are from: ISO 639-1:2002 Part 1: Alpha-2 Language Codes ISO Country Codes are from: ISO 3166-1:2006.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.5">
+			<xs:pattern value="[a-z][a-z]_[A-Z][A-Z]"/>
+			<xs:pattern value="_"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.location_code">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.location_code simple type.  Simple.location_code is a string(40).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="40"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.location_name">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.location_name simple type.  Simple.location_name is a string(200).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="200"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.longitude">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.longitude simple type.  Simple.longitude is a Decimal with 1 to 3 leading digits and 1 to 6 fractional digits with an optional +/- sign.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:decimal">
+			<xs:pattern value="[+\-]?\d{1,3}\.\d{1,6}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.marker_image_id">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.marker_image_id simple type.  Simple.marker_image_id is a string(256).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="256"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.operation">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.operation simple type.  Simple.operation is a string(10). Allowable values are Operation: UPSERT - update or insert the data; DELETE - delete the data or a blank or empty string.</xs:documentation>
+		</xs:annotation>
+		<xs:union>
+			<xs:simpleType>
+				<xs:restriction base="Simple.StringType.10">
+					<xs:enumeration value="UPSERT"/>
+					<xs:enumeration value="DELETE"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.phone_number">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.phone_number simple type.  Simple.phone_number is a string(15.)</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.15">
+			<xs:maxLength value="15"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.postal_code">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.postal_code simple type.  Simple.postal_code is a string(10).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.10">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="10"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.schedule_name">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.schedule_name simple type.  Simple.schedule_name is a string(100).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.100"/>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.schedule_type">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.schedule_type simple type.  Simple.schedule_type is a string(10). The alowable entries are DAILY and WEEKLY.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.10">
+			<xs:enumeration value="WEEKLY"/>
+			<xs:enumeration value="DAILY"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.state_code">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.state_code simple type.  Simple.state_code is a string(20).</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.20">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.status_or_empty">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.status_or_empty simple type.  Simple.status_or_empty is a string(1). Allowable values are Status A - active store, update/insert; Status I - inactive store or a blank or empty string.</xs:documentation>
+		</xs:annotation>
+		<xs:union>
+			<xs:simpleType>
+				<xs:restriction base="Simple.StringType.1">
+					<xs:enumeration value="A"/>
+					<xs:enumeration value="I"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.store_code">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">The identifier provided by eBay Enterprise for an individual or organization that has a contractual relationship with eBay Enterprise in which eBay Enterprise is providing e-commerce, fulfillment or other services.  
+Allowable Values: This code must start with an uppercase A-Z or 0-9 followed by any combination of alpahnumeric characters or underscores,
+Required: No
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="32"/>
+			<xs:pattern value="[A-Z0-9][\w_]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.time2400_or_empty">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.time2400_or_empty simple type.  Simple.time2400_or_empty is a string(4).  The allowable values are 4 digit 24 hour time values, 0000-0059, 0100-0059, ... 2400 or a blank or empty string.</xs:documentation>
+		</xs:annotation>
+		<xs:union>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:pattern value="((([01]\d)|(2[0123]))[012345]\d)|2400"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.decimal_timezone">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.decimal_timezone simple type.  Simple.decimal_timezone is a decimal restricted by a pattern to +14.00 to -13.00 with the the allowable fractions of .0, .5, and 75.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:decimal">
+			<xs:minInclusive value="-13"/>
+			<xs:maxInclusive value="14"/>
+			<xs:pattern value="((\+?0*[0-9])|(\+?0*1[0-4])|(-0*[0-9])|(-0*1[0-2]))(.(0*|50*|750*))?"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.type_id">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.type_id simple type.  Simple.type_id is a string(100).  The allowed pattern is: Start with an uppercase A-Z or 0-9 followed by any combination of alphanumeric characters or underscores.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="100"/>
+			<xs:pattern value="[A-Z][\w_]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Define Complex Types -->
+	<xs:complexType name="Complex.storefront_types">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Complex.storefront_types complex type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="storefront_type" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation xml:lang="en-US">Encapsulates a single storefront_type data for the store.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="type_id" type="Simple.type_id">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Store Type is a designation used by the partner to group stores.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="operation" type="Simple.operation" use="optional">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">The operation to perform with the storefront_type data.  The operations are: UPSERT update or insert the attrib data. DELETE - delete the attrib data. The default if blank or null is to UPSERT the data.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Complex.attribs">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Complex.attribs complex type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="attrib" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation xml:lang="en-US">Encapsulates a single attribute data for the store.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="attrib_effective_start_date" type="Simple.effective_date_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Not currently supported in the store locator application.  Date to start using the schedule data.  Modified XML date format date with optional timezone in HH:MM format. YYYY-MM-DD[(+-)HH:MM] The element can also be empty.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="attrib_effective_end_date" type="Simple.effective_date_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Not currently supported in the store locator application.  Date to stop using the schedule data.  Modified XML date format date with optional timezone in HH:MM format. YYYY-MM-DD[(+-)HH:MM] The element can also be empty.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="tag_text_value" type="Simple.attrib_text_value">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">The locale specific attrib text value.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="storefront_attrib_tag" type="Simple.attrib_tag" use="required">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">The name of the attribute tag.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="locale_code" type="Simple.locale_code" use="required">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">The locale of the locale specific attrib data.  Locale is a 2-character language_code followed by an underscore, followed by a 2-character country_code.  The locale of the locale specific attrib data.  Locale is a 2- character language_code followed by an underscore, followed by a 2 character country_code. ISO Language Codes are from: ISO 639-1:2002 Part 1: Alpha-2 Language Codes ISO Country Codes are from: ISO 3166-1:2006. </xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="operation" type="Simple.operation" use="optional">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">The operation to perform with the attrib data.  The operations are: UPSERT update or insert the attrib data. DELETE - delete the attrib data. The default if blank or null is to UPSERT the data.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Complex.schedule_locales">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Complex.schedule_locales complex type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="schedule_locale" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation xml:lang="en-US">Encapsulates locale specific store information for a specific locale.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="schedule_name" type="Simple.schedule_name">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Not currently supported in the store locator application. The name of the schedule.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="locale_code" type="Simple.locale_code" use="required">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">Not currently supported in the store locator application. The locale of the locale specific schedule data.  Locale is a 2 character language_code followed by an underscore, followed by a 2-character country_code. ISO Language Codes are from: ISO 639-1:2002 Part 1: Alpha-2 Language Codes.
+ISO Country Codes are from: ISO 3166-1:2006.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="operation" type="Simple.operation" use="optional">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">The operation to perform with the schedule_locale data.  The operations are: UPSERT - Update or insert the schedule_locale data. DELETE - delete the schedule_locale data.  The default if blank or null is to UPSERT the data.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Complex.schedules">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Complex.schedules complex type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="schedule" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation xml:lang="en-US">Encapsulates a single set of hours of operation data for the store</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="schedule_effective_start_date" type="Simple.effective_date_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Not currently supported in the store locator application.  Date to start using the schedule data.  Modified XML date format date with optional timezone in HH:MM format. YYYY-MM-DD[(+-)HH:MM] The element can also be empty.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="schedule_effective_end_date" type="Simple.effective_date_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Not currently supported in the store locator application.  Date to end using the schedule data.  Modified XML date format date with optional timezone in HH:MM format. YYYY-MM-DD[(+-)HH:MM] The element can also be empty.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="start_display_date" type="Simple.effective_date_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Not currently supported in the store locator application. Start date for displaying this schedule on the webstore.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="end_display_date" type="Simple.effective_date_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Not currently supported in the store locator application. Start date for displaying this schedule on the webstore.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closed_ind" type="Simple.boolean_or_empty">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Flag to indicate store is closed.  1 - the store is closed 0 - the store is open Default is 0 - the store is open.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="default_open" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Default time in hours minutes (24 hour clock) to be used for blank daily open times. Default is 0000.j</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="default_close" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Default time in hours minutes (24 hour clock) to be used for blank daily closing times. Default is 0000</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="opening_time_monday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Monday opening time in hours minutes (24 hour clock).  Default is &lt;default_open&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closing_time_monday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Monday closing time in hours minutes (24 hour clock).  Default is &lt;default_close&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="open_24_hr_monday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Monday open 24 hour flag. 1 - store is open 24 hours. 0 - store is not open 24 hours.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closed_monday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Monday closed flag.  1 - store is closed on Monday. 0 - store is not closed on Monday.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="opening_time_tuesday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Tuesday opening time in hours minutes (24 hour clock).  Default is &lt;default_open&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closing_time_tuesday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Tuesday closing time in hours minutes (24 hour clock).  Default is &lt;default_close&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="open_24_hr_tuesday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Tuesday open 24 hour flag. 1 - store is open 24 hours. 0 - store is not open 24 hours.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closed_tuesday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Tuesday closed flag.  1 - store is closed on Tuesday. 0 - store is not closed on Tuesday.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="opening_time_wednesday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Wednesday opening time in hours minutes (24 hour clock).  Default is &lt;default_open&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closing_time_wednesday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Wednesday closing time in hours minutes (24 hour clock).  Default is &lt;default_close&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="open_24_hr_wednesday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Wednesday open 24 hour flag. 1 - store is open 24 hours. 0 - store is not open 24 hours.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closed_wednesday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Wednesday closed flag.  1 - store is closed on Wednesday. 0 - store is not closed on Wednesday.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="opening_time_thursday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Thursday opening time in hours minutes (24 hour clock).  Default is &lt;default_open&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closing_time_thursday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Thursday closing time in hours minutes (24 hour clock).  Default is &lt;default_close&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="open_24_hr_thursday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Thursday open 24 hour flag. 1 - store is open 24 hours. 0 - store is not open 24 hours.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closed_thursday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Thursday closed flag.  1 - store is closed on Thursday. 0 - store is not closed on Thursday.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="opening_time_friday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Friday opening time in hours minutes (24 hour clock).  Default is &lt;default_open&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closing_time_friday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Friday closing time in hours minutes (24 hour clock).  Default is &lt;default_close&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="open_24_hr_friday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Friday open 24 hour flag. 1 - store is open 24 hours. 0 - store is not open 24 hours.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closed_friday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Friday closed flag.  1 - store is closed on Friday. 0 - store is not closed on Friday.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="opening_time_saturday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Saturday opening time in hours minutes (24 hour clock).  Default is &lt;default_open&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closing_time_saturday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Saturday closing time in hours minutes (24 hour clock).  Default is &lt;default_close&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="open_24_hr_saturday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Saturday open 24 hour flag. 1 - store is open 24 hours. 0 - store is not open 24 hours.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closed_saturday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Saturday closed flag.  1 - store is closed on Saturday. 0 - store is not closed on Saturday.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="opening_time_sunday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Sunday opening time in hours minutes (24 hour clock).  Default is &lt;default_open&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closing_time_sunday" type="Simple.time2400_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Sunday closing time in hours minutes (24 hour clock).  Default is &lt;default_close&gt;.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="open_24_hr_sunday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Sunday open 24 hour flag. 1 - store is open 24 hours. 0 - store is not open 24 hours.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="closed_sunday_ind" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Sunday closed flag.  1 - store is closed on Sunday. 0 - store is not closed on Sunday.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="schedule_locales" type="Complex.schedule_locales" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Encapsulates locale specific store information</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="schedule_type" type="Simple.schedule_type" use="required">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">Schedule type.  WEEKLY or DAILY.  Currently only WEEKLY is supported.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="operation" type="Simple.operation" use="optional">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">The operation to perform with the schedule data.  The operations are: UPSERT - Update or insert the schedule data. DELETE - delete the schedule data. The default if blank or null is to UPSERT the data.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Complex.storefront_locales">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Complex.storefront_locales complex type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="storefront_locale" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation xml:lang="en-US">Encapsulates store information for a single locale.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="location_name" type="Simple.location_name">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Name of the physical store or store location.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="address1" type="Simple.address_line_not_empty">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">address 1 line</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="address2" type="Simple.address_line" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">address 2 line</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="address3" type="Simple.address_line" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">address 3 line</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="address4" type="Simple.address_line" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">address 4 line</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="city" type="Simple.locale_city">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Locale -specific city name.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="operation" type="Simple.operation" use="optional">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">The operation to perform with the storefront_locale data.  The operations are: UPSERT - Update or insertthe storefront data. DELETE - delete the storefront data. The default if blank or null is to UPSERT the data.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="locale_code" type="Simple.locale_code" use="required">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">The locale of the locale specific storefront data.  Locale is a 2-character language_code followed by an underscore, followed by a 2-character country_code. ISO Language Codes are from: ISO 639-1:2002 Part 1: Alpha-2 Language Codes ISO Country Codes are from: ISO 3166-1:2006.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Complex.storefronts">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Complex.storefront complex type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="storefront" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation xml:lang="en-US"> Encapsulates data for a single physical store</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="storefront_effective_start_date" type="Simple.effective_date_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Not currently used in the store locator application.  Date to start using the storefront data.  Modified XML date format date with optional timezone in HH:MM format. YYYY-MM-DD[(+-)HH:MM] The element can also be empty.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="storefront_effective_end_date" type="Simple.effective_date_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Not currently used in the store locator application.  Date to end using the storefront data.  Modified XML date format date with optional timezone in HH:MM format. YYYY-MM-DD[(+-)HH:MM] The element can also be empty.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="latitude" type="Simple.latitude">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">The latitude of the store used for location mapping.
+Allowable Values:  Format is a decimal number (+-)NN.[NNNNNNN]
+Required: Yes
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="longitude" type="Simple.longitude">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">The longitude of the store used for location mapping.
+Allowable Values:  Format is a decimal number (+-)NN.[NNNNNNN]
+Required: Yes
+Length: TBD
+Default Value: blank
+Restrictions: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="status" type="Simple.status_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US"> Can be used to control store location display.  A - Active store that will be displayed I - Inactive store that will not be displayed. Default is A - Active.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="state_code" type="Simple.state_code" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">The state, province or other country sub-division code for the store address.
+Allowable Values: A valid code as specified by  ISO 3166-2 SUB-DIVISION/STATE CODE value without the ISO Country Code prefix. 
+Required: No
+Length: 20
+Default Value: blank
+Restrictions:  ISO 3166-2 SUB-DIVISION/STATE CODE value without the ISO Country Code prefix. 
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="country_code" type="ISOCountryCodeType">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Two digit country code. 
+Allowable Values: Text string
+Required: Yes
+Length: TBD
+Default Value: blank
+Restrictions: Use of  ISO 3166 alpha 2 code is recommended, but not required. See: http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2..
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="postal_code" type="Simple.postal_code">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Typically, the string of letters and/or numbers that more closely specifies the delivery area than just the City component alone, for example, the Zip Code in the U.S.
+Allowable Values: Text string
+Required: Yes
+Length: 10
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="email_address" type="Simple.email_address" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">The email address used to contact a specific store. 
+Allowable Values: Text string
+Required: Yes
+Length: 100
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="phone_number" type="Simple.phone_number" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Store Phone Number (unformatted).
+Allowable Values: Integer
+Required: No
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="fax_number" type="Simple.fax_number" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Store Fax number (unformatted).
+Allowable Values: Integer
+Required: No
+Length: 15
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="isp_eligible" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">In Store Pickup program eligibility.  1 - participating in program. 0 - Not participating in program.  Default - Not participating in program.
+</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="sfs_eligible" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Ship From Store program eligibility.    .
+Allowable Values: 
+1 - participating in program. 
+0 - Not participating in program.
+Required: No
+Length: TBD
+Default Value: 0
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="sts_eligible" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Ship To Store program eligibility.
+Allowable Values: 
+1 - participating in program. 
+0 - Not participating in program.
+Required: No
+Length: TBD
+Default Value: 0
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="inventory_check_eligible" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Inventory Lookup program eligibility. 
+Allowable Values: 
+1 - participating in program. 
+0 - Not participating in program.
+Required: No
+Length: TBD
+Default Value: 0
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="isp_reserve_eligible" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">In Store Pickup Reservation program eligibility. 
+Allowable Values: 
+1 - participating in program. 
+0 - Not participating in program.
+Required: No
+Length: TBD
+Default Value: 0
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="marker_image_id" type="Simple.marker_image_id">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Identifier to specify the map stickpin image.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timezone_raw_gmt_offset" type="Simple.decimal_timezone" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">The timezone offset from UTC expressed as a decimal number.  The range is constrained to be +14.00 to -13.00. The default is 0.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="timezone_uses_daylight_savings_time" type="Simple.boolean_or_empty" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Flag to indicate if the TZ uses daylight savings time.  The default is 0. (false TZ does not use daylight savings time)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="storefront_locales" type="Complex.storefront_locales">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Encapsulates locale specific store information.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="schedules" type="Complex.schedules" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Encapsulates all sets of hours of operation data for the store.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="attribs" type="Complex.attribs" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Encapsulates all attributes data for the store.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="storefront_types" type="Complex.storefront_types">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Encapsulates all storefront_type data for the store.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="location_code" type="Simple.location_code" use="required">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">Client's unique identifier for this storefront (physical store). 
+Allowable Values: Text string
+Required: Yes
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="storefront_id" type="xs:integer" use="optional">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">eBay Enterprise's unique identifier for this storefront (physical store) This attribute is for outbound store_locator files only.
+Allowable Values: Integer
+Required: No
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="operation" type="Simple.operation" use="optional">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">The operation to perform with the storefront data.  
+Allowable Values: 
+UPSERT - Update or insertthe storefront data. 
+DELETE - delete the storefront data. 
+Required: No
+Length: TBD
+Default Value: UPSERT
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="store_code" type="Simple.store_code" use="required">
+			<xs:annotation>
+				<xs:documentation>The identifier provided by eBay Enterprise for an individual or organization that has a contractual relationship with eBay Enterprise in which eBay Enterprise is providing e-commerce, fulfillment or other services. 
+Allowable Values: This code must start with an uppercase A-Z or 0-9 followed by any combination of alpahnumeric characters or underscores,
+Required: No
+Length: 32
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="environment" type="Simple.environment" use="required">
+			<xs:annotation>
+				<xs:documentation>The identifier to specify what type of database to be loaded. Examples are DEVELOPMENT, QA1, QA2, PRODUCTION.
+Allowable Values: Text string
+Required: No
+Length: 20
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="feed_update_type" type="Simple.feed_update_type" use="required">
+			<xs:annotation>
+				<xs:documentation>Defines how the feed is processed.
+Allowable Values: 
+FULL – all records in the datafile will be put in the database. Records not in the datafile will be removed from the database.
+DELTA - Database records will be updated/inserted or deleted based on the specified operation code.
+Required: Yes
+Length: TBD
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<!-- Define Elements -->
+	<xs:element name="StoreLocator">
+		<xs:annotation>
+			<xs:documentation>Root element , encapsulates the message for Store Locator.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="MessageHeader" type="MessageHeaderType">
+					<xs:annotation>
+						<xs:documentation>Encapsulates message Routing data.  The elements included in this grouping are standard across all messages.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="storefronts" type="Complex.storefronts">
+					<xs:annotation>
+						<xs:documentation xml:lang="en-US">Encapsulates data for a Client's physical stores.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

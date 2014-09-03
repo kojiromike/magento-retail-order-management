@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 (x64) (http://www.altova.com) by thomas lowery (private) -->
+<!-- added types for all elements -->
+<!-- 20110311 added Message Header and CommonTypes.xsd -->
+<!-- 20110321 added ISOCountryCodeType-V2006.xsd -->
+<!--          added complex types-->
+<!--          added annotation documentation for all elements and types -->
+<!-- 20120327 changed xs prefix to xsd -->
+<!-- 20120518 Added 'domain' attribute to role element -->
+<!-- 20120719 Removed 'domain' attribute to role element -->
+<!--          Added gsi_store_id attribute to the users element -->
+<!-- 20120723 Changed username element size to 30 -->
+<!-- 20120725 Removed Default and target namespace -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!-- Include schemas -->
+	<xsd:include schemaLocation="CommonTypes.xsd"/>
+	<!-- Define Simple Types -->
+	<xsd:simpleType name="Simple.attribute_name">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.attribute_name simple type.  Attributes are application specific name value pairs. The attribute_name is a string matching the pattern  "[A-Z][\w_]*". Starts with a capital letter followed by any combination of alpahnumeric characters and underscores. Simple.attribute_name is a string(20).</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="100"/>
+			<xsd:pattern value="[A-Z][\w_]*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.attribute_value">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.attribute_value simple type. Attributes are application specific name value pairs. The attribute value is a string. Simple.attribute_value is a string(1000).</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="1000"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.email_address">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.email_address simple type.  Simple.email_address is a string(100).</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="Simple.StringType.100"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.feed_update_type">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.feed_update_type simple type.  Simple.feed_update_type is a enumerated xsd:string. The enumerated values are "FULL" and "DELTA."</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="FULL"/>
+			<xsd:enumeration value="DELTA"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.first_name">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.first_name simple type.  Simple.first_name is a string(256) The first name is the first name of the person.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="256"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.full_name">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.full_name simple type.  Simple.full_name is a string(256) The full_name name is the full name of the person.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="256"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.last_name">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.last_name simple type.  Simple.last_name is a string(256) The last_name name is the last name of the person.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="256"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.operation">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.operation simple type.  Simple.operation is a string(10). Allowable values are Operation: UPSERT - update or insert the data; DELETE - delete the data or a blank or empty string.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:union>
+			<xsd:simpleType>
+				<xsd:restriction base="Simple.StringType.10">
+					<xsd:enumeration value="UPSERT"/>
+					<xsd:enumeration value="DELETE"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:token">
+					<xsd:enumeration value=""/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:union>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.password">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.password simple type.  Simple.password is a string(256) The password name is the password the person would use to login to an application.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="256"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.store_id">
+		<xsd:annotation>
+			<xsd:documentation> eBay Enterprise provided Store ID</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="Simple.StringType.32"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.user_name">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.user_name simple type.  Simple.user_name is a string(256) The user_name name is the user name a person would use to access an application.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="30"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Simple.user_id">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Simple.user_id simple type.  Simple.user_id is a string(256) The user_id is the user id a person would use to access an application.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="256"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!-- Define Complex Types -->
+	<xsd:complexType name="Complex.attributes">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US"> Encapsulates data the attrubute data.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="attribute" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en-US">Defines data for a single attribute.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="name" type="Simple.attribute_name">
+							<xsd:annotation>
+								<xsd:documentation xml:lang="en-US">Defines the name of the attribute.</xsd:documentation>
+							</xsd:annotation>
+						</xsd:element>
+						<xsd:element name="value" type="Simple.attribute_value">
+							<xsd:annotation>
+								<xsd:documentation xml:lang="en-US">Defines the value of the attribute.</xsd:documentation>
+							</xsd:annotation>
+						</xsd:element>
+					</xsd:sequence>
+					<xsd:attribute name="operation" type="Simple.operation" use="optional">
+						<xsd:annotation>
+							<xsd:documentation xml:lang="en-US">The operation to perform with the attribute data.  The operations are: UPSERT - Update or insertthe attibute data. DELETE - delete the attibute data. The default if blank or null is to UPSERT the data.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Complex.person_data">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Complex.person_data complex type.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="user_name" type="Simple.user_name">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en-US">Defines the name used to login into a computer system.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="full_name" type="Simple.full_name">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en-US">Defines the full name of a person.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="first_name" type="Simple.first_name" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en-US">Defines the first name of a person.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="last_name" type="Simple.last_name" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en-US">Defines the last name of a person.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="email_address" type="Simple.email_address">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en-US">Defines the email address of a person.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="operation" type="Simple.operation" use="optional">
+			<xsd:annotation>
+				<xsd:documentation xml:lang="en-US">The operation to perform with the person data.  The operations are: UPSERT - Update or insert the person data. DELETE - delete the person data. The default if blank or null is to UPSERT the data.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="Complex.role">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Complex.role simple type.  Complex.role is a string(256) The role is the role the person has w ccessing an application.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleContent>
+			<xsd:extension base="Simple.StringType.256">
+				<xsd:attribute name="operation" type="Simple.operation" use="optional">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en-US">The operation to perform with the role data.  The operations are: UPSERT - Update or insert the role data. DELETE - delete the role data. The default if blank or null is to UPSERT the data.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:complexType name="Complex.roles">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Complex.roles complex type.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="role" type="Complex.role" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en-US">Defines the role a person has in an application. i.e. role:"SNET STS Associate" defines a person with the role 'associate' in the application 'SNET STS'.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Complex.users">
+		<xsd:annotation>
+			<xsd:documentation xml:lang="en-US">Type definition for Complex.users complex type.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="user" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation xml:lang="en-US">Encapsulates data for a single user.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="person_data" type="Complex.person_data">
+							<xsd:annotation>
+								<xsd:documentation xml:lang="en-US">Encapsulates identification and contact data for a person.  The person_data defines the name and email address for an individual</xsd:documentation>
+							</xsd:annotation>
+						</xsd:element>
+						<xsd:element name="roles" type="Complex.roles">
+							<xsd:annotation>
+								<xsd:documentation xml:lang="en-US">Encapsulates all the roles assigned to a person. </xsd:documentation>
+							</xsd:annotation>
+						</xsd:element>
+						<xsd:element name="password" type="Simple.password">
+							<xsd:annotation>
+								<xsd:documentation xml:lang="en-US">Password is the password for the user to login to an application.</xsd:documentation>
+							</xsd:annotation>
+						</xsd:element>
+						<xsd:element name="attributes" type="Complex.attributes" minOccurs="0">
+							<xsd:annotation>
+								<xsd:documentation xml:lang="en-US">Encapsulates all attributes for applications a person can access.</xsd:documentation>
+							</xsd:annotation>
+						</xsd:element>
+					</xsd:sequence>
+					<xsd:attribute name="user_id" type="Simple.user_id" use="required">
+						<xsd:annotation>
+							<xsd:documentation xml:lang="en-US">Client's unique identifier for this user.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="operation" type="Simple.operation" use="optional">
+						<xsd:annotation>
+							<xsd:documentation xml:lang="en-US">The operation to perform with the user data.  The operations are: UPSERT - Update or insert the user data. DELETE - delete the user data. The default if blank or null is to UPSERT the data.</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="gsi_client_id" type="Simple.ClientID.Type" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The identifier provided by eBay Enterprise for an individual or organization that has a contractual relationship with eBay Enterprise in which eBay Enterprise is providing e-commerce, fulfillment or other services for the individual or organization.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="gsi_store_id" type="Simple.store_id" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The identifier provided by eBay Enterprise for a specific store within a eBay Enterprise Client.  Clients can have multiple Stores.  i.e. Client TMSNA (The Model Store North America) has 2 stores TMSUS and TMSCA (United States and Canada).</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="feed_update_type" type="Simple.feed_update_type" use="required">
+			<xsd:annotation>
+				<xsd:documentation>The type of feed. Either FULL feed - Insert/update all records in the database with records from the file. Deleted any database entries not in the file.  DELTA - Insert/update/delete all entries in the database with those in the file.  Delete only those records with delete operation codes in the data file.</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<!-- Define Elements -->
+	<xsd:element name="MultichannelUserFeed">
+		<xsd:annotation>
+			<xsd:documentation>Root element , encapsulates the message for UserFeed.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="MessageHeader" type="MessageHeaderType">
+					<xsd:annotation>
+						<xsd:documentation>Encapsulates message Routing data.  The elements included in this grouping are standard across all messages.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="users" type="Complex.users">
+					<xsd:annotation>
+						<xsd:documentation xml:lang="en-US">Encapsulates data for a list of users.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2013 rel. 2 sp2 (x64) (http://www.altova.com) by Thomas Lowery (private) -->
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:cc="http://www.tm-xml.org/XMLSchema/common" elementFormDefault="qualified" attributeFormDefault="qualified">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:cc="http://www.tm-xml.org/XMLSchema/common" elementFormDefault="qualified" attributeFormDefault="qualified" version="1.1">
 	<xsd:annotation>
 		<xsd:documentation xml:lang="en-US">x`</xsd:documentation>
-		<xsd:documentation>$Id: CommonTypes.xsd 452 2014-02-05 16:29:02Z loweryt $</xsd:documentation>
-		<xsd:documentation>$URL: http://svn.gspt.net/phx/ph-schemas/branches/Thor(NGP1_0_0)/XSD/CommonTypes.xsd $</xsd:documentation>
+		<xsd:documentation>$Id$</xsd:documentation>
+		<xsd:documentation>$URL$</xsd:documentation>
+		<xsd:documentation>2014-03-25-MVV- Added - Simple.StringType.40 for FulfillmentOverride for Enhanced Order Brokering Feature- US8100</xsd:documentation>
+		<xsd:documentation>2014-05-12-MVV- Added - Restrictions for StoreNet and VendorNet.</xsd:documentation>
 	</xsd:annotation>
 	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="common.xsd"/>
 	<xsd:include schemaLocation="external/ISOCountryCodeType-V2006.xsd"/>
@@ -65,14 +67,14 @@ Aliases: N/A</xsd:documentation>
 	</xsd:attribute>
 	<xsd:attribute name="catalog_id">
 		<xsd:annotation>
-			<xsd:documentation>This GSI-assigned value specifies to which catalog an item belongs. An item may belong to only one catalog. Used to cross category link products. 
+			<xsd:documentation>This eBay Enterprise-assigned value specifies to which catalog an item belongs. An item may belong to only one catalog. Used to cross category link products. 
 
 Offering: Magento, SOMS, Interfaces and Tools
 Allowable Values: Text string
 Required: Yes
 Length: 4
 Default Value: blank
-Restrictions: The catalog ID must exist in the GSI system.
+Restrictions: The catalog ID must exist in the eBay Enterprise system.
 Aliases: N/A
 </xsd:documentation>
 		</xsd:annotation>
@@ -136,9 +138,9 @@ Aliases: N/A
 			</xsd:extension>
 		</xsd:simpleContent>
 	</xsd:complexType>
-	<xsd:complexType mixed="true" name="Complex.StringType.Description.OperationType">
+	<xsd:complexType name="Complex.StringType.Description.OperationType" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Complrex String Description length 4000 - Lang Support</xsd:documentation>
+			<xsd:documentation>Complrex String Description length 4000 - Lang Support.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:simpleContent>
 			<xsd:extension base="Simple.StringType.Description.Value">
@@ -161,7 +163,7 @@ Aliases: N/A.</xsd:documentation>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.StyleType.StyleID" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Complex String for String for Style ID</xsd:documentation>
+			<xsd:documentation>Complex String for String for Style ID.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:simpleContent>
 			<xsd:extension base="Simple.StringType.15"/>
@@ -169,7 +171,7 @@ Aliases: N/A.</xsd:documentation>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.StringType.PriceEvent.Description" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Complex String for Long Title  - Localized Support</xsd:documentation>
+			<xsd:documentation>Complex String for Long Title  - Localized Support.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:simpleContent>
 			<xsd:restriction base="Complex.StringType.Title">
@@ -181,7 +183,7 @@ Aliases: N/A.</xsd:documentation>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.StringType.PriceEvent.ID" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Complex String for ID  - Localized Support</xsd:documentation>
+			<xsd:documentation>Complex String for ID  - Localized Support.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:simpleContent>
 			<xsd:restriction base="Complex.StringType.Title">
@@ -193,7 +195,7 @@ Aliases: N/A.</xsd:documentation>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.StringType.LongTitle" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Complex String for Long Title  - Localized Support</xsd:documentation>
+			<xsd:documentation>Complex String for Long Title  - Localized Support.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:simpleContent>
 			<xsd:restriction base="Complex.StringType.Title">
@@ -205,7 +207,7 @@ Aliases: N/A.</xsd:documentation>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.StringType.Title" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Complex String Title  - Localized Support</xsd:documentation>
+			<xsd:documentation>Complex String Title  - Localized Support.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:simpleContent>
 			<xsd:extension base="Complex.StringType.Description"/>
@@ -213,7 +215,7 @@ Aliases: N/A.</xsd:documentation>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.StringType.Measure" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Complex String Title  - Localized Support</xsd:documentation>
+			<xsd:documentation>Complex String Title  - Localized Support.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:simpleContent>
 			<xsd:extension base="Simple.StringType.15">
@@ -223,7 +225,7 @@ Aliases: N/A.</xsd:documentation>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.StringType.ItemDimension" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Item Dimension  - Localized Support</xsd:documentation>
+			<xsd:documentation>Item Dimension  - Localized Support.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:all>
 			<xsd:element name="Width" type="Complex.DecimalType">
@@ -272,7 +274,7 @@ cm
 Required: Yes
 Length: 3
 Default Value: blank
-Restrictions: N/A
+Restrictions: StoreNet and VendorNet can only support a single UOM per catalog for all items.
 Aliases: N/A
 Offering: Magento, SOMS, Interfaces and Tools</xsd:documentation>
 			</xsd:annotation>
@@ -290,7 +292,7 @@ Allowable Values: Deciman
 Required: Yes
 Length: TBD
 Default Value: blank
-Restrictions: N/A
+Restrictions: StoreNet requires the weight for all SFS eligible products. StoreNet and VendorNet can only support a single UOM per catalog for all items.
 Aliases: N/A
 
 Offering: Magento, SOMS, Interfaces and Tools</xsd:documentation>
@@ -306,7 +308,7 @@ kg
 Required: Yes
 Length: 5
 Default Value: blank
-Restrictions: N/A
+Restrictions: StoreNet and VendorNet can only support a single UOM per catalog for all items.
 Aliases: N/A
 
 
@@ -336,7 +338,7 @@ Length: 15
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore
+Offering: Exchange Platform, Webstore
 </xsd:documentation>
 				</xsd:annotation>
 				<xsd:complexType>
@@ -350,20 +352,20 @@ Offering: EB2C, Webstore
 		</xsd:sequence>
 		<xsd:attribute name="name" type="Simple.StringType.132">
 			<xsd:annotation>
-				<xsd:documentation>The name of the attribute.  Warning - No validation is completed on this name.  It's possible to add a new attribute without additional changes to the feed however the attribute may not be usable by downstream systems
+				<xsd:documentation>The name of the attribute.  Warning - No validation is completed on this name.  It's possible to add a new attribute without additional changes to the feed however the attribute may not be usable by downstream systems. 
 Allowable Values: Text string
 Required: No
 Length: 132
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore.</xsd:documentation>
+Offering: Exchange Platform, Webstore.</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.Custom.Attribute" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Complex String  Custom Attribute</xsd:documentation>
+			<xsd:documentation>Complex String  Custom Attribute.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
 			<xsd:element name="Value" maxOccurs="unbounded">
@@ -373,7 +375,7 @@ Allowable Values: Text string
 Required: Yes
 Length: 4000
 Default Value: blank
-Restrictions: N/A
+Restrictions: StoreNet and VendorNet can only support upto 100 chars.
 Aliases: N/A 
 Offering: Magento, SOMS,   Interfaces and Tools</xsd:documentation>
 				</xsd:annotation>
@@ -391,7 +393,7 @@ Allowable Values: Text string
 Required: Yes
 Length: 256
 Default Value: blank
-Restrictions: N/A
+Restrictions: StoreNet and VendorNet can only support upto 50 chars.
 Aliases: N/A
 Offering: Magento,  SOMS, Interfaces and Tools</xsd:documentation>
 			</xsd:annotation>
@@ -477,29 +479,29 @@ Offering: Magento, Interfaces and Tools</xsd:documentation>
 		<xsd:sequence>
 			<xsd:element name="Code">
 				<xsd:annotation>
-					<xsd:documentation>Allowable Values: Text string
+					<xsd:documentation>Allowable Values: Text string.
 Required: Yes
-Length: 4000
+Length: 40
 Default Value: blank
 Restrictions: N/A</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
-					<xsd:restriction base="Simple.StringType.Description.Value">
+					<xsd:restriction base="Simple.StringType.40">
 						<xsd:minLength value="1"/>
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:element>
 			<xsd:element name="Description">
 				<xsd:annotation>
-					<xsd:documentation>Allowable Values: Text string
+					<xsd:documentation>Allowable Values: Text string.
 Required: Yes
-Length: 4000
+Length: 255
 Default Value: blank
 Restrictions: N/A
 Offering: Magento,  SOMS, Interfaces and Tools</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
-					<xsd:restriction base="Simple.StringType.Description.Value">
+					<xsd:restriction base="Simple.StringType.255">
 						<xsd:minLength value="1"/>
 					</xsd:restriction>
 				</xsd:simpleType>
@@ -607,12 +609,12 @@ Offering: Magento, Interfaces and Tools</xsd:documentation>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.Attributes.Extended" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Extended attributes that are not required however default values exist</xsd:documentation>
+			<xsd:documentation>Extended attributes that are not required however default values exist.</xsd:documentation>
 		</xsd:annotation>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.Attributes.Base" mixed="true">
 		<xsd:annotation>
-			<xsd:documentation>Base attributes that are required (mandatory) by feed</xsd:documentation>
+			<xsd:documentation>Base attributes that are required (mandatory) by feed.</xsd:documentation>
 		</xsd:annotation>
 	</xsd:complexType>
 	<xsd:complexType name="Complex.GTIN.Type">
@@ -622,12 +624,12 @@ Offering: Magento, Interfaces and Tools</xsd:documentation>
 		<xsd:sequence>
 			<xsd:element name="IdNumber">
 				<xsd:annotation>
-					<xsd:documentation>The actual value of the ID.
-vAllowable Values: Text string
+					<xsd:documentation>The actual value of the ID. 
+Allowable Values: Text string
 Required: Yes
 Length: 18
 Default Value: blank
-Restrictions: N/A
+Restrictions: StoreNet and VendorNet can only support upto 14 chars.
 Aliases: N/A
 Offering: Magento, SOMS, Interfaces and Tools</xsd:documentation>
 				</xsd:annotation>
@@ -641,7 +643,7 @@ Offering: Magento, SOMS, Interfaces and Tools</xsd:documentation>
 		</xsd:sequence>
 		<xsd:attribute name="IdType">
 			<xsd:annotation>
-				<xsd:documentation>Specifies the type of GTIN number:
+				<xsd:documentation>Specifies the type of GTIN number. 
 Allowable Values: 
 UPC - Universal Product Code - United States
 IAN - International Article Number - Europe
@@ -659,9 +661,26 @@ Offering: Magento, SOMS, Interfaces and Tools</xsd:documentation>
 				</xsd:restriction>
 			</xsd:simpleType>
 		</xsd:attribute>
+		<xsd:attribute name="UPCType">
+			<xsd:annotation>
+				<xsd:documentation>This defines the sub Type for an UPC when IdType = "UPC" . Some of the values are  "P" - Primary UPC in ebay enterprise fulfilled warehouses, "D" -  fulfilled by Dropship Vendors, "A" - Alternate UPC. "D" and "A" are sent by clients and "P" by ebay enterprise warehouses. 
+				Note: clients should not send UPCType = "P". 
+Allowable Values: Text string
+Required: No
+Length: 12
+Default Value: A
+Restrictions: N/A
+Offering: Magento, SOMS, Interfaces and Tools</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="Simple.StringType.12">
+					<xsd:whiteSpace value="collapse"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
 		<xsd:attribute name="operation_type" default="Add">
 			<xsd:annotation>
-				<xsd:documentation>Specifies if you are adding or deleiting a GTIN-related item id.
+				<xsd:documentation>Specifies if you are adding or deleiting a GTIN-related item ID. 
 Allowable Values: 
 Add
 Delete
@@ -691,7 +710,7 @@ Allowable Values: Text string
 Required: No
 Length: 50
 Default Value: blank
-Restrictions: N/A
+Restrictions: StoreNet and VendorNet can only support upto 30 chars.
 Aliases: N/A
 
 Offering: Magento, SOMS, Interfaces and Tools</xsd:documentation>
@@ -730,7 +749,7 @@ Length: 50
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 			</xsd:element>
 			<xsd:element name="BuyerId" type="Simple.StringType.50" minOccurs="0">
@@ -742,7 +761,7 @@ Length: 50
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 			</xsd:element>
 		</xsd:sequence>
@@ -758,7 +777,7 @@ Length: 50
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 			</xsd:element>
 			<xsd:element name="SupplierId" type="Simple.StringType.50" minOccurs="0">
@@ -770,7 +789,7 @@ Length: 50
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 			</xsd:element>
 		</xsd:sequence>
@@ -786,7 +805,7 @@ Length: 20
 Default Value: blank
 Restrictions: In cases when the Product Hub or Fulfillment Hub originates the message, this field is the unique Business Process ID (BPID). 
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="Simple.StringType.20">
@@ -803,7 +822,7 @@ Length: 20
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="Simple.StringType.20">
@@ -840,7 +859,7 @@ Length: 10
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="Simple.StringType.10">
@@ -857,7 +876,7 @@ Length: 10
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="Simple.StringType.10">
@@ -874,7 +893,7 @@ Length: 15
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="Simple.StringType.15">
@@ -897,7 +916,7 @@ Length: 35
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore.</xsd:documentation>
+Offering: Exchange Platform, Webstore.</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="Simple.StringType.35">
@@ -907,7 +926,7 @@ Offering: EB2C, Webstore.</xsd:documentation>
 			</xsd:element>
 			<xsd:element name="MessageData" type="Complex.Message.Data.Type">
 				<xsd:annotation>
-					<xsd:documentation>Encapsulates message identification information unique to the GSI Xchange.</xsd:documentation>
+					<xsd:documentation>Encapsulates message identification information unique to the eBay Enterprise Xchange.</xsd:documentation>
 				</xsd:annotation>
 			</xsd:element>
 			<xsd:element name="CreateDateAndTime" type="Simple.DateTime.Type">
@@ -919,7 +938,7 @@ Length: Follows ISO 8601 standard with offset from UTC.
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore.  </xsd:documentation>
+Offering: Exchange Platform, Webstore.  </xsd:documentation>
 				</xsd:annotation>
 			</xsd:element>
 		</xsd:sequence>
@@ -935,7 +954,7 @@ Length: 20
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="Simple.StringType.20">
@@ -954,7 +973,7 @@ Length: 10
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="Simple.StringType.20">
@@ -975,7 +994,7 @@ Length: 20
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="Simple.StringType.20">
@@ -995,7 +1014,7 @@ Length: 10
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A
-Offering: EB2C, Webstore</xsd:documentation>
+Offering: Exchange Platform, Webstore</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
 					<xsd:restriction base="Simple.StringType.20">
@@ -1008,7 +1027,7 @@ Offering: EB2C, Webstore</xsd:documentation>
 	<xsd:simpleType name="Simple.ClientID.Type">
 		<xsd:annotation>
 			<xsd:documentation> 
-The identifier provided by GSI for an individual or organization that has a contractual relationship with GSI in which GSI is providing e-commerce, fulfillment or other services for the individual or organization.  			
+The identifier provided by eBay Enterprise for an individual or organization that has a contractual relationship with eBay Enterprise in which eBay Enterprise is providing e-commerce, fulfillment or other services for the individual or organization.  			
 			</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType.32"/>
@@ -1045,7 +1064,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.DateTime.Type">
 		<xsd:annotation>
-			<xsd:documentation>Date and Timestamp using yyyy-mm-dd'T'hh:mm:ss-hh:mm</xsd:documentation>
+			<xsd:documentation>Date and Timestamp using yyyy-mm-dd'T'hh:mm:ss-hh:mm.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="xsd:dateTime"/>
 	</xsd:simpleType>
@@ -1067,7 +1086,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.4012">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 4012</xsd:documentation>
+			<xsd:documentation>Simple String max length of 4012.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1076,7 +1095,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.4000">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 4000</xsd:documentation>
+			<xsd:documentation>Simple String max length of 4000.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1085,7 +1104,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.462">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 462</xsd:documentation>
+			<xsd:documentation>Simple String max length of 462.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1094,16 +1113,25 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.256">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 256</xsd:documentation>
+			<xsd:documentation>Simple String max length of 256.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
 			<xsd:maxLength value="256"/>
 		</xsd:restriction>
 	</xsd:simpleType>
+	<xsd:simpleType name="Simple.StringType.255">
+		<xsd:annotation>
+			<xsd:documentation>Simple String max length of 255.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="Simple.StringType">
+			<xsd:minLength value="0"/>
+			<xsd:maxLength value="255"/>
+		</xsd:restriction>
+	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.132">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 132</xsd:documentation>
+			<xsd:documentation>Simple String max length of 132.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1112,7 +1140,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.100">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 100</xsd:documentation>
+			<xsd:documentation>Simple String max length of 100.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1121,7 +1149,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.72">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 72</xsd:documentation>
+			<xsd:documentation>Simple String max length of 72.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1130,7 +1158,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.50">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 50</xsd:documentation>
+			<xsd:documentation>Simple String max length of 50.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1139,16 +1167,25 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.35">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 35</xsd:documentation>
+			<xsd:documentation>Simple String max length of 35.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
 			<xsd:maxLength value="35"/>
 		</xsd:restriction>
 	</xsd:simpleType>
+	<xsd:simpleType name="Simple.StringType.40">
+		<xsd:annotation>
+			<xsd:documentation>Simple String max length of 40.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="Simple.StringType">
+			<xsd:minLength value="0"/>
+			<xsd:maxLength value="40"/>
+		</xsd:restriction>
+	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.36">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 36</xsd:documentation>
+			<xsd:documentation>Simple String max length of 36.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1157,7 +1194,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.32">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 32</xsd:documentation>
+			<xsd:documentation>Simple String max length of 32.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1166,7 +1203,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.30">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 30</xsd:documentation>
+			<xsd:documentation>Simple String max length of 30.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1175,7 +1212,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.25">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 25</xsd:documentation>
+			<xsd:documentation>Simple String max length of 25.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1184,7 +1221,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.20">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 20</xsd:documentation>
+			<xsd:documentation>Simple String max length of 20.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1193,7 +1230,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.15">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 15</xsd:documentation>
+			<xsd:documentation>Simple String max length of 15.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1202,7 +1239,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.12">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 12</xsd:documentation>
+			<xsd:documentation>Simple String max length of 12.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1211,7 +1248,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.11">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 11</xsd:documentation>
+			<xsd:documentation>Simple String max length of 11.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1220,7 +1257,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.10">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 10</xsd:documentation>
+			<xsd:documentation>Simple String max length of 10.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1229,7 +1266,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.9">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 9</xsd:documentation>
+			<xsd:documentation>Simple String max length of 9.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1238,7 +1275,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.7">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 7</xsd:documentation>
+			<xsd:documentation>Simple String max length of 7.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1247,16 +1284,25 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.5">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 5</xsd:documentation>
+			<xsd:documentation>Simple String max length of 5.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
 			<xsd:maxLength value="5"/>
 		</xsd:restriction>
 	</xsd:simpleType>
+	<xsd:simpleType name="Simple.StringType.4">
+		<xsd:annotation>
+			<xsd:documentation>Simple String max length of 3.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="Simple.StringType">
+			<xsd:minLength value="0"/>
+			<xsd:maxLength value="4"/>
+		</xsd:restriction>
+	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.3">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 3</xsd:documentation>
+			<xsd:documentation>Simple String max length of 3.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1265,7 +1311,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.2">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 2</xsd:documentation>
+			<xsd:documentation>Simple String max length of 2.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>
@@ -1274,7 +1320,7 @@ The identifier provided by GSI for an individual or organization that has a cont
 	</xsd:simpleType>
 	<xsd:simpleType name="Simple.StringType.1">
 		<xsd:annotation>
-			<xsd:documentation>Simple String max length of 1</xsd:documentation>
+			<xsd:documentation>Simple String max length of 1.</xsd:documentation>
 		</xsd:annotation>
 		<xsd:restriction base="Simple.StringType">
 			<xsd:minLength value="0"/>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 (x64) (http://www.altova.com) by thomas lowery (private) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="CommonTypes.xsd"/>
+	<!-- Define Simple Types -->
+	<xs:simpleType name="Simple.associate_id">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.associate_id simple type.  Simple.associate_id is a string(20) Matching the pattern: "[A-Za-z0-9\-\w]*" of any combination of alpahnumeric characters, dashes and underscores.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="20"/>
+			<xs:pattern value="[A-Za-z0-9\-_]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.name">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.name simple type. Simple.name tag is a string(50). Matching the pattern: "[A-Za-z0-9\-\w]*" of any combination of alpahnumeric characters, dashes and whitespaces.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="50"/>
+			<xs:pattern value="[A-Za-z0-9\-\w]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.store_id">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US"/>
+		</xs:annotation>
+		<xs:union>
+			<xs:simpleType>
+				<xs:restriction base="Simple.StringType.20">
+					<xs:pattern value="[A-Za-z0-9\-_]*"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.environment">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.environment simple type.  Simple.environment is a string(20) The identifier to specify what type of database to be loaded. Examples are DEVELOPMENT, QA1, QA2, PRODUCTION.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="Simple.StringType.20"/>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.feed_update_type">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.feed_update_type simple type.  Simple.feed_update_type is a enumerated xs:string. The enumerated values are "full" and "delta."</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="FULL"/>
+			<xs:enumeration value="DELTA"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="Simple.operation">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Simple.operation simple type.  Simple.operation is a string(10). Allowable values are Operation: UPSERT - update or insert the data; DELETE - delete the data or a blank or empty string.</xs:documentation>
+		</xs:annotation>
+		<xs:union>
+			<xs:simpleType>
+				<xs:restriction base="Simple.StringType.10">
+					<xs:enumeration value="UPSERT"/>
+					<xs:enumeration value="DELETE"/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+	<!-- Define Elements -->
+	<xs:element name="AssociateOrdingSystemUsers">
+		<xs:annotation>
+			<xs:documentation>Root element: encapsulates the message for AssociateOrderingSystemUsers.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="MessageHeader" type="MessageHeaderType">
+					<xs:annotation>
+						<xs:documentation>Encapsulates message Routing data.  The elements included in this grouping are standard across all messages.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="associates" type="Complex.associates" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation xml:lang="en-US">Encapsulates data for a Client's AOS Users.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- Define Complex Types -->
+	<xs:complexType name="Complex.associates">
+		<xs:annotation>
+			<xs:documentation xml:lang="en-US">Type definition for Complex.associate complex type.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="associate" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation xml:lang="en-US"> Encapsulates data for a single associate.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="associate_id" type="Simple.associate_id">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">Client-defined ID for the associate.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="first_name" type="Simple.name">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">The Associate's first name.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="last_name" type="Simple.name">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">The Associate's first name.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="store_id" type="Simple.store_id" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation xml:lang="en-US">The store ID for the associate.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="operation" type="Simple.operation" use="optional">
+						<xs:annotation>
+							<xs:documentation xml:lang="en-US">The operation to perform with the associate data.  The operations are: UPSERT - Update or insert the associate data. DELETE - delete the associate data. The default if blank or null is to UPSERT the data.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="gsi_client_id" type="Simple.ClientID.Type" use="required">
+			<xs:annotation>
+				<xs:documentation>The identifier provided by eBay Enterprise for an individual or organization that has a contractual relationship with eBay Enterprise in which eBay Enterprise is providing e-commerce, fulfillment or other services for the individual or organization.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="environment" type="Simple.environment" use="optional">
+			<xs:annotation>
+				<xs:documentation>The identifier to specify what type of database to be loaded. Examples are DEVELOPMENT, QA1, QA2, PRODUCTION.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="feed_update_type" type="Simple.feed_update_type" use="required">
+			<xs:annotation>
+				<xs:documentation>The type of feed. Either full feed - Insert/update all records in the database with records from the file. Deleted any database entries not in the file.  Delta - Insert/update/delete all entries in the database with those in the file.  Delete only those records with delete operation codes in the data file.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+</xs:schema>

@@ -301,8 +301,8 @@
 				<outbound>
 					<message_header>
 						<standard>GSI</standard>
-						<header_version>NGP1_0_0</header_version>
-						<version_release_number>NGP1_0_0</version_release_number>
+						<header_version>NGP1_1_0</header_version>
+						<version_release_number>NGP1_1_0</version_release_number>
 						<destination_id>PHUB</destination_id>
 						<destination_type>PHUB</destination_type>
 						<source_type>Client</source_type>

@@ -601,4 +601,13 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', $value));
 	}
+	/**
+	 * Generate a unique request id with a given prefix.
+	 * @param string $prefix
+	 * @return string
+	 */
+	public function generateRequestId($prefix='')
+	{
+		return uniqid($prefix);
+	}
 }

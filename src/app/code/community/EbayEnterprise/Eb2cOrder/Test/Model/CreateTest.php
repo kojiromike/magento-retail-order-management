@@ -442,14 +442,8 @@ INVALID_XML;
 	 */
 	public function testBuildOrderCreateRequest()
 	{
-		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
-			->setMethods(array('_getRequestId'))
-			->getMock();
-		$createModelMock->expects($this->once())
-			->method('_getRequestId')
-			->will($this->returnValue('12838-383848-944'));
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($createModelMock, '_domRequest', Mage::helper('eb2ccore')->getNewDomDocument());
+		$create = Mage::getModel('eb2corder/create');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_domRequest', Mage::helper('eb2ccore')->getNewDomDocument());
 		$helperMock = $this->getHelperMock('eb2corder/data', array('getConfigModel'));
 		$helperMock->expects($this->any())
 			->method('getConfigModel')
@@ -462,7 +456,7 @@ INVALID_XML;
 
 		$this->assertInstanceOf(
 			'EbayEnterprise_Dom_Element',
-			EcomDev_Utils_Reflection::invokeRestrictedMethod($createModelMock, '_buildOrderCreateRequest')
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildOrderCreateRequest')
 		);
 	}
 	/**
@@ -819,7 +813,8 @@ INVALID_XML;
 			'method' => 'Paypal_express',
 			'created_at' => '2012-07-06 10:09:05',
 			'amount_authorized' => 50.00,
-			'cc_status' => 'success'
+			'cc_status' => 'success',
+			'additional_information' => array('request_id' => 'PAYMENT_REQUEST_ID_12345'),
 		));
 
 		$order = $this->getModelMockBuilder('sales/order')
@@ -861,6 +856,7 @@ INVALID_XML;
 		$svcPan = '1234567890';
 		$svcPanToken = 'abcdefghij';
 		$svcPin = '1234';
+		$svcRequestId = 'REQUEST_ID_12345';
 		$svcTenderType = 'SV';
 		$gcAmount = 29.99;
 		$paymentCreatedAt = '2014-01-01T01:00:00';
@@ -894,7 +890,7 @@ INVALID_XML;
 			false,
 			array(array(
 				'increment_id' => $orderIncrementId, 'gift_cards_amount' => $gcAmount,
-				'gift_cards' => serialize(array(array('pan' => $svcPan, 'panToken' => $svcPanToken, 'pin' => $svcPin)))
+				'gift_cards' => serialize(array(array('pan' => $svcPan, 'panToken' => $svcPanToken, 'pin' => $svcPin, 'requestId' => $svcRequestId)))
 			))
 		);
 		$order->expects($this->any())
@@ -907,8 +903,8 @@ INVALID_XML;
 
 		$resultDoc = new DOMDocument();
 		$resultDoc->loadXML(sprintf(
-			'<?xml version="1.0"?><root><StoredValueCard><PaymentContext><PaymentSessionId>%1$s</PaymentSessionId><TenderType>%2$s</TenderType><PaymentAccountUniqueId isToken="true">%3$s</PaymentAccountUniqueId></PaymentContext><CreateTimeStamp>%5$s</CreateTimeStamp><Pin>%6$s</Pin><Amount>%4$.2f</Amount></StoredValueCard></root>',
-			$orderIncrementId, $svcTenderType, $svcPanToken, $gcAmount, $paymentCreatedAt, $svcPin
+			'<?xml version="1.0"?><root><StoredValueCard><PaymentContext><PaymentSessionId>%1$s</PaymentSessionId><TenderType>%2$s</TenderType><PaymentAccountUniqueId isToken="true">%3$s</PaymentAccountUniqueId></PaymentContext><PaymentRequestId>%7$s</PaymentRequestId><CreateTimeStamp>%5$s</CreateTimeStamp><Pin>%6$s</Pin><Amount>%4$.2f</Amount></StoredValueCard></root>',
+			$orderIncrementId, $svcTenderType, $svcPanToken, $gcAmount, $paymentCreatedAt, $svcPin, $svcRequestId
 		));
 		$this->assertSame(
 			$resultDoc->C14N(),
@@ -983,6 +979,20 @@ INVALID_XML;
 		$this->assertSame(
 			$svcPin,
 			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getOrderGiftCardPin', array($order))
+		);
+	}
+	/**
+	 * Test getting the request id from the order gift card data.
+	 */
+	public function testGetOrderGiftCardRequestId()
+	{
+		$svcRequestId = 'REQUEST_ID_12345';
+		$gcData = array('requestId' => $svcRequestId);
+		$order = Mage::getModel('sales/order', array('gift_cards' => serialize(array($gcData))));
+		$create = Mage::getModel('eb2corder/create');
+		$this->assertSame(
+			$svcRequestId,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getOrderGiftCardRequestId', array($order))
 		);
 	}
 	public function provideForTestGetOrderSource()

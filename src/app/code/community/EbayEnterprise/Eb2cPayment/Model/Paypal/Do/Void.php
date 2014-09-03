@@ -16,6 +16,17 @@
 class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Void
 	extends EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 {
+	const REQUEST_ID_PREFIX = 'PDV-';
+	/** @var string $_requestId Request id of the last message sent */
+	protected $_requestId;
+	/**
+	 * Get the request id used for the last Do Authorization request message sent.
+	 * @return string
+	 */
+	public function getRequestId()
+	{
+		return $this->_requestId;
+	}
 	/**
 	 * Do paypal void from eb2c.
 	 *
@@ -42,9 +53,10 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Void
 	 */
 	public function buildPayPalDoVoidRequest($quote)
 	{
+		$this->_requestId = $this->_coreHelper->generateRequestId(self::REQUEST_ID_PREFIX);
 		$domDocument = $this->_coreHelper->getNewDomDocument();
 		$payPalDoVoidRequest = $domDocument->addElement('PayPalDoVoidRequest', null, $this->_xmlNs)->firstChild;
-		$payPalDoVoidRequest->setAttribute('requestId', $this->_helper->getRequestId($quote->getEntityId()));
+		$payPalDoVoidRequest->setAttribute('requestId', $this->_requestId);
 		$payPalDoVoidRequest->createChild(
 			'OrderId',
 			(string) $quote->getEntityId()

@@ -27,12 +27,17 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 		$pin = '4321';
 		$quoteId = 3;
 		$amt = 50.50;
+		$requestId = 'REQUEST_ID_12345';
 		$isVoid = true;
 
 		$requestMessage = new DOMDocument();
 		$responseMessage = '<MockResponse/>';
 		$responseData = array();
 
+		$coreHelperMock = $this->getHelperMock('eb2ccore/data', array('generateRequestId'));
+		$coreHelperMock->expects($this->once())
+			->method('generateRequestId')
+			->will($this->returnValue($requestId));
 		$helperMock = $this->getHelperMock('eb2cpayment/data', array('buildRedeemRequest'));
 		$helperMock->expects($this->once())
 			->method('buildRedeemRequest')
@@ -41,14 +46,16 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 				$this->identicalTo($pin),
 				$this->identicalTo($quoteId),
 				$this->identicalTo($amt),
+				$this->identicalTo($requestId),
 				$this->identicalTo($isVoid)
 			)
 			->will($this->returnValue($requestMessage));
-		$this->replaceByMock('helper', 'eb2cpayment', $helperMock);
 
 		$voidRequest = $this->getModelMock(
 			'eb2cpayment/storedvalue_redeem_void',
-			array('_parseResponse', '_makeVoidRequest')
+			array('_parseResponse', '_makeVoidRequest'),
+			false,
+			array(array('core_helper' => $coreHelperMock, 'payment_helper' => $helperMock))
 		);
 		$voidRequest->expects($this->once())
 			->method('_parseResponse')

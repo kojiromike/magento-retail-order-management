@@ -16,6 +16,17 @@
 class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Authorization
 	extends EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 {
+	const REQUEST_ID_PREFIX = 'PDA-';
+	/** @var string $_requestId Request id of the last message sent */
+	protected $_requestId;
+	/**
+	 * Get the request id used for the last Do Authorization request message sent.
+	 * @return string
+	 */
+	public function getRequestId()
+	{
+		return $this->_requestId;
+	}
 	/**
 	 * Do paypal Authorization from eb2c.
 	 *
@@ -43,9 +54,10 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Authorization
 	public function buildPayPalDoAuthorizationRequest($quote)
 	{
 		$totals = $quote->getTotals();
+		$this->_requestId = $this->_coreHelper->generateRequestId(self::REQUEST_ID_PREFIX);
 		$domDocument = $this->_coreHelper->getNewDomDocument();
 		$payPalDoAuthorizationRequest = $domDocument->addElement('PayPalDoAuthorizationRequest', null, $this->_xmlNs)->firstChild;
-		$payPalDoAuthorizationRequest->setAttribute('requestId', $this->_helper->getRequestId($quote->getEntityId()));
+		$payPalDoAuthorizationRequest->setAttribute('requestId', $this->_requestId);
 		$payPalDoAuthorizationRequest->createChild(
 			'OrderId',
 			(string) $quote->getEntityId()

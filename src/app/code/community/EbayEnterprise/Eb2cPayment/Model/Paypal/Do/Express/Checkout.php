@@ -20,6 +20,17 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 	const XSD_FILE = 'xsd_file_paypal_do_express';
 	const STORED_FIELD = 'transaction_id';
 	const ERROR_MESSAGE_ELEMENT = '//a:ErrorMessage';
+	const REQUEST_ID_PREFIX = 'PDC-';
+	/** @var string $_requestId Request id of the last message sent */
+	protected $_requestId;
+	/**
+	 * Get the request id used for the last Do Authorization request message sent.
+	 * @return string
+	 */
+	public function getRequestId()
+	{
+		return $this->_requestId;
+	}
 
 	/**
 	 * Parse PayPal DoExpress reply xml.
@@ -64,12 +75,13 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 	protected function _getRequest(Mage_Sales_Model_Quote $quote, $grandTotal, array $curCodeAttr)
 	{
 		$doc = $this->_coreHelper->getNewDomDocument();
+		$this->_requestId = $this->_coreHelper->generateRequestId(self::REQUEST_ID_PREFIX);
 		$paypal = Mage::getModel('eb2cpayment/paypal');
 		$paypal->loadByQuoteId($quote->getEntityId());
 		$quoteShippingAddress = $quote->getShippingAddress();
 		$request = $doc->addElement('PayPalDoExpressCheckoutRequest', null, $this->_xmlNs)->firstChild;
 		$request
-			->addAttribute('requestId', $this->_helper->getRequestId($quote->getEntityId()))
+			->addAttribute('requestId', $this->_requestId)
 			->addChild('OrderId', (string)$quote->getEntityId())
 			->addChild('Token', (string)$paypal->getEb2cPaypalToken())
 			->addChild('PayerId', (string)$paypal->getEb2cPaypalPayerId())

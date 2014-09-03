@@ -44,6 +44,7 @@
 			<paypal>
 				<rewrite>
 					<api_nvp>EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp</api_nvp>
+					<info>EbayEnterprise_Eb2cPayment_Overrides_Model_Paypal_Info</info>
 				</rewrite>
 			</paypal>
 			<ebayenterprise_pbridge>

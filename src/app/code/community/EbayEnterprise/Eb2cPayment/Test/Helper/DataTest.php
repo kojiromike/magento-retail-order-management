@@ -111,15 +111,6 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 			$this->assertSame($data['expect'], $hlpr->getOperationUri($data['optIndex']));
 		}
 	}
-
-	/**
-	 * @loadFixture loadConfig.yaml
-	 * @dataProvider dataProvider
-	 */
-	public function testGetRequestId($incrementId)
-	{
-		$this->assertSame('clientId-storeId-100000060', Mage::helper('eb2cpayment')->getRequestId($incrementId));
-	}
 	/**
 	 * Test that we return the correct SVC url for the given PAN
 	 */
@@ -311,7 +302,7 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 			->will($this->returnValue($data['xml_ns']));
 
 		$request = $helper->buildRedeemRequest(
-			$data['pan'], $data['pin'], $data['entity_id'], $data['amount'], $data['is_void']
+			$data['pan'], $data['pin'], $data['entity_id'], $data['amount'], $data['request_id'], $data['is_void']
 		);
 
 		$this->assertXmlStringEqualsXmlString($expectedXml, $request->C14N());

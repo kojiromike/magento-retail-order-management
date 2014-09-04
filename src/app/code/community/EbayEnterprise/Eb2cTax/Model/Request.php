@@ -319,10 +319,12 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			'last_name'  => $this->_checkLength($address->getLastname(), 1, 64),
 			'first_name' => $this->_checkLength($address->getFirstname(), 1, 64),
 		);
-		if ($address->getSameAsBilling() && !$this->_isMultiShipping &&
-			isset($this->_destinations[$this->_billingInfoRef])
-		) {
-			$data = array_merge($this->_destinations[$this->_billingInfoRef], $data);
+		if ($address->getSameAsBilling() && !$this->_isMultiShipping) {
+			// Guard against the case where the billing destination has not already been extracted
+			// as is the case with the paypal get express checkout request.
+			if (isset($this->_destinations[$this->_billingInfoRef])) {
+				$data = array_merge($this->_destinations[$this->_billingInfoRef], $data);
+			}
 		}
 		$honorific = $address->getPrefix();
 		if ($honorific) {

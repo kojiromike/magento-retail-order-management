@@ -441,7 +441,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	 */
 	public function testCallExceptions()
 	{
-		$this->setExpectedException('Mage_Core_Exception', 'Non-EB2C PayPal API call attempted for UnsupportedPayPalMethod');
+		$this->setExpectedException('Mage_Core_Exception');
 		Mage::getModel('paypal/api_nvp')->call('UnsupportedPayPalMethod', array());
 	}
 }

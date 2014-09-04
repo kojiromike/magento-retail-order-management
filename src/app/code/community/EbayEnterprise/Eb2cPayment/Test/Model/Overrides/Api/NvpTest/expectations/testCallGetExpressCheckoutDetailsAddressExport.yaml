@@ -1,0 +1,50 @@
+exported_address_data:
+  TOKEN: ~
+  ACK: 'success'
+  EMAIL: someone@somewhere.com
+  PAYERID: '134'
+  PAYERSTATUS: valid
+  FIRSTNAME: John
+  LASTNAME: Doe
+  STATE: the state
+  CITY: bill city
+  STREET: [ 'street line 1', 'street line 2', 'street line 3', 'street line 4' ]
+  ZIP: '19406'
+  PHONENUM: 555-555-5555
+  COUNTRYCODE: US
+  SHIPTONAME: ' '
+  SHIPTOSTREET: 
+    0: '1111 Some Street'
+    2: 'dept. of testing'
+  SHIPTOCITY: Some City
+  SHIPTOSTATE: Some State
+  SHIPTOZIP: '12335'
+  SHIPTOPHONENUM: 555-555-5555
+  SHIPTOCOUNTRYCODE: AU
+  ADDRESSSTATUS: valid
+express_checkout_response_data:
+  response_code: success
+  payer_email: someone@somewhere.com
+  payer_id: '134'
+  payer_status: valid
+  payer_name_first_name: John
+  payer_name_last_name: Doe
+  payer_country: US
+  billing_address_line1: street line 1
+  billing_address_line2: street line 2
+  billing_address_line3: street line 3
+  billing_address_line4: street line 4
+  billing_address_city: bill city
+  billing_address_main_division: the state
+  billing_address_country_code: US
+  billing_address_postal_code: '19406'
+  shipping_address_line1: 1111 Some Street
+  // skip line 2
+  shipping_address_line3: dept. of testing
+  // omit line 4
+  shipping_address_city: Some City
+  shipping_address_main_division: Some State
+  shipping_address_postal_code: '12335'
+  shipping_address_country_code: AU
+  payer_phone: 555-555-5555
+  shipping_address_status: valid

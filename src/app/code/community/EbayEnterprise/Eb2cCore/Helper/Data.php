@@ -58,6 +58,18 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
+	 * get the config registry model.
+	 * @param mixed $store
+	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
+	 */
+	public function getConfigModel($store=null)
+	{
+		return Mage::getModel('eb2ccore/config_registry')
+			->setStore($store)
+			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
+	}
+
+	/**
 	 * Create and return a new instance of EbayEnterprise_Dom_Document.
 	 * @return EbayEnterprise_Dom_Document
 	 */

@@ -36,7 +36,6 @@ class EbayEnterprise_Eb2cCore_Model_Indexer
 				try {
 					$process->reindexEverything();
 					Mage::dispatchEvent($process->getIndexerCode() . '_shell_reindex_after');
-					$log->logInfo('[%s] Index rebuilt successfully: %s', array(__CLASS__, $idx->getName()));
 				} catch (Exception $e) {
 					$log->logErr('[%s] %s', array(__CLASS__, $e->getMessage()));
 				}

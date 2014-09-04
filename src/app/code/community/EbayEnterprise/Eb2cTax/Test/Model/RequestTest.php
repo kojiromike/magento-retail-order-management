@@ -2150,4 +2150,30 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 				);
 		}
 	}
+	/**
+	 * Verify no attempts at using the billing destination will be attempted
+	 * if the billing destination has not been setup.
+	 * @param  string  $addressType
+	 * @param  boolean $isSameAsBilling
+	 * @covers EbayEnterprise_Eb2cTax_Model_Request::_extractDestData
+	 * @dataProvider dataProvider
+	 */
+	public function testExtracDestDataWithoutBillingDestination($addressType, $isSameAsBilling)
+	{
+		$address = Mage::getModel('sales/quote_address');
+		$address->setData(array(
+			'address_type' => $addressType,
+			'same_as_billing' => $isSameAsBilling,
+			'lastname' => 'guy',
+			'firstname' => 'test',
+			'city' => 'thecity',
+			'street' => "1 street road\n",
+			'country_id' => 'US',
+		));
+		$request = Mage::getModel('eb2ctax/request');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($request, '_destinations', array());
+		// if no errors occur all is good.
+		$data = EcomDev_Utils_Reflection::invokeRestrictedMethod($request, '_extractDestData', array($address));
+		$this->assertNotEmpty($data);
+	}
 }

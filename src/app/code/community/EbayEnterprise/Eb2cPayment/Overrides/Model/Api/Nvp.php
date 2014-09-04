@@ -308,6 +308,15 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 
 		$this->_logResponse($response);
 	}
+	/**
+	 * getPalDetails call, overridden simply to avoid non-ROM PayPal Warnings. Does nothing but return.
+	 */
+	public function callGetPalDetails()
+	{
+		if (!Mage::helper('eb2cpayment')->getConfigModel()->isPaymentEnabled) {
+			return parent::callGetPalDetails();
+		}
+	}
 
 	/**
 	 * When PayPal via EB2C is enabled, any calls to this method would be from an API

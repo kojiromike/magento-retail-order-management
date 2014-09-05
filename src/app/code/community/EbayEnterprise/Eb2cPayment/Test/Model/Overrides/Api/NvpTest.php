@@ -13,7 +13,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDev_PHPUnit_Test_Case
+class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest
+	extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	protected $_nvp;
 	public function buildQuoteMock()
@@ -121,7 +122,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	{
 		$paypalSetExpressCheckoutMock = $this->getModelMockBuilder('eb2cpayment/paypal_set_express_checkout')
 			->disableOriginalConstructor()
-			->setMethods(array('setExpressCheckout', 'parseResponse'))
+			->setMethods(array('setExpressCheckout', 'parseResponse', 'process'))
 			->getMock();
 		$paypalSetExpressCheckoutMock->expects($this->any())
 			->method('setExpressCheckout')
@@ -157,7 +158,18 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 						'payer_name_first_name' => 'John',
 						'payer_name_last_name' => 'Doe',
 						'payer_country' => 'US',
+						'billing_address_line1' => 'street line 1',
+						'billing_address_line2' => 'street line 2',
+						'billing_address_line3' => 'street line 3',
+						'billing_address_line4' => 'street line 4',
+						'billing_address_city' => 'bill city',
+						'billing_address_main_division' => 'the state',
+						'billing_address_country_code' => 'US',
+						'billing_address_postal_code' => '19406',
 						'shipping_address_line1' => '1111 Some Street',
+						// skip line 2
+						'shipping_address_line3' => 'dept. of testing',
+						// omit line 4
 						'shipping_address_city' => 'Some City',
 						'shipping_address_main_division' => 'Some State',
 						'shipping_address_postal_code' => '12335',
@@ -443,5 +455,70 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest extends EcomDe
 	{
 		$this->setExpectedException('Mage_Core_Exception');
 		Mage::getModel('paypal/api_nvp')->call('UnsupportedPayPalMethod', array());
+	}
+	/**
+	 * testing callGetExpressCheckoutDetails method
+	 *
+	 * @covers EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp::callGetExpressCheckoutDetails
+	 * @covers EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp::_getNvpGetExpressResponseArray
+	 * @loadExpectation
+	 */
+	public function testCallGetExpressCheckoutDetailsAddressExport()
+	{
+		$paypal = $this->getModelMock('eb2cpayment/paypal', array('loadByQuoteId'));
+		$this->replaceByMock('model', 'eb2cpayment/paypal', $paypal);
+		$paypal->expects($this->any())->method('loadByQuoteId')->will($this->returnSelf());
+		$paypal->expects($this->any())->method('getEb2cPaypalToken')->will($this->returnValue('the token'));
+		$expressCheckout = $this->getModelMock('eb2cpayment/paypal_get_express_checkout', array(
+			'processExpressCheckout', 'parseResponse'
+		));
+		$this->replaceByMock('model', 'eb2cpayment/paypal_get_express_checkout', $expressCheckout);
+		$expressCheckout->expects($this->once())
+			->method('processExpressCheckout')
+			->will($this->returnValue('<foo></foo>'));
+		$expressCheckout->expects($this->once())
+			->method('parseResponse')
+			->will($this->returnValue(
+				new Varien_Object($this->expected('express_checkout_response_data')->getData())
+			));
+		$helper = $this->getHelperMockBuilder('eb2cpayment/data')
+			// the constructor calls getConfigModel which needs to be mocked.
+			->disableOriginalConstructor()
+			->setMethods(array('getConfigModel'))
+			->getMock();
+		$this->replaceByMock('helper', 'eb2cpayment', $helper);
+		$helper->expects($this->any())->method('getConfigModel')->will($this->returnValue(
+			$this->buildCoreConfigRegistry(array(
+				'isPaymentEnabled' => 1
+			))
+		));
+		$nvp = $this->getModelMock('paypal/api_nvp', array(
+			'_importFromResponse',
+			'_prepareExpressCheckoutCallRequest',
+			'_getExpressCheckoutDetailsRequest',
+			'_exportToRequest',
+			'_exportAddressses',
+			'getPalDetails',
+			'call',
+		));
+		$paymentInfoResponse = array('paymentinforesponse');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues($nvp, array(
+			'_cart' => Mage::getModel('paypal/cart', array($this->buildQuoteMock())),
+			'_config' => Mage::getModel('paypal/config'),
+			'_paymentInformationResponse' => $paymentInfoResponse,
+		));
+		$nvp->expects($this->never())->method('call');
+		$nvp->expects($this->once())
+			->method('_importFromResponse')
+			->with($this->identicalTo($paymentInfoResponse), $this->isType('array'));
+		$expected = $this->expected('exported_address_data')->getData();
+		$testCase = $this;
+		$nvp->expects($this->once())
+			->method('_exportAddressses')
+			->with($this->callback(function($data) use ($expected, $testCase) {
+				$testCase->assertEquals($expected, $data);
+				return true;
+			}));
+		$nvp->callGetExpressCheckoutDetails();
 	}
 }

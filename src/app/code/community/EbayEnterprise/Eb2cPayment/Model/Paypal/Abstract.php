@@ -21,6 +21,8 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 	const SUCCESS = 'SUCCESS';
 	const SUCCESSWITHWARNINGS = 'SUCCESSWITHWARNINGS';
 	const ERROR_MESSAGE_ELEMENT = '';
+	const GIFTWRAP_NAME = 'GiftWrap';
+	const GIFTWRAP_QTY = '1';
 
 	/** @var EbayEnterprise_Eb2cPayment_Helper_Data $_helper */
 	protected $_helper;
@@ -69,7 +71,7 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 	 * @param Mage_Sales_Model_Quote $quote sales quote instantiated object
 	 * @return EbayEnterprise_Eb2cPayment_Model_Paypal|null
 	 */
-	public function _savePaymentData(Varien_Object $checkoutObject, Mage_Sales_Model_Quote $quote)
+	protected function _savePaymentData(Varien_Object $checkoutObject, Mage_Sales_Model_Quote $quote)
 	{
 		$storedData = $checkoutObject->getData(static::STORED_FIELD);
 		if ($storedData !== '') {
@@ -136,56 +138,89 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 	 */
 	protected function _buildRequest(Mage_Sales_Model_Quote $quote)
 	{
-		/**
-		 * @var float $gwPrice price of order level gift wrapping
-		 * @var string $gwId id of giftwrapping object
-		 * @var EbayEnterprise_Dom_Element $request
-		 * @var array $addresses
-		 */
-		$gwPrice = $quote->getGwPrice();
-		$gwId = $quote->getGwId();
 		$totals = $quote->getTotals();
-		$grandTotal = isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0;
-		$shippingTotal = isset($totals['shipping']) ? $totals['shipping']->getValue() : 0;
-		$taxTotal = isset($totals['tax']) ? $totals['tax']->getValue() : 0;
-		$lineItemsTotal = (isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0) + $gwPrice;
 		$curCodeAttr = array('currencyCode' => $quote->getQuoteCurrencyCode());
-		$doc = $this->_getRequest($quote, $grandTotal, $curCodeAttr);
+		$doc = $this->_getRequest($quote, $this->_getTotal($totals, 'grand_total'), $curCodeAttr);
+		/** @var EbayEnterprise_Dom_Element $request */
 		$request = $doc->documentElement;
 
-		$lineItems = $request->createChild('LineItems', null);
-		$lineItemsTotalNode = $lineItems->createChild('LineItemsTotal', null, $curCodeAttr); // value to be inserted below
-		$lineItems
-			->addChild('ShippingTotal', sprintf('%.02f', $shippingTotal), $curCodeAttr)
-			->addChild('TaxTotal', sprintf('%.02f', $taxTotal), $curCodeAttr);
+		$lineItems = $request->createChild('LineItems', null)
+			// value to be inserted below
+			->addChild('LineItemsTotal', $this->_calculateLineItemsTotal($quote), $curCodeAttr)
+			->addChild('ShippingTotal', sprintf('%.02f', $this->_getTotal($totals, 'shipping')), $curCodeAttr)
+			->addChild('TaxTotal', sprintf('%.02f', $this->_getTotal($totals, 'tax')), $curCodeAttr);
 
-		if ($gwId) {
-			$lineItems
-				->createChild('LineItem', null)
-				->addChild('Name', 'GiftWrap')
-				->addChild('Quantity', '1')
-				->addChild('UnitAmount', sprintf('%.02f', $gwPrice), $curCodeAttr);
+		if ($quote->getGwId()) {
+			$this->_addLineItem($lineItems, $quote->getGwPrice(), $curCodeAttr, static::GIFTWRAP_NAME, static::GIFTWRAP_QTY);
 		}
-		foreach($quote->getAllAddresses() as $addresses){
-			foreach ($addresses->getAllItems() as $item) {
-				// If gw_price is empty, php will treat it as zero.
-				$lineItemsTotal += $item->getGwPrice();
-				$lineItems
-					->createChild('LineItem', null)
-					->addChild('Name', (string) $item->getName())
-					->addChild('Quantity', (string) $item->getQty())
-					->addChild('UnitAmount', sprintf('%.02f', $item->getPrice()), $curCodeAttr);
-				$itemGwId = $item->getGwId();
-				if ($itemGwId) {
-					$lineItems
-						->createChild('LineItem', null)
-						->addChild('Name', 'GiftWrap')
-						->addChild('Quantity', '1')
-						->addChild('UnitAmount', sprintf('%.02f', $item->getGwPrice()), $curCodeAttr);
-				}
+		foreach($quote->getAllItems() as $item) {
+			$this->_addLineItem($lineItems, $this->_calculateUnitAmount($item), $curCodeAttr, $item->getName(), $item->getQty());
+			if ($item->getGwId()) {
+				$this->_addLineItem($lineItems, $item->getGwPrice(), $curCodeAttr, static::GIFTWRAP_NAME, static::GIFTWRAP_QTY);
 			}
 		}
-		$lineItemsTotalNode->nodeValue = sprintf('%.02f', $lineItemsTotal);
 		return $doc;
+	}
+	/**
+	 * If the total type is in the array, use it. Otherwise 0
+	 * @param  array $totals
+	 * @param  string $totalType
+	 * @return float
+	 */
+	protected function _getTotal(array $totals, $totalType)
+	{
+		return (float) (isset($totals[$totalType]) ? $totals[$totalType]->getValue() : 0);
+	}
+	/**
+	 * Add '//LineItem[]' node to a passed in DOMElement object.
+	 * @param  DOMElement $lineItems
+	 * @param  float $price
+	 * @param  array $curCodeAttr
+	 * @param  string $name
+	 * @param  string $qty
+	 * @return self
+	 */
+	protected function _addLineItem(DOMElement $lineItems, $price, array $curCodeAttr, $name, $qty='1')
+	{
+		$lineItems->createChild('LineItem', null)
+			->addChild('Name', (string) $name)
+			->addChild('Quantity', (string) $qty)
+			->addChild('UnitAmount', sprintf('%.02f', $price), $curCodeAttr);
+		return $this;
+	}
+	/**
+	 * Calculates `//LineItem/UnitAmount' node value using the passed in 'sales/quote_item' class instance parameter.
+	 * Subtracts item discount amount from item row total, and then divide it by the item quantity to get the correct
+	 * unit amount value.
+	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @return float
+	 */
+	protected function _calculateUnitAmount(Mage_Sales_Model_Quote_Item $item)
+	{
+		return ($item->getRowTotal() - $item->getDiscountAmount()) / $item->getQty();
+	}
+	/**
+	 * Calculates `//LineItems/LineItemsTotal' node value using the passed in 'sales/quote' class instance as parameter.
+	 * Use the subtotal and discount from the passed in totals parameter plus the gift wrapping price on the quote plus
+	 * the sum of all quote item gift wrap prices to calculate the line items total.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 * @return float
+	 */
+	protected function _calculateLineItemsTotal(Mage_Sales_Model_Quote $quote)
+	{
+		return (float) ($quote->getGwPrice() + $quote->getSubtotalWithDiscount() + $this->_sumItemGwPrice($quote->getAllItems()));
+	}
+	/**
+	 * Sums up all quote item gift wrap prices from a passed in array of 'sales/order_item' class instances.
+	 * @param  array $items
+	 * @return float
+	 */
+	protected function _sumItemGwPrice(array $items=array())
+	{
+		$gwTotal = 0;
+		foreach ($items as $item) {
+			$gwTotal += $item->getGwPrice();
+		}
+		return $gwTotal;
 	}
 }

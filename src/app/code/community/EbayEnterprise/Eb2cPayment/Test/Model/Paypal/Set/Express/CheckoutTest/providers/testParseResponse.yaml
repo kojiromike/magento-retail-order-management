@@ -1,0 +1,6 @@
+-
+  - /CheckoutTest/fixtures/PayPalSetExpressCheckoutReply.xml
+  -
+    order_id: 1
+    response_code: Success
+    token: EC-5YE59312K56892714

@@ -15,93 +15,206 @@
 
 class EbayEnterprise_Eb2cPayment_Model_Storedvalue_Redeem
 {
+	// array key for card PIN
+	const CARD_PIN_KEY = 'pin';
+	// array key for card PAN
+	const CARD_PAN_KEY = 'pan';
+	// array key for card base amount
+	const CARD_AMOUNT_KEY = 'ba';
+	// operation "key"
+	const PAYMENT_SERVICE_OPERATION = 'get_gift_card_redeem';
+	const REQUEST_ID_PREFIX = 'SVR-';
+	/**
+	 * Order the gift cards are attached to
+	 * @var Mage_Sales_Model_Order
+	 */
+	protected $_order;
+	/**
+	 * Map of SVC card data
+	 * @see EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount::addToCard for included key/value pairs
+	 * @var array
+	 */
+	protected $_card;
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data $_coreHelper */
+	protected $_coreHelper;
+	/** @var EbayEnterprise_Eb2cPayment_Helper_Data $_paymentHelper */
+	protected $_paymentHelper;
+
+	/** @var string $_responseMessage Message received from the service call */
+	protected $_responseMessage;
+	/** @var string $_responseOrderId Order id extracted from the redeem response message. */
+	protected $_responseOrderId;
+	/** @var string $_paymentAccountUniqueId Payment Account Unique Id extracted from the redeem response message. */
+	protected $_paymentAccountUniqueId;
+	/** @var string $_responseCode Response code extracted from the redeem response message. */
+	protected $_responseCode;
+	/** @var string $_amountRedeemed Amount redeemed extracted from the redeem response message. */
+	protected $_amountRedeemed;
+	/** @var string $_balanceAmount Balance amount extracted from the redeem response message. */
+	protected $_balanceAmount;
+	/** @var string $_requestId Request id of the SVC redeem request. */
+	protected $_requestId;
+	/**
+	 * Inject an order and key/value map of gift card data the redeem
+	 * request will be for.
+	 *
+	 * $params expected to have following key/value pairs
+	 * Mage_Sales_Model_Order $params['order'] Order card is attached to
+	 * array $params['card'] key/value pair of SVC data
+	 * @param mixed[] $params Required to have a following key/value pairs
+	 *                        'order' Mage_Sales_Model_Order order object the card is attached to
+	 *                        'card' array key/value pairs of gift card data
+	 */
+	public function __construct(array $params=array())
+	{
+		// required params - order and card
+		$this->_validateOrderParam($params);
+		$this->_order = $params['order'];
+		$this->_validateCardParam($params);
+		$this->_card = $params['card'];
+
+		// optionally injected dependencies - use params value or new/singleton instances
+		$this->_log = isset($params['log']) ? $params['log'] : Mage::helper('ebayenterprise_magelog');
+		$this->_coreHelper = isset($params['core_helper']) ? $params['core_helper'] : Mage::helper('eb2ccore');
+		$this->_paymentHelper = isset($params['payment_helper']) ? $params['payment_helper'] : Mage::helper('eb2cpayment');
+	}
+	/**
+	 * Validate the constructor params to include an 'order' key with a
+	 * Mage_Sales_Model_Order value
+	 * @param mixed[]  $params Constructor $params argument
+	 * @return bool
+	 * @throws Mage_Core_Exception If given array does not include an 'order' key with a Mage_Sales_Model_Order value
+	 */
+	protected function _validateOrderParam(array $params=array())
+	{
+
+		if (!(isset($params['order']) && $params['order'] instanceof Mage_Sales_Model_Order)) {
+			throw Mage::exception('Mage_Core', 'Mage_Sales_Model_Order instance must be provided.');
+		}
+		return $this;
+	}
+	/**
+	 * Validate the constructor params to include a 'card' key with an
+	 * array value containing 'pin', 'pan', and 'ba' key/value pairs
+	 * @param mixed[]  $params Constructor $params argument
+	 * @return bool
+	 * @throws Mage_Core_Exception If given array does not include a 'card' array with an array with 'pin', 'pan', and 'ba' key value
+	 */
+	protected function _validateCardParam(array $params=array())
+	{
+		if (!(isset($params['card']) && is_array($params['card']))) {
+			throw Mage::Exception('Mage_Core', "A 'card' must be included in the params.");
+		}
+		$card = $params['card'];
+		// card must be array with pin, pan and ba keys
+		$requiredCardFields = array(self::CARD_PIN_KEY, self::CARD_PAN_KEY, self::CARD_AMOUNT_KEY);
+		$missingFields = array_diff($requiredCardFields, array_keys($card));
+		if ($missingFields) {
+			throw Mage::exception('Mage_Core', "'card' is missing fields: " . implode(', ', $missingFields));
+		}
+		return $this;
+	}
+	/**
+	 * Get the response order id extracted from the response message.
+	 * @return string|null Null if request has not been made or response did not include an order id
+	 */
+	public function getResponseOrderId()
+	{
+		return $this->_responseOrderId;
+	}
+	/**
+	 * Get the payment account unique id extracted from the response message.
+	 * @return string|null Null if request has not been made or response did not include a payment account unique id
+	 */
+	public function getPaymentAccountUniqueId()
+	{
+		return $this->_paymentAccountUniqueId;
+	}
+	/**
+	 * Get the response code extracted from the redeem response message.
+	 * @return string|null Null if request has not been made or response did not include a response code
+	 */
+	public function getResponseCode()
+	{
+		return $this->_responseCode;
+	}
+	/**
+	 * Get the amount redeemed indicated in the redeem response message.
+	 * @return string|null Null if request has not been made or response did not include a redeemed amount.
+	 */
+	public function getAmountRedeemed()
+	{
+		return $this->_amountRedeemed;
+	}
+	/**
+	 * Get the balance amount indicated in the redeem response message.
+	 * @return string|null Null if request has not been made or response did not include a balance amount.
+	 */
+	public function getBalanceAmount()
+	{
+		return $this->_balanceAmount;
+	}
+	/**
+	 * Get the request id of the last request message sent.
+	 * @return string
+	 */
+	public function getRequestId()
+	{
+		return $this->_requestId;
+	}
+	/**
+	 * Redeem the gift card - make the SVC redeem request and parse out
+	 * data from the response.
+	 * @return self
+	 */
+	public function redeemGiftCard()
+	{
+		return $this->_makeRedeemRequest()->_extractResponse();
+	}
 	/**
 	 * Get gift card redeem from eb2c.
-	 * @param string $pan Either a raw PAN or a token representing a PAN
-	 * @param string $pin personal identification number or code associated with a gift card or gift certificate
-	 * @param string $entityId sales/quote entity_id value
-	 * @param string $amount amount to redeem
-	 * @return string eb2c response to the request
+	 * @return self
 	 */
-	public function getRedeem($pan, $pin, $entityId, $amount)
+	public function _makeRedeemRequest()
 	{
-		$hlpr = Mage::helper('eb2cpayment');
-		$uri = $hlpr->getSvcUri('get_gift_card_redeem', $pan);
+		$pan = $this->_card[self::CARD_PAN_KEY];
+		$this->_requestId = $this->_coreHelper->generateRequestId(self::REQUEST_ID_PREFIX);
+		$uri = $this->_paymentHelper->getSvcUri(self::PAYMENT_SERVICE_OPERATION, $pan);
 		if ($uri === '') {
-			Mage::log(sprintf('[ %s ] pan "%s" is out of range of any configured tender type bin.', __CLASS__, $pan), Zend_Log::ERR);
-			return '';
+			$this->_log->logWarn('[%s] pan "%s" is not in any configured tender type bin.', array(__CLASS__, $pan));
+			$this->_responseMessage = '';
+			return $this;
 		}
-		return Mage::getModel('eb2ccore/api')
+		$this->_responseMessage = trim(Mage::getModel('eb2ccore/api')
 			->setStatusHandlerPath(EbayEnterprise_Eb2cPayment_Helper_Data::STATUS_HANDLER_PATH)
 			->request(
-				$this->buildStoredValueRedeemRequest($pan, $pin, $entityId, $amount),
-				$hlpr->getConfigModel()->xsdFileStoredValueRedeem,
+				$this->_paymentHelper->buildRedeemRequest(
+					$pan, $this->_card[self::CARD_PIN_KEY], $this->_order->getIncrementId(), $this->_card[self::CARD_AMOUNT_KEY], $this->_requestId, false
+				),
+				$this->_paymentHelper->getConfigModel()->xsdFileStoredValueRedeem,
 				$uri
-			);
+			));
+		return $this;
 	}
-	/**
-	 * Build gift card Redeem request.
-	 * @param string $pan, the payment account number
-	 * @param string $pin, the personal identification number
-	 * @param string $entityId, the sales/quote entity_id value
-	 * @param string $amount, the amount to redeem
-	 * @return DOMDocument The xml document, to be sent as request to eb2c.
-	 */
-	public function buildStoredValueRedeemRequest($pan, $pin, $entityId, $amount)
-	{
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$storedValueRedeemRequest = $domDocument
-			->addElement('StoredValueRedeemRequest', null, Mage::helper('eb2cpayment')->getXmlNs())
-			->firstChild;
-		$storedValueRedeemRequest->setAttribute(
-			'requestId',
-			Mage::helper('eb2cpayment')->getRequestId($entityId)
-		);
-
-		// creating PaymentContent element
-		$paymentContext = $storedValueRedeemRequest->createChild('PaymentContext', null);
-
-		// creating OrderId element
-		$paymentContext->createChild('OrderId', $entityId);
-
-		// creating PaymentAccountUniqueId element
-		$paymentContext->createChild('PaymentAccountUniqueId', $pan, array('isToken' => 'false'));
-
-		// add Pin
-		$storedValueRedeemRequest->createChild('Pin', (string) $pin);
-
-		// add amount
-		$storedValueRedeemRequest->createChild('Amount', $amount, array('currencyCode' => 'USD'));
-
-		return $domDocument;
-	}
-
 	/**
 	 * Parse gift card Redeem response xml.
-	 * @param string $storeValueRedeemReply the xml response from eb2c
-	 * @return array, an associative array of response data
+	 * @return self
 	 */
-	public function parseResponse($storeValueRedeemReply)
+	public function _extractResponse()
 	{
-		$redeemData = array();
-		if (trim($storeValueRedeemReply) !== '') {
-			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-			$doc->loadXML($storeValueRedeemReply);
-			$redeemXpath = new DOMXPath($doc);
-			$redeemXpath->registerNamespace('a', Mage::helper('eb2cpayment')->getXmlNs());
-			$nodeOrderId = $redeemXpath->query('//a:PaymentContext/a:OrderId');
-			$nodePaymentAccountUniqueId = $redeemXpath->query('//a:PaymentContext/a:PaymentAccountUniqueId');
-			$nodeResponseCode = $redeemXpath->query('//a:ResponseCode');
-			$nodeAmountRedeemed = $redeemXpath->query('//a:AmountRedeemed');
-			$nodeBalanceAmount = $redeemXpath->query('//a:BalanceAmount');
-			$redeemData = array(
-				'orderId' => ($nodeOrderId->length)? (int) $nodeOrderId->item(0)->nodeValue: 0,
-				'paymentAccountUniqueId' => ($nodePaymentAccountUniqueId->length)? (string) $nodePaymentAccountUniqueId->item(0)->nodeValue : null,
-				'responseCode' => ($nodeResponseCode->length)? (string) $nodeResponseCode->item(0)->nodeValue : null,
-				'amountRedeemed' => ($nodeAmountRedeemed->length)? (float) $nodeAmountRedeemed->item(0)->nodeValue : 0,
-				'balanceAmount' => ($nodeBalanceAmount->length)? (float) $nodeBalanceAmount->item(0)->nodeValue : 0,
-			);
+		if ($this->_responseMessage) {
+			$responseDoc = $this->_coreHelper->getNewDomDocument();
+			$responseDoc->loadXML($this->_responseMessage);
+			$redeemXpath = $this->_coreHelper->getNewDomXPath($responseDoc);
+			$redeemXpath->registerNamespace('a', $this->_paymentHelper->getXmlNs());
+			$this->_responseOrderId = $redeemXpath->evaluate('string(//a:PaymentContext/a:OrderId)');
+			$this->_paymentAccountUniqueId = $redeemXpath->evaluate('string(//a:PaymentContext/a:PaymentAccountUniqueId)');
+			$this->_responseCode = strtoupper($redeemXpath->evaluate('string(//a:ResponseCode)'));
+			$this->_amountRedeemed = $redeemXpath->evaluate('string(//a:AmountRedeemed)');
+			$this->_balanceAmount = $redeemXpath->evaluate('string(//a:BalanceAmount)');
 		}
-		return $redeemData;
+		return $this;
 	}
 }

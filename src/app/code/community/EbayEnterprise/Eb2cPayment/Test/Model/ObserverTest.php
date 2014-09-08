@@ -21,7 +21,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	 * replacing by mock of the Mage_Checkout_Model_Session class
 	 * @return void
 	 */
-	public function replaceByMockCheckoutSessionModel()
+	public function getMockCheckoutSessionModel()
 	{
 		$sessionMock = $this->getModelMockBuilder('checkout/session')
 			->disableOriginalConstructor()
@@ -39,17 +39,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 		$sessionMock->expects($this->any())
 			->method('getQuoteId')
 			->will($this->returnValue(1));
-		$this->replaceByMock('singleton', 'checkout/session', $sessionMock);
-	}
-
-	/**
-	 * setUp method
-	 */
-	public function setUp()
-	{
-		parent::setUp();
-		$this->_observer = Mage::getModel('eb2cpayment/observer');
-		$this->replaceByMockCheckoutSessionModel();
+		return $sessionMock;
 	}
 
 	public function providerRedeemGiftCard()
@@ -77,37 +67,46 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 		);
 	}
 	/**
-	 * testing redeeming gifcard observer method - successful redeem response
+	 * testing redeeming gift card observer method - successful redeem response
 	 *
 	 * @dataProvider providerRedeemGiftCard
 	 */
 	public function testRedeemGiftCard($observer)
 	{
+		// mocked data
+		$panToken = 'PAN_ACCT_UNIQUE_ID';
+		$responseCode = 'SUCCESS';
+
 		$redeemMock = $this->getModelMockBuilder('eb2cpayment/storedvalue_redeem')
-			->setMethods(array('getRedeem', 'parseResponse'))
+			// Constructor requires an order and card data which are not needed for
+			// mocking the methods used
+			->disableOriginalConstructor()
+			->setMethods(array('redeemGiftCard', 'getResponseCode', 'getPaymentAccountUniqueId'))
 			->getMock();
-		$redeemReply = '<foo></foo>';
-		$redeemMock->expects($this->any())
-			->method('getRedeem')
+		// make sure the redeemGiftCard method is called to make the service call
+		// and do the SVC redeem
+		$redeemMock->expects($this->once())
+			->method('redeemGiftCard')
 			// these values all come from data setup in the provider
-			->with($this->identicalTo('4111111ak4idq1111'), $this->identicalTo('5344'), $this->identicalTo('10000101010'))
-			->will($this->returnValue($redeemReply));
-		$expectedPanToken = 'panToken123';
+			->will($this->returnSelf());
 		$redeemMock->expects($this->any())
-			->method('parseResponse')
-			->with($this->identicalTo($redeemReply))
-			->will($this->returnValue(array('responseCode' => 'Success', 'pan' => '4111111ak4idq1111', 'pin' => '5344', 'paymentAccountUniqueId' => $expectedPanToken)));
+			->method('getResponseCode')
+			->will($this->returnValue($responseCode));
+		$redeemMock->expects($this->any())
+			->method('getPaymentAccountUniqueId')
+			->will($this->returnValue($panToken));
 		$this->replaceByMock('model', 'eb2cpayment/storedvalue_redeem', $redeemMock);
 
-		$this->_observer->redeemGiftCard($observer);
+		Mage::getModel('eb2cpayment/observer', array('checkout_session' => $this->getMockCheckoutSessionModel()))
+			->redeemGiftCard($observer);
 
 		// use getData to override mock.
 		$allResultGiftCards = unserialize($observer->getEvent()->getQuote()->getGiftCards());
 		$firstResultGiftCard = array_shift($allResultGiftCards);
-		$this->assertSame($expectedPanToken, $firstResultGiftCard['panToken']);
+		$this->assertSame($panToken, $firstResultGiftCard['panToken']);
 	}
 	/**
-	 * testing redeemGiftCard unsucessful redeem response
+	 * testing redeemGiftCard unsuccessful redeem response
 	 *
 	 * @dataProvider providerRedeemGiftCard
 	 * @expectedException Mage_Core_Exception
@@ -115,38 +114,37 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	public function testRedeemGiftCardFailReponse($observer)
 	{
 		$redeemMock = $this->getModelMockBuilder('eb2cpayment/storedvalue_redeem')
-			->setMethods(array('getRedeem', 'parseResponse'))
+			// constructor needs an order and card data, not needed to mock the methods
+			// used in this case
+			->disableOriginalConstructor()
+			->setMethods(array('redeemGiftCard', 'getResponseCode'))
 			->getMock();
 
+		$redeemMock->expects($this->once())
+			->method('redeemGiftCard')
+			->will($this->returnSelf());
 		$redeemMock->expects($this->any())
-			->method('getRedeem')
-			->will($this->returnValue('<foo></foo>')
-			);
-		$redeemMock->expects($this->any())
-			->method('parseResponse')
-			->will($this->returnValue(array('responseCode' => 'fail', 'pan' => '4111111ak4idq1111', 'pin' => '5344'))
-			);
+			->method('getResponseCode')
+			// must match the failure code expected by the observer
+			->will($this->returnValue('FAIL'));
 		$this->replaceByMock('model', 'eb2cpayment/storedvalue_redeem', $redeemMock);
 
 		// let's mock the enterprise gift card class so that removeFromCart method don't thrown an exception
 		$giftCardAccountMock = $this->getModelMockBuilder('enterprise_giftcardaccount/giftcardaccount')
-			->setMethods(array('loadByPanPin', 'removeFromCart'))
+			->setMethods(array('loadByCode', 'removeFromCart'))
 			->getMock();
 
-		$giftCardAccountMock->expects($this->any())
-			->method('loadByPanPin')
-			->will($this->returnSelf()
-			);
-		$giftCardAccountMock->expects($this->any())
+		$giftCardAccountMock->expects($this->once())
+			->method('loadByCode')
+			->will($this->returnSelf());
+		$giftCardAccountMock->expects($this->once())
 			->method('removeFromCart')
-			->will($this->returnSelf()
-			);
+			->will($this->returnSelf());
 
 		$this->replaceByMock('model', 'enterprise_giftcardaccount/giftcardaccount', $giftCardAccountMock);
 
-		$this->assertNull(
-			$this->_observer->redeemGiftCard($observer)
-		);
+		Mage::getModel('eb2cpayment/observer', array('checkout_session' => $this->getMockCheckoutSessionModel()))
+			->redeemGiftCard($observer);
 	}
 	/**
 	 * Provide response data from the redeemvoid service calls and whether the
@@ -165,7 +163,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	 * Test scenarios of the SVC void request. When the request fails,
 	 * a warning should be logged. When it succeeds, nothing should happen.
 	 * @param  array $response Response data
-	 * @param bool $isSuccess Was the request successful
+	 * @param  bool $isSuccess Was the request successful
 	 * @dataProvider provideRedeemVoidFailureData
 	 */
 	public function testRedeemVoidGiftCard($response, $isSuccess)
@@ -191,21 +189,17 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 		$this->replaceByMock('model', 'eb2cpayment/storedvalue_redeem_void', $voidRequest);
 
 		// when the request fails, make sure a WARN message is logged
+		$logger = $this->getHelperMock('ebayenterprise_magelog/data', array('logWarn'));
 		if (!$isSuccess) {
-			$logger = $this->getHelperMock('ebayenterprise_magelog/data', array('logWarn'));
 			$logger->expects($this->once())
 				->method('logWarn')
 				->will($this->returnSelf());
-			$this->replaceByMock('helper', 'ebayenterprise_magelog', $logger);
 		}
-
-		Mage::getSingleton('eb2cpayment/observer')->redeemVoidGiftCard(
-			new Varien_Event_Observer(
-				array('event' => new Varien_Event(
-					array('order' => $order, 'quote' => Mage::getModel('sales/quote'))
-				))
-			)
-		);
+		$eventObserver = new Varien_Event_Observer(array('event' => new Varien_Event(
+			array('order' => $order, 'quote' => Mage::getModel('sales/quote'))
+		)));
+		Mage::getModel('eb2cpayment/observer', array('log' => $logger, 'checkout_session' => $this->getMockCheckoutSessionModel()))
+			->redeemVoidGiftCard($eventObserver);
 	}
 	/**
 	 * Test that when the quote contains invalid gift card data, no attempt to
@@ -226,26 +220,26 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 			->method('voidCardRedemption');
 		$this->replaceByMock('model', 'eb2cpayment/storedvalue_redeem_void', $voidRequest);
 
-		Mage::getSingleton('eb2cpayment/observer')->redeemVoidGiftCard(
-			new Varien_Event_Observer(
-				array('event' => new Varien_Event(
-					array('quote' => $quote, 'order' => Mage::getModel('sales/order'))
-				))
-			)
+		$eventObserver = new Varien_Event_Observer(
+			array('event' => new Varien_Event(
+				array('quote' => $quote, 'order' => Mage::getModel('sales/order'))
+			))
 		);
+		Mage::getModel('eb2cpayment/observer', array('checkout_session' => $this->getMockCheckoutSessionModel()))
+			->redeemVoidGiftCard($eventObserver);
 	}
 	/**
 	 * Test EbayEnterprise_Eb2cPayment_Model_Observer::suppressPaymentModule method for the following expectations
 	 * Expectation 1: the method EbayEnterprise_Eb2cPayment_Model_Observer::suppressPaymentModule will be invoked by this
 	 *                test given a mocked Varien_Event_Observer object in which the method
 	 *                Varien_Event_Observer::getEvent will be invoked and return a mocked Varien_Event object
-	 *                in which the mehods Varien_Event::getStore, getWebsite will be invoked once and return null
+	 *                in which the methods Varien_Event::getStore, getWebsite will be invoked once and return null
 	 *                so that the methods EbayEnterprise_Eb2cCore_Helper_Data::getDefaultStore, and getDefaultWebsite will
 	 *                will return mocked Mage_Core_Model_Store and Mage_Core_Model_Website respectively
 	 * Expectation 2: the method EbayEnterprise_Eb2cPayment_Helper_Data::getConfigModel will be invoked given the mocked
 	 *                Mage_Core_Model_Store object in which it will return the mocked EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 *                object with the magic property 'isPaymentEnabled' set to true, which will allowed the following methods
-	 *                to be invoked EbayEnterprise_Eb2cPayment_Model_Suppression::disableNonEb2CPaymentMethods, and saveEb2CPaymentMethods
+	 *                to be invoked EbayEnterprise_Eb2cPayment_Model_Suppression::disableNonEb2cPaymentMethods, and saveEb2cPaymentMethods
 	 *                given the value 1
 	 */
 	public function testSuppressPaymentModule()
@@ -260,16 +254,9 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 			->setMethods(null)
 			->getMock();
 
-		$eventMock = $this->getMockBuilder('Varien_Event')
-			->disableOriginalConstructor()
-			->setMethods(array('getStore', 'getWebsite'))
-			->getMock();
-		$eventMock->expects($this->once())
-			->method('getStore')
-			->will($this->returnValue(null));
-		$eventMock->expects($this->once())
-			->method('getWebsite')
-			->will($this->returnValue(null));
+		// create event with no store or website
+		$event = new Varien_Event();
+		$eventObserver = new Varien_Event_Observer(array('event' => $event));
 
 		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
@@ -281,15 +268,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 		$coreHelperMock->expects($this->once())
 			->method('getDefaultWebsite')
 			->will($this->returnValue($websiteMock));
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
-
-		$observerMock = $this->getMockBuilder('Varien_Event_Observer')
-			->disableOriginalConstructor()
-			->setMethods(array('getEvent'))
-			->getMock();
-		$observerMock->expects($this->once())
-			->method('getEvent')
-			->will($this->returnValue($eventMock));
 
 		$helperMock = $this->getHelperMockBuilder('eb2cpayment/data')
 			->disableOriginalConstructor()
@@ -301,27 +279,23 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 			->will($this->returnValue($this->buildCoreConfigRegistry(array(
 				'isPaymentEnabled' => true
 			))));
-		$this->replaceByMock('helper', 'eb2cpayment', $helperMock);
 
 		$suppressionMock = $this->getModelMockBuilder('eb2cpayment/suppression')
 			->disableOriginalConstructor()
-			->setMethods(array('disableNonEb2CPaymentMethods', 'saveEb2CPaymentMethods'))
+			->setMethods(array('disableNonEb2cPaymentMethods', 'saveEb2cPaymentMethods'))
 			->getMock();
 		$suppressionMock->expects($this->once())
-			->method('disableNonEb2CPaymentMethods')
+			->method('disableNonEb2cPaymentMethods')
 			->will($this->returnSelf());
 		$suppressionMock->expects($this->once())
-			->method('saveEb2CPaymentMethods')
+			->method('saveEb2cPaymentMethods')
 			->with($this->identicalTo(1))
 			->will($this->returnSelf());
 		$this->replaceByMock('model', 'eb2cpayment/suppression', $suppressionMock);
 
-		$oMock = $this->getModelMockBuilder('eb2cpayment/observer')
-			->disableOriginalConstructor()
-			->setMethods(null)
-			->getMock();
-
-		$this->assertSame($oMock, $oMock->suppressPaymentModule($observerMock));
+		// invoke method and expect behavior to be asserted
+		Mage::getModel('eb2cpayment/observer', array('core_helper' => $coreHelperMock, 'payment_helper' => $helperMock, 'checkout_session' => $this->getMockCheckoutSessionModel()))
+			->suppressPaymentModule($eventObserver);
 	}
 
 	/**
@@ -341,30 +315,8 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 			->setMethods(null)
 			->getMock();
 
-		$eventMock = $this->getMockBuilder('Varien_Event')
-			->disableOriginalConstructor()
-			->setMethods(array('getStore', 'getWebsite'))
-			->getMock();
-		$eventMock->expects($this->once())
-			->method('getStore')
-			->will($this->returnValue($storeMock));
-		$eventMock->expects($this->once())
-			->method('getWebsite')
-			->will($this->returnValue($websiteMock));
-
-		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
-			->disableOriginalConstructor()
-			->setMethods(null)
-			->getMock();
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
-
-		$observerMock = $this->getMockBuilder('Varien_Event_Observer')
-			->disableOriginalConstructor()
-			->setMethods(array('getEvent'))
-			->getMock();
-		$observerMock->expects($this->once())
-			->method('getEvent')
-			->will($this->returnValue($eventMock));
+		$event = new Varien_Event(array('store' => $storeMock, 'website' => $websiteMock));
+		$eventObserver = new Varien_Event_Observer(array('event' => $event));
 
 		$helperMock = $this->getHelperMockBuilder('eb2cpayment/data')
 			->disableOriginalConstructor()
@@ -380,34 +332,28 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 
 		$suppressionMock = $this->getModelMockBuilder('eb2cpayment/suppression')
 			->disableOriginalConstructor()
-			->setMethods(array('disableNonEb2CPaymentMethods', 'saveEb2CPaymentMethods'))
+			->setMethods(array('disableNonEb2cPaymentMethods', 'saveEb2cPaymentMethods'))
 			->getMock();
 		$suppressionMock->expects($this->once())
-			->method('disableNonEb2CPaymentMethods')
+			->method('disableNonEb2cPaymentMethods')
 			->will($this->returnSelf());
 		$suppressionMock->expects($this->once())
-			->method('saveEb2CPaymentMethods')
+			->method('saveEb2cPaymentMethods')
 			->with($this->identicalTo(0))
 			->will($this->returnSelf());
 		$this->replaceByMock('model', 'eb2cpayment/suppression', $suppressionMock);
 
-		$oMock = $this->getModelMockBuilder('eb2cpayment/observer')
-			->disableOriginalConstructor()
-			->setMethods(null)
-			->getMock();
-
-		$this->assertSame($oMock, $oMock->suppressPaymentModule($observerMock));
+		Mage::getModel('eb2cpayment/observer', array('payment_helper' => $helperMock, 'checkout_session' => $this->getMockCheckoutSessionModel()))
+			->suppressPaymentModule($eventObserver);
 	}
-
 	/**
 	 * Test voiding order payments when the order create fails.
-	 *
-	 * @param $canVoid
+	 * @param bool $canVoid Can the payment be voided
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testVoidPayments($canVoid)
 	{
-		$observer = Mage::getSingleton('eb2cpayment/observer');
+		$observer = Mage::getModel('eb2cpayment/observer', array('checkout_session' => $this->getMockCheckoutSessionModel()));
 		$order = $this->getModelMock('sales/order', array('getPayment', 'canVoidPayment'));
 		$payment = $this->getModelMock('payment/method_abstract', array('void'));
 		$order->expects($this->any())

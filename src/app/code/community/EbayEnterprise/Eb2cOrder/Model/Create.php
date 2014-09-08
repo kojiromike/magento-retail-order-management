@@ -196,7 +196,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			->addElement($this->_config->apiCreateDomRootNodeName, null, $this->_config->apiXmlNs)
 			->firstChild;
 		$orderCreateRequest->setAttribute('orderType', $this->_config->apiOrderType);
-		$orderCreateRequest->setAttribute('requestId', $this->_getRequestId());
+		$orderCreateRequest->setAttribute('requestId', Mage::helper('eb2ccore')->generateRequestId('OCR-'));
 		return $orderCreateRequest;
 	}
 	/**
@@ -674,14 +674,13 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 				$payMethod = $payment->getMethod();
 				$payMethodNode = $this->_ebcPaymentMethodMap[ucfirst($payMethod)];
 				if ($payMethodNode === 'CreditCard') {
-					$payId = $payment->getId();
 					$thisPayment = $payments->createChild($payMethodNode);
 					$paymentContext = $thisPayment->createChild('PaymentContext');
 					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
 					$paymentContext->createChild('TenderType', $payment->getAdditionalInformation('tender_code'));
 					$paymentContext->createChild('PaymentAccountUniqueId', $payment->getAdditionalInformation('gateway_transaction_id'))
 						->setAttribute('isToken', 'true');
-					$thisPayment->createChild('PaymentRequestId', sprintf('payment%s', $payId));
+					$this->_addPaymentRequestId($thisPayment, $this->_getPaymentRequestId($payment));
 					$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
 					$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGrandTotal()));
 					$auth = $thisPayment->createChild('Authorization');
@@ -705,7 +704,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$paymentContext->createChild('PaymentAccountUniqueId', $this->_getPaypalAccountUniqueId($payment, $payMethod))
 						->setAttribute('isToken', 'true');
 					$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
-					$thisPayment->createChild('PaymentRequestId', sprintf('payment%s', $payment->getId()));
+					$this->_addPaymentRequestId($thisPayment, $this->_getPaymentRequestId($payment));
 					$auth = $thisPayment->createChild('Authorization');
 					$auth->createChild('ResponseCode', $this->_getResponseCode($payment, $payMethodNode));
 				} elseif ($payMethodNode === 'StoredValueCard') {
@@ -722,6 +721,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 						// this **must always** be the PAN token for the OMS to be able to issue adjustments
 						$paymentContext->createChild('PaymentAccountUniqueId', $this->_getOrderGiftCardPan($this->_o, true))
 							->setAttribute('isToken', 'true');
+						$this->_addPaymentRequestId($thisPayment, $this->_getOrderGiftCardRequestId($this->_o));
 						$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
 						$thisPayment->createChild('Pin', $this->_getOrderGiftCardPin($this->_o));
 						$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGiftCardsAmount()));
@@ -737,6 +737,29 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGrandTotal()));
 		}
 		return $this;
+	}
+	/**
+	 * Add non-null payment request ids to the payment node. Do nothing if no
+	 * payment request id is provided.
+	 * @param EbayEnterprise_Dom_Element $paymentNode
+	 * @param string|null $paymentRequestId
+	 * @return self
+	 */
+	protected function _addPaymentRequestId(EbayEnterprise_Dom_Element $paymentNode, $paymentRequestId=null)
+	{
+		if ($paymentRequestId) {
+			$paymentNode->createChild('PaymentRequestId', $paymentRequestId);
+		}
+		return $this;
+	}
+	/**
+	 * Get the request id of the request made to authorize the payment
+	 * @param  Mage_Payment_Model_Info $payment
+	 * @return string|null Will return null if no payment request id was captured
+	 */
+	protected function _getPaymentRequestId(Mage_Payment_Model_Info $payment)
+	{
+		return $payment->getAdditionalInformation('request_id');
 	}
 	/**
 	 * Get order stored value pan. This can get either the raw PAN - the
@@ -760,6 +783,16 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _getOrderGiftCardPin(Mage_Sales_Model_Order $order)
 	{
 		return $this->_getOrderGiftCardData($order, 'pin');
+	}
+	/**
+	 * Get the request id of the request that redeemed the SVC card. Request id
+	 * stored in the gift card data's request_id key/value pair.
+	 * @param Mage_Sales_Model_Order $order
+	 * @return string
+	 */
+	protected function _getOrderGiftCardRequestId(Mage_Sales_Model_Order $order)
+	{
+		return $this->_getOrderGiftCardData($order, 'requestId');
 	}
 	/**
 	 * Get the value of the gift card data key/value pair identified by a given
@@ -836,14 +869,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		return (Mage::helper('eb2ccore')->getCurrentStore()->isAdmin()) ? self::BACKEND_ORDER_SOURCE:
 			$this->_o->getEb2cFraudReferrer() ?: self::FRONTEND_ORDER_SOURCE;
-	}
-	/**
-	 * Get globally unique request identifier
-	 * @return string
-	 */
-	protected function _getRequestId()
-	{
-		return uniqid('OCR-');
 	}
 
 	/**

@@ -15,6 +15,15 @@
 
 class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Model_Api_Nvp
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+
+	protected function _construct()
+	{
+		parent::_construct();
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * Get paypal cart instantiated object.
 	 *
@@ -71,9 +80,10 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 
 			if ($quote) {
 				// We have a valid quote, let's set PayPal Express checkout it through eb2c.
-				$payPalSetExpressCheckoutReply = Mage::getModel('eb2cpayment/paypal_set_express_checkout')->processExpressCheckout($quote);
+				$paypalServiceModel = Mage::getModel('eb2cpayment/paypal_set_express_checkout');
+				$payPalSetExpressCheckoutReply = $paypalServiceModel->processExpressCheckout($quote);
 				if ($payPalSetExpressCheckoutReply) {
-					$payPalSetExpressCheckoutObject = Mage::getModel('eb2cpayment/paypal_set_express_checkout')->parseResponse($payPalSetExpressCheckoutReply);
+					$payPalSetExpressCheckoutObject = $paypalServiceModel->parseResponse($payPalSetExpressCheckoutReply);
 					if ($payPalSetExpressCheckoutObject) {
 						// making sure we have the right data
 						if (strtoupper(trim($payPalSetExpressCheckoutObject->getResponseCode())) === 'SUCCESS') {
@@ -89,9 +99,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			// Eb2c PaypalSetExpressCheckout is disabled, continue as normal with direct call to the paypal api
 			$response = $this->call(self::SET_EXPRESS_CHECKOUT, $request);
 		}
-
-		Mage::log(sprintf("[ %s ] Received response:\n", __METHOD__) . print_r($response, true), Zend_Log::DEBUG);
-
+		$this->_logResponse($response);
 		$this->_importFromResponse($this->_setExpressCheckoutResponse, $response);
 	}
 
@@ -112,9 +120,10 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			$response = array();
 			if ($quote) {
 				// We have a valid quote, let's Get PayPal Express checkout it through eb2c.
-				$payPalGetExpressCheckoutReply = Mage::getModel('eb2cpayment/paypal_get_express_checkout')->processExpressCheckout($quote);
+				$paypalServiceModel = Mage::getModel('eb2cpayment/paypal_get_express_checkout');
+				$payPalGetExpressCheckoutReply = $paypalServiceModel->processExpressCheckout($quote);
 				if ($payPalGetExpressCheckoutReply) {
-					$payPalGetExpressCheckoutObject = Mage::getModel('eb2cpayment/paypal_get_express_checkout')->parseResponse($payPalGetExpressCheckoutReply);
+					$payPalGetExpressCheckoutObject = $paypalServiceModel->parseResponse($payPalGetExpressCheckoutReply);
 					if ($payPalGetExpressCheckoutObject) {
 						if (strtoupper(trim($payPalGetExpressCheckoutObject->getResponseCode())) === 'SUCCESS') {
 							$response = $this->_getNvpGetExpressResponseArray($payPalGetExpressCheckoutObject, $quote);
@@ -200,9 +209,10 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 
 			if ($quote->getId()) {
 				// We have a valid quote, let's Do PayPal Express checkout it through eb2c.
-				$payPalDoExpressCheckoutReply = Mage::getModel('eb2cpayment/paypal_do_express_checkout')->processExpressCheckout($quote);
+				$paypalServiceModel = Mage::getModel('eb2cpayment/paypal_do_express_checkout');
+				$payPalDoExpressCheckoutReply = $paypalServiceModel->processExpressCheckout($quote);
 				if ($payPalDoExpressCheckoutReply) {
-					$payPalDoExpressCheckoutObject = Mage::getModel('eb2cpayment/paypal_do_express_checkout')->parseResponse($payPalDoExpressCheckoutReply);
+					$payPalDoExpressCheckoutObject = $paypalServiceModel->parseResponse($payPalDoExpressCheckoutReply);
 					if ($payPalDoExpressCheckoutObject) {
 						// making sure we have the right data
 						if (strtoupper(trim($payPalDoExpressCheckoutObject->getResponseCode())) === 'SUCCESS') {
@@ -215,6 +225,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 								'PENDINGREASON' => $payPalDoExpressCheckoutObject->getPendingReason(),
 								'REASONCODE' => $payPalDoExpressCheckoutObject->getReasonCode(),
 							);
+							$this->setDoExpressRequestId($paypalServiceModel->getRequestId());
 						}
 					}
 				}
@@ -224,7 +235,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			$response = $this->call(self::DO_EXPRESS_CHECKOUT_PAYMENT, $request);
 		}
 
-		Mage::log(sprintf("[ %s ] Received response:\n", __METHOD__) . print_r($response, true), Zend_Log::DEBUG);
+		$this->_logResponse($response);
 
 		$this->_importFromResponse($this->_paymentInformationResponse, $response);
 		$this->_importFromResponse($this->_doExpressCheckoutPaymentResponse, $response);
@@ -252,9 +263,10 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 
 			if ($quote) {
 				// We have a valid quote, let's Do PayPal Authorization it through eb2c.
-				$payPalDoAuthorizationReply = Mage::getModel('eb2cpayment/paypal_do_authorization')->doAuthorization($quote);
+				$paypalServiceModel = Mage::getModel('eb2cpayment/paypal_do_authorization');
+				$payPalDoAuthorizationReply = $paypalServiceModel->doAuthorization($quote);
 				if ($payPalDoAuthorizationReply) {
-					$payPalDoAuthorizationCheckoutObject = Mage::getModel('eb2cpayment/paypal_do_authorization')->parseResponse($payPalDoAuthorizationReply);
+					$payPalDoAuthorizationCheckoutObject = $paypalServiceModel->parseResponse($payPalDoAuthorizationReply);
 					if ($payPalDoAuthorizationCheckoutObject) {
 						if (strtoupper(trim($payPalDoAuthorizationCheckoutObject->getResponseCode())) === 'SUCCESS') {
 							$response = array(
@@ -264,6 +276,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 								'PENDINGREASON' => $payPalDoAuthorizationCheckoutObject->getPendingReason(),
 								'REASONCODE' => $payPalDoAuthorizationCheckoutObject->getReasonCode(),
 							);
+							$this->setDoAuthRequestId($paypalServiceModel->getRequestId());
 						}
 					}
 				}
@@ -273,7 +286,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			$response = $this->call(self::DO_AUTHORIZATION, $request);
 		}
 
-		Mage::log(sprintf("[ %s ] Received response:\n", __METHOD__) . print_r($response, true), Zend_Log::DEBUG);
+		$this->_logResponse($response);
 
 		$this->_importFromResponse($this->_paymentInformationResponse, $response);
 		$this->_importFromResponse($this->_doAuthorizationResponse, $response);
@@ -300,9 +313,10 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 
 			if ($quote) {
 				// We have a valid quote, let's Do PayPal Void it through eb2c.
-				$payPalDoVoidReply = Mage::getModel('eb2cpayment/paypal_do_void')->doVoid($quote);
+				$paypalServiceModel = Mage::getModel('eb2cpayment/paypal_do_void');
+				$payPalDoVoidReply = $paypalServiceModel->doVoid($quote);
 				if ($payPalDoVoidReply) {
-					$payPalDoVoidCheckoutObject = Mage::getModel('eb2cpayment/paypal_do_void')->parseResponse($payPalDoVoidReply);
+					$payPalDoVoidCheckoutObject = $paypalServiceModel->parseResponse($payPalDoVoidReply);
 					if ($payPalDoVoidCheckoutObject) {
 						if (strtoupper(trim($payPalDoVoidCheckoutObject->getResponseCode())) === 'SUCCESS') {
 							$response = array(
@@ -317,7 +331,7 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			$response = $this->call(self::DO_VOID, $request);
 		}
 
-		Mage::log(sprintf("[ %s ] Received response:\n", __METHOD__) . print_r($response, true), Zend_Log::DEBUG);
+		$this->_logResponse($response);
 	}
 	/**
 	 * getPalDetails call, overridden simply to avoid non-ROM PayPal Warnings. Does nothing but return.
@@ -332,21 +346,26 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 	/**
 	 * When PayPal via EB2C is enabled, any calls to this method would be from an API
 	 * call going direct to PayPal, not to EB2C.
-	 * @param  string $methodName
-	 * @param  array  $request
+	 *
+	 * @param string $methodName
+	 * @param array $request
+	 * @throws Mage_Core_Exception
 	 * @return array
-	 * @throws  Mage_Core_Exception
 	 */
 	public function call($methodName, array $request)
 	{
 		if (Mage::helper('eb2cpayment')->getConfigModel()->isPaymentEnabled) {
-			Mage::throwException(sprintf('[ %s ]: Non-EB2C PayPal API call attempted for %s.', __CLASS__, $methodName));
-			// @codeCoverageIgnoreStart
+			throw Mage::exception('Mage_Core', sprintf('[%s]: Non-EB2C PayPal API call attempted for %s.', __CLASS__, $methodName));
 		} else {
-			// @codeCoverageIgnoreEnd
 			return parent::call($methodName, $request);
 		}
-		// @codeCoverageIgnoreStart
 	}
-	// @codeCoverageIgnoreEnd
+
+	/**
+	 * @param $response
+	 */
+	protected function _logResponse($response)
+	{
+		$this->_log->logDebug('[%s] Received response:\n%s', array(__CLASS__, print_r($response, true)));
+	}
 }

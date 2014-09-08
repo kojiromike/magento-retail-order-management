@@ -160,11 +160,12 @@ class EbayEnterprise_Pbridge_Model_Cc extends Mage_Payment_Model_Method_Cc
 			'avs_response_code',
 			'expiration_date',
 			'cc_type',
-						'gateway_transaction_id',
-						'phone_response_code',
-						'name_response_code',
-						'email_response_code',
-			'tender_code'
+			'gateway_transaction_id',
+			'phone_response_code',
+			'name_response_code',
+			'email_response_code',
+			'tender_code',
+			'request_id',
 		);
 		foreach ($authCodes as $code) {
 			if (isset($response[$code])) {

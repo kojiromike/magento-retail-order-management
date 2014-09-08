@@ -1,0 +1,36 @@
+diff --git src/Varien/Payment/Gateway/Gsi/Eb2c.php src/Varien/Payment/Gateway/Gsi/Eb2c.php
+index f5b6364..0c24b2c 100644
+--- src/Varien/Payment/Gateway/Gsi/Eb2c.php
++++ src/Varien/Payment/Gateway/Gsi/Eb2c.php
+@@ -40,6 +40,12 @@ class Varien_Payment_Gateway_Gsi_Eb2c extends Varien_Payment_Gateway_Abstract
+     protected $_code  = 'pbridge_eb2cpayment_cc';
+ 
+     /**
++     * Request id of the message sent to the payment service
++     * @var string
++     */
++    protected $_requestId;
++
++    /**
+      * Gateway configuration options.
+      *
+      * Array in form of:
+@@ -179,6 +185,7 @@ class Varien_Payment_Gateway_Gsi_Eb2c extends Varien_Payment_Gateway_Abstract
+                     'name_response_code'        => $responseArray['NameResponseCode'],
+                     'phone_response_code'       => $responseArray['PhoneResponseCode'],
+                     'email_response_code'       => $responseArray['EmailResponseCode'],
++                    'request_id'                => $this->_requestId,
+                 );
+                 $this->_createResponse($transfer, $resultFields);
+             } else {
+@@ -275,8 +282,8 @@ class Varien_Payment_Gateway_Gsi_Eb2c extends Varien_Payment_Gateway_Abstract
+         }
+         $root->addChild('isRequestToCorrectCVVOrAVSError', $isRequestToCorrectCvvOrAvsError);
+ 
+-        $requestId = substr(md5($root->asXML()), 0, 10);
+-        $root->addAttribute('requestId', $requestId);
++        $this->_requestId = substr(md5($root->asXML()), 0, 10);
++        $root->addAttribute('requestId', $this->_requestId);
+ 
+         return $root->asXML();
+     }

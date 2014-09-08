@@ -116,37 +116,15 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			// Eb2c PaypalGetExpressCheckout is enabled
 			// Removing direct call to PayPal, Make Eb2c PayPalGetExpressCheckout call here.
 			$quote = $this->_getCart()->getSalesEntity();
-
 			$response = array();
-
 			if ($quote) {
 				// We have a valid quote, let's Get PayPal Express checkout it through eb2c.
 				$payPalGetExpressCheckoutReply = Mage::getModel('eb2cpayment/paypal_get_express_checkout')->processExpressCheckout($quote);
 				if ($payPalGetExpressCheckoutReply) {
 					$payPalGetExpressCheckoutObject = Mage::getModel('eb2cpayment/paypal_get_express_checkout')->parseResponse($payPalGetExpressCheckoutReply);
 					if ($payPalGetExpressCheckoutObject) {
-						// making sure we have the right data
-						$quoteShippingAddress = $quote->getShippingAddress();
 						if (strtoupper(trim($payPalGetExpressCheckoutObject->getResponseCode())) === 'SUCCESS') {
-							$paypal = Mage::getModel('eb2cpayment/paypal')->loadByQuoteId($quote->getEntityId());
-							$response = array(
-								'TOKEN' => $paypal->getEb2cPaypalToken(),
-								'ACK' => $payPalGetExpressCheckoutObject->getResponseCode(),
-								'EMAIL' => $payPalGetExpressCheckoutObject->getPayerEmail(),
-								'PAYERID' => $payPalGetExpressCheckoutObject->getPayerId(),
-								'PAYERSTATUS' => $payPalGetExpressCheckoutObject->getPayerStatus(),
-								'FIRSTNAME' => $payPalGetExpressCheckoutObject->getPayerNameFirstName(),
-								'LASTNAME' => $payPalGetExpressCheckoutObject->getPayerNameLastName(),
-								'COUNTRYCODE' => $payPalGetExpressCheckoutObject->getPayerCountry(),
-								'SHIPTONAME' => $quoteShippingAddress->getName(),
-								'SHIPTOSTREET' => $payPalGetExpressCheckoutObject->getShippingAddressLine1(),
-								'SHIPTOCITY' => $payPalGetExpressCheckoutObject->getShippingAddressCity(),
-								'SHIPTOSTATE' => $payPalGetExpressCheckoutObject->getShippingAddressMainDivision(),
-								'SHIPTOZIP' => $payPalGetExpressCheckoutObject->getShippingAddressPostalCode(),
-								'SHIPTOCOUNTRYCODE' => $payPalGetExpressCheckoutObject->getShippingAddressCountryCode(),
-								'SHIPTOPHONENUM' => $payPalGetExpressCheckoutObject->getPayerPhone(),
-								'ADDRESSSTATUS' => $payPalGetExpressCheckoutObject->getShippingAddressStatus(),
-							);
+							$response = $this->_getNvpGetExpressResponseArray($payPalGetExpressCheckoutObject, $quote);
 						}
 					}
 				}
@@ -155,13 +133,53 @@ class EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp extends Mage_Paypal_Mod
 			// Eb2c PaypalGetExpressCheckout is disabled, continue as normal with direct call to the paypal api
 			$response = $this->call(self::GET_EXPRESS_CHECKOUT_DETAILS, $request);
 		}
-
-		$this->_logResponse($response);
-
 		$this->_importFromResponse($this->_paymentInformationResponse, $response);
 		$this->_exportAddressses($response);
 	}
-
+	/**
+	 * convert the response data to the array structure returned by the magento nvp implementation.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 * @param  Varien_Object          $payPalGetExpressCheckoutObject
+	 * @return array
+	 */
+	protected function _getNvpGetExpressResponseArray(Varien_Object $payPalGetExpressCheckoutObject, Mage_Sales_Model_Quote $quote)
+	{
+		$quoteShippingAddress = $quote->getShippingAddress();
+		$paypal = Mage::getModel('eb2cpayment/paypal')->loadByQuoteId($quote->getEntityId());
+		return array(
+			'TOKEN' => $paypal->getEb2cPaypalToken(),
+			'ACK' => $payPalGetExpressCheckoutObject->getResponseCode(),
+			'EMAIL' => $payPalGetExpressCheckoutObject->getPayerEmail(),
+			'PAYERID' => $payPalGetExpressCheckoutObject->getPayerId(),
+			'PAYERSTATUS' => $payPalGetExpressCheckoutObject->getPayerStatus(),
+			'FIRSTNAME' => $payPalGetExpressCheckoutObject->getPayerNameFirstName(),
+			'LASTNAME' => $payPalGetExpressCheckoutObject->getPayerNameLastName(),
+			'STATE'    => $payPalGetExpressCheckoutObject->getBillingAddressMainDivision(),
+			'CITY'     => $payPalGetExpressCheckoutObject->getBillingAddressCity(),
+			'STREET'   => array_filter(array(
+				$payPalGetExpressCheckoutObject->getBillingAddressLine1(),
+				$payPalGetExpressCheckoutObject->getBillingAddressLine2(),
+				$payPalGetExpressCheckoutObject->getBillingAddressLine3(),
+				$payPalGetExpressCheckoutObject->getBillingAddressLine4(),
+				)),
+			'ZIP'      => $payPalGetExpressCheckoutObject->getBillingAddressPostalCode(),
+			'PHONENUM' => $payPalGetExpressCheckoutObject->getPayerPhone(),
+			'COUNTRYCODE' => $payPalGetExpressCheckoutObject->getPayerCountry(),
+			'SHIPTONAME' => $quoteShippingAddress->getName(),
+			'SHIPTOSTREET' => array_filter(array(
+				$payPalGetExpressCheckoutObject->getShippingAddressLine1(),
+				$payPalGetExpressCheckoutObject->getShippingAddressLine2(),
+				$payPalGetExpressCheckoutObject->getShippingAddressLine3(),
+				$payPalGetExpressCheckoutObject->getShippingAddressLine4(),
+				)),
+			'SHIPTOCITY' => $payPalGetExpressCheckoutObject->getShippingAddressCity(),
+			'SHIPTOSTATE' => $payPalGetExpressCheckoutObject->getShippingAddressMainDivision(),
+			'SHIPTOZIP' => $payPalGetExpressCheckoutObject->getShippingAddressPostalCode(),
+			'SHIPTOCOUNTRYCODE' => $payPalGetExpressCheckoutObject->getShippingAddressCountryCode(),
+			'SHIPTOPHONENUM' => $payPalGetExpressCheckoutObject->getPayerPhone(),
+			'ADDRESSSTATUS' => $payPalGetExpressCheckoutObject->getShippingAddressStatus(),
+		);
+	}
 	/**
 	 * Override to make eb2c PayPalDoExpressCheckout call
 	 *

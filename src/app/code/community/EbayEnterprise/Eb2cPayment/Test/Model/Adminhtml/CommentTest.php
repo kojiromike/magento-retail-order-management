@@ -50,15 +50,13 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Adminhtml_CommentTest
 	 */
 	public function testGetUrl()
 	{
-		$adminhtmlHelperMock = $this->getHelperMockBuilder('adminhtml/data')
-			->disableOriginalConstructor()
-			->setMethods(array('getUrl'))
-			->getMock();
-		$adminhtmlHelperMock::staticExpects($this->once())
+		/** @var Mage_AdminHtml_Model_Url $adminUrl */
+		$adminUrl = $this->getModelMock('adminhtml/url', array('getUrl'));
+		$adminUrl->expects($this->once())
 			->method('getUrl')
 			->with($this->equalTo('adminhtml/system_config/edit'), $this->equalTo(array('section' => 'payment')))
 			->will($this->returnValue('http://example.com/admin/system_config/edit/section/payment/key/12233/'));
-		$this->replaceByMock('helper', 'adminhtml', $adminhtmlHelperMock);
+		$this->replaceByMock('model', 'adminhtml/url', $adminUrl);
 
 		$commentModelMock = $this->getModelMockBuilder('eb2cpayment/adminhtml_comment')
 			->disableOriginalConstructor()

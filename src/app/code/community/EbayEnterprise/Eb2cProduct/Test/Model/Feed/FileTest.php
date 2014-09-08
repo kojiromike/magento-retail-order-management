@@ -82,49 +82,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Feed_FileTest
 
 		$this->assertSame($file, $file->process());
 	}
-	/**
-	 * When splitting the feed DOMDocument by language code, use eb2cproduct/data
-	 * helper's splitDomByXslt method, passing through the original DOMDocument,
-	 * the path to the appropriate XSLT and the parameters to be passed through
-	 * to the XSLT.
-	 */
-	public function testSplitByLanguageCode()
-	{
-
-		$languageCode = 'en-us';
-		$template = EbayEnterprise_Eb2cProduct_Model_Feed_File::XSLT_DEFAULT_TEMPLATE_PATH;
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$splitDoc = Mage::helper('eb2ccore')->getNewDomDocument();
-
-		$xsltFilePath = 'mock/path/to/language-splitting-xslt.xsl';
-
-		$productHelperMock = $this->getHelperMockBuilder('eb2cproduct/data')
-			->disableOriginalConstructor()
-			->setMethods(array('splitDomByXslt'))
-			->getMock();
-		$productHelperMock->expects($this->once())
-			->method('splitDomByXslt')
-			->with($this->equalTo($doc), $this->equalTo($xsltFilePath), $this->equalTo(array('lang_code' => $languageCode)))
-			->will($this->returnValue($splitDoc));
-		$this->replaceByMock('helper', 'eb2cproduct', $productHelperMock);
-
-		$fileModelMock = $this->getModelMockBuilder('eb2cproduct/feed_file')
-			->disableOriginalConstructor()
-			->setMethods(array('getDoc', '_getXsltPath'))
-			->getMock();
-		$fileModelMock->expects($this->once())
-			->method('getDoc')
-			->will($this->returnValue($doc));
-		$fileModelMock->expects($this->once())
-			->method('_getXsltPath')
-			->with($this->equalTo($template))
-			->will($this->returnValue($xsltFilePath));
-
-		$this->assertSame(
-			$splitDoc,
-			$this->_reflectMethod($fileModelMock, '_splitByLanguageCode')->invoke($fileModelMock, $languageCode, $template)
-		);
-	}
 
 	/**
 	 * Deleting a product should create a product collection of products marked

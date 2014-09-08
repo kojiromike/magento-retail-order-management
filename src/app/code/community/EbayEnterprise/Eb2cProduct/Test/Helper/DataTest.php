@@ -281,15 +281,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	 */
 	public function testGetDefaultLanguageCode()
 	{
-		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
-			->disableOriginalConstructor()
-			->setMethods(array('mageToXmlLangFrmt'))
-			->getMock();
-		$coreHelperMock::staticExpects($this->once())
-			->method('mageToXmlLangFrmt')
-			->with($this->equalTo('en_US'))
-			->will($this->returnValue('en-US'));
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 		$productHelperMock = $this->getHelperMockBuilder('eb2cproduct/data')
 			->disableOriginalConstructor()
 			->setMethods(array('_getLocaleCode'))
@@ -790,16 +781,6 @@ class EbayEnterprise_Eb2cProduct_Test_Helper_DataTest
 	 */
 	public function testGetStoreViewLanguage()
 	{
-		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
-			->disableOriginalConstructor()
-			->setMethods(array('mageToXmlLangFrmt'))
-			->getMock();
-		$coreHelperMock::staticExpects($this->once())
-			->method('mageToXmlLangFrmt')
-			->with($this->equalTo('en-US'))
-			->will($this->returnValue('en-us'));
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
-
 		$storeModelMock = $this->getModelMockBuilder('core/store')
 			->disableOriginalConstructor()
 			->setMethods(array('getName'))

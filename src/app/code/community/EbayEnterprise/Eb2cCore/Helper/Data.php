@@ -593,4 +593,13 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 		return $data;
 	}
+	/**
+	 * Generate a unique request id with a given prefix.
+	 * @param string $prefix
+	 * @return string
+	 */
+	public function generateRequestId($prefix='')
+	{
+		return uniqid($prefix);
+	}
 }

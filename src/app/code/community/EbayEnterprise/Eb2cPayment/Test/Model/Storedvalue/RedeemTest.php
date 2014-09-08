@@ -17,121 +17,139 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	/**
-	 * Test getRedeem method
+	 * Test making the SVC redeem request
 	 */
-	public function testGetRedeem()
+	public function testMakeRedeemRequest()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML(
-			'<StoredValueRedeemRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0" requestId="1">
-				<PaymentContext>
-					<OrderId>1</OrderId>
-					<PaymentAccountUniqueId isToken="false">80000000000000</PaymentAccountUniqueId>
-				</PaymentContext>
-				<Pin>1234</Pin>
-				<Amount currencyCode="USD">1.0</Amount>
-			</StoredValueRedeemRequest>'
+		// test data
+		$pan = '80000000000000';
+		$pin = '1234';
+		$amount = 1.0;
+		$card = array(
+			'i' => 'gca-id',
+			'c' => $pan,
+			'a' => $amount,
+			'ba' => $amount,
+			'pan' => $pan,
+			'pin' => $pin,
 		);
+		$orderId = '1234567890';
+		$order = Mage::getModel('sales/order', array('increment_id' => $orderId));
+
+		// mock values for the test
+		$requestUri = 'http://example.com/store_value_redeem.xml';
+		$xsdFileConfigValue = 'mock_xsd_file_config.xsd';
+		$requestMessage = '<SVC_Mock_Request/>';
+		$responseMessage = '<SVC_Mock_Response/>';
+		$requestDoc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$requestDoc->loadXML($requestMessage);
+		$requestId = 'REQUEST_ID_12345';
+
+		$coreHelperMock = $this->getHelperMock('eb2ccore/data', array('generateRequestId'));
+		$coreHelperMock->expects($this->any())
+			->method('generateRequestId')
+			->will($this->returnValue($requestId));
 
 		$paymentHelperMock = $this->getHelperMockBuilder('eb2cpayment/data')
+			->setMethods(array('getSvcUri', 'getConfigModel', 'buildRedeemRequest', ))
+			// disable to prevent config lookups in the constructor, which, as the config
+			// is being mocked, will simply blow up - getConfigModel is mocked but not yet
+			// scripted to return anything so getConfigModel() returns null in the constructor
+			// and then property access causes an error
 			->disableOriginalConstructor()
-			->setMethods(array('getSvcUri', 'getConfigModel'))
 			->getMock();
+		// getSvcUri must be given the PAN and a hardcoded operation "key" to properly generate a request uri
 		$paymentHelperMock->expects($this->once())
 			->method('getSvcUri')
-			->with($this->equalTo('get_gift_card_redeem'), $this->equalTo('80000000000000'))
-			->will($this->returnValue('https://api.example.com/vM.m/stores/storeId/payments/storedvalue/redeem/GS.xml'));
+			// First param is a special "key" string used in the helper to
+			// associate an "operation" with a service URI. A copy-paste of the
+			// value into the test won't really prove anything meaningful so
+			// just letting it be anything in the test.
+			->with($this->anything(), $this->equalTo($pan))
+			->will($this->returnValue($requestUri));
+		// stub out the payment config to get a consistent xsd file config value out
 		$paymentHelperMock->expects($this->once())
 			->method('getConfigModel')
-			->will($this->returnValue((object) array(
-				'xsdFileStoredValueRedeem' => 'Payment-Service-StoredValueRedeem-1.0.xsd'
-			)));
-		$this->replaceByMock('helper', 'eb2cpayment', $paymentHelperMock);
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'xsdFileStoredValueRedeem' => $xsdFileConfigValue
+			))));
+		// to build the proper redeem request, must be given gift card data as well as a flag
+		// indicating that the request is not a void request
+		$paymentHelperMock->expects($this->once())
+			->method('buildRedeemRequest')
+			->with(
+				$this->equalTo($pan),
+				$this->equalTo($pin),
+				$this->equalTo($orderId),
+				$this->equalTo($amount),
+				$this->equalTo($requestId),
+				$this->isFalse() // this last flag indicates void request, should be false for redeem request
+			)
+			->will($this->returnValue($requestDoc));
+
 		$apiModelMock = $this->getModelMockBuilder('eb2ccore/api')
 			->setMethods(array('request', 'setStatusHandlerPath'))
 			->getMock();
+		// ensure proper handling of the response by the API
 		$apiModelMock->expects($this->once())
 			->method('setStatusHandlerPath')
 			->with($this->equalTo(EbayEnterprise_Eb2cPayment_Helper_Data::STATUS_HANDLER_PATH))
 			->will($this->returnSelf());
+		// make the request with the expected message, xsd file and request uri
 		$apiModelMock->expects($this->once())
 			->method('request')
 			->with(
-				$this->isInstanceOf('EbayEnterprise_Dom_Document'),
-				'Payment-Service-StoredValueRedeem-1.0.xsd',
-				'https://api.example.com/vM.m/stores/storeId/payments/storedvalue/redeem/GS.xml'
-			)->will($this->returnValue(
-				'<StoredValueRedeemReply xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
-					<PaymentContext>
-						<OrderId>1</OrderId>
-						<PaymentAccountUniqueId isToken="false">80000000000000</PaymentAccountUniqueId>
-					</PaymentContext>
-					<ResponseCode>Success</ResponseCode>
-					<AmountRedeemed currencyCode="USD">1.00</AmountRedeemed>
-					<BalanceAmount currencyCode="USD">1.00</BalanceAmount>
-				</StoredValueRedeemReply>'
-			));
+				$this->identicalTo($requestDoc),
+				$this->identicalTo($xsdFileConfigValue),
+				$this->identicalTo($requestUri)
+			)->will($this->returnValue($responseMessage));
 		$this->replaceByMock('model', 'eb2ccore/api', $apiModelMock);
 
-		$redeemModelMock = $this->getModelMockBuilder('eb2cpayment/storedvalue_redeem')
-			->setMethods(array('buildStoredValueRedeemRequest'))
-			->getMock();
-		$redeemModelMock->expects($this->once())
-			->method('buildStoredValueRedeemRequest')
-			->with($this->equalTo('80000000000000'), $this->equalTo('1234'), $this->equalTo(1), $this->equalTo(1.0))
-			->will($this->returnValue($doc));
-
-		$testData = array(
-			array(
-				'expect' => '<StoredValueRedeemReply xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
-					<PaymentContext>
-						<OrderId>1</OrderId>
-						<PaymentAccountUniqueId isToken="false">80000000000000</PaymentAccountUniqueId>
-					</PaymentContext>
-					<ResponseCode>Success</ResponseCode>
-					<AmountRedeemed currencyCode="USD">1.00</AmountRedeemed>
-					<BalanceAmount currencyCode="USD">1.00</BalanceAmount>
-				</StoredValueRedeemReply>',
-				'pan' => '80000000000000',
-				'pin' => '1234',
-				'entityId' => 1,
-				'amount' => 1.0
-			),
+		$redeemRequest = Mage::getModel(
+			'eb2cpayment/storedvalue_redeem',
+			array('order' => $order, 'card' => $card, 'payment_helper' => $paymentHelperMock, 'core_helper' => $coreHelperMock)
 		);
-
-		foreach ($testData as $data) {
-			$this->assertSame($data['expect'], $redeemModelMock->getRedeem($data['pan'], $data['pin'], $data['entityId'], $data['amount']));
-		}
+		$this->assertSame($redeemRequest, EcomDev_Utils_Reflection::invokeRestrictedMethod($redeemRequest, '_makeRedeemRequest'));
+		$this->assertSame($responseMessage, EcomDev_Utils_Reflection::getRestrictedPropertyValue($redeemRequest, '_responseMessage'));
+		$this->assertSame($requestId, $redeemRequest->getRequestId());
 	}
 	/**
 	 * Test getRedeem method, where getSvcUri return an empty url
 	 */
 	public function testGetRedeemWithEmptyUrl()
 	{
+		// test data
 		$pan = '00000000000000';
 		$pin = '1234';
-		$entityId = 1;
+		$orderId = 1;
 		$amount = 1.0;
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML(
-			"<StoredValueRedeemRequest xmlns='http://api.gsicommerce.com/schema/checkout/1.0' requestId='1'>
-				<PaymentContext>
-					<OrderId>$entityId</OrderId>
-					<PaymentAccountUniqueId isToken='false'>$pan</PaymentAccountUniqueId>
-				</PaymentContext>
-				<Pin>$pin</Pin>
-				<Amount currencyCode='USD'>$amount</Amount>
-			</StoredValueRedeemRequest>"
+		$card = array(
+			'i' => 'gc_id',
+			'c' => $pin,
+			'a' => $amount,
+			'ba' => $amount,
+			'pin' => $pin,
+			'pan' => $pan,
 		);
+		$order = Mage::getModel('sales/order', array('increment_id' => $orderId));
+
 		$payHelper = $this->getHelperMockBuilder('eb2cpayment/data')
 			->setMethods(array('getSvcUri'))
 			->getMock();
+		// stub out the getSvcUri method to return an empty string, indicating a gift card
+		// pan that does not fit into any configured SVC bin range
 		$payHelper->expects($this->once())
 			->method('getSvcUri')
-			->with($this->equalTo('get_gift_card_redeem'), $this->equalTo('00000000000000'))
+			// First argument is const value the payment helper uses to map an operation
+			// to a request uri. Copy-paste of the value in this test won't prove anything
+			// meaningful so allowing it to be anything here.
+			->with($this->anything(), $this->equalTo($pan))
 			->will($this->returnValue(''));
-		$this->replaceByMock('helper', 'eb2cpayment', $payHelper);
-		$this->assertSame('', Mage::getModel('eb2cpayment/storedvalue_redeem')->getRedeem($pan, $pin, $entityId, $amount));
+
+		$redeemRequest = Mage::getModel('eb2cpayment/storedvalue_redeem', array('order' => $order, 'card' => $card, 'payment_helper' => $payHelper));
+
+		$this->assertSame($redeemRequest, EcomDev_Utils_Reflection::invokeRestrictedMethod($redeemRequest, '_makeRedeemRequest'));
+		$this->assertSame('', EcomDev_Utils_Reflection::getRestrictedPropertyValue($redeemRequest, '_responseMessage'));
 	}
 	/**
 	 * testing parseResponse method
@@ -141,36 +159,59 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_RedeemTest
 	 */
 	public function testParseResponse($storeValueRedeemReply)
 	{
-		$this->assertSame(
-			array(
-				// If you change the order of the elements in this array the test will fail.
-				'orderId'                => 1,
-				'paymentAccountUniqueId' => '4111111ak4idq1111',
-				'responseCode'           => 'Success',
-				'amountRedeemed'         => 50.00,
-				'balanceAmount'          => 150.00,
-			),
-			Mage::getModel('eb2cpayment/storedvalue_redeem')->parseResponse($storeValueRedeemReply)
+		$redeem = Mage::getModel(
+			'eb2cpayment/storedvalue_redeem',
+			array('card' => array('pin' => 12345, 'pan' => 1234, 'ba' => 12.34), 'order' => Mage::getModel('sales/order'))
+		);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($redeem, '_responseMessage', $storeValueRedeemReply);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($redeem, '_extractResponse');
+		$this->assertSame($redeem->getResponseOrderId(), '1');
+		$this->assertSame($redeem->getPaymentAccountUniqueId(), '4111111ak4idq1111');
+		$this->assertSame($redeem->getResponseCode(), 'SUCCESS');
+		$this->assertSame($redeem->getAmountRedeemed(), '50.00');
+		$this->assertSame($redeem->getBalanceAmount(), '150.00');
+	}
+	/**
+	 * Data provider of invalid or missing order constructor params value.
+	 * @return array Array of argument arrays
+	 */
+	public function provideInvalidOrderConstructorParam()
+	{
+		return array(
+			array(array('card' => array('pan' => 123, 'pin' => 5555, 'ba' => 12.34))),
+			array(array('order' => 'not an order', 'card' => array('pan' => 123, 'pin' => 5555, 'ba' => 12.34))),
 		);
 	}
 	/**
-	 * @dataProvider dataProvider
-	 * @loadFixture loadConfig.yaml
+	 * Test validating the constructor params includes a valid order instance.
+	 * @param  array $constructorParams Constructor params to pass to the model
+	 * @dataProvider provideInvalidOrderConstructorParam
 	 */
-	public function testBuildStoredValueRedeemRequest($pan, $pin, $entityId, $amount)
+	public function testInvalidOrderConstructorParams($constructorParams)
 	{
-		$this->assertSame(
-			preg_replace('/[ ]{2,}|[\t]/', '', str_replace(array("\r\n", "\r", "\n"), '',
-				'<StoredValueRedeemRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0" requestId="clientId-storeId-1">
-					<PaymentContext>
-						<OrderId>1</OrderId>
-						<PaymentAccountUniqueId isToken="false">4111111ak4idq1111</PaymentAccountUniqueId>
-					</PaymentContext>
-					<Pin>1234</Pin>
-					<Amount currencyCode="USD">50.00</Amount>
-				</StoredValueRedeemRequest>'
-			)),
-			trim(Mage::getModel('eb2cpayment/storedvalue_redeem')->buildStoredValueRedeemRequest($pan, $pin, $entityId, $amount)->C14N())
+		$this->setExpectedException('Mage_Core_Exception', 'Mage_Sales_Model_Order instance must be provided.');
+		Mage::getModel('eb2cpayment/storedvalue_redeem', $constructorParams);
+	}
+	/**
+	 * Data provider of invalid or missing order constructor params value.
+	 * @return array Array of argument arrays
+	 */
+	public function provideInvalidCardConstructorParam()
+	{
+		$order = Mage::getModel('sales/order');
+		return array(
+			array(array('order' => $order), "A 'card' must be included in the params."),
+			array(array('card' => array(), 'order' => $order), "'card' is missing fields: pin, pan, ba"),
 		);
+	}
+	/**
+	 * Test validating the constructor params includes a valid order instance.
+	 * @param  array $constructorParams Constructor params to pass to the model
+	 * @dataProvider provideInvalidCardConstructorParam
+	 */
+	public function testInvalidCardConstructorParams($constructorParams, $message)
+	{
+		$this->setExpectedException('Mage_Core_Exception', $message);
+		Mage::getModel('eb2cpayment/storedvalue_redeem', $constructorParams);
 	}
 }

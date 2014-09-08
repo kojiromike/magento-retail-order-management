@@ -84,21 +84,6 @@ class EbayEnterprise_Eb2cPayment_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * Generate eb2c API Universally unique ID used to globally identify to request.
-	 * @param int $entityId, the magento sales_flat_quote entity_id
-	 * @return string, the request id
-	 */
-	public function getRequestId($entityId)
-	{
-		$cfg = Mage::helper('eb2ccore')->getConfigModel(null);
-		return implode('-', array(
-			$cfg->clientId,
-			$cfg->storeId,
-			$entityId
-		));
-	}
-
-	/**
 	 * EBC-238: Return the configured tender type bin the card number is in.
 	 * If none, empty string.
 	 * @param string $pan the card number
@@ -132,5 +117,45 @@ class EbayEnterprise_Eb2cPayment_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 		$uri = $this->getOperationUri($optIndex);
 		return preg_replace('/GS\.xml$/', "{$tenderType}.xml", $uri);
+	}
+	/**
+	 * Build gift card Redeem or Redeem Void request.
+	 * @param string $pan the payment account number
+	 * @param string $pin the personal identification number
+	 * @param string $entityId the sales/quote entity_id value
+	 * @param string $amount the amount to redeem
+	 * @param string $requestId request id for the service call
+	 * @param bool $isVoid a flag to determine if we are creating a redeem or a redeem void request
+	 * @return DOMDocument the xml document to be sent as request to the ROM API
+	 */
+	public function buildRedeemRequest($pan, $pin, $entityId, $amount, $requestId, $isVoid=false)
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$rootNode = $isVoid ? 'StoredValueRedeemVoidRequest' : 'StoredValueRedeemRequest';
+		$svRequest = $doc
+			->addElement($rootNode, null, $this->getXmlNs())
+			->firstChild;
+		$svRequest->setAttribute('requestId', $requestId);
+
+		// creating PaymentContent node
+		$svRequest->createChild('PaymentContext', null)
+			->addChild('OrderId', $entityId)
+			->addChild('PaymentAccountUniqueId', $pan, array('isToken' => 'false'));
+
+		$svRequest
+			->addChild('Pin', (string) $pin)
+			->addChild('Amount', $amount, array('currencyCode' => $this->_getCurrencyCode()));
+
+		return $doc;
+	}
+	/**
+	 * Get the current store currency code.
+	 * @see Mage_Core_Model_Store::getCurrentCurrencyCode
+	 * @return string
+	 * @codeCoverageIgnore
+	 */
+	protected function _getCurrencyCode()
+	{
+		return Mage::app()->getStore()->getCurrentCurrencyCode();
 	}
 }

@@ -18,42 +18,60 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_REMOVED = 'EbayEnterprise_Eb2cPayment_GiftCard_Removed';
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_WRONG_ACCOUNT = 'EbayEnterprise_Eb2cPayment_GiftCard_Wrong_Account';
 	const EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_NOT_REDEEMABLE = 'EbayEnterprise_Eb2cPayment_GiftCard_Not_Redeemable';
+
+	const REDEEM_RESPONSE_CODE_FAIL = 'FAIL';
+
+	/** @var EbayEnterprise_Eb2cPayment_Helper_Data $_paymentHelper */
+	protected $_paymentHelper;
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data $_coreHelper */
+	protected $_coreHelper;
+	/** @var Mage_Core_Helper_Data $_mageCoreHelper */
+	protected $_mageCoreHelper;
+	/** @var Mage_Checkout_Model_Session $_checkoutSession */
+	protected $_checkoutSession;
+	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	protected $_log;
+	/**
+	 * Inject dependent systems or create/get default instances
+	 * @param mixed[] $params
+	 */
+	public function __construct(array $params=array())
+	{
+		$this->_paymentHelper = isset($params['payment_helper']) ? $params['payment_helper'] : Mage::helper('eb2cpayment');
+		$this->_coreHelper = isset($params['core_helper']) ? $params['core_helper'] : Mage::helper('eb2ccore');
+		$this->_mageCoreHelper = isset($params['mage_core_helper']) ? $params['mage_core_helper'] : Mage::helper('core');
+		$this->_checkoutSession = isset($params['checkout_session']) ? $params['checkout_session'] : Mage::getSingleton('checkout/session');
+		$this->_log = isset($params['log']) ? $params['log'] : Mage::helper('ebayenterprise_magelog');
+	}
 	/**
 	 * Redeem any gift card when 'eb2c_redeem_giftcard' event is dispatched
+	 *
 	 * @param Varien_Event_Observer $observer
-	 * @return void
-	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+	 * @throws Mage_Core_Exception
 	 */
 	public function redeemGiftCard($observer)
 	{
+		$helper = $this->_paymentHelper;
 		$order = $observer->getEvent()->getOrder();
 		$giftCard = unserialize($order->getGiftCards());
 		if ($giftCard) {
 			foreach ($giftCard as $idx => $card) {
 				if (isset($card['ba']) && isset($card['pan']) && isset($card['pin'])) {
 					// We have a valid record, let's redeem gift card in eb2c.
-					$svRedeem = Mage::getModel('eb2cpayment/storedvalue_redeem');
-					$storeValueRedeemReply = $svRedeem->getRedeem($card['pan'], $card['pin'], $order->getIncrementId(), $card['ba']);
-					if ($storeValueRedeemReply) {
-						$redeemData = $svRedeem->parseResponse($storeValueRedeemReply);
-						if ($redeemData) {
-							// making sure we have the right data
-							if (isset($redeemData['responseCode']) && strtoupper(trim($redeemData['responseCode'])) === 'FAIL') {
-								// removed gift card from the shopping cart
-								Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->loadByPanPin($card['pan'], $card['pin'])
-									->removeFromCart();
-								$helper = Mage::helper('enterprise_giftcardaccount');
-								Mage::getSingleton('checkout/session')->addSuccess(
-									$helper->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_REMOVED, Mage::helper('core')->escapeHtml($card['pan']))
-								);
-								Mage::throwException($helper->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_WRONG_ACCOUNT));
-								// @codeCoverageIgnoreStart
-							} else {
-							// @codeCoverageIgnoreEnd
-								$card['panToken'] = $redeemData['paymentAccountUniqueId'];
-								$giftCard[$idx] = $card;
-							}
-						}
+					$svRedeem = Mage::getModel('eb2cpayment/storedvalue_redeem', array('order' => $order, 'card' => $card));
+					$svRedeem->redeemGiftCard();
+					if ($svRedeem->getResponseCode() === self::REDEEM_RESPONSE_CODE_FAIL) {
+						// SVC failed to be redeemed and cannot be used. Remove it from the
+						// cart and add a message to the session to be shown to the user.
+						Mage::getModel('enterprise_giftcardaccount/giftcardaccount')->loadByCode($card['pan'])->removeFromCart();
+						$this->_checkoutSession->addSuccess(
+							$helper->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_REMOVED, $this->_mageCoreHelper->escapeHtml($card['pan']))
+						);
+						throw Mage::exception('Mage_Core', $helper->__(self::EBAY_ENTERPRISE_EB2CPAYMENT_GIFTCARD_WRONG_ACCOUNT));
+					} elseif ($svRedeem->getPaymentAccountUniqueId()) {
+						$card['panToken'] = $svRedeem->getPaymentAccountUniqueId();
+						$card['requestId'] = $svRedeem->getRequestId();
+						$giftCard[$idx] = $card;
 					}
 				}
 			}
@@ -88,7 +106,7 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 				);
 				// The best we can do if the void request fails is log a warning.
 				if (empty($responseData) || strtoupper($responseData['responseCode']) === 'FAIL') {
-					Mage::helper('ebayenterprise_magelog')->logWarn(
+					$this->_log->logWarn(
 						'[%s] Could not void stored value card redemption',
 						array(__CLASS__)
 					);
@@ -105,21 +123,18 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 	public function suppressPaymentModule($observer)
 	{
 		$event = $observer->getEvent();
-		$helper = Mage::helper('eb2ccore');
 
 		$store = $event->getStore();
 		$website = $event->getWebsite();
 
-		$store = ($store instanceof Mage_Core_Model_Store)? $store : $helper->getDefaultStore();
-		$website = ($website instanceof Mage_Core_Mode_Website)? $website : $helper->getDefaultWebsite();
+		$store = ($store instanceof Mage_Core_Model_Store) ? $store : $this->_coreHelper->getDefaultStore();
+		$website = ($website instanceof Mage_Core_Model_Website) ? $website : $this->_coreHelper->getDefaultWebsite();
 
 		$suppressor = Mage::getModel('eb2cpayment/suppression', array(
 			'store' => $store,
 			'website' => $website
 		));
-		if (Mage::helper('eb2cpayment')->getConfigModel($store)->isPaymentEnabled) {
-			Mage::log(sprintf('[%s::%s] Enabling eBay Enterprise Payment Methods', __CLASS__, __METHOD__), Zend_Log::DEBUG);
-
+		if ($this->_paymentHelper->getConfigModel($store)->isPaymentEnabled) {
 			// first let's disable any none eBay Enterprise payment method
 			$suppressor->disableNonEb2cPaymentMethods();
 
@@ -127,7 +142,6 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 			// via Exchange platform config section
 			$suppressor->saveEb2cPaymentMethods(1);
 		} else {
-			Mage::log(sprintf('[%s::%s] disabling eBay Enterprise Payment Methods', __CLASS__, __METHOD__), Zend_Log::DEBUG);
 			// let's disabled payment bridge ebay Enterprise Payment method.
 			$suppressor->saveEb2cPaymentMethods(0);
 

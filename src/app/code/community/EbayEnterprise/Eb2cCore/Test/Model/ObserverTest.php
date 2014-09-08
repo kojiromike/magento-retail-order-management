@@ -56,7 +56,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 		$this->replaceByMock(
 			'model',
 			'eb2cpayment/observer',
-			$this->getModelMock('eb2cpayment/observer')
+			// disable constructor to prevent starting the checkout/session
+			$this->getModelMock('eb2cpayment/observer', array(), false, array(), '', false)
 		);
 
 		$quote = $this->getModelMock('sales/quote');
@@ -99,7 +100,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 		$this->replaceByMock(
 			'model',
 			'eb2cpayment/observer',
-			$this->getModelMock('eb2cpayment/observer')
+			// disable constructor to prevent starting the checkout/session
+			$this->getModelMock('eb2cpayment/observer', array(), false, array(), '', false)
 		);
 
 		// When the exception is thrown from inventory, ensure the session gets
@@ -152,7 +154,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 		$this->replaceByMock(
 			'model',
 			'eb2cpayment/observer',
-			$this->getModelMock('eb2cpayment/observer')
+			// disable constructor to prevent starting the checkout/session
+			$this->getModelMock('eb2cpayment/observer', array(), false, array(), '', false)
 		);
 		$quote = $this->getModelMock('sales/quote');
 		$order = $this->getModelMock('sales/order');

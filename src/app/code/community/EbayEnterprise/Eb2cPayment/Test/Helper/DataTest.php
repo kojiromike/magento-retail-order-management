@@ -111,15 +111,6 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 			$this->assertSame($data['expect'], $hlpr->getOperationUri($data['optIndex']));
 		}
 	}
-
-	/**
-	 * @loadFixture loadConfig.yaml
-	 * @dataProvider dataProvider
-	 */
-	public function testGetRequestId($incrementId)
-	{
-		$this->assertSame('clientId-storeId-100000060', Mage::helper('eb2cpayment')->getRequestId($incrementId));
-	}
 	/**
 	 * Test that we return the correct SVC url for the given PAN
 	 */
@@ -288,5 +279,44 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 		foreach ($testData as $data) {
 			$this->assertSame($data['expect'], $hlpr->getTenderType($data['pan']));
 		}
+	}
+	/**
+	 * Test that the method EbayEnterprise_Eb2cPayment_Helper_Data::buildRedeemRequest
+	 * will be invoked passed in different set of parameters to build StoredValue
+	 * redeem or redeem void request in a DOMDocument.
+	 * @param array $data
+	 * @param string $expectedXml
+	 * @dataProvider dataProvider
+	 */
+	public function testBuildRedeemRequest(array $data, $expectedXml)
+	{
+		$helper = $this->getHelperMock('eb2cpayment/data', array('_getCurrencyCode', 'getXmlNs'));
+		// Mocking this method because it will call Mage_Core_Model_Store::getCurrentCurrencyCode
+		// which will touch the core/session class causing controller URL error.
+		$helper->expects($this->any())
+			->method('_getCurrencyCode')
+			->will($this->returnValue($data['currency_code']));
+		$helper->expects($this->once())
+			->method('getXmlNs')
+			->will($this->returnValue($data['xml_ns']));
+
+		$request = $helper->buildRedeemRequest(
+			$data['pan'], $data['pin'], $data['entity_id'], $data['amount'], $data['request_id'], $data['is_void']
+		);
+
+		$this->assertXmlStringEqualsXmlString($expectedXml, $request->C14N());
+
+		// Testing the currency code
+		$xpath = Mage::helper('eb2ccore')->getNewDomXPath($request);
+		$xpath->registerNamespace('a', $data['xml_ns']);
+
+		$extractedCurrencyCode = $xpath
+			->query('//a:Amount/@currencyCode', $request->documentElement)
+			->item(0)->nodeValue;
+
+		// This test is to prove that the hard-coded currency code
+		// issue is resolved and that the currency code is being retrieved from
+		// the current Magento store.
+		$this->assertSame($data['currency_code'], $extractedCurrencyCode);
 	}
 }

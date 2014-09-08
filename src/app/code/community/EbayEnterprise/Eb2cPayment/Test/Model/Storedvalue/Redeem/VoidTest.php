@@ -27,14 +27,35 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 		$pin = '4321';
 		$quoteId = 3;
 		$amt = 50.50;
+		$requestId = 'REQUEST_ID_12345';
+		$isVoid = true;
 
 		$requestMessage = new DOMDocument();
 		$responseMessage = '<MockResponse/>';
 		$responseData = array();
 
+		$coreHelperMock = $this->getHelperMock('eb2ccore/data', array('generateRequestId'));
+		$coreHelperMock->expects($this->once())
+			->method('generateRequestId')
+			->will($this->returnValue($requestId));
+		$helperMock = $this->getHelperMock('eb2cpayment/data', array('buildRedeemRequest'));
+		$helperMock->expects($this->once())
+			->method('buildRedeemRequest')
+			->with(
+				$this->identicalTo($pan),
+				$this->identicalTo($pin),
+				$this->identicalTo($quoteId),
+				$this->identicalTo($amt),
+				$this->identicalTo($requestId),
+				$this->identicalTo($isVoid)
+			)
+			->will($this->returnValue($requestMessage));
+
 		$voidRequest = $this->getModelMock(
 			'eb2cpayment/storedvalue_redeem_void',
-			array('_parseResponse', '_buildRequest', '_makeVoidRequest')
+			array('_parseResponse', '_makeVoidRequest'),
+			false,
+			array(array('core_helper' => $coreHelperMock, 'payment_helper' => $helperMock))
 		);
 		$voidRequest->expects($this->once())
 			->method('_parseResponse')
@@ -44,10 +65,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 			->method('_makeVoidRequest')
 			->with($this->identicalTo($pan), $this->identicalTo($requestMessage))
 			->will($this->returnValue($responseMessage));
-		$voidRequest->expects($this->once())
-			->method('_buildRequest')
-			->with($this->identicalto($pan, $pin, $quoteId, $amt))
-			->will($this->returnValue($requestMessage));
+
 		$this->assertSame(
 			$responseData,
 			$voidRequest->voidCardRedemption($pan, $pin, $quoteId, $amt)
@@ -67,13 +85,14 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$responseMessage = '<MockResponse/>';
 		$pan = '123412341234';
+		$operation = 'get_gift_card_redeem_void';
 		$paymentHelperMock = $this->getHelperMockBuilder('eb2cpayment/data')
 			->disableOriginalConstructor()
 			->setMethods(array('getSvcUri', 'getConfigModel'))
 			->getMock();
 		$paymentHelperMock->expects($this->once())
 			->method('getSvcUri')
-			->with($this->equalTo('get_gift_card_redeem_void'), $this->equalTo($pan))
+			->with($this->equalTo($operation), $this->equalTo($pan))
 			->will($this->returnValue($requestUri));
 		$paymentHelperMock->expects($this->once())
 			->method('getConfigModel')
@@ -112,6 +131,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 	public function testGetRedeemVoidWithEmptyUrl()
 	{
 		$pan = '00000000000000';
+		$operation = 'get_gift_card_redeem_void';
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$payHelper = $this->getHelperMockBuilder('eb2cpayment/data')
 			->disableOriginalConstructor()
@@ -119,7 +139,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 			->getMock();
 		$payHelper->expects($this->once())
 			->method('getSvcUri')
-			->with($this->equalTo('get_gift_card_redeem_void'), $this->equalTo($pan))
+			->with($this->equalTo($operation), $this->equalTo($pan))
 			->will($this->returnValue(''));
 		$this->replaceByMock('helper', 'eb2cpayment', $payHelper);
 
@@ -166,54 +186,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Storedvalue_Redeem_VoidTest
 				'_parseResponse',
 				array('')
 			)
-		);
-	}
-	/**
-	 * Test building a request message for a given quote id, PAN, PIN and amount.
-	 */
-	public function testBuildStoredValueVoidRequest()
-	{
-		$pan = '4111111ak4idq1111';
-		$pin = '1234';
-		$entityId = 1;
-		$amount = 50.00;
-		$xmlNs = 'http://api.example.com/ns';
-		$requestId = 'request-id-1';
-
-		$paymentHelper = $this->getHelperMock(
-			'eb2cpayment/data',
-			array('getXmlNs', 'getRequestId')
-		);
-		$paymentHelper->expects($this->any())
-			->method('getXmlNs')
-			->will($this->returnValue($xmlNs));
-		$paymentHelper->expects($this->once())
-			->method('getRequestId')
-			->with($this->identicalTo($entityId))
-			->will($this->returnValue($requestId));
-		$this->replaceByMock('helper', 'eb2cpayment', $paymentHelper);
-
-		$expected = new DOMDocument();
-		// Do not preserve whitespace in the XML being compared to the XML the
-		// method is generating, otherwise the whitespace used to make the expected
-		// XML readable will cause the test to fail.
-		$expected->preserveWhiteSpace = false;
-		$expected->loadXML(sprintf('<StoredValueRedeemVoidRequest xmlns="%s" requestId="%s">
-	<PaymentContext>
-		<OrderId>%s</OrderId>
-		<PaymentAccountUniqueId isToken="false">%s</PaymentAccountUniqueId>
-	</PaymentContext>
-	<Pin>%s</Pin>
-	<Amount currencyCode="USD">%s</Amount>
-</StoredValueRedeemVoidRequest>', $xmlNs, $requestId, $entityId, $pan, $pin, $amount));
-
-		$this->assertSame(
-			$expected->C14N(),
-			EcomDev_Utils_Reflection::invokeRestrictedMethod(
-				Mage::getModel('eb2cpayment/storedvalue_redeem_void'),
-				'_buildRequest',
-				array($pan, $pin, $entityId, $amount)
-			)->C14N()
 		);
 	}
 }

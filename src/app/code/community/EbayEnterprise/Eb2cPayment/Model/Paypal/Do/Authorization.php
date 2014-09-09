@@ -14,12 +14,13 @@
  */
 
 class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Authorization
+	extends EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 {
 	const REQUEST_ID_PREFIX = 'PDA-';
-	/** @var string $_requestId request id of the last message sent */
+	/** @var string $_requestId Request id of the last message sent */
 	protected $_requestId;
 	/**
-	 * Get the request id of the last message sent
+	 * Get the request id used for the last Do Authorization request message sent.
 	 * @return string
 	 */
 	public function getRequestId()
@@ -34,7 +35,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Authorization
 	 */
 	public function doAuthorization(Mage_Sales_Model_Quote $quote)
 	{
-		$helper = Mage::helper('eb2cpayment');
+		$helper = $this->_helper;
 		return Mage::getModel('eb2ccore/api')
 			->setStatusHandlerPath(EbayEnterprise_Eb2cPayment_Helper_Data::STATUS_HANDLER_PATH)
 			->request(
@@ -52,10 +53,10 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Authorization
 	 */
 	public function buildPayPalDoAuthorizationRequest($quote)
 	{
-		$this->_requestId = Mage::helper('eb2ccore')->generateRequestId(self::REQUEST_ID_PREFIX);
 		$totals = $quote->getTotals();
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$payPalDoAuthorizationRequest = $domDocument->addElement('PayPalDoAuthorizationRequest', null, Mage::helper('eb2cpayment')->getXmlNs())->firstChild;
+		$this->_requestId = $this->_coreHelper->generateRequestId(self::REQUEST_ID_PREFIX);
+		$domDocument = $this->_coreHelper->getNewDomDocument();
+		$payPalDoAuthorizationRequest = $domDocument->addElement('PayPalDoAuthorizationRequest', null, $this->_xmlNs)->firstChild;
 		$payPalDoAuthorizationRequest->setAttribute('requestId', $this->_requestId);
 		$payPalDoAuthorizationRequest->createChild(
 			'OrderId',
@@ -82,12 +83,14 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Authorization
 	{
 		$checkoutObject = new Varien_Object();
 		if (trim($payPalDoAuthorizationReply) !== '') {
-			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+			$doc = $this->_coreHelper->getNewDomDocument();
 			$doc->loadXML($payPalDoAuthorizationReply);
-			$checkoutXpath = new DOMXPath($doc);
-			$checkoutXpath->registerNamespace('a', Mage::helper('eb2cpayment')->getXmlNs());
+			$checkoutXpath = $this->_coreHelper->getNewDomXPath($doc);
+			$checkoutXpath->registerNamespace('a', $this->_xmlNs);
 			$nodeOrderId = $checkoutXpath->query('//a:OrderId');
 			$nodeResponseCode = $checkoutXpath->query('//a:ResponseCode');
+			$this->_blockIfRequestFailed($nodeResponseCode->item(0)->nodeValue, $checkoutXpath);
+
 			$nodePaymentStatus = $checkoutXpath->query('//a:AuthorizationInfo/a:PaymentStatus');
 			$nodePendingReason = $checkoutXpath->query('//a:AuthorizationInfo/a:PendingReason');
 			$nodeReasonCode = $checkoutXpath->query('//a:AuthorizationInfo/a:ReasonCode');

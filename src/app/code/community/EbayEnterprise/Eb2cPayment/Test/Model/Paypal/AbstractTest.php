@@ -46,7 +46,10 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest
 			->will($this->returnSelf());
 		$this->replaceByMock('model', 'eb2cpayment/paypal', $paypal);
 		$abstract = new EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest_Stub();
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($abstract, '_savePaymentData', array($checkoutObject, $quote));
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($abstract, '_savePaymentData', array(
+			$checkoutObject,
+			$quote
+		));
 		$this->assertSame($quoteId, $paypal->getQuoteId());
 		$this->assertSame($transId, $paypal->getEb2cPaypalSomeField());
 	}

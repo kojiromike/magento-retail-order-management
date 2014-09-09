@@ -19,56 +19,19 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 	const URI_KEY = 'get_paypal_do_express_checkout';
 	const XSD_FILE = 'xsd_file_paypal_do_express';
 	const STORED_FIELD = 'transaction_id';
+	const ERROR_MESSAGE_ELEMENT = '//a:ErrorMessage';
 	const REQUEST_ID_PREFIX = 'PDC-';
-	/** @var string $_requestId request id of the last message sent */
+	/** @var string $_requestId Request id of the last message sent */
 	protected $_requestId;
 	/**
-	 * Get the request id of the last message sent
+	 * Get the request id used for the last Do Authorization request message sent.
 	 * @return string
 	 */
 	public function getRequestId()
 	{
 		return $this->_requestId;
 	}
-	/**
-	 * Build PaypalDoExpressCheckout request.
-	 *
-	 * @param Mage_Sales_Model_Quote $quote the quote to generate request XML from
-	 * @return DOMDocument The XML document to be sent as request to eb2c.
-	 */
-	protected function _buildRequest(Mage_Sales_Model_Quote $quote)
-	{
-		$totals = $quote->getTotals();
-		$this->_requestId = Mage::helper('eb2ccore')->generateRequestId(self::REQUEST_ID_PREFIX);
-		$currencyAttr = array('currencyCode' => $quote->getQuoteCurrencyCode());
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$payPalDoExpressCheckoutRequest = $domDocument->addElement('PayPalDoExpressCheckoutRequest', null, Mage::helper('eb2cpayment')->getXmlNs())->firstChild;
-		$payPalDoExpressCheckoutRequest->setAttribute('requestId', $this->_requestId);
-		$payPalDoExpressCheckoutRequest->createChild('OrderId', (string) $quote->getEntityId());
-		$paypal = Mage::getModel('eb2cpayment/paypal')->loadByQuoteId($quote->getEntityId());
-		$payPalDoExpressCheckoutRequest->createChild('Token', (string) $paypal->getEb2cPaypalToken());
-		$payPalDoExpressCheckoutRequest->createChild('PayerId', (string) $paypal->getEb2cPaypalPayerId());
-		$payPalDoExpressCheckoutRequest->createChild('Amount', sprintf('%.02f', isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0), $currencyAttr);
-		$quoteShippingAddress = $quote->getShippingAddress();
-		$payPalDoExpressCheckoutRequest->createChild('ShipToName', (string) $quoteShippingAddress->getName());
-		$lineItems = $payPalDoExpressCheckoutRequest->createChild('LineItems', null);
-		$lineItems->createChild('LineItemsTotal', sprintf('%.02f', isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0), $currencyAttr);
-		$lineItems->createChild('ShippingTotal', sprintf('%.02f', isset($totals['shipping']) ? $totals['shipping']->getValue() : 0), $currencyAttr);
-		$lineItems->createChild('TaxTotal', sprintf('%.02f', isset($totals['tax']) ? $totals['tax']->getValue() : 0), $currencyAttr);
-		if ($quote) {
-			foreach($quote->getAllAddresses() as $addresses){
-				if ($addresses){
-					foreach ($addresses->getAllItems() as $item) {
-						$lineItem = $lineItems->createChild('LineItem', null);
-						$lineItem->createChild('Name', (string) $item->getName());
-						$lineItem->createChild('Quantity', (string) $item->getQty());
-						$lineItem->createChild('UnitAmount', sprintf('%.02f', $item->getPrice()), $currencyAttr);
-					}
-				}
-			}
-		}
-		return $domDocument;
-	}
+
 	/**
 	 * Parse PayPal DoExpress reply xml.
 	 *
@@ -79,13 +42,15 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 	{
 		$checkoutObject = new Varien_Object();
 		if (trim($payPalDoExpressCheckoutReply) !== '') {
-			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+			$doc = $this->_coreHelper->getNewDomDocument();
 			$doc->loadXML($payPalDoExpressCheckoutReply);
-			$checkoutXpath = new DOMXPath($doc);
-			$checkoutXpath->registerNamespace('a', Mage::helper('eb2cpayment')->getXmlNs());
+			$checkoutXpath = $this->_coreHelper->getNewDomXPath($doc);
+			$checkoutXpath->registerNamespace('a', $this->_xmlNs);
 			$nodeOrderId = $checkoutXpath->query('//a:OrderId');
 			$nodeResponseCode = $checkoutXpath->query('//a:ResponseCode');
 			$nodeTransactionID = $checkoutXpath->query('//a:TransactionID');
+			$this->_blockIfRequestFailed($nodeResponseCode->item(0)->nodeValue, $checkoutXpath);
+
 			$nodePaymentStatus = $checkoutXpath->query('//a:PaymentInfo/a:PaymentStatus');
 			$nodePendingReason = $checkoutXpath->query('//a:PaymentInfo/a:PendingReason');
 			$nodeReasonCode = $checkoutXpath->query('//a:PaymentInfo/a:ReasonCode');
@@ -99,5 +64,29 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 			));
 		}
 		return $checkoutObject;
+	}
+
+	/**
+	 * @param Mage_Sales_Model_Quote $quote
+	 * @param string|float|int $grandTotal
+	 * @param array $curCodeAttr
+	 * @return EbayEnterprise_Dom_Document
+	 */
+	protected function _getRequest(Mage_Sales_Model_Quote $quote, $grandTotal, array $curCodeAttr)
+	{
+		$doc = $this->_coreHelper->getNewDomDocument();
+		$this->_requestId = $this->_coreHelper->generateRequestId(self::REQUEST_ID_PREFIX);
+		$paypal = Mage::getModel('eb2cpayment/paypal');
+		$paypal->loadByQuoteId($quote->getEntityId());
+		$quoteShippingAddress = $quote->getShippingAddress();
+		$request = $doc->addElement('PayPalDoExpressCheckoutRequest', null, $this->_xmlNs)->firstChild;
+		$request
+			->addAttribute('requestId', $this->_requestId)
+			->addChild('OrderId', (string) $quote->getEntityId())
+			->addChild('Token', (string) $paypal->getEb2cPaypalToken())
+			->addChild('PayerId', (string) $paypal->getEb2cPaypalPayerId())
+			->addChild('Amount', sprintf('%.02f', $grandTotal), $curCodeAttr)
+			->addChild('ShipToName', (string) $quoteShippingAddress->getName());
+		return $doc;
 	}
 }

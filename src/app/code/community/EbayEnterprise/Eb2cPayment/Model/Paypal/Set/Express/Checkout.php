@@ -19,65 +19,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 	const URI_KEY = 'get_paypal_set_express_checkout';
 	const XSD_FILE = 'xsd_file_paypal_set_express';
 	const STORED_FIELD = 'token';
-	/**
-	 * Build PaypalSetExpressCheckout request.
-	 *
-	 * @param Mage_Sales_Model_Quote $quote the quote to generate request XML from
-	 * @return DOMDocument The XML document to be sent as request to eb2c.
-	 */
-	protected function _buildRequest(Mage_Sales_Model_Quote $quote)
-	{
-		$totals = $quote->getTotals();
-		Mage::log(array_keys($totals['grand_total']->getData()));
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$payPalSetExpressCheckoutRequest = $domDocument->addElement('PayPalSetExpressCheckoutRequest', null, Mage::helper('eb2cpayment')->getXmlNs())->firstChild;
-		$payPalSetExpressCheckoutRequest->createChild('OrderId', (string) $quote->getEntityId());
-		$payPalSetExpressCheckoutRequest->createChild('ReturnUrl', (string) Mage::getUrl('*/*/return'));
-		$payPalSetExpressCheckoutRequest->createChild('CancelUrl', (string) Mage::getUrl('*/*/cancel'));
-		$payPalSetExpressCheckoutRequest->createChild('LocaleCode', (string) Mage::app()->getLocale()->getDefaultLocale());
-		$payPalSetExpressCheckoutRequest->createChild(
-			'Amount',
-			sprintf('%.02f', (isset($totals['grand_total']) ? $totals['grand_total']->getValue() : 0)),
-			array('currencyCode' => $quote->getQuoteCurrencyCode())
-		);
-		// creating lineItems element
-		$lineItems = $payPalSetExpressCheckoutRequest->createChild('LineItems', null);
-		// add LineItemsTotal
-		$lineItems->createChild(
-			'LineItemsTotal',
-			sprintf('%.02f', (isset($totals['subtotal']) ? $totals['subtotal']->getValue() : 0)),
-			array('currencyCode' => $quote->getQuoteCurrencyCode())
-		);
-		// add ShippingTotal
-		$lineItems->createChild(
-			'ShippingTotal',
-			sprintf('%.02f', (isset($totals['shipping']) ? $totals['shipping']->getValue() : 0)),
-			array('currencyCode' => $quote->getQuoteCurrencyCode())
-		);
-		// add TaxTotal
-		$lineItems->createChild(
-			'TaxTotal',
-			sprintf('%.02f', (isset($totals['tax']) ? $totals['tax']->getValue() : 0)),
-			array('currencyCode' => $quote->getQuoteCurrencyCode())
-		);
-		if ($quote) {
-			foreach($quote->getAllAddresses() as $addresses){
-				if ($addresses){
-					foreach ($addresses->getAllItems() as $item) {
-						// creating lineItem element
-						$lineItem = $lineItems->createChild('LineItem', null);
-						// add Name
-						$lineItem->createChild('Name', (string) $item->getName());
-						// add Quantity
-						$lineItem->createChild('Quantity', (string) $item->getQty());
-						// add UnitAmount
-						$lineItem->createChild('UnitAmount', sprintf('%.02f', $item->getPrice()), array('currencyCode' => $quote->getQuoteCurrencyCode()));
-					}
-				}
-			}
-		}
-		return $domDocument;
-	}
+	const ERROR_MESSAGE_ELEMENT = '//a:ErrorMessage';
+
 	/**
 	 * Parse PayPal SetExpress reply xml.
 	 *
@@ -88,12 +31,15 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 	{
 		$checkoutObject = new Varien_Object();
 		if (trim($payPalSetExpressCheckoutReply) !== '') {
-			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+			/** @var EbayEnterprise_Dom_Document $doc */
+			$doc = $this->_coreHelper->getNewDomDocument();
 			$doc->loadXML($payPalSetExpressCheckoutReply);
-			$checkoutXpath = new DOMXPath($doc);
-			$checkoutXpath->registerNamespace('a', Mage::helper('eb2cpayment')->getXmlNs());
+			$checkoutXpath = $this->_coreHelper->getNewDomXPath($doc);
+			$checkoutXpath->registerNamespace('a', $this->_xmlNs);
 			$nodeOrderId = $checkoutXpath->query('//a:OrderId');
 			$nodeResponseCode = $checkoutXpath->query('//a:ResponseCode');
+			$this->_blockIfRequestFailed($nodeResponseCode->item(0)->nodeValue, $checkoutXpath);
+
 			$nodeToken = $checkoutXpath->query('//a:Token');
 			$checkoutObject->setData(array(
 				'order_id' => ($nodeOrderId->length)? (int) $nodeOrderId->item(0)->nodeValue : 0,
@@ -102,5 +48,24 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 			));
 		}
 		return $checkoutObject;
+	}
+
+	/**
+	 * @param Mage_Sales_Model_Quote $quote
+	 * @param float|int|string $grandTotal
+	 * @param array $curCodeAttr
+	 * @return EbayEnterprise_Dom_Document
+	 */
+	protected function _getRequest(Mage_Sales_Model_Quote $quote, $grandTotal, array $curCodeAttr)
+	{
+		$doc = $this->_coreHelper->getNewDomDocument();
+		$request = $doc->addElement('PayPalSetExpressCheckoutRequest', null, $this->_xmlNs)->firstChild;
+		$request
+			->addChild('OrderId', (string) $quote->getEntityId())
+			->addChild('ReturnUrl', (string) Mage::getUrl('*/*/return'))
+			->addChild('CancelUrl', (string) Mage::getUrl('*/*/cancel'))
+			->addChild('LocaleCode', (string) Mage::app()->getLocale()->getDefaultLocale())
+			->addChild('Amount', sprintf('%.02f', $grandTotal), $curCodeAttr);
+		return $doc;
 	}
 }

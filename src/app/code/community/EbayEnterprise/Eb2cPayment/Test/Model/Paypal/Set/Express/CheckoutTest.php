@@ -15,123 +15,50 @@
 
 class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Set_Express_CheckoutTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	protected $_checkout;
-	public function setUp()
+	/**
+	 * Test that the 'eb2cpayment/paypal_set_express_checkout::parseResponse' method, when invoked
+	 * will be passed in an XML response message string as its parameter and expects a known ‘Varien_Object’
+	 * class instance to be returned and then asserts that the data in the returned ‘Varien_Object’
+	 * class instance matches a known array of data.
+	 * @param string $file The fixture relative path
+	 * @param array $expected
+	 * @dataProvider dataProvider
+	 */
+	public function testParseResponse($file, array $expected)
 	{
-		parent::setUp();
-		$this->_checkout = Mage::getModel('eb2cpayment/paypal_set_express_checkout');
-		$urlMock = $this->getModelMockBuilder('core/url')
-			->disableOriginalConstructor()
-			->setMethods(array('getUrl'))
-			->getMock();
-		$urlMock->expects($this->any())
-			->method('getUrl')
-			->will($this->returnValue('checkout/cart'));
-		$this->replaceByMock('singleton', 'core/url', $urlMock);
-		$sessionMock = $this->getModelMockBuilder('core/session')
-			->disableOriginalConstructor()
-			->setMethods(array('getCookieShouldBeReceived', 'getSessionIdQueryParam', 'getSessionId', 'getSessionIdForHost'))
-			->getMock();
-		$sessionMock->expects($this->any())
-			->method('getCookieShouldBeReceived')
-			->will($this->returnValue(true));
-		$sessionMock->expects($this->any())
-			->method('getSessionIdQueryParam')
-			->will($this->returnValue('name'));
-		$sessionMock->expects($this->any())
-			->method('getSessionId')
-			->will($this->returnValue(1));
-		$sessionMock->expects($this->any())
-			->method('getSessionIdForHost')
-			->will($this->returnValue(1));
-		$this->replaceByMock('singleton', 'core/session', $sessionMock);
-	}
-	public function buildQuoteMock()
-	{
-		$addressMock = $this->getMock(
-			'Mage_Sales_Model_Quote_Address',
-			array('getAllItems')
-		);
-		$itemMock = $this->getMock(
-			'Mage_Sales_Model_Quote_Item',
-			array('getName', 'getQty', 'getPrice')
-		);
-		$addressMock->expects($this->any())
-			->method('getAllItems')
-			->will($this->returnValue(array($itemMock))
-			);
-		$itemMock->expects($this->any())
-			->method('getName')
-			->will($this->returnValue('Product A')
-			);
-		$itemMock->expects($this->any())
-			->method('getQty')
-			->will($this->returnValue(1)
-			);
-		$itemMock->expects($this->any())
-			->method('getPrice')
-			->will($this->returnValue(25.00)
-			);
-		$totals = array();
-		$totals['grand_total'] = Mage::getModel('sales/quote_address_total', array(
-			'code' => 'grand_total', 'value' => 50.00
-		));
-		$totals['subtotal'] = Mage::getModel('sales/quote_address_total', array(
-			'code' => 'subtotal', 'value' => 50.00
-		));
-		$totals['shipping'] = Mage::getModel('sales/quote_address_total', array(
-			'code' => 'shipping', 'value' => 10.00
-		));
-		$totals['tax'] = Mage::getModel('sales/quote_address_total', array(
-			'code' => 'tax', 'value' => 5.00
-		));
-		$quoteMock = $this->getMock(
-			'Mage_Sales_Model_Quote',
-			array(
-				'getEntityId', 'getTotals', 'getQuoteCurrencyCode', 'getAllAddresses'
-			)
-		);
-		$quoteMock->expects($this->any())
-			->method('getEntityId')
-			->will($this->returnValue(1234567)
-			);
-		$quoteMock->expects($this->any())
-			->method('getTotals')
-			->will($this->returnValue($totals)
-			);
-		$quoteMock->expects($this->any())
-			->method('getQuoteCurrencyCode')
-			->will($this->returnValue('USD')
-			);
-		$quoteMock->expects($this->any())
-			->method('getAllAddresses')
-			->will($this->returnValue(array($addressMock))
-			);
-		return $quoteMock;
-	}
-	public function providerSetExpressCheckout()
-	{
-		return array(
-			array($this->buildQuoteMock())
-		);
-	}
-	public function providerParseResponse()
-	{
-		return array(
-			array(file_get_contents(__DIR__ . '/CheckoutTest/fixtures/PayPalSetExpressCheckoutReply.xml', true))
-		);
+		$xml = file_get_contents(__DIR__ . $file, true);
+		$actual = Mage::getModel('eb2cpayment/paypal_set_express_checkout')->parseResponse($xml)->getData();
+		$this->assertSame($expected, $actual);
 	}
 	/**
-	 * testing parseResponse method
-	 *
-	 * @dataProvider providerParseResponse
-	 * @loadFixture loadConfig.yaml
+	 * Test the method 'eb2cpayment/paypal_set_express_checkout::_calculateUnitAmount' passed in a known
+	 * 'sales/quote_item' class instance, as parameter, then expects the proper ‘UnitAmount’ calculation value to be returned.
+	 * @param array $itemData
+	 * @param float $expected
+	 * @dataProvider dataProvider
 	 */
-	public function testParseResponse($payPalSetExpressCheckoutReply)
+	public function testCalculateUnitAmount(array $itemData, $expected)
 	{
-		$this->assertInstanceOf(
-			'Varien_Object',
-			$this->_checkout->parseResponse($payPalSetExpressCheckoutReply)
-		);
+		$item = Mage::getModel('sales/quote_item', $itemData);
+		$checkout = Mage::getModel('eb2cpayment/paypal_set_express_checkout');
+		$actual = EcomDev_Utils_Reflection::invokeRestrictedMethod($checkout, '_calculateUnitAmount', array($item));
+		$this->assertSame($expected, $actual);
+	}
+	/**
+	 * Test the method 'eb2cpayment/paypal_set_express_checkout::_calculateLineItemsTotal' passed in a known 'sales/quote'
+	 * class instance as the  first parameter and an array of totals as second parameter, then expects the proper LineItemsTotal
+	 * calculated value to be returned.
+	 * @param array $quoteData
+	 * @param float $expected
+	 * @dataProvider dataProvider
+	 */
+	public function testCalculateLineItemsTotal(array $quoteData, $expected)
+	{
+		// This is a hack because yaml is converting the data from float to string
+		$expected = (float) $expected;
+		$quote = Mage::getModel('sales/quote', $quoteData);
+		$checkout = Mage::getModel('eb2cpayment/paypal_set_express_checkout');
+		$actual = EcomDev_Utils_Reflection::invokeRestrictedMethod($checkout, '_calculateLineItemsTotal', array($quote));
+		$this->assertSame($expected, $actual);
 	}
 }

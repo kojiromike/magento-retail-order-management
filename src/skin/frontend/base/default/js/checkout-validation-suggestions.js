@@ -12,22 +12,24 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * On dom:loaded to ensure all one-page checkout assets have
+ * loaded and been setup as needed.
+ */
 document.observe('dom:loaded', function() {
 	/**
-	 * Replacement for the onepage Billing and Shipping methods.
-	 * Need to ensure the original method is called as well as the additional steps
-	 * to insert the suggestions. This means some steps are duplicated but
-	 * also helps to reduce the risk of the overridden method diverging too far from
-	 * its replacement.
+	 * Address validation response handling. Adds handling for address validation
+	 * response messages around the given original checkout step onSave handling.
 	 * @param function originalFn - the original method this is replacing
 	 * @param Ajax.Response transport - the result of the Ajax call this is a callback to
 	 * @return boolean
 	 */
-	var nextWithSuggestions = function nextWithSuggestions(originalFn, transport) {
-		// call the original next function and capture the results
+	var onSaveWithSuggestions = function onSaveWithSuggestions(originalFn, transport) {
+		// Call the original next function within the same context
+		// and capture the results.
 		var success = originalFn.call(this, transport);
+
 		var response = {};
-		// this, unfortunately, is repeated in the originalFn
 		if (transport && transport.responseText) {
 			response = transport.responseText.evalJSON();
 		}
@@ -58,45 +60,26 @@ document.observe('dom:loaded', function() {
 
 		return success;
 	};
-
-	if (window.Billing) {
-		// replace the original nextStep method with the override, wrapping the
-		// original function with added handling for address validation suggestions
-		var origBillNext = window.Billing.prototype.nextStep;
-		window.Billing.prototype.nextStep = function (transport) {
-			return nextWithSuggestions.call(this, origBillNext, transport);
-		};
-	}
-	/*
-	 * If billing.onSave has been defined as a function, must assume it will call
-	 * Billing.nextStep. This is necessary as:
-	 * Wrapping the existing method with another that will certainly call
-	 * Billing.nextStep may duplicate the call if the original method is already
-	 * calling it.
-	 * Replacing the method with a call to Billing.nextStep may remove other
-	 * necessary actions taken by the already defined function.
-	 * If the function has not yet been defined, define it as simply calling
-	 * Billing.nextStep, properly bound as an event listener.
+	/**
+	 * Wrap the checkout step object's onSave function with address
+	 * validation handling.
+	 * @param  Billing|Shipping checkoutStep
 	 */
-	if (typeof(window.billing.onSave) !== 'function') {
-		window.billing.onSave = window.Billing.prototype.nextStep.bindAsEventListener(window.billing);
-	}
+	var wrapOnSave = function wrapOnSave(checkoutStep) {
+		if (checkoutStep) {
+			// The onSave function is set in the initialize function for billing
+			// and shipping so it should always be set. In the extreme case that
+			// it isn't set, default to a no-op function.
+			var originalOnSave = checkoutStep.onSave || function () {};
+			// Wrap the original function with address validation handling. Bind
+			// the wrapped function as an event listener to preserver the expected
+			// context.
+			checkoutStep.onSave = originalOnSave.wrap(onSaveWithSuggestions)
+				.bindAsEventListener(checkoutStep);
+		}
+	};
 
-	if (window.Shipping) {
-		// replace the original nextStep method with the override, wrapping the
-		// original function with added handling for address validation suggestions
-		var origShipNext = window.Shipping.prototype.nextStep;
-		window.Shipping.prototype.nextStep = function (transport) {
-			return nextWithSuggestions.call(this, origShipNext, transport);
-		};
-	}
-	/*
-	 * Same as billing.onSave. If defined, must assume it will call
-	 * Shipping.nextStep. Otherwise, define it as Shipping.nextStep bound as an
-	 * event listener.
-	 */
-	if (typeof(window.shipping.onSave) !== 'function') {
-		window.shipping.onSave = window.Shipping.prototype.nextStep.bindAsEventListener(window.shipping);
-	}
-
+	// Wrap the window.billing and window.shipping checkout step objects'
+	// onSave functions with address validation response handling.
+	[window.billing, window.shipping].each(wrapOnSave);
 });

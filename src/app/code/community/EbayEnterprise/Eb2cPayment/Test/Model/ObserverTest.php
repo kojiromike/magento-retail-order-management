@@ -377,4 +377,26 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 			array('event' => new Varien_Event(array('order' => $order)))
 		));
 	}
+	/**
+	 * verify applyExpressPaymentAction is called with the correct parameters
+	 * @covers EbayEnterprise_Eb2cPayment_Model_Observer::configurePayPalPaymentAction
+	 */
+	public function testConfigurePayPalPaymentAction()
+	{
+		$store = 'a store code or null';
+		$website = 'a website code or null';
+		// prevent the need to mock unnecessary dependencies
+		$observer = $this->getModelMockBuilder('eb2cpayment/observer')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$observerObj = $this->_buildEventObserver(array('store' => $store, 'website' => $website));
+		$adminConfig = $this->getModelMock('eb2cpayment/paypal_adminhtml_config', array('applyExpressPaymentAction'));
+		$adminConfig->expects($this->once())
+			->method('applyExpressPaymentAction')
+			->with($this->identicalTo($store), $this->identicalTo($website))
+			->will($this->returnSelf());
+		$this->replaceByMock('model', 'eb2cpayment/paypal_adminhtml_config', $adminConfig);
+		$observer->configurePayPalPaymentAction($observerObj);
+	}
 }

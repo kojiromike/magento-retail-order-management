@@ -124,6 +124,11 @@
 						<class>EbayEnterprise_Eb2cPayment_Model_Observer</class>
 						<method>suppressPaymentModule</method>
 					</payment_suppression_observer>
+					<paypal_paymentaction_config>
+						<type>singleton</type>
+						<class>EbayEnterprise_Eb2cPayment_Model_Observer</class>
+						<method>configurePayPalPaymentAction</method>
+					</paypal_paymentaction_config>
 				</observers>
 			</admin_system_config_changed_section_eb2ccore>
 		</events>

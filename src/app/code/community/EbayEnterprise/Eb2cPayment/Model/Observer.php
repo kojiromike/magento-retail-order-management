@@ -151,6 +151,22 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 
 		return $this;
 	}
+
+	/**
+	 * configure the PayPal payment action to the order action.
+	 * @param Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function configurePayPalPaymentAction($observer)
+	{
+		$event = $observer->getEvent();
+		$store = $event->getStore();
+		$website = $event->getWebsite();
+		Mage::getModel('eb2cpayment/paypal_adminhtml_config')
+			->applyExpressPaymentAction($store, $website);
+		return $this;
+	}
+
 	/**
 	 * Void any payments when the order creation has failed.
 	 * Observes the 'eb2c_order_creation_failure' event

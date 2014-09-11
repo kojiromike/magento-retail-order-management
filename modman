@@ -1,9 +1,3 @@
-# Import these extensions via their own modman files.
-@import extensions/magento-active-config
-@import extensions/magento-file-transfer
-@import extensions/magento-log
-@import extensions/php-dom
-
 # Core
 connect/ebay_retail_order_management.xml var/connect/ebay_retail_order_management.xml
 src/app/code/community/EbayEnterprise/* app/code/community/EbayEnterprise/

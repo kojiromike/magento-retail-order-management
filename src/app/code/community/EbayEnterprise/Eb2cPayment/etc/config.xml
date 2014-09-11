@@ -95,15 +95,6 @@
 			</eb2cpayment_setup>
 		</resources>
 		<events>
-			<admin_system_config_changed_section_eb2ccore>
-				<observers>
-					<payment_suppression_observer>
-						<type>singleton</type>
-						<class>EbayEnterprise_Eb2cPayment_Model_Observer</class>
-						<method>suppressPaymentModule</method>
-					</payment_suppression_observer>
-				</observers>
-			</admin_system_config_changed_section_eb2ccore>
 			<eb2c_redeem_giftcard>
 				<observers>
 					<eb2cpayment_redeem_giftcard>
@@ -164,6 +155,22 @@
 		</layout>
 	</frontend>
 	<adminhtml>
+		<events>
+			<admin_system_config_changed_section_eb2ccore>
+				<observers>
+					<payment_suppression_observer>
+						<type>singleton</type>
+						<class>EbayEnterprise_Eb2cPayment_Model_Observer</class>
+						<method>suppressPaymentModule</method>
+					</payment_suppression_observer>
+					<paypal_paymentaction_config>
+						<type>singleton</type>
+						<class>EbayEnterprise_Eb2cPayment_Model_Observer</class>
+						<method>configurePayPalPaymentAction</method>
+					</paypal_paymentaction_config>
+				</observers>
+			</admin_system_config_changed_section_eb2ccore>
+		</events>
 		<translate>
 			<modules>
 				<EbayEnterprise_Eb2cPayment>

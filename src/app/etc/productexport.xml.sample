@@ -211,6 +211,13 @@ Copy this file to productexport.xml and configure the appropriate values below.
 							<xml_dest>ExtendedAttributes/</xml_dest>
 							<translate>0</translate>
 						</cost>
+						<open_amount_max>
+							<class>ebayenterprise_productexport/giftcard</class>
+							<type>helper</type>
+							<method>passMaxGCAmount</method>
+							<xml_dest>CustomAttributes/Attribute[@name="MaxGCAmount"]</xml_dest>
+							<translate>0</translate>
+						</open_amount_max>
 						<item_url>
 							<class>eb2cproduct/itemmaster</class>
 							<type>helper</type>

@@ -16,10 +16,15 @@
 <config>
 	<modules>
 		<EbayEnterprise_ProductExport>
-			<version>1.2.0</version>
+			<version>1.3.0</version>
 		</EbayEnterprise_ProductExport>
 	</modules>
 	<global>
+		<helpers>
+			<ebayenterprise_productexport>
+				<class>EbayEnterprise_ProductExport_Helper</class>
+			</ebayenterprise_productexport>
+		</helpers>
 		<resources>
 			<productexport_setup>
 				<setup>
@@ -30,4 +35,11 @@
 		</resources>
 	</global>
 	<default/>
+	<phpunit>
+		<suite>
+			<modules>
+				<EbayEnterprise_ProductExport/>
+			</modules>
+		</suite>
+	</phpunit>
 </config>

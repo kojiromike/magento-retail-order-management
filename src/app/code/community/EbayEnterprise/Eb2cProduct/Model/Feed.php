@@ -53,6 +53,7 @@ class EbayEnterprise_Eb2cProduct_Model_Feed
 			$this->_coreFeedTypes[] = $coreFeed;
 			$this->_eventTypes[] = $coreFeed->getEventType();
 		}
+		$this->_log = Mage::helper('ebayenterprise_magelog');
 	}
 
 	/**
@@ -137,7 +138,7 @@ class EbayEnterprise_Eb2cProduct_Model_Feed
 			// one should just log the error and move on. Leaving out the EbayEnterprise_Core_Feed_Failure
 			// for now as none of the feeds expect to use it.
 			} catch (Mage_Core_Exception $e) {
-				Mage::helper('ebayenterprise_magelog')->logWarn(
+				$this->_log->logWarn(
 					'[%s] Failed to process file, %s. %s',
 					array(__CLASS__, basename($feedFile['local_file']), $e->getMessage())
 				);

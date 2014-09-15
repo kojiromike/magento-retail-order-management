@@ -43,6 +43,8 @@ class EbayEnterprise_Eb2cProduct_Test_Model_FeedTest
 		$this->replaceByMock('helper', 'eb2cproduct', $prodHelper);
 
 		$prodFeed = $this->getModelMockBuilder('eb2cproduct/feed')
+			// disable the constructor to prevent the _construct method from being invoked
+			// it will be tested explicitly later
 			->disableOriginalConstructor()
 			->getMock();
 
@@ -96,7 +98,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_FeedTest
 			->disableOriginalConstructor()
 			->getMock();
 		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/feed')
-			->disableOriginalConstructor()
 			->setMethods(array('getMessageDate'))
 			->getMock();
 		$dateTimeMock = $this->getMockBuilder('DateTime')
@@ -104,7 +105,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_FeedTest
 			->getMock();
 
 		$prodFeed = $this->getModelMockBuilder('eb2cproduct/feed')
-			->disableOriginalConstructor()
 			->setMethods(array())
 			->getMock();
 
@@ -175,11 +175,9 @@ class EbayEnterprise_Eb2cProduct_Test_Model_FeedTest
 			->getMock();
 		$prodHelper = $this->getHelperMock('eb2cproduct/data', array('buildErrorFeedFilename'));
 		$errorConfirmations = $this->getModelMockBuilder('eb2cproduct/error_confirmations')
-			->disableOriginalConstructor()
 			->setMethods(array('loadFile', 'initFeed'))
 			->getMock();
 		$prodFeed = $this->getModelMockBuilder('eb2cproduct/feed')
-			->disableOriginalConstructor()
 			->setMethods(array('_unifiedAllFiles', '_compareFeedFiles'))
 			->getMock();
 
@@ -272,7 +270,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_FeedTest
 		$this->replaceByMock('model', 'eb2cproduct/feed_cleaner', $cleanerModelMock);
 
 		$prodFeed = $this->getModelMockBuilder('eb2cproduct/feed')
-			->disableOriginalConstructor()
 			->setMethods(array('_getFilesToProcess', 'processFile'))
 			->getMock();
 
@@ -305,17 +302,14 @@ class EbayEnterprise_Eb2cProduct_Test_Model_FeedTest
 		$cleanerModelMock->expects($this->never())
 			->method('cleanAllProducts');
 		$this->replaceByMock('model', 'eb2cproduct/feed_cleaner', $cleanerModelMock);
-
-		$prodFeed = $this->getModelMockBuilder('eb2cproduct/feed')
-			->disableOriginalConstructor()
-			->setMethods(array('_getFilesToProcess', 'processFile'))
-			->getMock();
 		$logger = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
-			->disableOriginalConstructor()
 			->setMethods(array('logWarn'))
 			->getMock();
-
 		$this->replaceByMock('helper', 'ebayenterprise_magelog', $logger);
+
+		$prodFeed = $this->getModelMockBuilder('eb2cproduct/feed')
+			->setMethods(array('_getFilesToProcess', 'processFile'))
+			->getMock();
 
 		$filesToProcess = array(
 			array('local_file' => '/Mage/var/local/file.xml'),

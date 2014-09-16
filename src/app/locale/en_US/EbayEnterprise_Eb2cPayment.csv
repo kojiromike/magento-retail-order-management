@@ -8,3 +8,5 @@
 "EbayEnterprise_Eb2cPayment_Admin_Dasboard_Payment_Config_None_Eb2c_Title", "This store has no payment methods configured. (Note: the ""free"" payment method must be enabled for customers to use gift cards.)"
 "EbayEnterprise_Eb2cPayment_Admin_System_Config_PBridge_Comments", "click here to <a href=""%s"">Configure Payment Bridge</a>"
 "EbayEnterprise_Eb2cPayment_Paypal_Request_Failed", "The PayPal request was unsuccessful.<br/>%s"
+"EbayEnterprise_Eb2cPayment_Paypal_Giftwrap_Name", "Gift Wrap"
+"EbayEnterprise_Eb2cPayment_Paypal_Promotional_Rounding_Adjustment", "Promotional Rounding Adjustment"

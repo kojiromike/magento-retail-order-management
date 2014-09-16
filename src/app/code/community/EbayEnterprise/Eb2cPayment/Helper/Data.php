@@ -161,4 +161,15 @@ class EbayEnterprise_Eb2cPayment_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::app()->getStore()->getCurrentCurrencyCode();
 	}
+	/**
+	 * Round a float down to the specified precision
+	 * @param  float  $value
+	 * @param  integer $precision
+	 * @return float
+	 */
+	public function floorToPrecision($value, $precision)
+	{
+		$s = pow(10, $precision);
+		return (float) (floor($value * $s) / $s);
+	}
 }

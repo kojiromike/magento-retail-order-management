@@ -319,4 +319,21 @@ class EbayEnterprise_Eb2cPayment_Test_Helper_DataTest
 		// the current Magento store.
 		$this->assertSame($data['currency_code'], $extractedCurrencyCode);
 	}
+	/**
+	 * Test rounding values down to the given precision
+	 * @param float $value
+	 * @param int $precision
+	 * @param float $expected
+	 * @dataProvider dataProvider
+	 */
+	public function testFloorToPrecision($value, $precision, $expected)
+	{
+		$this->assertSame(
+			// sypc.php (used by EcomDev) only supports yaml 1.0 which doesn't really support
+			// floats so the expected float may actually be a string. Explicit cast to float
+			// to make sure it actually is a float
+			(float) $expected,
+			Mage::helper('eb2cpayment')->floorToPrecision((float) $value, $precision)
+		);
+	}
 }

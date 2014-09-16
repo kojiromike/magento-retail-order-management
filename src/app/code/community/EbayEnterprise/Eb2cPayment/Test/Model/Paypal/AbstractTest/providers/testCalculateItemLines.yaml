@@ -1,0 +1,40 @@
+-
+  - id: 1
+    name: Item Name
+    qty: 1
+    row_total: 15.9900
+    discount_amount: 0.0000
+-
+  - id: 2
+    name: Item Name
+    qty: 2
+    row_total: 39.9800
+    discount_amount: 19.9900
+-
+  - id: 3
+    name: Item Name
+    qty: 3
+    row_total: 24.0000
+    discount_amount: 4.0000
+-
+  - id: 4
+    name: Item Name
+    qty: 3
+    row_total: 20.7500
+    discount_amount: 5.0000
+-
+  - id: 5
+    name: Item Name
+    qty: 1
+    row_total: 9.9900
+    discount_amount: 0.0000
+    gw_id: 101
+    gw_price: 2.9900
+-
+  - id: 6
+    name: Item Name
+    qty: 2
+    row_total: 9.9900
+    discount_amount: 0.0000
+    gw_id: 101
+    gw_price: 2.9900

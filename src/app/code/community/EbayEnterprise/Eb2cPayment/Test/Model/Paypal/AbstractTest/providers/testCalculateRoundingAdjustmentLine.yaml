@@ -1,0 +1,48 @@
+-
+  -
+    id: 1
+    subtotal_with_discount: 25.9900
+    gw_price: 0.0000
+    gw_items_price: 0.0000
+  -
+    -
+      name: Item One
+      price: 25.99
+      qty: 1
+-
+  -
+    id: 2
+    subtotal_with_discount: 25.9900
+    gw_price: 0.0000
+    gw_items_price: 0.0000
+  -
+    -
+      name: Item One
+      price: 12.99
+      qty: 2
+-
+  -
+    id: 3
+    subtotal_with_discount: 25.9900
+    gw_price: 0.0000
+    gw_items_price: 0.0000
+  -
+    -
+      name: Item One
+      price: 10.00
+      qty: 2
+    -
+      name: Item Two
+      price: 5.99
+      qty: 1
+-
+  -
+    id: 4
+    subtotal_with_discount: 29.9900
+    gw_price: 0.0000
+    gw_items_price: 0.0000
+  -
+    -
+      name: Item One
+      price: 9.99
+      qty: 3

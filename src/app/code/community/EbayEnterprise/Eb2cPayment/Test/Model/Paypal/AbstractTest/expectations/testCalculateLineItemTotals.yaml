@@ -1,0 +1,22 @@
+quote-1:
+  totals:
+    -
+      name: 'Item One'
+      price: '7.99'
+      qty: 2
+    -
+      name: 'EbayEnterprise_Eb2cPayment_Paypal_Giftwrap_Name'
+      price: '5.00'
+      qty: 2
+    -
+      name: 'Item Two'
+      price: '1.99'
+      qty: 1
+    -
+      name: 'EbayEnterprise_Eb2cPayment_Paypal_Giftwrap_Name'
+      price: '6.00'
+      qty: 1
+    -
+      name: 'EbayEnterprise_Eb2cPayment_Paypal_Promotional_Rounding_Adjustment'
+      price: '0.01'
+      qty: 1

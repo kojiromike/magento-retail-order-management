@@ -21,8 +21,11 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 	const SUCCESS = 'SUCCESS';
 	const SUCCESSWITHWARNINGS = 'SUCCESSWITHWARNINGS';
 	const ERROR_MESSAGE_ELEMENT = '';
-	const GIFTWRAP_NAME = 'GiftWrap';
-	const GIFTWRAP_QTY = '1';
+	const GIFTWRAP_NAME = 'EbayEnterprise_Eb2cPayment_Paypal_Giftwrap_Name';
+	const GIFTWRAP_QTY = 1;
+	const ROUNDING_ADJUSTMENT_NAME = 'EbayEnterprise_Eb2cPayment_Paypal_Promotional_Rounding_Adjustment';
+	const ROUNDING_ADJUSTMENT_QTY = 1;
+	const CURRENCY_FORMAT = '%.02F';
 
 	/** @var EbayEnterprise_Eb2cPayment_Helper_Data $_helper */
 	protected $_helper;
@@ -146,20 +149,25 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 
 		$lineItems = $request->createChild('LineItems', null)
 			// value to be inserted below
-			->addChild('LineItemsTotal', $this->_calculateLineItemsTotal($quote), $curCodeAttr)
-			->addChild('ShippingTotal', sprintf('%.02f', $this->_getTotal($totals, 'shipping')), $curCodeAttr)
-			->addChild('TaxTotal', sprintf('%.02f', $this->_getTotal($totals, 'tax')), $curCodeAttr);
-
-		if ($quote->getGwId()) {
-			$this->_addLineItem($lineItems, $quote->getGwPrice(), $curCodeAttr, static::GIFTWRAP_NAME, static::GIFTWRAP_QTY);
-		}
-		foreach($quote->getAllItems() as $item) {
-			$this->_addLineItem($lineItems, $this->_calculateUnitAmount($item), $curCodeAttr, $item->getName(), $item->getQty());
-			if ($item->getGwId()) {
-				$this->_addLineItem($lineItems, $item->getGwPrice(), $curCodeAttr, static::GIFTWRAP_NAME, static::GIFTWRAP_QTY);
-			}
-		}
+			->addChild('LineItemsTotal', sprintf(self::CURRENCY_FORMAT, $this->_calculateQuoteSubtotal($quote)), $curCodeAttr)
+			->addChild('ShippingTotal', sprintf(self::CURRENCY_FORMAT, $this->_getTotal($totals, 'shipping')), $curCodeAttr)
+			->addChild('TaxTotal', sprintf(self::CURRENCY_FORMAT, $this->_getTotal($totals, 'tax')), $curCodeAttr);
+		$this->_addLineItems($quote, $lineItems, $curCodeAttr);
 		return $doc;
+	}
+	/**
+	 * Add line items totals for items in the quote to the LineItems node.
+	 * @param Mage_Sales_Model_Quote     $quote
+	 * @param EbayEnterprise_Dom_Element $lineItemsNode
+	 * @param array $curCodeAttr key/value pair representing currency code attribute
+	 * @return self
+	 */
+	protected function _addLineItems(Mage_Sales_Model_Quote $quote, EbayEnterprise_Dom_Element $lineItemsNode, array $curCodeAttr)
+	{
+		foreach ($this->_calculateLineItemTotals($quote) as $line) {
+			$this->_addLineItem($lineItemsNode, $line, $curCodeAttr);
+		}
+		return $this;
 	}
 	/**
 	 * If the total type is in the array, use it. Otherwise 0
@@ -172,20 +180,90 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 		return (float) (isset($totals[$totalType]) ? $totals[$totalType]->getValue() : 0);
 	}
 	/**
+	 * Calculate line item totals for the given items. Returned values will
+	 * have a "price", "name" and "qty". The returned "item" data will
+	 * also include meta-line items for gift wrapping and, if necessary,
+	 * a line item for correction rounding issues.
+	 * @param Mage_Sales_Model_Quote  $quote
+	 * @return EbayEnterprise_Eb2cPayment_Model_Paypal_Line_Total[]
+	 */
+	protected function _calculateLineItemTotals(Mage_Sales_Model_Quote $quote)
+	{
+		$quoteGiftWrapTotals = $this->_calculateQuoteGiftWrapLines($quote);
+		// each item maps to 1 or 2 lines of totals (item + gift wrapping), flatten
+		// each possible set of totals for a line into a single array of totals
+		$itemTotals = call_user_func_array(
+			'array_merge',
+			array_map(array($this, '_calculateItemLines'), $quote->getAllItems())
+		);
+		$quoteTotals = array_merge($itemTotals, $quoteGiftWrapTotals);
+		$roundingAdjustments = $this->_calculateRoundingAdjustmentLines($quote, $quoteTotals);
+		// merge the quote totals with the rounding line (if there is one) to get the
+		// complete list of item totals
+		return array_merge($quoteTotals, $roundingAdjustments);
+	}
+	/**
+	 * Get the line item totals for quote gift wrapping.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 * @return EbayEnterprise_Eb2cPayment_Model_Paypal_Line_Total[]
+	 */
+	protected function _calculateQuoteGiftWrapLines(Mage_Sales_Model_Quote $quote)
+	{
+		if ($quote->getGwId()) {
+			return array($this->_createLineTotal($this->_helper->__(static::GIFTWRAP_NAME), $quote->getGwPrice(), static::GIFTWRAP_QTY));
+		}
+		return array();
+	}
+	/**
+	 * Get the line item totals for a quote item, including any meta lines for
+	 * item level gift wrapping.
+	 * @param  Mage_Sales_Model_Quote_Item $item
+	 * @return EbayEnterprise_Eb2cPayment_Model_Paypal_Line_Total[]
+	 */
+	protected function _calculateItemLines(Mage_Sales_Model_Quote_Item $item)
+	{
+		$totals = array($this->_createLineTotal($item->getName(), $this->_calculateUnitAmount($item), $item->getQty()));
+		if ($item->getGwId()) {
+			$totals[] = $this->_createLineTotal($this->_helper->__(static::GIFTWRAP_NAME), $item->getGwPrice(), $item->getQty());
+		}
+		return $totals;
+	}
+	/**
+	 * Compare the quote subtotal with discounts to the line totals that have
+	 * been calculated. Any difference in quote subtotal to calculated lines
+	 * should be captured and sent as a rounding correction line.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 * @param  array                  $totals
+	 * @return EbayEnterprise_Eb2cPayment_Model_Paypal_Line_Total[]
+	 */
+	protected function _calculateRoundingAdjustmentLines(Mage_Sales_Model_Quote $quote, array $totals=array())
+	{
+		$quoteSubtotal = $this->_calculateQuoteSubtotal($quote);
+		$calculatedTotal = array_reduce($totals, function ($carry, $item) { return $carry += $item->getPrice() * $item->getQty(); }, 0.0000);
+		if ($quoteSubtotal > $calculatedTotal) {
+			return array($this->_createLineTotal(
+				$this->_helper->__(static::ROUNDING_ADJUSTMENT_NAME),
+				// any rounding here should be negligible enough to round away (tiny
+				// amounts simply due to the nature of floats)
+				round($quoteSubtotal - $calculatedTotal, 2),
+				static::ROUNDING_ADJUSTMENT_QTY
+			));
+		}
+		return array();
+	}
+	/**
 	 * Add '//LineItem[]' node to a passed in DOMElement object.
-	 * @param  DOMElement $lineItems
-	 * @param  float $price
-	 * @param  array $curCodeAttr
-	 * @param  string $name
-	 * @param  string $qty
+	 * @param DOMElement $lineItems
+	 * @param EbayEnterprise_Eb2cPayment_Model_Paypal_Line_Total $line
+	 * @param array $curCodeAttr key/value pair representing currency code attribute
 	 * @return self
 	 */
-	protected function _addLineItem(DOMElement $lineItems, $price, array $curCodeAttr, $name, $qty='1')
+	protected function _addLineItem(DOMElement $lineItems, EbayEnterprise_Eb2cPayment_Model_Paypal_Line_Total $line, array $curCodeAttr)
 	{
 		$lineItems->createChild('LineItem', null)
-			->addChild('Name', (string) $name)
-			->addChild('Quantity', (string) $qty)
-			->addChild('UnitAmount', sprintf('%.02f', $price), $curCodeAttr);
+			->addChild('Name', $line->getName())
+			->addChild('Quantity', $line->getQty())
+			->addChild('UnitAmount', $line->getFormattedPrice(self::CURRENCY_FORMAT), $curCodeAttr);
 		return $this;
 	}
 	/**
@@ -197,7 +275,8 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 	 */
 	protected function _calculateUnitAmount(Mage_Sales_Model_Quote_Item $item)
 	{
-		return ($item->getRowTotal() - $item->getDiscountAmount()) / $item->getQty();
+		// always round line totals down, rounding errors captured as a separate line
+		return $this->_helper->floorToPrecision(($item->getRowTotal() - $item->getDiscountAmount()) / $item->getQty(), 2);
 	}
 	/**
 	 * Calculates `//LineItems/LineItemsTotal' node value using the passed in 'sales/quote' class instance as parameter.
@@ -206,21 +285,19 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 	 * @param  Mage_Sales_Model_Quote $quote
 	 * @return float
 	 */
-	protected function _calculateLineItemsTotal(Mage_Sales_Model_Quote $quote)
+	protected function _calculateQuoteSubtotal(Mage_Sales_Model_Quote $quote)
 	{
-		return (float) ($quote->getGwPrice() + $quote->getSubtotalWithDiscount() + $this->_sumItemGwPrice($quote->getAllItems()));
+		return (float) ($quote->getGwPrice() + $quote->getSubtotalWithDiscount() + $quote->getGwItemsPrice());
 	}
 	/**
-	 * Sums up all quote item gift wrap prices from a passed in array of 'sales/order_item' class instances.
-	 * @param  array $items
-	 * @return float
+	 * Get a new line total instance.
+	 * @param string $name  Name of the line
+	 * @param float $price Price of the line
+	 * @param float $qty   Qty of the line
+	 * @return EbayEnterprise_Eb2cPayment_Model_Paypal_Line_Total
 	 */
-	protected function _sumItemGwPrice(array $items=array())
+	protected function _createLineTotal($name, $price, $qty)
 	{
-		$gwTotal = 0;
-		foreach ($items as $item) {
-			$gwTotal += $item->getGwPrice();
-		}
-		return $gwTotal;
+		return Mage::getModel('eb2cpayment/paypal_line_total', array('name' => $name, 'price' => $price, 'qty' => $qty));
 	}
 }

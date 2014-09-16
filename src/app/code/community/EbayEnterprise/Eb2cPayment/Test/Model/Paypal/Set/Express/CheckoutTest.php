@@ -30,35 +30,4 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Set_Express_CheckoutTest exte
 		$actual = Mage::getModel('eb2cpayment/paypal_set_express_checkout')->parseResponse($xml)->getData();
 		$this->assertSame($expected, $actual);
 	}
-	/**
-	 * Test the method 'eb2cpayment/paypal_set_express_checkout::_calculateUnitAmount' passed in a known
-	 * 'sales/quote_item' class instance, as parameter, then expects the proper ‘UnitAmount’ calculation value to be returned.
-	 * @param array $itemData
-	 * @param float $expected
-	 * @dataProvider dataProvider
-	 */
-	public function testCalculateUnitAmount(array $itemData, $expected)
-	{
-		$item = Mage::getModel('sales/quote_item', $itemData);
-		$checkout = Mage::getModel('eb2cpayment/paypal_set_express_checkout');
-		$actual = EcomDev_Utils_Reflection::invokeRestrictedMethod($checkout, '_calculateUnitAmount', array($item));
-		$this->assertSame($expected, $actual);
-	}
-	/**
-	 * Test the method 'eb2cpayment/paypal_set_express_checkout::_calculateLineItemsTotal' passed in a known 'sales/quote'
-	 * class instance as the  first parameter and an array of totals as second parameter, then expects the proper LineItemsTotal
-	 * calculated value to be returned.
-	 * @param array $quoteData
-	 * @param float $expected
-	 * @dataProvider dataProvider
-	 */
-	public function testCalculateLineItemsTotal(array $quoteData, $expected)
-	{
-		// This is a hack because yaml is converting the data from float to string
-		$expected = (float) $expected;
-		$quote = Mage::getModel('sales/quote', $quoteData);
-		$checkout = Mage::getModel('eb2cpayment/paypal_set_express_checkout');
-		$actual = EcomDev_Utils_Reflection::invokeRestrictedMethod($checkout, '_calculateLineItemsTotal', array($quote));
-		$this->assertSame($expected, $actual);
-	}
 }

@@ -15,6 +15,7 @@
   - [XML Configuration](#xml-configuration)
   - [Payments - Enabled, But Payment Bridge Disabled/ Not Configured](#payments---enabled-but-payment-bridge-disabled-not-configured)
   - [Order Create Retry](#order-create-retry)
+  - [Getting the Client IP](#getting-the-client-ip)
 - [Troubleshooting: Using the System and Exception Logs](#troubleshooting-using-the-system-and-exception-logs)
   - [ROM Extended Magento Logging](#rom-extended-magento-logging)
   - [Reading the System Log](#reading-the-system-log)
@@ -123,6 +124,23 @@ The warning message will look something like this:
 ```2014-08-13T17:28:21+00:00 WARN (4): [ EbayEnterprise_Eb2cOrder_Model_Create::retryOrderCreate ]: Original OrderCreateRequest not found: 00054100000031```
 
 In this example, Magento Order 00054100000031 will need manual attention in order to be processed.
+
+### Getting the Client IP
+
+The Fraud Detection module requires the client IP address. Compliant browsers send this in the `REMOTE_ADDR` header, so if the client is connected directly to the web server you do not need to do anything; however, in a load balancer/reverse proxy setup you may need to set `remote_addr_headers` in local.xml to get the right value from the reverse proxy. This is also documented in app/etc/local.xml.additional, included with Magento.
+
+```xml
+<config>
+    <global>
+        <remote_addr_headers>
+            <header1>HTTP_X_REAL_IP</header1>
+            <header2>HTTP_X_FORWARDED_FOR</header2>
+        </remote_addr_headers>
+    </global>
+</config>
+```
+
+The above will cause Magento to look first in the specified HTTP request headers before falling back to `REMOTE_ADDR`.
 
 ---
 

@@ -89,14 +89,13 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_AuthorizationTest
 			->disableOriginalConstructor()
 			->setMethods(array('getConfigModel', 'getOperationUri'))
 			->getMock();
-		$auth = $this->getModelMock('eb2cpayment/paypal_do_authorization', array('buildPayPalDoAuthorizationRequest'));
-		$config = $this->buildCoreConfigRegistry(array('xsdFilePaypalDoAuth' => 'xsdfile'));
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-
 		$this->replaceByMock('model', 'eb2ccore/api', $api);
 		$this->replaceByMock('helper', 'eb2cpayment', $helper);
 
-		$helper->expects($this->once())
+		$config = $this->buildCoreConfigRegistry(array('xsdFilePaypalDoAuth' => 'xsdfile'));
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+
+		$helper->expects($this->any())
 			->method('getConfigModel')
 			->will($this->returnValue($config));
 		$helper->expects($this->once())
@@ -104,6 +103,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_AuthorizationTest
 			->with($this->identicalTo('get_paypal_do_authorization'))
 			->will($this->returnValue('/uri/'));
 
+		$auth = $this->getModelMock('eb2cpayment/paypal_do_authorization', array('buildPayPalDoAuthorizationRequest'));
 		$auth->expects($this->once())
 			->method('buildPayPalDoAuthorizationRequest')
 			->with($this->identicalto($quote))

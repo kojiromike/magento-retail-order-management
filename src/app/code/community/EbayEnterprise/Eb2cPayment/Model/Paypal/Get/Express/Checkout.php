@@ -26,8 +26,8 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Get_Express_Checkout extends EbayE
 	 */
 	protected function _buildRequest(Mage_Sales_Model_Quote $quote)
 	{
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$payPalGetExpressCheckoutRequest = $domDocument->addElement('PayPalGetExpressCheckoutRequest', null, Mage::helper('eb2cpayment')->getXmlNs())->firstChild;
+		$domDocument = $this->_coreHelper->getNewDomDocument();
+		$payPalGetExpressCheckoutRequest = $domDocument->addElement('PayPalGetExpressCheckoutRequest', null, $this->_xmlNs)->firstChild;
 		$payPalGetExpressCheckoutRequest->createChild(
 			'OrderId',
 			(string) $quote->getEntityId()
@@ -54,10 +54,10 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Get_Express_Checkout extends EbayE
 	{
 		$checkoutObject = new Varien_Object();
 		if (trim($payPalGetExpressCheckoutReply) !== '') {
-			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+			$doc = $this->_coreHelper->getNewDomDocument();
 			$doc->loadXML($payPalGetExpressCheckoutReply);
-			$checkoutXpath = new DOMXPath($doc);
-			$checkoutXpath->registerNamespace('a', Mage::helper('eb2cpayment')->getXmlNs());
+			$checkoutXpath = $this->_coreHelper->getNewDomXPath($doc);
+			$checkoutXpath->registerNamespace('a', $this->_xmlNs);
 			$nodeOrderId = $checkoutXpath->query('//a:OrderId');
 			$nodeResponseCode = $checkoutXpath->query('//a:ResponseCode');
 			$this->_blockIfRequestFailed($nodeResponseCode->item(0)->nodeValue, $checkoutXpath);

@@ -209,4 +209,15 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 		// must return a string
 		return (string) $incrementId;
 	}
+	/**
+	 * Calculating the order item gift wrapping row total when the passed in object is 
+	 * a concrete 'sales/order_item' instance otherwise simply return the gift wrap price.
+	 * @param  Varien_Object $item
+	 * @return float
+	 */
+	public function calculateGwItemRowTotal(Varien_Object $item)
+	{
+		$qty = ($item instanceof Mage_Sales_Model_Order_Item) ? $item->getQtyOrdered() : 1;
+		return (float) $qty * $item->getGwPrice();
+	}
 }

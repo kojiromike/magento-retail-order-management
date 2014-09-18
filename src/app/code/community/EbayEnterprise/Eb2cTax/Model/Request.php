@@ -137,6 +137,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 			$items = $this->_getItemsForAddress($address);
 			foreach ($items as $item) {
+				$item->getProduct()->load();
 				$this->_processItem($item, $address);
 			}
 			// Consider the request as being valid if nothing has thrown an exception

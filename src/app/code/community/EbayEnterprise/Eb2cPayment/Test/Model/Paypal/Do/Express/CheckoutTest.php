@@ -116,30 +116,28 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_Express_CheckoutTest exten
 		$quoteMock = $this->getMock(
 			'Mage_Sales_Model_Quote',
 			array(
-				'getEntityId', 'getQuoteCurrencyCode',
+				'getReservedOrderId', 'reserveOrderId', 'getQuoteCurrencyCode',
 				'getTotals', 'getAllAddresses', 'getPayment'
 			)
 		);
 		$quoteMock->expects($this->any())
-			->method('getEntityId')
-			->will($this->returnValue(1234567)
-			);
+			->method('getReservedOrderId')
+			->will($this->returnValue(1234567));
+		$quoteMock->expects($this->any())
+			->method('reserveOrderId')
+			->will($this->returnSelf());
 		$quoteMock->expects($this->any())
 			->method('getTotals')
-			->will($this->returnValue($totals)
-			);
+			->will($this->returnValue($totals));
 		$quoteMock->expects($this->any())
 			->method('getQuoteCurrencyCode')
-			->will($this->returnValue('USD')
-			);
+			->will($this->returnValue('USD'));
 		$quoteMock->expects($this->any())
 			->method('getAllAddresses')
-			->will($this->returnValue(array($addressMock))
-			);
+			->will($this->returnValue(array($addressMock)));
 		$quoteMock->expects($this->any())
 			->method('getPayment')
-			->will($this->returnValue($paymentMock)
-			);
+			->will($this->returnValue($paymentMock));
 		return $quoteMock;
 	}
 	public function providerDoExpressCheckout()

@@ -82,7 +82,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Express_Checkout extends EbayEn
 		$request = $doc->addElement('PayPalDoExpressCheckoutRequest', null, $this->_xmlNs)->firstChild;
 		$request
 			->addAttribute('requestId', $this->_requestId)
-			->addChild('OrderId', (string) $quote->getEntityId())
+			->addChild('OrderId', $this->_getReservedOrderId($quote))
 			->addChild('Token', (string) $paypal->getEb2cPaypalToken())
 			->addChild('PayerId', (string) $paypal->getEb2cPaypalPayerId())
 			->addChild('Amount', sprintf('%.02f', $grandTotal), $curCodeAttr)

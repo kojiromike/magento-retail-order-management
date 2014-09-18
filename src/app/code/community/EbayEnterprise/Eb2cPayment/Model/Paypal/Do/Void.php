@@ -57,10 +57,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Void
 		$domDocument = $this->_coreHelper->getNewDomDocument();
 		$payPalDoVoidRequest = $domDocument->addElement('PayPalDoVoidRequest', null, $this->_xmlNs)->firstChild;
 		$payPalDoVoidRequest->setAttribute('requestId', $this->_requestId);
-		$payPalDoVoidRequest->createChild(
-			'OrderId',
-			(string) $quote->getEntityId()
-		);
+		$payPalDoVoidRequest->createChild('OrderId', $this->_getReservedOrderId($quote));
 
 		$payPalDoVoidRequest->createChild(
 			'CurrencyCode',

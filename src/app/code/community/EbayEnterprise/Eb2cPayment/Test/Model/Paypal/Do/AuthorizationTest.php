@@ -36,20 +36,20 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_AuthorizationTest
 
 		$quoteMock = $this->getMock(
 			'Mage_Sales_Model_Quote',
-			array('getEntityId', 'getQuoteCurrencyCode', 'getTotals')
+			array('getReservedOrderId', 'reserveOrderId', 'getQuoteCurrencyCode', 'getTotals')
 		);
 		$quoteMock->expects($this->any())
-			->method('getEntityId')
-			->will($this->returnValue(1234567)
-			);
+			->method('getReservedOrderId')
+			->will($this->returnValue(1234567));
+		$quoteMock->expects($this->any())
+			->method('reserveOrderId')
+			->will($this->returnSelf());
 		$quoteMock->expects($this->any())
 			->method('getTotals')
-			->will($this->returnValue($totals)
-			);
+			->will($this->returnValue($totals));
 		$quoteMock->expects($this->any())
 			->method('getQuoteCurrencyCode')
-			->will($this->returnValue('USD')
-			);
+			->will($this->returnValue('USD'));
 
 		return $quoteMock;
 	}

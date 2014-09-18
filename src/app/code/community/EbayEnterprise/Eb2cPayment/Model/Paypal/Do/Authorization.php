@@ -58,10 +58,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Authorization
 		$domDocument = $this->_coreHelper->getNewDomDocument();
 		$payPalDoAuthorizationRequest = $domDocument->addElement('PayPalDoAuthorizationRequest', null, $this->_xmlNs)->firstChild;
 		$payPalDoAuthorizationRequest->setAttribute('requestId', $this->_requestId);
-		$payPalDoAuthorizationRequest->createChild(
-			'OrderId',
-			(string) $quote->getEntityId()
-		);
+		$payPalDoAuthorizationRequest->createChild('OrderId', $this->_getReservedOrderId($quote));
 
 		$payPalDoAuthorizationRequest->createChild(
 			'Amount',

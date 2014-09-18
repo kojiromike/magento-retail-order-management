@@ -1941,6 +1941,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		$this->assertEquals($itemData, $result);
 	}
 
+<<<<<<< HEAD
 	/**
 	 * verify the processaddress function makes calls with the correct argument types.
 	 */

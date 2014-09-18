@@ -31,20 +31,20 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_VoidTest
 	{
 		$quoteMock = $this->getMock(
 			'Mage_Sales_Model_Quote',
-			array('getEntityId', 'getQuoteCurrencyCode', 'getBaseGrandTotal')
+			array('getReservedOrderIt', 'reserveOrderId', 'getQuoteCurrencyCode', 'getBaseGrandTotal')
 		);
 		$quoteMock->expects($this->any())
-			->method('getEntityId')
-			->will($this->returnValue(1234567)
-			);
+			->method('getReservedOrderIt')
+			->will($this->returnValue(1234567));
+		$quoteMock->expects($this->any())
+			->method('reserveOrderId')
+			->will($this->returnSelf());
 		$quoteMock->expects($this->any())
 			->method('getBaseGrandTotal')
-			->will($this->returnValue(50.00)
-			);
+			->will($this->returnValue(50.00));
 		$quoteMock->expects($this->any())
 			->method('getQuoteCurrencyCode')
-			->will($this->returnValue('USD')
-			);
+			->will($this->returnValue('USD'));
 
 		return $quoteMock;
 	}

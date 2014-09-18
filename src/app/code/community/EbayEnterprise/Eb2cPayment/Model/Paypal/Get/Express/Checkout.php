@@ -28,10 +28,7 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Get_Express_Checkout extends EbayE
 	{
 		$domDocument = $this->_coreHelper->getNewDomDocument();
 		$payPalGetExpressCheckoutRequest = $domDocument->addElement('PayPalGetExpressCheckoutRequest', null, $this->_xmlNs)->firstChild;
-		$payPalGetExpressCheckoutRequest->createChild(
-			'OrderId',
-			(string) $quote->getEntityId()
-		);
+		$payPalGetExpressCheckoutRequest->createChild('OrderId', $this->_getReservedOrderId($quote));
 		$paypal = Mage::getModel('eb2cpayment/paypal')->loadByQuoteId($quote->getEntityId());
 		$payPalGetExpressCheckoutRequest->createChild(
 			'Token',

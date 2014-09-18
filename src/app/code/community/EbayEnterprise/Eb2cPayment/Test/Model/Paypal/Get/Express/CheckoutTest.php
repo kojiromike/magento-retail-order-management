@@ -29,12 +29,14 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Get_Express_CheckoutTest
 	{
 		$quoteMock = $this->getMock(
 			'Mage_Sales_Model_Quote',
-			array('getEntityId', 'getQuoteCurrencyCode')
+			array('getReservedOrderId', 'reserveOrderId', 'getQuoteCurrencyCode')
 		);
 		$quoteMock->expects($this->any())
-			->method('getEntityId')
-			->will($this->returnValue(1234567)
-			);
+			->method('getReservedOrderId')
+			->will($this->returnValue(1234567));
+		$quoteMock->expects($this->any())
+			->method('reserveOrderId')
+			->will($this->returnSelf());
 		$quoteMock->expects($this->any())
 			->method('getQuoteCurrencyCode')
 			->will($this->returnValue('USD')

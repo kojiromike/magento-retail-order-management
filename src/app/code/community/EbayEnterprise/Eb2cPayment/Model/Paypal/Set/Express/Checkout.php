@@ -61,10 +61,10 @@ class EbayEnterprise_Eb2cPayment_Model_Paypal_Set_Express_Checkout extends EbayE
 		$doc = $this->_coreHelper->getNewDomDocument();
 		$request = $doc->addElement('PayPalSetExpressCheckoutRequest', null, $this->_xmlNs)->firstChild;
 		$request
-			->addChild('OrderId', (string)$quote->getEntityId())
-			->addChild('ReturnUrl', (string)Mage::getUrl('*/*/return'))
-			->addChild('CancelUrl', (string)Mage::getUrl('*/*/cancel'))
-			->addChild('LocaleCode', (string)Mage::app()->getLocale()->getDefaultLocale())
+			->addChild('OrderId', $this->_getReservedOrderId($quote))
+			->addChild('ReturnUrl', (string) Mage::getUrl('*/*/return'))
+			->addChild('CancelUrl', (string) Mage::getUrl('*/*/cancel'))
+			->addChild('LocaleCode', (string) Mage::app()->getLocale()->getDefaultLocale())
 			->addChild('Amount', sprintf('%.02f', $grandTotal), $curCodeAttr);
 		return $doc;
 	}

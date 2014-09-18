@@ -300,4 +300,13 @@ abstract class EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 	{
 		return Mage::getModel('eb2cpayment/paypal_line_total', array('name' => $name, 'price' => $price, 'qty' => $qty));
 	}
+	/**
+	 * Get the order id reserved by the quote.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 * @return string
+	 */
+	protected function _getReservedOrderId(Mage_Sales_Model_Quote $quote)
+	{
+		return $quote->reserveOrderId()->getReservedOrderId();
+	}
 }

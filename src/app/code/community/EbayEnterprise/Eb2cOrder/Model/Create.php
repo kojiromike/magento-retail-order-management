@@ -103,6 +103,13 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		'PrepaidCashOnDelivery' => 'PrepaidCashOnDelivery', // Not used
 		'Free' => 'StoredValueCard',
 	);
+	/** @var EbayEnterprise_Eb2cOrder_Helper_Data $_helper **/
+	protected $_helper;
+
+	public function __construct()
+	{
+		$this->_helper = Mage::helper('eb2corder');
+	}
 	/**
 	 * The event observer version of transmit order
 	 * @param Varien_Event_Observer $event, the observer event
@@ -130,9 +137,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	public function sendRequest()
 	{
-		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$cfg = $this->_helper->getConfigModel();
 		$coreCfg = Mage::helper('eb2ccore')->getConfigModel();
-		$uri = Mage::helper('eb2corder')->getOperationUri($cfg->apiCreateOperation);
+		$uri = $this->_helper->getOperationUri($cfg->apiCreateOperation);
 		$response = '';
 		if ($this->_domRequest instanceof DOMDocument) {
 			$response = Mage::getModel('eb2ccore/api')
@@ -164,7 +171,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 				return static::STATUS_PENDING;
 			} elseif ($status === static::RESPONSE_FAILURE_STATUS) {
 				throw new EbayEnterprise_Eb2cOrder_Exception_Order_Create_Fail(
-					Mage::helper('eb2corder')->__(static::ORDER_CREATE_FAIL_MESSAGE)
+					$this->_helper->__(static::ORDER_CREATE_FAIL_MESSAGE)
 				);
 			}
 		}
@@ -208,7 +215,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildOrderCreateRequest()
 	{
-		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$cfg = $this->_helper->getConfigModel();
 		$orderCreateRequest = $this->_domRequest
 			->addElement($cfg->apiCreateDomRootNodeName, null, $cfg->apiXmlNs)
 			->firstChild;
@@ -223,7 +230,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildOrder(EbayEnterprise_Dom_Element $orderCreateRequest)
 	{
-		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$cfg = $this->_helper->getConfigModel();
 		$order = $orderCreateRequest->createChild('Order');
 		$order->setAttribute('levelOfService', $cfg->apiLevelOfService);
 		$order->setAttribute('customerOrderId', $this->_o->getIncrementId());
@@ -348,7 +355,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$orderSourceNode = $order->createChild('OrderSource', $orderSource['source']);
 			$orderSourceNode->setAttribute('type', $orderSource['type']);
 		}
-		$order->createChild('OrderHistoryUrl', Mage::helper('eb2corder')->getOrderHistoryUrl($this->_o));
+		$order->createChild('OrderHistoryUrl', $this->_helper->getOrderHistoryUrl($this->_o));
 		$order->createChild('OrderTotal', sprintf('%.02f', $this->_o->getGrandTotal()));
 		return $this;
 	}
@@ -453,7 +460,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 
 			$shippingTaxFragment = $this->_buildTaxDataNodes(
 				$this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPPING),
-				Mage::helper('eb2corder')->getConfigModel()->shippingTaxClass
+				$this->_helper->getConfigModel()->shippingTaxClass
 			);
 			if ($shippingTaxFragment->hasChildNodes()) {
 				$shipping->appendChild($shippingTaxFragment);
@@ -534,7 +541,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$taxFragment = $this->_domRequest->createDocumentFragment();
 		if ($taxQuotes->count()) {
 			$taxData = $taxFragment->appendChild(
-				$this->_domRequest->createElement('TaxData', null, Mage::helper('eb2corder')->getConfigModel()->apiXmlNs)
+				$this->_domRequest->createElement('TaxData', null, $this->_helper->getConfigModel()->apiXmlNs)
 			);
 			$taxData->createChild('TaxClass', $taxClass);
 			$taxes = $taxData->createChild('Taxes');
@@ -584,7 +591,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$dutyFragment = $this->_domRequest->createDocumentFragment();
 		$dutyQuotes = $this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::DUTY);
 		if ($dutyQuotes->count()) {
-			$cfg = Mage::helper('eb2corder')->getConfigModel();
+			$cfg = $this->_helper->getConfigModel();
 			$duty = $dutyFragment->appendChild(
 				$this->_domRequest->createElement('Duty', null, $cfg->apiXmlNs)
 			);
@@ -609,7 +616,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildShipGroup(DomElement $shipGroup)
 	{
-		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$cfg = $this->_helper->getConfigModel();
 		$shipGroup->setAttribute('id', 'shipGroup_1');
 		$shipGroup->setAttribute('chargeType', $this->_getShippingChargeType($this->_o));
 		$shipGroup->createChild('DestinationTarget')->setAttribute('ref', $cfg->apiShipGroupDestinationId);
@@ -627,7 +634,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildShipping(DomElement $shipping)
 	{
-		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$cfg = $this->_helper->getConfigModel();
 		$destinations = $shipping->createChild('Destinations');
 		// Ship-To
 		$sa = $this->_o->getShippingAddress();
@@ -689,7 +696,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _buildPayment(DomElement $payment)
 	{
 		$payment->createChild('BillingAddress')->setAttribute(
-			'ref', Mage::helper('eb2corder')->getConfigModel()->apiShipGroupBillingId
+			'ref', $this->_helper->getConfigModel()->apiShipGroupBillingId
 		);
 		$this->_buildPayments($payment->createChild('Payments'));
 		return $this;
@@ -1019,7 +1026,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildSessionInfo(array $data, DOMElement $context)
 	{
-		$cfg = Mage::helper('eb2corder')->getConfigModel();
+		$cfg = $this->_helper->getConfigModel();
 		$doc = $context->ownerDocument;
 		$frag = $doc->createDocumentFragment();
 		foreach ($data as $element => $value) {
@@ -1244,7 +1251,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$giftNode = $giftingNode->createChild('Gift');
 			$giftNode->addChild('ItemId', sprintf('%.20s', $giftwrapping->getEb2cSku()));
 			$pricingNode = $giftNode->createChild('Pricing');
-			$pricingNode->addChild('Amount', Mage::app()->getStore()->roundPrice($item->getGwPrice()));
+			$pricingNode->addChild('Amount', Mage::app()->getStore()->roundPrice($this->_helper->calculateGwItemRowTotal($item)));
 			// Tax on the gift wrapping pricing
 			$taxData = ($level === 'order')
 				? $this->_getTaxOnQuote($this->_o, EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING)

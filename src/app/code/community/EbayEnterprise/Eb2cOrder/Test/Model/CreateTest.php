@@ -1254,10 +1254,6 @@ INVALID_XML;
 	 */
 	public function testBuildSessionInfo()
 	{
-		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
-			->setMethods(array('none'))
-			->getMock();
 		$order = $this->getModelMockBuilder('sales/order')
 			->disableOriginalConstructor()
 			->setMethods(array('none'))
@@ -1271,6 +1267,7 @@ INVALID_XML;
 			))));
 		$this->replaceByMock('helper', 'eb2corder', $helperMock);
 
+		$create = Mage::getModel('eb2corder/create');
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
 
 		$expect = Mage::helper('eb2ccore')->getNewDomDocument();
@@ -1638,6 +1635,7 @@ INVALID_XML;
 		$level = 'item';
 		$wrappingId = 5;
 		$sku = '53-GWTST0001';
+		$qtyOrdered = 1;
 		$gwPrice = 10.95;
 		$basePrice = 9.45;
 		$giftMessageId = 0;
@@ -1655,7 +1653,8 @@ INVALID_XML;
 
 		$item = Mage::getModel('sales/order_item', array(
 			'gw_price' => $gwPrice,
-			'gift_message_id' => $giftMessageId
+			'gift_message_id' => $giftMessageId,
+			'qty_ordered' => $qtyOrdered
 		));
 
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();

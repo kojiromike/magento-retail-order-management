@@ -655,19 +655,39 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 		$pricingNode = $orderItem->createChild('Pricing');
 
-		$unitPriceNode = $pricingNode
-			->createChild('Merchandise')
-			->addChild('Amount', Mage::app()->getStore()->roundPrice($item['merchandise_amount'] - $item['merchandise_discount_amount']))
-			->createChild('UnitPrice', Mage::app()->getStore()->roundPrice($item['merchandise_unit_price']));
+		$merchandiseNode = $pricingNode->createChild('Merchandise')
+			->addChild('Amount', Mage::app()->getStore()->roundPrice($item['merchandise_amount']));
+		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
+		if ($taxClass) {
+			$merchandiseNode->createChild('TaxClass', $taxClass); // Don't send empty node - xsd fails
+		}
+
+		if ($item['discount_amount']) {
+			$this->_buildDiscountNode($merchandiseNode, $item);
+		}
+
+		$merchandiseNode->createChild(
+			'UnitPrice', Mage::app()->getStore()->roundPrice($item['merchandise_unit_price'])
+		);
 
 		$pricingNode->createChild('Shipping')
 			->addChild('Amount', Mage::app()->getStore()->roundPrice($item['shipping_amount']))
 			->addChild('TaxClass', $item['shipping_tax_class']);
 
-		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
-		if ($taxClass) {
-			$taxClassNode = $parent->ownerDocument->createElementNs($parent->namespaceURI, 'TaxClass', $taxClass);
-			$unitPriceNode->parentNode->insertBefore($taxClassNode, $unitPriceNode);
+		if ($item['shipping_discount_amount']) {
+			$this->_buildDiscountNode($shippingNode, array(
+				'applied_rule_ids' => $item['applied_rule_ids'],
+				'discount_amount' => $item['shipping_discount_amount']
+			));
+		}
+
+		if ($item['gw_id']) {
+			/** @var Enterprise_Giftwrapping_Model_Wrapping $giftwrapping */
+			$giftwrapping = Mage::getModel('enterprise_giftwrapping/wrapping')->load($item['gw_id']);
+			if ($giftwrapping->getWrappingId()) {
+				$giftingNode = $orderItem->createChild('Gifting', null, array('id' => sprintf('%.12s', uniqid())));
+				$this->_buildGiftingNode($giftingNode, $item, $giftwrapping);
+			}
 		}
 	}
 

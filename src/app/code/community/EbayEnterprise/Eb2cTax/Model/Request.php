@@ -719,15 +719,18 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 		$pricingNode = $orderItem->createChild('Pricing');
 
-		$merchandiseNode = $pricingNode
-			->createChild('Merchandise')
+		$merchandiseNode = $pricingNode->createChild('Merchandise')
 			->addChild('Amount', Mage::app()->getStore()->roundPrice($item['merchandise_amount']));
+		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
+		if ($taxClass) {
+			$merchandiseNode->createChild('TaxClass', $taxClass); // Don't send empty node - xsd fails
+		}
 
 		if ($item['discount_amount']) {
 			$this->_buildDiscountNode($merchandiseNode, $item);
 		}
 
-		$unitPriceNode = $merchandiseNode->createChild(
+		$merchandiseNode->createChild(
 			'UnitPrice', Mage::app()->getStore()->roundPrice($item['merchandise_unit_price'])
 		);
 
@@ -740,12 +743,6 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 				'applied_rule_ids' => $item['applied_rule_ids'],
 				'discount_amount' => $item['shipping_discount_amount']
 			));
-		}
-
-		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
-		if ($taxClass) {
-			$taxClassNode = $parent->ownerDocument->createElementNs($parent->namespaceURI, 'TaxClass', $taxClass);
-			$unitPriceNode->parentNode->insertBefore($taxClassNode, $unitPriceNode);
 		}
 
 		if ($item['gw_id']) {

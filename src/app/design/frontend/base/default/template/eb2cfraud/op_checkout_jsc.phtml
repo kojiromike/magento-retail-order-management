@@ -16,34 +16,27 @@
 
 <script type="text/javascript" src="<?php echo $this->getCollectorUrl() ?>"></script>
 <script type="text/javascript">
-//<![CDATA[
 document.observe("dom:loaded", function() {
 	$('co-payment-form').insert('<?php echo $this->getField() ?>');
 	$('co-payment-form').insert('<?php echo $this->getMappingField() ?>');
-	Review.prototype.save = function() {
+	/**
+	 * Wrapper function around the PayPal Express review submit button.
+	 * Populates form with JSC data and then proceeds with existing
+	 * event handling.
+	 * @param function originalFn Original event handler
+	 */
+	var jscWrapper = function jscWrapper(originalFn) {
 		try {
 			<?php echo $this->getCall() ?>
 		} catch(error) {
 		}
-		if (checkout.loadWaiting!=false) return;
-		checkout.setLoadWaiting('review');
+		// re-enable the payment form - JSC fields disabled when finishing the
+		// payment step
 		Form.enable(payment.form);
-		var params = Form.serialize(payment.form);
-		if (this.agreementsForm) {
-			params += '&'+Form.serialize(this.agreementsForm);
-		}
-		params.save = true;
-		var request = new Ajax.Request(
-		this.saveUrl,
-		{
-			method:'post',
-			parameters:params,
-			onComplete: this.onComplete,
-			onSuccess: this.onSave,
-			onFailure: checkout.ajaxFailure.bind(checkout)
-		}
-		);
-	}
+		// call the original, wrapped function
+		originalFn.call(this);
+	};
+	// wrap the Review.save method with JSC collection
+	Review.prototype.save = Review.prototype.save.wrap(jscWrapper);
 });
-//]]
 </script>

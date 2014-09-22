@@ -15,6 +15,9 @@
 
 class EbayEnterprise_Eb2cOrder_Test_Model_CreateTest extends EbayEnterprise_Eb2cOrder_Test_Abstract
 {
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data $_coreHelper */
+	protected $_coreHelper;
+
 	const SAMPLE_SUCCESS_XML = <<<SUCCESS_XML
 <?xml version="1.0" encoding="UTF-8"?>
 <OrderCreateResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
@@ -41,6 +44,7 @@ INVALID_XML;
 	{
 		Mage::app()->disableEvents();
 		parent::setUp();
+		$this->_coreHelper = Mage::helper('eb2ccore');
 	}
 	/**
 	 * Re-enable events disabled in setUp
@@ -169,7 +173,7 @@ INVALID_XML;
 		$create = $this->getModelMockBuilder('eb2corder/create')
 			->getMock();
 
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_domRequest', Mage::helper('eb2ccore')->getNewDomDocument());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_domRequest', $this->_coreHelper->getNewDomDocument());
 		$taxFragment = EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildTaxDataNodes', array($taxQuotesCollection, '77'));
 		// probe the tax fragment a bit to hopefully ensure the nodes are all populated right
 		$this->assertSame(1, $taxFragment->childNodes->length);
@@ -239,7 +243,7 @@ INVALID_XML;
 	 */
 	public function testSendRequest()
 	{
-		$requestDoc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$requestDoc = $this->_coreHelper->getNewDomDocument();
 		$this->replaceCoreConfigRegistry(array(
 			'serviceOrderTimeout' => 100,
 			'xsdFileCreate' => 'example.xsd',
@@ -299,7 +303,7 @@ INVALID_XML;
 				->will($this->returnValue('generated_reservation_id'));
 			$this->replaceByMock('helper', 'eb2cinventory', $invHelper);
 		}
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$itemElement = $doc->appendChild($doc->createElement('root', null))->appendChild($doc->createElement('Item', null));
 		// DOMDocumentFragments for mocked responses to _buildTaxDataNodes and _buildDuty
 		$emptyFragment = $doc->createDocumentFragment();
@@ -413,7 +417,7 @@ INVALID_XML;
 		$item->expects($this->once())
 			->method('getEb2cShippingWindowTo')
 			->will($this->returnValue('2014-01-27T17:36:08Z'));
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$orderItem = $doc->addElement('OrderItem')
 			->documentElement;
 		$testModel = $this->getModelMockBuilder('eb2corder/create')
@@ -443,7 +447,7 @@ INVALID_XML;
 	public function testBuildOrderCreateRequest()
 	{
 		$create = Mage::getModel('eb2corder/create');
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_domRequest', Mage::helper('eb2ccore')->getNewDomDocument());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_domRequest', $this->_coreHelper->getNewDomDocument());
 		$helperMock = $this->getHelperMock('eb2corder/data', array('getConfigModel'));
 		$helperMock->expects($this->any())
 			->method('getConfigModel')
@@ -549,7 +553,7 @@ INVALID_XML;
 	 */
 	public function testBuildItems()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root/>');
 		$itemModelMock = $this->getModelMockBuilder('sales/order_item')
 			->disableOriginalConstructor()
@@ -581,7 +585,7 @@ INVALID_XML;
 	 */
 	public function testBuildShip()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML(
 			'<root>
 				<foo></foo>
@@ -643,7 +647,7 @@ INVALID_XML;
 		$message = 'Who <s>are</s> you?';
 		$cleanMessage = 'Who are you?';
 		// Expect this DOMDocument to be modified to include the appropriate nodes
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root></root>');
 
 		// Order item to get gift message data from. May just as well be an order
@@ -706,7 +710,7 @@ INVALID_XML;
 	 */
 	public function testBuildRequest()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML(
 			'<root>
 				<foo></foo>
@@ -787,7 +791,7 @@ INVALID_XML;
 	 */
 	public function testBuildPaymentsPaypal($response)
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML($response);
 
 		$mockConfig = $this->getModelMockBuilder('eb2ccore/config_registry')
@@ -848,7 +852,7 @@ INVALID_XML;
 	 */
 	public function testBuildPaymentsStoredValue()
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root/>');
 
 		$paymentId = 12;
@@ -1157,7 +1161,7 @@ INVALID_XML;
 	 */
 	public function testBuildContext()
 	{
-		$expect = Mage::helper('eb2ccore')->getNewDomDocument();
+		$expect = $this->_coreHelper->getNewDomDocument();
 		$expect->preserveWhiteSpace = false;
 		$expect->formatOutput = true;
 		$expect->loadXML('
@@ -1183,7 +1187,7 @@ INVALID_XML;
 		</root>'
 		);
 
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->formatOutput = true;
 		$doc->loadXML('<root/>');
 		$element = $doc->documentElement;
@@ -1270,7 +1274,7 @@ INVALID_XML;
 		$create = Mage::getModel('eb2corder/create');
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
 
-		$expect = Mage::helper('eb2ccore')->getNewDomDocument();
+		$expect = $this->_coreHelper->getNewDomDocument();
 		$expect->preserveWhiteSpace = false;
 		$expect->formatOutput = true;
 		$expect->loadXML('
@@ -1292,7 +1296,7 @@ INVALID_XML;
 			'RTCReasonCodes' => '',
 		);
 
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root xmlns="http://namespace/foo"/>');
 		$doc->formatOutput = true;
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildSessionInfo', array($sessionInfoData, $doc->documentElement));
@@ -1324,7 +1328,7 @@ INVALID_XML;
 		$this->replaceByMock('singleton', 'checkout/session', $checkout);
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
 
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root/>');
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildBrowserData', array($doc->documentElement));
 		$xml = $doc->saveXML();
@@ -1369,7 +1373,7 @@ INVALID_XML;
 	 */
 	public function testAddElementIfNotEmpty($input, $length, $expected)
 	{
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root/>');
 		$create = $this->getModelMockBuilder('eb2corder/create')
 			->disableOriginalConstructor()
@@ -1657,7 +1661,7 @@ INVALID_XML;
 			'qty_ordered' => $qtyOrdered
 		));
 
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root></root>');
 		$docElement = $doc->documentElement;
 
@@ -1731,7 +1735,7 @@ INVALID_XML;
 	 */
 	public function testMessageTypeNodeValue($xml, array $itemData, $expected)
 	{
-		$helper = Mage::helper('eb2ccore');
+		$helper = $this->_coreHelper;
 		$doc = $helper->getNewDomDocument();
 		$doc->loadXML($xml);
 		$xpath = $helper->getNewDomXPath($doc);
@@ -1769,7 +1773,7 @@ INVALID_XML;
 			->will($this->returnValue($this->buildCoreConfigRegistry(array('isPaymentEnabled' => $isPaymentEnabled))));
 		$this->replaceByMock('helper', 'eb2cpayment', $helper);
 
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML($xml);
 
 		$create = Mage::getModel('eb2corder/create');
@@ -1813,8 +1817,7 @@ INVALID_XML;
 			->will($this->returnValue($this->buildCoreConfigRegistry(array('isPaymentEnabled' => $isPaymentEnabled))));
 		$this->replaceByMock('helper', 'eb2cpayment', $helper);
 
-		$coreHelper = Mage::helper('eb2ccore');
-		$doc = $coreHelper->getNewDomDocument();
+		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML($xml);
 
 		$create = $this->getModelMock('eb2corder/create', array('_getResponseCode'));
@@ -1826,5 +1829,38 @@ INVALID_XML;
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
 
 		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayments', array($doc->documentElement)));
+	}
+	/**
+	 * Test the 'eb2corder/create::_buildMerchandise' method by passing it a known DOMElement object and a known
+	 * 'sales/order_item' class instance object with known initialized data to build the 'Merchandise' node and all its
+	 * child nodes, then assert that the child 'Amount' node exists and have a known value expected value.
+	 * @param string $xml
+	 * @param array $itemData
+	 * @param string $expectedAmountNode
+	 * @param string $expectedAmountValue
+	 * @dataProvider dataProvider
+	 */
+	public function testBuildMerchandise($xml, array $itemData, $expectedAmountNode, $expectedAmountValue)
+	{
+		/** @var EbayEnterprise_Dom_Document $doc */
+		$doc = $this->_coreHelper->getNewDomDocument();
+		$doc->loadXML($xml);
+		/** @var Mage_Sales_Model_Order_Item $orderItem */
+		$orderItem = Mage::getModel('sales/order_item', $itemData);
+		/** @var EbayEnterprise_Eb2cOrder_Model_Create $create */
+		$create = Mage::getModel('eb2corder/create');
+
+		/** @see EbayEnterprise_Eb2cOrder_Model_Create::_buildTaxDataNodes */
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_domRequest', $doc);
+
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildMerchandise', array($doc->documentElement, $orderItem));
+
+		$matcher = array('tag' => '_', 'child' => array('tag' => 'Merchandise', 'child' => array('tag' => $expectedAmountNode)));
+		// asserting that the node 'Amount' exists
+		$this->assertTag($matcher, $doc->C14N(), '', false);
+
+		$xpath = $this->_coreHelper->getNewDomXPath($doc);
+		// asserting that the 'Amount' node equal to an expected value
+		$this->assertSame((string) $expectedAmountValue, $xpath->evaluate("string(//$expectedAmountNode)"));
 	}
 }

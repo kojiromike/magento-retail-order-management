@@ -394,6 +394,35 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		return $this;
 	}
 	/**
+	 * Builds '//Pricing/Merchandise/Amount' node from a passed in DOMElement pricing context node.
+	 * @param  EbayEnterprise_Dom_Element $pricing
+	 * @param  Mage_Sales_Model_Order_Item $item
+	 * @return self
+	 */
+	protected function _buildMerchandise(EbayEnterprise_Dom_Element $pricing, Mage_Sales_Model_Order_Item $item)
+	{
+		$merchandise = $pricing->createChild('Merchandise')
+			// signifies the total amount for that line
+			->addChild('Amount', sprintf('%.02F', $item->getRowTotal()));
+
+		// build 'Merchandise/PromotionalDiscounts/Discount' nodes
+		$this->_buildDiscount(
+			$merchandise, $item, $item->getDiscountAmount(),
+			EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE_PROMOTION
+		);
+
+		// Tax on the Merchandise
+		$merchTaxFragment = $this->_buildTaxDataNodes(
+			$this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE),
+			$this->_getProductTaxCode($item)
+		);
+		if ($merchTaxFragment->hasChildNodes()) {
+			$merchandise->appendChild($merchTaxFragment);
+		}
+		$merchandise->createChild('UnitPrice', sprintf('%.02F', $item->getPrice()));
+		return $this;
+	}
+	/**
 	 * Builds a single Order Item node inside the Order Items array
 	 * @param DomElement orderItem
 	 * @param Mage_Sales_Model_Order_Item item
@@ -413,23 +442,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$orderItem->createChild('Quantity', $item->getQtyOrdered());
 		$orderItem->createChild('Description')->createChild('Description', $item->getName());
 		$pricing = $orderItem->createChild('Pricing');
-		$merchandise = $pricing->createChild('Merchandise');
 
-		// build 'Merchandise/PromotionalDiscounts/Discount' nodes
-		$this->_buildDiscount(
-			$merchandise, $item, $item->getDiscountAmount(),
-			EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE_PROMOTION
-		);
+		// Adding 'Pricing/Merchandise' node
+		$this->_buildMerchandise($pricing, $item);
 
-		// Tax on the Merchandise:
-		$merchTaxFragment = $this->_buildTaxDataNodes(
-			$this->getItemTaxQuotes($item, EbayEnterprise_Eb2cTax_Model_Response_Quote::MERCHANDISE),
-			$this->_getProductTaxCode($item)
-		);
-		if ($merchTaxFragment->hasChildNodes()) {
-			$merchandise->appendChild($merchTaxFragment);
-		}
-		$merchandise->createChild('UnitPrice', sprintf('%.02f', $item->getPrice()));
 		// End Merchandise
 		// Shipping on the orderItem: when flatrate shipping, only the first item should have shipping prices
 		// otherwise all items should have it for the shipping price for that item

@@ -1,0 +1,46 @@
+<?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+?>
+
+<script type="text/javascript" src="<?php echo $this->getCollectorUrl() ?>"></script>
+<script type="text/javascript">
+document.observe("dom:loaded", function() {
+	$('order_review_form').insert('<?php echo $this->getField() ?>');
+	$('order_review_form').insert('<?php echo $this->getMappingField() ?>');
+	/**
+	 * Wrapper function around the PayPal Express review submit button.
+	 * Populates form with JSC data and then proceeds with existing
+	 * event handling.
+	 * @param function originalFn Original event handler
+	 * @param Event evt
+	 */
+	var jscWrapper = function jscWrapper(originalFn, evt) {
+		try {
+			<?php echo $this->getCall() ?>
+		} catch(error) {
+		}
+		originalFn.call(this, evt);
+	};
+	// prepare the callback function - wrap with JSC data and bind to the
+	// PayPalExpressAjax object
+	var submitOrderListener = PayPalExpressAjax._submitOrder
+		.wrap(jscWrapper)
+		.bindAsEventListener(PayPalExpressAjax);
+	// Remove any event handlers already observing the review button (should
+	// just be the PayPalExpressAjax object's _submitOrder function) and
+	// then re-bind the event observer to the wrapped callback.
+	$('review_button').stopObserving().observe('click', submitOrderListener);
+});
+</script>

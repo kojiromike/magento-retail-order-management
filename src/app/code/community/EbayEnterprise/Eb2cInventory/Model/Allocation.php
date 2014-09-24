@@ -19,6 +19,9 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 {
 	const ALLOCATION_QTY_LIMITED_STOCK_MESSAGE = 'EbayEnterprise_Eb2cInventory_Allocation_Qty_Limited_Stock_Message';
 	const ALLOCATION_QTY_OUT_STOCK_MESSAGE = 'EbayEnterprise_Eb2cInventory_Allocation_Qty_Out_Stock_Message';
+	const ALLOCATION_REQUEST_ID_PREFIX = 'IA-';
+	const ROLLBACK_REQUEST_ID_PREFIX = 'IR-';
+
 	/**
 	 * A quote only requires an allocation if it has items with managed stock, does not already have
 	 * an allocation or has an allocation that has expired.
@@ -60,13 +63,14 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 	protected function _buildAllocationRequestMessage(Mage_Sales_Model_Quote $quote)
 	{
 		$coreHelper = Mage::helper('eb2ccore');
+		$inventoryHelper = Mage::helper('eb2cinventory');
 		$domDocument = $coreHelper->getNewDomDocument();
-		$allocationRequestMessage = $domDocument->addElement('AllocationRequestMessage', null, Mage::helper('eb2cinventory')->getXmlNs())->firstChild;
-		$allocationRequestMessage->setAttribute('requestId', Mage::helper('eb2cinventory')->getRequestId($quote->getEntityId()));
-		$allocationRequestMessage->setAttribute('reservationId', Mage::helper('eb2cinventory')->getReservationId($quote->getEntityId()));
+		$allocationRequestMessage = $domDocument->addElement('AllocationRequestMessage', null, $inventoryHelper->getXmlNs())->firstChild;
+		$allocationRequestMessage->setAttribute('requestId', $coreHelper->generateRequestId(self::ALLOCATION_REQUEST_ID_PREFIX));
+		$allocationRequestMessage->setAttribute('reservationId', $inventoryHelper->getReservationId($quote->getEntityId()));
 		$shippingAddress = $quote->getShippingAddress();
 		$shippingMethod = $coreHelper->lookupShipMethod($shippingAddress->getShippingMethod());
-		foreach (Mage::helper('eb2cinventory')->getInventoriedItems($quote->getAllVisibleItems()) as $item) {
+		foreach ($inventoryHelper->getInventoriedItems($quote->getAllVisibleItems()) as $item) {
 			// creating quoteItem element
 			$quoteItem = $allocationRequestMessage->createChild('OrderItem', null, array('lineId' => $item->getId(), 'itemId' => $item->getSku()));
 			// add quantity - FYI: integer value doesn't get added only string
@@ -261,10 +265,12 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 	 */
 	public function buildRollbackAllocationRequestMessage(Mage_Sales_Model_Quote $quote)
 	{
-		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();
-		$rollbackAllocationRequestMessage = $domDocument->addElement('RollbackAllocationRequestMessage', null, Mage::helper('eb2cinventory')->getXmlNs())->firstChild;
-		$rollbackAllocationRequestMessage->setAttribute('requestId', Mage::helper('eb2cinventory')->getRequestId($quote->getEntityId()));
-		$rollbackAllocationRequestMessage->setAttribute('reservationId', Mage::helper('eb2cinventory')->getReservationId($quote->getEntityId()));
+		$coreHelper = Mage::helper('eb2ccore');
+		$inventoryHelper = Mage::helper('eb2cinventory');
+		$domDocument = $coreHelper->getNewDomDocument();
+		$rollbackAllocationRequestMessage = $domDocument->addElement('RollbackAllocationRequestMessage', null, $inventoryHelper->getXmlNs())->firstChild;
+		$rollbackAllocationRequestMessage->setAttribute('requestId', $coreHelper->generateRequestId(self::ROLLBACK_REQUEST_ID_PREFIX));
+		$rollbackAllocationRequestMessage->setAttribute('reservationId', $inventoryHelper->getReservationId($quote->getEntityId()));
 		return $domDocument;
 	}
 }

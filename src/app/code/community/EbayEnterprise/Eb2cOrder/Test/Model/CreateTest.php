@@ -432,14 +432,6 @@ INVALID_XML;
 		$order = Mage::getModel('sales/order', $orderData);
 		$item = Mage::getModel('sales/order_item', $itemData);
 		$item->setOrder($order);
-		if (!isset($itemData['eb2c_reservation_id'])) {
-			$invHelper = $this->getHelperMock('eb2cinventory/data', array('getRequestId'));
-			$invHelper->expects($this->once())
-				->method('getRequestId')
-				->with($orderData['quote_id'])
-				->will($this->returnValue('generated_reservation_id'));
-			$this->replaceByMock('helper', 'eb2cinventory', $invHelper);
-		}
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$itemElement = $doc->appendChild($doc->createElement('root', null))->appendChild($doc->createElement('Item', null));
 		// DOMDocumentFragments for mocked responses to _buildTaxDataNodes and _buildDuty
@@ -489,7 +481,11 @@ INVALID_XML;
 		$buildOrderItemMethod->invoke($create, $itemElement, $item, 1);
 		// the itemElement should have been modified, adding the item nodes onto it
 		$this->assertTrue($itemElement->hasChildNodes(), 'No child nodes added to Item node');
-		$expectedChildNodes = array('ItemId', 'Quantity', 'Description', 'Pricing', 'ShippingMethod', 'ReservationId');
+		$expectedChildNodes = array('ItemId', 'Quantity', 'Description', 'Pricing', 'ShippingMethod');
+		// should only include a resertation id when on is set on the item
+		if (isset($itemData['eb2c_reservation_id'])) {
+			$expectedChildNodes[] = 'ReservationId';
+		}
 		$includedChildNodes = array();
 		foreach ($itemElement->childNodes as $node) {
 			$includedChildNodes[] = $node->nodeName;

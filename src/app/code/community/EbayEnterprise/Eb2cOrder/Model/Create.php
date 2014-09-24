@@ -377,7 +377,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$order = $item->getOrder();
 		$quoteId = $order->getQuoteId();
 		$itemId = 'item_' . $item->getId();
-		$reservationId = (trim($item->getEb2cReservationId()) !== '')? $item->getEb2cReservationId() : Mage::helper('eb2cinventory')->getRequestId($quoteId);
 		$this->_orderItemRef[] = $itemId;
 		$orderItem->setAttribute('id', $itemId);
 		$orderItem->setAttribute('webLineId', $webLineId);
@@ -431,7 +430,12 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		// must be inserted before the 'ReservationId' node.
 		$this->_buildCustomAttributesByLevel(static::ITEM_LEVEL, $orderItem, $item);
 
-		$orderItem->createChild('ReservationId', $reservationId);
+		// If the item has be reserved via an allocation request, include the
+		// reservation id from the allocation.
+		$reservationId = trim($item->getEb2cReservationId());
+		if ($reservationId) {
+			$orderItem->createChild('ReservationId', $reservationId);
+		}
 		return $this;
 	}
 	/**

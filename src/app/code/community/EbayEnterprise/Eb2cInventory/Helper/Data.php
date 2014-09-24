@@ -71,19 +71,6 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * Generate eb2c API Universally unique ID used to globally identify to request.
-	 *
-	 * @param int $entityId, the magento sales_flat_order primary key
-	 *
-	 * @return string, the request id
-	 */
-	public function getRequestId($entityId)
-	{
-		$cfg = Mage::helper('eb2ccore')->getConfigModel(null);
-		return implode('-', array($cfg->clientId, $cfg->storeId, $entityId));
-	}
-
-	/**
 	 * Generate eb2c API Universally unique ID to represent the reservation.
 	 *
 	 * @param int $entityId, the magento sales_flat_order primary key

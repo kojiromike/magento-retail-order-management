@@ -87,27 +87,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 		);
 	}
 
-	public function providerGetRequestId()
-	{
-		return array(
-			array(43)
-		);
-	}
-
-	/**
-	 * testing helper data getRequestId method
-	 *
-	 * @loadFixture loadConfig.yaml
-	 * @dataProvider providerGetRequestId
-	 */
-	public function testGetRequestId($entityId)
-	{
-		$this->assertSame(
-			'client_id-store_id-43',
-			$this->_helper->getRequestId($entityId)
-		);
-	}
-
 	public function providerGetReservationId()
 	{
 		return array(

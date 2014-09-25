@@ -63,93 +63,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 	}
 
 	/**
-	 * Test loadFile method with the following assumptions when call with given file name as a parameter
-	 * Expectation 1: the method EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_getSplFileInfo will be called once
-	 *                with the file name parameter, this method will return a mock object of SplFileInfo, this object
-	 *                will then be assigned to the class property EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_fileStream
-	 * Expectation 2: to prove the class property EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_fileStream get set when calling
-	 *                the method EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::loadFile, the test set the property to a known state of null
-	 *                and then assert that it is the same as the mock SplFileInfo object after EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::loadFile
-	 *                is called.
-	 * Expectation 3: the method EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::loadFile assert that it will return it self after calling with a file name
-	 * Expectation 4: is similar to expectation 2, but this is after EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::loadFile there asserting that
-	 *                the value in the class property EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_fileStream is the same as the SplFileInfo mock
-	 * @mock EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_getSplFileInfo
-	 * @mock SplFileInfo
-	 * @param string $fileName the file name to be passed to the loadFile method
-	 * @dataProvider dataProvider
-	 */
-	public function testLoadFile($fileName)
-	{
-		$splFileInfoMock = $this->getMockBuilder('SplFileInfo')
-			->disableOriginalConstructor()
-			->setMethods(array())
-			->getMock();
-
-		$confirmationsModelMock = $this->getModelMockBuilder('eb2cproduct/error_confirmations')
-			->disableOriginalConstructor()
-			->setMethods(array('_getSplFileInfo'))
-			->getMock();
-		$confirmationsModelMock->expects($this->once())
-			->method('_getSplFileInfo')
-			->with($this->equalTo($fileName))
-			->will($this->returnValue($splFileInfoMock));
-
-		// set the class protected property '_fileStream' to a known state of null
-		$this->_reflectProperty($confirmationsModelMock, '_fileStream')->setValue($confirmationsModelMock, null);
-
-		$this->assertSame($confirmationsModelMock, $confirmationsModelMock->loadFile($fileName));
-		$this->assertSame($splFileInfoMock, $this->_reflectProperty($confirmationsModelMock, '_fileStream')->getValue($confirmationsModelMock));
-	}
-
-	/**
-	 * Test append method with the following assumptions when call with given content as a parameter
-	 * Expectation 1: the class property EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_fileStream will be checked if
-	 *                it is not is null it will throw EbayEnterprise_Eb2cProduct_Model_Error_Exception exception,
-	 *                that is why in this set we are setting the class property EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_fileStream
-	 *                to a know state of mock object SplFileInfo
-	 * Expectation 2: the mock object SplFileInfo, which is set to the class property EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_fileStream, method
-	 *                SplFileInfo::openFile is expected to be called once, which will return a mock stdClass object, which meant to replace mocking SplFileObject,
-	 *                which cannot be mocked out because it will throw exception as it need a real file to be passed to its constructor method.
-	 * Expectation 3: the mock stdClass object method stdClass::fwrite will be called once with the content it which it will return the
-	 *                number of bytes the content appended to the file
-	 * @mock SplFileInfo::openFile
-	 * @mock stdClass::fwrite <---> SplFileObject::fwrite
-	 * @param string $content the content to be appended to the file in error confirmation class stream
-	 * @dataProvider dataProvider
-	 */
-	public function testAppend($content)
-	{
-		// we are faking mocking out 'SplFileObject' because it will throw an exception in the constructor which cannot be disabled
-		// because it is expecting a real file to be passed to it so that it can create it if doesn't exist
-		// since using the real object will create a real file, faking it out is a much better choice
-		$splFileObjectMock = $this->getMockBuilder('stdClass')
-			->disableOriginalConstructor()
-			->setMethods(array('fwrite'))
-			->getMock();
-		$splFileObjectMock->expects($this->once())
-			->method('fwrite')
-			->with($this->equalTo($content . "\n"))
-			->will($this->returnValue(strlen($content . "\n")));
-
-		$splFileInfoMock = $this->getMockBuilder('SplFileInfo')
-			->disableOriginalConstructor()
-			->setMethods(array('openFile'))
-			->getMock();
-		$splFileInfoMock->expects($this->once())
-			->method('openFile')
-			->with($this->equalTo('a'))
-			->will($this->returnValue($splFileObjectMock));
-
-		$confirmations = Mage::getModel('eb2cproduct/error_confirmations');
-
-		// set the class property '_fileStream' to a known state of the mock object SplFileInfo
-		$this->_reflectProperty($confirmations, '_fileStream')->setValue($confirmations, $splFileInfoMock);
-
-		$this->assertSame($confirmations, $confirmations->append($content));
-	}
-
-	/**
 	 * Test append method with the following assumptions when call with given content as a parameter
 	 * Expectation 1: the class property EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_fileStream will be checked if
 	 *                it is not is null it will throw EbayEnterprise_Eb2cProduct_Model_Error_Exception exception,
@@ -168,44 +81,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Error_ConfirmationsTest
 
 		$confirmations->append($content);
 	}
-
-	/**
-	 * Test close method with the following assumptions when called
-	 * Expectation 1: the method EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::append will be called once given  the closing root node
-	 * Expectation 2: the class property EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_fileStream to see if it has an object
-	 *                if it is, it will set it to null to unreferenced the object in the class. That is why
-	 *                the test is setting it to a known state with a mocked SplFileInfo object.
-	 * Expectation 3: the following class property EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_queueMessage, _queueError, _queueConfirmation
-	 *                will be set to an empty array
-	 * Expectation 4: calling method EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::close will return itself
-	 * @mock SplFileInfo
-	 * @mock EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::append
-	 */
-	public function testClose()
-	{
-		$splFileInfoMock = $this->getMockBuilder('SplFileInfo')
-			->disableOriginalConstructor()
-			->setMethods(array())
-			->getMock();
-
-		$confirmationsModelMock = $this->getModelMockBuilder('eb2cproduct/error_confirmations')
-			->disableOriginalConstructor()
-			->setMethods(array('append'))
-			->getMock();
-		$confirmationsModelMock->expects($this->once())
-			->method('append')
-			->with($this->equalTo(EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::XML_CLOSE_ROOT_NODE))
-			->will($this->returnSelf());
-
-		$this->_reflectProperty($confirmationsModelMock, '_fileStream')->setValue($confirmationsModelMock, $splFileInfoMock);
-
-		$this->assertSame($confirmationsModelMock, $confirmationsModelMock->close());
-		$this->assertNull($this->_reflectProperty($confirmationsModelMock, '_fileStream')->getValue($confirmationsModelMock));
-		$this->assertEmpty($this->_reflectProperty($confirmationsModelMock, '_queueMessage')->getValue($confirmationsModelMock));
-		$this->assertEmpty($this->_reflectProperty($confirmationsModelMock, '_queueError')->getValue($confirmationsModelMock));
-		$this->assertEmpty($this->_reflectProperty($confirmationsModelMock, '_queueConfirmation')->getValue($confirmationsModelMock));
-	}
-
 	/**
 	 * Test addMessage method with the following assumptions when call with given message template ($msgTemplate) and message ($message) as parameters
 	 * Expectation 1: the method EbayEnterprise_Eb2cProduct_Model_Error_Confirmations::_getLangCode will be called once and will return the language code (en-us)

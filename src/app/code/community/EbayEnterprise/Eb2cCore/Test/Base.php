@@ -206,4 +206,13 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	{
 		return array(array(true), array(false));
 	}
+	/**
+	 * Build a simple event observer.
+	 * @param  array $magicData magic initializer array
+	 * @return Varien_Event_Observer
+	 */
+	public function _buildEventObserver(array $magicData)
+	{
+		return new Varien_Event_Observer(array('event' => new Varien_Event($magicData)));
+	}
 }

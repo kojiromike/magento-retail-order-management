@@ -69,6 +69,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const DISCOUNT_DESCRIPTION_NODE = 'Description';
 	const DISCOUNT_EFFECT_TYPE_NODE = 'EffectType';
 
+	const PRICE_FORMAT = '%.02F';
+
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -343,7 +345,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$orderSourceNode->setAttribute('type', $orderSource['type']);
 		}
 		$order->createChild('OrderHistoryUrl', $this->_helper->getOrderHistoryUrl($this->_o));
-		$order->createChild('OrderTotal', sprintf('%.02f', $this->_o->getGrandTotal()));
+		$order->createChild('OrderTotal', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
 		return $this;
 	}
 	/**
@@ -403,7 +405,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		$merchandise = $pricing->createChild('Merchandise')
 			// signifies the total amount for that line
-			->addChild('Amount', sprintf('%.02F', $item->getRowTotal()));
+			->addChild('Amount', sprintf(static::PRICE_FORMAT, $item->getRowTotal()));
 
 		// build 'Merchandise/PromotionalDiscounts/Discount' nodes
 		$this->_buildDiscount(
@@ -419,7 +421,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		if ($merchTaxFragment->hasChildNodes()) {
 			$merchandise->appendChild($merchTaxFragment);
 		}
-		$merchandise->createChild('UnitPrice', sprintf('%.02F', $item->getPrice()));
+		$merchandise->createChild('UnitPrice', sprintf(static::PRICE_FORMAT, $item->getPrice()));
 		return $this;
 	}
 	/**
@@ -730,7 +732,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 						->setAttribute('isToken', 'true');
 					$this->_addPaymentRequestId($thisPayment, $this->_getPaymentRequestId($payment));
 					$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
-					$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGrandTotal()));
+					$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
 					$auth = $thisPayment->createChild('Authorization');
 					$responseCode = ($payment->getAdditionalInformation('response_code') === 'AP01' ? 'APPROVED' : 'DECLINED');
 					$auth->createChild('ResponseCode', $responseCode);
@@ -740,12 +742,16 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$auth->createChild('PhoneResponseCode', $payment->getAdditionalInformation('phone_response_code'));
 					$auth->createChild('NameResponseCode', $payment->getAdditionalInformation('name_response_code'));
 					$auth->createChild('EmailResponseCode', $payment->getAdditionalInformation('email_response_code'));
-					$auth->createChild('AmountAuthorized', sprintf('%.02f', $payment->getAmountAuthorized()));
+					$auth->createChild('AmountAuthorized', sprintf(static::PRICE_FORMAT, $payment->getAmountAuthorized()));
 					$thisPayment->createChild('ExpirationDate', $payment->getAdditionalInformation('expiration_date'));
 				} elseif ($payMethodNode === 'PayPal') {
 					$thisPayment = $payments->createChild($payMethodNode);
-					$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGrandTotal()));
-					$thisPayment->createChild('AmountAuthorized', sprintf('%.02f', $payment->getAmountAuthorized()));
+					$amount = $this->_o->getGrandTotal();
+					$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $amount));
+					// The payment method is no longer 'authorized' causing the 'AmountAuthorized' not to be set in the 'sales/order_payment' object.
+					// In order to send the amount authorized in order create request, we are using the order grand total value.
+					// Although, the XSD claims this node is optional, however, not sending this node will cause OMS to cancel the payment on the order.
+					$thisPayment->createChild('AmountAuthorized', sprintf(static::PRICE_FORMAT, $amount));
 					$paymentContext = $thisPayment->createChild('PaymentContext');
 					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
 					$paymentContext->createChild('TenderType', self::PAYPAL_TENDER_TYPE);
@@ -772,17 +778,17 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 						$this->_addPaymentRequestId($thisPayment, $this->_getOrderGiftCardRequestId($this->_o));
 						$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
 						$thisPayment->createChild('Pin', $this->_getOrderGiftCardPin($this->_o));
-						$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGiftCardsAmount()));
+						$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGiftCardsAmount()));
 					} else {
 						// there is no gift card for the order and the payment method is free
 						$thisPayment = $payments->createChild('PrepaidCreditCard');
-						$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGrandTotal()));
+						$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
 					}
 				}
 			}
 		} else {
 			$thisPayment = $payments->createChild('PrepaidCreditCard');
-			$thisPayment->createChild('Amount', sprintf('%.02f', $this->_o->getGrandTotal()));
+			$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
 		}
 		return $this;
 	}
@@ -1146,7 +1152,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			// Magento has only 1 discount per line item
 			// The total discount amount for all items in that line
 			// Discount/Amount = Base Promotional Amount * quantity
-			$discount->addChild(static::DISCOUNT_AMOUNT_NODE, sprintf('%.02f', $discountAmount));
+			$discount->addChild(static::DISCOUNT_AMOUNT_NODE, sprintf(static::PRICE_FORMAT, $discountAmount));
 
 			$description = $this->_getDiscountDescription($item);
 			if (!is_null($description)) {

@@ -450,7 +450,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _buildOrderItem(EbayEnterprise_Dom_Element $orderItem, Mage_Sales_Model_Order_Item $item, $webLineId)
 	{
 		$order = $item->getOrder();
-		$quoteId = $order->getQuoteId();
 		$itemId = 'item_' . $item->getId();
 		$this->_orderItemRef[] = $itemId;
 		$orderItem->setAttribute('id', $itemId);

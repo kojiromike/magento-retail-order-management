@@ -96,6 +96,7 @@
 			<eb2cinventory_setup>
 				<setup>
 					<module>EbayEnterprise_Eb2cInventory</module>
+					<class>Mage_Sales_Model_Resource_Setup</class>
 				</setup>
 			</eb2cinventory_setup>
 		</resources>

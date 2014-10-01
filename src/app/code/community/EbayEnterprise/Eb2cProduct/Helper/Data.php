@@ -333,12 +333,13 @@ class EbayEnterprise_Eb2cProduct_Helper_Data extends Mage_Core_Helper_Abstract
 	 * generate file name by feed type
 	 * @param string $feedType Type of feed to be processed
 	 * @param string $format Filename format string to use to build the filename
+	 * @param array  $overrides use an array to specify the values for the filename.
 	 * @return string the errorconfirmations file name
 	 */
-	public function generateFileName($feedType, $format)
+	public function generateFileName($feedType, $format, array $overrides=array())
 	{
 		return $this->mapPattern(
-			Mage::helper('eb2ccore/feed')->getFileNameConfig($feedType),
+			array_replace(Mage::helper('eb2ccore/feed')->getFileNameConfig($feedType), $overrides),
 			$format
 		);
 	}

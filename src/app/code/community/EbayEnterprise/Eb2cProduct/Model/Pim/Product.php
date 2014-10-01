@@ -59,14 +59,14 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Product
 	 * existing set of PIM attribute models.
 	 * @param  Mage_Catalog_Model_Product $product
 	 * @param  EbayEnterprise_Dom_Document    $doc
-	 * @param  string $key
+	 * @param  array $config
 	 * @param  array $attributes list of attributes from the configuration per feed type
 	 * @return self
 	 */
 	public function loadPimAttributesByProduct(
 		Mage_Catalog_Model_Product $product,
 		EbayEnterprise_Dom_Document $doc,
-		$key,
+		array $config,
 		array $attributes)
 	{
 		$attributeFactory = Mage::getSingleton('eb2cproduct/pim_attribute_factory');
@@ -76,8 +76,8 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Product
 				$this->getPimAttributes(),
 				array_filter(
 					array_map(
-						function ($attr) use ($product, $attributeFactory, $doc, $key) {
-							return $attributeFactory->getPimAttribute($attr, $product, $doc, $key);
+						function ($attr) use ($product, $attributeFactory, $doc, $config) {
+							return $attributeFactory->getPimAttribute($attr, $product, $doc, $config);
 						},
 						$attributes
 					)

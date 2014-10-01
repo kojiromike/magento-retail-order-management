@@ -47,17 +47,18 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Attribute_Factory
 	 * @param  string $attribute
 	 * @param  Mage_Catalog_Model_Product          $product
 	 * @param  EbayEnterprise_Dom_Document             $doc
-	 * @param  string $key
+	 * @param  array $key
 	 * @return EbayEnterprise_Eb2cProduct_Model_Pim_Attribute
 	 */
 	public function getPimAttribute(
 		$attribute,
 		Mage_Catalog_Model_Product $product,
-		EbayEnterprise_Dom_Document $doc, $key)
+		EbayEnterprise_Dom_Document $doc,
+		array $config)
 	{
 
 		$resolvedArgs = $this->_resolveMappedCallback(
-			$this->_getAttributeMapping($attribute, $key),
+			$this->_getAttributeMapping($attribute, $config),
 			$attribute,
 			$product,
 			$doc
@@ -66,17 +67,14 @@ class EbayEnterprise_Eb2cProduct_Model_Pim_Attribute_Factory
 		return $resolvedArgs ? Mage::getModel('eb2cproduct/pim_attribute', $resolvedArgs) : null;
 	}
 	/**
-	 * Get the attribute mapping, either from the configured mappings or using
-	 * a generated default mapping for the attribute.
+	 * Get the attribute mapping. The result will be an empty array.
 	 * @param  string $attribute
 	 * @param  string $key
 	 * @return array
 	 */
-	protected function _getAttributeMapping($attribute, $key)
+	protected function _getAttributeMapping($attribute, $config)
 	{
-		return isset($this->_attributeMappings[$key]['mappings'][$attribute]) ?
-			$this->_attributeMappings[$key]['mappings'][$attribute] :
-			array();
+		return isset($config['mappings'][$attribute]) ? $config['mappings'][$attribute] : array();
 	}
 
 	/**

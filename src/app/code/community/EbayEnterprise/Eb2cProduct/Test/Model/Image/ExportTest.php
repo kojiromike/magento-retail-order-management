@@ -533,7 +533,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Image_ExportTest
 		$data = array(array('id' => '54-HSTS83223', 'image_data' => array(array(),)),);
 		$product = Mage::getModel('catalog/product')->addData(array('sku' => $data[0]['id']));
 
-		$collection = Mage::getResourceModel('catalog/product_collection');
+		$collection = $this->getResourceModelMock('catalog/product_collection', array('load'));
 		$collection->addItem($product);
 
 		$exportMock = $this->getModelMockBuilder('eb2cproduct/image_export')

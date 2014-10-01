@@ -250,9 +250,9 @@ class EbayEnterprise_Eb2cCore_Helper_Feed extends Mage_Core_Helper_Abstract
 	 * retrieve the store id from the config
 	 * @return string
 	 */
-	public function getStoreId()
+	public function getStoreId($store=null)
 	{
-		return Mage::helper('eb2ccore')->getConfigModel()->storeId;
+		return Mage::helper('eb2ccore')->getConfigModel()->setStore($store)->storeId;
 	}
 
 	/**

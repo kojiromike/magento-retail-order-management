@@ -44,6 +44,7 @@ class EbayEnterprise_Eb2cProduct_Model_Config extends EbayEnterprise_Eb2cCore_Mo
 		'item_feed_event_type'                => 'eb2ccore/feed/filetransfer_imports/item_master/event_type',
 
 		'pim_export_feed'                     => 'eb2ccore/feed/filetransfer_exports/eb2c_outbox',
+		'export_feed_config'                  => 'eb2cproduct/feed_pim_mapping',
 		'pim_export_feed_event_type'          => 'eb2cproduct/pim_export_feed/outbound/message_header/event_type',
 		'pim_export_feed_cutoff_date'         => 'eb2cproduct/pim_export_feed/cutoff_date',
 		'pim_export_filename_format'          => 'eb2cproduct/pim_export_feed/filename_format',

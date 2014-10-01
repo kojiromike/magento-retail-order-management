@@ -22,7 +22,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_ProductTest
 	 */
 	public function testLoadPimAttributesByProduct()
 	{
-		$key = 'item_map';
+		$config = array('the config');
 		$attributes = array('_gsi_client_id','sku');
 
 		$result = array();
@@ -46,8 +46,8 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_ProductTest
 		$factory->expects($this->exactly(2))
 			->method('getPimAttribute')
 			->will($this->returnValueMap(array(
-				array($attributes[0], $product, $doc, $key, $result[1]),
-				array($attributes[1], $product, $doc, $key, $result[2])
+				array($attributes[0], $product, $doc, $config, $result[1]),
+				array($attributes[1], $product, $doc, $config, $result[2])
 			)));
 		$this->replaceByMock('singleton', 'eb2cproduct/pim_attribute_factory', $factory);
 
@@ -63,7 +63,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_ProductTest
 			->method('getPimAttributes')
 			->will($this->returnValue(array($result[0])));
 
-		$this->assertSame($pimProduct, $pimProduct->loadPimAttributesByProduct($product, $doc, $key, $attributes));
+		$this->assertSame($pimProduct, $pimProduct->loadPimAttributesByProduct($product, $doc, $config, $attributes));
 	}
 	/**
 	 * verify an exception is thrown when missing arguments

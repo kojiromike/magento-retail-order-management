@@ -233,7 +233,8 @@ class EbayEnterprise_Eb2cProduct_Helper_Pim
 	public function passStoreId($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
 		$domAttribute = $this->_getDomAttr($doc, $attribute);
-		$domAttribute->value = Mage::helper('eb2ccore/feed')->getStoreId();
+		// get the rom store id based on the product's store view.
+		$domAttribute->value = Mage::helper('eb2ccore/feed')->getStoreId($product->getStoreId());
 		return $domAttribute;
 	}
 	/**

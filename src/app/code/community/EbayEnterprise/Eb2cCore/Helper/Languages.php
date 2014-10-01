@@ -23,17 +23,29 @@ class EbayEnterprise_Eb2cCore_Helper_Languages extends Mage_Core_Helper_Abstract
 	public function getStores($langCode=null)
 	{
 		$stores = array();
-		$config = Mage::helper('eb2ccore')->getConfigModel();
-
 		foreach (Mage::app()->getWebsites() as $website) {
-			foreach ($website->getGroups() as $group) {
-				foreach ($group->getStores() as $store) {
-					$storeId = $store->getStoreId();
-					$config->setStore($storeId);
-					if (!$langCode || ($langCode === $config->languageCode)) {
-						$store->setLanguageCode($config->languageCode);
-						$stores[$storeId] = $store;
-					}
+			$stores = array_replace($stores, $this->getWebsiteStores($website, $langCode));
+		}
+		return $stores;
+	}
+	/**
+	 * Return an array of stores for the given website and attach a language code to them, Varien_Object style
+	 * @param mixed  $website  the website to get stores from.
+	 * @param string $langCode (optional) if passed, only stores using that langCode are returned.
+	 * @return array of Mage_Core_Model_Store, keyed by StoreId. Each store has a new magic getter 'getLanguageCode()'
+	 */
+	public function getWebsiteStores($website, $langCode=null)
+	{
+		$stores = array();
+		$config = Mage::helper('eb2ccore')->getConfigModel();
+		$website = Mage::app()->getWebsite($website);
+		foreach ($website->getGroups() as $group) {
+			foreach ($group->getStores() as $store) {
+				$storeId = $store->getStoreId();
+				$config->setStore($storeId);
+				if (!$langCode || ($langCode === $config->languageCode)) {
+					$store->setLanguageCode($config->languageCode);
+					$stores[$storeId] = $store;
 				}
 			}
 		}

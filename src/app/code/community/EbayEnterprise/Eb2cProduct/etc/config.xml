@@ -100,6 +100,33 @@
 					</eb2c_product_run_imports>
 				</observers>
 			</filetransfer_import_complete>
+			<ebayenterprise_product_export_price_map>
+				<observers>
+					<ebayenterprise_product_export_collector_price>
+						<class>eb2cproduct/pim_collector_price</class>
+						<method>gatherBatches</method>
+						<type>model</type>
+					</ebayenterprise_product_export_collector_price>
+				</observers>
+			</ebayenterprise_product_export_price_map>
+			<ebayenterprise_product_export_item_map>
+				<observers>
+					<ebayenterprise_product_export_collector_combined>
+						<class>eb2cproduct/pim_collector_combined</class>
+						<method>gatherAllAsOneBatch</method>
+						<type>model</type>
+					</ebayenterprise_product_export_collector_combined>
+				</observers>
+			</ebayenterprise_product_export_item_map>
+			<ebayenterprise_product_export_content_map>
+				<observers>
+					<ebayenterprise_product_export_collector_combined>
+						<class>eb2cproduct/pim_collector_combined</class>
+						<method>gatherAllAsOneBatch</method>
+						<type>model</type>
+					</ebayenterprise_product_export_collector_combined>
+				</observers>
+			</ebayenterprise_product_export_content_map>
 		</events>
 	</global>
 	<default>

@@ -50,7 +50,6 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 	 */
 	public function testGetPimAttribute()
 	{
-		$key = 'item_map';
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$attributeMapping = array('xml_dest' => 'Some/XPath', 'class' => 'eb2cproduct/pim', 'type' => 'helper');
 		$pimAttrConstructorArgs = array(
@@ -58,6 +57,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 			'sku' => 'SomeSku',
 			'value' => $this->getMockBuilder('DOMDocumentFragment')->disableOriginalConstructor()->getMock()
 		);
+		$config = array('mappings' => $attributeMapping);
 
 		$product = $this->getModelMock('catalog/product');
 		$attribute = $this->getModelMock('catalog/entity_attribute');
@@ -72,7 +72,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 		$factory->expects($this->once())
 			->method('_getAttributeMapping')
 			->with($this->identicalTo($attribute))
-			->will($this->returnValue($attributeMapping), $this->identicalTo($key));
+			->will($this->returnValue($attributeMapping), $this->identicalTo($config));
 		$factory->expects($this->once())
 			->method('_resolveMappedCallback')
 			->with(
@@ -84,7 +84,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 			->will($this->returnValue($pimAttrConstructorArgs));
 		$this->replaceByMock('model', 'eb2cproduct/pim_attribute', $pimAttribute);
 
-		$this->assertSame($pimAttribute, $factory->getPimAttribute($attribute, $product, $doc, $key));
+		$this->assertSame($pimAttribute, $factory->getPimAttribute($attribute, $product, $doc, $config));
 	}
 	/**
 	 * When a resolved mapping callback returns null due to a mapping being
@@ -92,11 +92,11 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 	 */
 	public function testGetPimAttributeDisabledMapping()
 	{
-		$key = 'item_map';
+		$attribute = 'sku';
+		$attributeMapping = array('type' => 'disabled', 'xml_dest' => 'Some/XPath');
+		$config = array('mappings' => array('sku' => $attributeMapping));
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$attributeMapping = array('xml_dest' => 'Some/XPath');
 		$product = $this->getModelMock('catalog/product');
-		$attribute = $this->getModelMock('catalog/entity_attribute');
 		$pimAttribute = $this->getModelMockBuilder('eb2cproduct/pim_attribute')
 			->disableOriginalConstructor()
 			->getMock();
@@ -109,8 +109,8 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 
 		$factory->expects($this->once())
 			->method('_getAttributeMapping')
-			->with($this->identicalTo($attribute))
-			->will($this->returnValue($attributeMapping), $this->identicalTo($key));
+			->with($this->identicalTo($attribute), $this->identicalTo($config))
+			->will($this->returnValue($attributeMapping));
 		$factory->expects($this->once())
 			->method('_resolveMappedCallback')
 			->with(
@@ -121,7 +121,7 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 			)
 			->will($this->returnValue(null));
 
-		$this->assertSame(null, $factory->getPimAttribute($attribute, $product, $doc, $key));
+		$this->assertSame(null, $factory->getPimAttribute($attribute, $product, $doc, $config));
 	}
 	/**
 	 * Test getting an attribute mapping
@@ -129,20 +129,17 @@ class EbayEnterprise_Eb2cProduct_Test_Model_Pim_Attribute_FactoryTest
 	public function testGetAttributeMapping()
 	{
 		$attribute = 'sku';
-		$key = 'item_map';
 		$skuMapping = array('xml_dest' => 'Some/XPath');
-		$attributeMappings = array($key => array('mappings' => array($attribute => $skuMapping)));
+		$config = array('mappings' => array($attribute => $skuMapping));
 
 		$factory = $this->getModelMockBuilder('eb2cproduct/pim_attribute_factory')
 			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($factory, '_attributeMappings', $attributeMappings);
-
 		$this->assertSame(
 			$skuMapping,
-			EcomDev_Utils_Reflection::invokeRestrictedMethod($factory, '_getAttributeMapping', array($attribute, $key))
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($factory, '_getAttributeMapping', array($attribute, $config))
 		);
 	}
 	/**

@@ -16,7 +16,6 @@
 
 class EbayEnterprise_Eb2cProduct_Model_Pim
 {
-	const PIM_CONFIG_PATH = 'eb2cproduct/feed_pim_mapping';
 	const XML_TEMPLATE = '<%1$s xmlns:xsi="%2$s" xsi:schemaLocation="%3$s">%4$s</%1$s>';
 	const XMLNS = 'http://www.w3.org/2001/XMLSchema-instance';
 
@@ -28,19 +27,17 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	const KEY_IS_VALIDATE = 'is_validate';
 	const KEY_ITEM_NODE = 'item_node';
 
-	const KEY_DOCS = 'docs';
+	const KEY_DOC = 'doc';
 	const KEY_CORE_FEED = 'core_feed';
-
-	const ERROR_INVALID_DOC = '%s called with invalid doc. Must be instance of EbayEnterprise_Dom_Document';
-	const ERROR_INVALID_CORE_FEED = '%s called with invalid core feed. Must be instance of EbayEnterprise_Eb2cCore_Model_Feed';
+	const KEY_BATCH = 'batch';
 
 	const WARNING_CANNOT_GENERATE_FEED = '[%s] %s could not be generated because of missing required product data or the sku exceeded %d characters.';
 
 	/**
 	 * document object used when building the feed contents
-	 * @var array of EbayEnterprise_Dom_Document
+	 * @var EbayEnterprise_Dom_Document
 	 */
-	protected $_docs = array();
+	protected $_doc;
 	/**
 	 * core feed model used to handle the file system
 	 * @var EbayEnterprise_Eb2cCore_Model_Feed
@@ -51,89 +48,96 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 * @var EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection
 	 */
 	protected $_pimProducts;
+	// @var EbayEnterprise_Eb2cProduct_Model_Pim_Batch
+	protected $_batch;
 	/**
-	 * @var array map between event type and feed root node
-	 */
-	protected $_feedsMap = array();
-	/**
-	 * Set up the doc and core feed
+	 * Set up the doc, batch and core feed
 	 */
 	public function __construct(array $initParams=array())
 	{
-
-		if (isset($initParams[self::KEY_DOCS]) && empty($initParams[self::KEY_DOCS])) {
-			Mage::helper('eb2ccore')->triggerError(sprintf(self::ERROR_INVALID_DOC, __METHOD__));
-			// @codeCoverageIgnoreStart
-		}
-		// @codeCoverageIgnoreEnd
-		$this->_docs = isset($initParams[self::KEY_DOCS]) ? $initParams[self::KEY_DOCS] : $this->_getFeedDoms();
-		if (isset($initParams[self::KEY_CORE_FEED]) && !$initParams[self::KEY_CORE_FEED] instanceof EbayEnterprise_Eb2cCore_Model_Feed) {
-			Mage::helper('eb2ccore')->triggerError(sprintf(self::ERROR_INVALID_CORE_FEED, __METHOD__));
-			// @codeCoverageIgnoreStart
-		}
-		// @codeCoverageIgnoreEnd
-		$this->_coreFeed = isset($initParams[self::KEY_CORE_FEED]) ?
-			$initParams[self::KEY_CORE_FEED] :
-			$this->_setUpCoreFeed();
+		list($this->_batch, $this->_coreFeed, $this->_doc) = $this->_checkTypes(
+			$this->_nullCoalesce($initParams, self::KEY_BATCH, Mage::getModel('eb2cproduct/pim_batch')),
+			$this->_nullCoalesce($initParams, self::KEY_CORE_FEED, $this->_setUpCoreFeed()),
+			$this->_nullCoalesce($initParams, self::KEY_DOC, Mage::helper('eb2ccore')->getNewDomDocument())
+		);
 	}
 	/**
-	 * getting an array of DOMDocument object per event type
-	 * @return array
+	 * Just for type hinting
+	 *
+	 * @param  EbayEnterprise_Eb2cProduct_Model_Pim_Batch $batch
+	 * @param  EbayEnterprise_Eb2cCore_Model_Feed         $coreFeed
+	 * @param  EbayEnterprise_Dom_Document                $doc
+	 * @return array the arguments
 	 */
-	protected function _getFeedDoms()
-	{
-		$helper = Mage::helper('eb2ccore');
-		$docs = array();
-		foreach (array_keys($this->_getFeedsMap()) as $key) {
-			$docs[$key] = $helper->getNewDomDocument();
-		}
-		return $docs;
+	public function _checkTypes(
+		EbayEnterprise_Eb2cProduct_Model_Pim_Batch $batch,
+		EbayEnterprise_Eb2cCore_Model_Feed $coreFeed,
+		EbayEnterprise_Dom_Document $doc
+	) {
+		return array($batch, $coreFeed, $doc);
 	}
 	/**
-	 * @see self::_feedsMap caching the mapping in this class property
+	 * return the $field element of the array if it exists;
+	 * otherwise return $default
+	 * @param  array  $arr
+	 * @param  string $field
+	 * @param  mixed  $default
+	 * @return mixed
+	 */
+	protected function _nullCoalesce(array $arr=array(), $field, $default)
+	{
+		return isset($arr[$field]) ? $arr[$field] : $default;
+	}
+	/**
+	 * retrieve the config for the feed.
+	 * @see self::$_batch
 	 * @return array
 	 */
-	protected function _getFeedsMap()
+	protected function _getFeedConfig()
 	{
-		if (empty($this->_feedsMap)) {
-			$cfg = Mage::helper('eb2cproduct')->getConfigModel();
-			$this->_feedsMap = $cfg->getConfigData(self::PIM_CONFIG_PATH);
-		}
-
-		return $this->_feedsMap;
+		return $this->_batch->getFeedTypeConfig();
+	}
+	/**
+	 * Get the id of the default store view for the current batch
+	 * @return int store view id
+	 */
+	protected function _getDefaultStoreViewId()
+	{
+		return $this->_batch->getDefaultStore()->getId();
 	}
 	/**
 	 * generate the outgoing product feed.
-	 * @param  array  $productIds list of product id's to include in the feed.
-	 * @return array             array of full filepath where the feed files was saved.
+	 * @param  array  $productIds     list of product id's to include in the feed.
+	 * @param  array  $feedTypeConfig configuration data for the current feed.
+	 * @param  array  $stores         list of stores to use as context for getting values.
+	 * @return array  array of full filepath where the feed files was saved.
 	 */
-	public function buildFeed(array $productIds)
+	public function buildFeed()
 	{
-		$feedFilePath = array();
-		foreach (array_keys($this->_getFeedsMap()) as $key) {
-			$feedDataSet = $this->_createFeedDataSet($productIds, $key);
-			$fileName = $this->_getFeedFilePath($key);
-			if ($feedDataSet->count()) {
-				$feedDoc = $this->_createDomFromFeedData($feedDataSet, $key);
-				$feedFilePath[$key] = $fileName;
-				$feedDoc->save($feedFilePath[$key]);
-			} else {
-				$skuLength = EbayEnterprise_Eb2cProduct_Helper_Pim::MAX_SKU_LENGTH;
-				Mage::helper('ebayenterprise_magelog')->logWarn(
-					static::WARNING_CANNOT_GENERATE_FEED,
-					array( __METHOD__, basename($fileName), $skuLength)
-				);
-			}
+		Mage::helper('ebayenterprise_magelog')->logDebug(
+			"[%s] Exportable Entity Ids:\n%s",
+			array(__CLASS__, json_encode($this->_batch->getProductIds()))
+		);
+		$feedFilePath = '';
+		$feedDataSet = $this->_createFeedDataSet();
+		if ($feedDataSet->count()) {
+			$feedFilePath = $this->_getFeedFilePath();
+			$feedDoc = $this->_createDomFromFeedData($feedDataSet);
+			$feedDoc->save($feedFilePath);
+		} else {
+			$skuLength = EbayEnterprise_Eb2cProduct_Helper_Pim::MAX_SKU_LENGTH;
+			Mage::helper('ebayenterprise_magelog')->logWarn(
+				static::WARNING_CANNOT_GENERATE_FEED,
+				array( __METHOD__, basename($feedFilePath), $skuLength)
+			);
 		}
 		return $feedFilePath;
 	}
 	/**
 	 * Build all PIM Product instances used to build the feed.
-	 * @param  array  $productIds entity id's of products
-	 * @param  string $key
 	 * @return EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection collection of PIM Product instances
 	 */
-	protected function _createFeedDataSet(array $productIds, $key)
+	protected function _createFeedDataSet()
 	{
 		/* The DOM nodes must be in a specific order. Because it has all product details, we process the default store first -
 		 * as a side-effect, Other store views contain only the differences from the default store. If those views were
@@ -143,55 +147,47 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 		 * Exceptions thrown on invalid products /remove/ those products from $pimProducts. We also need to remove elements
 		 * from the productIds array so subsequent passes don't try to process them.
 		 */
-		$defaultStoreId = Mage::helper('eb2cproduct')->getDefaultStoreViewId();
+		$productIds = $this->_batch->getProductIds();
 		/** @var EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts */
 		$pimProducts = Mage::getModel('eb2cproduct/pim_product_collection');
-		$stores= Mage::helper('eb2ccore/languages')->getStores();
 		$pimProducts = $this->_processProductCollection(
-			$this->_createProductCollectionForStore($productIds, $stores[$defaultStoreId]),
+			$this->_createProductCollectionForStore($productIds, $this->_batch->getDefaultStore()),
 			$pimProducts,
-			$key,
 			$productIds
 		);
-		unset($stores[$defaultStoreId]); // So we don't process the default again.
-
 		/* Process the remaining store views: */
-		foreach ($stores as $store) {
+		foreach ($this->_batch->getStores() as $store) {
 			$pimProducts = $this->_processProductCollection(
 				$this->_createProductCollectionForStore($productIds, $store),
 				$pimProducts,
-				$key,
 				$productIds
 			);
 		}
 		return $pimProducts;
 	}
-
 	/**
 	 * build out the dom document with the supplied feed data.
 	 *
 	 * @param EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts collection of PIM Product instances
-	 * @param  string $key
 	 * @return EbayEnterprise_Dom_Document dom document representing the feed
 	 */
-	protected function _createDomFromFeedData(EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts, $key)
+	protected function _createDomFromFeedData(EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts)
 	{
+		$config = $this->_getFeedConfig();
 		$this->_startDocument();
-		$doc = $this->_docs[$key];
-		$map = $this->_getFeedsMap();
+		$doc = $this->_doc;
 
 		$pimRoot = $doc->documentElement;
-		$itemNode = $map[$key][self::KEY_ITEM_NODE];
+		$itemNode = $config[self::KEY_ITEM_NODE];
 		foreach ($pimProducts->getItems() as $pimProduct) {
-			$itemFragment = $this->_buildItemNode($pimProduct, $itemNode, $key);
+			$itemFragment = $this->_buildItemNode($pimProduct, $itemNode);
 			if ($itemFragment->hasChildNodes()) {
 				$pimRoot->appendChild($itemFragment);
 			}
 		}
-		if (Mage::helper('eb2ccore')->parseBool($map[$key][self::KEY_IS_VALIDATE])) {
-			$this->_validateDocument($key);
+		if (Mage::helper('eb2ccore')->parseBool($config[self::KEY_IS_VALIDATE])) {
+			$this->_validateDocument();
 		}
-
 		return $doc;
 	}
 	/**
@@ -208,7 +204,6 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 			->addAttributeToSelect('*')
 			->addFieldToFilter('entity_id', array('in' => $productIds));
 	}
-
 	/**
 	 * Process all of the products within a given store.
 	 *
@@ -221,7 +216,6 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	protected function _processProductCollection(
 		Mage_Catalog_Model_Resource_Product_Collection $products,
 		EbayEnterprise_Eb2cProduct_Model_Pim_Product_Collection $pimProducts,
-		$key,
 		array &$productIds = null
 	)
 	{
@@ -241,7 +235,7 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 			}
 			try {
 				$pimProduct->loadPimAttributesByProduct(
-					$product, $this->_docs[$key], $key, $this->_getFeedAttributes($key, $currentStoreId)
+					$product, $this->_doc, $this->_getFeedConfig(), $this->_getFeedAttributes($currentStoreId)
 				);
 			} catch(EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception $e) {
 				Mage::helper('ebayenterprise_magelog')->logWarn(
@@ -262,16 +256,15 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 * determine if the passed in store id is for the default store view
 	 * if so return all mapped attributes otherwise return only
 	 * translatable attributes.
-	 * @param string $key
 	 * @param int $storeId the entity id of Mage_Core_Model_Store
 	 * @return array
 	 */
-	protected function _getFeedAttributes($key, $storeId)
+	protected function _getFeedAttributes($storeId)
 	{
-		$map = $this->_getFeedsMap();
-		return ((int) $storeId === Mage::helper('eb2cproduct')->getDefaultStoreViewId())?
-			array_keys($map[$key][self::KEY_MAPPINGS]) :
-			$this->_getTranslatableAttributes($map[$key][self::KEY_MAPPINGS]);
+		$config = $this->_getFeedConfig();
+		return ((int) $storeId === (int) $this->_getDefaultStoreViewId())?
+			array_keys($config[self::KEY_MAPPINGS]) :
+			$this->_getTranslatableAttributes($config[self::KEY_MAPPINGS]);
 	}
 	/**
 	 * get only translatable attributes
@@ -288,17 +281,16 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 * Create DOMDocumentFragment with the <Item> node.
 	 * @param  EbayEnterprise_Eb2cProduct_Model_Pim_Product $pimProduct
 	 * @param string $childNode
-	 * @param string $key
 	 * @return DOMDocumentFragment
 	 */
-	protected function _buildItemNode(EbayEnterprise_Eb2cProduct_Model_Pim_Product $pimProduct, $childNode, $key)
+	protected function _buildItemNode(EbayEnterprise_Eb2cProduct_Model_Pim_Product $pimProduct, $childNode)
 	{
-		$fragment = $this->_docs[$key]->createDocumentFragment();
+		$fragment = $this->_doc->createDocumentFragment();
 		$attributes = $pimProduct->getPimAttributes();
 		if (count($attributes)) {
-			$itemNode = $fragment->appendChild($this->_docs[$key]->createElement($childNode));
+			$itemNode = $fragment->appendChild($this->_doc->createElement($childNode));
 			foreach (array_unique($attributes) as $pimAttribute) {
-				$this->_appendAttributeValue($itemNode, $pimAttribute, $key);
+				$this->_appendAttributeValue($itemNode, $pimAttribute);
 			}
 		}
 		return $fragment;
@@ -308,19 +300,18 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 * given EbayEnterprise_Dom_Element.
 	 * @param  EbayEnterprise_Dom_Element                     $itemNode     container node
 	 * @param  EbayEnterprise_Eb2cProduct_Model_Pim_Attribute $pimAttribute attribute value model
-	 * @param string $key
 	 * @return self
 	 */
 	protected function _appendAttributeValue(
 		EbayEnterprise_Dom_Element $itemNode,
-		EbayEnterprise_Eb2cProduct_Model_Pim_Attribute $pimAttribute, $key
+		EbayEnterprise_Eb2cProduct_Model_Pim_Attribute $pimAttribute
 	)
 	{
 		if ($pimAttribute->value instanceof DOMAttr) {
 			$itemNode->setAttribute($pimAttribute->value->name, $pimAttribute->value->value);
 		} elseif ($pimAttribute->value instanceof DOMNode) {
 			$attributeNode = $itemNode->setNode($pimAttribute->destinationXpath);
-			$attributeNode->appendChild($this->_docs[$key]->importNode($pimAttribute->value, true));
+			$attributeNode->appendChild($this->_doc->importNode($pimAttribute->value, true));
 			if ($pimAttribute->language) {
 				$attributeNode->addAttributes(array('xml:lang' => $pimAttribute->language));
 			}
@@ -330,15 +321,14 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	}
 	/**
 	 * validate the dom against the configured xsd.
-	 * @param string $key
 	 * @return self
 	 */
-	protected function _validateDocument($key)
+	protected function _validateDocument()
 	{
-		Mage::helper('ebayenterprise_magelog')->logInfo("[%s] Validating document:\n%s", array(__METHOD__, $this->_docs[$key]->C14N()));
-		$config = $this->_getFeedsMap();
+		Mage::helper('ebayenterprise_magelog')->logInfo("[%s] Validating document:\n%s", array(__METHOD__, $this->_doc->C14N()));
+		$config = $this->_getFeedConfig();
 		Mage::getModel('eb2ccore/api')
-			->schemaValidate($this->_docs[$key], $config[$key][self::KEY_SCHEMA_LOCATION]);
+			->schemaValidate($this->_doc, $config[self::KEY_SCHEMA_LOCATION]);
 		return $this;
 	}
 	/**
@@ -353,15 +343,16 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	}
 	/**
 	 * generate the full file path for the outbound feed file.
-	 * @param string $key
 	 * @return string file path
 	 */
-	protected function _getFeedFilePath($key)
+	protected function _getFeedFilePath()
 	{
+		$feedConfig = $this->_getFeedConfig();
 		$helper = Mage::helper('eb2cproduct');
-		$map = $this->_getFeedsMap();
+		$coreConfig = Mage::helper('eb2ccore')->getConfigModel();
+		$filenameOverrides = array('store_id' => $coreConfig->setStore($this->_batch->getDefaultStore())->storeId);
 		return $this->_coreFeed->getLocalDirectory() . DS .
-			$helper->generateFileName($map[$key][self::KEY_EVENT_TYPE], $map[$key][self::KEY_FILE_PATTERN]);
+			$helper->generateFileName($feedConfig[self::KEY_EVENT_TYPE], $feedConfig[self::KEY_FILE_PATTERN], $filenameOverrides);
 	}
 	/**
 	 * setup the document with the root node and the message header.
@@ -369,16 +360,15 @@ class EbayEnterprise_Eb2cProduct_Model_Pim
 	 */
 	protected function _startDocument()
 	{
-		foreach ($this->_getFeedsMap() as $key => $map) {
-			$this->_docs[$key]->loadXml(sprintf(
-				self::XML_TEMPLATE,
-				$map[self::KEY_ROOT_NODE],
-				self::XMLNS,
-				$map[self::KEY_SCHEMA_LOCATION],
-				Mage::helper('eb2cproduct')->generateMessageHeader($map[self::KEY_EVENT_TYPE]),
-				Mage::helper('eb2ccore')->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA)
-			));
-		}
+		$config = $this->_getFeedConfig();
+		$this->_doc->loadXML(sprintf(
+			self::XML_TEMPLATE,
+			$config[self::KEY_ROOT_NODE],
+			self::XMLNS,
+			$config[self::KEY_SCHEMA_LOCATION],
+			Mage::helper('eb2cproduct')->generateMessageHeader($config[self::KEY_EVENT_TYPE]),
+			Mage::helper('eb2ccore')->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA)
+		));
 		return $this;
 	}
 	/**

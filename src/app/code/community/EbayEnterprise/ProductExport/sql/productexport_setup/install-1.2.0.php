@@ -13,10 +13,11 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/** @var Mage_Catalog_Model_Resource_Setup $installer */
 $installer = $this;
-//** @var $installer Mage_Catalog_Model_Resource_Setup */
 
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'item_type', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Item Type',
 	'input' => 'text',
@@ -30,6 +31,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'item_type', array(
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'drop_shipped', array(
+	'type' => 'int',
 	'group' => 'Retail Order Management',
 	'label' => 'Drop Shipped',
 	'input' => 'select',
@@ -44,6 +46,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'drop_shipped', arr
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'drop_ship_supplier_name', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Drop Ship Supplier Name',
 	'input' => 'text',
@@ -57,6 +60,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'drop_ship_supplier
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'drop_ship_supplier_number', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Drop Ship Supplier Number',
 	'input' => 'text',
@@ -70,6 +74,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'drop_ship_supplier
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'drop_ship_supplier_part_number', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Drop Ship Supplier Part Number',
 	'input' => 'text',
@@ -83,6 +88,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'drop_ship_supplier
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_dept_number', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Hierarchy Department Number',
 	'input' => 'text',
@@ -97,6 +103,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_dept_num
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_dept_description', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Hierarchy Department Description',
 	'input' => 'text',
@@ -110,6 +117,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_dept_des
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_subdept_number', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Hierarchy Subdepartment Number',
 	'input' => 'text',
@@ -124,6 +132,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_subdept_
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_subdept_description', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Hierarchy Subdepartment Description',
 	'input' => 'text',
@@ -137,6 +146,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_subdept_
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_class_number', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Hierarchy Class Number',
 	'input' => 'text',
@@ -151,6 +161,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_class_nu
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_class_description', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Hierarchy Class Description',
 	'input' => 'text',
@@ -164,6 +175,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_class_de
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_subclass_number', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Hierarchy Subclass Number',
 	'input' => 'text',
@@ -178,6 +190,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_subclass
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_subclass_description', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Hierarchy Subclass Description',
 	'input' => 'text',
@@ -191,6 +204,7 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hierarchy_subclass
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'gift_card_tender_code', array(
+	'type' => 'varchar',
 	'group' => 'Retail Order Management',
 	'label' => 'Gift Card Tender Code',
 	'input' => 'text',

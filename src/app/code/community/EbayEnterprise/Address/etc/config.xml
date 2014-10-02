@@ -149,7 +149,7 @@
 	</adminhtml>
 	<default>
 		<eb2ccore>
-			<address>
+			<ebayenterprise_address>
 				<enabled>1</enabled>
 				<max_suggestions>3</max_suggestions>
 				<suggestion_templates>
@@ -172,7 +172,7 @@
 				<xsd>
 					<file>Address-Validation-Service-1.0.xsd</file>
 				</xsd>
-			</address>
+			</ebayenterprise_address>
 		</eb2ccore>
 	</default>
 	<phpunit>

@@ -15,7 +15,7 @@
 <config>
 	<modules>
 		<EbayEnterprise_Eb2cProduct>
-			<version>1.2.2</version>
+			<version>1.2.0</version>
 		</EbayEnterprise_Eb2cProduct>
 	</modules>
 	<global>

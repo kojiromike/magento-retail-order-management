@@ -17,7 +17,6 @@ $installer = $this;
 //** @var $installer Mage_Catalog_Model_Resource_Setup */
 
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'size', array(
-	'type' => 'varchar',
 	'group' => 'General',
 	'label' => 'Size',
 	'input' => 'text',
@@ -31,7 +30,6 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'size', array(
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'style_id', array(
-	'type' => 'varchar',
 	'group' => 'General',
 	'label' => 'Style Id',
 	'input' => 'text',
@@ -45,7 +43,6 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'style_id', array(
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'is_clean', array(
-	'type' => 'int',
 	'group' => 'Retail Order Management',
 	'label' => 'Is Clean',
 	'input' => 'select',
@@ -60,7 +57,6 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'is_clean', array(
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'unresolved_product_links', array(
-	'type' => 'text',
 	'group' => 'Retail Order Management',
 	'label' => 'Unresolved Product Links',
 	'input' => 'textarea',
@@ -74,7 +70,6 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'unresolved_product
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hts_codes', array(
-	'type' => 'text',
 	'group' => 'Retail Order Management',
 	'label' => 'HTS Codes',
 	'input' => 'textarea',
@@ -88,7 +83,6 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'hts_codes', array(
 	'used_in_product_listing' => true
 ));
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'tax_code', array(
-	'type' => 'varchar',
 	'group' => 'Prices',
 	'label' => 'Tax Code',
 	'input' => 'text',

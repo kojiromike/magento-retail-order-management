@@ -1,0 +1,3 @@
+"EBAYENTERPRISE_CREDITCARD_AUTH_FAILED", "The credit card could not be authorized, please try again."
+"EBAYENTERPRISE_CREDITCARD_AVS_FAILED", "Invalid billing address"
+"EBAYENTERPRISE_CREDITCARD_CVV_FAILED", "Invalid card identification number"

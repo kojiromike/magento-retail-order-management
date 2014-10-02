@@ -116,43 +116,6 @@ class EbayEnterprise_Eb2cPayment_Model_Observer
 	}
 
 	/**
-	 * Suppressing all non-eb2c payment modules or payment methods if eb2cpayment is turn on.
-	 * @param Varien_Event_Observer $observer
-	 * @return self
-	 */
-	public function suppressPaymentModule($observer)
-	{
-		$event = $observer->getEvent();
-
-		$store = $event->getStore();
-		$website = $event->getWebsite();
-
-		$store = ($store instanceof Mage_Core_Model_Store)? $store : $this->_coreHelper->getDefaultStore();
-		$website = ($website instanceof Mage_Core_Model_Website)? $website : $this->_coreHelper->getDefaultWebsite();
-
-		$suppressor = Mage::getModel('eb2cpayment/suppression', array(
-			'store' => $store,
-			'website' => $website
-		));
-		if ($this->_paymentHelper->getConfigModel($store)->isPaymentEnabled) {
-			// first let's disable any none eBay Enterprise payment method
-			$suppressor->disableNonEb2cPaymentMethods();
-
-			// let's enable only payment bridge and not paypal express it can be enabled manually
-			// via Exchange platform config section
-			$suppressor->saveEb2cPaymentMethods(1);
-		} else {
-			// let's disabled payment bridge ebay Enterprise Payment method.
-			$suppressor->saveEb2cPaymentMethods(0);
-
-			// let's disable any none eBay Enterprise payment method
-			$suppressor->disableNonEb2cPaymentMethods();
-		}
-
-		return $this;
-	}
-
-	/**
 	 * configure the PayPal payment action to the order action.
 	 * @param Varien_Event_Observer $observer
 	 * @return self

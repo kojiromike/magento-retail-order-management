@@ -13,11 +13,6 @@
   @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <layout>
-	<default>
-		<reference name="notifications">
-			<block type="eb2cpayment/adminhtml_notifications" name="eb2cpayment_notifications" template="eb2cpayment/notifications.phtml"></block>
-		</reference>
-	</default>
 	<adminhtml_sales_order_create_load_block_items>
 		<reference name="items_grid">
 			<block type="enterprise_giftcardaccount/adminhtml_sales_order_create_payment" template="eb2cpayment/giftcardaccount/sales/order/create/items.phtml" name="giftcardaccount" after="-" />

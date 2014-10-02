@@ -33,7 +33,8 @@
 	</testsuite>
 	<groups>
 		<include>
-			<group>EbayEnterprise_Eb2cAddress</group>
+			<group>EbayEnterprise_Address</group>
+			<group>EbayEnterprise_CreditCard</group>
 			<group>EbayEnterprise_Eb2cCore</group>
 			<group>EbayEnterprise_Eb2cCustomerService</group>
 			<group>EbayEnterprise_Eb2cFraud</group>
@@ -50,6 +51,8 @@
 			<!-- Report coverage only for this extension. -->
 			<directory suffix=".php">app/code/community/EbayEnterprise/Eb2c*</directory>
 			<directory suffix=".php">app/code/community/EbayEnterprise/Pbridge</directory>
+			<directory suffix=".php">app/code/community/EbayEnterprise/CreditCard</directory>
+			<directory suffix=".php">app/code/community/EbayEnterprise/Address</directory>
 			<exclude>
 				<!-- Don't Report coverage for the test cases. -->
 				<directory suffix=".php">app/code/community/EbayEnterprise/*/Test</directory>

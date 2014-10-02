@@ -68,40 +68,6 @@ class EbayEnterprise_Eb2cCore_Model_Observer
 			'quote' => $observer->getEvent()->getQuote(),
 			'order' => $observer->getEvent()->getOrder()
 		));
-		// Add a flag to the session indicating the failure to be used in
-		// controllers, events, whatever, to detect the failure.
-		Mage::getSingleton('checkout/session')->setExchangePlatformOrderCreateFailed(true);
-		return $this;
-	}
-	/**
-	 * Replace the response body with a redirect directive for the OPC JavaScript
-	 * when the Exchange Platform order create fails.
-	 * Observes the 'controller_action_postdispatch_checkout_onepage_saveOrder' event
-	 * @see Mage_Core_Controller_Varien_Action::postDispatch
-	 * @param Varien_Event_Observer $observer
-	 * @return self
-	 */
-	public function addOnepageCheckoutRedirectResponse(Varien_Event_Observer $observer)
-	{
-		$session = Mage::getSingleton('checkout/session');
-		// get the flag from the session - pass true to the getter to also clear the flag
-		if ($session->getExchangePlatformOrderCreateFailed(true)) {
-			$helper = Mage::helper('core');
-			$response = $observer->getEvent()->getControllerAction()->getResponse();
-			$result = $helper->jsonDecode($response->getBody('default'));
-			// Transfer any error messages in the JSON response to the session so they
-			// are still displayed to the user.
-			if (isset($result['error_messages'])) {
-				// As far as I can tell, "error_messages" will always be a single
-				// message here, despite the use of the plural "messages."
-				$session->addError($result['error_messages']);
-			}
-			$response->setBody(
-				Mage::helper('core')->jsonEncode(
-					array('redirect' => Mage::helper('checkout/cart')->getCartUrl())
-				)
-			);
-		}
 		return $this;
 	}
 }

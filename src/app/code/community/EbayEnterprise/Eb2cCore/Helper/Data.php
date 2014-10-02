@@ -13,6 +13,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use eBayEnterprise\RetailOrderManagement\Api;
+
 /**
  * Class EbayEnterprise_Eb2cCore_Helper_Data
  *
@@ -609,5 +611,28 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	public function generateRequestId($prefix='')
 	{
 		return uniqid($prefix);
+	}
+	/**
+	 * Create a new ROM SDK API object. API will be configured with core configuration
+	 * and the service and operation provided.
+	 * @param  string $service   SDK API service
+	 * @param  string $operation SDK API operation
+	 * @param  array  $endpointParams Additional params added to end of endpoint URI
+	 * @return Api\IBidirectionalApi
+	 */
+	public function getSdkApi($service, $operation, array $endpointParams=array())
+	{
+		$config = $this->getConfigModel();
+		$apiConfig = new Api\HttpConfig(
+			$config->apiKey,
+			$config->apiHostname,
+			$config->apiMajorVersion,
+			$config->apiMinorVersion,
+			$config->storeId,
+			$service,
+			$operation,
+			$endpointParams
+		);
+		return new Api\HttpApi($apiConfig);
 	}
 }

@@ -1859,4 +1859,16 @@ INVALID_XML;
 		// asserting that the 'Amount' node equal to an expected value
 		$this->assertSame((string) $expectedAmountValue, $xpath->evaluate("string(//$expectedAmountNode)"));
 	}
+	/**
+	 * Test formatting the CC expiration date
+	 */
+	public function testGetPaymentExpirationDate()
+	{
+		$payment = Mage::getModel('payment/info', array('cc_exp_year' => '2014', 'cc_exp_month' => '02'));
+		$create = Mage::getModel('eb2corder/create');
+		$this->assertSame(
+			'2014-02',
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getPaymentExpirationDate', array($payment))
+		);
+	}
 }

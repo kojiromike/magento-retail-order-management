@@ -72,12 +72,6 @@
 					<account_redeem>EbayEnterprise_Eb2cPayment_Overrides_Block_Giftcardaccount_Account_Redeem</account_redeem>
 				</rewrite>
 			</enterprise_giftcardaccount>
-			<adminhtml>
-				<rewrite>
-					<system_config_form>EbayEnterprise_Eb2cPayment_Overrides_Block_Adminhtml_System_Config_Form</system_config_form>
-					<system_config_tabs>EbayEnterprise_Eb2cPayment_Overrides_Block_Adminhtml_System_Config_Tabs</system_config_tabs>
-				</rewrite>
-			</adminhtml>
 		</blocks>
 		<resources>
 			<eb2cpayment_setup>
@@ -119,11 +113,6 @@
 		<events>
 			<admin_system_config_changed_section_eb2ccore>
 				<observers>
-					<payment_suppression_observer>
-						<type>singleton</type>
-						<class>EbayEnterprise_Eb2cPayment_Model_Observer</class>
-						<method>suppressPaymentModule</method>
-					</payment_suppression_observer>
 					<paypal_paymentaction_config>
 						<type>singleton</type>
 						<class>EbayEnterprise_Eb2cPayment_Model_Observer</class>
@@ -151,13 +140,6 @@
 					</modules>
 				</args>
 			</enterprise_giftcardaccount>
-			<eb2cpayment>
-				<use>standard</use>
-				<args>
-					<module>EbayEnterprise_Eb2cPayment</module>
-					<frontName>eb2cpayment</frontName>
-				</args>
-			</eb2cpayment>
 		</routers>
 		<layout>
 			<updates>

@@ -98,6 +98,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected $_ebcPaymentMethodMap = array(
 		'Pbridge_eb2cpayment_cc' => 'CreditCard',
+		'Ebayenterprise_creditcard' => 'CreditCard',
 		'Paypal_express' => 'PayPal',
 		'PrepaidCreditCard' => 'PrepaidCreditCard', // Not used
 		'StoredValueCard' => 'StoredValueCard', // Not used
@@ -754,23 +755,22 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$thisPayment = $payments->createChild($payMethodNode);
 					$paymentContext = $thisPayment->createChild('PaymentContext');
 					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
-					$paymentContext->createChild('TenderType', $payment->getAdditionalInformation('tender_code'));
-					$paymentContext->createChild('PaymentAccountUniqueId', $payment->getAdditionalInformation('gateway_transaction_id'))
-						->setAttribute('isToken', 'true');
+					$paymentContext->createChild('TenderType', $this->_getPaymentTenderType($payment));
+					$paymentContext->createChild('PaymentAccountUniqueId', $this->_getPaymentAccountUniqueId($payment))
+						->setAttribute('isToken', $this->_getPaymentPanIsToken($payment));
 					$this->_addPaymentRequestId($thisPayment, $this->_getPaymentRequestId($payment));
-					$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
-					$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
+					$thisPayment->createChild('CreateTimeStamp', $this->_getPaymentCreateTimeStamp($payment));
+					$thisPayment->createChild('Amount', $this->_getPaymentAmountAuthorized($payment));
 					$auth = $thisPayment->createChild('Authorization');
-					$responseCode = ($payment->getAdditionalInformation('response_code') === 'AP01' ? 'APPROVED' : 'DECLINED');
-					$auth->createChild('ResponseCode', $responseCode);
+					$auth->createChild('ResponseCode', $payment->getAdditionalInformation('response_code'));
 					$auth->createChild('BankAuthorizationCode', $payment->getAdditionalInformation('bank_authorization_code'));
 					$auth->createChild('CVV2ResponseCode', $payment->getAdditionalInformation('cvv2_response_code'));
 					$auth->createChild('AVSResponseCode', $payment->getAdditionalInformation('avs_response_code'));
 					$auth->createChild('PhoneResponseCode', $payment->getAdditionalInformation('phone_response_code'));
 					$auth->createChild('NameResponseCode', $payment->getAdditionalInformation('name_response_code'));
 					$auth->createChild('EmailResponseCode', $payment->getAdditionalInformation('email_response_code'));
-					$auth->createChild('AmountAuthorized', sprintf(static::PRICE_FORMAT, $payment->getAmountAuthorized()));
-					$thisPayment->createChild('ExpirationDate', $payment->getAdditionalInformation('expiration_date'));
+					$auth->createChild('AmountAuthorized', $this->_getPaymentAmountAuthorized($payment));
+					$thisPayment->createChild('ExpirationDate', $this->_getPaymentExpirationDate($payment));
 				} elseif ($payMethodNode === 'PayPal') {
 					$thisPayment = $payments->createChild($payMethodNode);
 					$amount = $this->_o->getGrandTotal();
@@ -841,6 +841,64 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _getPaymentRequestId(Mage_Payment_Model_Info $payment)
 	{
 		return $payment->getAdditionalInformation('request_id');
+	}
+	/**
+	 * Get the ROM payment tender type from the payment additional information.
+	 * @param  Mage_Payment_Model_Info $payment [description]
+	 * @return string
+	 */
+	protected function _getPaymentTenderType(Mage_Payment_Model_Info $payment)
+	{
+		return $payment->getAdditionalInformation('tender_type');
+	}
+	/**
+	 * Get the ROM PAN from the payment additional information
+	 * @param  Mage_Payment_Model_Info $payment
+	 * @return string
+	 */
+	protected function _getPaymentAccountUniqueId(Mage_Payment_Model_Info $payment)
+	{
+		$encCardNumber = $payment->getCcNumberEnc();
+		if ($encCardNumber) {
+			return $payment->decrypt($encCardNumber);
+		}
+		return $payment->getAdditionalInformation('pan');
+	}
+	/**
+	 * Get the ROM PAN is token from the payment additional information
+	 * @param  Mage_Payment_Model_Info $payment
+	 * @return boolean
+	 */
+	protected function _getPaymentPanIsToken(Mage_Payment_Model_Info $payment)
+	{
+		return $payment->getAdditionalInformation('pan_is_token');
+	}
+	/**
+	 * Get the created at timestamp of the payment, formatted for the ROM request
+	 * @param  Mage_Payment_Model_Info $payment
+	 * @return string
+	 */
+	protected function _getPaymentCreateTimeStamp(Mage_Payment_Model_Info $payment)
+	{
+		return str_replace(' ', 'T', $payment->getCreatedAt());
+	}
+	/**
+	 * Get the payment amount authorized, formatted for the ROM request
+	 * @param  Mage_Payment_Model_Info $payment
+	 * @return string
+	 */
+	protected function _getPaymentAmountAuthorized(Mage_Payment_Model_Info $payment)
+	{
+		return sprintf(static::PRICE_FORMAT, $payment->getAmountAuthorized());
+	}
+	/**
+	 * Get the expiration date of the card used in YYYY/MM format.
+	 * @param  Mage_Payment_Model_Info $payment
+	 * @return string
+	 */
+	protected function _getPaymentExpirationDate(Mage_Payment_Model_Info $payment)
+	{
+		return sprintf('%d-%02d', $payment->getCcExpYear(), $payment->getCcExpMonth());
 	}
 	/**
 	 * Get order stored value pan. This can get either the raw PAN - the

@@ -62,15 +62,6 @@
 					</eb2ccore_rollback_order_failuer>
 				</observers>
 			</sales_model_service_quote_submit_failure>
-			<controller_action_postdispatch_checkout_onepage_saveOrder>
-				<observers>
-					<eb2ccore_add_onepage_checkout_redirect_response>
-						<class>eb2ccore/observer</class>
-						<method>addOnepageCheckoutRedirectResponse</method>
-						<type>singleton</type>
-					</eb2ccore_add_onepage_checkout_redirect_response>
-				</observers>
-			</controller_action_postdispatch_checkout_onepage_saveOrder>
 			<filetransfer_import_complete>
 				<observers>
 					<eb2c_export_run_acks>

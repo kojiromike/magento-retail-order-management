@@ -424,7 +424,7 @@
 		<jobs>
 			<eb2cproduct_pim_export_feed>
 				<run>
-					<model>eb2cproduct/pim_collector::runExport</model>
+					<model>eb2cproduct/exporter::runExport</model>
 				</run>
 			</eb2cproduct_pim_export_feed>
 			<eb2cproduct_image_export_feed>

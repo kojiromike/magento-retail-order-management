@@ -218,56 +218,19 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 			Mage::helper('eb2ccore')->lookupShipMethod($mageShipMethod)
 		);
 	}
-
-	/**
-	 * Test normalizing a product style id to match formatting for skus
-	 * @param  string $style   The product style id
-	 * @param  string $catalog The product catalog id
-	 * @dataProvider dataProvider
-	 */
-	public function testNormalizeSku($styleId, $catalogId)
-	{
-		$normalized = Mage::helper('eb2ccore')->normalizeSku($styleId, $catalogId);
-		$this->assertSame($this->expected('style-%s-%s', $styleId, $catalogId)->getStyleId(), $normalized);
-	}
-
-	/**
-	 * Test EbayEnterprise_Eb2cCore_Helper_Data::denormalizeSku method for the following expectations
-	 * Expectation 1: this test will invoked the method EbayEnterprise_Eb2cCore_Helper_Data::denormalizeSku given a sku
-	 *                with sku and a catalog id to denormalize the sku
-	 */
-	public function testDenormalizeSku()
-	{
-		$catalogId = '54';
-		$testData = array(
-			array(
-				'sku' => '54-49392002',
-				'expect' => '49392002'
-			),
-			array(
-				'sku' => '9484884',
-				'expect' => '9484884'
-			)
-		);
-
-		foreach ($testData as $data) {
-			$this->assertSame($data['expect'], Mage::helper('eb2ccore')->denormalizeSku($data['sku'], $catalogId));
-		}
-	}
-
 	/**
 	 * Testing the extractQueryNodeValue method
-	 * @loadFixture
+	 * @loadExpectation
 	 */
 	public function testExtractQueryNodeValue()
 	{
-		$vfs           = $this->getFixture()->getVfs();
+		$e = $this->expected('sample');
 		$coreHelper    = Mage::helper('eb2ccore');
 		$mySampleQuery = '//MessageHeader/MessageData/MessageId';
 
 		// Good returns the value of the MessageId string:
 		$goodDoc = $coreHelper->getNewDomDocument();
-		$goodDoc->load($vfs->url('sample/good.xml'));
+		$goodDoc->loadXML($e->getGoodXml());
 		$this->assertSame(
 			'7',
 			$coreHelper->extractQueryNodeValue(new DOMXpath($goodDoc), $mySampleQuery)
@@ -275,7 +238,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 
 		// 'Bad' in this case node not found - returns null
 		$badDoc = $coreHelper->getNewDomDocument();
-		$badDoc->load($vfs->url('sample/bad.xml'));
+		$badDoc->loadXML($e->getBadXml());
 		$this->assertSame(
 			null,
 			$coreHelper->extractQueryNodeValue(new DOMXpath($badDoc), $mySampleQuery)
@@ -283,75 +246,11 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 
 		// An empty node should return an empty string ''
 		$emptyDoc = $coreHelper->getNewDomDocument();
-		$emptyDoc->load($vfs->url('sample/empty.xml'));
+		$emptyDoc->loadXML($e->getEmptyXml());
 		$this->assertSame(
 			'',
 			$coreHelper->extractQueryNodeValue(new DOMXpath($emptyDoc), $mySampleQuery)
 		);
-	}
-	/**
-	 * verify the core feed helper's invokeCallback method is called correctly.
-	 */
-	public function testInvokeCallback()
-	{
-		$argArray = array('the args');
-		$feedHelper = $this->getHelperMock('eb2ccore/feed', array('invokeCallback'));
-		$this->replaceByMock('helper', 'eb2ccore/feed', $feedHelper);
-		$feedHelper->expects($this->once())
-			->method('invokeCallback')
-			->with($this->identicalTo($argArray))
-			->will($this->returnValue('foo'));
-		$helper = Mage::helper('eb2ccore');
-		$this->assertSame('foo', $helper->invokeCallback($argArray));
-	}
-
-	/**
-	 * Test getProductHtsCodeByCountry method for the following expectations
-	 * Expectation 1: the method EbayEnterprise_Eb2cCore_Helper_Data::getProductHtsCodeByCountry will be invoked by this test
-	 *                given a mock Mage_Catalog_Model_Product object and known country code, then the test expect
-	 *                the method Mage_Catalog_Model_Product::getHtsCodes to be called once and return a know serialize
-	 *                string in which will be unzerialized and loop through to return the match htscode data match match
-	 *                the given country code
-	 */
-	public function testGetProductHtsCodeByCountry()
-	{
-		$countryCode = 'US';
-		$data = array(array('destination_country' => $countryCode, 'hts_code' => '73739.33'),);
-		$htscodes = serialize($data);
-
-		$productMock = $this->getModelMockBuilder('catalog/product')
-			->disableOriginalConstructor()
-			->setMethods(array('getHtsCodes'))
-			->getMock();
-		$productMock->expects($this->once())
-			->method('getHtsCodes')
-			->will($this->returnValue($htscodes));
-
-		$this->assertSame($data[0]['hts_code'], Mage::helper('eb2ccore')->getProductHtsCodeByCountry(
-			$productMock, $countryCode
-		));
-	}
-
-	/**
-	 * @see self::testGetProductHtsCodeByCountry, however this test is expecting no hts_code data in which
-	 *      the return value for the method EbayEnterprise_Eb2cCore_Helper_Data::getProductHtsCodeByCountry to return null
-	 */
-	public function testGetProductHtsCodeByCountryNoHtsCodeFound()
-	{
-		$countryCode = 'US';
-		$htscodes = serialize(array());
-
-		$productMock = $this->getModelMockBuilder('catalog/product')
-			->disableOriginalConstructor()
-			->setMethods(array('getHtsCodes'))
-			->getMock();
-		$productMock->expects($this->once())
-			->method('getHtsCodes')
-			->will($this->returnValue($htscodes));
-
-		$this->assertSame(null, Mage::helper('eb2ccore')->getProductHtsCodeByCountry(
-			$productMock, $countryCode
-		));
 	}
 	/**
 	 * data provider for self::testParseBool method
@@ -417,20 +316,20 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 		$nodes = $doc->documentElement;
 		$mapping = array(
 			'sku' => array(
-				'class' => 'eb2ccore/map',
+				'class' => 'ebayenterprise_catalog/map',
 				'type' => 'helper',
 				'method' => 'extractStringValue',
 				'xpath' => 'a:Order/a:OrderItems/a:OrderItem/a:ItemId',
 			),
 			'qty_ordered' => array(
-				'class' => 'eb2ccore/map',
+				'class' => 'ebayenterprise_catalog/map',
 				'type' => 'helper',
 				'method' => 'extractIntValue',
 				'xpath' => 'a:Order/a:OrderItems/a:OrderItem/a:Quantity',
 			),
 			// Proving that any map field with a 'disabled' type will not be extracted
 			'name' => array(
-				'class' => 'eb2ccore/map',
+				'class' => 'ebayenterprise_catalog/map',
 				'type' => 'disabled',
 				'method' => 'extractStringValue',
 				'xpath' => 'a:Order/a:OrderItems/a:OrderItem/a:Name',
@@ -468,5 +367,46 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
 			$targetString,
 			Mage::helper('eb2ccore')->underscoreWords($testString)
 		);
+	}
+	/**
+	 * Test invokeCallback method
+	 * @loadExpectation
+	 * @dataProvider dataProvider
+	 */
+	public function testInvokeCallback($provider)
+	{
+		$iteration = $provider['iteration'];
+		$meta = $provider['meta'];
+		$expect = $this->expected('expect')->getData($iteration['name']);
+		if ($expect === '') {
+			$expect = null;
+		}
+		$mockMethod = (trim($iteration['mock_method']) === '')? array() : array($iteration['mock_method']);
+
+		if (!empty($mockMethod)) {
+			switch ($iteration['mock_type']) {
+				case 'helper':
+					$mock = $this->getHelperMockBuilder($iteration['mock_class'])
+						->disableOriginalConstructor()
+						->setMethods($mockMethod)
+						->getMock();
+					break;
+				default:
+					$mock = $this->getModelMockBuilder($iteration['mock_class'])
+						->disableOriginalConstructor()
+						->setMethods($mockMethod)
+						->getMock();
+					break;
+			}
+
+			$mock->expects($this->once())
+				->method($iteration['mock_method'])
+				->will($this->returnValue($iteration['mock_return']));
+
+			$this->replaceByMock($iteration['mock_type'], $meta['class'], $mock);
+		}
+
+		$helper = Mage::helper('eb2ccore');
+		$this->assertSame($expect, EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'invokeCallback', array($meta)));
 	}
 }

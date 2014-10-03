@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2013-2014 eBay Enterprise, Inc.
+
+  NOTICE OF LICENSE
+
+  This source file is subject to the Open Software License (OSL 3.0)
+  that is bundled with this package in the file LICENSE.md.
+  It is also available through the world-wide-web at this URL:
+  http://opensource.org/licenses/osl-3.0.php
+
+  @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+  @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+-->
+<!-- We Are an IMPORT mode instance -->
+<config>
+	<modules>
+		<EbayEnterprise_ProductImport>
+			<version>1.4.0</version>
+		</EbayEnterprise_ProductImport>
+	</modules>
+	<global>
+		<models>
+			<ebayenterprise_productimport>
+				<class>EbayEnterprise_ProductImport_Model</class>
+			</ebayenterprise_productimport>
+		</models>
+		<helpers>
+			<ebayenterprise_productimport>
+				<class>EbayEnterprise_ProductImport_Helper</class>
+			</ebayenterprise_productimport>
+		</helpers>
+		<resources>
+			<productimport_setup>
+				<setup>
+					<module>EbayEnterprise_ProductImport</module>
+					<class>Mage_Catalog_Model_Resource_Setup</class>
+				</setup>
+			</productimport_setup>
+		</resources>
+		<events>
+			<ebayenterprise_feed_dom_loaded>
+				<observers>
+					<eb2c_product_feed_dom>
+						<class>ebayenterprise_productimport/observers</class>
+						<method>processDom</method>
+					</eb2c_product_feed_dom>
+				</observers>
+			</ebayenterprise_feed_dom_loaded>
+		</events>
+	</global>
+	<phpunit>
+		<suite>
+			<modules>
+				<EbayEnterprise_ProductImport/>
+			</modules>
+		</suite>
+	</phpunit>
+</config>

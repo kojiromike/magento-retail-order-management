@@ -126,7 +126,7 @@
 			<path>modules/EbayEnterprise_Eb2cInventory.xml</path>
 			<path>modules/EbayEnterprise_Eb2cOrder.xml</path>
 			<path>modules/EbayEnterprise_Eb2cPayment.xml</path>
-			<path>modules/EbayEnterprise_Eb2cProduct.xml</path>
+			<path>modules/EbayEnterprise_Catalog.xml</path>
 			<path>modules/EbayEnterprise_Eb2cTax.xml</path>
 			<path>modules/EbayEnterprise_Pbridge.xml</path>
 			<path>modules/EbayEnterprise_MageLog.xml</path>

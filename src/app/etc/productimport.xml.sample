@@ -19,28 +19,6 @@ The below configurations translate from Exchange Platform to Magento.
 Copy this file to productimport.xml and configure the appropriate values below.
 -->
 <config>
-	<crontab>
-		<jobs>
-			<!--
-			This cron expression indicates how often the inventory feed
-			should be checked.
-			 -->
-			<eb2cinventory_feed_item_inventories>
-				<schedule>
-					<cron_expr>*/15 * * * *</cron_expr>
-				</schedule>
-			</eb2cinventory_feed_item_inventories>
-			<!--
-			This cron expression indicates how often the product feed
-			should be checked.
-			 -->
-			<eb2cproduct_feed>
-				<schedule>
-					<cron_expr>*/15 * * * *</cron_expr>
-				</schedule>
-			</eb2cproduct_feed>
-		</jobs>
-	</crontab>
 	<default>
 		<eb2ccore>
 			<feed>
@@ -57,25 +35,8 @@ Copy this file to productimport.xml and configure the appropriate values below.
 					Transferring and processing of any of these feeds may be disabled by
 					removing the configuration for the feed.
 					-->
-					<inventory>
-						<remote_directory>/Inbox/Product</remote_directory>
-						<file_pattern>*inventatp*_*.xml</file_pattern>
-					</inventory>
-					<item_master>
-						<remote_directory>/Inbox/Product</remote_directory>
-						<file_pattern>*ItemMaster_*.xml</file_pattern>
-					</item_master>
-					<content_master>
-						<remote_directory>/Inbox/Product</remote_directory>
-						<file_pattern>*Content_*.xml</file_pattern>
-					</content_master>
-					<i_ship>
-						<remote_directory>/Inbox/Product</remote_directory>
-						<file_pattern>*iShip_*.xml</file_pattern>
-					</i_ship>
 					<item_pricing>
 						<remote_directory>/Inbox/Channel/MAGT1/Pricing</remote_directory>
-						<file_pattern>*Price_*.xml</file_pattern>
 					</item_pricing>
 				</filetransfer_imports>
 				<export>
@@ -87,9 +48,19 @@ Copy this file to productimport.xml and configure the appropriate values below.
 						<resend_time_limit>5</resend_time_limit>
 					</ack>
 				</export>
+				<!--
+				Incoming giftCardTenderCodes must be matched to a known Magento giftcard type.
+				-->
+				<gift_card_tender_code>
+					<SD>virtual</SD>
+					<SP>physical</SP>
+					<ST>combined</ST>
+					<SV>virtual</SV>
+					<SX>combined</SX>
+				</gift_card_tender_code>
 			</feed>
 		</eb2ccore>
-		<eb2cproduct>
+		<ebayenterprise_catalog>
 			<!--
 			Here you can customize the mapping of incoming values to Magento Attributes. If an
 			incoming node does not match a node listed here, the import process will attempt to
@@ -101,397 +72,397 @@ Copy this file to productimport.xml and configure the appropriate values below.
 			 -->
 			<feed_attribute_mappings>
 				<gift_message_available>
-					<class>eb2ccore/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method>extractBoolValue</method>
 					<xpath></xpath>
 				</gift_message_available>
 				<use_config_gift_message_available>
-					<class>eb2ccore/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method>extractBoolValue</method>
 					<xpath></xpath>
 				</use_config_gift_message_available>
 				<gift_card_tender_code>
-					<class>eb2ccore/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method>extractStringValue</method>
 					<xpath></xpath>
 				</gift_card_tender_code>
 				<item_type>
-					<class>eb2ccore/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>helper</type>
 					<method>extractStringValue</method>
 					<xpath>BaseAttributes/ItemType</xpath>
 				</item_type>
 				<client_alt_item_id>
-					<class>eb2ccore/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method>extractStringValue</method>
 					<xpath></xpath>
 				</client_alt_item_id>
 				<manufacturer_item_id>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</manufacturer_item_id>
 				<brand_name>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</brand_name>
 				<hts_codes>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>helper</type>
 					<method>extractHtsCodesValue</method>
 					<xpath>HTSCodes/HTSCode</xpath>
 				</hts_codes>
 				<brand_description>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</brand_description>
 				<buyer_name>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</buyer_name>
 				<buyer_id>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</buyer_id>
 				<companion_flag>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</companion_flag>
 				<hazardous_material_code>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</hazardous_material_code>
 				<is_hidden_product>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</is_hidden_product>
 				<item_dimension_shipping_mass_unit_of_measure>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_shipping_mass_unit_of_measure>
 				<item_dimension_shipping_mass_weight>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_shipping_mass_weight>
 				<item_dimension_display_mass_unit_of_measure>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_display_mass_unit_of_measure>
 				<item_dimension_display_mass_weight>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_display_mass_weight>
 				<item_dimension_display_packaging_unit_of_measure>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_display_packaging_unit_of_measure>
 				<item_dimension_display_packaging_width>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_display_packaging_width>
 				<item_dimension_display_packaging_length>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_display_packaging_length>
 				<item_dimension_display_packaging_height>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_display_packaging_height>
 				<item_dimension_shipping_packaging_unit_of_measure>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_shipping_packaging_unit_of_measure>
 				<item_dimension_shipping_packaging_width>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_shipping_packaging_width>
 				<item_dimension_shipping_packaging_length>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_shipping_packaging_length>
 				<item_dimension_shipping_packaging_height>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_shipping_packaging_height>
 				<item_dimension_carton_mass_unit_of_measure>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_carton_mass_unit_of_measure>
 				<item_dimension_carton_mass_weight>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_carton_mass_weight>
 				<item_dimension_carton_packaging_unit_of_measure>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_carton_packaging_unit_of_measure>
 				<item_dimension_carton_packaging_width>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_carton_packaging_width>
 				<item_dimension_carton_packaging_length>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_carton_packaging_length>
 				<item_dimension_carton_packaging_height>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_carton_packaging_height>
 				<item_dimension_carton_type>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</item_dimension_carton_type>
 				<lot_tracking_indicator>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</lot_tracking_indicator>
 				<ltl_freight_cost>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</ltl_freight_cost>
 				<manufacturing_date>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</manufacturing_date>
 				<manufacturer_name>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</manufacturer_name>
 				<manufacturer_manufacturer_id>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</manufacturer_manufacturer_id>
 				<may_ship_expedite>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</may_ship_expedite>
 				<may_ship_international>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</may_ship_international>
 				<may_ship_usps>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</may_ship_usps>
 				<safety_stock>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</safety_stock>
 				<sales_class>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</sales_class>
 				<serial_number_type>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</serial_number_type>
 				<service_indicator>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</service_indicator>
 				<ship_group>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</ship_group>
 				<ship_window_min_hour>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</ship_window_min_hour>
 				<ship_window_max_hour>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</ship_window_max_hour>
 				<street_date>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</street_date>
 				<style_description>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</style_description>
 				<supplier_name>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</supplier_name>
 				<supplier_supplier_id>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</supplier_supplier_id>
 				<size>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</size>
 				<mass>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</mass>
 				<msrp>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
 					<method></method>
 					<xpath></xpath>
 				</msrp>
 				<url_key>
 					<!-- There are some known issues with url_key in multi-store settings. By explicitly forcing the url_key to false, we cause it to fallback up the scope to the default store before saving each time. -->
-					<class>eb2ccore/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>helper</type>
 					<method>extractFalse</method>
 					<xpath>.</xpath>
 				</url_key>
 				<color>
-					<class>eb2cproduct/map_attribute</class>
+					<class>ebayenterprise_catalog/map_attribute</class>
 					<type>helper</type>
 					<method>extractColorValue</method>
 					<xpath>ExtendedAttributes/ColorAttributes/Color</xpath>
 				</color>
 				<configurable_attributes_data>
-					<class>eb2cproduct/map_attribute</class>
+					<class>ebayenterprise_catalog/map_attribute</class>
 					<type>helper</type>
 					<method>extractConfigurableAttributesData</method>
 					<xpath>CustomAttributes/Attribute[@name="ConfigurableAttributes"]/Value</xpath>
 				</configurable_attributes_data>
 				<can_save_configurable_attributes>
-					<class>eb2cproduct/map_attribute</class>
+					<class>ebayenterprise_catalog/map_attribute</class>
 					<type>helper</type>
 					<method>extractCanSaveConfigurableAttributes</method>
 					<xpath>CustomAttributes/Attribute[@name="ConfigurableAttributes"]/Value</xpath>
 				</can_save_configurable_attributes>
 				<giftcard_type>
-					<class>eb2cproduct/map_giftcard</class>
+					<class>ebayenterprise_catalog/map_giftcard</class>
 					<type>helper</type>
 					<method>extractGiftcardTenderValue</method>
 					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
 				</giftcard_type>
 				<is_redeemable>
-					<class>eb2cproduct/map_giftcard</class>
+					<class>ebayenterprise_catalog/map_giftcard</class>
 					<type>helper</type>
 					<method>extractIsRedeemable</method>
 					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
 				</is_redeemable>
 				<use_config_is_redeemable>
-					<class>eb2cproduct/map_giftcard</class>
+					<class>ebayenterprise_catalog/map_giftcard</class>
 					<type>helper</type>
 					<method>extractIsRedeemable</method>
 					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
 				</use_config_is_redeemable>
 				<lifetime>
-					<class>eb2cproduct/map_giftcard</class>
+					<class>ebayenterprise_catalog/map_giftcard</class>
 					<type>helper</type>
 					<method>extractLifetime</method>
 					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
 				</lifetime>
 				<allow_message>
-					<class>eb2cproduct/map</class>
+					<class>ebayenterprise_catalog/map</class>
 					<type>helper</type>
 					<method>extractBoolValue</method>
 					<xpath>ExtendedAttributes/AllowGiftMessage</xpath>
 				</allow_message>
 				<email_template>
-					<class>eb2cproduct/map_giftcard</class>
+					<class>ebayenterprise_catalog/map_giftcard</class>
 					<type>helper</type>
 					<method>extractEmailTemplate</method>
 					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
 				</email_template>
 			</feed_attribute_mappings>
-		</eb2cproduct>
+		</ebayenterprise_catalog>
 	</default>
 </config>

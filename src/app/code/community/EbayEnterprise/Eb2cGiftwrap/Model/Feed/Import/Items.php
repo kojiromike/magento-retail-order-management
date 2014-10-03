@@ -14,10 +14,10 @@
  */
 
 class EbayEnterprise_Eb2cGiftwrap_Model_Feed_Import_Items
-	implements EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface
+	implements EbayEnterprise_Catalog_Interface_Import_Items
 {
 	/**
-	 * @see EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface::buildCollection
+	 * @see EbayEnterprise_Catalog_Interface_Import_Items::buildCollection
 	 * @param  array $skus
 	 * @return Enterprise_GiftWrapping_Model_Resource_Wrapping_Collection
 	 */
@@ -29,7 +29,7 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Feed_Import_Items
 			->load();
 	}
 	/**
-	 * @see EbayEnterprise_Eb2cCore_Model_Feed_Import_Items_Interface::createNewItem
+	 * @see EbayEnterprise_Catalog_Interface_Import_Items::createNewItem
 	 * @param string $sku
 	 * @param array $additionalData optional
 	 * @return Enterprise_GiftWrapping_Model_Wrapping

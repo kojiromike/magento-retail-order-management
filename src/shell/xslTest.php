@@ -20,7 +20,7 @@ require_once 'abstract.php';
  */
 class EbayEnterprise_Eb2c_Xslt_Test extends Mage_Shell_Abstract
 {
-	const DEFAULT_XSLT_SHEET = '/var/www/mage_2014_02_18/src/.modman/eb2c/src/app/code/local/EbayEnterprise/Eb2cProduct/xslt/default-language-template.xsl';
+	const DEFAULT_XSLT_SHEET = '/var/www/mage_2014_02_18/src/.modman/eb2c/src/app/code/local/EbayEnterprise/Catalog/xslt/default-language-template.xsl';
 
 	/**
 	 * Callback to apply after applying xsl transform to document.
@@ -31,7 +31,7 @@ class EbayEnterprise_Eb2c_Xslt_Test extends Mage_Shell_Abstract
 	 */
 	public function xslCallBack(DOMDocument $xslDoc, array $siteFilter)
 	{
-		$helper = Mage::helper('eb2cproduct');
+		$helper = Mage::helper('ebayenterprise_catalog');
 		$helper->appendXslTemplateMatchNode($xslDoc, "/*/Item[(@catalog_id and @catalog_id!='{$siteFilter['catalog_id']}')]");
 		$helper->appendXslTemplateMatchNode($xslDoc, sprintf("/*/Item[(@gsi_client_id and @gsi_client_id!='%s')]", $siteFilter['client_id']));
 		$helper->appendXslTemplateMatchNode($xslDoc, sprintf("/*/Item[(@gsi_store_id and @gsi_store_id!='%s')]", $siteFilter['store_id']));
@@ -43,13 +43,13 @@ class EbayEnterprise_Eb2c_Xslt_Test extends Mage_Shell_Abstract
 
 	public function run()
 	{
-		$websites = Mage::helper('eb2cproduct')->loadWebsiteFilters();
+		$websites = Mage::helper('ebayenterprise_catalog')->loadWebsiteFilters();
 		foreach($websites as $storeId=>$website) {
 			echo "=========> PROCESSING: Store Id $storeId\n";
 			print_r($website);
 			$xmlDoc = Mage::helper('eb2ccore')->getNewDomDocument();
 			$xmlDoc->load('/home/mwest/SampleData/eb2c-proof-and-subset-feeds/Data/CleanSubsetXml/ItemMaster_MultiSite.xml');
-			$transformed = Mage::helper('eb2cproduct')
+			$transformed = Mage::helper('ebayenterprise_catalog')
 				->splitDomByXslt($xmlDoc, self::DEFAULT_XSLT_SHEET,
 					array('lang_code' => $website['lang_code']),
 					array($this, 'xslCallBack'),

@@ -37,7 +37,7 @@ class EbayEnterprise_ProductExport_Test_Helper_GiftcardTest
 		$attribute = '';
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		if ($isException) {
-			$this->setExpectedException('EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception');
+			$this->setExpectedException('EbayEnterprise_Catalog_Model_Pim_Product_Validation_Exception');
 		}
 		$actual = Mage::helper('ebayenterprise_productexport/giftcard')->passMaxGCAmount($attrValue, $attribute, $product, $doc);
 

@@ -15,11 +15,11 @@
 <config>
 	<modules>
 		<EbayEnterprise_ProductExport>
-			<active>false</active>
+			<active>true</active>
 			<codePool>community</codePool>
 			<depends>
 				<EbayEnterprise_Eb2cCore />
-				<EbayEnterprise_Eb2cProduct />
+				<EbayEnterprise_Catalog />
 			</depends>
 		</EbayEnterprise_ProductExport>
 	</modules>

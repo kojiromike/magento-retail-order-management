@@ -1,2 +1,0 @@
-config:
-  default/eb2cproduct/readonly_attributes: 'a,b,c'

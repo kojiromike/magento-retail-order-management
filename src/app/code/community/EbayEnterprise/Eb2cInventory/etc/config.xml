@@ -201,6 +201,8 @@
 								<event_type>ItemInventories</event_type>
 							</message_header>
 						</outbound>
+						<remote_directory>/Inbox/Product</remote_directory>
+						<file_pattern>*inventatp*_*.xml</file_pattern>
 					</inventory>
 				</filetransfer_imports>
 			</feed>

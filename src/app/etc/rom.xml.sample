@@ -33,6 +33,14 @@ Copy this file to rom.xml and configure the appropriate values below.
 					<cron_expr>*/1 * * * *</cron_expr>
 				</schedule>
 			</eb2corder_consume_order_event_messages>
+			<!--
+			Configuration for setting the Image Export Cron runtimes
+			 -->
+			<ebayenterprise_productimageexport>
+				<schedule>
+					<cron_expr>*/15 * * * *</cron_expr>
+				</schedule>
+			</ebayenterprise_productimageexport>
 		</jobs>
 	</crontab>
 	<default>
@@ -62,18 +70,6 @@ Copy this file to rom.xml and configure the appropriate values below.
 					<VL>9900000000000000-9900000010000000</VL>
 				</svc_bin_range>
 			</payment>
-			<feed>
-				<!--
-				Incoming giftCardTenderCodes must be matched to a known Magento giftcard type.
-				-->
-				<gift_card_tender_code>
-					<SD>virtual</SD>
-					<SP>physical</SP>
-					<ST>combined</ST>
-					<SV>virtual</SV>
-					<SX>combined</SX>
-				</gift_card_tender_code>
-			</feed>
 		</eb2ccore>
 	</default>
 </config>

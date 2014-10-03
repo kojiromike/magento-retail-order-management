@@ -4,7 +4,7 @@
 	"license": "OSL-3.0",
 	"type": "project",
 	"require": {
-		"ebayenterprise/magento-retail-order-management": "dev-master",
+		"ebayenterprise/magento-retail-order-management": "dev-US13509_Import_Or_Export_Not_Both",
 		"ecomdev/ecomdev_phpunit": "~0.3",
 		"firegento/psr0autoloader": "*",
 		"mikey179/vfsStream": "~1.0",

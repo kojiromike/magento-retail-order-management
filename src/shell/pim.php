@@ -28,8 +28,8 @@ class EbayEnterprise_Eb2c_Shell_Pim extends Mage_Shell_Abstract
 	 */
 	public function run()
 	{
-		/** @var EbayEnterprise_Eb2cProduct_Model_Exporter $exporter */
-		Mage::getModel('eb2cproduct/exporter')->runExport();
+		/** @var EbayEnterprise_Catalog_Model_Exporter $exporter */
+		Mage::getModel('ebayenterprise_catalog/exporter')->runExport();
 		return 0;
 	}
 }

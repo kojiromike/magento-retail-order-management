@@ -14,8 +14,8 @@
  */
 
 class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
-	extends EbayEnterprise_Eb2cCore_Model_Feed_Abstract
-	implements EbayEnterprise_Eb2cCore_Model_Feed_Interface
+	extends EbayEnterprise_Catalog_Model_Feed_Abstract
+	implements EbayEnterprise_Catalog_Interface_Feed
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
 	protected $_log;
@@ -119,7 +119,7 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 	 */
 	protected function _extractSku(Varien_Object $feedItem)
 	{
-		return Mage::helper('eb2ccore')->normalizeSku(
+		return Mage::helper('ebayenterprise_catalog')->normalizeSku(
 			$feedItem->getItemId()->getClientItemId(),
 			$feedItem->getCatalogId()
 		);

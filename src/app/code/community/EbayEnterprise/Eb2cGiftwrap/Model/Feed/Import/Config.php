@@ -14,11 +14,11 @@
  */
 
 class EbayEnterprise_Eb2cGiftwrap_Model_Feed_Import_Config
-	implements EbayEnterprise_Eb2cCore_Model_Feed_Import_Config_Interface
+	implements EbayEnterprise_Catalog_Interface_Import_Config
 {
 	const IMPORT_CONFIG_PATH = 'eb2cgiftwrap/feed/import_configuration';
 	/**
-	 * @see EbayEnterprise_Eb2cCore_Model_Feed_Import_Config_Interface::getImportConfigData
+	 * @see EbayEnterprise_Catalog_Interface_Import_Config::getImportConfigData
 	 * @return array of key/pairs
 	 */
 	public function getImportConfigData()

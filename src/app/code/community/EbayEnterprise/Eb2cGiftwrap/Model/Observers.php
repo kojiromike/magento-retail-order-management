@@ -17,7 +17,7 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Observers
 {
 	/**
 	 * Listen to the 'ebayenterprise_feed_dom_loaded' event
-	 * @see EbayEnterprise_Eb2cCore_Model_Feed_Abstract::processFile
+	 * @see EbayEnterprise_Catalog_Model_Feed_Abstract::processFile
 	 * process a dom document
 	 * @param  Varien_Event_Observer $observer
 	 * @return self
@@ -34,7 +34,7 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Observers
 		// only process the import if the event type is in the allowabled event type configuration for this feed
 		if (in_array($feedConfig['event_type'], explode(',', $importData['allowable_event_type']))) {
 			$fileDetail['doc'] = $event->getDoc();
-			Mage::getModel('eb2cproduct/feed_file', $fileDetail)->process(
+			Mage::getModel('ebayenterprise_catalog/feed_file', $fileDetail)->process(
 				$importConfig, Mage::getModel('eb2cgiftwrap/feed_import_items')
 			);
 		}

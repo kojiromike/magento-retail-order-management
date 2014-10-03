@@ -41,7 +41,7 @@
 			<group>EbayEnterprise_Eb2cInventory</group>
 			<group>EbayEnterprise_Eb2cOrder</group>
 			<group>EbayEnterprise_Eb2cPayment</group>
-			<group>EbayEnterprise_Eb2cProduct</group>
+			<group>EbayEnterprise_Catalog</group>
 			<group>EbayEnterprise_Eb2cTax</group>
 			<group>EbayEnterprise_Pbridge</group>
 		</include>

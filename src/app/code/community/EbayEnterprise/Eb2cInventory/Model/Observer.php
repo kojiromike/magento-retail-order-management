@@ -157,7 +157,7 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	}
 	/**
 	 * Listen to the 'ebayenterprise_feed_dom_loaded' event
-	 * @see EbayEnterprise_Eb2cCore_Model_Feed_Abstract::processFile
+	 * @see EbayEnterprise_Catalog_Model_Feed_Abstract::processFile
 	 * process a dom document
 	 * @param  Varien_Event_Observer $observer
 	 * @return self

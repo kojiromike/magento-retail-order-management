@@ -26,7 +26,7 @@ class EbayEnterprise_ProductExport_Helper_Giftcard
 	 * @param  Mage_Catalog_Model_Product $product
 	 * @param  DOMDocument                $doc
 	 * @return mixed
-	 * @throws EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation_Exception
+	 * @throws EbayEnterprise_Catalog_Model_Pim_Product_Validation_Exception
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function passMaxGCAmount($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
@@ -37,9 +37,9 @@ class EbayEnterprise_ProductExport_Helper_Giftcard
 		$value = max($product->getOpenAmountMax(), $this->_getMaxGiftCardAmount($product));
 		if ($value <= 0) {
 			$msg = "%s SKU '%s' a Gift card product is missing both 'Open Amount Max Value' and 'Card Amounts' data.";
-			throw Mage::exception('EbayEnterprise_Eb2cProduct_Model_Pim_Product_Validation', sprintf($msg, __FUNCTION__, $product->getSku()));
+			throw Mage::exception('EbayEnterprise_Catalog_Model_Pim_Product_Validation', sprintf($msg, __FUNCTION__, $product->getSku()));
 		}
-		return Mage::helper('eb2cproduct/pim')->getValueAsDefault($value, $attribute, $product, $doc);
+		return Mage::helper('ebayenterprise_catalog/pim')->getValueAsDefault($value, $attribute, $product, $doc);
 	}
 	/**
 	 * Get the largest discrete gift card amount from a passed in 'catalog/product' class instance object.

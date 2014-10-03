@@ -1,0 +1,23 @@
+sample:
+  good_xml: |
+    <FooFeed>
+    <MessageHeader>
+      <MessageData>
+        <MessageId>7</MessageId>
+      </MessageData>
+    </MessageHeader>
+    </FooFeed>
+  bad_xml: |
+    <OtherFooFeed>
+      <MessageHeader>
+        <MessageData />
+      </MessageHeader>
+    </OtherFooFeed>
+  empty_xml: |
+    <OtherOtherFooFeed>
+      <MessageHeader>
+        <MessageData>
+          <MessageId />
+        </MessageData>
+      </MessageHeader>
+    </OtherOtherFooFeed>

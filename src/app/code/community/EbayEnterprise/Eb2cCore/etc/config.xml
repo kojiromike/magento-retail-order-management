@@ -62,15 +62,15 @@
 					</eb2ccore_rollback_order_failuer>
 				</observers>
 			</sales_model_service_quote_submit_failure>
-			<filetransfer_import_complete>
+			<controller_action_postdispatch_checkout_onepage_saveOrder>
 				<observers>
-					<eb2c_export_run_acks>
-						<class>eb2ccore/feed_export_ack</class>
-						<method>process</method>
-						<type>model</type>
-					</eb2c_export_run_acks>
+					<eb2ccore_add_onepage_checkout_redirect_response>
+						<class>eb2ccore/observer</class>
+						<method>addOnepageCheckoutRedirectResponse</method>
+						<type>singleton</type>
+					</eb2ccore_add_onepage_checkout_redirect_response>
 				</observers>
-			</filetransfer_import_complete>
+			</controller_action_postdispatch_checkout_onepage_saveOrder>
 		</events>
 	</global>
 	<admin>
@@ -95,20 +95,6 @@
 			</modules>
 		</translate>
 	</adminhtml>
-	<crontab>
-		<jobs>
-			<eb2cinventory_feed_item_inventories>
-				<run>
-					<model>eb2cinventory/feed_item_inventories::processFeeds</model>
-				</run>
-			</eb2cinventory_feed_item_inventories>
-			<eb2cproduct_feed>
-				<run>
-					<model>eb2cproduct/feed::processFeeds</model>
-				</run>
-			</eb2cproduct_feed>
-		</jobs>
-	</crontab>
 	<default>
 		<eb2ccore>
 			<general>
@@ -236,14 +222,6 @@
 				<import_archive>ExchangePlatform/Feed/archive/import</import_archive>
 				<export_archive>ExchangePlatform/Feed/archive/export</export_archive>
 				<processing_directory>ExchangePlatform/Feed/processing</processing_directory>
-				<available_models>
-					<eb2cinventory>
-						<feed_item_inventories>1</feed_item_inventories>
-					</eb2cinventory>
-					<eb2cproduct>
-						<feed>1</feed>
-					</eb2cproduct>
-				</available_models>
 				<filetransfer_imports>
 					<acknowledgements>
 						<!-- Local directory is relative to Magento's 'var' directory -->
@@ -289,59 +267,6 @@
 						<sent_directory>ExchangePlatform/Feed/sent/</sent_directory>
 					</eb2c_outbox>
 				</filetransfer_exports>
-				<outbound>
-					<message_header>
-						<standard>GSI</standard>
-						<header_version>NGP1_1_0</header_version>
-						<version_release_number>NGP1_1_0</version_release_number>
-						<destination_id>PHUB</destination_id>
-						<destination_type>PHUB</destination_type>
-						<source_type>Client</source_type>
-						<source_id>
-							<type>helper</type>
-							<class>eb2ccore/feed</class>
-							<method>getClientId</method>
-						</source_id>
-						<message_id>
-							<type>helper</type>
-							<class>eb2ccore/feed</class>
-							<method>getMessageId</method>
-						</message_id>
-						<correlation_id>
-							<type>helper</type>
-							<class>eb2ccore/feed</class>
-							<method>getCorrelationId</method>
-						</correlation_id>
-						<create_date_and_time>
-							<type>helper</type>
-							<class>eb2ccore/feed</class>
-							<method>getCreatedDateTime</method>
-						</create_date_and_time>
-					</message_header>
-					<file_name>
-						<time_stamp>
-							<type>helper</type>
-							<class>eb2ccore/feed</class>
-							<method>getTimeStamp</method>
-						</time_stamp>
-						<client_id>
-							<type>helper</type>
-							<class>eb2ccore/feed</class>
-							<method>getClientId</method>
-						</client_id>
-						<catalog_id>
-							<type>helper</type>
-							<class>eb2ccore/feed</class>
-							<method>getCatalogId</method>
-						</catalog_id>
-						<store_id>
-							<type>helper</type>
-							<class>eb2ccore/feed</class>
-							<method>getStoreId</method>
-						</store_id>
-					</file_name>
-					<file_pattern>Export_{feed_type}_{client_id}_{catalog_id}_{store_id}_{time_stamp}.xml</file_pattern>
-				</outbound>
 				<header_template><![CDATA[<MessageHeader>
 		<Standard>{standard}</Standard>
 		<HeaderVersion>{header_version}</HeaderVersion>

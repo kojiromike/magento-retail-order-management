@@ -17,7 +17,7 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_ObserversTest extends EbayEnterpris
 {
 	/**
 	 * Test that the method EbayEnterprise_Eb2cGiftwrap_Model_Observers::processDom will invoked
-	 * and will will run EbayEnterprise_Eb2cProduct_Model_Feed_File::process with the required
+	 * and will will run EbayEnterprise_Catalog_Model_Feed_File::process with the required
 	 * parameters
 	 */
 	public function testProcessDom()
@@ -39,7 +39,7 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_ObserversTest extends EbayEnterpris
 		);
 
 		$feedData = array('event_type' => 'ItemMaster');
-		$coreFeed = $this->getModelMockBuilder('eb2ccore/feed')
+		$coreFeed = $this->getModelMockBuilder('ebayenterprise_catalog/feed_core')
 			->disableOriginalConstructor()
 			->setMethods(array('getFeedConfig'))
 			->getMock();
@@ -66,7 +66,7 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_ObserversTest extends EbayEnterpris
 		$items = $this->getModelMock('eb2cgiftwrap/feed_import_items', array());
 		$this->replaceByMock('model', 'eb2cgiftwrap/feed_import_items', $items);
 
-		$fileModelMock = $this->getModelMockBuilder('eb2cproduct/feed_file')
+		$fileModelMock = $this->getModelMockBuilder('ebayenterprise_catalog/feed_file')
 			->disableOriginalConstructor()
 			->setMethods(array('process'))
 			->getMock();
@@ -74,7 +74,7 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_ObserversTest extends EbayEnterpris
 			->method('process')
 			->with($this->identicalTo($config), $this->identicalTo($items))
 			->will($this->returnSelf());
-		$this->replaceByMock('model', 'eb2cproduct/feed_file', $fileModelMock);
+		$this->replaceByMock('model', 'ebayenterprise_catalog/feed_file', $fileModelMock);
 
 		$observers = Mage::getModel('eb2cgiftwrap/observers');
 

@@ -43,7 +43,7 @@ class EbayEnterprise_Eb2cOrder_Model_Custom_Attribute
 	 */
 	public function extractData(Varien_Object $item)
 	{
-		$helper = Mage::helper('eb2ccore/feed');
+		$helper = Mage::helper('eb2ccore');
 		$mappings = Mage::helper('eb2corder')->getConfigModel()->getConfigData($this->_getConfigPath());
 
 		return !empty($mappings) ? array_reduce(

@@ -177,38 +177,6 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * Ensure the sku/client id/style id matches the same format expected for skus
-	 * {catalogId}-{item_id}
-	 *
-	 * @param  string $itemId    Product item/style/client/whatevs id
-	 * @param  string $catalogId Product catalog id
-	 * @return string            Normalized style id
-	 */
-	public function normalizeSku($itemId, $catalogId)
-	{
-		if (!empty($itemId)) {
-			$pos = strpos($itemId, $catalogId . '-');
-			if ($pos === false || $pos !== 0) {
-				return sprintf('%s-%s', $catalogId, $itemId);
-			}
-		}
-		return $itemId;
-	}
-
-	/**
-	 * remove the client id found in a given sku {item_id}
-	 *
-	 * @param  string $itemId    Product item/style/client/whatevs id
-	 * @param  string $catalogId Product catalog id
-	 * @return string            Normalized style id
-	 */
-	public function denormalizeSku($itemId, $catalogId)
-	{
-		return (!empty($itemId) && strpos($itemId, $catalogId . '-') === 0)?
-			str_replace($catalogId . '-', '', $itemId) : $itemId;
-	}
-
-	/**
 	 * Get value of node specified for query. In accordance with existing local custom here,
 	 * named 'extract', and calls extractNodeValue to ensure consistency.
 	 *
@@ -311,7 +279,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 *
 	 * @param string $source
 	 * @param string $destination
-	 * @throws EbayEnterprise_Eb2cCore_Exception_Feed_File
+	 * @throws EbayEnterprise_Catalog_Exception_Feed_File
 	 * @return void
 	 * @codeCoverageIgnore
 	 */
@@ -320,7 +288,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 		@rename($source, $destination);
 
 		if (!$this->isFileExist($destination)) {
-			throw new EbayEnterprise_Eb2cCore_Exception_Feed_File("Can not move $source to $destination");
+			throw new EbayEnterprise_Catalog_Exception_Feed_File("Can not move $source to $destination");
 		}
 	}
 
@@ -328,7 +296,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 * abstracting removing a file
 	 *
 	 * @param string $file
-	 * @throws EbayEnterprise_Eb2cCore_Exception_Feed_File
+	 * @throws EbayEnterprise_Catalog_Exception_Feed_File
 	 * @return void
 	 * @codeCoverageIgnore
 	 */
@@ -337,7 +305,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 		@unlink($file);
 
 		if ($this->isFileExist($file)) {
-			throw new EbayEnterprise_Eb2cCore_Exception_Feed_File("Can not remove $file");
+			throw new EbayEnterprise_Catalog_Exception_Feed_File("Can not remove $file");
 		}
 	}
 
@@ -382,16 +350,6 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getAbsolutePath($relative, $scope='base')
 	{
 		return Mage::getBaseDir($scope) . DS . $relative;
-	}
-
-	/**
-	 * @see invokeCallback of EbayEnterprise_Eb2cCore_Helper_Feed
-	 * @param  array  $callback Not a callable, but an array in the format expected by Magento config
-	 * @return mixed
-	 */
-	public function invokeCallback(array $callback=array())
-	{
-		return Mage::helper('eb2ccore/feed')->invokeCallback($callback);
 	}
 
 	/**
@@ -454,28 +412,6 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getTime()
 	{
 		return time();
-	}
-
-	/**
-	 * given a product object and a country code retrieve the hts_code value for this product
-	 * matching a given country code
-	 *
-	 * @param Mage_Catalog_Model_Product $product
-	 * @param string $countryCode the two letter code for a country (US, CA, DE, etc...)
-	 * @return string | null the htscode matching the country code for that product otherwise null
-	 */
-	public function getProductHtsCodeByCountry(Mage_Catalog_Model_Product $product, $countryCode)
-	{
-		$htsCodes = unserialize($product->getHtsCodes());
-		if ($htsCodes) {
-			foreach ($htsCodes as $htsCode) {
-				if ($countryCode === $htsCode['destination_country']) {
-					return $htsCode['hts_code'];
-				}
-			}
-		}
-
-		return null;
 	}
 
 	/**
@@ -634,5 +570,27 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 			$endpointParams
 		);
 		return new Api\HttpApi($apiConfig);
+	}
+	/*
+	 * call a class static method base on the meta data in the given array
+	 * @param array $meta a composite array with class name and method to be executed
+	 * @return string|null
+	 */
+	public function invokeCallback(array $meta)
+	{
+		if (empty($meta)) {
+			return null;
+		}
+		$parameters = isset($meta['parameters'])? $meta['parameters'] : array();
+		switch ($meta['type']) {
+			case 'model':
+				return call_user_func_array(array(Mage::getModel($meta['class']), $meta['method']), $parameters);
+			case 'helper':
+				return call_user_func_array(array(Mage::helper($meta['class']), $meta['method']), $parameters);
+			case 'singleton':
+				return call_user_func_array(array(Mage::getSingleton($meta['class']), $meta['method']), $parameters);
+			default:
+				return null;
+		}
 	}
 }

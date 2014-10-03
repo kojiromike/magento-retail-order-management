@@ -42,7 +42,7 @@ END_XML;
 			$doc->loadXML($xml);
 			$xpath    = new DOMXpath($doc);
 			$nodeList = $xpath->query('ExtendedAttributes/ColorAttributes/Color');
-			$optionId = Mage::helper('eb2cproduct/map_attribute')->extractColorValue($nodeList);
+			$optionId = Mage::helper('ebayenterprise_catalog/map_attribute')->extractColorValue($nodeList);
 			echo "OptionId is $optionId\n";
 		} else {
 			echo 'Refusing to run, invalid options' . "\n";

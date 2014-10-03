@@ -1,7 +1,7 @@
 # Image Export Feeds
 
 1.	Go to **System > Scheduler > Schedule Configuration** in the Admin.
-2.	Click the checkbox next to eb2cproduct_image_export_feed.
+2.	Click the checkbox next to ebayenterprise_catalog_image_export_feed.
 3.	Select run now from the actions drop down.
 4.	Click submit button.
 
@@ -12,7 +12,7 @@ Image Feed Files will be generated per store configured in Magento in the /Excha
 | --------------------- | -------------------------------------------------------- |
 | {client_id}           | eb2ccore/general/client_id                               |
 | {store_id}            | eb2ccore/general/store_id                                |
-| {feed_type}           | eb2cproduct/image_master_feed/filename_format            |
+| {feed_type}           | ebayenterprise_catalog/image_master_feed/filename_format            |
 | {time_stamp}          | Mage::getModel('core/date')->gmtDate('YmdHis', time())   |
 | {current_store_id}    | Mage::getModel('core/store')->getId()                    |
 
@@ -36,7 +36,7 @@ Image Feed Files will be generated per store configured in Magento in the /Excha
 | /ItemImages[@imageDomain]                            | the host of the install magento app | parse_url(Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB))['host']                                     |
 | /ItemImages[@clientId]                               | the client id configure in magento  | eb2ccore/etc/config.xml (eb2ccore/general/client_id)                                                                                    |
 | /ItemImages[@timestamp]                              | the current date time               | (xsd:date Mage::getModel('core/date')->date('c'))                                                                                       |
-| /ItemImages/MessageHeader                            | the export message header           | Mage::helper('eb2cproduct')->generateMessageHeader($cfg->imageFeedEventType)                                                            |
+| /ItemImages/MessageHeader                            | the export message header           | Mage::helper('ebayenterprise_catalog')->generateMessageHeader($cfg->imageFeedEventType)                                                            |
 | /ItemImages/Item[@id]                                | the product sku                     | $product->getSku() (not currently being de-normalized???)                                                                               |
 | /ItemImages/Item[@id]/Images/Image[@imageview]       | the product image view types        | image_media type (image, small_image, thumbnail)                                                                                        |
 | /ItemImages/Item[@id]/Images/Image[@imagename]       | the product image label             | ($product->getMediaGalleryImages()[Varien_Data_Collection][Varien_Object]->getLabel())                                                  |

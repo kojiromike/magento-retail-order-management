@@ -8,8 +8,8 @@ This extension is a unique set of integrated omnichannel-enabling capabilities, 
 
 1. [Overview and Business Features](docs/ROM_BUSINESS_FEATURES.md)
 1. [Installation and Configuration](docs/INSTALL.md)
-1. [Importing Products](docs/PRODUCT_IMPORT.md)
-1. [Exporting Products](docs/PRODUCT_EXPORT.md)
+1. [Importing Products](src/app/code/community/EbayEnterprise/ProductImport/README.md)
+1. [Exporting Products](src/app/code/community/EbayEnterprise/ProductExport/README.md)
 1. [Troubleshooting Guide](docs/ROM_TROUBLESHOOTING.md)
 1. [Contributing to This Project](CONTRIBUTING.md)
 

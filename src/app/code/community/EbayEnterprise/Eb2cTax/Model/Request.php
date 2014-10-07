@@ -298,7 +298,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	protected function _getVirtualId($address)
 	{
 		// xml ids cannot start with a digit
-		$id = '_' . $address->getId() . '_virtual';
+		$id = '_' . $address->getId();
 		return $id;
 	}
 
@@ -523,10 +523,11 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	protected function _processAddresses($destinationsNode, $shipGroupsNode)
 	{
 		foreach ($this->_destinations as $destination) {
+			$this->_buildMailingAddressNode($destinationsNode, $destination);
 			if ($destination['is_virtual']) {
-				$this->_buildEmailNode($destinationsNode, $destination);
-			} else {
-				$this->_buildMailingAddressNode($destinationsNode, $destination);
+				// In Magento virtual quotes only have billing address information.
+				// No shipping address information so we are breaking out of the loop here.
+				break;
 			}
 		}
 		foreach ($this->_shipGroups as $destinationId => $itemList) {

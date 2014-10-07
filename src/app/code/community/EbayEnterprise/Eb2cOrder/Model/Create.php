@@ -658,19 +658,23 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$cfg = $this->_helper->getConfigModel();
 		$destinations = $shipping->createChild('Destinations');
 		// Ship-To
-		$sa = $this->_o->getShippingAddress();
+		// According to the XSD the shipping `MailingAddress` is required so in order to have a valid order create request payload
+		// for virtual order we need to substitute billing address as shipping address. Virtual orders in Magento do not have
+		// shipping address data only billing address, however, ROM API required both billing and shipping data.
+		// A virtual order is an order that contains only virtual items.
+		$shippingAddr = $this->_o->getShippingAddress() ?: $this->_o->getBillingAddress();
 		$dest = $destinations->createChild('MailingAddress');
 		$dest->setAttribute('id', $cfg->apiShipGroupDestinationId);
-		$this->_buildPersonName($dest->createChild('PersonName'), $sa);
-		$this->_buildAddress($dest->createChild('Address'), $sa);
-		$dest->createChild('Phone', $sa->getTelephone());
+		$this->_buildPersonName($dest->createChild('PersonName'), $shippingAddr);
+		$this->_buildAddress($dest->createChild('Address'), $shippingAddr);
+		$dest->createChild('Phone', $shippingAddr->getTelephone());
 		// Bill-To
-		$ba = $this->_o->getBillingAddress();
+		$billingAddr = $this->_o->getBillingAddress();
 		$billing = $destinations->createChild('MailingAddress');
 		$billing->setAttribute('id', $cfg->apiShipGroupBillingId);
-		$this->_buildPersonName($billing->createChild('PersonName'), $ba);
-		$this->_buildAddress($billing->createChild('Address'), $ba);
-		$billing->createChild('Phone', $ba->getTelephone());
+		$this->_buildPersonName($billing->createChild('PersonName'), $billingAddr);
+		$this->_buildAddress($billing->createChild('Address'), $billingAddr);
+		$billing->createChild('Phone', $billingAddr->getTelephone());
 	}
 	/**
 	 * Creates PersonName element details from an address

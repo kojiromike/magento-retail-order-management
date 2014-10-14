@@ -22,6 +22,10 @@
 		{
 			"name": "Reginald Gabriel",
 			"email": "rgabriel@ebay.com"
+		},
+		{
+			"name": "Chris Kemmerer",
+			"email": "ckemmerer@ebay.com"
 		}
 	],
 	"repositories": [
@@ -43,7 +47,6 @@
 		"ebayenterprise/magento-log": "~1.0",
 		"ebayenterprise/php-dom": "~1.0",
 		"ebayenterprise/retail-order-management": "dev-master",
-		"magento-hackathon/magento-composer-installer": "~2",
 		"firegento/psr0autoloader": "*"
 	},
 	"require-dev": {
@@ -62,7 +65,7 @@
 	"extra": {
 		"magento-root-dir": "build/magento",
 		"branch-alias": {
-			"dev-master": "1.0.x-dev"
+			"dev-master": "1.4.x-dev"
 		}
 	}
 }

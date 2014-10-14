@@ -1,0 +1,44 @@
+-
+  addressTotal: 100.00
+  giftCardAmounts:
+    11111111:
+      balance: 25.00
+      redeem: 25.00
+    22222222:
+      balance: 1000.00
+      redeem: 75.00
+  remainingTotal: 0.00
+  redeemTotal: 100.00
+-
+  addressTotal: 100.00
+  giftCardAmounts:
+    11111111:
+      balance: 25.00
+      redeem: 25.00
+    22222222:
+      balance: 50.00
+      redeem: 50.00
+  remainingTotal: 25.00
+  redeemTotal: 75.00
+-
+  addressTotal: 100.00
+  giftCardAmounts:
+    11111111:
+      balance: 1000.00
+      redeem: 100.00
+    22222222:
+      balance: 50.00
+      redeem: 0.00
+  remainingTotal: 0.00
+  redeemTotal: 100.00
+-
+  addressTotal: 55.9900
+  giftCardAmounts:
+    11111111:
+      balance: 15.55
+      redeem: 15.55
+    22222222:
+      balance: 39.99
+      redeem: 39.99
+  remainingTotal: 0.45
+  redeemTotal: 55.54

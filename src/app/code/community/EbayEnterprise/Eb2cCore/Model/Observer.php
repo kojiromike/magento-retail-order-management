@@ -51,7 +51,7 @@ class EbayEnterprise_Eb2cCore_Model_Observer
 			Mage::getSingleton('checkout/session')->setRetainAllocation(true);
 			throw $e;
 		}
-		Mage::dispatchEvent('eb2c_redeem_giftcard', array('quote' => $quote, 'order' => $order));
+		Mage::dispatchEvent('ebayenterprise_giftcard_redeem', array('quote' => $quote, 'order' => $order));
 		return $this;
 	}
 	/**

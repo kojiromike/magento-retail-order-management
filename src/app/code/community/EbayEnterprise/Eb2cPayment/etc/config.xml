@@ -35,12 +35,6 @@
 			<eb2cpaymentoverrides>
 				<class>EbayEnterprise_Eb2cPayment_Overrides_Model</class>
 			</eb2cpaymentoverrides>
-			<enterprise_giftcardaccount>
-				<rewrite>
-					<giftcardaccount>EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount</giftcardaccount>
-					<observer>EbayEnterprise_Eb2cPayment_Overrides_Model_Observer</observer>
-				</rewrite>
-			</enterprise_giftcardaccount>
 			<paypal>
 				<rewrite>
 					<api_nvp>EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp</api_nvp>
@@ -57,16 +51,6 @@
 			<eb2cpayment>
 				<class>EbayEnterprise_Eb2cPayment_Block</class>
 			</eb2cpayment>
-			<customer>
-				<rewrite>
-					<account_navigation>EbayEnterprise_Eb2cPayment_Overrides_Block_Account_Navigation</account_navigation>
-				</rewrite>
-			</customer>
-			<enterprise_giftcardaccount>
-				<rewrite>
-					<account_redeem>EbayEnterprise_Eb2cPayment_Overrides_Block_Giftcardaccount_Account_Redeem</account_redeem>
-				</rewrite>
-			</enterprise_giftcardaccount>
 		</blocks>
 		<resources>
 			<eb2cpayment_setup>
@@ -78,31 +62,6 @@
 				</connection>
 			</eb2cpayment_setup>
 		</resources>
-		<events>
-			<eb2c_redeem_giftcard>
-				<observers>
-					<eb2cpayment_redeem_giftcard>
-						<type>singleton</type>
-						<class>eb2cpayment/observer</class>
-						<method>redeemGiftCard</method>
-					</eb2cpayment_redeem_giftcard>
-				</observers>
-			</eb2c_redeem_giftcard>
-			<eb2c_order_creation_failure>
-				<observers>
-					<eb2cpayment_redeem_void_giftcard>
-						<type>singleton</type>
-						<class>eb2cpayment/observer</class>
-						<method>redeemVoidGiftCard</method>
-					</eb2cpayment_redeem_void_giftcard>
-					<eb2cpayment_void_payments>
-						<type>singleton</type>
-						<class>eb2cpayment/observer</class>
-						<method>voidPayments</method>
-					</eb2cpayment_void_payments>
-				</observers>
-			</eb2c_order_creation_failure>
-		</events>
 	</global>
 	<adminhtml>
 		<events>
@@ -127,22 +86,6 @@
 				</EbayEnterprise_Eb2cPayment>
 			</modules>
 		</translate>
-		<routers>
-			<enterprise_giftcardaccount>
-				<args>
-					<modules>
-						<EbayEnterprise_Eb2cPayment before="Enterprise_GiftCardAccount">EbayEnterprise_Eb2cPayment_Overrides_GiftCardAccount</EbayEnterprise_Eb2cPayment>
-					</modules>
-				</args>
-			</enterprise_giftcardaccount>
-		</routers>
-		<layout>
-			<updates>
-				<ebayenterprise_eb2cpayment module="EbayEnterprise_Eb2cPayment">
-					<file>eb2cpayment.xml</file>
-				</ebayenterprise_eb2cpayment>
-			</updates>
-		</layout>
 	</frontend>
 	<adminhtml>
 		<translate>
@@ -154,21 +97,11 @@
 				</EbayEnterprise_Eb2cPayment>
 			</modules>
 		</translate>
-		<layout>
-			<updates>
-				<eb2cpayment>
-					<file>eb2cpayment.xml</file>
-				</eb2cpayment>
-			</updates>
-		</layout>
 	</adminhtml>
 	<default>
 		<eb2cpayment>
 			<api_payment_xml_ns>http://api.gsicommerce.com/schema/payment/1.0</api_payment_xml_ns>
 			<api_service>payments</api_service>
-			<api_opt_stored_value_balance>storedvalue/balance/GS</api_opt_stored_value_balance>
-			<api_opt_stored_value_redeem>storedvalue/redeem/GS</api_opt_stored_value_redeem>
-			<api_opt_stored_value_redeem_void>storedvalue/redeemvoid/GS</api_opt_stored_value_redeem_void>
 			<api_opt_paypal_set_express_checkout>paypal/setExpress</api_opt_paypal_set_express_checkout>
 			<api_opt_paypal_get_express_checkout>paypal/getExpress</api_opt_paypal_get_express_checkout>
 			<api_opt_paypal_do_express_checkout>paypal/doExpress</api_opt_paypal_do_express_checkout>
@@ -182,9 +115,6 @@
 				<paypal_express_set_file>Payment-Service-PayPalSetExpress-1.0.xsd</paypal_express_set_file>
 				<paypal_do_auth_file>Payment-Service-PayPalDoAuth-1.0.xsd</paypal_do_auth_file>
 				<paypal_void_auth_file>Payment-Service-PayPalVoidAuth-1.0.xsd</paypal_void_auth_file>
-				<stored_value_balance_file>Payment-Service-StoredValueBalance-1.0.xsd</stored_value_balance_file>
-				<stored_value_redeem_void_file>Payment-Service-StoredValueRedeemVoid-1.0.xsd</stored_value_redeem_void_file>
-				<stored_value_redeem_file>Payment-Service-StoredValueRedeem-1.0.xsd</stored_value_redeem_file>
 			</xsd>
 		</eb2cpayment>
 		<eb2ccore>

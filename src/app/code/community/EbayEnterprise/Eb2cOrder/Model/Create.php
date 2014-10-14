@@ -41,9 +41,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 
 	const GIFT_MESSAGE_PRINTED_CARD_NODE = 'GiftCard';
 	const GIFT_MESSAGE_PACKSLIP_NODE = 'Packslip';
-	const RETRY_BEGIN_MESSAGE = '[ %s ]: Begin order retry at: %s. Found %s order(s) to be retried';
-	const RETRY_END_MESSAGE = '[ %s ]: Order retry finished at: %s';
-	const RETRY_NOT_FOUND_MESSAGE = '[ %s ]: Original OrderCreateRequest not found: %s';
+	const RETRY_BEGIN_MESSAGE = '[%s]: Begin order retry at: %s. Found %s order(s) to be retried';
+	const RETRY_END_MESSAGE = '[%s]: Order retry finished at: %s';
+	const RETRY_NOT_FOUND_MESSAGE = '[%s]: Original OrderCreateRequest not found: %s';
 	// Response status reported by OrderCreateResponse message orders successfully created
 	const RESPONSE_SUCCESS_STATUS = 'SUCCESS';
 	// Response status reported by OrderCreateResponse message orders that filed to be created
@@ -75,6 +75,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const STATUS_PENDING = 'pending';
 
 	const PRICE_FORMAT = '%.02F';
+	const TIMESTAMP_FORMAT = 'c';
 
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
@@ -103,7 +104,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		'StoredValueCard' => 'StoredValueCard', // Not used
 		'Points' => 'Points', // Not used
 		'PrepaidCashOnDelivery' => 'PrepaidCashOnDelivery', // Not used
-		'Free' => 'StoredValueCard',
+		'Free' => 'Free',
 	);
 	/** @var EbayEnterprise_Eb2cOrder_Helper_Data $_helper **/
 	protected $_helper;
@@ -787,34 +788,35 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$this->_addPaymentRequestId($thisPayment, $this->_getPaymentRequestId($payment));
 					$auth = $thisPayment->createChild('Authorization');
 					$auth->createChild('ResponseCode', $this->_getResponseCode($payment, $payMethodNode));
-				} elseif ($payMethodNode === 'StoredValueCard') {
-					// the payment method is free and there is gift card for the order
-					if ($this->_o->getGiftCardsAmount() > 0) {
-						$thisPayment = $payments->createChild($payMethodNode);
-						$paymentContext = $thisPayment->createChild('PaymentContext');
-						$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
-						// this **must always** use the raw PAN to be able to look up the tender type
-						$paymentContext->createChild(
-							'TenderType',
-							Mage::helper('eb2cpayment')->getTenderType($this->_getOrderGiftCardPan($this->_o))
-						);
-						// this **must always** be the PAN token for the OMS to be able to issue adjustments
-						$paymentContext->createChild('PaymentAccountUniqueId', $this->_getOrderGiftCardPan($this->_o, true))
-							->setAttribute('isToken', 'true');
-						$this->_addPaymentRequestId($thisPayment, $this->_getOrderGiftCardRequestId($this->_o));
-						$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
-						$thisPayment->createChild('Pin', $this->_getOrderGiftCardPin($this->_o));
-						$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGiftCardsAmount()));
-					} else {
-						// there is no gift card for the order and the payment method is free
-						$thisPayment = $payments->createChild('PrepaidCreditCard');
-						$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
-					}
 				}
 			}
 		} else {
 			$thisPayment = $payments->createChild('PrepaidCreditCard');
 			$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
+		}
+		$this->_buildGiftCardPayments($payments);
+		return $this;
+	}
+	/**
+	 * Build payment nodes for gift cards (stored value card)
+	 * @param  EbayEnterprise_Dom_Element $paymentNode
+	 * @return self
+	 */
+	protected function _buildGiftCardPayments(EbayEnterprise_Dom_Element $paymentNode)
+	{
+		$usedCards = $this->_o->getEbayEnterpriseRedeemedGiftCards() ?: array();
+		foreach ($usedCards as $card) {
+			$thisPayment = $paymentNode->createChild('StoredValueCard');
+			$paymentContext = $thisPayment->createChild('PaymentContext');
+			$paymentContext->createChild('PaymentSessionId', $card->getOrderId());
+			$paymentContext->createChild('TenderType', $card->getTenderType());
+			// this **must always** be the PAN token for the OMS to be able to issue adjustments
+			$paymentContext->createChild('PaymentAccountUniqueId', $card->getTokenizedCardNumber())
+				->setAttribute('isToken', 'true');
+			$this->_addPaymentRequestId($thisPayment, $card->getRedeemRequestId());
+			$thisPayment->createChild('CreateTimeStamp', $card->getRedeemedAt()->format(self::TIMESTAMP_FORMAT));
+			$thisPayment->createChild('Pin', $card->getPin());
+			$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $card->getAmountRedeemed()));
 		}
 		return $this;
 	}
@@ -898,60 +900,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _getPaymentExpirationDate(Mage_Payment_Model_Info $payment)
 	{
 		return sprintf('%d-%02d', $payment->getCcExpYear(), $payment->getCcExpMonth());
-	}
-	/**
-	 * Get order stored value pan. This can get either the raw PAN - the
-	 * default behavior - or the tokenized PAN. If there are no gift cards or
-	 * the gift card does not have the requested data, this method will return
-	 * an empty string.
-	 * @param Mage_Sales_Model_Order $order the order object
-	 * @param bool $useToken true to get tokenized PAN, false to get raw PAN
-	 * @return string
-	 */
-	protected function _getOrderGiftCardPan(Mage_Sales_Model_Order $order, $useToken=false)
-	{
-		return $this->_getOrderGiftCardData($order, $useToken ? 'panToken' : 'pan');
-	}
-	/**
-	 * Get order stored value pin. If there is no gift card or no pin within the
-	 * gift card data, return an empty string.
-	 * @param Mage_Sales_Model_Order $order the order object
-	 * @return string
-	 */
-	protected function _getOrderGiftCardPin(Mage_Sales_Model_Order $order)
-	{
-		return $this->_getOrderGiftCardData($order, 'pin');
-	}
-	/**
-	 * Get the request id of the request that redeemed the SVC card. Request id
-	 * stored in the gift card data's request_id key/value pair.
-	 * @param Mage_Sales_Model_Order $order
-	 * @return string
-	 */
-	protected function _getOrderGiftCardRequestId(Mage_Sales_Model_Order $order)
-	{
-		return $this->_getOrderGiftCardData($order, 'requestId');
-	}
-	/**
-	 * Get the value of the gift card data key/value pair identified by a given
-	 * key. Returns the first non-empty value found in all sets of gift card
-	 * data on the order.
-	 * @param  Mage_Sales_Model_Order $order
-	 * @param  string $gcDataKey gift card data key
-	 * @return string
-	 */
-	protected function _getOrderGiftCardData(Mage_Sales_Model_Order $order, $gcDataKey)
-	{
-		$giftCardData = unserialize($order->getGiftCards());
-		if (!empty($giftCardData)) {
-			foreach ($giftCardData as $gcData) {
-				$val = isset($gcData[$gcDataKey]) ? $gcData[$gcDataKey] : null;
-				if ($val) {
-					return $val;
-				}
-			}
-		}
-		return '';
 	}
 	/**
 	 * Populates the Context element

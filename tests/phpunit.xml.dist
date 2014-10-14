@@ -33,6 +33,7 @@
 	<groups>
 		<include>
 			<group>EbayEnterprise_Address</group>
+			<group>EbayEnterprise_Catalog</group>
 			<group>EbayEnterprise_CreditCard</group>
 			<group>EbayEnterprise_Eb2cCore</group>
 			<group>EbayEnterprise_Eb2cCustomerService</group>
@@ -40,16 +41,17 @@
 			<group>EbayEnterprise_Eb2cInventory</group>
 			<group>EbayEnterprise_Eb2cOrder</group>
 			<group>EbayEnterprise_Eb2cPayment</group>
-			<group>EbayEnterprise_Catalog</group>
 			<group>EbayEnterprise_Eb2cTax</group>
+			<group>EbayEnterprise_GiftCard</group>
 		</include>
 	</groups>
 	<filter>
 		<whitelist>
 			<!-- Report coverage only for this extension. -->
-			<directory suffix=".php">app/code/community/EbayEnterprise/Eb2c*</directory>
-			<directory suffix=".php">app/code/community/EbayEnterprise/CreditCard</directory>
 			<directory suffix=".php">app/code/community/EbayEnterprise/Address</directory>
+			<directory suffix=".php">app/code/community/EbayEnterprise/CreditCard</directory>
+			<directory suffix=".php">app/code/community/EbayEnterprise/Eb2c*</directory>
+			<directory suffix=".php">app/code/community/EbayEnterprise/GiftCard</directory>
 			<exclude>
 				<directory suffix=".php">app/code/community/EbayEnterprise/*/Test</directory>
 			</exclude>

@@ -137,7 +137,23 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 		}
 		return $mock;
 	}
-
+	/**
+	 * Create a stub class for a session model and replace it in the Magento
+	 * factory. Returns the stub object. Expected to only be used for session
+	 * model instances but no real enforcement of that.
+	 * @param  string $classAlias
+	 * @param  array|null $methods Methods to be mocked on the object. Default to null for no methods to be replace.
+	 * @return Mage_Core_Model_Session_Abstract (stub)
+	 */
+	protected function _replaceSession($classAlias, $methods=null)
+	{
+		$session = $this->getModelMockBuilder($classAlias)
+			->setMethods($methods)
+			->disableOriginalConstructor()
+			->getMock();
+		$this->replaceByMock('singleton', $classAlias, $session);
+		return $session;
+	}
 	/**
 	 * Replace the checkout session object with a mock.
 	 * @param  array $methods Enables original methods usage if null
@@ -145,12 +161,7 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	 */
 	protected function mockCheckoutSession($methods=null)
 	{
-		$sessionMock = $this->getModelMockBuilder('checkout/session')
-			->disableOriginalConstructor() // This one removes session_start and other methods usage
-			->setMethods($methods)
-			->getMock();
-		$this->replaceByMock('singleton', 'checkout/session', $sessionMock);
-		return $sessionMock;
+		return $this->_replaceSession('checkout/session', $methods);
 	}
 
 	protected function _setupBaseUrl()

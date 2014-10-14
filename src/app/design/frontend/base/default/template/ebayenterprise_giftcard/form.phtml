@@ -1,0 +1,73 @@
+<?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+?>
+
+<?php
+/** @var EbayEnterprise_GiftCard_Block_Form $this */
+
+$card = $this->getGiftCard();
+?>
+<div class="giftcard">
+	<h2><?php echo $this->__('EbayEnterprise_GiftCard_Form_Title') ?></h2>
+
+	<div id="ebay-enterprise-giftcard-balance-lookup">
+		<?php echo $this->getChildHtml('ebayenterprise_giftcard_balance') ?>
+	</div>
+	<span id="ebay-enterprise-giftcard-please-wait" class="please-wait" style="display:none;">
+		<img src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>" alt="" class="v-middle" /> <?php echo $this->__('EbayEnterprise_GiftCard_Form_Balance_Loading') ?>
+	</span>
+
+	<form id="ebay-enterprise-giftcard-form" action="<?php echo $this->getPostAction() ?>" method="post">
+		<fieldset>
+			<ul class="form-list">
+				<li>
+					<label for="ebay_enterprise_giftcard_code" class="required"><em>*</em><?php echo $this->__('EbayEnterprise_GiftCard_Form_Card_Number_Label') ?></label>
+					<input type="text" class="required-entry input-text" id="ebay_enterprise_giftcard_code" name="ebay_enterprise_giftcard_code" value="<?php echo $card->getCardNumber() ?>" />
+				</li>
+				<li>
+					<label for="ebay_enterprise_giftcard_pin" class="required"><em>*</em><?php echo $this->__('EbayEnterprise_GiftCard_Form_Pin_Label') ?></label>
+					<input type="text" class="required-entry input-text" id="ebay_enterprise_giftcard_pin" name="ebay_enterprise_giftcard_pin" value="<?php echo $card->getPin() ?>" />
+				</li>
+			</ul>
+			<div class="buttons-set">
+				<?php if ($this->isAddAllowed()): ?>
+					<button class="button2" onclick="ebayEnterpriseGiftcardForm.submit()" type="button" value="<?php echo $this->__('EbayEnterprise_GiftCard_Form_Add_Card_Button_Label') ?>"><span><span><?php echo $this->__('EbayEnterprise_GiftCard_Form_Add_Card_Button_Label') ?></span></span></button>
+				<?php endif; ?>
+				<?php if ($this->isBalanceAllowed()): ?>
+					<button class="button2 check-gc-status" onclick="checkEbayEnterpriseGiftCardStatus();" type="button" value="<?php echo $this->__('EbayEnterprise_GiftCard_Form_Check_Balance_Button_Label') ?>"><span><span><?php echo $this->__('EbayEnterprise_GiftCard_Form_Check_Balance_Button_Label') ?></span></span></button>
+				<?php endif; ?>
+			</div>
+		</fieldset>
+	</form>
+
+	<script type="text/javascript">
+	var ebayEnterpriseGiftcardForm = new VarienForm('ebay-enterprise-giftcard-form');
+	function checkEbayEnterpriseGiftCardStatus()
+	{
+		if (ebayEnterpriseGiftcardForm.validator && !ebayEnterpriseGiftcardForm.validator.validate()) {
+			return false;
+		}
+		new Ajax.Updater(
+			'ebay-enterprise-giftcard-balance-lookup',
+			'<?php echo $this->getBalanceActionUrl() ?>',
+			{
+				onCreate: function() { $('ebay-enterprise-giftcard-please-wait').show(); },
+				onComplete: function() { $('ebay-enterprise-giftcard-please-wait').hide(); },
+				parameters : { ebay_enterprise_giftcard_code: $('ebay_enterprise_giftcard_code').value, ebay_enterprise_giftcard_pin: $('ebay_enterprise_giftcard_pin').value }
+			}
+		);
+	}
+	</script>
+</div>

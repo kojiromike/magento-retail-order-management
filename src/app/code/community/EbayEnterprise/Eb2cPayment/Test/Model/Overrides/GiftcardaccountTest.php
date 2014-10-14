@@ -78,16 +78,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_GiftcardaccountTest
 		$this->replaceByMock('model', 'eb2cpaymentoverrides/giftcardaccount', $mock);
 	}
 	/**
-	 * testing the rewrite
-	 */
-	public function testRewrite()
-	{
-		$this->assertInstanceOf(
-			'EbayEnterprise_Eb2cPayment_Overrides_Model_Giftcardaccount',
-			Mage::getModel('enterprise_giftcardaccount/giftcardaccount')
-		);
-	}
-	/**
 	 * testing addToCart method
 	 * @loadFixture loadWebsiteConfig.yaml
 	 * @loadFixture loadEnterpriseGiftCardAccount.yaml

@@ -55,9 +55,9 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 		);
 		$this->replaceByMock(
 			'model',
-			'eb2cpayment/observer',
+			'ebayenterprise_giftcard/observer',
 			// disable constructor to prevent session from being started
-			$this->getModelMockBuilder('eb2cpayment/observer')->disableOriginalConstructor()->getMock()
+			$this->getModelMockBuilder('ebayenterprise_giftcard/observer')->disableOriginalConstructor()->getMock()
 		);
 
 		$quote = $this->getModelMock('sales/quote');
@@ -75,7 +75,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 		$observer = Mage::getSingleton('eb2ccore/observer');
 		$this->assertSame($observer, $observer->processExchangePlatformOrder($eventObserver));
 		$this->assertEventDispatchedExactly('eb2c_allocate_inventory', 1);
-		$this->assertEventDispatchedExactly('eb2c_redeem_giftcard', 1);
+		$this->assertEventDispatchedExactly('ebayenterprise_giftcard_redeem', 1);
 	}
 	/**
 	 * Test that when the allocation event causes an exception to be thrown,
@@ -132,7 +132,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 		$observer = Mage::getSingleton('eb2ccore/observer');
 		$this->assertSame($observer, $observer->processExchangePlatformOrder($eventObserver));
 		$this->assertEventDispatchedExactly('eb2c_allocate_inventory', 1);
-		$this->assertEventDispatchedExactly('eb2c_redeem_giftcard', 0);
+		$this->assertEventDispatchedExactly('ebayenterprise_giftcard_redeem', 0);
 	}
 	/**
 	 * Test triggering the Exchange platform rollbacks.
@@ -144,6 +144,12 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest
 			'model',
 			'eb2cinventory/observer',
 			$this->getModelMock('eb2cinventory/observer')
+		);
+		$this->replaceByMock(
+			'model',
+			'ebayenterprise_giftcard/observer',
+			// prevent initializing the checkout/session in the constructor
+			$this->getModelMockBuilder('ebayenterprise_giftcard/observer')->disableOriginalConstructor()->getMock()
 		);
 		$this->replaceByMock(
 			'model',

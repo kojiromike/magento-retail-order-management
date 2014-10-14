@@ -1,0 +1,42 @@
+<?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright    Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license      http://opensource.org/licenses/osl-3.0.php    Open Software License (OSL 3.0)
+ */
+?>
+<?php
+/** @var EbayEnterprise_GiftCard_Block_Checkout_Cart_Total $this */
+$_cards = $this->_getCardTotals();
+$_style = $this->getStyle();
+$_isRenderingArea = $this->_isRenderingArea();
+$_openStrong = $_isRenderingArea ? '<strong>' : '';
+$_closeStrong = $_isRenderingArea ? '</strong>' : '';
+$_removeText = $this->__('Remove');
+$_removeImageUrl = $this->_getRemoveImageUrl();
+?>
+<?php foreach ($_cards as $_card): ?>
+	<?php list($_code, $amount, $_removeUrl) = $_card; ?>
+	<?php $_giftCardText = $this->__('Gift Card (%s)', $_code); ?>
+	<tr>
+		<td colspan="<?php echo $this->getColspan(); ?>" style="<?php echo $_style ?>" class="a-right">
+			<?php echo $_openStrong; ?>
+			<a href="<?php echo $_removeUrl; ?>" title="<?php echo $_removeText; ?>" class="btn-remove"><img src="<?php echo $_removeImageUrl ?>" alt="<?php echo $_removeText ?>" /></a>
+			<?php echo $_giftCardText; ?>
+			<?php echo $_closeStrong; ?>
+		</td>
+		<td style="<?php echo $_style ?>" class="a-right">
+			<?php echo $_openStrong; ?>
+				<?php echo $this->_formatPrice($amount) ?>
+			<?php echo $_closeStrong; ?>
+		</td>
+	</tr>
+<?php endforeach;

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	Copyright (c) 2013-2014 eBay Enterprise, Inc.
+
+	NOTICE OF LICENSE
+
+	This source file is subject to the Open Software License (OSL 3.0)
+	that is bundled with this package in the file LICENSE.md.
+	It is also available through the world-wide-web at this URL:
+	http://opensource.org/licenses/osl-3.0.php
+
+	@copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+	@license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+-->
+<layout version="0.1.0">
+	<ebayenterprise_giftcard_balance>
+		<block name="root" template="ebayenterprise_giftcard/balance.phtml" type="ebayenterprise_giftcard/balance">
+			<action method="setHandleSessionMessages"><param>1</param></action>
+		</block>
+	</ebayenterprise_giftcard_balance>
+
+	<ebayenterprise_giftcard_cart_balance>
+		<update handle="ebayenterprise_giftcard_balance" />
+	</ebayenterprise_giftcard_cart_balance>
+
+	<ebayenterprise_giftcard_balance_customer_balance>
+		<update handle="ebayenterprise_giftcard_balance" />
+	</ebayenterprise_giftcard_balance_customer_balance>
+
+	<checkout_cart_index>
+		<reference name="checkout.cart.extra">
+			<block before="giftcards" name="ebayenterprise_giftcard_form" template="ebayenterprise_giftcard/form.phtml" type="ebayenterprise_giftcard/form">
+				<block name="ebayenterprise_giftcard_balance" template="ebayenterprise_giftcard/balance.phtml" type="ebayenterprise_giftcard/balance"/>
+			</block>
+		</reference>
+	</checkout_cart_index>
+
+	<ebayenterprise_giftcard_balance_customer_index translate="label">
+		<label>Customer My Account Gift Card Check Form</label>
+		<update handle="customer_account"/>
+		<reference name="my.account.wrapper">
+			<block name="ebayenterprise_giftcard_form" template="ebayenterprise_giftcard/form.phtml" type="ebayenterprise_giftcard/form">
+				<action method="allowAdd"><allow>0</allow></action>
+				<action method="setBalanceAction"><path>giftcard-balance/customer/balance</path></action>
+				<block name="ebayenterprise_giftcard_balance" template="ebayenterprise_giftcard/balance.phtml" type="ebayenterprise_giftcard/balance"/>
+			</block>
+		</reference>
+	</ebayenterprise_giftcard_balance_customer_index>
+
+	<customer_account>
+		<reference name="customer_account_navigation">
+			<action method="addLink" module="ebayenterprise_giftcard" translate="label" ifconfig="ebayenterprise_giftcard/general/is_enabled">
+				<name>ebayenterprise_giftcard_balance</name>
+				<path>ebayenterprise_giftcard_balance/customer</path>
+				<label>Gift Card</label>
+			</action>
+		</reference>
+	</customer_account>
+
+	<checkout_onepage_paymentmethod>
+		<reference name="checkout.onepage.payment.methods.additional">
+			<block name="ebayenterprise_giftcard_onepage_payment_additional" template="ebayenterprise_giftcard/onepage/payment/additional.phtml" type="ebayenterprise_giftcard/checkout_onepage_payment_additional"/>
+		</reference>
+	</checkout_onepage_paymentmethod>
+</layout>

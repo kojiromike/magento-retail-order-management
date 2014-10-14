@@ -1,0 +1,11 @@
+-
+  giftCardData:
+    setCardNumber: '123456789'
+    setTokenizedCardNumber: '1234abcd5678efgh'
+  cardNumber: '1234abcd5678efgh'
+  isToken: true
+-
+  giftCardData:
+    setCardNumber: '123456789'
+  cardNumber: '123456789'
+  isToken: false

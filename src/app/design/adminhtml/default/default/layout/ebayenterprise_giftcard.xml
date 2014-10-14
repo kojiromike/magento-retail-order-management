@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<layout>
+	<ebay_enterprise_giftcard_form>
+		<reference name="items_grid">
+			<block name="ebayenterprise_giftcard_form" template="ebayenterprise_giftcard/form.phtml" type="ebayenterprise_giftcard/adminhtml_form" />
+		</reference>
+	</ebay_enterprise_giftcard_form>
+
+	<adminhtml_sales_order_create_index>
+		<update handle="ebay_enterprise_giftcard_form" />
+		<reference name="js">
+			<block name="ebayenterprise_giftcard_js" template="ebayenterprise_giftcard/form/js.phtml" type="adminhtml/template" />
+		</reference>
+		<reference name="head">
+			<action method="addCss">
+				<stylesheet>css/ebayenterprise-giftcard-admin.css</stylesheet>
+			</action>
+		</reference>
+	</adminhtml_sales_order_create_index>
+
+	<adminhtml_sales_order_create_load_block_items>
+		<update handle="ebay_enterprise_giftcard_form" />
+	</adminhtml_sales_order_create_load_block_items>
+
+	<adminhtml_sales_order_create_load_block_data>
+		<update handle="ebay_enterprise_giftcard_form" />
+	</adminhtml_sales_order_create_load_block_data>
+</layout>

@@ -56,7 +56,8 @@
 		},
 		{
 			"type": "git",
-			"url": "/home/stack/git/RetailOrderManagement-SDK.git",
+			"url": "/home/stack/git/RetailOrderManagement-SDK.git"
+		},
 		{
 			"type": "git",
 			"url": "git@github.com:magento-hackathon/composer-command-integrator.git"

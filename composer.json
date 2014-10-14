@@ -43,7 +43,8 @@
 		"ebayenterprise/magento-log": "~1.0",
 		"ebayenterprise/php-dom": "~1.0",
 		"ebayenterprise/retail-order-management": "dev-master",
-		"magento-hackathon/magento-composer-installer": "~2"
+		"magento-hackathon/magento-composer-installer": "~2",
+		"firegento/psr0autoloader": "*"
 	},
 	"require-dev": {
 		"ecomdev/ecomdev_phpunit": "~0.3",

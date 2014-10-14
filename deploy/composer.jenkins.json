@@ -21,7 +21,7 @@
 		"pdepend/pdepend": "~1.1",
 		"phpmd/phpmd": "~1.5",
 		"phploc/phploc": "~2.0",
-		"ivanchepurnyi/ecomdev_phpunit": "*"
+		"ecomdev/ecomdev_phpunit": "*"
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,

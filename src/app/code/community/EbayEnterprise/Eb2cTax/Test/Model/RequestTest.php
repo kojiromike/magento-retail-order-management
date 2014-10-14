@@ -1858,7 +1858,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	{
 		$countryId = 'US';
 		$htsCode = 'sample hts code';
-		$hlpr = $this->getHelperMock('eb2ccore/data', array('getProductHtsCodeByCountry'));
+		$hlpr = $this->getHelperMock('ebayenterprise_catalog/data', array('getProductHtsCodeByCountry'));
 		$prod = $this->getModelMock('catalog/product'); // stub
 		$address = $this->getModelMock('sales/quote_address', array('getCountryId'));
 		$address->expects($this->any())
@@ -1867,7 +1867,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 		$hlpr->expects($this->any())
 			->method('getProductHtsCodeByCountry')
 			->will($this->returnValue($htsCode));
-		$this->replaceByMock('helper', 'eb2ccore', $hlpr);
+		$this->replaceByMock('helper', 'ebayenterprise_catalog', $hlpr);
 
 		$item = $this->_buildModelMock('sales/quote_item', array(
 			'getId' => $this->returnValue(1),

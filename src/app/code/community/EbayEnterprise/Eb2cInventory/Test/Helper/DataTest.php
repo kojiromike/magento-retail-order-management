@@ -93,20 +93,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_DataTest extends EbayEnterprise_E
 			array(43)
 		);
 	}
-
-	/**
-	 * testing helper data getReservationId method
-	 *
-	 * @loadFixture loadConfig.yaml
-	 * @dataProvider providerGetReservationId
-	 */
-	public function testGetReservationId($entityId)
-	{
-		$this->assertSame(
-			'client_id-store_id-43',
-			$this->_helper->getReservationId($entityId)
-		);
-	}
 	/**
 	 * Test filtering a list of quote items down to only those that are inventoried items
 	 * @return [type] [description]

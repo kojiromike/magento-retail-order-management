@@ -13,7 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
 class EbayEnterprise_Eb2cInventory_Model_Allocation
 	extends Varien_Object
 {
@@ -67,7 +66,7 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 		$domDocument = $coreHelper->getNewDomDocument();
 		$allocationRequestMessage = $domDocument->addElement('AllocationRequestMessage', null, $inventoryHelper->getXmlNs())->firstChild;
 		$allocationRequestMessage->setAttribute('requestId', $coreHelper->generateRequestId(self::ALLOCATION_REQUEST_ID_PREFIX));
-		$allocationRequestMessage->setAttribute('reservationId', $inventoryHelper->getReservationId($quote->getEntityId()));
+		$allocationRequestMessage->setAttribute('reservationId', $inventoryHelper->getReservationId());
 		$shippingAddress = $quote->getShippingAddress();
 		$shippingMethod = $coreHelper->lookupShipMethod($shippingAddress->getShippingMethod());
 		foreach ($inventoryHelper->getInventoriedItems($quote->getAllVisibleItems()) as $item) {
@@ -131,17 +130,19 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 	/**
 	 * update quote with allocation response data.
 	 *
-	 * @param Mage_Sales_Model_Quote $quote the quote we use to get allocation response from eb2c
-	 * @param array $allocationData parsed from eb2c allocation response
+	 * @param  Mage_Sales_Model_Quote $quote the quote we use to get allocation response from eb2c
+	 * @param  Mage_Sales_Model_Order $order the order object in memory we need to set the allocation data to for order create
+	 * @param  array $allocationData parsed from eb2c allocation response
 	 * @return array error results of item that cannot be allocated
 	 */
-	public function processAllocation(Mage_Sales_Model_Quote $quote, array $allocationData)
+	public function processAllocation(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order, array $allocationData)
 	{
 		$allocationResult = array();
 		foreach ($allocationData as $data) {
-			$item = $quote->getItemById($data['lineId']);
-			if ($item) {
-				$result = $this->_updateQuoteWithEb2cAllocation($item, $data);
+			$quoteItem = $quote->getItemById($data['lineId']);
+			$orderItem = $order->getItemByQuoteItemId($data['lineId']);
+			if ($quoteItem && $orderItem) {
+				$result = $this->_updateQuoteWithEb2cAllocation($quoteItem, $orderItem, $data);
 				if ($result) {
 					$allocationResult[] = $result;
 				}
@@ -152,11 +153,11 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 
 	/**
 	 * Removing all allocation data from quote item.
-	 *
-	 * @param Mage_Sales_Model_Quote $quote the quote to empty any allocation data from its item
+	 * @param  Mage_Sales_Model_Quote $quote the quote to empty any allocation data from its item
+	 * @param  Mage_Sales_Model_Order $order
 	 * @return void
 	 */
-	protected function _emptyQuoteAllocation(Mage_Sales_Model_Quote $quote)
+	protected function _emptyQuoteAllocation(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order=null)
 	{
 		foreach (Mage::helper('eb2cinventory')->getInventoriedItems($quote->getAllVisibleItems()) as $item) {
 			// emptying reservation data from quote item
@@ -164,6 +165,16 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 				->unsEb2cReservedAt()
 				->unsEb2cQtyReserved()
 				->save();
+
+			if ($order) {
+				// attempting to clear allocation data from the order in memory
+				$orderItem = $order->getItemByQuoteItemId($item->getItemId());
+				if ($orderItem) {
+					$orderItem->unsEb2cReservationId()
+						->unsEb2cReservedAt()
+						->unsEb2cQtyReserved();
+				}
+			}
 		}
 	}
 
@@ -211,11 +222,12 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 	/**
 	 * Update quote with allocation response data.
 	 *
-	 * @param Mage_Sales_Model_Quote_Item $quoteItem the item to be updated with eb2c data
-	 * @param array $allocationData the data from eb2c for the quote item
+	 * @param  Mage_Sales_Model_Quote_Item $quoteItem the quote item to be updated with eb2c data
+	 * @param  Mage_Sales_Model_Order_Item $orderItem the order item to be updated with eb2c data
+	 * @param  array $allocationData the data from eb2c for the quote item
 	 * @return string, the allocation error message for that particular inventory
 	 */
-	protected function _updateQuoteWithEb2cAllocation(Mage_Sales_Model_Quote_Item $quoteItem, $allocationData)
+	protected function _updateQuoteWithEb2cAllocation(Mage_Sales_Model_Quote_Item $quoteItem, Mage_Sales_Model_Order_Item $orderItem, $allocationData)
 	{
 		$results = '';
 		$quote = $quoteItem->getQuote();
@@ -225,12 +237,14 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 			$quote->deleteItem($quoteItem);
 			return Mage::helper('eb2cinventory')->__(self::ALLOCATION_QTY_OUT_STOCK_MESSAGE, $quoteItem->getSku());
 		}
-
-		$quoteItem->addData(array(
+		$data = array(
 			'eb2c_reservation_id' => $allocationData['reservation_id'],
 			'eb2c_reserved_at' => $allocationData['reserved_at'],
 			'eb2c_qty_reserved' => $allocationData['qty'],
-		));
+		);
+
+		$quoteItem->addData($data);
+		$orderItem->addData($data);
 		// If the requested quantity could not be allocated, it cannot be ordered.
 		// Update the quote to the available quantity allocated and return a
 		// user message.
@@ -240,38 +254,50 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 		}
 		return $results;
 	}
-
+	/**
+	 * Get the reservation id from the first order item. In the ware case when there's
+	 * item simply return a random reservation id.
+	 * @param  Mage_Sales_Model_Order $order The order object to retrieve the reservation id from
+	 * @return string, the reservation id from the first order item
+	 */
+	protected function _getReservationIdFromOrder(Mage_Sales_Model_Order $order=null)
+	{
+		$newReservationId = Mage::helper('eb2cinventory')->getReservationId();
+		if (!$order) {
+			return $newReservationId;
+		}
+		$items = $order->getAllItems();
+		return count($items) ? $items[0]->getEb2cReservationId() : $newReservationId;
+	}
 	/**
 	 * Roll back allocation request.
-	 *
-	 * @param Mage_Sales_Model_Quote $quote to generate request XML from
+	 * @param  Mage_Sales_Model_Quote $quote to generate request XML from
+	 * @param  Mage_Sales_Model_Order $order Optional null may be passed in if the order is not currently in memory
 	 * @return string the xml response
 	 */
-	public function rollbackAllocation(Mage_Sales_Model_Quote $quote)
+	public function rollbackAllocation(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order=null)
 	{
 		// remove last allocations data from quote item
-		$this->_emptyQuoteAllocation($quote);
+		$this->_emptyQuoteAllocation($quote, $order);
 		$hlpr = Mage::helper('eb2cinventory');
 		return Mage::getModel('eb2ccore/api')->request(
-			$this->buildRollbackAllocationRequestMessage($quote),
+			$this->buildRollbackAllocationRequestMessage($this->_getReservationIdFromOrder($order)),
 			$hlpr->getConfigModel()->xsdFileRollback,
 			$hlpr->getOperationUri('rollback_allocation')
 		);
 	}
 	/**
 	 * Build Rollback Allocation request.
-	 *
-	 * @param Mage_Sales_Model_Quote $quote, the quote to generate request XML from
+	 * @param  string $reservationId the globally unique reservation id store in the order item
 	 * @return DOMDocument The XML document, to be sent as request to eb2c.
 	 */
-	public function buildRollbackAllocationRequestMessage(Mage_Sales_Model_Quote $quote)
+	public function buildRollbackAllocationRequestMessage($reservationId)
 	{
 		$coreHelper = Mage::helper('eb2ccore');
-		$inventoryHelper = Mage::helper('eb2cinventory');
 		$domDocument = $coreHelper->getNewDomDocument();
-		$rollbackAllocationRequestMessage = $domDocument->addElement('RollbackAllocationRequestMessage', null, $inventoryHelper->getXmlNs())->firstChild;
+		$rollbackAllocationRequestMessage = $domDocument->addElement('RollbackAllocationRequestMessage', null, Mage::helper('eb2cinventory')->getXmlNs())->firstChild;
 		$rollbackAllocationRequestMessage->setAttribute('requestId', $coreHelper->generateRequestId(self::ROLLBACK_REQUEST_ID_PREFIX));
-		$rollbackAllocationRequestMessage->setAttribute('reservationId', $inventoryHelper->getReservationId($quote->getEntityId()));
+		$rollbackAllocationRequestMessage->setAttribute('reservationId', $reservationId);
 		return $domDocument;
 	}
 }

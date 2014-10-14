@@ -26,13 +26,13 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	 * Failures in related methods, those actually making the inventory service calls
 	 * and updating the quote, can signal for the process to be interrupted which will
 	 * cause this method to throw a Mage_Core_Exception.
-	 * @param Varien_Event_Observer $observer
+	 * @param  Varien_Event_Observer $observer
 	 * @return self
 	 * @throws EbayEnterprise_Eb2cInventory_Exception_Cart_Interrupt If any of the service calls fail with a blocking
 	 *         status
 	 * @throws EbayEnterprise_Eb2cInventory_Exception_Cart If any of the service calls fail with a non-blocking status
 	 */
-	public function checkInventory($observer)
+	public function checkInventory(Varien_Event_Observer $observer)
 	{
 		$coreSession = Mage::getSingleton('eb2ccore/session');
 		$quote = $observer->getEvent()->getQuote();
@@ -40,7 +40,7 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 		$dtsRequired = $coreSession->isDetailsUpdateRequired();
 
 		if ($qtyRequired || $dtsRequired) {
-			Mage::helper('eb2cinventory/quote')->rollbackAllocation($quote);
+			Mage::helper('eb2cinventory/quote')->rollbackAllocation($quote, null);
 			if ($qtyRequired) {
 				$this->_updateQuantity($quote);
 			}
@@ -96,21 +96,24 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	protected function _makeRequestAndUpdate(
 		EbayEnterprise_Eb2cInventory_Model_Request_Abstract $requestModel,
 		Mage_Sales_Model_Quote $quote
-	) {
+	)
+	{
 		$response = $requestModel->makeRequestForQuote($quote);
 		$requestModel->updateQuoteWithResponse($quote, $response);
 		return $response;
 	}
 	/**
 	 * Processing e2bc allocation, triggering eb2c_allocation_onepage_save_order_action_before event will run this method.
-	 * @param Varien_Event_Observer $observer
+	 * @param  Varien_Event_Observer $observer
 	 * @return self
 	 * @throws EbayEnterprise_Eb2cInventory_Model_Allocation_Exception if quote not fully allocated
 	 */
-	public function processAllocation($observer)
+	public function processAllocation(Varien_Event_Observer $observer)
 	{
+		/** @var Varien_Event $event */
+		$event = $observer->getEvent();
 		// get the quote from the event observer
-		$quote = $observer->getEvent()->getQuote();
+		$quote = $event->getQuote();
 		/** @var EbayEnterprise_Eb2cInventory_Model_Allocation $allocation */
 		$allocation = Mage::getModel('eb2cinventory/allocation');
 		// only allow allocation only when, there's no previous allocation or the previous allocation expired
@@ -125,7 +128,7 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 				$allocationData = $allocation->parseResponse($allocationResponseMessage);
 
 				// got a valid response from eb2c, then go ahead and update the quote with the eb2c information
-				$allocatedErr = $allocation->processAllocation($quote, $allocationData);
+				$allocatedErr = $allocation->processAllocation($quote, $event->getOrder(), $allocationData);
 
 				// Got an allocation failure
 				if (!empty($allocatedErr)) {
@@ -134,9 +137,8 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 			}
 
 			if (!$isAllocated) {
-				throw new EbayEnterprise_Eb2cInventory_Model_Allocation_Exception(
-					Mage::helper('eb2cinventory')->__(self::ALLOCATION_ERROR_MESSAGE, implode(" ", $allocatedErr))
-				);
+				$message = Mage::helper('eb2cinventory')->__(self::ALLOCATION_ERROR_MESSAGE, implode(' ', $allocatedErr));
+				throw Mage::exception('EbayEnterprise_Eb2cInventory_Model_Allocation', $message);
 			}
 		}
 		return $this;
@@ -146,12 +148,13 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	 * @param  Varien_Event_Observer $observer Contains the quote and order
 	 * @return self
 	 */
-	public function rollbackAllocation($observer)
+	public function rollbackAllocation(Varien_Event_Observer $observer)
 	{
 		// Don't rollback if the session has been flagged to retain the allocation.
 		// Pass true to clear the flag after getting it.
 		if (!Mage::getSingleton('checkout/session')->getRetainAllocation(true)) {
-			Mage::helper('eb2cinventory/quote')->rollbackAllocation($observer->getEvent()->getQuote());
+			$event = $observer->getEvent();
+			Mage::helper('eb2cinventory/quote')->rollbackAllocation($event->getQuote(), $event->getOrder());
 		}
 		return $this;
 	}

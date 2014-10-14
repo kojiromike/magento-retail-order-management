@@ -419,6 +419,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 
 		$quote = $this->getModelMock('sales/quote', array('deleteItem', 'save'));
 		$quoteItem = $this->getModelMock('sales/quote_item', array('save'));
+		$orderitem = Mage::getModel('sales/order_item');
 		$inventoryHelper = $this->getHelperMock('eb2cinventory/data', array('__'));
 		$this->replaceByMock('helper', 'eb2cinventory', $inventoryHelper);
 
@@ -453,7 +454,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 			EcomDev_Utils_Reflection::invokeRestrictedMethod(
 				$this->_allocation,
 				'_updateQuoteWithEb2cAllocation',
-				array($quoteItem, $allocationData)
+				array($quoteItem, $orderitem, $allocationData)
 			)
 		);
 	}
@@ -473,6 +474,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 		$quoteItem = $this->getModelMock('sales/quote_item', array('save'));
 		$quoteItem->setData(array('qty' => $requestQty, 'sku' => $sku));
 		$quoteItem->setQuote($quote);
+		$orderitem = Mage::getModel('sales/order_item');
 		$allocationData = array(
 			'qty' => $allocatedQty,
 			'reservation_id' => 'RES-ID-2',
@@ -503,7 +505,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 			EcomDev_Utils_Reflection::invokeRestrictedMethod(
 				$this->_allocation,
 				'_updateQuoteWithEb2cAllocation',
-				array($quoteItem, $allocationData)
+				array($quoteItem, $orderitem, $allocationData)
 			)
 		);
 		// make sure the quote item was updated with allocation data
@@ -529,6 +531,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 		$quoteItem = $this->getModelMock('sales/quote_item', array('save'));
 		$quoteItem->setData(array('qty' => $origItemQuantity, 'sku' => $sku));
 		$quoteItem->setQuote($quote);
+		$orderItem = Mage::getModel('sales/order_item');
 		$allocationData = array(
 			'qty' => $allocatedQty,
 			'reservation_id' => 'RES-ID-2',
@@ -548,7 +551,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 			EcomDev_Utils_Reflection::invokeRestrictedMethod(
 				$this->_allocation,
 				'_updateQuoteWithEb2cAllocation',
-				array($quoteItem, $allocationData)
+				array($quoteItem, $orderItem, $allocationData)
 			)
 		);
 		// make sure the quote item was updated with allocation data
@@ -733,5 +736,25 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 			'DOMDocument',
 			$this->_reflectMethod($testModel, '_buildAllocationRequestMessage')->invoke($testModel, $quote)
 		);
+	}
+	/**
+	 * Test EbayEnterprise_Eb2cInventory_Model_Allocation::_getReservationIdFromOrder method
+	 * passing in a known 'sales/order' object with known data and expect the proper reservation
+	 * item to be returned.
+	 * @param array $orderData
+	 * @param bool $isKnownReservation
+	 * @param string $expected
+	 * @dataProvider dataProvider
+	 */
+	public function testGetReservationIdFromOrder(array $orderItem, $isKnownReservation, $expected)
+	{
+		$allocation = Mage::getModel('eb2cinventory/allocation');
+		$order = Mage::getModel('sales/order');
+		if ($isKnownReservation) {
+			$order->addItem(Mage::getModel('sales/order_item', $orderItem));
+			$this->assertSame($expected, EcomDev_Utils_Reflection::invokeRestrictedMethod($allocation, '_getReservationIdFromOrder', array($order)));
+		} else {
+			$this->assertNotSame($expected, EcomDev_Utils_Reflection::invokeRestrictedMethod($allocation, '_getReservationIdFromOrder', array($order)));
+		}
 	}
 }

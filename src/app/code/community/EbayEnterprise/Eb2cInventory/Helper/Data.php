@@ -65,16 +65,12 @@ class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * Generate eb2c API Universally unique ID to represent the reservation.
-	 *
-	 * @param int $entityId, the magento sales_flat_order primary key
-	 *
-	 * @return string, the reservation id
+	 * Generate inventory allocation globally unique reservation id.
+	 * @return string the reservation id
 	 */
-	public function getReservationId($entityId)
+	public function getReservationId()
 	{
-		$cfg = $this->getConfigModel(null);
-		return implode('-', array($cfg->clientId, $cfg->storeId, $entityId));
+		return uniqid();
 	}
 	/**
 	 * Test if the item needs to have its quantity checked for available

@@ -52,7 +52,7 @@ class EbayEnterprise_Eb2cCore_Model_Config extends EbayEnterprise_Eb2cCore_Model
 		'language_code'               => 'eb2ccore/general/language_code',
 		'service_order_timeout'       => 'eb2ccore/service/order/timeout',
 		'service_payment_timeout'     => 'eb2ccore/service/payment/timeout',
-		'sftp_config'                 => 'ebayenterprise_catalog/feed',
+		'sftp_config'                 => 'eb2ccore/feed',
 		'sftp_auth_type'              => 'eb2ccore/feed/filetransfer_sftp_auth_type',
 		'sftp_location'               => 'eb2ccore/feed/filetransfer_sftp_host',
 		'sftp_password'               => 'eb2ccore/feed/filetransfer_sftp_password',

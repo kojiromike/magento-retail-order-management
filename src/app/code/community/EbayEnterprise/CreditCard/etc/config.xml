@@ -51,7 +51,7 @@
 			<ebayenterprise_creditcard>
 				<active>0</active>
 				<model>ebayenterprise_creditcard/method_ccpayment</model>
-				<title>eBay Enterprise Retail Order Management Credit Card</title>
+				<title>Credit Card (eBay Enterprise)</title>
 				<order_status>pending</order_status>
 				<cctypes>AE,VI,MC,DI</cctypes>
 				<payment_action>authorize</payment_action>

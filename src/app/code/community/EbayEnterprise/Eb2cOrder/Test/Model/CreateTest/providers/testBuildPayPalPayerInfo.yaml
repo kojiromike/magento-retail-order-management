@@ -18,7 +18,7 @@
 -
   - <_/>
   -
-    method: pbridge_eb2cpayment_cc
+    method: ebayenterprise_creditcard
   - true
   - <_/>
 -

@@ -628,7 +628,7 @@
 				</payment_info_data>
 				<payment_methods>
 					<!-- see EbayEnterprise_Eb2cOrder_Model_Create::$_ebcPaymentMethodMap -->
-					<CreditCard>pbridge_eb2cpayment_cc</CreditCard>
+					<CreditCard>ebayenterprise_creditcard</CreditCard>
 					<PayPal>paypal_express</PayPal>
 					<StoredValueCard>free</StoredValueCard>
 				</payment_methods>

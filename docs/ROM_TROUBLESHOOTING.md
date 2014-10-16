@@ -13,7 +13,6 @@
   - [SFTP Credentials](#sftp-credentials)
   - [Web Services](#web-services)
   - [XML Configuration](#xml-configuration)
-  - [Payments - Enabled, But Payment Bridge Disabled/ Not Configured](#payments---enabled-but-payment-bridge-disabled-not-configured)
   - [Order Create Retry](#order-create-retry)
   - [Getting the Client IP](#getting-the-client-ip)
 - [Troubleshooting: Using the System and Exception Logs](#troubleshooting-using-the-system-and-exception-logs)
@@ -93,23 +92,13 @@ You may need:
 
 * ```ordercustomattributes.xml``` If you are implementing any custom attributes for _orders_. Consult [Mapping Order Create Custom Attributes](ORDER_CUSTOM_ATTRIBUTES.md) for full details.
 
-### Payments - Enabled, But Payment Bridge Disabled/ Not Configured
-
 There are two places that require configuration and enabling for ROM Extension Payments:
 
 1. System Configuration->Retail Order Management->Payments
-2. System Configuration->Payment Methods->Payment Bridge
-
-It is possible to Enable ROM Payments Credit Cards and not enable Payment Bridge.
-
+2. System Configuration->Payment Methods->eBay Enterprise Credit Card
 
 #### Ensure that Payments are enabled (Fig. 3) ...
 ![ts-payments](static/rom-ts-payments-config.png)
-
-
-#### ... and click through to enable and configure Payment Bridge (Fig. 4)
-
-![ts-paymentbridge](static/rom-ts-paymentbridge-config.png)
 
 ### Order Create Retry
 

@@ -8,7 +8,7 @@ This guide contains the following information:
 1.  [Prerequisites](#prerequisites)
 1.  [Configuring XML for Batch Feeds](#configuring-xml-for-batch-feeds)
 1.  [Configuring Local XML](#configuring-local-xml)
-1.  [Configuring the Magento Payment Bridge and eBay Enterprise Retail Order Management Payments](#configuring-the-magento-payment-bridge-and-ebay-enterprise-retail-order-management-payments)
+1.  [Configuring eBay Enterprise Retail Order Management Payments](#configuring-ebay-enterprise-retail-order-management-payments)
 1.  [Scheduling Batch Feeds](#scheduling-batch-feeds)
 
 ## Overview
@@ -121,7 +121,7 @@ The following table provides high-level guidance about the tasks to integrate Ma
 <tr class="even">
 <td align="left"><p>5. Go live!</p></td>
 <td align="left"><p>Magento administrator</p></td>
-<td align="left"><p>Update your eBay Enterprise credentials as discussed in [Configuring the Magento Payment Bridge and eBay Enterprise Retail Order Management Payments](#configuring-the-magento-payment-bridge-and-ebay-enterprise-retail-order-management-payments) and start accepting orders.</p></td>
+<td align="left"><p>Update your eBay Enterprise credentials as discussed in [Configuring eBay Enterprise Retail Order Management Payments](#configuring-ebay-enterprise-retail-order-management-payments) and start accepting orders.</p></td>
 <td align="left"><p>This guide</p></td>
 </tr>
 </tbody>
@@ -141,7 +141,6 @@ The intended audience for this guide is System Integrators with extensive experi
     -   If you're running an earlier version of Magento EE, see [Upgrading to and Verifying Magento Community Edition 1.8 and Enterprise Edition 1.13—Part 1](http://www.magentocommerce.com/knowledge-base/entry/ce18-and-ee113-upgrading).
 -   The extension requires a patch to core Magento's Address Model so that the address validation service can work effectively. If you do not have this patch, contact eBay Enterprise.
 -   In addition to Magento's standard system requirements, the eBay Enterprise Retail Order Management Magento extension requires the XSL and OpenSSL extensions to PHP. (These are often, but not always, enabled by default.)
--   The Magento Payment Bridge must be set up in a secure environment that is [Payment Application Data Security Standard (PA DSS) compliant](https://www.pcisecuritystandards.org/documents/pa-dss_v2.pdf).
 -   The extension has been tested with PHP5.3.
 
 ### Required Information
@@ -154,24 +153,6 @@ You must have the following information from eBay Enterprise to start using eBay
 -   Store code
 
 If you don't have all of this information, contact eBay Enterprise before continuing.
-
-### Payment Bridge Documentation
-
-Documentation for the Magento Payment Bridge is available on the Magento support portal as follows:
-
-1.  Start a web browser and enter the following URL in its address or location field: [http://www.magento.com](http://www.magento.com)
-1.  In the upper right corner, click **My Account**.
-1.  Log in with the credentials provided to you by Magento.
-1.  In the left navigation bar, click **Downloads**.
-1.  In the right pane, click **Magento Payment Bridge**. The following figure shows an example.
-        ![Magento Payment Bridge Download](static/spt-portal_login.png)
-1.  Click **Download** next to the document to download:
-    1.  _Setting up Payment Methods for Use via Payment Bridge_
-    1.  _Magento Payment Bridge 1.11.31.0 Administrative Guide_
-    1.  _Magento Payment Bridge 1.11.31.0 PA-DSS Implementation Guide_
-1.  Follow the prompts on your screen to download the desired documents.
-
-**Note:** _Setting up Payment Methods for Use via Payment Bridge_ does not discuss setting up eBay Enterprise Credit Card but has useful information that applies to all payment methods.
 
 ### Installing the eBay Enterprise Retail Order Management extension
 
@@ -438,79 +419,23 @@ To configure the eBay Retail Order Management extension:
     </table>
 1. Save your changes to `rom.xml`.
 
-## Configuring the Magento Payment Bridge and eBay Enterprise Retail Order Management Payments
+## Configuring eBay Enterprise Retail Order Management Payments
 
 This section discusses the tasks you must perform to:
 
--   Configure the Payment Bridge to use the eBay Enterprise Credit Card as a payment method.
-     For more information about configuring the Payment Bridge, see the documentation discussed in Payment Bridge Documentation.
+-   Configure the eBay Enterprise Credit Card as a payment method.
 -   Configure eBay Enterprise Retail Order Management payments options in the Admin Panel.
--   Configure the Payment Bridge using the command line.
 
 See one of the following sections:
 
 -   [Prerequisites](#prerequisites)
--   [Configuring Payment Bridge Options in the Admin Panel](#configuring-payment-bridge-options-in-the-admin-panel)
 -   [Configuring eBay Enterprise Payments](#configuring-ebay-enterprise-payments)
--   [Configuring Payment Bridge Options Using the Command Line](#configuring-payment-bridge-options-using-the-command-line)
 
 ### Prerequisites
 
 Before continuing, you must configure other eBay Enterprise Retail Order Management options (including **System \> Configuration \> EBAY ENTERPRISE \> Retail Order Management \> Tax Admin Origin**). For more information, see the _eBay Enterprise Retail Order Management Installation and Administration Guide_.
 
-### Configuring Payment Bridge Options in the Admin Panel
-
 This section discusses how to set up eBay Enterprise Credit Card options in the Admin Panel.
-
-To set up Payment Bridge options in the Admin Panel:
-
-1.  Log in to the Magento Admin Panel as an administrator.
-1.  Click **System \> Configuration \> SALES \> Payment Methods**.
-1.  In the right pane, click **eBay Enterprise Credit Card** to expand it. The following figure shows an example.
-    ![eBay Enterprise Credit Card configuration](static/payment-methods-config.png)
-1.  To change the scope of your settings, from the **Current Configuration Scope** list on the left, click the appropriate option. For example, to configure options for store view scope, click the name of a store view.
-1.  Enter the following information.
-    <table>
-    <col width="33%" />
-    <col width="33%" />
-    <col width="33%" />
-    <tbody>
-    <tr class="odd">
-    <td align="left"><p><strong>Option</strong></p></td>
-    <td align="left"><p><strong>Scope</strong></p></td>
-    <td align="left"><p><strong>Description</strong></p></td>
-    </tr>
-    <tr class="even">
-    <td align="left"><p>Enabled list</p></td>
-    <td align="left"><p>Website</p></td>
-    <td align="left"><p>From the list, click **Yes** to enable the eBay Enterprise Credit Card payment method.</p></td>
-    </tr>
-    <tr class="odd">
-    <td align="left"><p>Title field</p></td>
-    <td align="left"><p>Store View</p></td>
-    <td align="left"><p>Enter the payment method name as you wish it to display on the storefront; for example, Credit Card.</p></td>
-    </tr>
-    <tr class="even">
-    <td align="left"><p>Payment From Applicable Countries list</p></td>
-    <td align="left"><p>Website</p></td>
-    <td align="left"><p>From the list, one of the following:</p>
-    <ol>
-    <li>**All Allowed Countries** to accept eBay Enterprise Credit card payments from all countries for which this website is configured.</li>
-    <li>**Specific Countries** to accept payments from countries you choose.</li>
-    </ol></td>
-    </tr>
-    <tr class="odd">
-    <td align="left"><p>Payment from Specific Countries list</p></td>
-    <td align="left"><p>Website</p></td>
-    <td align="left"><p>Click the name of each country from which to accept eBay Enterprise Credit card payments for this website. (Hold down the Control key while clicking.)</p></td>
-    </tr>
-    <tr class="even">
-    <td align="left"><p>Sort Order field</p></td>
-    <td align="left"><p>Website</p></td>
-    <td align="left"><p>This field has no effect; leave it blank.</p></td>
-    </tr>
-    </tbody>
-    </table>
 
 ### Configuring eBay Enterprise Retail Order Management Payments
 
@@ -542,7 +467,7 @@ To configure your Magento server to use eBay Enterprise Retail Order Management:
     <tr class="odd">
     <td align="left"><p>Enable Credit Card</p></td>
     <td align="left"><p>Store View</p></td>
-    <td align="left"><p>From the list, click **Yes** to securely process credit card transactions using the eBay Enterprise Retail Order Management.</p><p>**Important**: Save the configuration before you click **Configure Payment Bridge**; otherwise, all configuration changes will be lost. To save the configuration, click Save Config at the top of the page.</p><p>The default is **No**, which means you do not use the eBay Enterprise Credit Card.</p></td>
+    <td align="left"><p>From the list, click **Yes** to securely process credit card transactions using eBay Enterprise Retail Order Management.</p><p>click Save Config at the top of the page.</p><p>The default is **No**, which means you do not use eBay Enterprise Credit Card.</p></td>
     </tr>
     <tr class="even">
     <td align="left"><p>Enable PayPal Express</p></td>
@@ -567,31 +492,6 @@ To configure your Magento server to use eBay Enterprise Retail Order Management:
     </tbody>
     </table>
 1.  At the top of the page, click **Save Config**.
-
-### Configuring Payment Bridge Options Using the Command Line
-
-You need the following information:
-
--   Merchant code
--   API key
--   Store code
-
-The merchant code was provided to you by Magento. The API key and store code were provided to you by eBay Enterprise.
-
-To configure the Payment Bridge:
-
-1.  Log in to the Magento server as a user with ownership of the Magento file system.
-1.  Enter the following commands in the order shown:
-    1.  `cd magento-install-dir/tools`
-    1.  `php merchant.php --pgc merchant-code`
-1.  When prompted, select the following options:
-1.  GSI Credit Card payment method (also identified by the string `eb2cpayment_cc`) The GSI credit card is another name for eBay Enterprise payments or the eBay Enterprise credit card.
-1.  API key provided by eBay Enterprise (This is the same API key.)
-1.  Store code provided by eBay Enterprise
-1.  Allowed credit card types
-1.  Whether or not to require a credit card verification number (also referred to as _CVV_)
-1.  Transaction ID prefix (leave this option blank)
-1.  Follow the prompts on your screen to finish and save the configuration.
 
 ### Configuring General Options
 

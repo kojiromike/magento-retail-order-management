@@ -36,7 +36,6 @@ FAILED_XML;
 This is a fine mess ollie.
 INVALID_XML;
 
-	const SAMPLE_PBRIDGE_ADDITIONAL_DATA = 'a:1:{s:12:"pbridge_data";a:5:{s:23:"original_payment_method";s:22:"pbridge_eb2cpayment_cc";s:5:"token";s:32:"aee4b59993ceffaa5de7b154f9e494a3";s:8:"cc_last4";s:4:"0101";s:7:"cc_type";s:2:"VI";s:8:"x_params";s:4:"null";}}';
 	/**
 	 * Disable events for these tests to prevent unwanted event based side effects.
 	 */
@@ -53,15 +52,6 @@ INVALID_XML;
 	{
 		Mage::app()->enableEvents();
 		parent::tearDown();
-	}
-	/**
-	 * Test getPbridgeData returns format we can consume
-	 */
-	public function testParsePbridgeAdditionalData()
-	{
-		$create = Mage::getModel('eb2corder/create');
-		$testPbridge = EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getPbridgeData', array(self::SAMPLE_PBRIDGE_ADDITIONAL_DATA));
-		$this->assertEquals('VI', $testPbridge['cc_type']);
 	}
 	/**
 	 * Test getting tax quotes for a given item

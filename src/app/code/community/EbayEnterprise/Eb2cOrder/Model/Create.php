@@ -97,7 +97,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * @var array, hold magento payment map to eb2c
 	 */
 	protected $_ebcPaymentMethodMap = array(
-		'Pbridge_eb2cpayment_cc' => 'CreditCard',
 		'Ebayenterprise_creditcard' => 'CreditCard',
 		'Paypal_express' => 'PayPal',
 		'PrepaidCreditCard' => 'PrepaidCreditCard', // Not used
@@ -1093,17 +1092,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			->addAttributeToSelect('*')
 			->addFieldToFilter('state', array('eq' => Mage_Sales_Model_Order::STATE_NEW))
 			->addFieldToFilter('status', array('eq' => static::STATUS_UNSUBMITTED));
-	}
-	/**
-	 * Parse the credit card expiration date from a pbridge payment
-	 *
-	 * @param string $pBridgeData (serialized php data)
-	 * @return array of pbridge_data
-	 */
-	protected function _getPbridgeData($pBridgeData)
-	{
-		$pBridgeArray = unserialize($pBridgeData);
-		return $pBridgeArray['pbridge_data'];
 	}
 	/**
 	 * build session info elements if data exists.

@@ -99,7 +99,6 @@
 			<target>mageetc</target>
 			<target>mageetc</target>
 			<target>mageetc</target>
-			<target>mageetc</target>
 			<target>magelocale</target>
 		</target>
 		<path>
@@ -128,7 +127,6 @@
 			<path>modules/EbayEnterprise_Eb2cPayment.xml</path>
 			<path>modules/EbayEnterprise_Catalog.xml</path>
 			<path>modules/EbayEnterprise_Eb2cTax.xml</path>
-			<path>modules/EbayEnterprise_Pbridge.xml</path>
 			<path>modules/EbayEnterprise_MageLog.xml</path>
 			<path>modules/EbayEnterprise_ActiveConfig.xml</path>
 			<path>modules/EbayEnterprise_FileTransfer.xml</path>
@@ -151,7 +149,6 @@
 			<type>file</type>
 			<type>file</type>
 			<type>dir</type>
-			<type>file</type>
 			<type>file</type>
 			<type>file</type>
 			<type>file</type>
@@ -198,11 +195,9 @@
 			<include/>
 			<include/>
 			<include/>
-			<include/>
 			<include>#EbayEnterprise_Eb2c.*#</include>
 		</include>
 		<ignore>
-			<ignore>#[Tt]est#</ignore>
 			<ignore>#[Tt]est#</ignore>
 			<ignore>#[Tt]est#</ignore>
 			<ignore>#[Tt]est#</ignore>

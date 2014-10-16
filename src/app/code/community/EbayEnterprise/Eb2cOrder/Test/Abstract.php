@@ -261,7 +261,7 @@ abstract class EbayEnterprise_Eb2cOrder_Test_Abstract extends EbayEnterprise_Eb2
 				'getCcExpMonth'            => '12',
 				'getCcExpYear'             => '2015',
 				'getCcStatus'              => true,
-				'getMethod'                => 'Pbridge_eb2cpayment_cc',
+				'getMethod'                => 'Ebayenterprise_creditcard',
 				'getId'                    => 1,
 				'getCreatedAt'             => '2013-10-25 17:06:28',
 			)

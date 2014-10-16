@@ -47,11 +47,6 @@
 					<info>EbayEnterprise_Eb2cPayment_Overrides_Model_Paypal_Info</info>
 				</rewrite>
 			</paypal>
-			<ebayenterprise_pbridge>
-				<rewrite>
-					<cc>EbayEnterprise_Eb2cPayment_Overrides_Model_Cc</cc>
-				</rewrite>
-			</ebayenterprise_pbridge>
 		</models>
 		<helpers>
 			<eb2cpayment>

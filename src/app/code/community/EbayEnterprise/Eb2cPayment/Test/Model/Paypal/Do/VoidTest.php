@@ -75,37 +75,14 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_VoidTest
 	}
 	public function testDoVoid()
 	{
-		/**
-		 * @var Mage_Sales_Model_Quote $quote
-		 * @var EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Void $testModel
-		 */
-		$quote = $this->getModelMockBuilder('sales/quote')
-			->disableOriginalConstructor()
-			->getMock();
-		$api = $this->getModelMock('eb2ccore/api', array('request', 'setStatusHandlerPath'));
-		$this->replaceByMock('model', 'eb2ccore/api', $api);
-		$helper = $this->getHelperMockBuilder('eb2cpayment/data')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigModel', 'getOperationUri'))
-			->getMock();
-		$this->replaceByMock('helper', 'eb2cpayment', $helper);
-		$testModel = $this->getModelMock('eb2cpayment/paypal_do_void', array('buildPayPalDoVoidRequest'));
-		$config = $this->buildCoreConfigRegistry(array('xsdFilePaypalVoidAuth' => 'xsdfile'));
+		/** @var EbayEnterprise_Dom_Document $doc */
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 
+		/** @var Mage_Sales_Model_Quote $quote */
+		$quote = Mage::getModel('sales/quote');
 
-		$helper->expects($this->once())
-			->method('getConfigModel')
-			->will($this->returnValue($config));
-		$helper->expects($this->once())
-			->method('getOperationUri')
-			->with($this->identicalTo('get_paypal_do_void'))
-			->will($this->returnValue('/uri/'));
-
-		$testModel->expects($this->once())
-			->method('buildPayPalDoVoidRequest')
-			->with($this->identicalto($quote))
-			->will($this->returnValue($doc));
+		/** @var EbayEnterprise_Eb2cCore_Model_Api $api */
+		$api = $this->getModelMock('eb2ccore/api', array('request', 'setStatusHandlerPath'));
 		$api->expects($this->once())
 			->method('setStatusHandlerPath')
 			->with($this->identicalto(EbayEnterprise_Eb2cPayment_Helper_Data::STATUS_HANDLER_PATH))
@@ -118,6 +95,30 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_VoidTest
 				$this->identicalTo('/uri/')
 			)
 			->will($this->returnValue('responseText'));
+		$this->replaceByMock('model', 'eb2ccore/api', $api);
+
+		/** @var EbayEnterprise_Eb2cPayment_Helper_Data $helper */
+		$helper = $this->getHelperMockBuilder('eb2cpayment/data')
+			// @see EbayEnterprise_Eb2cPayment_Helper_Data::__construct, because the 'eb2ccore/config' class is mocked this will
+			// cause 'Trying to get property of non-object' notice exception to be thrown.
+			->disableOriginalConstructor()
+			->setMethods(array('getConfigModel', 'getOperationUri'))
+			->getMock();
+		$helper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array('xsdFilePaypalVoidAuth' => 'xsdfile'))));
+		$helper->expects($this->once())
+			->method('getOperationUri')
+			->with($this->identicalTo('get_paypal_do_void'))
+			->will($this->returnValue('/uri/'));
+		$this->replaceByMock('helper', 'eb2cpayment', $helper);
+
+		/** @var EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Void $testModel */
+		$testModel = $this->getModelMock('eb2cpayment/paypal_do_void', array('buildPayPalDoVoidRequest'));
+		$testModel->expects($this->once())
+			->method('buildPayPalDoVoidRequest')
+			->with($this->identicalto($quote))
+			->will($this->returnValue($doc));
 
 		$this->assertSame('responseText', $testModel->doVoid($quote));
 	}

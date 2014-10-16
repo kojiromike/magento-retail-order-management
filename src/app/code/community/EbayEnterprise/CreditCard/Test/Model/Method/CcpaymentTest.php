@@ -109,7 +109,7 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 
 		$payment = $this->getModelMockBuilder('ebayenterprise_creditcard/method_ccpayment')
 			->setMethods(array('_prepareApiRequest'))
-			->setConstructorArgs(array(array('core_helper' => $coreHelper, 'helper' => $ccHelper, 'checkout_session' => $this->checkoutSession)))
+			->setConstructorArgs(array(array('core_helper' => $coreHelper, 'helper' => $ccHelper, 'checkout_session' => $this->_checkoutSession)))
 			->getMock();
 		$payment->expects($this->any())
 			->method('_prepareApiRequest')

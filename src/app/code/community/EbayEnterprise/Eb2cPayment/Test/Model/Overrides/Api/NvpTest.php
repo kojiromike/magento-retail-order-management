@@ -114,74 +114,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest
 		$this->replaceByMock('singleton', 'checkout/session', $sessionMock);
 	}
 	/**
-	 * replacing by mock of the eb2cpayment/paypal_set_express_checkout class
-	 *
-	 * @return void
-	 */
-	public function replaceByMockPaypalSetExpressCheckoutModel()
-	{
-		$paypalSetExpressCheckoutMock = $this->getModelMockBuilder('eb2cpayment/paypal_set_express_checkout')
-			->disableOriginalConstructor()
-			->setMethods(array('setExpressCheckout', 'parseResponse', 'process'))
-			->getMock();
-		$paypalSetExpressCheckoutMock->expects($this->any())
-			->method('setExpressCheckout')
-			->will($this->returnValue('<foo></foo>'));
-		$paypalSetExpressCheckoutMock->expects($this->any())
-			->method('parseResponse')
-			->will($this->returnValue(new Varien_Object(array('response_code' => 'success', 'token' => '1234455'))));
-		$this->replaceByMock('model', 'eb2cpayment/paypal_set_express_checkout', $paypalSetExpressCheckoutMock);
-	}
-	/**
-	 * replacing by mock of the eb2cpayment/paypal_get_express_checkout class
-	 *
-	 * @return void
-	 */
-	public function replaceByMockPaypalGetExpressCheckoutModel()
-	{
-		$paypalGetExpressCheckoutMock = $this->getModelMockBuilder('eb2cpayment/paypal_get_express_checkout')
-			->disableOriginalConstructor()
-			->setMethods(array('getExpressCheckout', 'parseResponse'))
-			->getMock();
-		$paypalGetExpressCheckoutMock->expects($this->any())
-			->method('getExpressCheckout')
-			->will($this->returnValue('<foo></foo>'));
-		$paypalGetExpressCheckoutMock->expects($this->any())
-			->method('parseResponse')
-			->will($this->returnValue(
-				new Varien_Object(
-					array(
-						'response_code' => 'success',
-						'payer_email' => 'someone@somewhere.com',
-						'payer_id' => '134',
-						'payer_status' => 'valid',
-						'payer_name_first_name' => 'John',
-						'payer_name_last_name' => 'Doe',
-						'payer_country' => 'US',
-						'billing_address_line1' => 'street line 1',
-						'billing_address_line2' => 'street line 2',
-						'billing_address_line3' => 'street line 3',
-						'billing_address_line4' => 'street line 4',
-						'billing_address_city' => 'bill city',
-						'billing_address_main_division' => 'the state',
-						'billing_address_country_code' => 'US',
-						'billing_address_postal_code' => '19406',
-						'shipping_address_line1' => '1111 Some Street',
-						// skip line 2
-						'shipping_address_line3' => 'dept. of testing',
-						// omit line 4
-						'shipping_address_city' => 'Some City',
-						'shipping_address_main_division' => 'Some State',
-						'shipping_address_postal_code' => '12335',
-						'shipping_address_country_code' => 'US',
-						'payer_phone' => '555-555-5555',
-						'shipping_address_status' => 'valid',
-					)
-				)
-			));
-		$this->replaceByMock('model', 'eb2cpayment/paypal_get_express_checkout', $paypalGetExpressCheckoutMock);
-	}
-	/**
 	 * replacing by mock of the eb2cpayment/paypal_do_express_checkout class
 	 *
 	 * @return void
@@ -270,42 +202,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest
 		$this->replaceByMockCheckoutSessionModel();
 	}
 	/**
-	 * testing callSetExpressCheckout method - when eb2c PayPalSetExpressCheckout is disabled
-	 *
-	 * @medium
-	 * @loadFixture loadConfigPaymentsDisabled.yaml
-	 * @expectedException Mage_Core_Exception
-	 */
-	public function testCallSetExpressCheckoutDisabled()
-	{
-		$this->replaceByMockPaypalSetExpressCheckoutModel();
-		$configObject = new Mage_Paypal_Model_Config();
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
-		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
-		// adding profiles
-		$item = new Varien_Object();
-		$item->setScheduleDescription('Unit Test Contents');
-		$this->_nvp->addRecurringPaymentProfiles(array($item));
-		$this->assertNull($this->_nvp->callSetExpressCheckout());
-	}
-	/**
-	 * testing callGetExpressCheckoutDetails method - when eb2c PayPalGetExpressCheckout is disabled
-	 *
-	 * @medium
-	 * @loadFixture loadConfigPaymentsDisabled.yaml
-	 * @expectedException Mage_Core_Exception
-	 */
-	public function testCallGetExpressCheckoutDetailsDisabled()
-	{
-		$this->replaceByMockPaypalGetExpressCheckoutModel();
-		$configObject = new Mage_Paypal_Model_Config();
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
-		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
-		$this->assertNull($this->_nvp->callGetExpressCheckoutDetails());
-	}
-	/**
 	 * testing callDoExpressCheckoutPayment method
 	 *
 	 * @medium
@@ -319,22 +215,6 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest
 		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
 		$this->_nvp->setAddress(new Varien_Object());
-		$this->assertNull($this->_nvp->callDoExpressCheckoutPayment());
-	}
-	/**
-	 * testing callDoExpressCheckoutPayment method - when eb2c PayPalDoExpressCheckout is disabled
-	 *
-	 * @medium
-	 * @loadFixture loadConfigPaymentsDisabled.yaml
-	 * @expectedException Mage_Core_Exception
-	 */
-	public function testCallDoExpressCheckoutPaymentDisabled()
-	{
-		$this->replaceByMockPaypalDoExpressCheckoutModel();
-		$configObject = new Mage_Paypal_Model_Config();
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
-		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
 		$this->assertNull($this->_nvp->callDoExpressCheckoutPayment());
 	}
 	/**
@@ -356,47 +236,12 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Overrides_Api_NvpTest
 		);
 	}
 	/**
-	 * testing callDoAuthorization method - when eb2c PayPalDoAuthorization is disabled
-	 *
-	 * @medium
-	 * @loadFixture loadConfigPaymentsDisabled.yaml
-	 * @expectedException Mage_Core_Exception
-	 */
-	public function testCallDoAuthorizationDisabled()
-	{
-		$this->replaceByMockPaypalDoAuthorizationModel();
-		$configObject = new Mage_Paypal_Model_Config();
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
-		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
-		$this->assertInstanceOf(
-			'EbayEnterprise_Eb2cPayment_Overrides_Model_Api_Nvp',
-			$this->_nvp->callDoAuthorization()
-		);
-	}
-	/**
 	 * testing callDoVoid method
 	 *
 	 * @medium
 	 * @loadFixture loadConfig.yaml
 	 */
 	public function testCallDoVoid()
-	{
-		$this->replaceByMockPaypalDoVoidModel();
-		$configObject = new Mage_Paypal_Model_Config();
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_config', $configObject);
-		$cartObject = new Mage_Paypal_Model_Cart(array($this->buildQuoteMock()));
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_nvp, '_cart', $cartObject);
-		$this->assertNull($this->_nvp->callDoVoid());
-	}
-	/**
-	 * testing callDoVoid method - when eb2c PayPalDoVoid is disabled
-	 *
-	 * @medium
-	 * @loadFixture loadConfigPaymentsDisabled.yaml
-	 * @expectedException Mage_Core_Exception
-	 */
-	public function testCallDoVoidDisabled()
 	{
 		$this->replaceByMockPaypalDoVoidModel();
 		$configObject = new Mage_Paypal_Model_Config();

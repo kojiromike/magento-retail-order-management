@@ -81,33 +81,14 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_AuthorizationTest
 	}
 	public function testDoAuthorization()
 	{
-		$quote = $this->getModelMockBuilder('sales/quote')
-			->disableOriginalConstructor()
-			->getMock();
-		$api = $this->getModelMock('eb2ccore/api', array('request', 'setStatusHandlerPath'));
-		$helper = $this->getHelperMockBuilder('eb2cpayment/data')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigModel', 'getOperationUri'))
-			->getMock();
-		$this->replaceByMock('model', 'eb2ccore/api', $api);
-		$this->replaceByMock('helper', 'eb2cpayment', $helper);
-
-		$auth = $this->getModelMock('eb2cpayment/paypal_do_authorization', array('buildPayPalDoAuthorizationRequest'));
-		$config = $this->buildCoreConfigRegistry(array('xsdFilePaypalDoAuth' => 'xsdfile'));
+		/** @var EbayEnterprise_Dom_Document $doc */
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 
-		$helper->expects($this->once())
-			->method('getConfigModel')
-			->will($this->returnValue($config));
-		$helper->expects($this->once())
-			->method('getOperationUri')
-			->with($this->identicalTo('get_paypal_do_authorization'))
-			->will($this->returnValue('/uri/'));
+		/** @var Mage_Sales_Model_Quote $quote */
+		$quote = Mage::getModel('sales/quote');
 
-		$auth->expects($this->once())
-			->method('buildPayPalDoAuthorizationRequest')
-			->with($this->identicalto($quote))
-			->will($this->returnValue($doc));
+		/** @var EbayEnterprise_Eb2cCore_Model_Api $api */
+		$api = $this->getModelMock('eb2ccore/api', array('request', 'setStatusHandlerPath'));
 		$api->expects($this->once())
 			->method('setStatusHandlerPath')
 			->with($this->identicalto(EbayEnterprise_Eb2cPayment_Helper_Data::STATUS_HANDLER_PATH))
@@ -120,6 +101,30 @@ class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_Do_AuthorizationTest
 				$this->identicalTo('/uri/')
 			)
 			->will($this->returnValue('responseText'));
+		$this->replaceByMock('model', 'eb2ccore/api', $api);
+
+		/** @var EbayEnterprise_Eb2cPayment_Helper_Data $helper */
+		$helper = $this->getHelperMockBuilder('eb2cpayment/data')
+			// @see EbayEnterprise_Eb2cPayment_Helper_Data::__construct, because the 'eb2ccore/config' class is mocked this will
+			// cause 'Trying to get property of non-object' notice exception to be thrown.
+			->disableOriginalConstructor()
+			->setMethods(array('getConfigModel', 'getOperationUri'))
+			->getMock();
+		$helper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array('xsdFilePaypalDoAuth' => 'xsdfile'))));
+		$helper->expects($this->once())
+			->method('getOperationUri')
+			->with($this->identicalTo('get_paypal_do_authorization'))
+			->will($this->returnValue('/uri/'));
+		$this->replaceByMock('helper', 'eb2cpayment', $helper);
+
+		/** @var EbayEnterprise_Eb2cPayment_Model_Paypal_Do_Authorization $auth */
+		$auth = $this->getModelMock('eb2cpayment/paypal_do_authorization', array('buildPayPalDoAuthorizationRequest'));
+		$auth->expects($this->once())
+			->method('buildPayPalDoAuthorizationRequest')
+			->with($this->identicalto($quote))
+			->will($this->returnValue($doc));
 
 		$this->assertSame('responseText', $auth->doAuthorization($quote));
 	}

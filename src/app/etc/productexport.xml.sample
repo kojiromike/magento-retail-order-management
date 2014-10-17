@@ -19,6 +19,26 @@ This configuration file controls exporting data from Magento to the Exchange Pla
 Copy this file to productexport.xml and configure the appropriate values below.
 -->
 <config>
+	<crontab>
+		<jobs>
+			<!--
+			Configuration for setting the Product Export Cron runtimes
+			-->
+			<eb2cproduct_pim_export_feed>
+				<schedule>
+					<cron_expr>*/15 * * * *</cron_expr>
+				</schedule>
+			</eb2cproduct_pim_export_feed>
+			<!--
+			Configuration for setting the Image Export Cron runtimes
+			-->
+			<eb2cproduct_image_export_feed>
+				<schedule>
+					<cron_expr>*/15 * * * *</cron_expr>
+				</schedule>
+			</eb2cproduct_image_export_feed>
+		</jobs>
+	</crontab>
 	<default>
 		<ebayenterprise_catalog>
 			<feed_pim_mapping>

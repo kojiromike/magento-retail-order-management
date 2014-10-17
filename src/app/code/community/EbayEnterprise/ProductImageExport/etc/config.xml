@@ -48,12 +48,12 @@
 			</ebayenterprise_productimageexport>
 		</helpers>
 		<resources>
-			<productimageexport_setup>
+			<ebayenterprise_productimageexport_setup>
 				<setup>
 					<module>EbayEnterprise_ProductImageExport</module>
 					<class>Mage_Catalog_Model_Resource_Setup</class>
 				</setup>
-			</productimageexport_setup>
+			</ebayenterprise_productimageexport_setup>
 		</resources>
 	</global>
 	<crontab>

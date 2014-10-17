@@ -53,10 +53,6 @@ class EbayEnterprise_Catalog_Model_Config extends EbayEnterprise_Eb2cCore_Model_
 		'pricing_feed'                        => 'eb2ccore/feed/filetransfer_imports/item_pricing',
 		'pricing_feed_event_type'             => 'eb2ccore/feed/filetransfer_imports/item_pricing/event_type',
 
-		'processor_delete_batch_size'         => 'ebayenterprise_catalog/processor_delete_batch_size',
-		'processor_max_total_entries'         => 'ebayenterprise_catalog/processor_max_total_entries',
-		'processor_update_batch_size'         => 'ebayenterprise_catalog/processor_update_batch_size',
-
 		'attributes_code_list'                => 'ebayenterprise_catalog/attributes_code_list',
 		'read_only_attributes'                => 'ebayenterprise_catalog/readonly_attributes',
 

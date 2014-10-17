@@ -13,9 +13,9 @@
   @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <!--
-Magento to Exchange Platform Product Import Mappings
+Magento to ROM Product Import Mappings
 
-The below configurations translate from Exchange Platform to Magento.
+The below configurations translate from ROM to Magento.
 Copy this file to productimport.xml and configure the appropriate values below.
 -->
 <config>
@@ -23,31 +23,13 @@ Copy this file to productimport.xml and configure the appropriate values below.
 		<eb2ccore>
 			<feed>
 				<filetransfer_imports>
-					<!--
-					This configuration controls which files will be trasferred from the
-					remote SFTP server to be processed by Magento.
-					The remote_directory specifies where on the remote SFTP server files
-					should be trasferred from.
-					The file_pattern specifies a file glob files to be transferred must
-					match. The file_pattern is optional and if excluded will default
-					to '*'.
-
-					Transferring and processing of any of these feeds may be disabled by
-					removing the configuration for the feed.
-					-->
 					<item_pricing>
+						<!--
+							Replace 'MAGT1' with your own ROM Store ID.
+						  -->
 						<remote_directory>/Inbox/Channel/MAGT1/Pricing</remote_directory>
 					</item_pricing>
 				</filetransfer_imports>
-				<export>
-					<ack>
-						<!--
-						Limit the waiting time on resending an exported file
-						that has no imported acknowledgment file yet
-						-->
-						<resend_time_limit>5</resend_time_limit>
-					</ack>
-				</export>
 				<!--
 				Incoming giftCardTenderCodes must be matched to a known Magento giftcard type.
 				-->
@@ -62,13 +44,8 @@ Copy this file to productimport.xml and configure the appropriate values below.
 		</eb2ccore>
 		<ebayenterprise_catalog>
 			<!--
-			Here you can customize the mapping of incoming values to Magento Attributes. If an
-			incoming node does not match a node listed here, the import process will attempt to
-			find a Magento Attribute Code that matches the name of the Exchange Platform
-			Code. In that case, the value is stored as a string value.
-
-			WARNING: If an Exchange Platform Code is not mapped it will be silently ignored
-			by the import process.
+			WARNING: If an incoming ROM Code is not explicitly mapped,
+			it will be silently ignored by the import process.
 			 -->
 			<feed_attribute_mappings>
 				<gift_message_available>
@@ -89,12 +66,6 @@ Copy this file to productimport.xml and configure the appropriate values below.
 					<method>extractStringValue</method>
 					<xpath></xpath>
 				</gift_card_tender_code>
-				<item_type>
-					<class>ebayenterprise_catalog/map</class>
-					<type>helper</type>
-					<method>extractStringValue</method>
-					<xpath>BaseAttributes/ItemType</xpath>
-				</item_type>
 				<client_alt_item_id>
 					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
@@ -113,12 +84,6 @@ Copy this file to productimport.xml and configure the appropriate values below.
 					<method></method>
 					<xpath></xpath>
 				</brand_name>
-				<hts_codes>
-					<class>ebayenterprise_catalog/map</class>
-					<type>helper</type>
-					<method>extractHtsCodesValue</method>
-					<xpath>HTSCodes/HTSCode</xpath>
-				</hts_codes>
 				<brand_description>
 					<class>ebayenterprise_catalog/map</class>
 					<type>disabled</type>
@@ -401,67 +366,6 @@ Copy this file to productimport.xml and configure the appropriate values below.
 					<method></method>
 					<xpath></xpath>
 				</msrp>
-				<url_key>
-					<!-- There are some known issues with url_key in multi-store settings. By explicitly forcing the url_key to false, we cause it to fallback up the scope to the default store before saving each time. -->
-					<class>ebayenterprise_catalog/map</class>
-					<type>helper</type>
-					<method>extractFalse</method>
-					<xpath>.</xpath>
-				</url_key>
-				<color>
-					<class>ebayenterprise_catalog/map_attribute</class>
-					<type>helper</type>
-					<method>extractColorValue</method>
-					<xpath>ExtendedAttributes/ColorAttributes/Color</xpath>
-				</color>
-				<configurable_attributes_data>
-					<class>ebayenterprise_catalog/map_attribute</class>
-					<type>helper</type>
-					<method>extractConfigurableAttributesData</method>
-					<xpath>CustomAttributes/Attribute[@name="ConfigurableAttributes"]/Value</xpath>
-				</configurable_attributes_data>
-				<can_save_configurable_attributes>
-					<class>ebayenterprise_catalog/map_attribute</class>
-					<type>helper</type>
-					<method>extractCanSaveConfigurableAttributes</method>
-					<xpath>CustomAttributes/Attribute[@name="ConfigurableAttributes"]/Value</xpath>
-				</can_save_configurable_attributes>
-				<giftcard_type>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractGiftcardTenderValue</method>
-					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
-				</giftcard_type>
-				<is_redeemable>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractIsRedeemable</method>
-					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
-				</is_redeemable>
-				<use_config_is_redeemable>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractIsRedeemable</method>
-					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
-				</use_config_is_redeemable>
-				<lifetime>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractLifetime</method>
-					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
-				</lifetime>
-				<allow_message>
-					<class>ebayenterprise_catalog/map</class>
-					<type>helper</type>
-					<method>extractBoolValue</method>
-					<xpath>ExtendedAttributes/AllowGiftMessage</xpath>
-				</allow_message>
-				<email_template>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractEmailTemplate</method>
-					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
-				</email_template>
 			</feed_attribute_mappings>
 		</ebayenterprise_catalog>
 	</default>

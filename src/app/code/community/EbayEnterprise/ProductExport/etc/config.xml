@@ -13,7 +13,6 @@
   @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <config>
-	<default/>
 	<modules>
 		<EbayEnterprise_ProductExport>
 			<version>1.4.0</version>
@@ -34,7 +33,43 @@
 			</productexport_setup>
 		</resources>
 	</global>
-	<default/>
+	<default>
+		<ebayenterprise_catalog>
+			<pim_export_feed>
+				<cutoff_date/>
+				<batch_size/>
+			</pim_export_feed>
+			<feed_pim_mapping>
+				<!-- http://confluence.tools.us.gspt.net/display/v11dev/Outbound+Inbound+File+Naming+Convention -->
+				<item_map>
+					<file_pattern>{client_id}_{catalog_id}_{feed_type}_{time_stamp}.xml</file_pattern>
+					<root_node>ItemMaster</root_node>
+					<item_node>Item</item_node>
+					<event_type>ItemMaster</event_type>
+					<schema_location>ItemMasterV11.xsd</schema_location>
+					<is_validate>true</is_validate>
+				</item_map>
+				<content_map>
+					<!-- Event Type is ContentMaster, but file name has Content. -->
+					<file_pattern>{client_id}_{catalog_id}_Content_{time_stamp}.xml</file_pattern>
+					<root_node>ContentMaster</root_node>
+					<item_node>Content</item_node>
+					<event_type>ContentMaster</event_type>
+					<schema_location>ContentFeedV11.xsd</schema_location>
+					<is_validate>true</is_validate>
+				</content_map>
+				<price_map>
+					<!-- Event Type is Pricing, but file name has Price. Double-checked. -->
+					<file_pattern>{client_id}_{store_id}_{catalog_id}_Price_{time_stamp}.xml</file_pattern>
+					<root_node>Prices</root_node>
+					<item_node>PricePerItem</item_node>
+					<event_type>Pricing</event_type>
+					<schema_location>PriceEventV11.xsd</schema_location>
+					<is_validate>true</is_validate>
+				</price_map>
+			</feed_pim_mapping>
+		</ebayenterprise_catalog>
+	</default>
 	<crontab>
 		<jobs>
 			<ebayenterprise_catalog_pim_export_feed>

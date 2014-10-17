@@ -34,12 +34,12 @@
 			</ebayenterprise_catalog>
 		</helpers>
 		<resources>
-			<ebayenterprise_catalog_setup>
+			<eb2cproduct_setup>
 				<setup>
 					<module>EbayEnterprise_Catalog</module>
 					<class>Mage_Catalog_Model_Resource_Setup</class>
 				</setup>
-			</ebayenterprise_catalog_setup>
+			</eb2cproduct_setup>
 		</resources>
 		<events>
 			<catalog_product_edit_action>

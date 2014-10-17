@@ -15,7 +15,7 @@
 <config>
 	<modules>
 		<EbayEnterprise_ProductExport>
-			<active>true</active>
+			<active>false</active>
 			<codePool>community</codePool>
 			<depends>
 				<EbayEnterprise_Eb2cCore />

@@ -61,7 +61,7 @@ Copy this file to rom.xml and configure the appropriate values below.
 			Retail Order Management tender type.
 			Ranges may not overlap.
 			-->
-			<card_number_bin_range>
+			<card_number_bin_ranges>
 				<!-- Gift card -->
 				<GS>800199900000000-800199910000000</GS>
 				<!-- Physical card -->
@@ -70,7 +70,7 @@ Copy this file to rom.xml and configure the appropriate values below.
 				<SV>6969280000000000-6969280010000000</SV>
 				<!-- Value Link -->
 				<VL>9900000000000000-9900000010000000</VL>
-			</card_number_bin_range>
+			</card_number_bin_ranges>
 		</ebayenterprise_giftcard>
 	</default>
 </config>

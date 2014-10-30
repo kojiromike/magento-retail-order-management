@@ -173,7 +173,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 			->setCardSecurityCode($payment->getCcCid())
 			->setAmount($payment->getBaseAmountAuthorized())
 			->setCurrencyCode(Mage::app()->getStore()->getBaseCurrencyCode())
-			->setEmail($billingAddress->getEmail())
+			->setEmail($order->getCustomerEmail())
 			->setIp($this->_httpHelper->getRemoteAddr())
 			->setBillingFirstName($billingAddress->getFirstname())
 			->setBillingLastName($billingAddress->getLastname())

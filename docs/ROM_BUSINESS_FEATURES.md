@@ -15,7 +15,7 @@
   - [Order Services](#order-services)
   - [Product Management](#product-management)
   - [Inventory Management](#inventory-management)
-  - [Payment Processing](#payment-processing)
+  - [Credit Card Processing](/src/app/code/community/EbayEnterprise/CreditCard/README.md)
   - [Fraud Management](#fraud-management)
   - [Tax, Duties and Fees](#tax-duties-and-fees)
   - [Address Validation](/src/app/code/community/EbayEnterprise/Address/README.md)
@@ -113,15 +113,6 @@ The _Inventory Service_ provides
 * Real time validation of inventory available as products are added to a Magento cart. The amount of time to cache the validated quantity is configurable.
 * Real time _allocation_ upon order submission.
 * Real time _rollback_ of inventory in the event that a order submission fails (e.g., payment failed).
-
-
-###Payment Processing
-
-A single, simplified, secure high-volume PCI-DSS Level 1 compliant processing engine that eliminates the need for multiple different configurations.
-
-Payment Service offers automatic updates and seamless processor additions without disturbing Magento store code or configuration.
-
-![api-config](static/rom-ov-payments-config.png)
 
 
 ###Fraud Management

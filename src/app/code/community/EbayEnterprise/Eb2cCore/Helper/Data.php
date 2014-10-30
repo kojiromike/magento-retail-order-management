@@ -569,6 +569,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 			$operation,
 			$endpointParams
 		);
+		Mage::helper('ebayenterprise_magelog')->logDebug('[%s] SDK API endpoint: %s', array(__CLASS__, $apiConfig->getEndpoint()));
 		return new Api\HttpApi($apiConfig);
 	}
 	/*

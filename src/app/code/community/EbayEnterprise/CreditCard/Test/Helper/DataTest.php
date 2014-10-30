@@ -42,4 +42,15 @@ class EbayEnterprise_CreditCard_Test_Helper_DataTest extends EbayEnterprise_Eb2c
 			Mage::helper('ebayenterprise_creditcard')->cleanAuthXml($xml)
 		);
 	}
+	/**
+	 * Same as self::testCleanAuthXml, just with encrypted nodes
+	 */
+	public function testCleanAuthXmlEncrypted()
+	{
+		$xml = '<_><EncryptedCardSecurityCode>$bt4|javascript_1_3_10$ThCaUU65veFuC2A7AK4CIuM=</EncryptedCardSecurityCode><EncryptedPaymentAccountUniqueId>$bt4|javascript_1_3_10$gzIUBGAUh6MRehbaWEcw+0047SxTxc=</EncryptedPaymentAccountUniqueId></_>';
+		$this->assertSame(
+			'<_><EncryptedCardSecurityCode>***</EncryptedCardSecurityCode><EncryptedPaymentAccountUniqueId>***</EncryptedPaymentAccountUniqueId></_>',
+			Mage::helper('ebayenterprise_creditcard')->cleanAuthXml($xml)
+		);
+	}
 }

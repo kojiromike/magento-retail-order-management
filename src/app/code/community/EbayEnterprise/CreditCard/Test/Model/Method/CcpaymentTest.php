@@ -49,30 +49,6 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 		return Mage::getModel('sales/order_address', $addrData);
 	}
 	/**
-	 * Test constructor DI
-	 */
-	public function testConstructor()
-	{
-		$this->_replaceCheckoutSession();
-		// inject a mock payment helper - mock will be unique from the default
-		// value, making it possible to detect the injection
-		$mockPaymentHelper = $this->getHelperMock('ebayenterprise_creditcard');
-		$payment = Mage::getModel(
-			'ebayenterprise_creditcard/method_ccpayment',
-			array('helper' => $mockPaymentHelper, 'checkout_session' => $this->_checkoutSession)
-		);
-		// default value of the core helper should be the singleton helper instance
-		$this->assertSame(
-			Mage::helper('eb2ccore'),
-			EcomDev_Utils_Reflection::getRestrictedPropertyValue($payment, '_coreHelper')
-		);
-		// check for the injected payment helper
-		$this->assertSame(
-			$mockPaymentHelper,
-			EcomDev_Utils_Reflection::getRestrictedPropertyValue($payment, '_helper')
-		);
-	}
-	/**
 	 * Test when an invalid payload is provided.
 	 */
 	public function testAuthorizeApiInvalidPayload()
@@ -218,10 +194,69 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 		if ($exception) {
 			$this->setExpectedException($exception);
 		}
-		$paymentMethod = Mage::getModel('ebayenterprise_creditcard/method_ccpayment', array('checkout_session' => $this->_checkoutSession));
+		$paymentMethod = Mage::getModel('ebayenterprise_creditcard/method_ccpayment');
 		$this->assertSame(
 			$paymentMethod,
 			EcomDev_Utils_Reflection::invokeRestrictedMethod($paymentMethod, '_validateResponse', array($payload))
 		);
+	}
+	/**
+	 * Validate card data when CSE is enabled.
+	 * @param  string $infoModel      Model alias for the payment info model
+	 * @param  string $billingCountry
+	 * @param  string $expYear
+	 * @param  string $expMonth
+	 * @param  bool   $isValid
+	 * @dataProvider dataProvider
+	 */
+	public function testValidateWithEncryptedCardData($infoModel, $billingCountry, $expYear, $expMonth, $isValid)
+	{
+		$this->_replaceCheckoutSession();
+
+		$quoteBillingAddress = Mage::getModel('sales/quote_address', array('country_id' => $billingCountry));
+		$orderBillingAddress = Mage::getModel('sales/order_address', array('country_id' => $billingCountry));
+		$quote = Mage::getModel('sales/quote');
+		$quote->setBillingAddress($quoteBillingAddress);
+		$order = Mage::getModel('sales/order');
+		$order->setBillingAddress($orderBillingAddress);
+		$info = Mage::getModel($infoModel)
+			// use setters instead of contstructor data as some of these setters have
+			// actual implementation in some of the payment info models
+			->setQuote($quote)
+			->setOrder($order)
+			->setCcExpYear($expYear)
+			->setCcExpMonth($expMonth);
+
+		$ccMethod = $this->getModelMock('ebayenterprise_creditcard/method_ccpayment', array('canUseForCountry'));
+		$ccMethod->setInfoInstance($info);
+		// mock canUseForCountry call to prevent config dependency
+		$ccMethod->expects($this->any())
+			->method('canUseForCountry')
+			->will($this->returnValueMap(array(
+				array('US', true),
+			)));
+
+		if (!$isValid) {
+			$this->setExpectedException('EbayEnterprise_CreditCard_Exception');
+		}
+		$this->assertSame(
+			$ccMethod,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($ccMethod, '_validateWithEncryptedCardData')
+		);
+	}
+	public function testAssignData()
+	{
+		$config = $this->buildCoreConfigRegistry(array('useClientSideEncryptionFlag' => true));
+		$helper = $this->getHelperMock('ebayenterprise_creditcard', array('getConfigModel'));
+		$helper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($config));
+		$lastFour = '1111';
+		$info = Mage::getModel('payment/info');
+		$data = array('cc_last4' => $lastFour);
+		$method = Mage::getModel('ebayenterprise_creditcard/method_ccpayment', array('helper' => $helper));
+		$method->setInfoInstance($info);
+		$method->assignData($data);
+		$this->assertSame($lastFour, $info->getCcLast4());
 	}
 }

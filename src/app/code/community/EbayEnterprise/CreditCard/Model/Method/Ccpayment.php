@@ -18,10 +18,20 @@ use eBayEnterprise\RetailOrderManagement\Payload;
 
 class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Model_Method_Cc
 {
-	const CREDITCARD_AUTH_FAILED_MESSAGE = 'EBAYENTERPRISE_CREDITCARD_AUTH_FAILED';
-	const CREDITCARD_AVS_FAILED_MESSAGE = 'EBAYENTERPRISE_CREDITCARD_AVS_FAILED';
-	const CREDITCARD_CVV_FAILED_MESSAGE = 'EBAYENTERPRISE_CREDITCARD_CVV_FAILED';
-
+	const CREDITCARD_AUTH_FAILED_MESSAGE = 'EbayEnterprise_CreditCard_Auth_Failed';
+	const CREDITCARD_AVS_FAILED_MESSAGE = 'EbayEnterprise_CreditCard_AVS_Failed';
+	const CREDITCARD_CVV_FAILED_MESSAGE = 'EbayEnterprise_CreditCard_CVV_Failed';
+	const METHOD_NOT_ALLOWED_FOR_COUNTRY = 'EbayEnterprise_CreditCard_Method_Not_Allowed_For_Country';
+	const INVALID_EXPIRATION_DATE = 'EbayEnterprise_CreditCard_Invalid_Expiration_Date';
+	/**
+	 * Block type to use to render the payment method form.
+	 * @var string
+	 */
+	protected $_formBlockType = 'ebayenterprise_creditcard/form_cc';
+	/**
+	 * Code unique to this payment method.
+	 * @var string
+	 */
 	protected $_code          = 'ebayenterprise_creditcard';
 	/**
 	 * Is this payment method a gateway (online auth/charge) ?
@@ -79,10 +89,10 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	protected $_coreHelper;
 	/** @var Mage_Core_Helper_Http */
 	protected $_httpHelper;
-	/** @var Mage_Checkout_Model_Session */
-	protected $_checkoutSession;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var bool */
+	protected $_isUsingClientSideEncryption;
 	/**
 	 * `__construct` overridden in Mage_Payment_Model_Method_Abstract as a no-op.
 	 * Override __construct here as the usual protected `_construct` is not called.
@@ -90,18 +100,17 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	 *                          -  'helper' => EbayEnterprise_CreditCard_Helper_Data
 	 *                          -  'core_helper' => EbayEnterprise_Eb2cCore_Helper_Data
 	 *                          -  'http_helper' => Mage_Core_Helper_Http
-	 *                          -  'checkout_session' => Mage_Checkout_Model_Session
 	 *                          -  'logger' => EbayEnterprise_MageLog_Helper_Data
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_helper, $this->_coreHelper, $this->_httpHelper, $this->_checkoutSession, $this->_logger) = $this->_checkTypes(
+		list($this->_helper, $this->_coreHelper, $this->_httpHelper, $this->_logger) = $this->_checkTypes(
 			$this->_nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_creditcard')),
 			$this->_nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore')),
 			$this->_nullCoalesce($initParams, 'http_helper', Mage::helper('core/http')),
-			$this->_nullCoalesce($initParams, 'checkout_session', Mage::getSingleton('checkout/session')),
 			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
 		);
+		$this->_isUsingClientSideEncryption = $this->_helper->getConfigModel()->useClientSideEncryptionFlag;
 	}
 	/**
 	 * Type hinting for self::__construct $initParams
@@ -116,10 +125,9 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 		EbayEnterprise_CreditCard_Helper_Data $helper,
 		EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
 		Mage_Core_Helper_Http $httpHelper,
-		Mage_Checkout_Model_Session $checkoutSession,
 		EbayEnterprise_MageLog_Helper_Data $logger
 	) {
-		return array($helper, $coreHelper, $httpHelper, $checkoutSession, $logger);
+		return array($helper, $coreHelper, $httpHelper, $logger);
 	}
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the
@@ -132,6 +140,84 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	protected function _nullCoalesce(array $arr, $field, $default)
 	{
 		return isset($arr[$field]) ? $arr[$field] : $default;
+	}
+	/**
+	 * Get the session model to store checkout data in.
+	 * @return Mage_Checkout_Model_Session
+	 */
+	protected function _getCheckoutSession()
+	{
+		return Mage::getSingleton('checkout/session');
+	}
+	/**
+	 * Assign post data to the payment info object.
+	 * @param array|Varien_Object $data Contains payment data submitted in checkout - Varien_Object in OPC, array otherwise
+	 * @return self
+	 */
+	public function assignData($data)
+	{
+		parent::assignData($data);
+		if (is_array($data)) {
+			$data = Mage::getModel('Varien_Object', $data);
+		}
+		if ($this->_isUsingClientSideEncryption) {
+			$this->getInfoInstance()->setCcLast4($data->getCcLast4());
+		}
+		return $this;
+	}
+	/**
+	 * Validate card data.
+	 * @return self
+	 */
+	public function validate()
+	{
+		if ($this->_isUsingClientSideEncryption) {
+			return $this->_validateWithEncryptedCardData();
+		} else {
+			return parent::validate();
+		}
+	}
+	/**
+	 * Validate what data can still be validated.
+	 * @return self
+	 */
+	protected function _validateWithEncryptedCardData()
+	{
+		$info = $this->getInfoInstance();
+		return $this->_validateCountry($info)->_validateExpirationDate($info);
+	}
+	/**
+	 * Validate payment method is allowed for the customer's billing address country.
+	 * @param Mage_Payment_Model_Info $info
+	 * @return self
+	 */
+	protected function _validateCountry(Mage_Payment_Model_Info $info)
+	{
+		/**
+		 * Get the order when dealing with an order payment, quote otherwise.
+		 * @see Mage_Payment_Model_Method_Abstract
+		 */
+		if ($info instanceof Mage_Sales_Model_Order_Payment) {
+			$billingCountry = $info->getOrder()->getBillingAddress()->getCountryId();
+		} else {
+			$billingCountry = $info->getQuote()->getBillingAddress()->getCountryId();
+		}
+		if (!$this->canUseForCountry($billingCountry)) {
+			throw Mage::exception('EbayEnterprise_CreditCard', $this->_helper->__(self::METHOD_NOT_ALLOWED_FOR_COUNTRY));
+		}
+		return $this;
+	}
+	/**
+	 * Validate the card expiration date.
+	 * @param  Mage_Payment_Model_Info $info
+	 * @return self
+	 */
+	protected function _validateExpirationDate(Mage_Payment_Model_Info $info)
+	{
+		if (!$this->_validateExpDate($info->getCcExpYear(), $info->getCcExpMonth())) {
+			throw Mage::exception('EbayEnterprise_CreditCard', $this->_helper->__(self::INVALID_EXPIRATION_DATE));
+		}
+		return $this;
 	}
 	/**
 	 * Authorize payment abstract method
@@ -165,6 +251,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 		$billingAddress = $order->getBillingAddress();
 		$shippingAddress = $order->getShippingAddress() ?: $billingAddress;
 		$request
+			->setIsEncrypted($this->_isUsingClientSideEncryption)
 			->setRequestId($this->_coreHelper->generateRequestId('CCA-'))
 			->setOrderId($order->getIncrementId())
 			->setPanIsToken(false)
@@ -293,7 +380,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	 */
 	public function _setCheckoutStep($step)
 	{
-		$this->_checkoutSession->setGotoSection($step);
+		$this->_getCheckoutSession()->setGotoSection($step);
 		return $this;
 	}
 	/**

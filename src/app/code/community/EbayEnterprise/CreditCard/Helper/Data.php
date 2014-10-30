@@ -40,8 +40,8 @@ class EbayEnterprise_CreditCard_Helper_Data
 	 */
 	public function cleanAuthXml($xml)
 	{
-		$xml = preg_replace('#(\<CardSecurityCode\>).*(\</CardSecurityCode\>)#', '$1***$2', $xml);
-		$xml = preg_replace('#(\<PaymentAccountUniqueId.*?\>).*(\</PaymentAccountUniqueId\>)#', '$1***$2', $xml);
+		$xml = preg_replace('#(\<(?:Encrypted)?CardSecurityCode\>).*(\</(?:Encrypted)?CardSecurityCode\>)#', '$1***$2', $xml);
+		$xml = preg_replace('#(\<(?:Encrypted)?PaymentAccountUniqueId.*?\>).*(\</(?:Encrypted)?PaymentAccountUniqueId\>)#', '$1***$2', $xml);
 		return $xml;
 	}
 }

@@ -5,7 +5,6 @@
 - [Intended Audience](#intended-audience)
 - [System Notes and Limitations](#system-notes-and-limitations)
   - [Combinations of Services](#combinations-of-services)
-  - [ROM Payments](#rom-payments)
   - [ROM and Magento Order Status](#rom-and-magento-order-status)
   - [Product Attribute Sets](#product-attribute-sets)
   - [Gift Wrapping/ Messaging](#gift-wrapping-messaging)
@@ -44,11 +43,6 @@ You can disable the following modules:
 
 You can disable Transactional Emails by configuring the ROM Extension to use the Magento Transactional Email handler instead of the eBay Enterprise Email.
 
-
-###ROM Payments
-When the ROM Payment Module is enabled, all other Magento Payment Services are automatically disabled.
-
-Changing a Magento webstore from a non-ROM Payment System to a ROM Payment system should be carefully reviewed to ensure compatibility with returns, credits, payment reversals, etc.
 
 ###ROM and Magento Order Status
 The ROM Extension overrides Magento Order Status to ensure synchronization with eBay Enterprise ROM Services. As such, it is not compatible with any other extension that also manipulates Order Status.

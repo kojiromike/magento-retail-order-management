@@ -36,6 +36,13 @@
 		</helpers>
 	</global>
 	<frontend>
+		<layout>
+			<updates>
+				<ebayenterprise_creditcard>
+					<file>ebayenterprise_creditcard.xml</file>
+				</ebayenterprise_creditcard>
+			</updates>
+		</layout>
 		<translate>
 			<modules>
 				<EbayEnterprise_CreditCard>
@@ -46,6 +53,24 @@
 			</modules>
 		</translate>
 	</frontend>
+	<adminhtml>
+		<layout>
+			<updates>
+				<ebayenterprise_creditcard>
+					<file>ebayenterprise_creditcard.xml</file>
+				</ebayenterprise_creditcard>
+			</updates>
+		</layout>
+		<translate>
+			<modules>
+				<EbayEnterprise_CreditCard>
+					<files>
+						<default>EbayEnterprise_CreditCard.csv</default>
+					</files>
+				</EbayEnterprise_CreditCard>
+			</modules>
+		</translate>
+	</adminhtml>
 	<default>
 		<payment>
 			<ebayenterprise_creditcard>
@@ -56,6 +81,7 @@
 				<cctypes>AE,VI,MC,DI</cctypes>
 				<payment_action>authorize</payment_action>
 				<allowspecific>0</allowspecific>
+				<use_client_side_encryption>1</use_client_side_encryption>
 			</ebayenterprise_creditcard>
 		</payment>
 		<ebayenterprise_creditcard>

@@ -15,7 +15,7 @@
 <config>
 	<modules>
 		<EbayEnterprise_CreditCard>
-			<version>0.1.0</version>
+			<version>1.4.0</version>
 		</EbayEnterprise_CreditCard>
 	</modules>
 	<global>

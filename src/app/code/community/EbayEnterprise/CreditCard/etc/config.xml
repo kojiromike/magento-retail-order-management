@@ -85,13 +85,6 @@
 			</ebayenterprise_creditcard>
 		</payment>
 		<ebayenterprise_creditcard>
-			<tender_types>
-				<!-- mappings of Magento CC type to ROM API tender type -->
-				<ae>AM</ae>
-				<di>DC</di>
-				<mc>MC</mc>
-				<vi>VC</vi>
-			</tender_types>
 			<api>
 				<operation>creditcard/auth</operation>
 				<service>payments</service>

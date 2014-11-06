@@ -54,6 +54,19 @@ Copy this file to rom.xml and configure the appropriate values below.
 				<flatrate_flatrate>ANY_STD</flatrate_flatrate>
 			</shipmap>
 		</eb2ccore>
+		<ebayenterprise_creditcard>
+			<tender_types>
+				<!--
+				Mappings of Magento credit card type to ROM API tender type. Node names
+				must match the credit card code as configured in Mage_Payment's etc/config.xml.
+				Values must match tender types supported by the ROM payment service.
+				-->
+				<AE>AM</AE>
+				<DI>DC</DI>
+				<MC>MC</MC>
+				<VI>VC</VI>
+			</tender_types>
+		</ebayenterprise_creditcard>
 		<ebayenterprise_giftcard>
 			<!--
 			Gift Card Number Ranges:

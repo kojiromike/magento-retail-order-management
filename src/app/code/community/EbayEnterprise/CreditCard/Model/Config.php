@@ -20,10 +20,7 @@ class EbayEnterprise_CreditCard_Model_Config
 		'api_operation' => 'ebayenterprise_creditcard/api/operation',
 		'api_service' => 'ebayenterprise_creditcard/api/service',
 		'encryption_key' => 'payment/ebayenterprise_creditcard/encryption_key',
-		'tender_type_ae' => 'ebayenterprise_creditcard/tender_types/ae',
-		'tender_type_di' => 'ebayenterprise_creditcard/tender_types/di',
-		'tender_type_mc' => 'ebayenterprise_creditcard/tender_types/mc',
-		'tender_type_vi' => 'ebayenterprise_creditcard/tender_types/vi',
+		'tender_types' => 'ebayenterprise_creditcard/tender_types',
 		'use_client_side_encryption' => 'payment/ebayenterprise_creditcard/use_client_side_encryption',
 	);
 }

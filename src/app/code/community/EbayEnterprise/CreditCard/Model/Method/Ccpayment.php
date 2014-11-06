@@ -23,6 +23,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	const CREDITCARD_CVV_FAILED_MESSAGE = 'EbayEnterprise_CreditCard_CVV_Failed';
 	const METHOD_NOT_ALLOWED_FOR_COUNTRY = 'EbayEnterprise_CreditCard_Method_Not_Allowed_For_Country';
 	const INVALID_EXPIRATION_DATE = 'EbayEnterprise_CreditCard_Invalid_Expiration_Date';
+	const INVALID_CARD_TYPE = 'EbayEnterprise_CreditCard_Invalid_Card_Type';
 	/**
 	 * Block type to use to render the payment method form.
 	 * @var string
@@ -132,9 +133,9 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the
 	 * default value.
-	 * @param  array      $arr
-	 * @param  string|int $field Valid array key
-	 * @param  mixed      $default
+	 * @param array      $arr
+	 * @param string|int $field Valid array key
+	 * @param mixed      $default
 	 * @return mixed
 	 */
 	protected function _nullCoalesce(array $arr, $field, $default)
@@ -148,6 +149,22 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	protected function _getCheckoutSession()
 	{
 		return Mage::getSingleton('checkout/session');
+	}
+	/**
+	 * Override getting config data for the cctype configuration. Due to the
+	 * special requirements for what types are actually available (must be
+	 * mapped ROM tender type), when requesting configured cctypes, get the types
+	 * that are actually available.
+	 * @param string $field
+	 * @param int|string|null|Mage_Core_Model_Store $storeId
+	 * @return mixed
+	 */
+	public function getConfigData($field, $storeId=null)
+	{
+		if ($field === 'cctypes') {
+			return implode(',', array_keys($this->_helper->getAvailableCardTypes()));
+		}
+		return parent::getConfigData($field, $storeId);
 	}
 	/**
 	 * Assign post data to the payment info object.
@@ -171,6 +188,8 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	 */
 	public function validate()
 	{
+		// card type can and should always be validated as data is not encrypted
+		$this->_validateCardType();
 		if ($this->_isUsingClientSideEncryption) {
 			return $this->_validateWithEncryptedCardData();
 		} else {
@@ -185,6 +204,18 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	{
 		$info = $this->getInfoInstance();
 		return $this->_validateCountry($info)->_validateExpirationDate($info);
+	}
+	/**
+	 * Validate that the card type is one of the supported types.
+	 * @return self
+	 * @throws EbayEnterprise_CreditCard_Exception If card type is not supported
+	 */
+	protected function _validateCardType()
+	{
+		if (!in_array($this->getInfoInstance()->getCcType(), array_keys($this->_helper->getAvailableCardTypes()))) {
+			throw Mage::exception('EbayEnterprise_CreditCard', self::INVALID_CARD_TYPE);
+		}
+		return $this;
 	}
 	/**
 	 * Validate payment method is allowed for the customer's billing address country.
@@ -209,7 +240,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	}
 	/**
 	 * Validate the card expiration date.
-	 * @param  Mage_Payment_Model_Info $info
+	 * @param Mage_Payment_Model_Info $info
 	 * @return self
 	 */
 	protected function _validateExpirationDate(Mage_Payment_Model_Info $info)
@@ -313,9 +344,9 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	/**
 	 * Update the order payment and quote payment with details from the CC auth
 	 * request/response.
-	 * @param  Varien_Data $payment
-	 * @param  Payload\Payment\ICreditCardAuthRequest $request
-	 * @param  Payload\Payment\ICreditCardAuthReply   $response
+	 * @param Varien_Data $payment
+	 * @param Payload\Payment\ICreditCardAuthRequest $request
+	 * @param Payload\Payment\ICreditCardAuthReply   $response
 	 * @return self
 	 */
 	protected function _updatePaymentsWithAuthData(
@@ -329,9 +360,9 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	}
 	/**
 	 * Update the payment with details from the CC Auth Request and Reply
-	 * @param  Varien_Object                          $payment
-	 * @param  Payload\Payment\ICreditCardAuthRequest $request
-	 * @param  Payload\Payment\ICreditCardAuthReply   $response
+	 * @param Varien_Object                          $payment
+	 * @param Payload\Payment\ICreditCardAuthRequest $request
+	 * @param Payload\Payment\ICreditCardAuthReply   $response
 	 * @return self
 	 */
 	public function _updatePayment(
@@ -365,7 +396,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	 * would have the is_correction_required flag set to true and the cc last 4
 	 * for the current payment would match the last4_to_correct payment
 	 * additional information.
-	 * @param  Varien_Object $payment
+	 * @param Varien_Object $payment
 	 * @return bool
 	 */
 	protected function _getIsCorrectionNeededForPayment(Varien_Object $payment)
@@ -377,6 +408,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	 * Set the checkout session's goto section to the provided step.
 	 * One of: 'login', 'billing', 'shipping', 'shipping_method', 'payment', 'review'
 	 * @param string $step Step in checkout
+	 * @return self
 	 */
 	public function _setCheckoutStep($step)
 	{
@@ -387,8 +419,8 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	 * Fail the auth request by setting a checkout step to return to and throwing
 	 * an exception.
 	 * @see self::_setCheckoutStep for available checkout steps to return to
-	 * @param  string $errorMessage
-	 * @param  string $returnStep Step of checkout to send the user to
+	 * @param string $errorMessage
+	 * @param string $returnStep Step of checkout to send the user to
 	 * @throws EbayEnterprise_CreditCard_Exception Always
 	 */
 	protected function _failPaymentAuth($errorMessage, $returnStep='payment')
@@ -398,7 +430,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	}
 	/**
 	 * Get the API SDK for the payment auth request.
-	 * @param  Varien_Object $payment
+	 * @param Varien_Object $payment
 	 * @return Api\IBidirectionalApi
 	 */
 	protected function _getApi(Varien_Object $payment)
@@ -412,7 +444,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	}
 	/**
 	 * Make the API request and handle any exceptions.
-	 * @param  ApiIBidirectionalApi $api
+	 * @param ApiIBidirectionalApi $api
 	 * @return self
 	 */
 	protected function _sendAuthRequest(Api\IBidirectionalApi $api)
@@ -434,8 +466,8 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	/**
 	 * Update payment objects with details of the auth request and response. Validate
 	 * that a successful response was received.
-	 * @param  ApiIBidirectionalApi $api
-	 * @param  Varien_Object        $payment
+	 * @param ApiIBidirectionalApi $api
+	 * @param Varien_Object        $payment
 	 * @return self
 	 */
 	protected function _handleApiResponse(Api\IBidirectionalApi $api, Varien_Object $payment)

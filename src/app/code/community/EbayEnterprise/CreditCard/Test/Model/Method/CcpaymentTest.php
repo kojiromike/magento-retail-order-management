@@ -49,6 +49,25 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 		return Mage::getModel('sales/order_address', $addrData);
 	}
 	/**
+	 * Test the override of getConfigData for getting cctypes. Should return only
+	 * the available credit card types but in same format as expected if it were
+	 * coming directly from the config.
+	 */
+	public function testGetConfigDataOverride()
+	{
+		$availableCardTypes = array('AE' => 'American Express', 'VI' => 'Visa', 'MC' => 'Master Card');
+		$helper = $this->getHelperMock('ebayenterprise_creditcard', array('getAvailableCardTypes'));
+		$helper->expects($this->any())
+			->method('getAvailableCardTypes')
+			->will($this->returnValue($availableCardTypes));
+
+		$method = Mage::getModel('ebayenterprise_creditcard/method_ccpayment', array('helper' => $helper));
+		$this->assertSame(
+			'AE,VI,MC',
+			$method->getConfigData('cctypes', null)
+		);
+	}
+	/**
 	 * Test when an invalid payload is provided.
 	 */
 	public function testAuthorizeApiInvalidPayload()
@@ -201,15 +220,17 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 		);
 	}
 	/**
-	 * Validate card data when CSE is enabled.
+	 * Validate card data when CSE is enabled. When disabled, uses parent validation
+	 * which is provided by Magento.
 	 * @param  string $infoModel      Model alias for the payment info model
 	 * @param  string $billingCountry
 	 * @param  string $expYear
 	 * @param  string $expMonth
+	 * @param  string $cardType
 	 * @param  bool   $isValid
 	 * @dataProvider dataProvider
 	 */
-	public function testValidateWithEncryptedCardData($infoModel, $billingCountry, $expYear, $expMonth, $isValid)
+	public function testValidateWithEncryptedCardData($infoModel, $billingCountry, $expYear, $expMonth, $cardType, $isValid)
 	{
 		$this->_replaceCheckoutSession();
 
@@ -224,10 +245,26 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 			// actual implementation in some of the payment info models
 			->setQuote($quote)
 			->setOrder($order)
+			->setCcType($cardType)
 			->setCcExpYear($expYear)
 			->setCcExpMonth($expMonth);
 
-		$ccMethod = $this->getModelMock('ebayenterprise_creditcard/method_ccpayment', array('canUseForCountry'));
+		// stub the helper to return a known set of available card types and a
+		// config model with CSE enabled
+		$helper = $this->getHelperMock('ebayenterprise_creditcard', array('getAvailableCardTypes', 'getConfigModel'));
+		$helper->expects($this->any())
+			->method('getAvailableCardTypes')
+			->will($this->returnValue(array('VI' => 'Visa')));
+		$helper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array('useClientSideEncryptionFlag' => true))));
+
+		$ccMethod = $this->getModelMock(
+			'ebayenterprise_creditcard/method_ccpayment',
+			array('canUseForCountry'),
+			false,
+			array(array('helper' => $helper))
+		);
 		$ccMethod->setInfoInstance($info);
 		// mock canUseForCountry call to prevent config dependency
 		$ccMethod->expects($this->any())
@@ -239,11 +276,12 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 		if (!$isValid) {
 			$this->setExpectedException('EbayEnterprise_CreditCard_Exception');
 		}
-		$this->assertSame(
-			$ccMethod,
-			EcomDev_Utils_Reflection::invokeRestrictedMethod($ccMethod, '_validateWithEncryptedCardData')
-		);
+		$this->assertSame($ccMethod, $ccMethod->validate());
 	}
+	/**
+	 * Test assigning data to the payment info object. Ensure correct cc last 4
+	 * is assigned as this is not typical data being submitted.
+	 */
 	public function testAssignData()
 	{
 		$config = $this->buildCoreConfigRegistry(array('useClientSideEncryptionFlag' => true));

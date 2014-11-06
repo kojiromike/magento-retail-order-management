@@ -17,18 +17,23 @@ class EbayEnterprise_CreditCard_Test_Helper_DataTest extends EbayEnterprise_Eb2c
 {
 	/**
 	 * Test getting the ROM tender type for a given Magento CC type via the config registry.
+	 * @param string $ccType Credit card type code
+	 * @dataProvider dataProvider
 	 */
-	public function testGetTenderTypeForCcType()
+	public function testGetTenderTypeForCcType($ccType)
 	{
-		$expectedType = 'VC';
-		$ccType = 'VI';
+		$tenderType = 'VC';
+		$mappedType = 'VI';
 		$helper = $this->getHelperMock('ebayenterprise_creditcard/data', array('getConfigModel'));
 		$helper->expects($this->any())
 			->method('getConfigModel')
 			->will($this->returnValue($this->buildCoreConfigRegistry(
-				array('tenderTypeVi' => $expectedType)
+				array('tenderTypes' => array($mappedType => $tenderType))
 			)));
-		$this->assertSame($expectedType, $helper->getTenderTypeForCcType($ccType));
+		if ($ccType !== $mappedType) {
+			$this->setExpectedException('EbayEnterprise_CreditCard_Exception');
+		}
+		$this->assertSame($tenderType, $helper->getTenderTypeForCcType($ccType));
 	}
 	/**
 	 * Test cleaning the CC Auth XML to remove sensitive data - e.g. CardSecurityCode
@@ -52,5 +57,35 @@ class EbayEnterprise_CreditCard_Test_Helper_DataTest extends EbayEnterprise_Eb2c
 			'<_><EncryptedCardSecurityCode>***</EncryptedCardSecurityCode><EncryptedPaymentAccountUniqueId>***</EncryptedPaymentAccountUniqueId></_>',
 			Mage::helper('ebayenterprise_creditcard')->cleanAuthXml($xml)
 		);
+	}
+	/**
+	 * Test getting credit card types that are available for use with eBay Enterprise
+	 * credit cards. Cards must be configured globally in Magento and mapped to
+	 * ROM tender types.
+	 */
+	public function testGetAvailableCardTypes()
+	{
+		$magePaymentConfig = $this->getModelMock('payment/config', array('getCcTypes'));
+		// getCcTypes returns key/value pairs of CC type code => CC type name for all
+		// credit card types Magento knows about - configured at global/payment/cc/types
+		$magePaymentConfig->expects($this->any())
+			->method('getCcTypes')
+			->will($this->returnValue(array('AE' => 'American Express', 'VI' => 'Visa', 'SO' => 'Solo')));
+
+		// mapping of credit card types in Magento to ROM tender types
+		$mappedTenderTypes = array('AE' => 'AM', 'VI' => 'VC');
+		$config = $this->buildCoreConfigRegistry(array('tenderTypes' => $mappedTenderTypes));
+
+		$helper = $this->getHelperMock('ebayenterprise_creditcard', array('getConfigModel', '_getGlobalPaymentConfig'));
+		$helper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($config));
+		$helper->expects($this->any())
+			->method('_getGlobalPaymentConfig')
+			->will($this->returnValue($magePaymentConfig));
+		// Availabl types consists of types Magento knows about and are mapped to
+		// ROM tender types
+		$availableTypes = array('AE' => 'American Express', 'VI' => 'Visa');
+		$this->assertSame($availableTypes, $helper->getAvailableCardTypes());
 	}
 }

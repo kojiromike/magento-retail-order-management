@@ -40,6 +40,37 @@ Copy this file to productexport.xml and configure the appropriate values below.
 		</jobs>
 	</crontab>
 	<default>
+		<eb2ccore>
+			<feed>
+				<filetransfer_imports>
+					<!--
+					 This configuration controls which files will be trasferred from the
+					 remote SFTP server to be processed by Magento.
+					 The remote_directory specifies where on the remote SFTP server files
+					 should be trasferred from.
+					 The file_pattern specifies a file glob files to be transferred must
+					 match. The file_pattern is optional and if excluded will default
+					 to '*'.
+
+					 Transferring and processing of any of these feeds may be disabled by
+					 removing the configuration for the feed.
+					 -->
+					<inventory>
+						<remote_directory>/Inbox/Product</remote_directory>
+						<file_pattern>*inventatp*_*.xml</file_pattern>
+					</inventory>
+				</filetransfer_imports>
+				<export>
+					<ack>
+						<!--
+						 Limit the waiting time on resending an exported file
+						 that has no imported acknowledgment file yet
+						 -->
+						<resend_time_limit>5</resend_time_limit>
+					</ack>
+				</export>
+			</feed>
+		</eb2ccore>
 		<eb2cproduct>
 			<feed_pim_mapping>
 				<item_map>

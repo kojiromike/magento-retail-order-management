@@ -28,11 +28,6 @@ Copy this file to rom.xml and configure the appropriate values below.
 					<cron_expr>*/15 * * * *</cron_expr>
 				</schedule>
 			</eb2corder_order_create_retry>
-			<eb2corder_consume_order_event_messages>
-				<schedule>
-					<cron_expr>*/1 * * * *</cron_expr>
-				</schedule>
-			</eb2corder_consume_order_event_messages>
 			<!--
 			Configuration for setting the Image Export Cron runtimes
 			 -->
@@ -41,6 +36,14 @@ Copy this file to rom.xml and configure the appropriate values below.
 					<cron_expr>*/15 * * * *</cron_expr>
 				</schedule>
 			</ebayenterprise_productimageexport>
+			<!--
+			Configuration for setting the AMQP queue processing schedule.
+			-->
+			<ebayenterprise_amqp_runner_process_queues>
+				<schedule>
+					<cron_expr>*/5 * * * *</cron_expr>
+				</schedule>
+			</ebayenterprise_amqp_runner_process_queues>
 		</jobs>
 	</crontab>
 	<default>
@@ -54,6 +57,68 @@ Copy this file to rom.xml and configure the appropriate values below.
 				<flatrate_flatrate>ANY_STD</flatrate_flatrate>
 			</shipmap>
 		</eb2ccore>
+		<ebayenterprise_amqp>
+			<!--
+			Configuration for the order events AMQP SDK. Most of this information
+			will be provided by eBay Enterprise. Unless otherwise noted, the
+			provided sample values should suffice for most uses.
+			-->
+			<general>
+				<!--
+				Number of messages the SDK will fetch at one time from a single queue.
+				-->
+				<number_of_messages_to_process>15</number_of_messages_to_process>
+			</general>
+			<connection>
+				<!--
+				`connection_type` specifies the type of connection to establish with the
+				AMQP server. The connection_type must match to a connection
+				class in PhpAmqpLib and be supported the ROM-SDK. Currently supported
+				connection types are:
+				- \PhpAmqpLib\Connection\AMQPConnection
+				- \PhpAmqpLib\Connection\AMQPSSLConnection
+				-->
+				<type>\PhpAmqpLib\Connection\AMQPSSLConnection</type>
+				<!--
+				`connection_context` provides additional connection data. Depending on
+				the type of connection being established, this may need to include
+				additional child nodes required for creating the connection.
+
+				For non-AMQPSSLConnection, can simply be empty.
+				-->
+				<context>
+					<verify_peer>0</verify_peer>
+				</context>
+				<!--
+				Port the AMQP server is listening on. For SSL connections, typically 443.
+				For non-SSL connections, typically 5672.
+				-->
+				<port>443</port>
+				<vhost>/</vhost>
+				<insist>0</insist>
+				<login_method></login_method>
+				<locale>en-US</locale>
+				<timeout>3</timeout>
+				<read_write_timeout>3</read_write_timeout>
+			</connection>
+			<queue>
+				<queue_names>
+					<!--
+					Names of the various queues messages may be sent to. Queue names
+					containing {store_id} will have the placeholder replaced by the
+					current configured store id. More queues can be added to receive
+					messages from additional queues.
+					-->
+					<orders>q.Order.Event.{store_id}</orders>
+				</queue_names>
+				<passive>0</passive>
+				<durable>1</durable>
+				<exclusive>0</exclusive>
+				<auto_delete>0</auto_delete>
+				<nowait>0</nowait>
+				<binding_nowait>0</binding_nowait>
+			</queue>
+		</ebayenterprise_amqp>
 		<ebayenterprise_creditcard>
 			<tender_types>
 				<!--

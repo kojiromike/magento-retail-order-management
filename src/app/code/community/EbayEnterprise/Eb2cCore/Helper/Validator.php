@@ -216,4 +216,108 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		}
 		return $resp;
 	}
+	/**
+	 * Get the param from the request if included in the request in the unencrypted
+	 * state (not replaced by ******). When not included, get the value from
+	 * config, decrypting the value if necessary.
+	 * @param Zend_Controller_Request_Abstract $request
+	 * @param string $param Name of the param that may contain the value
+	 * @param string $useDefaultParam  Name of the param indicating if the value should fallback
+	 * @param string $configPath
+	 * @return string
+	 */
+	public function getEncryptedParamOrFallbackValue(Zend_Controller_Request_Abstract $request, $param, $useDefaultParam, $configPath)
+	{
+		$key = $request->getParam($param);
+		$useDefault = $request->getParam($useDefaultParam);
+		if (is_null($key) || preg_match('/^\*+$/', $key) || $useDefault) {
+			$configSource = $this->getConfigSource($request, $useDefault);
+			$key = $configSource->getConfig($configPath);
+			// As there is a config/default node with a backend_model set for this
+			// config value, Mage_Core_Model_Store->getConfig will auto-decrypt the
+			// value when the config source is a Mage_Core_Model_Store. When the
+			// source is a Mage_Core_Model_Website, this doesn't happen automatically
+			// so the config value needs to be manually decrypted.
+			if ($configSource instanceof Mage_Core_Model_Website) {
+				$key = Mage::helper('core')->decrypt($key);
+			}
+		}
+		return trim($key);
+	}
+	/**
+	 * Get the value from the request or via the config fallback.
+	 * @param Zend_Controller_Request_Abstract $request
+	 * @param string $param Name of the param that may contain the value
+	 * @param string $useDefaultParam  Name of the param indicating if the value should fallback
+	 * @param string $configPath Core config registry key to get a fallback value for
+	 * @return string
+	 */
+	public function getParamOrFallbackValue(Zend_Controller_Request_Abstract $request, $param, $useDefaultParam, $configPath)
+	{
+		$paramValue = $request->getParam($param);
+		$useFallback = $request->getParam($useDefaultParam);
+
+		if (is_null($paramValue) || $useFallback) {
+			return $this->getConfigSource($request, $useFallback)
+				->getConfig($configPath);
+		}
+		return trim($paramValue);
+	}
+	/**
+	 * Get the source of configuration for the request. Should use the store
+	 * or website specified in the request params. If neither is present, should
+	 * use the default store.
+	 * @param Zend_Controller_Request_Abstract $request
+	 * @param bool $useFallback Should the config value fallback to parent value
+	 * @return Mage_Core_Model_Store|Mage_Core_Model_Website
+	 */
+	public function getConfigSource(Zend_Controller_Request_Abstract $request, $useFallback=false)
+	{
+		$store = $request->getParam('store');
+		$website = $request->getParam('website');
+
+		if ($store) {
+			$storeObj = Mage::app()->getStore($store);
+			// specific store view should fall back to website store view is in
+			return $useFallback ? $storeObj->getWebsite() : $storeObj;
+		}
+		if ($website) {
+			$websiteObj = Mage::app()->getWebsite($website);
+			// website should fall back to default store
+			return $useFallback ? Mage::app()->getStore(null) : $websiteObj;
+		}
+		// default to default store
+		return Mage::app()->getStore(null);
+	}
+	/**
+	 * Get the private key value from config or the request. When from config,
+	 * should be decrypted before being returned. This is subtly different from
+	 * getEncryptedParamOrFallbackValue so doesn't use it. Required to fallback
+	 * if the param is empty and not just null, must always be decrypted, and
+	 * will never be replace by /*+/. Close enough to want them to be the same
+	 * but just different enough to no actually make them the same.
+	 * @param Zend_Controller_Request_Abstract $request
+	 * @param string $param
+	 * @param string $useDefaultParam
+	 * @param string $configPath
+	 * @return string
+	 */
+	public function getSftpPrivateKey(Zend_Controller_Request_Abstract $request, $param, $useDefaultParam, $configPath)
+	{
+		$key = $request->getParam($param);
+		$useFallback = $request->getParam($useDefaultParam);
+		// As the private key isn't re-filled out in the admin forms, the empty
+		// value needs to be treated as falling back to the configured value, else
+		// there would be no way to test an already saved key.
+		if (!$key || $useFallback) {
+			$configSource = $this->getConfigSource($request, $useFallback);
+			$key = $configSource->getConfig($configPath);
+			// As there is not config/default node with a backend_model set for this
+			// config node, it will never be auto-magically decrypted by stores.
+			// Hence, it always needs to be decrypted here, no matter what the config
+			// source is.
+			return Mage::helper('core')->decrypt($key);
+		}
+		return $key;
+	}
 }

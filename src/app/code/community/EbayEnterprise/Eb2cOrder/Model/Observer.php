@@ -226,36 +226,6 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 			}
 		}
 	}
-	/*
-	 * Observer AMQP Messages for order events and dispatch additional specific
-	 * events based on the OrderEvent message received.
-	 * @param  Varien_Event_Observer $observer
-	 * @return self
-	 */
-	public function handleOrderEventMessage($observer)
-	{
-		$message = $observer->getEvent()->getMessage();
-		$eventName = $this->_orderEventHelper->getMessageEventName($message->body);
-		$this->_log->logDebug('[%s] Dispatching event %s', array(__CLASS__, $eventName));
-		Mage::dispatchEvent($eventName, array('message' => $message->body));
-		return $this;
-	}
-	/**
-	 * Consume order event messages from the AMQP queue
-	 * @return self
-	 */
-	public function consumeOrderEventMessages()
-	{
-		AmqpAutoload_Autoload::register();
-		$amqpConfig = Mage::getModel('ebayenterprise_amqp/config', array(
-			'config_path' => 'eb2ccore/order_events',
-			'store' => Mage::app()->getStore(),
-		));
-		$consumer = Mage::getModel('ebayenterprise_amqp/consumer', array('config' => $amqpConfig));
-		$consumer->consumeQueue();
-		AmqpAutoload_Autoload::unregister();
-		return $this;
-	}
 	/**
 	 * Attempt to cancel the order.
 	 * Check if the order was actually canceled before setting the new status.

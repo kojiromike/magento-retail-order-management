@@ -39,14 +39,4 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_EventTest
 			$this->eventHelper->getMessageEventName($message)
 		);
 	}
-	/**
-	 * Test that when an event name cannot be extracted from an XML message, an
-	 * appropriate exception is thrown.
-	 */
-	public function testGetMessageEventNameBadMessage()
-	{
-		$message = '<_></_>';
-		$this->setExpectedException('EbayEnterprise_Amqp_Exception_Invalid_Message');
-		$this->eventHelper->getMessageEventName($message);
-	}
 }

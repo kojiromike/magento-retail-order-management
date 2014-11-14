@@ -43,10 +43,6 @@
 		},
 		{
 			"type": "vcs",
-			"url": "/home/stack/git/magento-amqp.git"
-		},
-		{
-			"type": "vcs",
 			"url": "/home/stack/git/magento-file-transfer.git"
 		},
 		{

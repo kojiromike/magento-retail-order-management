@@ -42,7 +42,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"require": {
-		"ebayenterprise/magento-amqp": "~1.0",
 		"ebayenterprise/magento-file-transfer": "~1.0",
 		"ebayenterprise/magento-log": "~1.0",
 		"ebayenterprise/php-dom": "~1.0",

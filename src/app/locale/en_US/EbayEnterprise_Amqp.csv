@@ -1,0 +1,6 @@
+"EbayEnterprise_Amqp_No_Test_Message_Received", "No test messages received."
+"EbayEnterprise_Amqp_Api_Validator_Invalid_Configuration", "Missing or invalid Order Events AMQP settings: %s"
+"EbayEnterprise_Amqp_Api_Validator_No_Queues_Configured", "No queues configured"
+"EbayEnterprise_Amqp_Api_Validator_Connection_Failed", "AMQP connection failed"
+"EbayEnterprise_Amqp_Api_Validator_Connection_Success", "AMQP connection successful"
+"EbayEnterprise_Amqp_Api_Validator_Unable_To_Validate", "Unable to validate connection"

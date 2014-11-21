@@ -458,6 +458,10 @@ These values should be included in the set of `CustomAttributes` for a product a
 </Item>
 ```
 
+| Important |
+|:----------|
+| Magento does not support changing an Attribute Set of a product once it's been set. We _strongly_ discourage changing a Product's Attribute Sets via Product Import Feeds. Unpredictable results will likely occur. |
+
 ## Import Products into Different Magento Websites
 
 The combination of incoming catalog_id, gsi_client_id and gsi_store_id are mapped to Magento Websites.

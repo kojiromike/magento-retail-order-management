@@ -13,14 +13,17 @@
   @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <!--
-Magento to Exchange Platform Order Custom Attribute Mappings
+Magento Retail Order Management (ROM) Extension order custom attributes configuration
+
+You can use this file as a starting point for your implementation by renaming this file to `ordercustomattributes.xml`.
+Carefully review all options to ensure they match you specific implementation.
 -->
 <config>
 	<default>
 		<eb2corder>
 			<!--
-			This is the place where you will be able to map custom attributes for
-			an order create request for each level: order, order item and order context
+			Product Import Mapping: Detailed documentation can be found in the Product Import module's documentation
+			located at: ../app/code/community/EbayEnterprise/Eb2cOrder/README.md (Section: Order Custom Attributes)
 			-->
 			<custom_attribute_mappings>
 				<order_level>

@@ -13,25 +13,27 @@
   @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <!--
-Magento to ROM Product Import Mappings
+Magento Retail Order Management (ROM) Extension product import configuration
 
-The below configurations translate from ROM to Magento.
-Copy this file to productimport.xml and configure the appropriate values below.
+You can use this file as a starting point for your implementation by renaming this file to `productimport.xml`.
+Carefully review all options to ensure they match you specific implementation.
 -->
 <config>
 	<default>
 		<eb2ccore>
 			<feed>
 				<filetransfer_imports>
+					<!--
+					Pricing Remote Directory: List the directories to fetch pricing feeds from. Replace {store_id}
+					with the actual value.
+					-->
 					<item_pricing>
-						<!--
-							Replace 'MAGT1' with your own ROM Store ID.
-						  -->
-						<remote_directory>/Inbox/Channel/MAGT1/Pricing</remote_directory>
+						<remote_directory>/Inbox/Channel/{store_id}/Pricing</remote_directory>
 					</item_pricing>
 				</filetransfer_imports>
 				<!--
-				Incoming giftCardTenderCodes must be matched to a known Magento giftcard type.
+				Gift Card Tenders: Map ROM gift card tender types to the Magento gift card type. Node names must match
+				ROM gift card tender types. Values must match Magento gift card type (virtual, physical or combined).
 				-->
 				<gift_card_tender_code>
 					<SD>virtual</SD>
@@ -44,9 +46,9 @@ Copy this file to productimport.xml and configure the appropriate values below.
 		</eb2ccore>
 		<ebayenterprise_catalog>
 			<!--
-			WARNING: If an incoming ROM Code is not explicitly mapped,
-			it will be silently ignored by the import process.
-			 -->
+			Product Import Mapping: Detailed documentation can be found in the Product Import module's documentation
+			located at: ../app/code/community/EbayEnterprise/ProductImport/README.md#product-import-mapping
+			-->
 			<feed_attribute_mappings>
 				<gift_message_available>
 					<class>ebayenterprise_catalog/map</class>

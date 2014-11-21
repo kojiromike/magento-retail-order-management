@@ -1,20 +1,19 @@
-![eBay icon](static/logo-vert.png)
+![eBay Enterprise](static/logo-vert.png)
 
-#Retail Order Management (ROM) Magento Extension Troubleshooting Guide
+**Magento Retail Order Management Extension**
+# Troubleshooting Guide
 
-- [Intended Audience](#intended-audience)
-- [System Notes and Limitations](#system-notes-and-limitations)
-  - [Combinations of Services](#combinations-of-services)
-  - [ROM and Magento Order Status](#rom-and-magento-order-status)
-  - [Product Attribute Sets](#product-attribute-sets)
-  - [Gift Wrapping/ Messaging](#gift-wrapping-messaging)
-- [Common Problems - Configuration](#common-problems---configuration)
+The intended audience for this guide is Magento system integrators. You should review the [Magento Retail Order Management Extension Overview](OVERVIEW.md) and [Installation and Configuration Guide](INSTALL.md) before proceeding.
+
+Knowledge of [TBD], is assumed in this document.
+
+## Contents
+
+- [Common Configuration Problems](#common-configuration-problems)
   - [SFTP Credentials](#sftp-credentials)
   - [Web Services](#web-services)
-  - [XML Configuration](#xml-configuration)
   - [Order Create Retry](#order-create-retry)
-  - [Getting the Client IP](#getting-the-client-ip)
-- [Troubleshooting: Using the System and Exception Logs](#troubleshooting-using-the-system-and-exception-logs)
+- [Using the System and Exception Logs](#using-the-system-and-exception-logs)
   - [ROM Extended Magento Logging](#rom-extended-magento-logging)
   - [Reading the System Log](#reading-the-system-log)
     - [Log Format](#log-format)
@@ -22,77 +21,20 @@
   - [Log Messages: Examples](#log-messages-examples)
   - [Reading the Exception Log](#reading-the-exception-log)
 
+## Common Configuration Problems
 
-##Intended Audience
-The intended audience for this guide is systems integrators with extensive experience with Magento and XML programming experience.
-
-Knowledge of Magento Administrative Configuration functions, and also of Magento XML Configuration Files, is assumed in this document.
-
----
-
-##System Notes and Limitations
-
-###Combinations of Services
-While the ROM Extension is an interrelated set of modules, some modules can be disabled independently.
-
-You can disable the following modules:
-
-1. Customer Service
-2. Address Validation
-3. Payments
-
-You can disable Transactional Emails by configuring the ROM Extension to use the Magento Transactional Email handler instead of the eBay Enterprise Email.
-
-
-###ROM and Magento Order Status
-The ROM Extension overrides Magento Order Status to ensure synchronization with eBay Enterprise ROM Services. As such, it is not compatible with any other extension that also manipulates Order Status.
-
-Additionally, extensions depending upon Order Status may not behave as expected. ROM Service offers many more types of status than the standard Magento set.
-
-###Product Attribute Sets
-Magento does not support changing an Attribute Set of a product once it's been set. We _strongly_ discourage changing a Product's Attribute Sets via Product Import Feeds. Unpredictable results will likely occur.
-
-###Gift Wrapping/ Messaging
-The ROM Extension fully supports product level gift messaging and gift wrapping.
-
-The extension does not support order level gift message and wrapping. These options must be disabled (```System->Configuration->Sales->Gift Options```).
-
-Make sure Enterprise Giftwrapping is imported under (```Sales->Gift Wrapping```).
-Also ensure the two newly added field are available: Sku and Tax Class.
-
----
-##Common Configuration Problems
 Configuration issues are the most common cause of problems.
 
 ### SFTP Credentials
+
 The private key must be pasted as-is, with newlines. Note that the Public Key (Fig. 1) is displayed as soon as the private key is correctly installed. Use the Test SFTP Connection button to ensure you are able to connect.
 
 ![ts-privatekey](static/rom-ts-privatekey-config.png)
 
-### Web Services:
-The API Key (Fig. 2) is obscured, so the only way to really know if it is correct is to use the Test API Connection.
+### Web Services
+The API Key (Fig. 2) is obscured, so the only way to ensure it is correct is to use the Test API Connection.
 
 ![ts-webservices](static/rom-ts-webservices-config.png)
-
-### XML Configuration:
-There are several XML configuration files installed to ```app/etc``` which control various aspects of the extensions' behavior. For complete details, consult [Installation and Configuration of the eBay Enterprise Retail Order Management Magento Extension](INSTALL.md).
-
-You will need:
-
-* ```rom.xml```, which contains core configuration details.
-* _One of_: ```productexport.xml``` (Using Magento as a Product Information Manager ) ```productimport.xml``` (Magento receives feeds from eBay Enterprise Retail Order Management Service). Unpredictable results will occur if you have _both_ of these files installed.
-
-You may need:
-
-* ```ordercustomattributes.xml``` If you are implementing any custom attributes for _orders_. Consult [Mapping Order Create Custom Attributes](ORDER_CUSTOM_ATTRIBUTES.md) for full details.
-
-There are two places that require configuration and enabling for ROM Extension Payments:
-
-1. System Configuration->Retail Order Management->Payments
-2. System Configuration->Payment Methods->eBay Enterprise Credit Card
-
-#### Ensure that Payments are enabled (Fig. 3) ...
-![ts-payments](static/rom-ts-payments-config.png)
 
 ### Order Create Retry
 
@@ -108,40 +50,23 @@ The warning message will look something like this:
 
 In this example, Magento Order 00054100000031 will need manual attention in order to be processed.
 
-### Getting the Client IP
+## Using the System and Exception Logs
 
-The Fraud Detection module requires the client IP address. Compliant browsers send this in the `REMOTE_ADDR` header, so if the client is connected directly to the web server you do not need to do anything; however, in a load balancer/reverse proxy setup you may need to set `remote_addr_headers` in local.xml to get the right value from the reverse proxy. This is also documented in app/etc/local.xml.additional, included with Magento.
-
-```xml
-<config>
-    <global>
-        <remote_addr_headers>
-            <header1>HTTP_X_REAL_IP</header1>
-            <header2>HTTP_X_FORWARDED_FOR</header2>
-        </remote_addr_headers>
-    </global>
-</config>
-```
-
-The above will cause Magento to look first in the specified HTTP request headers before falling back to `REMOTE_ADDR`.
-
----
-
-##Troubleshooting: Using the System and Exception Logs
 Troubleshooting typically involves reviewing configuration options and occasionally enabling logging in order to review system and exception logs.
 
-By default, Magento ships with logging turned _off_. During System Implementation, setting the Log Level to ```INFO``` should suffice. ```DEBUG``` is intended for system developers, and is extremely verbose - it may introduce more noise into the logs than desired for most needs.
+By default, Magento ships with logging turned off. During system implementation, setting the Log Level to ```INFO``` should suffice. ```DEBUG``` is intended for system developers, and is extremely verbose - it may introduce more noise into the logs than desired for most needs.
 
+### ROM Extended Magento Logging
 
-###ROM Extended Magento Logging
-The Magento ROM Extension provides expanded logging capabilities to help diagnose configuration issues and other problems. The image below illustrates the additional options. These options and their settings are  covered in the document _Installation and Configuration of the eBay Enterprise Retail Order Management Magento Extension_.
+The Magento Retail Order Management Extension provides expanded logging capabilities to help diagnose configuration issues and other problems.
 
-The System logs messages based on a Log Level set in the configuration. Depending upon the configuration, the system will log when it encounters an error, or when it issues a request to an outside services, when it receives a message, etc.
+The system logs messages based on a Log Level set in the configuration. Depending upon the configuration, the system will log when it encounters an error, or when it issues a request to an outside services, when it receives a message, etc.
 
 ![rom-config icon](static/rom-ov-log-config.png)
 
-###Reading the System Log
-As the ROM Extension interacts with continuously evolving external systems, it is difficult to quantify every possible message that may be received. Instead, we rely on the external systems to return actionable error messages, which are placed into the System Log.
+### Reading the System Log
+
+As the extension interacts with continuously evolving external systems, it is difficult to quantify every possible message that may be received. Instead, we rely on the external systems to return actionable error messages, which are placed into the System Log.
 
 The actual messages may change over time. However, armed with a general knowledge of the logs and their formats, troubleshooting most problems should be straightforward.
 
@@ -154,7 +79,7 @@ In this section, we will review:
 > **_IMPORTANT!_** During system testing you should monitor requests and responses to ensure that the remote host is correctly configured for your installation. The ROM Extension requires corresponding configuration both in Magento and on the remote host. The remote host will provide helpful messages that are needed to resolve configuration issues.
 
 
-####Log Format
+#### Log Format
 The system log is a plain text file, with the general format of:
 
 ```
@@ -167,7 +92,7 @@ where:
 * ```[Module_Class(optional ::Method)]``` indicates which Module emitted the entry
 * ```Message``` is the text of the log message - which can span multiple lines
 
-####Monitoring and Viewing Logs
+#### Monitoring and Viewing Logs
 As the log file is a plain text file, any editor will be able to peruse it. You can also
 
 ```
@@ -185,9 +110,9 @@ Of note:
 * Messages can span multiple lines.
 * Some XML requests or responses can be large; it will help to have a reliable XML formatter into which you can paste XML log message that are difficult to parse by eye.
 
-####Example: Inventory Service Requests and Response
+#### Example: Inventory Service Requests and Response
 
-#####Quantity
+##### Quantity
 
 * Request: this is an outbound Quantity Request, issued when an item is added to cart:
 

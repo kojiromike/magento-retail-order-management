@@ -13,48 +13,43 @@
   @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <!--
-Magento to Exchange Platform Product Export Mappings
+Magento Retail Order Management (ROM) Extension product export configuration
 
-This configuration file controls exporting data from Magento to the Exchange Platform Product Hub.
-Copy this file to productexport.xml and configure the appropriate values below.
+You can use this file as a starting point for your implementation by renaming this file to `productexport.xml`.
+Carefully review all options to ensure they match you specific implementation.
 -->
 <config>
+	<!--
+	Cron Jobs for Product Export
+	-->
 	<crontab>
 		<jobs>
 			<!--
-			Configuration for setting the Product Export Cron runtimes
+			Product Export: This job will export the item master, pricing and content feeds to the Product Hub.
+
+			Suggested Schedule: Once every fifteen minutes
 			-->
 			<eb2cproduct_pim_export_feed>
 				<schedule>
 					<cron_expr>*/15 * * * *</cron_expr>
 				</schedule>
 			</eb2cproduct_pim_export_feed>
-			<!--
-			Configuration for setting the Image Export Cron runtimes
-			-->
-			<eb2cproduct_image_export_feed>
-				<schedule>
-					<cron_expr>*/15 * * * *</cron_expr>
-				</schedule>
-			</eb2cproduct_image_export_feed>
 		</jobs>
 	</crontab>
 	<default>
 		<ebayenterprise_catalog>
+			<!--
+			Product Export Mapping: Detailed documentation can be found in the Product Export module's documentation
+			located at: ../app/code/community/EbayEnterprise/ProductExport/README.md#product-export-mapping
+			-->
 			<feed_pim_mapping>
 				<item_map>
 					<mappings>
-						<!--
-							These nodes describe how we relate product information in Magento to data in the feed files.
-							By convention, node names starting with an underscore indicate mapping of data that is not a product
-							attribute, and other names are expected to be eav attribute codes.
-							-->
 						<_gsi_client_id>
 							<class>ebayenterprise_catalog/pim</class>
 							<type>helper</type>
 							<method>passGsiClientId</method>
 							<xml_dest>@gsi_client_id</xml_dest>
-							<!-- Always relative to the item node. Never starts with /. -->
 							<translate>0</translate>
 						</_gsi_client_id>
 						<_operation_type>

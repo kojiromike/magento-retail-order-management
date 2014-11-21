@@ -1,4 +1,6 @@
 ![eBay logo](docs/static/logo-vert.png)
+
+**Magento Retail Order Management Extension**
 # eBay Enterprise Contribution Guide
 
 - [Introduction](#introduction)
@@ -35,5 +37,8 @@ The eBay Enterprise development team will review all issues and contributions su
 
 All Submissions you make to eBay Enterprise through GitHub are subject to the following terms and conditions:
 
-1. You grant eBay Enterprise perpetual, worldwide, non-exclusive, no charge, royalty free, irrevocable license under your applicable copyrights and patents to reproduce, prepare derivative works of, display, publically perform, sublicense and distribute any feedback, ideas, code, or other information (“Submission”) you submit through GitHub.
+1. You grant eBay Enterprise perpetual, worldwide, non-exclusive, no charge, royalty free, irrevocable license under your applicable copyrights and patents to reproduce, prepare derivative works of, display, publicly perform, sublicense and distribute any feedback, ideas, code, or other information (“Submission”) you submit through GitHub.
 1. Your Submission is an original work of authorship and you are the owner or are legally entitled to grant the license stated above.
+
+- - -
+Copyright © 2014 eBay Enterprise, Inc.

@@ -101,3 +101,9 @@ $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'tax_code', array(
 	'visible_on_front' => false,
 	'used_in_product_listing' => true
 ));
+
+/**
+ * Renamed EbayEnterprise_Eb2cProduct module to EbayEnterprise_Catalog.
+ */
+/** @see Mage_Core_Model_Resource_Setup::deleteTableRow() **/
+$installer->deleteTableRow('core/resource', 'code', 'eb2cproduct_setup');

@@ -79,15 +79,15 @@
 					</eb2corder_update_event_order_status_backorder>
 				</observers>
 			</ebayenterprise_order_event_back_order>
-			<ebayenterprise_order_event_rejected>
+			<ebayenterprise_amqp_message_order_rejected>
 				<observers>
 					<eb2corder_update_event_order_status_rejected>
 						<type>model</type>
 						<class>eb2corder/observer</class>
-						<method>updateRejectedStatus</method>
+						<method>processAmqpMessageOrderRejected</method>
 					</eb2corder_update_event_order_status_rejected>
 				</observers>
-			</ebayenterprise_order_event_rejected>
+			</ebayenterprise_amqp_message_order_rejected>
 			<ebayenterprise_order_event_cancel>
 				<observers>
 					<eb2corder_update_event_order_status_cancel>
@@ -259,10 +259,6 @@
 			<email>
 				<transactional_emailer>'mage'</transactional_emailer>
 			</email>
-			<order_management>
-				<event_order_status_backorder>holded</event_order_status_backorder>
-				<event_order_status_rejected>canceled</event_order_status_rejected>
-			</order_management>
 		</eb2ccore>
 		<eb2corder>
 			<api>
@@ -300,16 +296,6 @@
 			<shipping>
 				<tax_class>93000</tax_class>
 			</shipping>
-			<order_management>
-				<event_order_status_backorder>holded</event_order_status_backorder>
-				<event_order_status_rejected>canceled</event_order_status_rejected>
-				<event_order_status_canceled>canceled</event_order_status_canceled>
-				<event_order_status_payment_authfailed>canceled</event_order_status_payment_authfailed>
-				<cancel_reasons>
-					<eventOrderStatusCanceled>InvalidBillingAddress InvalidShippingAddress FraudLikely CancelDuplicateOrder CancelInventoryDiscrepancy CancelCustomerInitiated CancelGeneric FTCCancel ZeroCostReship CVSAutoCancel CODAutoCancel CancelMXCustomerAbandon CancelMXCreditCustomerRefusal CancelMXStoreInactivity CancelMXOutOfStock CustomerRequested STSProductReceivedDamagedExterior STSPackageNotReceived STSProductReceivedDamagedInterior STSWrongProductReceived STSProductNotReceived PhoneActivationDeclined SystemError</eventOrderStatusCanceled>
-					<eventOrderStatusPaymentAuthfailed>CancelCredit CreditFailure</eventOrderStatusPaymentAuthfailed>
-				</cancel_reasons>
-			</order_management>
 			<detail_mapping>
 				<address_data>
 					<id>

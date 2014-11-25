@@ -45,10 +45,6 @@ class EbayEnterprise_Eb2cOrder_Model_Config extends EbayEnterprise_Eb2cCore_Mode
 		'xsd_file_create'                => 'eb2corder/xsd/create_file',
 		'xsd_file_detail'                => 'eb2corder/xsd/detail_file',
 		'xsd_file_search'                => 'eb2corder/xsd/search_file',
-		'event_order_status_backorder'   => 'eb2corder/order_management/event_order_status_backorder',
-		'event_order_status_rejected'    => 'eb2corder/order_management/event_order_status_rejected',
-		'event_order_status_canceled'      => 'eb2corder/order_management/event_order_status_canceled',
-		'event_order_status_payment_authfailed' => 'eb2corder/order_management/event_order_status_payment_authfailed',
 		'event_cancel_reasons'           => 'eb2corder/order_management/cancel_reasons'
 	);
 }

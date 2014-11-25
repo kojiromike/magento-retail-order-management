@@ -74,4 +74,44 @@ class EbayEnterprise_Eb2cOrder_Helper_Event
 		}
 		throw new EbayEnterprise_Amqp_Exception_Invalid_Message('Could not extract event name from message.');
 	}
+	/**
+	 * Attempt to cancel an order.
+	 * @param  Mage_Sales_Model_Order $order
+	 * @param  string                 $eventName
+	 * @return self
+	 */
+	public function attemptCancelOrder(Mage_Sales_Model_Order $order, $eventName)
+	{
+		try {
+			$order->cancel()->save();
+			$this->_logger->logDebug('[%s]: Canceling order %s', array(__CLASS__, $order->getIncrementId()));
+		} catch (Exception $e) {
+			// Catching any exception that might be thrown due to calling cancel method on the order object.
+			$this->_logger->logWarn(
+				'[%s] Exception "%s" was thrown while canceling order #: %s for the following event %s.',
+				array(__CLASS__, $e->getMessage(), $order->getIncrementId(), $eventName)
+			);
+		}
+		return $this;
+	}
+	/**
+	 * Attempt to hold an order.
+	 * @param  Mage_Sales_Model_Order $order
+	 * @param  string                 $eventName
+	 * @return self
+	 */
+	public function attemptHoldOrder(Mage_Sales_Model_Order $order, $eventName)
+	{
+		try {
+			$order->hold()->save();
+			$this->_logger->logDebug('[%s]: Holding order %s', array(__CLASS__, $order->getIncrementId()));
+		} catch (Exception $e) {
+			// Catching any exception that might be thrown due to calling hold method on the order object.
+			$this->_logger->logWarn(
+				'[%s] Exception "%s" was thrown while holding order #: %s for the following event %s.',
+				array(__CLASS__, $e->getMessage(), $order->getIncrementId(), $eventName)
+			);
+		}
+		return $this;
+	}
 }

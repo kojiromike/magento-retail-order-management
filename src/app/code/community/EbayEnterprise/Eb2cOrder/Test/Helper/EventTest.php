@@ -39,4 +39,39 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_EventTest
 			$this->eventHelper->getMessageEventName($message)
 		);
 	}
+	/**
+	 * Attempt to cancel the order.
+	 * Check if the order was actually canceled before setting the new status.
+	 */
+	public function testAttemptCancelOrder()
+	{
+		$eventName = 'someevent';
+
+		$order = $this->getModelMock('sales/order', array('cancel', 'save'));
+		$order->expects($this->once())
+			->method('cancel')
+			->will($this->returnSelf());
+		$order->expects($this->once())
+			->method('save')
+			->will($this->returnSelf());
+
+		$this->eventHelper->attemptCancelOrder($order, $eventName);
+	}
+	/**
+	 * Log a warning if there's an exception and continue on.
+	 */
+	public function testAttemptCancelOrderException()
+	{
+		$eventName = 'someevent';
+
+		$order = $this->getModelMock('sales/order', array('cancel', 'save'));
+		$order->expects($this->once())
+			->method('cancel')
+			->will($this->returnSelf());
+		$order->expects($this->once())
+			->method('save')
+			->will($this->throwException(Mage::exception('Mage_Core', 'some error')));
+
+		$this->eventHelper->attemptCancelOrder($order, $eventName);
+	}
 }

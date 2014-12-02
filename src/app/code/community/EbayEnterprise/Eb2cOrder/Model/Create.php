@@ -490,7 +490,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$pricing->appendChild($dutyFragment);
 		}
 		// End Duty
-		$orderItem->createChild('ShippingMethod', Mage::helper('eb2ccore')->lookupShipMethod($order->getShippingMethod()));
+		$orderItem->createChild(
+			'ShippingMethod',
+			Mage::helper('eb2ccore')->lookupShipMethod($order->getShippingMethod()),
+			array('displayText' => $order->getShippingDescription())
+		);
 		$this->_buildEstimatedDeliveryDate($orderItem, $item);
 
 		$this->_buildGifting($orderItem, $item, 'item');

@@ -29,29 +29,27 @@ class EbayEnterprise_Rom_Reset_Export_Cutoff_Date extends Mage_Shell_Abstract
 	{
 		$args = array_keys($this->_args);
 
-		if (count(array_intersect($args, array('help', '--help', '-h'))) > 0) {
-			echo $this->usageHelp();
-			return 0;
-		} elseif (count($args) > 1) {
+		if (count($args) !== 1) {
 			echo $this->usageHelp();
 			return 1;
-		} else {
-			if (count(array_intersect($args, array('reset', '--reset', '-r'))) > 0) {
-				Mage::getModel('core/config_data')
-					->addData(
-						array(
-							'path' => $this::PIM_EXPORT_FEED_CUTOFF_DATE_PATH,
-							'value' => '',
-							'scope' => 'default',
-							'scope_id' => 0,
-						)
+		} elseif (count(array_intersect($args, array('help', '--help', '-h'))) > 0) {
+			echo $this->usageHelp();
+			return 0;
+		} elseif (count(array_intersect($args, array('reset', '--reset', '-r'))) > 0) {
+			Mage::getModel('core/config_data')
+				->addData(
+					array(
+						'path' => self::PIM_EXPORT_FEED_CUTOFF_DATE_PATH,
+						'value' => '',
+						'scope' => 'default',
+						'scope_id' => 0,
 					)
-					->save();
+				)
+				->save();
 				printf("cutoff date has been reset\n");
-			} else {
+		} else {
 				echo $this->usageHelp();
 				return 1;
-			}
 		}
 	}
 

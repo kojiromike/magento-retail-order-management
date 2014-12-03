@@ -106,14 +106,6 @@
 			</eb2cinventory>
 		</helpers>
 		<events>
-			<inventory_feed_processing_complete>
-				<observers>
-					<eb2c_reindex_all>
-						<class>eb2ccore/indexer</class>
-						<method>reindexAll</method>
-					</eb2c_reindex_all>
-				</observers>
-			</inventory_feed_processing_complete>
 			<sales_quote_collect_totals_before>
 				<observers>
 					<EbayEnterprise_Eb2cInventory_observer>

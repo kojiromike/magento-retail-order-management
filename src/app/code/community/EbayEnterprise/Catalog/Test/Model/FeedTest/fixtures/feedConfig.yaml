@@ -1,6 +1,4 @@
 config:
-  global/events/product_feed_processing_complete/observers/eb2c_reindex_all/class: 'EbayEnterprise_Eb2cCore_Test_Model_FeedTest'
-  global/events/product_feed_processing_complete/observers/eb2c_reindex_all/method: 'stubObserver'
   default/eb2ccore/general/client_id: 'MAGTNA'
   default/eb2ccore/general/catalog_id: '45'
   default/ebayenterprise_catalog/pricing_feed/local_path: 'var/eb2c/pricing'

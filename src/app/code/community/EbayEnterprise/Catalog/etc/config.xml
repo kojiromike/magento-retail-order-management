@@ -54,14 +54,6 @@
 					</lock_readonly_attributes>
 				</observers>
 			</catalog_product_edit_action>
-			<product_feed_processing_complete>
-				<observers>
-					<eb2c_reindex_all>
-						<class>eb2ccore/indexer</class>
-						<method>reindexAll</method>
-					</eb2c_reindex_all>
-				</observers>
-			</product_feed_processing_complete>
 			<product_feed_complete_error_confirmation>
 				<observers>
 					<eb2c_error_confirmations>

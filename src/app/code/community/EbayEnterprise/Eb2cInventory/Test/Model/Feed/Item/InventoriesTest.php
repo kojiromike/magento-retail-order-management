@@ -55,9 +55,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 	 */
 	public function testFeedProcessing()
 	{
-		$indexer = $this->getModelMockBuilder('eb2ccore/indexer')->disableOriginalConstructor()->getMock();
-		$this->replaceByMock('model', 'eb2ccore/indexer', $indexer);
-
 		$fileDetails = array('local_file' => '/Mage/var/local/file.xml');
 		$invFeed = $this->getModelMockBuilder('eb2cinventory/feed_item_inventories')
 			->disableOriginalConstructor()

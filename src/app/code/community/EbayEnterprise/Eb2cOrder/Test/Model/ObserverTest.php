@@ -303,57 +303,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		$this->assertSame($this->shipment, Mage::registry('current_shipment'));
 	}
 	/**
-	 * Procedural test for EbayEnterprise_Eb2cOrder_Model_Observer::updateBackOrderStatus
-	 * method stating that depending on the provider parameter the hold and save method
-	 * the Mock order object will be called accordingly, when the provider parameter $isException
-	 * is true, the save method will throw a know exception.
-	 * @param int $id
-	 * @param bool $isException flag to determine when to mock the sales/order::save
-	 *        method to throw an exception
-	 * @dataProvider dataProvider
-	 */
-	public function testUpdateBackOrderStatus($id, $isException, $xmlFilePath)
-	{
-		$message = file_get_contents(__DIR__ . $xmlFilePath, true);
-		$exceptionMsg = 'Simulate Backordered Status Fail to save order';
-
-		$orderMock = $this->getModelMock('sales/order', array('save', 'hold'));
-		$orderMock->expects($this->once())
-			->method('save')
-			->will(
-				$isException ? $this->throwException(Mage::exception('Mage_Core', $exceptionMsg)) : $this->returnSelf()
-			);
-		$orderMock->expects($this->once())
-			->method('hold')
-			->will($this->returnSelf());
-		$orderMock->setId($id);
-
-		$collection = Mage::helper('eb2ccore')->getNewVarienDataCollection();
-		$collection->addItem($orderMock);
-
-		$helperMock = $this->getHelperMock('eb2corder/data', array('getOrderCollectionByIncrementIds'));
-		$helperMock->expects($this->any())
-			->method('getOrderCollectionByIncrementIds')
-			->will($this->returnValue($collection));
-		$this->replaceByMock('helper', 'eb2corder', $helperMock);
-
-		$eventObserver = $this->_buildEventObserver(array('message' => $message));
-
-		Mage::getModel('eb2corder/observer')->updateBackOrderStatus($eventObserver);
-	}
-	/**
-	 * Test that the event 'ebayenterprise_order_event_back_order' is defined.
-	 */
-	public function testBackOrderEventIsDefined()
-	{
-		EcomDev_PHPUnit_Test_Case_Config::assertEventObserverDefined(
-			'global',
-			'ebayenterprise_order_event_back_order',
-			'eb2corder/observer',
-			'updateBackOrderStatus'
-		);
-	}
-	/**
 	 * Test that the event 'ebayenterprise_amqp_message_order_rejected' is defined.
 	 */
 	public function testRejectedEventIsDefined()

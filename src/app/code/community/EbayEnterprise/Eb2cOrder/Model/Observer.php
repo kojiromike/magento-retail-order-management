@@ -128,22 +128,6 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 		return $this;
 	}
 	/**
-	 * Listened to the event 'ebayenterprise_order_event_back_order' when it get
-	 * dispatch in order to consume and extract order increment ids load a collection
-	 * with it and then proceed to update each order state and status to 'holded'
-	 * and the configured status respectively.
-	 * @param Varien_Event_Observer $observer
-	 * @return self
-	 */
-	public function updateBackOrderStatus(Varien_Event_Observer $observer)
-	{
-		$this->_holdOrder(
-			$this->_loadOrdersFromXml(trim($observer->getEvent()->getMessage())),
-			$observer->getEvent()->getName()
-		);
-		return $this;
-	}
-	/**
 	 * Consume the event 'ebayenterprise_amqp_message_order_rejected'. Pass the payload
 	 * from the event down to the 'eb2corder/orderrejected' instance. Invoke the process
 	 * method on the 'eb2corder/orderrejected' instance.
@@ -190,18 +174,6 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 		return $orderHelper->getOrderCollectionByIncrementIds(
 			$orderHelper->extractOrderEventIncrementIds($xml)
 		);
-	}
-	/**
-	 * Attempt to  hold each order from the collection and simply logs any exception that get thrown.
-	 * @param  Varien_Data_Collection $orders
-	 * @param  string $eventName
-	 * @return self
-	 */
-	protected function _holdOrder(Varien_Data_Collection $orders, $eventName)
-	{
-		foreach ($orders as $order) {
-			$this->_orderEventHelper->attemptHoldOrder($order, $eventName);
-		}
 	}
 	/**
 	 * Listens to the 'ebayenterprise_order_event_shipment_confirmation' event in order to

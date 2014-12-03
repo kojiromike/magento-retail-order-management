@@ -68,7 +68,6 @@ Much of the support for order events consists of updating the order to be in an 
 
 | Order Event | Description |
 |-------------|-------------|
-| BackOrder   | Orders will be placed into a "holded" state in Magento and the status [configured for Backorder](#order-event-to-magento-status-mappings). |
 | Cancel      | Orders will be canceled and the status will be set to what is configured for the following reasons: [Full Order Cancel](#order-event-to-magento-status-mappings) and [Payment Authorization Failure](#order-event-to-magento-status-mappings) |
 | Rejected    | Orders will be canceled and the status will be set to what is configured in the administrative configuration section. |
 | Shipment Confirmation | Shipments will be added to Magento Orders. If Orders have invoices and the shipment items are not partial then order status will become `complete`. However, if the order has no invoices or the order has partial shipments, then the order status will be set to `processing`. |

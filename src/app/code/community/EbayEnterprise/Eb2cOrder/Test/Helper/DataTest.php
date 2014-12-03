@@ -340,51 +340,6 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 		);
 	}
 	/**
-	 * Test that the method EbayEnterprise_Eb2cOrder_Helper_Data::getOrderStatusOptionArrayByState
-	 * when invoked with a passing order status state of 'holded' will return
-	 * an array of key label and value of all order status related to the backorder order status.
-	 */
-	public function testGetOrderStatusOptionArrayByState()
-	{
-		$state = Mage_Sales_Model_Order::STATE_HOLDED;
-		$optionArray = array(
-			array(
-				'value' => 'backordered',
-				'label' => 'Backordered'
-			),
-			array(
-				'value' => 'holded',
-				'label' => 'On Hold'
-			),
-			array(
-				'value' => 'ready_for_pickup',
-				'label' => 'Ready For Pickup'
-			),
-			array(
-				'value' => 'unexpected_backorder',
-				'label' => 'Unexpected BackOrder'
-			),
-		);
-
-		$orderStatusCollection = $this->getResourceModelMock(
-			'sales/order_status_collection',
-			array('joinStates', 'addStateFilter', 'toOptionArray')
-		);
-		$orderStatusCollection->expects($this->once())
-			->method('joinStates')
-			->will($this->returnSelf());
-		$orderStatusCollection->expects($this->once())
-			->method('addStateFilter')
-			->with($this->identicalTo($state))
-			->will($this->returnSelf());
-		$orderStatusCollection->expects($this->once())
-			->method('toOptionArray')
-			->will($this->returnValue($optionArray));
-		$this->replaceByMock('resource_model', 'sales/order_status_collection', $orderStatusCollection);
-
-		$this->assertSame($optionArray, Mage::helper('eb2corder')->getOrderStatusOptionArrayByState($state));
-	}
-	/**
 	 * Test that the method EbayEnterprise_Eb2cOrder_Helper_Data::getOrderCollectionByIncrementIds
 	 * return a Mage_Sales_Model_Resource_Order_Collection object.
 	 */
@@ -411,11 +366,11 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 		$this->assertSame(array(), Mage::helper('eb2corder')->extractOrderEventIncrementIds('', '//some/x/path'));
 	}
 	/**
-	 * Test the helper method 'EbayEnterprise_Eb2cOrder_Helper_Data::calculateGwItemRowTotal' using a data provider 
-	 * that will test various scenarios and the expects the return value to be the same as known result. The first 
-	 * scenario will instantiate a 'sales/order_item' object and initialize it with known gift wrapping price and 
-	 * quantity data and then expects it to be the same as the product of quantity time the gift wrapping price. 
-	 * The second scenario will instantiate a 'sales/order' object and initialize it with a known quantity, a known 
+	 * Test the helper method 'EbayEnterprise_Eb2cOrder_Helper_Data::calculateGwItemRowTotal' using a data provider
+	 * that will test various scenarios and the expects the return value to be the same as known result. The first
+	 * scenario will instantiate a 'sales/order_item' object and initialize it with known gift wrapping price and
+	 * quantity data and then expects it to be the same as the product of quantity time the gift wrapping price.
+	 * The second scenario will instantiate a 'sales/order' object and initialize it with a known quantity, a known
 	 * gift wrapping price and expects only the gift wrapping price to be returned.
 	 * @param string $class
 	 * @param array $data

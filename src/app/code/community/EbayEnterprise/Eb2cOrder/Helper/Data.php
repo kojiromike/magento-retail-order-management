@@ -208,19 +208,6 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 		return (string) $incrementId;
 	}
 	/**
-	 * Build option array for populating dropdown select input fields.
-	 * @see EbayEnterprise_Eb2cOrder_Model_System_Config_Source_Event_Order_Status_Backorder::toOptionArray
-	 * @param string $state
-	 * @return array
-	 */
-	public function getOrderStatusOptionArrayByState($state)
-	{
-		return Mage::getResourceModel('sales/order_status_collection')
-			->joinStates()
-			->addStateFilter($state)
-			->toOptionArray();
-	}
-	/**
 	 * Extract all increment ids from an order event xml string.
 	 * @param string $xml
 	 * @param string $xpath
@@ -271,7 +258,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 			->addFieldToFilter('increment_id', array('in' => $incrementIds));
 	}
 	/**
-	 * Calculating the order item gift wrapping row total when the passed in object is 
+	 * Calculating the order item gift wrapping row total when the passed in object is
 	 * a concrete 'sales/order_item' instance otherwise simply return the gift wrap price.
 	 * @param  Varien_Object $item
 	 * @return float

@@ -70,15 +70,6 @@
 					</createrequest_observer>
 				</observers>
 			</sales_order_place_after>
-			<ebayenterprise_order_event_back_order>
-				<observers>
-					<eb2corder_update_event_order_status_backorder>
-						<type>model</type>
-						<class>eb2corder/observer</class>
-						<method>updateBackOrderStatus</method>
-					</eb2corder_update_event_order_status_backorder>
-				</observers>
-			</ebayenterprise_order_event_back_order>
 			<ebayenterprise_amqp_message_order_rejected>
 				<observers>
 					<eb2corder_update_event_order_status_rejected>

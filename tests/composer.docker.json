@@ -1,0 +1,56 @@
+{
+	"name": "ebayenterprise/magento-with-retail-order-management",
+	"description": "eBay Enterprise Retail Order Management Magento Extension",
+	"license": "proprietary",
+	"type": "project",
+	"require": {
+		"ebayenterprise/magento-retail-order-management": "dev-master",
+		"ecomdev/ecomdev_phpunit": "~0.3",
+		"pdepend/pdepend": "~1.1",
+		"phpdocumentor/phpdocumentor":"~2.4",
+		"phploc/phploc": "~2.0",
+		"phpmd/phpmd": "~1.5",
+		"phpunit/dbunit": "~1",
+		"phpunit/php-invoker": "~1.1",
+		"phpunit/phpunit-selenium": "~1",
+		"phpunit/phpunit-story": "~1",
+		"sebastian/phpcpd": "~2.0",
+		"squizlabs/php_codesniffer": "~1.5"
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/eBayEnterprise/magento-active-config"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/eBayEnterprise/RetailOrderManagement-SDK"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/ebayenterprise/magento-file-transfer"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/ebayenterprise/magento-log"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/ebayenterprise/php-dom"
+		},
+		{
+			"type": "vcs",
+			"url": "/git/magento-retail-order-management"
+		},
+		{
+			"type": "composer",
+			"url": "http://packages.firegento.com"
+		}
+	],
+	"extra": {
+		"magento-deploystrategy": "copy",
+		"magento-root-dir": "."
+	}
+}

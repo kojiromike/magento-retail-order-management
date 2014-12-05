@@ -13,7 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cPayment_Model_Paypal_Exception
-	extends EbayEnterprise_Eb2cCore_Exception
+class EbayEnterprise_PayPal_Exception extends Mage_Core_Exception
 {
 }

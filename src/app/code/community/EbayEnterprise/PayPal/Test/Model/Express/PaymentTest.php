@@ -13,17 +13,15 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cPayment_Overrides_Block_Account_Navigation extends Mage_Customer_Block_Account_Navigation
+class EbayEnterprise_PayPal_Test_Model_Express_PaymentTest
 {
-	/**
-	 * adding method to remove links from customer account navigation section
-	 *
-	 * @param string $name, the name of the module link
-	 *
-	 * @return void,
-	 */
-	public function removeLinkByName($name)
+	public function testRollback()
 	{
-		unset($this->_links[$name]);
+		$paymentHelper;
+		$quote;
+		$order;
+		$api = $this->getModelMock('ebayenterprise_paypal/express_api');
+		$api->expects($this->once())
+			->method('doVoid')->with($order);
 	}
 }

@@ -13,6 +13,9 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use eBayEnterprise\RetailOrderManagement\Payload;
+use eBayEnterprise\RetailOrderManagement\Payload\OrderEvents;
+
 class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	// @var Varien_Event
@@ -196,6 +199,66 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			$observer, '_getRedirectUrl', array($eventName)
 		));
 	}
+	/**
+	 * verify the shipment is stored in the registry
+	 */
+	public function testPrepareForPrintShipment()
+	{
+		$observerModel = $this->getModelMock('eb2corder/observer', array('replaceCurrentOrder'));
+		$order = $this->detailOrder;
+		// emulate the expected side-effect of the replaceCurrentOrder method.
+		$observerModel->expects($this->once())
+			->method('replaceCurrentOrder')
+			->will($this->returnCallback(
+				function () use ($order) {
+					Mage::unregister('current_order');
+					Mage::register('current_order', $order);
+				}));
+		$observerModel->prepareForPrintShipment($this->observer);
+		// ensure the shipment model we expect has been stored in the registry.
+		$this->assertSame($this->shipment, Mage::registry('current_shipment'));
+	}
+	/**
+	 * Test that the 'ebayenterprise_amqp_credit_issued' event is defined
+	 */
+	public function testCreditIssuedEventIsDefined()
+	{
+		EcomDev_PHPUnit_Test_Case_Config::assertEventObserverDefined(
+			'global',
+			'ebayenterprise_amqp_message_order_credit_issued',
+			'eb2corder/observer',
+			'processAmqpMessageCreditIssued'
+		);
+	}
+	/**
+	 * Test that the event observer is defined
+	 */
+	public function testCreditIssuedObserverExists()
+	{
+		$this->assertTrue(method_exists('EbayEnterprise_Eb2cOrder_Model_Observer', 'processAmqpMessageCreditIssued'));
+	}
+
+	/**
+	 * Test the 'process' method is called by the observer
+	 */
+	public function testProcessAmqpMessageCreditIssuedCallsProcess()
+	{
+		$factory = new Payload\PayloadFactory();
+		$payload = $factory->buildPayload('\eBayEnterprise\RetailOrderManagement\Payload\OrderEvents\OrderCreditIssued');
+
+		$credit = $this->getModelMockBuilder('eb2corder/creditissued')
+			->addMethod('process')
+			->setConstructorArgs(array(array('payload' => $payload)));
+		$credit->expects($this->once())
+			->method('process')
+			->willReturn($credit);
+		$this->replaceByMock('model', 'eb2corder/creditissued', $credit);
+
+		$eventObserver = $this->_buildEventObserver(array('message' => '<OrderEvents/>'));
+		$observer = Mage::getModel('eb2corder/observer');
+		$this->assertSame($observer, $observer->processAmqpMessageCreditIssued($eventObserver));
+	}
+
 	/**
 	 * Test that the event 'ebayenterprise_amqp_message_order_rejected' is defined.
 	 */

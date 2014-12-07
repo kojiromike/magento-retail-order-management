@@ -59,6 +59,25 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 		}
 		return Mage::getUrl();
 	}
+	
+	/**
+	 * Consume the 'ebayenterprise_amqp_message_credit_issued' event.
+	 *
+	 * Pass the payload from the event to the 'eb2corder/creditissued' model instance.
+	 *
+	 * Invoke the `process` method on the model to process the payload and issue the credit memo
+	 *
+	 * @param Varien_Event_Observer $observer
+	 * @return $this
+	 */
+	public function processAmqpMessageCreditIssued(Varien_Event_Observer $observer)
+	{
+		Mage::getModel('eb2corder/creditissued', array(
+			'payload' => $observer->getEvent()->getPayload()
+		))->process();
+
+		return $this;
+	}
 	/**
 	 * Consume the event 'ebayenterprise_amqp_message_order_rejected'. Pass the payload
 	 * from the event down to the 'eb2corder/orderrejected' instance. Invoke the process
@@ -73,6 +92,7 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 			'order_event_helper' => $this->_orderEventHelper,
 			'logger' => $this->_log
 		))->process();
+
 		return $this;
 	}
 	/**

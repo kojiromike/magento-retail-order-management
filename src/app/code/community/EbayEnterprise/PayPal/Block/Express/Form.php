@@ -19,23 +19,24 @@
 class EbayEnterprise_PayPal_Block_Express_Form extends Mage_Payment_Block_Form
 {
 	const WILL_REDIRECT_MESSAGE = 'EBAYENTERPRISE_PAYPAL_WILL_REDIRECT_MESSAGE';
+	const PAYMENT_MARK = 'ebayenterprise_paypal/payment_mark';
+
+	protected $_template = 'ebayenterprise_paypal/payment/redirect.phtml';
 
 	/**
 	 * Set template and redirect message
 	 */
 	protected function _construct()
 	{
-		$mark = Mage::getConfig()->getBlockClassName(
-			'ebayenterprise_paypal/payment_mark'
-		);
-		$mark = new $mark;
-		$this->setTemplate('ebayenterprise_paypal/payment/redirect.phtml')
-			->setMethodTitle('')// Output PayPal mark, omit title
-			->setMethodLabelAfterHtml($mark->toHtml())
-			->setRedirectMessage(
-				Mage::helper('paypal')->__(static::WILL_REDIRECT_MESSAGE)
-			);
-		return parent::_construct();
+		$markClass = Mage::getConfig()->getBlockClassName(static::PAYMENT_MARK);
+		$mark = new $markClass();
+		$markHtml = $mark->toHtml();
+		$helper = Mage::helper('paypal');
+		$translatedRedirectMessage = $helper->__(static::WILL_REDIRECT_MESSAGE);
+		$this->setMethodTitle(''); // Title conflicts with PayPal mark
+		$this->setMethodLabelAfterHtml($markHtml);
+		$this->setRedirectMessage($translatedRedirectMessage);
+		parent::_construct();
 	}
 }
 

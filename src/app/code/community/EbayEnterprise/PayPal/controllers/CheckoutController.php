@@ -58,6 +58,16 @@ class EbayEnterprise_PayPal_CheckoutController
 	}
 
 	/**
+	 * return true if a guest is allowed to checkout without registering
+	 * @return boolean
+	 */
+	protected function _isGuestAllowedWithoutRegistering($quoteCheckoutMethod, Mage_Sales_Model_Quote $quote)
+	{
+		return (!$quoteCheckoutMethod || $quoteCheckoutMethod != Mage_Checkout_Model_Type_Onepage::METHOD_REGISTER) &&
+			!Mage::helper('checkout')->isAllowedGuestCheckout($quote, $quote->getStoreId());
+	}
+
+	/**
 	 * Start Express Checkout by requesting initial token and dispatching customer to PayPal
 	 */
 	public function startAction()
@@ -78,14 +88,7 @@ class EbayEnterprise_PayPal_CheckoutController
 					$customer, $this->_getQuote()->getBillingAddress(),
 					$this->_getQuote()->getShippingAddress()
 				);
-			} elseif ((!$quoteCheckoutMethod
-					|| $quoteCheckoutMethod
-					!= Mage_Checkout_Model_Type_Onepage::METHOD_REGISTER)
-				&& !Mage::helper('checkout')->isAllowedGuestCheckout(
-					$this->_getQuote(),
-					$this->_getQuote()->getStoreId()
-				)
-			) {
+			} elseif ($this->_isGuestAllowedWithoutRegistering($quoteCheckoutMethod, $this->getQuote())) {
 				Mage::getSingleton('core/session')->addNotice(
 					$this->_helper->__(
 						'To proceed to Checkout, please log in using your email address.'
@@ -335,7 +338,7 @@ class EbayEnterprise_PayPal_CheckoutController
 			$session = $this->_getCheckoutSession();
 			$session->clearHelperData();
 
-			// "last successful quote"
+			// last successful quote
 			$quoteId = $this->_getQuote()->getId();
 			$session->setLastQuoteId($quoteId)->setLastSuccessQuoteId($quoteId);
 

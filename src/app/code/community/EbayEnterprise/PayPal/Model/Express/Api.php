@@ -188,7 +188,6 @@ class EbayEnterprise_Paypal_Model_Express_Api
 				'region_code' => $reply->getBillingMainDivision(),
 				'postcode'    => $reply->getBillingPostalCode(),
 				'country_id'  => $reply->getBillingCountryCode(),
-				//				'reply' => $address->getAddressStatus(),
 			),
 			'shipping_address' => array(
 				'street'      => $reply->getShipToLines(),
@@ -196,7 +195,6 @@ class EbayEnterprise_Paypal_Model_Express_Api
 				'region_code' => $reply->getShipToMainDivision(),
 				'postcode'    => $reply->getShipToPostalCode(),
 				'country_id'  => $reply->getShipToCountryCode(),
-				//				'reply' => $address->getAddressStatus(),
 			)
 		);
 	}

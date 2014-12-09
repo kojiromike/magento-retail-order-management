@@ -46,4 +46,3 @@ class EbayEnterprise_PayPal_Block_Express_Review_Billing
 		return $this->_address;
 	}
 }
-

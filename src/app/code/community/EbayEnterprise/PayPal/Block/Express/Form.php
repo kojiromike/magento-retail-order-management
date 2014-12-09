@@ -39,4 +39,3 @@ class EbayEnterprise_PayPal_Block_Express_Form extends Mage_Payment_Block_Form
 		parent::_construct();
 	}
 }
-

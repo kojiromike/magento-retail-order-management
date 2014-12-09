@@ -22,10 +22,11 @@ use eBayEnterprise\RetailOrderManagement\Payload\Payment;
 class EbayEnterprise_PayPal_Model_Method_Express
 	extends Mage_Payment_Model_Method_Abstract
 {
+	const CODE = 'ebayenterprise_paypal_express';
 	const IS_AUTHORIZED_FLAG = 'is_authorized';
 	const IS_VOIDED_FLAG = 'is_voided';
 
-	protected $_code = 'ebayenterprise_paypal_express';
+	protected $_code = self::CODE; // compatibility with mage payment method expectations
 	protected $_formBlockType = 'ebayenterprise_paypal/express_form';
 	protected $_infoBlockType = 'ebayenterprise_paypal/express_payment_info';
 

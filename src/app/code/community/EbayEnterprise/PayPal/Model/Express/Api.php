@@ -42,7 +42,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 	 * Override __construct here as the usual protected `_construct` is not called.
 	 *
 	 * @param array $initParams May contain:
-	 *                          -  'helper' => EbayEnterprise_PayPal_Data
+	 *                          -  'helper' => EbayEnterprise_PayPal_Helper_Data
 	 *                          -  'core_helper' => EbayEnterprise_Eb2cCore_Helper_Data
 	 *                          -  'logger' => EbayEnterprise_MageLog_Helper_Data
 	 */

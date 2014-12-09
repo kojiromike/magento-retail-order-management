@@ -24,12 +24,14 @@ class EbayEnterprise_Paypal_Model_Express_Checkout
 	 *
 	 * @var string
 	 */
-	const PAYMENT_INFO_TRANSPORT_TOKEN = 'paypal_express_checkout_token';
-	const PAYMENT_INFO_TRANSPORT_SHIPPING_OVERRIDEN = 'paypal_express_checkout_shipping_overriden';
-	const PAYMENT_INFO_TRANSPORT_SHIPPING_METHOD = 'paypal_express_checkout_shipping_method';
-	const PAYMENT_INFO_TRANSPORT_PAYER_ID = 'paypal_express_checkout_payer_id';
-	const PAYMENT_INFO_TRANSPORT_REDIRECT = 'paypal_express_checkout_redirect_required';
-	const PAYMENT_INFO_TRANSPORT_BILLING_AGREEMENT = 'paypal_ec_create_ba';
+	const PAYMENT_INFO_TOKEN = 'paypal_express_checkout_token';
+	const PAYMENT_INFO_SHIPPING_OVERRIDDEN = 'paypal_express_checkout_shipping_overriden';
+	const PAYMENT_INFO_SHIPPING_METHOD = 'paypal_express_checkout_shipping_method';
+	const PAYMENT_INFO_PAYER_ID = 'paypal_express_checkout_payer_id';
+	const PAYMENT_INFO_REDIRECT = 'paypal_express_checkout_redirect_required';
+	const PAYMENT_INFO_BILLING_AGREEMENT = 'paypal_ec_create_ba';
+	const PAYMENT_INFO_IS_AUTHORIZED_FLAG = 'is_authorized';
+	const PAYMENT_INFO_IS_VOIDED_FLAG = 'is_voided';
 
 	/**
 	 * Flag which says that was used PayPal Express Checkout button for checkout
@@ -135,7 +137,7 @@ class EbayEnterprise_Paypal_Model_Express_Checkout
 		$setExpressCheckoutReply['method'] = 'ebayenterprise_paypal_express';
 		$this->_quote->getPayment()->importData($setExpressCheckoutReply);
 		$this->_quote->getPayment()->unsAdditionalInformation(
-			self::PAYMENT_INFO_TRANSPORT_BILLING_AGREEMENT
+			self::PAYMENT_INFO_BILLING_AGREEMENT
 		);
 		if (!empty($button)) { // Indicates whether we came from Express Checkout button
 			$this->_quote->getPayment()->setAdditionalInformation(
@@ -263,11 +265,11 @@ class EbayEnterprise_Paypal_Model_Express_Checkout
 		$payment->setMethod('ebayenterprise_paypal_express');
 		$payment
 			->setAdditionalInformation(
-				self::PAYMENT_INFO_TRANSPORT_PAYER_ID,
+				self::PAYMENT_INFO_PAYER_ID,
 				$getExpressCheckoutReply['payer_id']
 			)
 			->setAdditionalInformation(
-				self::PAYMENT_INFO_TRANSPORT_TOKEN, $token
+				self::PAYMENT_INFO_TOKEN, $token
 			);
 		$quote->collectTotals()->save();
 	}
@@ -284,7 +286,7 @@ class EbayEnterprise_Paypal_Model_Express_Checkout
 		$payment = $this->_quote->getPayment();
 		if (!$payment
 			|| !$payment->getAdditionalInformation(
-				self::PAYMENT_INFO_TRANSPORT_PAYER_ID
+				self::PAYMENT_INFO_PAYER_ID
 			)
 		) {
 			Mage::throwException(
@@ -293,12 +295,12 @@ class EbayEnterprise_Paypal_Model_Express_Checkout
 		}
 		$this->_quote->setMayEditShippingAddress(
 			1 != $this->_quote->getPayment()->getAdditionalInformation(
-				self::PAYMENT_INFO_TRANSPORT_SHIPPING_OVERRIDEN
+				self::PAYMENT_INFO_SHIPPING_OVERRIDDEN
 			)
 		);
 		$this->_quote->setMayEditShippingMethod(
 			'' == $this->_quote->getPayment()->getAdditionalInformation(
-				self::PAYMENT_INFO_TRANSPORT_SHIPPING_METHOD
+				self::PAYMENT_INFO_SHIPPING_METHOD
 			)
 		);
 		$this->_ignoreAddressValidation();
@@ -367,7 +369,7 @@ class EbayEnterprise_Paypal_Model_Express_Checkout
 		$this->_quote->collectTotals();
 		$this->_getApi();
 		$payerId = $this->_quote->getPayment()->getAdditionalInformation(
-			self::PAYMENT_INFO_TRANSPORT_PAYER_ID
+			self::PAYMENT_INFO_PAYER_ID
 		);
 		$doExpressReply = $this->_api->doExpressCheckout(
 			$this->_quote, $token, $payerId

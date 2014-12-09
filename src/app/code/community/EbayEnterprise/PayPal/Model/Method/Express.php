@@ -23,8 +23,6 @@ class EbayEnterprise_PayPal_Model_Method_Express
 	extends Mage_Payment_Model_Method_Abstract
 {
 	const CODE = 'ebayenterprise_paypal_express';
-	const IS_AUTHORIZED_FLAG = 'is_authorized';
-	const IS_VOIDED_FLAG = 'is_voided';
 
 	protected $_code = self::CODE; // compatibility with mage payment method expectations
 	protected $_formBlockType = 'ebayenterprise_paypal/express_form';
@@ -134,10 +132,10 @@ class EbayEnterprise_PayPal_Model_Method_Express
 		}
 		$info = $this->getInfoInstance();
 		return $this->_canVoid
-		&& $info->getAdditionalInformation(
-			static::IS_AUTHORIZED_FLAG
-		)
-		&& !$info->getAdditionalInformation(static::IS_VOIDED_FLAG);
+			&& $info->getAdditionalInformation(
+				static::IS_AUTHORIZED_FLAG
+			)
+			&& !$info->getAdditionalInformation(static::IS_VOIDED_FLAG);
 	}
 
 	/**
@@ -195,9 +193,16 @@ class EbayEnterprise_PayPal_Model_Method_Express
 		}
 		if (is_array($data)) {
 			// array keys for the fields to store into the payment info object.
-			$selectorKeys = array('payer_id', 'transaction_id',
-			                      static::IS_AUTHORIZED_FLAG,
-			                      static::IS_VOIDED_FLAG);
+			$selectorKeys = array(
+				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_TOKEN,
+				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_SHIPPING_OVERRIDDEN,
+				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_SHIPPING_METHOD,
+				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_PAYER_ID,
+				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_REDIRECT,
+				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_BILLING_AGREEMENT,
+				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_BUTTON,
+				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_IS_AUTHORIZED_FLAG,
+				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_IS_VOIDED_FLAG);
 			$data = array_intersect_key($data, array_flip($selectorKeys));
 			foreach ($data as $key => $value) {
 				$this->getInfoInstance()->setAdditionalInformation(

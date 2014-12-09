@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (c) 2013-2014 eBay Enterprise, Inc.
  *
@@ -10,10 +11,10 @@
  * http://opensource.org/licenses/osl-3.0.php
  *
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
- * @license	 http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-
-class EbayEnterprise_Paypal_Block_Express_Review_Shipping extends Mage_Checkout_Block_Onepage_Shipping
+class EbayEnterprise_Paypal_Block_Express_Review_Shipping
+	extends Mage_Checkout_Block_Onepage_Shipping
 {
 	/**
 	 * Return Sales Quote Address model (shipping address)
@@ -23,7 +24,9 @@ class EbayEnterprise_Paypal_Block_Express_Review_Shipping extends Mage_Checkout_
 	public function getAddress()
 	{
 		if (is_null($this->_address)) {
-			if ($this->isCustomerLoggedIn() || $this->getQuote()->getShippingAddress()) {
+			if ($this->isCustomerLoggedIn()
+				|| $this->getQuote()->getShippingAddress()
+			) {
 				$this->_address = $this->getQuote()->getShippingAddress();
 			} else {
 				$this->_address = Mage::getModel('sales/quote_address');

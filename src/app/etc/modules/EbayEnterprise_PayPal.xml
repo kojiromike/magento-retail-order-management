@@ -18,8 +18,8 @@
 			<active>true</active>
 			<codePool>community</codePool>
 			<depends>
-				<Mage_Payment />
-				<EbayEnterprise_Eb2cCore />
+				<Mage_Payment/>
+				<EbayEnterprise_Eb2cCore/>
 			</depends>
 		</EbayEnterprise_PayPal>
 	</modules>

@@ -1615,7 +1615,9 @@ INVALID_XML;
 	 * @param string $expected
 	 * @dataProvider dataProvider
 	 */
-	public function testBuildPayPalPayerInfo($xml, array $paymentData, $expected)
+	public function testBuildPayPalPayerInfo(
+		$xml, array $paymentData, $expected
+	)
 	{
 		$order = Mage::getModel('sales/order');
 		$order->addPayment(Mage::getModel('sales/order_payment', $paymentData));

@@ -10,13 +10,14 @@
  * http://opensource.org/licenses/osl-3.0.php
  *
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
- * @license	 http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * PayPal Standard payment "form"
  */
-class EbayEnterprise_PayPal_Block_Express_Review extends Mage_Core_Block_Template
+class EbayEnterprise_PayPal_Block_Express_Review
+	extends Mage_Core_Block_Template
 {
 	/**
 	 * @var Mage_Sales_Model_Quote
@@ -41,6 +42,7 @@ class EbayEnterprise_PayPal_Block_Express_Review extends Mage_Core_Block_Templat
 	 * Quote object setter
 	 *
 	 * @param Mage_Sales_Model_Quote $quote
+	 *
 	 * @return Mage_Paypal_Block_Express_Review
 	 */
 	public function setQuote(Mage_Sales_Model_Quote $quote)
@@ -76,6 +78,7 @@ class EbayEnterprise_PayPal_Block_Express_Review extends Mage_Core_Block_Templat
 	 * Get HTML output for specified address
 	 *
 	 * @param Mage_Sales_Model_Quote_Address
+	 *
 	 * @return string
 	 */
 	public function renderAddress($address)
@@ -87,6 +90,7 @@ class EbayEnterprise_PayPal_Block_Express_Review extends Mage_Core_Block_Templat
 	 * Return carrier name from config, base on carrier code
 	 *
 	 * @param $carrierCode string
+	 *
 	 * @return string
 	 */
 	public function getCarrierName($carrierCode)
@@ -101,6 +105,7 @@ class EbayEnterprise_PayPal_Block_Express_Review extends Mage_Core_Block_Templat
 	 * Get either shipping rate code or empty value on error
 	 *
 	 * @param Varien_Object $rate
+	 *
 	 * @return string
 	 */
 	public function renderShippingRateValue(Varien_Object $rate)
@@ -115,25 +120,36 @@ class EbayEnterprise_PayPal_Block_Express_Review extends Mage_Core_Block_Templat
 	 * Get shipping rate code title and its price or error message
 	 *
 	 * @param Varien_Object $rate
-	 * @param string $format
-	 * @param string $inclTaxFormat
+	 * @param string        $format
+	 * @param string        $inclTaxFormat
+	 *
 	 * @return string
 	 */
-	public function renderShippingRateOption($rate, $format = '%s - %s%s', $inclTaxFormat = ' (%s %s)')
-	{
+	public function renderShippingRateOption(
+		$rate, $format = '%s - %s%s', $inclTaxFormat = ' (%s %s)'
+	) {
 		$renderedInclTax = '';
 		if ($rate->getErrorMessage()) {
 			$price = $rate->getErrorMessage();
 		} else {
-			$price = $this->_getShippingPrice($rate->getPrice(),
-				$this->helper('tax')->displayShippingPriceIncludingTax());
+			$price = $this->_getShippingPrice(
+				$rate->getPrice(),
+				$this->helper('tax')->displayShippingPriceIncludingTax()
+			);
 
 			$incl = $this->_getShippingPrice($rate->getPrice(), true);
-			if (($incl != $price) && $this->helper('tax')->displayShippingBothPrices()) {
-				$renderedInclTax = sprintf($inclTaxFormat, Mage::helper('tax')->__('Incl. Tax'), $incl);
+			if (($incl != $price)
+				&& $this->helper('tax')->displayShippingBothPrices()
+			) {
+				$renderedInclTax = sprintf(
+					$inclTaxFormat, Mage::helper('tax')->__('Incl. Tax'), $incl
+				);
 			}
 		}
-		return sprintf($format, $this->escapeHtml($rate->getMethodTitle()), $price, $renderedInclTax);
+		return sprintf(
+			$format, $this->escapeHtml($rate->getMethodTitle()), $price,
+			$renderedInclTax
+		);
 	}
 
 	/**
@@ -158,19 +174,24 @@ class EbayEnterprise_PayPal_Block_Express_Review extends Mage_Core_Block_Templat
 	 * Return formatted shipping price
 	 *
 	 * @param float $price
-	 * @param bool $isInclTax
+	 * @param bool  $isInclTax
 	 *
 	 * @return bool
 	 */
 	protected function _getShippingPrice($price, $isInclTax)
 	{
-		return $this->_formatPrice($this->helper('tax')->getShippingPrice($price, $isInclTax, $this->_address));
+		return $this->_formatPrice(
+			$this->helper('tax')->getShippingPrice(
+				$price, $isInclTax, $this->_address
+			)
+		);
 	}
 
 	/**
 	 * Format price base on store convert price method
 	 *
 	 * @param float $price
+	 *
 	 * @return string
 	 */
 	protected function _formatPrice($price)
@@ -200,7 +221,9 @@ class EbayEnterprise_PayPal_Block_Express_Review extends Mage_Core_Block_Templat
 				// determine current selected code & name
 				foreach ($groups as $code => $rates) {
 					foreach ($rates as $rate) {
-						if ($this->_address->getShippingMethod() == $rate->getCode()) {
+						if ($this->_address->getShippingMethod()
+							== $rate->getCode()
+						) {
 							$this->_currentShippingRate = $rate;
 							break(2);
 						}
@@ -208,17 +231,31 @@ class EbayEnterprise_PayPal_Block_Express_Review extends Mage_Core_Block_Templat
 				}
 			}
 
-			$canEditShippingAddress = $this->_quote->getMayEditShippingAddress() && $this->_quote->getPayment()
-					->getAdditionalInformation(EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_BUTTON) == 1;
+			$canEditShippingAddress = $this->_quote->getMayEditShippingAddress()
+				&& $this->_quote->getPayment()
+					->getAdditionalInformation(
+						EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_BUTTON
+					) == 1;
 			// misc shipping parameters
-			$this->setShippingMethodSubmitUrl($this->getUrl("{$this->_paypalActionPrefix}/checkout/saveShippingMethod"))
+			$this->setShippingMethodSubmitUrl(
+				$this->getUrl(
+					"{$this->_paypalActionPrefix}/checkout/saveShippingMethod"
+				)
+			)
 				->setCanEditShippingAddress($canEditShippingAddress)
-				->setCanEditShippingMethod($this->_quote->getMayEditShippingMethod())
-			;
+				->setCanEditShippingMethod(
+					$this->_quote->getMayEditShippingMethod()
+				);
 		}
 
-		$this->setEditUrl($this->getUrl("{$this->_paypalActionPrefix}/checkout/edit"))
-			->setPlaceOrderUrl($this->getUrl("{$this->_paypalActionPrefix}/checkout/placeOrder"));
+		$this->setEditUrl(
+			$this->getUrl("{$this->_paypalActionPrefix}/checkout/edit")
+		)
+			->setPlaceOrderUrl(
+				$this->getUrl(
+					"{$this->_paypalActionPrefix}/checkout/placeOrder"
+				)
+			);
 
 		return parent::_beforeToHtml();
 	}

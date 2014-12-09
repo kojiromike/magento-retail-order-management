@@ -741,8 +741,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		foreach ($this->_o->getAllPayments() as $payment) {
 			$payMethod = $payment->getMethod();
-			switch($payMethod) {
-			case 'ebayenterprise_creditcard':
+			switch ($payMethod) {
+				case 'ebayenterprise_creditcard':
 					$thisPayment = $payments->createChild('CreditCard');
 					$paymentContext = $thisPayment->createChild('PaymentContext');
 					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
@@ -764,7 +764,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$thisPayment->createChild('ExpirationDate', $this->_getPaymentExpirationDate($payment));
 					break;
 				case 'ebayenterprise_paypal_express':
-					$payMethodNode = 'PayPal'; // Also used in the ResponseCode node
+					$payMethodNode
+						= 'PayPal'; // Also used in the ResponseCode node
 					$thisPayment = $payments->createChild('PayPal');
 					$amount = $this->_o->getGrandTotal();
 					$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $amount));
@@ -784,7 +785,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					break;
 				default:
 					$thisPayment = $payments->createChild('PrepaidCreditCard');
-					$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
+					$thisPayment->createChild(
+						'Amount', sprintf(
+							static::PRICE_FORMAT, $this->_o->getGrandTotal()
+						)
+					);
 					break;
 			}
 		}
@@ -978,7 +983,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		if ($this->_getShippingChargeType($item->getOrder()) === self::SHIPPING_CHARGE_TYPE_FLATRATE) {
 			return (float) $item->getOrder()->getBaseShippingAmount();
 		}
-		throw Mage::exception('Mage_Core', 'Non-flatrate shipping calculations are not yet supported.');
+		throw Mage::exception(
+			'Mage_Core',
+			'Non-flatrate shipping calculations are not yet supported.'
+		);
 	}
 	/**
 	 * This method will be triggered via a CRONJOB and resend the stored OrderCreateRequest message
@@ -1320,7 +1328,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildPayPalPayerInfo(EbayEnterprise_Dom_Element $context)
 	{
-		foreach ( $this->_o->getAllPayments() as $payment) {
+		foreach ($this->_o->getAllPayments() as $payment) {
 			if ($payment->getMethod() === 'ebayenterprise_paypal_express') {
 				$context->createChild('PayPalPayerInfo')
 					->addChild('PayPalPayerID', $this->_restrictText($payment->getAdditionalInformation('paypal_payer_id'), 50))

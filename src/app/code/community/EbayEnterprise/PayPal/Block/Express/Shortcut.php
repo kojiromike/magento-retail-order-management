@@ -10,7 +10,7 @@
  * http://opensource.org/licenses/osl-3.0.php
  *
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
- * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -23,7 +23,8 @@
  * @method string getIsInCatalogProduct()
  * @method string getConfirmationMessage()
  */
-class EbayEnterprise_PayPal_Block_Express_Shortcut extends Mage_Core_Block_Template
+class EbayEnterprise_PayPal_Block_Express_Shortcut
+	extends Mage_Core_Block_Template
 {
 	/**
 	 * Position of "OR" label against shortcut
@@ -79,24 +80,34 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut extends Mage_Core_Block_Templ
 			}
 		}
 		// validate minimum quote amount and validate quote for zero grandtotal
-		if (null !== $quote && (!$quote->validateMinimumAmount()
-			|| (!$quote->getGrandTotal() && !$quote->hasNominalItems()))) {
+		if (null !== $quote
+			&& (!$quote->validateMinimumAmount()
+				|| (!$quote->getGrandTotal() && !$quote->hasNominalItems()))
+		) {
 			$this->_shouldRender = false;
 			return $result;
 		}
 		// check payment method availability
-		$methodInstance = Mage::helper('payment')->getMethodInstance($this->_paymentMethodCode);
+		$methodInstance = Mage::helper('payment')->getMethodInstance(
+			$this->_paymentMethodCode
+		);
 		if (!$methodInstance || !$methodInstance->isAvailable($quote)) {
 			$this->_shouldRender = false;
 			return $result;
 		}
 		// set misc data
-		$this->setShortcutHtmlId($this->helper('core')->uniqHash('ebayenterprise_paypal_shortcut_'))
+		$this->setShortcutHtmlId(
+			$this->helper('core')->uniqHash('ebayenterprise_paypal_shortcut_')
+		)
 			->setCheckoutUrl($this->getUrl($this->_startAction));
 
-		$this->setImageUrl('https://www.paypal.com/' . Mage::app()->getLocale()->getLocaleCode() . '/i/btn/btn_xpressCheckout.gif');
+		$this->setImageUrl(
+			'https://www.paypal.com/' . Mage::app()->getLocale()->getLocaleCode(
+			) . '/i/btn/btn_xpressCheckout.gif'
+		);
 		return $result;
 	}
+
 	/**
 	 * Check is "OR" label position before shortcut
 	 *
@@ -104,8 +115,10 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut extends Mage_Core_Block_Templ
 	 */
 	public function isOrPositionBefore()
 	{
-		return ($this->getIsOnCatalogProductPage() && !$this->getShowOrPosition())
-			|| ($this->getShowOrPosition() && $this->getShowOrPosition() == self::POSITION_BEFORE);
+		return
+			($this->getIsOnCatalogProductPage() && !$this->getShowOrPosition())
+			|| ($this->getShowOrPosition()
+				&& $this->getShowOrPosition() == self::POSITION_BEFORE);
 
 	}
 
@@ -116,7 +129,9 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut extends Mage_Core_Block_Templ
 	 */
 	public function isOrPositionAfter()
 	{
-		return (!$this->getIsOnCatalogProductPage() && !$this->getShowOrPosition())
-			|| ($this->getShowOrPosition() && $this->getShowOrPosition() == self::POSITION_AFTER);
+		return
+			(!$this->getIsOnCatalogProductPage() && !$this->getShowOrPosition())
+			|| ($this->getShowOrPosition()
+				&& $this->getShowOrPosition() == self::POSITION_AFTER);
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (c) 2013-2014 eBay Enterprise, Inc.
  *
@@ -10,9 +11,10 @@
  * http://opensource.org/licenses/osl-3.0.php
  *
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
- * @license	 http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class EbayEnterprise_Paypal_Block_Express_Review_Details extends Mage_Checkout_Block_Cart_Totals
+class EbayEnterprise_Paypal_Block_Express_Review_Details
+	extends Mage_Checkout_Block_Cart_Totals
 {
 	protected $_address;
 

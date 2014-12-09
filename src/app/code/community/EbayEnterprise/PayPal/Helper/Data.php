@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (c) 2013-2014 eBay Enterprise, Inc.
  *
@@ -12,7 +13,6 @@
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-
 class EbayEnterprise_PayPal_Helper_Data extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
@@ -22,17 +22,23 @@ class EbayEnterprise_PayPal_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * Get payment config instantiated object.
+	 *
 	 * @param mixed $store
+	 *
 	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 */
-	public function getConfigModel($store=null)
+	public function getConfigModel($store = null)
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(Mage::getSingleton('ebayenterprise_paypal/config'));
+			->addConfigModel(
+				Mage::getSingleton('ebayenterprise_paypal/config')
+			);
 	}
+
 	/**
 	 * Get the current store currency code.
+	 *
 	 * @see Mage_Core_Model_Store::getCurrentCurrencyCode
 	 * @return string
 	 * @codeCoverageIgnore

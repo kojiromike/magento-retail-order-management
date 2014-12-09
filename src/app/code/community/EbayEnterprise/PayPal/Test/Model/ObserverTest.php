@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (c) 2013-2014 eBay Enterprise, Inc.
  *
@@ -12,8 +13,8 @@
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-
-class EbayEnterprise_Paypal_Test_Model_ObserverTest extends EbayEnterprise_Eb2cCore_Test_Base
+class EbayEnterprise_Paypal_Test_Model_ObserverTest
+	extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	public function testIsConfigured()
 	{
@@ -25,14 +26,20 @@ class EbayEnterprise_Paypal_Test_Model_ObserverTest extends EbayEnterprise_Eb2cC
 			'ebayenterprise_paypal_express_rollback'
 		);
 	}
+
 	public function testRollbackExpressPayment()
 	{
 		$quote = $this->getModelMock('sales/quote');
 		$order = $this->getModelMock('sales/order');
-		$observerData = new Varien_Event_Observer(array('event' => new Varien_Event(array('quote' => $quote, 'order' => $order))));
+		$observerData = new Varien_Event_Observer(
+			array('event' => new Varien_Event(
+				array('quote' => $quote, 'order' => $order)
+			))
+		);
 
 		// check if the payment is express and is was successfully authorized.
 
-		Mage::getModel('ebayenterprise_paypal/observer')->rollbackExpressPayment($observer);
+		Mage::getModel('ebayenterprise_paypal/observer')
+			->rollbackExpressPayment($observer);
 	}
 }

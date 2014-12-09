@@ -16,28 +16,29 @@
 /**
  * PayPal payment info block
  */
-class EbayEnterprise_PayPal_Block_Express_Payment_Info extends Mage_Payment_Block_Info_Cc
+class EbayEnterprise_PayPal_Block_Express_Payment_Info
+	extends Mage_Payment_Block_Info_Cc
 {
-    /**
-     * Don't show CC type
-     *
-     * @return string|null
-     */
-    public function getCcTypeName()
-    {
-    	return null;
-    }
+	/**
+	 * Don't show CC type
+	 *
+	 * @return string|null
+	 */
+	public function getCcTypeName()
+	{
+		return null;
+	}
 
-    /**
-     * Prepare PayPal-specific payment information
-     *
-     * @param Varien_Object|array $transport
-     * return Varien_Object
-     */
-    protected function _prepareSpecificInformation($transport = null)
-    {
-        $transport = parent::_prepareSpecificInformation($transport);
-        return $transport;
-    }
+	/**
+	 * Prepare PayPal-specific payment information
+	 *
+	 * @param Varien_Object|array $transport
+	 * return Varien_Object
+	 */
+	protected function _prepareSpecificInformation($transport = null)
+	{
+		$transport = parent::_prepareSpecificInformation($transport);
+		return $transport;
+	}
 }
 

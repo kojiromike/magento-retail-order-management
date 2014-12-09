@@ -16,6 +16,7 @@
 /**
  * Payment info model
  */
-class EbayEnterprise_Paypal_Model_Express_Payment_Info extends Mage_Payment_Model_Info
+class EbayEnterprise_Paypal_Model_Express_Payment_Info
+	extends Mage_Payment_Model_Info
 {
 }

@@ -10,13 +10,14 @@
  * http://opensource.org/licenses/osl-3.0.php
  *
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
- * @license	http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
  * Checkout Controller for Ebay Enterprise PayPal
  */
-class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Front_Action
+class EbayEnterprise_PayPal_CheckoutController
+	extends Mage_Core_Controller_Front_Action
 {
 	/** @var EbayEnterprise_Paypal_Model_Express_Checkout */
 	protected $_checkout = null;
@@ -37,8 +38,10 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 		$this->_helper = Mage::helper('ebayenterprise_paypal');
 		$this->_config = $this->_helper->getConfigModel();
 	}
+
 	/**
 	 * prevent dispatching controller actions when not enabled.
+	 *
 	 * @return self
 	 */
 	public function preDispatch()
@@ -47,10 +50,13 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 		if (!$this->_config->isEnabledFlag) {
 			// when the payment method is disabled, prevent dispatching actions from
 			// this controller.
-			$this->setFlag('', static::FLAG_NO_DISPATCH, true)->_forward('/noroute');
+			$this->setFlag('', static::FLAG_NO_DISPATCH, true)->_forward(
+				'/noroute'
+			);
 		}
 		return $this;
 	}
+
 	/**
 	 * Start Express Checkout by requesting initial token and dispatching customer to PayPal
 	 */
@@ -59,7 +65,8 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 		try {
 			$this->_initCheckout();
 
-			if ($this->_getQuote()->getIsMultiShipping()) { // Multi-shipping is not supported
+			if ($this->_getQuote()->getIsMultiShipping()
+			) { // Multi-shipping is not supported
 				$this->_getQuote()->setIsMultiShipping(false);
 				$this->_getQuote()->removeAllAddresses();
 			}
@@ -68,26 +75,38 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 			$quoteCheckoutMethod = $this->_getQuote()->getCheckoutMethod();
 			if ($customer && $customer->getId()) {
 				$this->_checkout->setCustomerWithAddressChange(
-					$customer, $this->_getQuote()->getBillingAddress(), $this->_getQuote()->getShippingAddress()
+					$customer, $this->_getQuote()->getBillingAddress(),
+					$this->_getQuote()->getShippingAddress()
 				);
 			} elseif ((!$quoteCheckoutMethod
-				|| $quoteCheckoutMethod != Mage_Checkout_Model_Type_Onepage::METHOD_REGISTER)
+					|| $quoteCheckoutMethod
+					!= Mage_Checkout_Model_Type_Onepage::METHOD_REGISTER)
 				&& !Mage::helper('checkout')->isAllowedGuestCheckout(
-				$this->_getQuote(),
-				$this->_getQuote()->getStoreId()
-			)) {
+					$this->_getQuote(),
+					$this->_getQuote()->getStoreId()
+				)
+			) {
 				Mage::getSingleton('core/session')->addNotice(
-					$this->_helper->__('To proceed to Checkout, please log in using your email address.')
+					$this->_helper->__(
+						'To proceed to Checkout, please log in using your email address.'
+					)
 				);
 				$this->redirectLogin();
 				Mage::getSingleton('customer/session')
-					->setBeforeAuthUrl(Mage::getUrl('*/*/*', array('_current' => true)));
+					->setBeforeAuthUrl(
+						Mage::getUrl('*/*/*', array('_current' => true))
+					);
 				return;
 			}
 
 			try {
-				$button = (bool)$this->getRequest()->getParam(EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_BUTTON);
-				$startReply = $this->_checkout->start(Mage::getUrl('*/*/return'), Mage::getUrl('*/*/cancel'), $button);
+				$button = (bool)$this->getRequest()->getParam(
+					EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_BUTTON
+				);
+				$startReply = $this->_checkout->start(
+					Mage::getUrl('*/*/return'), Mage::getUrl('*/*/cancel'),
+					$button
+				);
 				$this->_initToken($startReply['token']);
 				$this->_redirectToPayPalSite($startReply);
 				return;
@@ -98,7 +117,9 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 		} catch (Mage_Core_Exception $e) {
 			$this->_getCheckoutSession()->addError($e->getMessage());
 		} catch (Exception $e) {
-			$this->_getCheckoutSession()->addError($this->__('Unable to start Express Checkout.'));
+			$this->_getCheckoutSession()->addError(
+				$this->__('Unable to start Express Checkout.')
+			);
 			Mage::logException($e);
 		}
 
@@ -114,7 +135,9 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 			$quoteId = $this->getRequest()->getParam('quote_id');
 			$this->_quote = Mage::getModel('sales/quote')->load($quoteId);
 			$this->_initCheckout();
-			$response = $this->_checkout->getShippingOptionsCallbackResponse($this->getRequest()->getParams());
+			$response = $this->_checkout->getShippingOptionsCallbackResponse(
+				$this->getRequest()->getParams()
+			);
 			$this->getResponse()->setBody($response);
 		} catch (Exception $e) {
 			Mage::logException($e);
@@ -131,23 +154,34 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 			// TODO verify if this logic of order cancelation is deprecated
 			// if there is an order - cancel it
 			$orderId = $this->_getCheckoutSession()->getLastOrderId();
-			$order = ($orderId) ? Mage::getModel('sales/order')->load($orderId) : false;
-			if ($order && $order->getId() && $order->getQuoteId() == $this->_getCheckoutSession()->getQuoteId()) {
+			$order = ($orderId) ? Mage::getModel('sales/order')->load($orderId)
+				: false;
+			if ($order && $order->getId()
+				&& $order->getQuoteId() == $this->_getCheckoutSession()
+					->getQuoteId()
+			) {
 				$order->cancel()->save();
 				$this->_getCheckoutSession()
 					->unsLastQuoteId()
 					->unsLastSuccessQuoteId()
 					->unsLastOrderId()
 					->unsLastRealOrderId()
-					->addSuccess($this->__('Express Checkout and Order have been canceled.'))
-				;
+					->addSuccess(
+						$this->__(
+							'Express Checkout and Order have been canceled.'
+						)
+					);
 			} else {
-				$this->_getCheckoutSession()->addSuccess($this->__('Express Checkout has been canceled.'));
+				$this->_getCheckoutSession()->addSuccess(
+					$this->__('Express Checkout has been canceled.')
+				);
 			}
 		} catch (Mage_Core_Exception $e) {
 			$this->_getCheckoutSession()->addError($e->getMessage());
 		} catch (Exception $e) {
-			$this->_getCheckoutSession()->addError($this->__('Unable to cancel Express Checkout.'));
+			$this->_getCheckoutSession()->addError(
+				$this->__('Unable to cancel Express Checkout.')
+			);
 			Mage::logException($e);
 		}
 
@@ -160,7 +194,9 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 	public function returnAction()
 	{
 		if ($this->getRequest()->getParam('retry_authorization') == 'true'
-			&& is_array($this->_getCheckoutSession()->getPaypalTransactionData())
+			&& is_array(
+				$this->_getCheckoutSession()->getPaypalTransactionData()
+			)
 		) {
 			$this->_forward('placeOrder');
 			return;
@@ -173,9 +209,10 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 			return;
 		} catch (Mage_Core_Exception $e) {
 			Mage::getSingleton('checkout/session')->addError($e->getMessage());
-		}
-		catch (Exception $e) {
-			Mage::getSingleton('checkout/session')->addError($this->__('Unable to process Express Checkout approval.'));
+		} catch (Exception $e) {
+			Mage::getSingleton('checkout/session')->addError(
+				$this->__('Unable to process Express Checkout approval.')
+			);
 			Mage::logException($e);
 		}
 		$this->_redirect('checkout/cart');
@@ -191,19 +228,21 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 			$this->_checkout->prepareOrderReview($this->_initToken());
 			$this->loadLayout();
 			$this->_initLayoutMessages('ebayenterprise_paypal/session');
-			$reviewBlock = $this->getLayout()->getBlock('ebayenterprise_paypal.express.review');
+			$reviewBlock = $this->getLayout()->getBlock(
+				'ebayenterprise_paypal.express.review'
+			);
 			$reviewBlock->setQuote($this->_getQuote());
 			$reviewBlock->getChild('details')->setQuote($this->_getQuote());
 			if ($reviewBlock->getChild('shipping_method')) {
-				$reviewBlock->getChild('shipping_method')->setQuote($this->_getQuote());
+				$reviewBlock->getChild('shipping_method')->setQuote(
+					$this->_getQuote()
+				);
 			}
 			$this->renderLayout();
 			return;
-		}
-		catch (Mage_Core_Exception $e) {
+		} catch (Mage_Core_Exception $e) {
 			Mage::getSingleton('checkout/session')->addError($e->getMessage());
-		}
-		catch (Exception $e) {
+		} catch (Exception $e) {
 			Mage::getSingleton('checkout/session')->addError(
 				$this->__('Unable to initialize Express Checkout review.')
 			);
@@ -224,8 +263,7 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 					'token'      => $this->_initToken(),
 				)
 			);
-		}
-		catch (Mage_Core_Exception $e) {
+		} catch (Mage_Core_Exception $e) {
 			$this->_getSession()->addError($e->getMessage());
 			$this->_redirect('*/*/review');
 		}
@@ -239,38 +277,54 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 		try {
 			$isAjax = $this->getRequest()->getParam('isAjax');
 			$this->_initCheckout();
-			$this->_checkout->updateShippingMethod($this->getRequest()->getParam('shipping_method'));
+			$this->_checkout->updateShippingMethod(
+				$this->getRequest()->getParam('shipping_method')
+			);
 			if ($isAjax) {
 				$this->loadLayout('paypal_express_review_details');
-				$this->getResponse()->setBody($this->getLayout()->getBlock('root')
-					->setQuote($this->_getQuote())
-					->toHtml());
+				$this->getResponse()->setBody(
+					$this->getLayout()->getBlock('root')
+						->setQuote($this->_getQuote())
+						->toHtml()
+				);
 				return;
 			}
 		} catch (Mage_Core_Exception $e) {
 			$this->_getSession()->addError($e->getMessage());
 		} catch (Exception $e) {
-			$this->_getSession()->addError($this->__('Unable to update shipping method.'));
+			$this->_getSession()->addError(
+				$this->__('Unable to update shipping method.')
+			);
 			Mage::logException($e);
 		}
 		if ($isAjax) {
-			$this->getResponse()->setBody('<script type="text/javascript">window.location.href = '
-				. Mage::getUrl('*/*/review') . ';</script>');
+			$this->getResponse()->setBody(
+				'<script type="text/javascript">window.location.href = '
+				. Mage::getUrl('*/*/review') . ';</script>'
+			);
 		} else {
 			$this->_redirect('*/*/review');
 		}
 	}
+
 	/**
 	 * Submit the order
 	 */
 	public function placeOrderAction()
 	{
 		try {
-			$requiredAgreements = Mage::helper('checkout')->getRequiredAgreementIds();
+			$requiredAgreements = Mage::helper('checkout')
+				->getRequiredAgreementIds();
 			if ($requiredAgreements) {
-				$postedAgreements = array_keys($this->getRequest()->getPost('agreement', array()));
+				$postedAgreements = array_keys(
+					$this->getRequest()->getPost('agreement', array())
+				);
 				if (array_diff($requiredAgreements, $postedAgreements)) {
-					Mage::throwException($this->_helper->__('Please agree to all the terms and conditions before placing the order.'));
+					Mage::throwException(
+						$this->_helper->__(
+							'Please agree to all the terms and conditions before placing the order.'
+						)
+					);
 				}
 			}
 
@@ -295,7 +349,9 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 			$this->_redirect('checkout/onepage/success');
 			return;
 		} catch (Mage_Core_Exception $e) {
-			Mage::helper('checkout')->sendPaymentFailedEmail($this->_getQuote(), $e->getMessage());
+			Mage::helper('checkout')->sendPaymentFailedEmail(
+				$this->_getQuote(), $e->getMessage()
+			);
 			$this->_getSession()->addError($e->getMessage());
 			$this->_redirect('*/*/review');
 		} catch (Exception $e) {
@@ -303,7 +359,9 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 				$this->_getQuote(),
 				$this->__('Unable to place the order.')
 			);
-			$this->_getSession()->addError($this->__('Unable to place the order.'));
+			$this->_getSession()->addError(
+				$this->__('Unable to place the order.')
+			);
 			Mage::logException($e);
 			$this->_redirect('*/*/review');
 		}
@@ -342,16 +400,22 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 	{
 		$quote = $this->_getQuote();
 		if (!$quote->hasItems() || $quote->getHasError()) {
-			$this->getResponse()->setHeader('HTTP/1.1','403 Forbidden');
-			Mage::throwException($this->_helper->__('Unable to initialize Express Checkout.'));
+			$this->getResponse()->setHeader('HTTP/1.1', '403 Forbidden');
+			Mage::throwException(
+				$this->_helper->__('Unable to initialize Express Checkout.')
+			);
 		}
-		$this->_checkout = Mage::getSingleton('ebayenterprise_paypal/express_checkout', array(
-			'helper' => $this->_helper,
-			'logger' => null,
-			'config' => $this->_config,
-			'quote'  => $quote
-		));
-		$this->_checkout->setCustomerSession(Mage::getSingleton('customer/session'));
+		$this->_checkout = Mage::getSingleton(
+			'ebayenterprise_paypal/express_checkout', array(
+				'helper' => $this->_helper,
+				'logger' => null,
+				'config' => $this->_config,
+				'quote'  => $quote
+			)
+		);
+		$this->_checkout->setCustomerSession(
+			Mage::getSingleton('customer/session')
+		);
 		return $this->_checkout;
 	}
 
@@ -359,6 +423,7 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 	 * Search for proper checkout token in request or session or (un)set specified one
 	 *
 	 * @param string $setToken
+	 *
 	 * @return EbayEnterprise_PayPal_CheckoutController |string
 	 */
 	protected function _initToken($setToken = null)
@@ -367,7 +432,11 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 			if (false === $setToken) {
 				// security measure for avoid unsetting token twice
 				if (!$this->_getSession()->getExpressCheckoutToken()) {
-					Mage::throwException($this->_helper->__('PayPal Express Checkout Token does not exist.'));
+					Mage::throwException(
+						$this->_helper->__(
+							'PayPal Express Checkout Token does not exist.'
+						)
+					);
 				}
 				$this->_getSession()->unsExpressCheckoutToken();
 			} else {
@@ -377,7 +446,11 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 		}
 		if ($setToken = $this->getRequest()->getParam('token')) {
 			if ($setToken !== $this->_getSession()->getExpressCheckoutToken()) {
-				Mage::throwException($this->_helper->__('Wrong PayPal Express Checkout Token specified.'));
+				Mage::throwException(
+					$this->_helper->__(
+						'Wrong PayPal Express Checkout Token specified.'
+					)
+				);
 			}
 		} else {
 			$setToken = $this->_getSession()->getExpressCheckoutToken();
@@ -404,6 +477,7 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 	{
 		return Mage::getSingleton('checkout/session');
 	}
+
 	/**
 	 * Return checkout quote object
 	 *
@@ -416,6 +490,7 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 		}
 		return $this->_quote;
 	}
+
 	/**
 	 * Redirect to login page
 	 *
@@ -430,20 +505,25 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
 			)
 		);
 	}
+
 	/**
 	 * redirect to the paypal site so the user can login.
-	 * @param  array  $data
+	 *
+	 * @param  array $data
 	 * - requires 'token' => token string from the set express reply
+	 *
 	 * @return self
 	 */
 	protected function _redirectToPayPalSite(array $data)
 	{
 		$data['cmd'] = '_express-checkout';
-		$this->getResponse()->setRedirect(sprintf(
-			'https://www.%spaypal.com/cgi-bin/webscr%s',
-			$this->_config->isSandboxedFlag ? 'sandbox.' : '',
-			"?" . http_build_query($data)
-		));
+		$this->getResponse()->setRedirect(
+			sprintf(
+				'https://www.%spaypal.com/cgi-bin/webscr%s',
+				$this->_config->isSandboxedFlag ? 'sandbox.' : '',
+				"?" . http_build_query($data)
+			)
+		);
 		return $this;
 	}
 }

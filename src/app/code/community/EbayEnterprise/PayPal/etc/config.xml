@@ -84,7 +84,7 @@
 				<title>eBay Enterprise PayPal</title>
 				<sandbox_flag>0</sandbox_flag>
 				<order_status>pending</order_status>
-				<payment_action>order</payment_action>
+				<payment_action>authorize</payment_action>
 				<allowspecific>0</allowspecific>
 				<min_order_total></min_order_total>
 				<max_order_total></max_order_total>

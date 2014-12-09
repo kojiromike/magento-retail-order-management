@@ -176,7 +176,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 	}
 
 	/**
-	 * Generate the reponse item mock for the testSalesEventOrderAfterSave test
+	 * Generate the response item mock for the testSalesEventOrderAfterSave test
 	 * @param  Mock_EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote
 	 * @param  Mock_EbayEnterprise_Eb2cTax_Model_Response_Quote_Discount $taxQuoteDiscount
 	 * @param  Mock_Mage_Sales_Model_Quote_Item[] $quoteItems

@@ -631,7 +631,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 * Test that when no message is received from the address validation service
 	 * the address is considered valid.
 	 */
-	public function testEmptyReponseFromService()
+	public function testEmptyResponseFromService()
 	{
 		$this->_mockApiModel(true);
 		// address to validate

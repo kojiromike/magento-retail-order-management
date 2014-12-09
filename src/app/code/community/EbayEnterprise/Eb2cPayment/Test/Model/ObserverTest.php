@@ -111,7 +111,7 @@ class EbayEnterprise_Eb2cPayment_Test_Model_ObserverTest
 	 * @dataProvider providerRedeemGiftCard
 	 * @expectedException Mage_Core_Exception
 	 */
-	public function testRedeemGiftCardFailReponse($observer)
+	public function testRedeemGiftCardFailResponse($observer)
 	{
 		$redeemMock = $this->getModelMockBuilder('eb2cpayment/storedvalue_redeem')
 			// constructor needs an order and card data, not needed to mock the methods

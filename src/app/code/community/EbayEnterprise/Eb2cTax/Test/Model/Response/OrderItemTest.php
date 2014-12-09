@@ -189,7 +189,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 	 * @param string $response the xml string content to be loaded into the DOMDocument object
 	 * @dataProvider dataProvider
 	 */
-	public function testExtractDataSetNullValueFormNoneExistedNodeInReponseXml($response)
+	public function testExtractDataSetNullValueFormNoneExistedNodeInResponseXml($response)
 	{
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML($response);
@@ -290,7 +290,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 	 *                in this test one where the last parameter (type) change from string to float asserting the key value
 	 *                map will change from string value map to float values for the array keys result
 	 * Expectation 2: the EbayEnterprise_Eb2cTax_Model_Response_Orderitem::_extractByType is expected DomElement object
-	 *                as its first parameter, which the test will provide by the provider as the reponse string
+	 *                as its first parameter, which the test will provide by the provider as the response string
 	 *                content which it load into a DOMDocument object, this dom object get pass to the creation of a DOMXPath object
 	 *                this xpath object register the name space of the dom object document element, the helper method get the shipgroup
 	 *                DomElement to be pass as the first parameter to the _extractByType method and along with the xpath object as the second

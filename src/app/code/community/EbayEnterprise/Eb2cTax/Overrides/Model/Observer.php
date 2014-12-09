@@ -47,7 +47,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 		return $this;
 	}
 	/**
-	 * saving reponse data into response_quote table
+	 * saving response data into response_quote table
 	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
 	 * @param Mage_Sales_Model_Quote_Address $address
 	 * @param EbayEnterprise_Eb2cTax_Model_Response_Orderitem $responseItem

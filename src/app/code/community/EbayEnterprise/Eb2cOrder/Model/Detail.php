@@ -25,7 +25,7 @@
 class EbayEnterprise_Eb2cOrder_Model_Detail
 {
 	/**
-	 * hold config path for when the api return a 400 reponse because the order was not found in OMS
+	 * hold config path for when the api return a 400 response because the order was not found in OMS
 	 */
 	const API_STATUS_HANDLER_CONFIG_PATH = 'eb2corder/api_status_handler';
 	const ORDER_DETAIL_NOT_FOUND_EXCEPTION = 'Order "%s" was not found.';

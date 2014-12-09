@@ -30,11 +30,11 @@ class EbayEnterprise_Paypal_Model_Express_Api
 	const PAYPAL_DOAUTHORIZATION_REQUEST_ID_PREFIX = 'PSA-';
 	const PAYPAL_DOVOID_REQUEST_ID_PREFIX = 'PSV-';
 
-	/** EbayEnterprise_PayPal_Helper_Data */
+	/** @var EbayEnterprise_PayPal_Helper_Data */
 	protected $_helper;
-	/** EbayEnterprise_Eb2cCore_Helper_Data */
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
 	protected $_coreHelper;
-	/** EbayEnterprise_MageLog_Helper_Data */
+	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
 
 	/**
@@ -48,17 +48,14 @@ class EbayEnterprise_Paypal_Model_Express_Api
 	 */
 	public function __construct(array $initParams = array())
 	{
+		$paypalHelper = Mage::helper('ebayenterprise_paypal');
+		$coreHelper = Mage::helper('eb2ccore');
+		$logHelper = Mage::helper('ebayenterprise_magelog');
 		list($this->_helper, $this->_coreHelper, $this->_logger)
 			= $this->_checkTypes(
-			$this->_nullCoalesce(
-				$initParams, 'helper', Mage::helper('ebayenterprise_paypal')
-			),
-			$this->_nullCoalesce(
-				$initParams, 'core_helper', Mage::helper('eb2ccore')
-			),
-			$this->_nullCoalesce(
-				$initParams, 'logger', Mage::helper('ebayenterprise_magelog')
-			)
+			$this->_nullCoalesce($initParams, 'helper', $paypalHelper),
+			$this->_nullCoalesce($initParams, 'core_helper', $coreHelper),
+			$this->_nullCoalesce($initParams, 'logger', $logHelper)
 		);
 	}
 

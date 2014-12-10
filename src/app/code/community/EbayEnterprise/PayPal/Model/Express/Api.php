@@ -119,8 +119,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		}
 		$this->_addLineItems($quote, $payload);
 		$sdk->setRequestBody($payload);
-		$this->_sendRequest($sdk);
-		$reply = $sdk->getResponseBody();
+		$reply = $this->_sendRequest($sdk);
 		if (!$reply->isSuccess() || is_null($reply->getToken())) {
 			$this->_logger->logWarn(
 				'[%s] SetExpressCheckout request failed: %s',
@@ -156,8 +155,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			->setToken($token)
 			->setCurrencyCode($currencyCode);
 		$sdk->setRequestBody($payload);
-		$this->_sendRequest($sdk);
-		$reply = $sdk->getResponseBody();
+		$reply = $this->_sendRequest($sdk);
 		if (!$reply->isSuccess()) {
 			$this->_logger->logWarn(
 				'[%s] PayPal request failed', array(__CLASS__)
@@ -200,27 +198,6 @@ class EbayEnterprise_Paypal_Model_Express_Api
 	}
 
 	/**
-	 * convert an IPayPalddress payload into a mage address
-	 * data array.
-	 *
-	 * @param  Payload\Payment\IPayPalddress $address
-	 *
-	 * @return array
-	 */
-	protected function _convertToAddressData(
-		Payload\Payment\IPayPalAddress $address
-	) {
-		return array(
-			'street'         => $address->getLines(),
-			'city'           => $address->getCity(),
-			'region_code'    => $address->getMainDivision(),
-			'postcode'       => $address->getPostalCode(),
-			'country_id'     => $address->getCountryCode(),
-			'address_status' => $address->getAddressStatus(),
-		);
-	}
-
-	/**
 	 * Do Express Checkout Request/ Response
 	 *
 	 * @param Mage_Sales_Model_Quote $quote
@@ -254,15 +231,14 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		}
 		$this->_addLineItems($quote, $payload);
 		$sdk->setRequestBody($payload);
-		$this->_sendRequest($sdk);
-		$reply = $sdk->getResponseBody();
+		$reply = $this->_sendRequest($sdk);
 		if (!$reply->isSuccess()) {
 			$this->_logger->logWarn(
-				'[%s] PayPal request failed', array(__CLASS__)
+				'[%s] PayPal request failed: %s', array(__CLASS__, $reply->getErrorMessage())
 			);
 			throw Mage::exception(
 				'EbayEnterprise_PayPal',
-				$this->_helper->__($reply->getErrorMessage())
+				$this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED)
 			);
 		}
 		return array(
@@ -299,8 +275,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			'[%s] Sending DoAuthorization', array(__CLASS__)
 		);
 
-		$this->_sendRequest($sdk);
-		$reply = $sdk->getResponseBody();
+		$reply = $this->_sendRequest($sdk);
 		$this->_logger->logDebug(
 			'[%s] Received DoAuthorization response', array(__CLASS__)
 		);
@@ -311,7 +286,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			);
 			throw Mage::exception(
 				'EbayEnterprise_PayPal',
-				$this->_helper->__($reply->getErrorMessage())
+				$this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED)
 			);
 		}
 		return array(
@@ -346,8 +321,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			->setCurrencyCode($order->getOrderCurrencyCode());
 		$sdk->setRequestBody($payload);
 		$this->_logger->logDebug('[%s] Sending DoVoid', array(__CLASS__));
-		$this->_sendRequest($sdk);
-		$reply = $sdk->getResponseBody();
+		$reply = $this->_sendRequest($sdk);
 		$this->_logger->logDebug(
 			'[%s] Received DoVoid response', array(__CLASS__)
 		);
@@ -390,7 +364,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 	/**
 	 * Send the request via the sdk
 	 *
-	 * @param  ApiIBidirectionalApi $sdk
+	 * @param  Api\IBidirectionalApi $sdk
 	 *
 	 * @throws EbayEnterprise_PayPal_Exception
 	 * @throws EbayEnterprise_PayPal_Exception_Network
@@ -409,24 +383,20 @@ class EbayEnterprise_Paypal_Model_Express_Api
 				"[%s] Received reply:\n%s",
 				array(__CLASS__, $reply->serialize())
 			);
+			return $reply;
 		} catch (Payload\Exception\InvalidPayload $e) {
 			$this->_logger->logWarn(
 				"[%s] PayPal payload invalid:\n%s", array(__CLASS__, $e)
-			);
-			throw Mage::exception(
-				'EbayEnterprise_PayPal',
-				$this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED)
 			);
 		} catch (Api\Exception\NetworkError $e) {
 			$this->_logger->logWarn(
 				"[%s] PayPal request failed:\n%s", array(__CLASS__, $e)
 			);
-			throw Mage::exception(
-				'EbayEnterprise_PayPal',
-				$this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED)
-			);
 		}
-		return $this;
+		throw Mage::exception(
+			'EbayEnterprise_PayPal',
+			$this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED)
+		);
 	}
 
 	/**
@@ -452,7 +422,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		Mage_Sales_Model_Quote $quote,
 		Payload\Payment\ILineItemContainer $container
 	) {
-		$items = (array)$quote->getAllItems();
+		$items = (array) $quote->getAllItems();
 		$lineItems = $container->getLineItems();
 		$currencyCode = $quote->getQuoteCurrencyCode();
 		foreach ($items as $item) {

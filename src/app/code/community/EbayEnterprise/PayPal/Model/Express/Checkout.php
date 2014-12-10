@@ -8,7 +8,7 @@
  * @SuppressWarnings(ExcessiveClassComplexity)
  * ^-- This will ignore overall class complexity (which does take WMC into consideration), but will *not* ignore too much complexity in individual methods
  */
-class EbayEnterprise_Paypal_Model_Express_Checkout
+class EbayEnterprise_PayPal_Model_Express_Checkout
 {
 	const EBAYENTERPRISE_PAYPAL_ZERO_CHECKOUT_NOT_SUPPORTED = 'EBAYENTERPRISE_PAYPAL_ZERO_CHECKOUT_NOT_SUPPORTED';
 	/**

@@ -50,6 +50,18 @@ class EbayEnterprise_PayPal_Model_Method_Express
 	protected $_helper;
 	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
 	protected $_config;
+	/** @var string[] */
+	protected $_selectorKeys = array(
+		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_TOKEN,
+		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_SHIPPING_OVERRIDDEN,
+		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_SHIPPING_METHOD,
+		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_PAYER_ID,
+		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_REDIRECT,
+		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_BILLING_AGREEMENT,
+		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_BUTTON,
+		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_IS_AUTHORIZED_FLAG,
+		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_IS_VOIDED_FLAG
+	);
 
 	/**
 	 * `__construct` overridden in Mage_Payment_Model_Method_Abstract as a no-op.
@@ -193,19 +205,10 @@ class EbayEnterprise_PayPal_Model_Method_Express
 		}
 		if (is_array($data)) {
 			// array keys for the fields to store into the payment info object.
-			$selectorKeys = array(
-				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_TOKEN,
-				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_SHIPPING_OVERRIDDEN,
-				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_SHIPPING_METHOD,
-				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_PAYER_ID,
-				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_REDIRECT,
-				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_BILLING_AGREEMENT,
-				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_BUTTON,
-				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_IS_AUTHORIZED_FLAG,
-				EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_IS_VOIDED_FLAG);
-			$data = array_intersect_key($data, array_flip($selectorKeys));
+			$data = array_intersect_key($data, array_flip($this->_selectorKeys));
+			$info = $this->getInfoInstance();
 			foreach ($data as $key => $value) {
-				$this->getInfoInstance()->setAdditionalInformation(
+				$info->setAdditionalInformation(
 					$key, $value
 				);
 			}

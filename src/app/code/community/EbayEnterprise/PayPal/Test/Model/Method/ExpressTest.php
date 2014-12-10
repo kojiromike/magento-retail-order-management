@@ -12,7 +12,7 @@ class EbayEnterprise_PayPal_Test_Model_Method_ExpressTest
 	public function setUp()
 	{
 		$this->_paymentInfo = $this->getModelMock(
-			'ebayenterprise_paypal/express_payment_info',
+			'payment/info',
 			array('setAdditionalInformation')
 		);
 	}
@@ -41,18 +41,17 @@ class EbayEnterprise_PayPal_Test_Model_Method_ExpressTest
 	public function testAssignData($isDataObject)
 	{
 		$data = array(
-			'token' => 'thetokenstring' // setExpress
+			'token' => 'thetokenstring',
+			'ignored_field' => 'ignored_value',
 		);
 		if ($isDataObject) {
 			$data = new Varien_Object($data);
 		}
-		$this->_paymentInfo->expects($this->once())
-			->method('setAdditionalInformation')->with(
-				$this->identicalTo('token'),
-				$this->identicalTo('thetokenstring')
-			)->will($this->returnSelf());
 		$express = Mage::getModel('ebayenterprise_paypal/method_express');
-		$express->setInfoInstance($this->_paymentInfo);
+		$info = Mage::getModel('payment/info');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($express, '_selectorKeys', array('token'));
+		$express->setData('info_instance', $info);
 		$express->assignData($data);
+		$this->assertSame(array('token' => 'thetokenstring'), $info->getAdditionalInformation());
 	}
 }

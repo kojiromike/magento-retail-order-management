@@ -24,6 +24,8 @@ db:
         - MYSQL_DATABASE=mage
     volumes_from:
         - dbdata
+    ports:
+        - 3306:3306
 setup:
     image: kojiromike/magento_tools
     volumes:
@@ -104,3 +106,11 @@ webapp:
         - db
     ports:
         - "80:80"
+tools:
+    image: kojiromike/magento_tools
+    volumes:
+        - ./build/magento:/srv/magento
+    volumes_from:
+        - dbdata
+    links:
+        - db

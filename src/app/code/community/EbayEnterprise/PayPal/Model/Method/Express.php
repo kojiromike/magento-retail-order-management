@@ -33,7 +33,7 @@ class EbayEnterprise_PayPal_Model_Method_Express
 	 */
 	protected $_isGateway = false;
 	protected $_canOrder = true;
-	protected $_canAuthorize = false;
+	protected $_canAuthorize = true;
 	protected $_canCapture = false;
 	protected $_canCapturePartial = false;
 	protected $_canRefund = false;
@@ -145,9 +145,11 @@ class EbayEnterprise_PayPal_Model_Method_Express
 		$info = $this->getInfoInstance();
 		return $this->_canVoid
 			&& $info->getAdditionalInformation(
-				static::IS_AUTHORIZED_FLAG
+				EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_IS_AUTHORIZED_FLAG
 			)
-			&& !$info->getAdditionalInformation(static::IS_VOIDED_FLAG);
+			&& !$info->getAdditionalInformation(
+				EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_IS_VOIDED_FLAG
+			);
 	}
 
 	/**

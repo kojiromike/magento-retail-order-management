@@ -88,7 +88,7 @@ class EbayEnterprise_PayPal_CheckoutController
 					$customer, $this->_getQuote()->getBillingAddress(),
 					$this->_getQuote()->getShippingAddress()
 				);
-			} elseif ($this->_isGuestAllowedWithoutRegistering($quoteCheckoutMethod, $this->getQuote())) {
+			} elseif ($this->_isGuestAllowedWithoutRegistering($quoteCheckoutMethod, $this->_getQuote())) {
 				Mage::getSingleton('core/session')->addNotice(
 					$this->_helper->__(
 						'To proceed to Checkout, please log in using your email address.'
@@ -103,7 +103,7 @@ class EbayEnterprise_PayPal_CheckoutController
 			}
 
 			try {
-				$button = (bool)$this->getRequest()->getParam(
+				$button = (bool) $this->getRequest()->getParam(
 					EbayEnterprise_Paypal_Model_Express_Checkout::PAYMENT_INFO_BUTTON
 				);
 				$startReply = $this->_checkout->start(

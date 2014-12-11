@@ -143,7 +143,8 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		);
 		// mock out and script the customer order search
 		$this->orderSearch = $this->getModelMock('eb2corder/customer_order_search', array('getOrderSummaryData'));
-		$this->orderSearch->expects($this->any())
+		$this->orderSearch
+			->expects($this->any())
 			->method('getOrderSummaryData')
 			->will($this->returnValueMap(array(
 				array($this->customerId, '', $this->summaryData),
@@ -194,27 +195,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		$order = Mage::registry('current_order');
 		$this->assertSame($this->detailOrder, $order);
 	}
-	/**
-	 * Test updating the eb2corder/summary_order_collection orders with summary
-	 * data after loading the collection.
-	 */
-	public function testUpdateOrdersWithSummaryData()
-	{
-		// prepare the event with the collecton to be processed
-		$this->event->setData(array('order_collection' => $this->orderCollection));
 
-		// replace the order search with the mock
-		$this->replaceByMock('model', 'eb2corder/customer_order_search', $this->orderSearch);
-		// replace the eb2corder helper to mock out translating OMS statuses to Magento statuses
-		$this->replaceByMock('helper', 'eb2corder', $this->orderHelper);
-
-		Mage::getModel('eb2corder/observer')->updateOrdersWithSummaryData($this->observer);
-
-		// make sure our order was modified with the summary data
-		$this->assertSame($this->orderDate, $this->order->getCreatedAt());
-		$this->assertSame($this->orderStatus, $this->order->getStatus());
-		$this->assertSame($this->orderTotal, $this->order->getGrandTotal());
-	}
 	/**
 	 * @see self::testReplaceCurrentOrder, this time we are testing for
 	 * when an exception is thrown.

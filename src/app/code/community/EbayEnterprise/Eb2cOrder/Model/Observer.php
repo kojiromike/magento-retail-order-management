@@ -15,26 +15,26 @@
 
 class EbayEnterprise_Eb2cOrder_Model_Observer
 {
-	/**
-	 * @var EbayEnterprise_MageLog_Helper_Data
-	 */
+	/** @var EbayEnterprise_Eb2cOrder_Helper_Event_Shipment */
+	protected $_shipmentEventHelper;
+	/** @var EbayEnterprise_Eb2cOrder_Helper_Data */
+	protected $_orderHelper;
+	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_log;
-	/**
-	 * @var EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 */
+	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
 	protected $_orderCfg;
-	/**
-	 * @var EbayEnterprise_Eb2cOrder_Helper_Event
-	 */
+	/** @var EbayEnterprise_Eb2cOrder_Helper_Event */
 	protected $_orderEventHelper;
+
 	/**
-	 * Setup dependencies
-	 * @return void
+	 * Initialize properties
 	 */
 	public function __construct()
 	{
+		$this->_shipmentEventHelper = Mage::helper('eb2corder/event_shipment');
+		$this->_orderHelper = Mage::helper('eb2corder');
 		$this->_log = Mage::helper('ebayenterprise_magelog');
-		$this->_orderCfg = Mage::helper('eb2corder')->getConfigModel();
+		$this->_orderCfg = $this->_orderHelper->getConfigModel();
 		$this->_orderEventHelper = Mage::helper('eb2corder/event');
 	}
 	/**
@@ -51,7 +51,8 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 			$order = Mage::getModel('eb2corder/detail')
 				->injectOrderDetail(Mage::registry('current_order'));
 		} catch (EbayEnterprise_Eb2cOrder_Exception_Order_Detail_Notfound $e) {
-			Mage::getSingleton('core/session')->addError(Mage::helper('eb2corder')->__($e->getMessage()));
+			Mage::getSingleton('core/session')->addError(
+				$this->_orderHelper->__($e->getMessage()));
 			Mage::app()->getResponse()->setRedirect(
 				$this->_getRedirectUrl($observer->getEvent()->getName())
 			);
@@ -92,23 +93,32 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	 */
 	public function updateOrdersWithSummaryData($observer)
 	{
-		$orderHelper = Mage::helper('eb2corder');
+		$orderHelper = $this->_orderHelper;
 		// Collection of orders that need to be updated with order summary response
 		// data.
 		$orderCollection = $observer->getEvent()->getOrderCollection();
 		// array of Varien_Objects keyed by increment id
 		// API call is cached in the order search model by customer id so this
 		// shouldn't result in duplicate calls
-		$summaryData = Mage::getModel('eb2corder/customer_order_search')
-			->getOrderSummaryData($orderHelper->prefixCustomerId($orderCollection->getCustomerId()));
+		$customerId = $orderCollection->getCustomerId();
+		$prefixCustomerId = $orderHelper->prefixCustomerId($customerId);
+		$orderLookup = Mage::getModel('eb2corder/customer_order_search');
+		$summaryData = $orderLookup->getOrderSummaryData($prefixCustomerId);
 
 		foreach ($orderCollection as $order) {
-			$orderData = $summaryData[$order->getIncrementId()];
-			$order->addData(array(
-				'created_at' => $orderData->getOrderDate(),
-				'grand_total' => $orderData->getOrderTotal(),
-				'status' => $orderHelper->mapEb2cOrderStatusToMage($orderData->getStatus()),
-			));
+			$incrementId = $order->getIncrementId();
+			$orderData = $summaryData[$incrementId];
+			$orderDate = $orderData->getOrderDate();
+			$orderTotal = $orderData->getOrderTotal();
+			$omsOrderStatus = $orderData->getStatus();
+			$mageOrderStatus =
+				$orderHelper->mapEb2cOrderStatusToMage($omsOrderStatus);
+			$orderOverlayData = array(
+				'created_at'  => $orderDate,
+				'grand_total' => $orderTotal,
+				'status'      => $mageOrderStatus,
+			);
+			$order->addData($orderOverlayData);
 		}
 		return $this;
 	}
@@ -153,7 +163,7 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	public function updateCanceledStatus(Varien_Event_Observer $observer)
 	{
 		$message = trim($observer->getEvent()->getMessage());
-		Mage::helper('ebayenterprise_magelog')->logDebug("\n[%s]: received cancel event with message:\n%s", array(__CLASS__, $message));
+		$this->_log->logDebug("\n[%s]: received cancel event with message:\n%s", array(__CLASS__, $message));
 		$orderCollection = $this->_loadOrdersFromXml($message);
 		$eventName = $observer->getEvent()->getName();
 		foreach ($orderCollection as $order) {
@@ -170,9 +180,8 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	 */
 	protected function _loadOrdersFromXml($xml)
 	{
-		$orderHelper = Mage::helper('eb2corder');
-		return $orderHelper->getOrderCollectionByIncrementIds(
-			$orderHelper->extractOrderEventIncrementIds($xml)
+		return $this->_orderHelper->getOrderCollectionByIncrementIds(
+			$this->_orderHelper->extractOrderEventIncrementIds($xml)
 		);
 	}
 	/**
@@ -183,10 +192,9 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	 */
 	public function processShipment(Varien_Event_Observer $observer)
 	{
-		$shipmentHelper = Mage::helper('eb2corder/event_shipment');
 		// Parsing the XML message string into an array of data.
-		$shipmentData = $shipmentHelper->extractShipmentData(trim($observer->getEvent()->getMessage()));
-		$orderCollection = Mage::helper('eb2corder')->getOrderCollectionByIncrementIds(array_keys($shipmentData));
+		$shipmentData = $this->_shipmentEventHelper->extractShipmentData(trim($observer->getEvent()->getMessage()));
+		$orderCollection = $this->_orderHelper->getOrderCollectionByIncrementIds(array_keys($shipmentData));
 		$logMsgOrderNotFound = '[%s] The shipment could not be added. The order (id: %s) was not found in this Magento store.';
 		$logMsgOrderNotShippable = '[%s] Order (%s) can not be shipped.';
 		foreach ($shipmentData as $incrementId => $data) {
@@ -199,7 +207,7 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 				$this->_log->logWarn($logMsgOrderNotShippable, array(__CLASS__, $incrementId));
 				continue;
 			}
-			$shipmentHelper->process($order, $data);
+			$this->_shipmentEventHelper->process($order, $data);
 		}
 		return $this;
 	}

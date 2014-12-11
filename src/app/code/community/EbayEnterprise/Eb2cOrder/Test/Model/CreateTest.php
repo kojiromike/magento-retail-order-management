@@ -625,7 +625,6 @@ INVALID_XML;
 	 */
 	public function testBuildGiftingNodes($giftMessageId, $addCard, $giftWrapId, $expectationKey)
 	{
-		$this->markTestSkipped('failing because $this->_domRequest not set?');
 		$sender = 'John<b/> Doe';
 		$cleanSender = 'John Doe';
 		$recipient = 'Jane <i>Doe</i>';

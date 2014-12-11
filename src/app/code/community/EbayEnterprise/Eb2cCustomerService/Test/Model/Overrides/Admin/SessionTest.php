@@ -13,7 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
 class EbayEnterprise_Eb2cCustomerService_Test_Model_Overrides_Admin_SessionTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
@@ -66,57 +65,6 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Overrides_Admin_SessionTest
 		$this->assertSame(
 			$expectedUrl,
 			EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_getStartpageUri')
-		);
-	}
-	/**
-	 * Provide wither the user is active and has been assigend to a role.
-	 * @return array Args array for self::testValidateUser
-	 */
-	public function provideActiveAndAssigned()
-	{
-		return array(array('1', true), array('1', false), array('0', true));
-	}
-	/**
-	 * Test validating the user account to be active and have a role assigned.
-	 * @param  bool $isActive
-	 * @param  bool $hasAssignedToRole
-	 * @dataProvider provideActiveAndAssigned
-	 */
-	public function testValidateUser($isActive, $hasAssignedToRole)
-	{
-		$userId = '2';
-		$user = $this->getModelMockBuilder('admin/user')
-			->disableOriginalConstructor()
-			->setMethods(array('getIsActive', 'hasAssigned2Role', 'getId'))
-			->getMock();
-
-		$user->expects($this->any())
-			->method('getId')
-			->will($this->returnValue($userId));
-
-		$user->expects($this->any())
-			->method('getIsActive')
-			->will($this->returnValue($isActive));
-		if ($isActive) {
-			$user->expects($this->any())
-				->method('hasAssigned2Role')
-				->with($this->identicalTo($userId))
-				->will($this->returnValue($hasAssignedToRole));
-		} else {
-			$user->expects($this->never())
-				->method('hasAssigned2Role');
-		}
-		if (!($isActive && $hasAssignedToRole)) {
-			$this->setExpectedException('EbayEnterprise_Eb2cCustomerService_Exception_Authentication');
-		}
-		$session = $this->getModelMockBuilder('admin/session')
-			->disableOriginalConstructor()
-			->setMethods(null)
-			->getMock();
-		EcomDev_Utils_Reflection::invokeRestrictedMethod(
-			$session,
-			'_validateUser',
-			array($user)
 		);
 	}
 }

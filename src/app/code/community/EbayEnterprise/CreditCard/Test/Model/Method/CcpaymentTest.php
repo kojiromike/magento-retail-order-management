@@ -166,7 +166,7 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 	 */
 	protected function _buildPayloadToValidate($isSuccess=true, $isAcceptable=true, $isAvsSuccess=true, $isCvvSuccess=true)
 	{
-		$payload = $this->getMock('eBayEnterprise\RetailOrderManagement\Payload\Payment\ICreditCardAuthReply');
+		$payload = $this->getMockForAbstractClass('\eBayEnterprise\RetailOrderManagement\Payload\Payment\ICreditCardAuthReply');
 		$payload->expects($this->any())
 			->method('getIsAuthSuccessful')
 			->will($this->returnValue($isSuccess));
@@ -181,34 +181,41 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 			->will($this->returnValue($isCvvSuccess));
 		return $payload;
 	}
+
 	/**
 	 * Provide a payload to validate and the name of the exception that should
 	 * be thrown if the payload is invalid.
 	 * @return array
 	 */
-	public function providePayloadAndException()
+	public function provideTestValidateResponse()
 	{
 		return array(
 			// all pass
-			array($this->_buildPayloadToValidate(true, true, true, true), null),
-			// no success but acceptable, no AVS or CVV failes
-			array($this->_buildPayloadToValidate(false, true, true, true), null),
+			array(true, true, true, true, null),
+			// no success but acceptable, no AVS or CVV failures
+			array(false, true, true, true, null),
 			// AVS failure
-			array($this->_buildPayloadToValidate(false, false, false, true), 'EbayEnterprise_CreditCard_Exception'),
+			array(false, false, false, true, 'EbayEnterprise_CreditCard_Exception'),
 			// CVV failure
-			array($this->_buildPayloadToValidate(false, false, true, false), 'EbayEnterprise_CreditCard_Exception'),
-			// no success, no failures but sill unacceptable
-			array($this->_buildPayloadToValidate(false, false, true, true), 'EbayEnterprise_CreditCard_Exception'),
+			array(false, false, true, false, 'EbayEnterprise_CreditCard_Exception'),
+			// no success, no failures but still unacceptable
+			array(false, false, true, true, 'EbayEnterprise_CreditCard_Exception'),
 		);
 	}
+
 	/**
-	 * Test validating response payloads to pass or thrown the expected exception
-	 * @param  Payload\Payment\ICreditCardAuthReply $payload
+	 * Response payload should pass or throw the expected exception
+	 *
+	 * @param  bool $isSuccess
+	 * @param  bool $isAcceptable
+	 * @param  bool $isAvsSuccess
+	 * @param  bool $isCvvSuccess
 	 * @param  string|null $exception Name of exception to throw, null if no expected exception
-	 * @dataProvider providePayloadAndException
+	 * @dataProvider provideTestValidateResponse
 	 */
-	public function testValidateResponse(Payload\Payment\ICreditCardAuthReply $payload, $exception)
+	public function testValidateResponse($isSuccess, $isAcceptable, $isAvsSuccess, $isCvvSuccess, $exception)
 	{
+		$payload = $this->_buildPayloadToValidate($isSuccess, $isAcceptable, $isAvsSuccess, $isCvvSuccess);
 		$this->_replaceCheckoutSession();
 		if ($exception) {
 			$this->setExpectedException($exception);
@@ -219,6 +226,7 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 			EcomDev_Utils_Reflection::invokeRestrictedMethod($paymentMethod, '_validateResponse', array($payload))
 		);
 	}
+
 	/**
 	 * Validate card data when CSE is enabled. When disabled, uses parent validation
 	 * which is provided by Magento.

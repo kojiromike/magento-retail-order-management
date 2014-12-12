@@ -20,6 +20,7 @@
 			<depends>
 				<Mage_Payment/>
 				<EbayEnterprise_Eb2cCore/>
+				<EbayEnterprise_MageLog/>
 			</depends>
 		</EbayEnterprise_PayPal>
 	</modules>

@@ -96,6 +96,7 @@ install_magento() (
         mysql -e 'DELETE FROM core_config_data WHERE path LIKE "web/%secure/base_url"\g'
         n98-magerun cache:disable config
     fi
+    cd errors && mv local.xml.sample local.xml
 )
 
 copy_testkit() {

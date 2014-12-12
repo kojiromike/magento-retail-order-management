@@ -80,14 +80,9 @@
 		</payment>
 		<ebayenterprise_paypal>
 			<general>
-				<active>0</active>
 				<title>eBay Enterprise PayPal</title>
-				<sandbox_flag>0</sandbox_flag>
 				<order_status>pending</order_status>
 				<payment_action>authorize</payment_action>
-				<allowspecific>0</allowspecific>
-				<min_order_total></min_order_total>
-				<max_order_total></max_order_total>
 			</general>
 			<api>
 				<service>payments</service>

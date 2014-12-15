@@ -438,7 +438,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 				$lineItem->setName($totalType)
 					->setSequenceNumber($totalType)
 					->setQuantity(1)
-					->setUnitAmount($totalAmount)
+					->setUnitAmount($totalType === 'discount' ? $totalAmount : -$totalAmount)
 					->setCurrencyCode($currencyCode);
 				$lineItems->offsetSet($lineItem, null);
 			}

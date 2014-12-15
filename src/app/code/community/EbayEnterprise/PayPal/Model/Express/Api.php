@@ -422,6 +422,9 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		Mage_Sales_Model_Quote $quote,
 		Payload\Payment\ILineItemContainer $container
 	) {
+		if ($this->_skipAddingLineItems($quote)) {
+			return;
+		}
 		$items = (array) $quote->getAllItems();
 		$lineItems = $container->getLineItems();
 		$currencyCode = $quote->getQuoteCurrencyCode();
@@ -447,6 +450,14 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		$lineItems->setShippingTotal($this->_getTotal('shipping', $quote));
 		$lineItems->setTaxTotal($this->_getTotal('tax', $quote));
 		$lineItems->setCurrencyCode($quote->getQuoteCurrencyCode());
+	}
+
+	protected function _skipAddingLineItems($quote)
+	{
+		$reductions = -$this->_getTotal('discount', $quote);
+		$reductions += $this->_getTotal('giftcardaccount', $quote);
+		$reductions += $this->_getTotal('ebayenterprise_giftcard', $quote);
+		return  $this->_getTotal('subtotal', $quote) < $reductions;
 	}
 
 	/**

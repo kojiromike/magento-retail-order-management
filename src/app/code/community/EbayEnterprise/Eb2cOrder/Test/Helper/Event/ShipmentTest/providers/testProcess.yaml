@@ -1,19 +1,4 @@
 -
-  - o89ladjjp2383ssa: # Shipment Id
-      -
-        sku: ABCD1234
-        quantity: 1.0
-        tracking:
-          -
-             tracking_number: 039378372726726262
-             tracking_url: https://tools.usps.com/go/TrackConfirmAction!input.action
-      -
-        sku: EFGH5678
-        quantity: 3.0
-        tracking:
-         -
-           tracking_number: 00398834898827332
-           tracking_url: https://www.fedex.com/fedextrack/html/index.html?action=track&r=g
   -
     -
       item_id: 8
@@ -23,14 +8,6 @@
       sku: EFGH5678
   - false
 -
-  - 0004848448333: # Shipment Id
-      -
-        sku: XYZ6884
-        quantity: 2.0
-        tracking:
-          -
-             tracking_number: 000999373736743
-             tracking_url: http://www.ups.com/tracking/tracking.html
   -
     -
       item_id: 56

@@ -88,15 +88,15 @@
 					</eb2corder_update_event_order_status_cancel>
 				</observers>
 			</ebayenterprise_order_event_cancel>
-			<ebayenterprise_order_event_shipment_confirmation>
+			<ebayenterprise_amqp_message_order_shipped>
 				<observers>
 					<eb2corder_update_event_order_shipment_confirmation>
 						<type>model</type>
 						<class>eb2corder/observer</class>
-						<method>processShipment</method>
+						<method>processAmqpMessageOrderShipped</method>
 					</eb2corder_update_event_order_shipment_confirmation>
 				</observers>
-			</ebayenterprise_order_event_shipment_confirmation>
+			</ebayenterprise_amqp_message_order_shipped>
 		</events>
 	</global>
 	<crontab>

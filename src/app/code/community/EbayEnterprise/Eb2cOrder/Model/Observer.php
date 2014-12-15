@@ -185,30 +185,19 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 		);
 	}
 	/**
-	 * Listens to the 'ebayenterprise_order_event_shipment_confirmation' event in order to
-	 * add 'sales/order' shipment and tracking information.
-	 * @param Varien_Event_Observer $observer
+	 * Consume the event 'ebayenterprise_amqp_message_order_shipped'. Pass the payload
+	 * from the event down to the 'eb2corder/ordershipped' instance. Invoke the process
+	 * method on the 'eb2corder/ordershipped' instance.
+	 * @param  Varien_Event_Observer $observer
 	 * @return self
 	 */
-	public function processShipment(Varien_Event_Observer $observer)
+	public function processAmqpMessageOrderShipped(Varien_Event_Observer $observer)
 	{
-		// Parsing the XML message string into an array of data.
-		$shipmentData = $this->_shipmentEventHelper->extractShipmentData(trim($observer->getEvent()->getMessage()));
-		$orderCollection = $this->_orderHelper->getOrderCollectionByIncrementIds(array_keys($shipmentData));
-		$logMsgOrderNotFound = '[%s] The shipment could not be added. The order (id: %s) was not found in this Magento store.';
-		$logMsgOrderNotShippable = '[%s] Order (%s) can not be shipped.';
-		foreach ($shipmentData as $incrementId => $data) {
-			$order = $orderCollection->getItemByColumnValue('increment_id', $incrementId);
-			if (is_null($order)) {
-				$this->_log->logWarn($logMsgOrderNotFound, array(__CLASS__, $incrementId));
-				continue;
-			}
-			if (!$order->canShip()) {
-				$this->_log->logWarn($logMsgOrderNotShippable, array(__CLASS__, $incrementId));
-				continue;
-			}
-			$this->_shipmentEventHelper->process($order, $data);
-		}
+		Mage::getModel('eb2corder/ordershipped', array(
+			'payload' => $observer->getEvent()->getPayload(),
+			'shipment_event_helper' => $this->_shipmentEventHelper,
+			'logger' => $this->_log
+		))->process();
 		return $this;
 	}
 }

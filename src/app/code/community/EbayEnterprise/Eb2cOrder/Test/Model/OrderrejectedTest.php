@@ -19,10 +19,10 @@ use eBayEnterprise\RetailOrderManagement\Payload\OrderEvents;
 class EbayEnterprise_Eb2cOrder_Test_Model_OrderrejectedTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	const PAYLOAD_CUSTOMER_ORDER_ID = '10000003';
-	const PAYPLOAD_STORE_ID = 'GTA36';
-	const PAYPLOAD_ORDER_CREATE_TIMESTAMP = '2014-11-26T08:09:33-04:00';
-	const PAYPLOAD_REASON = 'Testing invalid payment reason message';
-	const PAYPLOAD_CODE = 'Invalid Payment';
+	const PAYLOAD_STORE_ID = 'GTA36';
+	const PAYLOAD_ORDER_CREATE_TIMESTAMP = '2014-11-26T08:09:33-04:00';
+	const PAYLOAD_REASON = 'Testing invalid payment reason message';
+	const PAYLOAD_CODE = 'Invalid Payment';
 
 	/** @var OrderEvents\OrderRejected $_payload */
 	protected $_payload;
@@ -39,10 +39,10 @@ class EbayEnterprise_Eb2cOrder_Test_Model_OrderrejectedTest extends EbayEnterpri
 			$this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\ISchemaValidator')
 		);
 		$this->_payload->setCustomerOrderId(static::PAYLOAD_CUSTOMER_ORDER_ID)
-			->setStoreId(static::PAYPLOAD_STORE_ID)
-			->setOrderCreateTimestamp(new DateTime(static::PAYPLOAD_ORDER_CREATE_TIMESTAMP))
-			->setReason(static::PAYPLOAD_REASON)
-			->setCode(static::PAYPLOAD_CODE);
+			->setStoreId(static::PAYLOAD_STORE_ID)
+			->setOrderCreateTimestamp(new DateTime(static::PAYLOAD_ORDER_CREATE_TIMESTAMP))
+			->setReason(static::PAYLOAD_REASON)
+			->setCode(static::PAYLOAD_CODE);
 
 		$this->_eventHelper = $this->getHelperMock('eb2corder/event', array('attemptCancelOrder'));
 

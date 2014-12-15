@@ -13,18 +13,24 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use eBayEnterprise\RetailOrderManagement\Payload;
+use eBayEnterprise\RetailOrderManagement\Payload\OrderEvents;
+
 class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 {
 	const CUSTOM_CARRIER_CODE = 'custom';
 	const TRACKING_TITLE = 'Custom Value';
-	/**
-	 * @var EbayEnterprise_MageLog_Helper_Data
-	 */
+	const ENTITY_TYPE = 'shipment';
+
+	/**  @var EbayEnterprise_MageLog_Helper_Data $_log */
 	protected $_log;
+	/** @var Mage_Eav_Model_Config $_eavConfig */
+	protected $_eavConfig;
 
 	public function __construct()
 	{
 		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_eavConfig = Mage::getSingleton('eav/config');
 	}
 	/**
 	 * Caching known Magento shipping carrier codes and titles as an array.
@@ -32,117 +38,37 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 	 */
 	protected $_carriers = array();
 	/**
-	 * Extract shipment data from a passed-in XML string parameter to build
-	 * an array containing increment IDs of orders map to an array of shipment
-	 * data. Each shipment data contain an array of order items with product
-	 * SKU, item shipped Qty, and an array of tracking data. The tracking data
-	 * contain Tracking numbers and Tracking URLs.
-	 * @param  string $xml
-	 * @return array
-	 */
-	public function extractShipmentData($xml)
-	{
-		$data = array();
-		if ($xml) {
-			$doc = Mage::helper('eb2corder')->loadXml($xml);
-			$xpath = Mage::helper('eb2ccore')->getNewDomXPath($doc);
-			$prefix = 'a';
-			$xpath->registerNamespace($prefix, $doc->documentElement->lookupnamespaceURI(null));
-			foreach ($xpath->query("//$prefix:OrderEvent/$prefix:Shipment") as $shipment) {
-				$incrementId = $this->_extractValue($xpath, $shipment, "$prefix:OrderHeader/$prefix:WebstoreOrderNumber");
-				if ($incrementId) {
-					$data[$incrementId] = $this->_extractShipmentDetails($xpath, $shipment, $prefix);
-				}
-			}
-		}
-		return $data;
-	}
-	/**
-	 * Extract a node value from a passed in XPath object, a context node and an XPath query string expression.
-	 * @param  DOMXPath $xpath
-	 * @param  DOMNode $node
-	 * @param  string $expression The XPath query string
-	 * @return string | null
-	 */
-	protected function _extractValue(DOMXPath $xpath, DOMNode $node, $expression)
-	{
-		return Mage::helper('eb2ccore')->extractNodeVal($xpath->query($expression, $node));
-	}
-	/**
-	 * Extract all shipment details for creating or updating a Magento order shipment.
-	 * @param  DOMXPath $xpath
-	 * @param  DOMNode $shipment
-	 * @param  string $prefix The registered name-space for XPath
-	 * @return array
-	 */
-	protected function _extractShipmentDetails(DOMXPath $xpath, DOMNode $shipment, $prefix)
-	{
-		$details = array();
-		foreach ($xpath->query("$prefix:Shipments/$prefix:Shipment", $shipment) as $detail) {
-			$shipmentId = $this->_extractValue($xpath, $detail, "$prefix:ShipmentId");
-			if ($shipmentId) {
-				$details[$shipmentId] = $this->_extractOrderItem($xpath, $xpath->query("$prefix:OrderItems/$prefix:OrderItem", $detail), $prefix);
-			}
-		}
-		return $details;
-	}
-	/**
-	 * Extract shipment data for `sales/order_shipment_item’ instance and `sales/order_shipment_track’ instance.
-	 * @param  DOMXPath $xpath
-	 * @param  DOMNodeList $orderItems
-	 * @param  string $prefix The registered name-space for XPath
-	 * @return array
-	 */
-	protected function _extractOrderItem(DOMXPath $xpath, DOMNodeList $orderItems, $prefix)
-	{
-		$items = array();
-		foreach ($orderItems as $item) {
-			$items[] = array(
-				'sku' => $this->_extractValue($xpath, $item, "$prefix:Product/$prefix:SKU"),
-				'quantity' => $this->_extractValue($xpath, $item, "$prefix:Product/$prefix:Quantity"),
-				'tracking' => $this->_extractTrackingInfo(
-					$xpath, $xpath->query("$prefix:TrackingNumberList/$prefix:TrackingInfo", $item), $prefix
-				)
-			);
-		}
-		return $items;
-	}
-	/**
-	 * Extract shipment data specifically for a `sales/order_shipment_track’ instance.
-	 * @param  DOMXPath $xpath
-	 * @param  DOMNodeList $trackingInfos
-	 * @param  string $prefix The registered name-space for XPath
-	 * @return array
-	 */
-	protected function _extractTrackingInfo(DOMXPath $xpath, DOMNodeList $trackingInfos, $prefix)
-	{
-		$tracking = array();
-		foreach ($trackingInfos as $info) {
-			$tracking[] = array(
-				'tracking_number' => $this->_extractValue($xpath, $info, "$prefix:TrackingNumber"),
-				'tracking_url' => $this->_extractValue($xpath, $info, "$prefix:TrackingURL"),
-			);
-		}
-		return $tracking;
-	}
-	/**
 	 * Build a shipment Qty(s) array to prepare a 'sales/order_shipment' instance.
 	 * The array keys will be the values of 'sales/order_item::getItemId' map to the
-	 * quantity values from the passed in shipment data array.
-	 * @param  array $shipmentData
+	 * quantity values from the passed in 'OrderEvents\IOrderItemIterable' instance.
+	 * @param  OrderEvents\IOrderItemIterable $orderItems
 	 * @param  Varien_Data_Collection $items
 	 * @return array
 	 */
-	protected function _buildShipmentQtys(array $shipmentData=array(), Varien_Data_Collection $items)
+	protected function _buildShipmentQtys(OrderEvents\IOrderItemIterable $orderItems, Varien_Data_Collection $items)
 	{
 		$qtys = array();
-		foreach ($shipmentData as $data) {
-			$item = $items->getItemByColumnValue('sku', $data['sku']);
-			if ($item) {
-				$qtys[$item->getItemId()] = $data['quantity'];
-			}
+		foreach ($orderItems as $orderItem) {
+			$this->_appendToQtyArray($orderItem, $items, $qtys);
 		}
 		return $qtys;
+	}
+	/**
+	 * Append a new quantity index to the passed in 'qtys' array when a match Magento
+	 * order item is found in the pass in items collection.
+	 * @param  OrderEvents\IOrderItem $orderItem
+	 * @param  Varien_Data_Collection $items
+	 * @param  array $qtys
+	 * @return self
+	 */
+	protected function _appendToQtyArray(OrderEvents\IOrderItem $orderItem, Varien_Data_Collection $items, array &$qtys)
+	{
+		$item = $items->getItemByColumnValue('sku', $orderItem->getItemId());
+		if ($item) {
+			// Magento only support integer quantity
+			$qtys[$item->getItemId()] = (int) $orderItem->getShippedQuantity();
+		}
+		return $this;
 	}
 	/**
 	 * Prepare shipment using Qty(s) array for a 'sales/order' object.
@@ -155,40 +81,53 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 		return $order->prepareShipment($qtys);
 	}
 	/**
-	 * Adding tracks to a 'sales/order_shipment' instance using the passed in shipment data array,
-	 * loop through each shipment data item, get the array list of tracking data and prepare the
+	 * Adding tracks to a 'sales/order_shipment' instance using the passed in 'OrderEvents\IOrderItemIterable' instance,
+	 * loop through each shipped order item, get the array list of tracking data and prepare the
 	 * tracking data to be added to the 'sales/order_shipment_track' object.
-	 * @param  array $shipmentData
+	 * @param  OrderEvents\IOrderItemIterable $orderItems
 	 * @param  Mage_Sales_Model_Order_Shipment $shipment
 	 * @return self
 	 */
-	protected function _addTrackingToShipment(array $shipmentData, Mage_Sales_Model_Order_Shipment $shipment)
+	protected function _addTrackingToShipment(OrderEvents\IOrderItemIterable $orderItems, Mage_Sales_Model_Order_Shipment $shipment)
 	{
-		foreach ($shipmentData as $data) {
-			foreach ($data['tracking'] as $track) {
-				$shipment->addTrack($this->_initNewTrackInstance($track));
-			}
+		foreach ($orderItems as $orderItem) {
+			$this->_addAllTrackings($orderItem->getTrackingNumbers(), $shipment);
 		}
 		return $this;
 	}
 	/**
+	 * Add tracks from a passed in 'OrderEvents\ITrackingNumberIterable' instance to a passed in
+	 * 'sales/order_shipment' instance.
+	 * @param  OrderEvents\ITrackingNumberIterable $trackingNumbers
+	 * @param  Mage_Sales_Model_Order_Shipment $shipment
+	 * @return self
+	 */
+	protected function _addAllTrackings(OrderEvents\ITrackingNumberIterable $trackingNumbers, Mage_Sales_Model_Order_Shipment $shipment)
+	{
+		foreach ($trackingNumbers as $track) {
+			$shipment->addTrack($this->_initNewTrackInstance($track));
+		}
+		return $this;
+	}
+
+	/**
 	 * Instantiate a new 'sales/order_shipment_track' object and initialize it with a passed in track data.
-	 * @param  array $track
+	 * @param  OrderEvents\ITrackingNumber $track
 	 * @return Mage_Sales_Model_Order_Shipment_Track
 	 */
-	protected function _initNewTrackInstance(array $track)
+	protected function _initNewTrackInstance(OrderEvents\ITrackingNumber $track)
 	{
 		return Mage::getModel('sales/order_shipment_track', $this->_buildTrackData($track));
 	}
 	/**
-	 * Build track data array using passed in track data parameter.
-	 * @param  array $track
+	 * Build track data array using passed in track number instance.
+	 * @param  OrderEvents\ITrackingNumber $track
 	 * @return array
 	 */
-	protected function _buildTrackData(array $track)
+	protected function _buildTrackData(OrderEvents\ITrackingNumber $track)
 	{
-		$data = $this->_derivePartialTrackData($track['tracking_url']);
-		$data['number'] = $track['tracking_number'];
+		$data = $this->_derivePartialTrackData($track->getUrl());
+		$data['number'] = $track->getTrackingNumber();
 		return $data;
 	}
 	/**
@@ -232,27 +171,36 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 		return array('carrier_code' => static::CUSTOM_CARRIER_CODE, 'title' => static::TRACKING_TITLE);
 	}
 	/**
-	 * Taking a 'sales/order' instance and an array of shipment data as parameters and then adding
-	 * the shipment and tracking information to the `sales/order’ instance. Reconcile any discrepancies
+	 * Get new shipment increment id
+	 * @param  Mage_Sales_Model_Order $order
+	 * @return string
+	 */
+	protected function _getNewShipmentIncrementId(Mage_Sales_Model_Order $order)
+	{
+		return $this->_eavConfig->getEntityType(static::ENTITY_TYPE)->fetchNewIncrementId($order->getStoreId());
+	}
+	/**
+	 * Taking a 'sales/order' instance and an instance of 'OrderEvents\IOrderShipped' as parameters and then adding
+	 * the shipment and tracking information to the 'sales/order' instance. Reconcile any discrepancies
 	 * by validating the expected shipment data is indeed in the Magento order; otherwise, log the
 	 * discrepancies.
 	 * @param  Mage_Sales_Model_Order $order
-	 * @param  array $shipmentData
+	 * @param  OrderEvents\IOrderShipped $payload
 	 * @return self
 	 */
-	public function process(Mage_Sales_Model_Order $order, array $shipmentData)
+	public function process(Mage_Sales_Model_Order $order, OrderEvents\IOrderShipped $payload)
 	{
-		$incrementId = $order->getIncrementId();
-		foreach ($shipmentData as $shipmentId => $data) {
-			$qtys = $this->_buildShipmentQtys($data, $order->getItemsCollection());
-			if (!empty($qtys)) {
-				$shipment = $this->_addShipmentToOrder($qtys, $order)
-					->setData('increment_id', $shipmentId);
-				$this->_addTrackingToShipment($data, $shipment)
-					->_registerShipment($shipment, $incrementId)
-					->_saveShipment($shipment, $incrementId)
-					->_reconcileShipment($data, $shipmentId, $incrementId);
-			}
+		$orderItems = $payload->getOrderItems();
+		$qtys = $this->_buildShipmentQtys($orderItems, $order->getItemsCollection());
+		if (!empty($qtys)) {
+			$incrementId = $order->getIncrementId();
+			$shipmentId = $this->_getNewShipmentIncrementId($order);
+			$shipment = $this->_addShipmentToOrder($qtys, $order)
+				->setData('increment_id', $shipmentId);
+			$this->_addTrackingToShipment($orderItems, $shipment)
+				->_registerShipment($shipment, $incrementId)
+				->_saveShipment($shipment, $incrementId)
+				->_reconcileShipment($orderItems, $shipmentId, $incrementId);
 		}
 		return $this;
 	}
@@ -297,43 +245,51 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 		return $this;
 	}
 	/**
-	 * Reconcile the successfully created order shipment against the expected shipment data. Log any
+	 * Reconcile the successfully created order shipment against the expected payload. Log any
 	 * discrepancies between the shipment data and the 'sales/order_shipment' data.
-	 * @param  array $shipmentData
+	 * @param  OrderEvents\IOrderItemIterable $orderItems
 	 * @param  string $shipmentId
 	 * @param  string $orderIncrementId
 	 * @return self
 	 */
-	protected function _reconcileShipment(array $shipmentData, $shipmentId, $orderIncrementId)
+	protected function _reconcileShipment(OrderEvents\IOrderItemIterable $orderItems, $shipmentId, $orderIncrementId)
 	{
 		$shipment = Mage::getModel('sales/order_shipment')->loadByIncrementId($shipmentId);
-		if (!$shipment->getI()) {
+		if (!$shipment->getId()) {
 			$logMessage = '[%s] Magento did not add an expected shipment to the following order (id: %s).';
 			$this->_log->logWarn($logMessage, array(__CLASS__, $orderIncrementId));
 		}
-		$this->_reconcileItems($shipment->getItemsCollection(), $shipmentData, 'sku', 'sku', 'item')
-			->_reconcileTracks($shipment->getTracksCollection(), $shipmentData);
+		$this->_reconcileItems($shipment->getItemsCollection(), $orderItems)
+			->_reconcileTracks($shipment->getTracksCollection(), $orderItems);
 		return $this;
 	}
 	/**
 	 * Reconcile shipment items by checking if the expected shipment items are in
 	 * Magento. Log when the expected items are not found in Magento.
 	 * @param  Varien_Data_Collection $items
-	 * @param  array $itemData
-	 * @param  string $columnName The name of the column to get the item by
-	 * @param  string $key The key to extract the value to be passed in to get the item by
-	 * @param  string $section The specific shipment section such as shipment item or shipment track
+	 * @param  OrderEvents\IOrderItemIterable $orderItems
 	 * @return self
 	 */
-	protected function _reconcileItems(Varien_Data_Collection $items, array $itemData, $columnName, $key, $section='item')
+	protected function _reconcileItems(Varien_Data_Collection $items, OrderEvents\IOrderItemIterable $orderItems)
 	{
-		foreach ($itemData as $data) {
-			$value = $data[$key];
-			$item = $items->getItemByColumnValue($columnName, $value);
-			if (is_null($item)) {
-				$logMessage = '[%s] Magento did not add an expected-to-be-shipped %s (%s) to the shipment.';
-				$this->_log->logWarn($logMessage, array(__CLASS__, $section, $value));
-			}
+		foreach ($orderItems as $orderItem) {
+			$this->_verifyItem($items, $orderItem);
+		}
+		return $this;
+	}
+	/**
+	 * Verify that the passed in order item is in the collection of Magento order items.
+	 * @param  Varien_Data_Collection $items
+	 * @param  OrderEvents\IOrderItem $orderItem
+	 * @return self
+	 */
+	protected function _verifyItem(Varien_Data_Collection $items, OrderEvents\IOrderItem $orderItem)
+	{
+		$sku = $orderItem->getItemId();
+		$item = $items->getItemByColumnValue('sku', $sku);
+		if (is_null($item)) {
+			$logMessage = '[%s] Magento did not add an expected-to-be-shipped item (%s) to the shipment.';
+			$this->_log->logWarn($logMessage, array(__CLASS__, $sku));
 		}
 		return $this;
 	}
@@ -341,13 +297,42 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 	 * Reconcile shipment tracks by checking if the expected shipment tracks are in Magento.
 	 * Log when the expected tracks are not found in Magento.
 	 * @param  Varien_Data_Collection $tracks
-	 * @param  array $trackData
+	 * @param  OrderEvents\IOrderItemIterable $orderItems
 	 * @return self
 	 */
-	protected function _reconcileTracks(Varien_Data_Collection $tracks, array $trackData)
+	protected function _reconcileTracks(Varien_Data_Collection $tracks, OrderEvents\IOrderItemIterable $orderItems)
 	{
-		foreach ($trackData as $itemData) {
-			$this->_reconcileItems($tracks, $itemData['tracking'], 'track_number', 'tracking_number', 'track');
+		foreach ($orderItems as $orderItem) {
+			$this->_verifyAllTracks($tracks, $orderItem->getTrackingNumbers());
+		}
+		return $this;
+	}
+	/**
+	 * Loop through each track and verify it exists in Magento.
+	 * @param  Varien_Data_Collection $tracks
+	 * @param  OrderEvents\ITrackingNumberIterable $trackingNumbers
+	 * @return self
+	 */
+	protected function _verifyAllTracks(Varien_Data_Collection $tracks, OrderEvents\ITrackingNumberIterable $trackingNumbers)
+	{
+		foreach ($trackingNumbers as $trackingNumber) {
+			$this->_verifyTrack($tracks, $trackingNumber);
+		}
+		return $this;
+	}
+	/**
+	 * Verify that the passed in track number is in the collections of Magento shipment tracks, otherwise logs warning message.
+	 * @param  Varien_Data_Collection $tracks
+	 * @param  OrderEvents\ITrackingNumber $trackingNumber
+	 * @return self
+	 */
+	protected function _verifyTrack(Varien_Data_Collection $tracks, OrderEvents\ITrackingNumber $trackingNumber)
+	{
+		$number = $trackingNumber->getTrackingNumber();
+		$track = $tracks->getItemByColumnValue('track_number', $number);
+		if (is_null($track)) {
+			$logMessage = '[%s] Magento did not add an expected-to-be-shipped Track number (%s) to the shipment.';
+			$this->_log->logWarn($logMessage, array(__CLASS__, $number));
 		}
 		return $this;
 	}

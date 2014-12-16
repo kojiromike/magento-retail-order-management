@@ -19,20 +19,43 @@
  * @method string getShortcutHtmlId()
  * @method string getImageUrl()
  * @method string getCheckoutUrl()
- * @method string getBmlShortcutHtmlId()
- * @method string getBmlCheckoutUrl()
- * @method string getBmlImageUrl()
- * @method string getIsBmlEnabled()
  * @method string getConfirmationUrl()
  * @method string getIsInCatalogProduct()
  * @method string getConfirmationMessage()
  */
 class EbayEnterprise_PayPal_Block_Logo extends Mage_Core_Block_Template
 {
-	/**
-	 * Whether the block should be eventually rendered
-	 *
-	 * @var bool
-	 */
+	/** @var bool Whether the block should be eventually rendered */
 	protected $_shouldRender = true;
+
+	/**
+	 * Get the url for the PayPal "about" page
+	 * @return string
+	 */
+	public function getAboutPaypalPageUrl()
+	{
+		$local = Mage::app()->getLocale();
+		return sprintf(
+			'https://www.paypal.com/%s/cgi-bin/webscr?cmd=xpt/Marketing/popup/OLCWhatIsPayPal-outside',
+			$locale->getLocaleCode()
+		);
+	}
+
+	/**
+	 * override to ensure we set the logo type based on what's in
+	 * the layout update xml
+	 * @return string
+	 */
+	protected function _toHtml()
+	{
+		$config = Mage::helper('ebayenterprise_paypal')->getConfigModel();
+		$localeCode = Mage::app()->getLocale()->getLocaleCode();
+		$type = $this->getLogoType() ?: $config->logoType; // can be assigned in layout
+		$logoUrl = sprintf(
+			'https://www.paypalobjects.com/%s/i/bnr/bnr_%s.gif',
+			$localeCode,
+			$type
+		);
+		$this->setLogoImageUrl($logoUrl);
+	}
 }

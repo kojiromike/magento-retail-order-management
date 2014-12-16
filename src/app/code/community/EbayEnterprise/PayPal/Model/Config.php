@@ -32,6 +32,7 @@ class EbayEnterprise_PayPal_Model_Config
 			'min_order_total'                    => 'ebayenterprise_paypal/general/min_order_total',
 			'max_order_total'                    => 'ebayenterprise_paypal/general/max_order_total',
 			'payment_mark_size'                  => 'ebayenterprise_paypal/general/payment_mark_size',
+			'logo_type'                          => 'ebayenterprise_paypal/general/logo_type',
 			// api configuration
 			'api_operation_set_express_checkout' => 'ebayenterprise_paypal/api/operation_set_express_checkout',
 			'api_operation_get_express_checkout' => 'ebayenterprise_paypal/api/operation_get_express_checkout',

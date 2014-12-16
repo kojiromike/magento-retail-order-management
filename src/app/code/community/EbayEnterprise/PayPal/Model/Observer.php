@@ -18,37 +18,37 @@
  */
 class EbayEnterprise_Paypal_Model_Observer
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_log;
+
+	/**
+	 * Set up the logger
+	 */
+	public function __construct()
+	{
+		$this->_log = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * undo/cancel the PayPal payment
 	 *
 	 * @param  Varien_Event_Observer $observer
-	 *
-	 * @self
+	 * @return self
 	 */
 	public function rollbackExpressPayment(Varien_Event_Observer $observer)
 	{
-		$logger = Mage::helper('ebayenterprise_magelog');
-		$logger->logDebug('[%s] Rollback event triggered', array(__CLASS__));
 		$order = $observer->getEvent()->getOrder();
-		$payment = $order->getPayment();
-		$methodInstance = $payment->getMethodInstance();
-		if ($methodInstance instanceof
-			EbayEnterprise_Paypal_Model_Method_Express
-			&& $methodInstance->canVoid($payment)
-		) {
-			$api = Mage::getModel('ebayenterprise_paypal/express_api');
-			try {
-				$logger->logDebug(
-					'[%s] Sending void request', array(__CLASS__)
-				);
-				$api->doVoid($order);
-				$logger->logDebug(
-					'[%s] Void request completed', array(__CLASS__)
-				);
-			} catch (EbayEnterprise_PayPal_Exception $e) {
-				$logger->logWarn('[%s] Void request failed', array(__CLASS__));
-			}
+		if ($order instanceof Mage_Sales_Model_Order) {
+			$this->_getVoidModel()->void($order);
 		}
 		return $this;
+	}
+
+	/**
+	 * @return EbayEnterprise_PayPal_Model_Void
+	 */
+	protected function _getVoidModel()
+	{
+		return Mage::getModel('ebayenterprise_paypal/void');
 	}
 }

@@ -778,28 +778,9 @@ INVALID_XML;
 	{
 		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML($response);
-
-		$mockConfig = $this->getModelMockBuilder('eb2ccore/config_registry')
-			->setMethods(array('__get'))
-			->getMock();
-		$mockConfig->expects($this->once())
-			->method('__get')
-			->will($this->returnValueMap(array(
-				array('isPaymentEnabled', true)
-			)));
-
-		$helperMock = $this->getHelperMockBuilder('eb2cpayment/data')
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigModel'))
-			->getMock();
-		$helperMock->expects($this->once())
-			->method('getConfigModel')
-			->will($this->returnValue($mockConfig));
-		$this->replaceByMock('helper', 'eb2cpayment', $helperMock);
-
 		$payment = Mage::getModel('sales/order_payment')->addData(array(
 			'entity_id' => 1,
-			'method' => 'Paypal_express',
+			'method' => 'ebayenterprise_paypal_express',
 			'created_at' => '2012-07-06 10:09:05',
 			'amount_authorized' => 50.00,
 			'cc_status' => 'success',
@@ -822,7 +803,6 @@ INVALID_XML;
 
 		$create = new EbayEnterprise_Eb2cOrder_Model_Create;
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_ebcPaymentMethodMap', array('Paypal_express' => 'PayPal'));
 		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayments', array($doc->documentElement)));
 
 		// ensure the payment account unique id is set correctly.
@@ -1632,27 +1612,15 @@ INVALID_XML;
 	 * This will occur when the passed in order object has a PayPal payment method and the ROM payment extension is enabled.
 	 * @param string $xml
 	 * @param array $paymentData
-	 * @param bool $isPaymentEnabled
 	 * @param string $expected
 	 * @dataProvider dataProvider
 	 */
-	public function testBuildPayPalPayerInfo($xml, array $paymentData, $isPaymentEnabled, $expected)
+	public function testBuildPayPalPayerInfo(
+		$xml, array $paymentData, $expected
+	)
 	{
 		$order = Mage::getModel('sales/order');
 		$order->addPayment(Mage::getModel('sales/order_payment', $paymentData));
-
-		$helper = $this->getHelperMockBuilder('eb2cpayment/data')
-			/** @see EbayEnterprise_Eb2cPayment_Helper_Data::__construct **/
-			// Mocking the ‘eb2ccore/config_registry’ has inadvertently caused errors in the
-			// ‘eb2cpayment/data:: __construct’ method; however, disabling the constructor seems
-			// the best solution since it isn't needed for this test.
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigModel'))
-			->getMock();
-		$helper->expects($this->any())
-			->method('getConfigModel')
-			->will($this->returnValue($this->buildCoreConfigRegistry(array('isPaymentEnabled' => $isPaymentEnabled))));
-		$this->replaceByMock('helper', 'eb2cpayment', $helper);
 
 		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML($xml);
@@ -1683,20 +1651,6 @@ INVALID_XML;
 		$order = Mage::getModel('sales/order');
 		$orderPayment = Mage::getModel('sales/order_payment', $paymentData);
 		$order->addPayment($orderPayment);
-		$isPaymentEnabled = true;
-
-		$helper = $this->getHelperMockBuilder('eb2cpayment/data')
-			/** @see EbayEnterprise_Eb2cPayment_Helper_Data::__construct **/
-			// Mocking the ‘eb2ccore/config_registry’ has inadvertently caused errors in the
-			// ‘eb2cpayment/data:: __construct’ method; however, disabling the constructor seems
-			// the best solution since it isn't needed for this test.
-			->disableOriginalConstructor()
-			->setMethods(array('getConfigModel'))
-			->getMock();
-		$helper->expects($this->any())
-			->method('getConfigModel')
-			->will($this->returnValue($this->buildCoreConfigRegistry(array('isPaymentEnabled' => $isPaymentEnabled))));
-		$this->replaceByMock('helper', 'eb2cpayment', $helper);
 
 		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML($xml);

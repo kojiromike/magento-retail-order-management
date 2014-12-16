@@ -1,0 +1,50 @@
+setExpress:
+  token: token
+getExpress:
+  order_id: ~
+  country_id:
+  email:
+  firstname:
+  payer_id: ~
+  lastname: ~
+  middlename: ~
+  suffix: ~
+  phone: ~
+  status: ~
+  response_code: ~
+  billing_address:
+    street: ~
+    city: ~
+    region_code: ~
+    postcode: ~
+    country_id: ~
+  shipping_address:
+    street: ~
+    city: ~
+    region_code: ~
+    postcode: ~
+    country_id: ~
+doExpress:
+  order_id: ~
+  transaction_id: ~
+  response_code: ~
+doAuth:
+  success:
+    order_id: ~
+    payment_status: ~
+    pending_reason: ~
+    reason_code: ~
+    is_authorized: true
+  failure:
+    order_id: ~
+    payment_status: ~
+    pending_reason: ~
+    reason_code: ~
+    is_authorized: false
+void:
+  success:
+    order_id: ~
+    is_voided: true
+  failure:
+    order_id: ~
+    is_voided: false

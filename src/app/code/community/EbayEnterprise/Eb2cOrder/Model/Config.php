@@ -38,7 +38,6 @@ class EbayEnterprise_Eb2cOrder_Model_Config extends EbayEnterprise_Eb2cCore_Mode
 		'detail_payment_method_mapping'  => 'eb2corder/detail_mapping/payment_methods',
 		'detail_status_mapping'          => 'eb2corder/detail_mapping/status',
 		'detail_shipment_info_mapping'   => 'eb2corder/detail_mapping/shipment_info_data',
-		'eb2c_payments_enabled'          => 'eb2cpayment/enabled',
 		'shipping_tax_class'             => 'eb2corder/shipping/tax_class',
 		'transactional_emailer'          => 'eb2ccore/email/transactional_emailer',
 		'xsd_file_cancel'                => 'eb2corder/xsd/cancel_file',

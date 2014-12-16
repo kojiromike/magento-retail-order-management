@@ -12,8 +12,14 @@
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-
-class EbayEnterprise_Eb2cPayment_Model_Paypal_Exception
-	extends EbayEnterprise_Eb2cCore_Exception
+class EbayEnterprise_PayPal_Test_Helper_DataTest
+	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	protected $_helper;
+
+	public function setUp()
+	{
+		parent::setUp();
+		$this->_helper = Mage::helper('ebayenterprise_paypal');
+	}
 }

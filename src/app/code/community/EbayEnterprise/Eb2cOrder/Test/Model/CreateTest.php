@@ -1605,6 +1605,7 @@ INVALID_XML;
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildEstimatedDeliveryDate', array($doc->documentElement, $orderItem));
 		$this->assertSame($expected, $xpath->evaluate('string(//EstimatedDeliveryDate/MessageType)'));
 	}
+
 	/**
 	 * Test 'EbayEnterprise_Eb2cOrder_Model_Create::_buildPayPalPayerInfo' method by passing in a DOMElement
 	 * context node parameter, and then injects a known  'sales/order' object in the ‘eb2corder/create’ class property,

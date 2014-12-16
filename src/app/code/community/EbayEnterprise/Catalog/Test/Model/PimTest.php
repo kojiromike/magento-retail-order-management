@@ -496,7 +496,7 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 		);
 		$this->assertTrue($itemFragment->hasChildNodes(), 'Item fragment is empty');
 		$this->_doc->documentElement->appendChild($itemFragment);
-		$this->assertSelectCount('Item', 1, $this->_doc, 'Item node was not added', false);
+		$this->assertSame(1, count($this->_doc->childNodes), 'Item node was not added');
 	}
 	/**
 	 * Append the nodes necessary DOMNodes to represent the pim attribute to the

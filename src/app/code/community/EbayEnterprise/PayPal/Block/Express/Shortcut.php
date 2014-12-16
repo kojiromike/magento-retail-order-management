@@ -21,11 +21,18 @@
  * @method string getCheckoutUrl()
  * @method string getConfirmationUrl()
  * @method string getIsInCatalogProduct()
+ * @method string getIsOnCatalogProductPage()
  * @method string getConfirmationMessage()
+ * @method bool   getIsQuoteAllowed()
  */
 class EbayEnterprise_PayPal_Block_Express_Shortcut
 	extends Mage_Core_Block_Template
 {
+	const PAYPAL_LOCAL_IMAGE_URL =
+		'https://www.paypal.com/%s/i/btn/btn_xpressCheckout.gif';
+	const VISIBLE_PRODUCT = 'visible_on_product';
+	const VISIBLE_CART = 'visible_on_cart';
+	const HTML_ID_PREFIX = 'ebayenterprise_paypal_shortcut_';
 	/**
 	 * Position of "OR" label against shortcut
 	 */
@@ -43,7 +50,8 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 	 *
 	 * @var string
 	 */
-	protected $_startAction = 'ebayenterprise_paypal_express/checkout/start/button/1';
+	protected $_startAction =
+		'ebayenterprise_paypal_express/checkout/start/button/1';
 	/**
 	 * Express checkout model factory name
 	 *
@@ -51,61 +59,150 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 	 */
 	protected $_checkoutType = 'ebayenterprise_paypal/express_checkout';
 
-	/**
-	 * @return Mage_Core_Block_Abstract
-	 */
-	protected function _beforeToHtml()
-	{
-		$result = parent::_beforeToHtml();
-		$config = Mage::helper('ebayenterprise_paypal')->getConfigModel();
-		$isOnProductPage = $this->getIsOnCatalogProductPage();
-		$quote = ($isOnProductPage || '' == $this->getIsQuoteAllowed())
-			? null : Mage::getSingleton('checkout/session')->getQuote();
+	/** @var EbayEnterprise_PayPal_Helper_Data */
+	protected $_helper;
+	protected $_config;
+	/** @var Mage_Checkout_Model_Session */
+	protected $_checkoutSession;
+	/** @var Mage_Sales_Model_Quote */
+	protected $_quote;
+	/** @var string */
+	protected $_localeCode;
+	/** @var Mage_Core_Helper_Data */
+	protected $_coreHelper;
+	/** @var string */
+	protected $_payPalImageUrl;
+	/** @var string */
+	protected $_htmlId;
+	/** @var Mage_Payment_Helper_Data */
+	protected $_paymentHelper;
 
-		$context = $isOnProductPage ? 'visible_on_product' : 'visible_on_cart';
-		if (!$config->getConfigFlag($context)) {
-			$this->_shouldRender = false;
-			return $result;
+	/**
+	 * Set up the paypal helper.
+	 */
+	public function _construct()
+	{
+		parent::_construct();
+
+		$app = Mage::app();
+		$locale = $app->getLocale();
+
+		$this->_coreHelper = $this->helper('core');
+		$this->_paymentHelper = Mage::helper('payment');
+		$this->_helper = Mage::helper('ebayenterprise_paypal');
+		$this->_config = $this->_helper->getConfigModel();
+		$this->_localeCode = $locale->getLocaleCode();
+		$this->_payPalImageUrl = sprintf(
+			self::PAYPAL_LOCAL_IMAGE_URL,
+			$this->_getLocaleCode()
+		);
+		$this->_htmlId = $this->_coreHelper->uniqHash(self::HTML_ID_PREFIX);
+	}
+
+	protected function _getConfigFlag($key)
+	{
+		return $this->_config->getConfigFlag($key);
+	}
+
+	/**
+	 * Check if we should render based on product page config.
+	 *
+	 * @return bool
+	 */
+	protected function _shouldRenderProductPage()
+	{
+		return $this->_shouldRender && (
+			!$this->getIsOnCatalogProductPage()
+			|| $this->_getConfigFlag(self::VISIBLE_PRODUCT)
+		);
+	}
+
+	/**
+	 * Show shortcut on product page if nonzero price.
+	 *
+	 * @return bool
+	 */
+	protected function _isPositiveProductPrice()
+	{
+		if (!$this->_shouldRender) {
+			return false;
 		}
-		if ($isOnProductPage) {
-			// Show PayPal shortcut on a product view page only if product has nonzero price
-			/** @var $currentProduct Mage_Catalog_Model_Product */
-			$currentProduct = Mage::registry('current_product');
-			if (!is_null($currentProduct)) {
-				$productPrice = (float)$currentProduct->getFinalPrice();
-				if (empty($productPrice) && !$currentProduct->isGrouped()) {
-					$this->_shouldRender = false;
-					return $result;
-				}
+		if (!$this->getIsOnCatalogProductPage()) {
+			return true;
+		}
+		$currentProduct = $this->_getCurrentProduct();
+		if ($currentProduct) {
+			$productPrice = (float) $currentProduct->getFinalPrice();
+			if (empty($productPrice) && !$currentProduct->isGrouped()) {
+				return false;
 			}
 		}
+		return true;
+	}
+
+	/**
+	 * Check if we should render based on cart page config.
+	 *
+	 * @return bool
+	 */
+	protected function _shouldRenderCartPage()
+	{
+		return $this->_shouldRender && (
+			!$this->getIsOnCatalogProductPage()
+			&& $this->_getConfigFlag(self::VISIBLE_CART)
+		);
+	}
+
+	/**
+	 * Check if we should render based on quote validation.
+	 *
+	 * @return bool
+	 */
+	protected function _shouldRenderQuote()
+	{
+		if (!$this->_shouldRender) {
+			return false;
+		}
+		$quote = $this->_getQuote();
+
 		// validate minimum quote amount and validate quote for zero grandtotal
 		if (null !== $quote
 			&& (!$quote->validateMinimumAmount()
 				|| (!$quote->getGrandTotal() && !$quote->hasNominalItems()))
 		) {
-			$this->_shouldRender = false;
-			return $result;
+			return false;
 		}
 		// check payment method availability
-		$methodInstance = Mage::helper('payment')->getMethodInstance(
+		$methodInstance = $this->_paymentHelper->getMethodInstance(
 			$this->_paymentMethodCode
 		);
 		if (!$methodInstance || !$methodInstance->isAvailable($quote)) {
-			$this->_shouldRender = false;
-			return $result;
+			return false;
 		}
-		// set misc data
-		$this->setShortcutHtmlId(
-			$this->helper('core')->uniqHash('ebayenterprise_paypal_shortcut_')
-		)
-			->setCheckoutUrl($this->getUrl($this->_startAction));
+		return true;
+	}
 
-		$this->setImageUrl(
-			'https://www.paypal.com/' . Mage::app()->getLocale()->getLocaleCode(
-			) . '/i/btn/btn_xpressCheckout.gif'
-		);
-		return $result;
+	/**
+	 * @return self
+	 */
+	protected function _beforeToHtml()
+	{
+		parent::_beforeToHtml();
+
+		$this->_shouldRender = $this->_shouldRenderProductPage();
+		$this->_shouldRender = $this->_isPositiveProductPrice();
+		$this->_shouldRender = $this->_shouldRenderCartPage();
+		$this->_shouldRender = $this->_shouldRenderQuote();
+
+		if ($this->_shouldRender) {
+			// set misc data
+			$this
+				->setShortcutHtmlId($this->_htmlId)
+				->setCheckoutUrl($this->getUrl($this->_startAction))
+				->setImageUrl($this->_payPalImageUrl);
+		}
+
+		return $this;
 	}
 
 	/**
@@ -133,5 +230,44 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 			(!$this->getIsOnCatalogProductPage() && !$this->getShowOrPosition())
 			|| ($this->getShowOrPosition()
 				&& $this->getShowOrPosition() == self::POSITION_AFTER);
+	}
+
+	/**
+	 * Get the checkout session
+	 *
+	 * @return Mage_Checkout_Model_Session
+	 */
+	protected function _getCheckoutSession()
+	{
+		if (!($this->_checkoutSession instanceof Mage_Checkout_Model_Session)) {
+			$this->_checkoutSession = Mage::getSingleton('checkout/session');
+		}
+		return $this->_checkoutSession;
+	}
+
+	/**
+	 * @return Mage_Sales_Model_Quote|null
+	 */
+	protected function _getQuote()
+	{
+		if (!$this->getIsQuoteAllowed()) {
+			return null;
+		}
+		if (!($this->_quote instanceof Mage_Sales_Model_Quote)) {
+			$this->_quote = $this->_getCheckoutSession()->getQuote();
+		}
+		return $this->_quote;
+	}
+
+	/**
+	 * @return Mage_Catalog_Model_Product|null
+	 */
+	protected function _getCurrentProduct()
+	{
+		$prod = Mage::registry('current_product');
+		if ($prod instanceof Mage_Catalog_Model_Product) {
+			return $prod;
+		}
+		return null;
 	}
 }

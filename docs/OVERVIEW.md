@@ -109,7 +109,7 @@ When using the Magento Retail Order Management Extension, the Retail Order Manag
 
 ### Order History
 
-When a customer checks their order status via the "Orders and Returns" or "My Orders" section of their "My Account" profile, the order service is called to provide up-to-date order history and details, including order status and shipment tracking numbers. This information is not saved back into the Magento sales database.
+When a customer checks their order status via the "Orders and Returns" or "My Orders" section of their "My Account" profile, the order service is called to provide up-to-date order history and details, including order status and shipment tracking numbers. All of the customer's orders, even those that did not originate with Magento, are displayed. This information is not saved back into the Magento sales database.
 
 ### Order Events
 

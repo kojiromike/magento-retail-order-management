@@ -1,0 +1,53 @@
+<?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license	 http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+?>
+
+<?php echo $this->getMessagesBlock()->toHtml() ?>
+<?php $_orders = $this->getOrders(); ?>
+<div class="page-title">
+	<h1><?php echo $this->getHelper()->__('My Orders') ?></h1>
+</div>
+<table class="data-table" id="my-orders-table">
+	<col width="1" />
+	<col width="1" />
+	<col />
+	<col width="1" />
+	<col width="1" />
+	<col width="1" />
+	<thead>
+		<tr>
+			<th><?php echo $this->getHelper()->__('Order #') ?></th>
+			<th><?php echo $this->getHelper()->__('Date') ?></th>
+			<th><span class="nobr"><?php echo $this->getHelper()->__('Order Total') ?></span></th>
+			<th><span class="nobr"><?php echo $this->getHelper()->__('Order Status') ?></span></th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody>
+		<?php foreach ($_orders as $_order): ?>
+		<tr>
+			<td class="number"><?php echo $_order->getCustomerOrderId() ?></td>
+			<td class="date"><span class="nobr"><?php echo $this->formatDate($_order->getOrderDate()) ?></span></td>
+			<td><?php echo $this->getHelper()->formatPrice($_order->getGrandTotal()) ?></td>
+			<td class="status"><em><?php echo $_order->getStatus() ?></em></td>
+			<td class="a-center">
+				<span class="nobr"><a href="<?php echo $this->getViewUrl($_order->getCustomerOrderId()) ?>"><?php echo $this->getHelper()->__('View Order') ?></a>
+				</span>
+			</td>
+		</tr>
+		<?php endforeach; ?>
+	</tbody>
+</table>
+<script type="text/javascript">decorateTable('my-orders-table');</script>

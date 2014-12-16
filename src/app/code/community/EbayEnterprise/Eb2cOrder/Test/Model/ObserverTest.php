@@ -101,16 +101,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			->method('getShipmentsCollection')
 			->will($this->returnValue($this->shipmentCollection));
 
-		// mock and script an eb2corder/detail model that, given an order, will
-		// return an eb2corder/detail_order
-		$this->orderDetail = $this->getModelMock('eb2corder/detail');
-		// given the object currently in the Mage::registry as 'current_order',
-		// will return a detail order object
-		$this->orderDetail->expects($this->any())
-			->method('injectOrderDetail')
-			->with($this->identicalTo(Mage::registry('current_order')))
-			->will($this->returnValue($this->detailOrder));
-
 		// set up an order for the collection
 		$this->order = $this->getModelMock('sales/order',
 			array('save', 'cancel', 'setState', 'getState'),
@@ -181,65 +171,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		Mage::unregister('current_shipment');
 		parent::tearDown();
 	}
-	/**
-	 * store the order from the detail request in the registry
-	 */
-	public function testReplaceCurrentOrder()
-	{
-		// replace the eb2corder/detail model to simulate passing the order through
-		// to be injected with OMS data
-		$this->replaceByMock('model', 'eb2corder/detail', $this->orderDetail);
-		// the observer isn't actually referenced or needed at all, order gets
-		// updated in the Mage::registry so the observer and event can be empty
-		Mage::getModel('eb2corder/observer')->replaceCurrentOrder($this->observer);
-		$order = Mage::registry('current_order');
-		$this->assertSame($this->detailOrder, $order);
-	}
 
-	/**
-	 * @see self::testReplaceCurrentOrder, this time we are testing for
-	 * when an exception is thrown.
-	 * store the order from the detail request in the registry
-	 */
-	public function testReplaceCurrentOrderCatchException()
-	{
-		$path = 'sales/guest/form';
-		$fullUrl = 'http://example.com/' . $path;
-		$url = $this->getModelMockBuilder('core/url')
-			->disableOriginalConstructor()
-			->setMethods(array('getUrl'))
-			->getMock();
-		$url->expects($this->once())
-			->method('getUrl')
-			->with($this->identicalTo($path), $this->identicalTo(array()))
-			->will($this->returnValue($fullUrl));
-		$this->replaceByMock('model', 'core/url', $url);
-
-		$message = 'Order not found.';
-		$session = $this->getModelMockBuilder('core/session')
-			->disableOriginalConstructor()
-			->setMethods(array('addError'))
-			->getMock();
-		$session->expects($this->once())
-			->method('addError')
-			->with($this->identicalTo($message))
-			->will($this->returnSelf());
-		$this->replaceByMock('singleton', 'core/session', $session);
-
-		$orderDetail = $this->getModelMock('eb2corder/detail', array('injectOrderDetail'));
-		$orderDetail->expects($this->once())
-			->method('injectOrderDetail')
-			->will($this->throwException(
-				new EbayEnterprise_Eb2cOrder_Exception_Order_Detail_Notfound($message)
-			));
-		$this->replaceByMock('model', 'eb2corder/detail', $orderDetail);
-
-		$observer = new Varien_Event_Observer(array('event' => new Varien_Event(array(
-			'name' => 'controller_action_layout_render_before_sales_guest_view'
-		))));
-
-		Mage::getModel('eb2corder/observer')->replaceCurrentOrder($observer);
-	}
 	/**
 	 * Test that the method EbayEnterprise_Eb2cOrder_Model_Observer::_getRedirectUrl
 	 * will return the base url when the given event name is empty
@@ -263,25 +195,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		$this->assertSame($baseUrl, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$observer, '_getRedirectUrl', array($eventName)
 		));
-	}
-	/**
-	 * verify the shipment is stored in the registry
-	 */
-	public function testPrepareForPrintShipment()
-	{
-		$observerModel = $this->getModelMock('eb2corder/observer', array('replaceCurrentOrder'));
-		$order = $this->detailOrder;
-		// emulate the expected side-effect of the replaceCurrentOrder method.
-		$observerModel->expects($this->once())
-			->method('replaceCurrentOrder')
-			->will($this->returnCallback(
-				function () use ($order) {
-					Mage::unregister('current_order');
-					Mage::register('current_order', $order);
-				}));
-		$observerModel->prepareForPrintShipment($this->observer);
-		// ensure the shipment model we expect has been stored in the registry.
-		$this->assertSame($this->shipment, Mage::registry('current_shipment'));
 	}
 	/**
 	 * Test that the event 'ebayenterprise_amqp_message_order_rejected' is defined.

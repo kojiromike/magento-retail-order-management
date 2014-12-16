@@ -10,7 +10,7 @@
 	http://opensource.org/licenses/osl-3.0.php
 
 	@copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
-	@license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+	@license	 http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <layout>
 	<sales_order_printordershipment>
@@ -19,4 +19,43 @@
 	<sales_guest_printordershipment>
 		<update handle="sales_guest_printshipment" />
 	</sales_guest_printordershipment>
+	<customer_account_index>
+		<reference name="customer_account_dashboard">
+			<block type="sales/order_recent" name="customer_account_dashboard_top" as="top" template="eb2corder/sales/order/ebayenterprise_recent.phtml"/>
+		</reference>
+	</customer_account_index>
+	<!--	
+	<sales_order_history translate="label">
+		Sales Order History Uses the same layout as default
+	</sales_order_history>
+	-->
+	<sales_order_romview translate="label">
+		<label>Customer My Account ROM Order View</label>
+		<update handle="customer_account"/>
+		<reference name="my.account.wrapper">
+			<block type="sales/order_info" as="info" name="sales.order.info" />
+			<block type="sales/order_view" name="sales.order.view">
+				<block type="sales/order_items" name="order_items">
+<!--
+					<action method="addItemRender"><type>default</type><block>sales/order_item_renderer_default</block><template>sales/order/items/renderer/default.phtml</template></action>
+					<action method="addItemRender"><type>grouped</type><block>sales/order_item_renderer_grouped</block><template>sales/order/items/renderer/default.phtml</template></action>
+						<block type="sales/order_totals" name="order_totals" template="sales/order/totals.phtml">
+						<action method="setLabelProperties"><value>colspan="4" class="a-right"</value></action>
+						<action method="setValueProperties"><value>class="last a-right"</value></action>
+						<block type="tax/sales_order_tax" name="tax" template="tax/order/tax.phtml" />
+					</block>
+ -->
+				</block>
+			</block>
+		</reference>
+		<reference name="sales.order.info">
+			<action method="addLink" translate="label" module="sales"><name>view</name><path></path><label>Order Information</label></action>
+			<action method="addLink" translate="label" module="sales"><name>invoice</name><path>*/*/invoice</path><label>Invoices</label></action>
+			<action method="addLink" translate="label" module="sales"><name>shipment</name><path>*/*/shipment</path><label>Shipments</label></action>
+			<action method="addLink" translate="label" module="sales"><name>creditmemo</name><path>*/*/creditmemo</path><label>Refunds</label></action>
+		</reference>
+		<block type="core/text_list" name="additional.product.info" translate="label">
+			<label>Additional Product Info</label>
+		</block>
+	</sales_order_romview>
 </layout>

@@ -217,20 +217,11 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 			->will($this->returnValue($customer));
 
 		$orderCollection = $orderHelper->getCurCustomerOrders();
-		// Ensure an eb2corder/summary_order_collection is returned
+		// Ensure an Varien Colleciton is returned:
 		$this->assertInstanceOf(
-			'EbayEnterprise_Eb2cOrder_Model_Resource_Summary_Order_Collection',
+			'Varien_Data_Collection',
 			$orderCollection
 		);
-		// Using assertEquals false as this don't need to be strictly false, but
-		// must be a falsey value (such as null) to indicate the collection has
-		// yet to be loaded - collection must not have been loaded yet so pagination
-		// or other filters can still be applied. Also means this test must be
-		// careful not to trigger the collection::load.
-		$this->assertEquals(false, $orderCollection->isLoaded());
-		// returned collection must have the customer id matching the customer id
-		// the request was made for - should be Magento customer id, not prefixed
-		$this->assertSame($customerId, $orderCollection->getCustomerId());
 	}
 	/**
 	 * Test getting orders where thare is not a customer logged in. Should return

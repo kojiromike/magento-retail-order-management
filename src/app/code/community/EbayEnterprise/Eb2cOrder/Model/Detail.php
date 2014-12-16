@@ -15,12 +15,9 @@
 
 /**
  * This class is responsible for making order detail request to ROM OMS to get order
- * detail data for a loaded passed in sales/order object. The entry point of this
- * class is via the injectOrderDetail() method which take a sales/order object.
- * The increment id from the loaded sales/order object is used to send the order
- * detail request. The return response xml is passed into the _parseResponse()
- * method along with the loaded sales/order object which then pass along to specific methods
- * to extract and inject the extracted data to specific section of the loaded sales/order object.
+ * detail data for a Magento Order Id. The Order Id does not necessarily match an
+ * order that exists in our local database. Instead a sales-order-like object is created
+ * from the OMS OrderDetailRequest.
  */
 class EbayEnterprise_Eb2cOrder_Model_Detail
 {
@@ -30,19 +27,18 @@ class EbayEnterprise_Eb2cOrder_Model_Detail
 	const API_STATUS_HANDLER_CONFIG_PATH = 'eb2corder/api_status_handler';
 	const ORDER_DETAIL_NOT_FOUND_EXCEPTION = 'Order "%s" was not found.';
 	/**
-	 * replacing sales/order data with OMS data to a passed in sales/order object.
-	 * Take the data in the sales/order object and add it to a clone eb2corder/detail_order
-	 * object.
-	 * @param Mage_Sales_Model_Order $order
+	 * Creating an EbayEnterprise_Eb2cOrder_Model_Detail_Order from OMS data
+	 * Take the data received from Web Service add it to a clone eb2corder/detail_order object.
+	 * @param string $orderId
 	 * @return EbayEnterprise_Eb2cOrder_Model_Detail_Order
 	 */
-	public function injectOrderDetail(Mage_Sales_Model_Order $order)
+	public function requestOrderDetail($orderId)
 	{
-		$cloneOrder = Mage::getModel('eb2corder/detail_order', $order->getData());
+		$cloneOrder = Mage::getModel('eb2corder/detail_order');
 		$this->_parseResponse(
-			$this->_requestOrderDetail($order->getRealOrderId()), $cloneOrder
+			$this->_requestOrderDetail($orderId), $cloneOrder
 		);
-		return $cloneOrder;
+		return $cloneOrder->setCustomerOrderId($orderId);
 	}
 	/**
 	 * Customer Order Detail from eb2c, when orderId parameter is passed the request to eb2c is filter

@@ -79,6 +79,7 @@ class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Search
 	 */
 	public function parseResponse($orderSummaryReply)
 	{
+		$temporaryVarienObjectId = 0; // Provides a unique 'id' for each Varien_Object we create
 		$resultData = array();
 		if (trim($orderSummaryReply) !== '') {
 			$coreHlpr = Mage::helper('eb2ccore');
@@ -88,23 +89,36 @@ class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Search
 			$xpath->registerNamespace('a', Mage::helper('eb2corder')->getConfigModel()->apiXmlNs);
 			$searchResults = $xpath->query('//a:OrderSummary');
 			foreach($searchResults as $result) {
-				$orderId = $coreHlpr->extractNodeVal($xpath->query('a:CustomerOrderId/text()', $result));
-				$resultData[$orderId] = new Varien_Object(array(
-					'id' => $result->getAttribute('id'),
+				$orderDate = (string) $coreHlpr->extractNodeVal($xpath->query('a:OrderDate/text()', $result));
+				$orderTotal= (float) $coreHlpr->extractNodeVal($xpath->query('a:OrderTotal/text()', $result));
+				$romOrderStatus = $coreHlpr->extractNodeVal($xpath->query('a:Status/text()', $result));
+				$orderStatus = Mage::helper('eb2corder')->mapEb2cOrderStatusToMage($romOrderStatus);
+				$resultData[] = new Varien_Object(array(
+					'id' =>  ++$temporaryVarienObjectId,
+					'rom_id' => $result->getAttribute('id'),
 					'order_type' => $result->getAttribute('orderType'),
 					'test_type' => $result->getAttribute('testType'),
 					'modified_time' => $result->getAttribute('modifiedTime'),
-					'customer_order_id' => $orderId,
+					'customer_order_id' => $coreHlpr->extractNodeVal($xpath->query('a:CustomerOrderId/text()', $result)),
 					'customer_id' => (string) $coreHlpr->extractNodeVal($xpath->query('a:CustomerId/text()', $result)),
-					'order_date' => (string) $coreHlpr->extractNodeVal($xpath->query('a:OrderDate/text()', $result)),
+					'order_date' => $orderDate,
+					'created_at' => $orderDate,
 					'dashboard_rep_id' => (string) $coreHlpr->extractNodeVal($xpath->query('a:DashboardRepId/text()', $result)),
-					'status' => (string) $coreHlpr->extractNodeVal($xpath->query('a:Status/text()', $result)),
-					'order_total' => (float) $coreHlpr->extractNodeVal($xpath->query('a:OrderTotal/text()', $result)),
+					'status' => $orderStatus,
+					'grand_total' => $orderTotal,
+					'order_total' => $orderTotal,
 					'source' => (string) $coreHlpr->extractNodeVal($xpath->query('a:Source/text()', $result)),
 				));
 			}
 		}
-
+		usort($resultData, array($this,'_sortOrdersMostRecentFirst'));
 		return $resultData;
+	}
+
+	protected function _sortOrdersMostRecentFirst(Varien_Object $a, Varien_Object $b)
+	{
+		$timeA = new DateTime($a->getOrderDate());
+		$timeB = new DateTime($b->getOrderDate());
+		return $timeA < $timeB;
 	}
 }

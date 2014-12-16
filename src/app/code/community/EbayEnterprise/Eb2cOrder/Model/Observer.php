@@ -38,32 +38,6 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 		$this->_orderEventHelper = Mage::helper('eb2corder/event');
 	}
 	/**
-	 * Replace the currently loaded order with a new instance containing
-	 * data from the order detail response.
-	 * @param Varien_Event_Observer $observer
-	 * @return self
-	 */
-	public function replaceCurrentOrder(Varien_Event_Observer $observer)
-	{
-		$order = null;
-		try{
-			// @see Mage_Sales_Controller_Abstract::_loadValidOrder
-			$order = Mage::getModel('eb2corder/detail')
-				->injectOrderDetail(Mage::registry('current_order'));
-		} catch (EbayEnterprise_Eb2cOrder_Exception_Order_Detail_Notfound $e) {
-			Mage::getSingleton('core/session')->addError(
-				$this->_orderHelper->__($e->getMessage()));
-			Mage::app()->getResponse()->setRedirect(
-				$this->_getRedirectUrl($observer->getEvent()->getName())
-			);
-		}
-		if ($order) {
-			Mage::unregister('current_order');
-			Mage::register('current_order', $order);
-		}
-		return $this;
-	}
-	/**
 	 * Extrapolate the redirect URL base on the observer event name. This is base on
 	 * the assumption that if you get to this level that you are either a guest or
 	 * a logged in customer. If you are a guest then we presume that you are making
@@ -84,58 +58,6 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 				: Mage::getUrl('sales/order/history');
 		}
 		return Mage::getUrl();
-	}
-	/**
-	 * Observer method to add OMS order summary data to order objects after
-	 * loading.
-	 * @param  Varien_Event_Observer $observer
-	 * @return self
-	 */
-	public function updateOrdersWithSummaryData($observer)
-	{
-		$orderHelper = $this->_orderHelper;
-		// Collection of orders that need to be updated with order summary response
-		// data.
-		$orderCollection = $observer->getEvent()->getOrderCollection();
-		// array of Varien_Objects keyed by increment id
-		// API call is cached in the order search model by customer id so this
-		// shouldn't result in duplicate calls
-		$customerId = $orderCollection->getCustomerId();
-		$prefixCustomerId = $orderHelper->prefixCustomerId($customerId);
-		$orderLookup = Mage::getModel('eb2corder/customer_order_search');
-		$summaryData = $orderLookup->getOrderSummaryData($prefixCustomerId);
-
-		foreach ($orderCollection as $order) {
-			$incrementId = $order->getIncrementId();
-			$orderData = $summaryData[$incrementId];
-			$orderDate = $orderData->getOrderDate();
-			$orderTotal = $orderData->getOrderTotal();
-			$omsOrderStatus = $orderData->getStatus();
-			$mageOrderStatus =
-				$orderHelper->mapEb2cOrderStatusToMage($omsOrderStatus);
-			$orderOverlayData = array(
-				'created_at'  => $orderDate,
-				'grand_total' => $orderTotal,
-				'status'      => $mageOrderStatus,
-			);
-			$order->addData($orderOverlayData);
-		}
-		return $this;
-	}
-	/**
-	 * register the order and the shipment from the detail response.
-	 * @param  Varien_Event_Observer $observer
-	 * @return self
-	 */
-	public function prepareForPrintShipment(Varien_Event_Observer $observer)
-	{
-		$this->replaceCurrentOrder($observer);
-		$order = Mage::registry('current_order');
-		Mage::unregister('current_shipment');
-		Mage::register('current_shipment', $order->getShipmentsCollection()->getItemById(
-			Mage::app()->getRequest()->getParam('shipment_id')
-		));
-		return $this;
 	}
 	/**
 	 * Consume the event 'ebayenterprise_amqp_message_order_rejected'. Pass the payload

@@ -13,7 +13,7 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History extends Mage_Sales_Block_Order_History
+class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History extends Mage_Core_Block_Template
 {
 	/**
 	 * Template for this block doesn't get set by Magento in layout XML. In
@@ -22,7 +22,7 @@ class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History extends Mage_Sales_
 	 * the constructor.
 	 * @var string template path
 	 */
-	protected $_template = 'sales/order/history.phtml';
+	protected $_template = 'eb2corder/sales/order/ebayenterprise_history.phtml';
 	/**
 	 * Set the orders to collection of orders that both the OMS and Magento
 	 * know about. Avoid a `parent` call to prevent an additional orders
@@ -30,7 +30,27 @@ class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History extends Mage_Sales_
 	 */
 	public function __construct()
 	{
-		// use the eb2corder/data helper to get orders in OMS and Magento
-		$this->setOrders(Mage::helper('eb2corder')->getCurCustomerOrders());
+		$this->setOrders(
+			Mage::helper('eb2corder')->getCurCustomerOrders()
+		);
+	}
+	/**
+	 * Returns URL for view a specific order id.
+	 * @param string $orderId
+	 * @return string
+	 */
+	public function getViewUrl($orderId)
+    {
+		return $this->getUrl('sales/order/romview', array('order_id' => $orderId));
+	}
+	/**
+	 * Returns Helper
+	 * @param helper type (default eb2corder)
+	 * @return EbayEnterprise_Eb2cOrder_Helper_Data
+	 */
+	public function getHelper($type='eb2corder')
+    {
+		return Mage::helper($type);
 	}
 }
+

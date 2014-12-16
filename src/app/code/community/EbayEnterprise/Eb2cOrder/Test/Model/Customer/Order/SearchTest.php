@@ -145,19 +145,15 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Customer_Order_SearchTest
 
 		$response = Mage::getModel('eb2corder/customer_order_search')->parseResponse($orderSummaryReply);
 
-		$orderId = $this->expected('response')->getCustomerOrderId();
-
 		$this->assertCount(1, $response);
-		$this->assertSame($this->expected('response')->getId(), $response[$orderId]->getId());
-		$this->assertSame($this->expected('response')->getOrderType(), $response[$orderId]->getOrderType());
-		$this->assertSame($this->expected('response')->getTestType(), $response[$orderId]->getTestType());
-		$this->assertSame($this->expected('response')->getModifiedTime(), $response[$orderId]->getModifiedTime());
-		$this->assertSame($this->expected('response')->getCustomerOrderId(), $response[$orderId]->getCustomerOrderId());
-		$this->assertSame($this->expected('response')->getCustomerId(), $response[$orderId]->getCustomerId());
-		$this->assertSame($this->expected('response')->getOrderDate(), $response[$orderId]->getOrderDate());
-		$this->assertSame($this->expected('response')->getDashboardRepId(), $response[$orderId]->getDashboardRepId());
-		$this->assertSame($this->expected('response')->getStatus(), $response[$orderId]->getStatus());
-		$this->assertSame((float) $this->expected('response')->getOrderTotal(), $response[$orderId]->getOrderTotal());
-		$this->assertSame($this->expected('response')->getSource(), $response[$orderId]->getSource());
+		$this->assertSame($this->expected('response')->getOrderType(), $response[0]->getOrderType());
+		$this->assertSame($this->expected('response')->getTestType(), $response[0]->getTestType());
+		$this->assertSame($this->expected('response')->getModifiedTime(), $response[0]->getModifiedTime());
+		$this->assertSame($this->expected('response')->getCustomerOrderId(), $response[0]->getCustomerOrderId());
+		$this->assertSame($this->expected('response')->getCustomerId(), $response[0]->getCustomerId());
+		$this->assertSame($this->expected('response')->getOrderDate(), $response[0]->getOrderDate());
+		$this->assertSame($this->expected('response')->getDashboardRepId(), $response[0]->getDashboardRepId());
+		$this->assertSame((float) $this->expected('response')->getOrderTotal(), $response[0]->getOrderTotal());
+		$this->assertSame($this->expected('response')->getSource(), $response[0]->getSource());
 	}
 }

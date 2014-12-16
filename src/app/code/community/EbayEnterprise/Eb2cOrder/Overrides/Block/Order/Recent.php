@@ -15,23 +15,48 @@
 
 class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Recent extends Mage_Sales_Block_Order_Recent
 {
-	// "default" number of orders to be shown by this block
-	// carried over from the parent class where it is a hard-coded value
-	const ORDERS_TO_SHOW = 5;
-	/**
-	 * Set the orders to collection of orders that both the OMS and Magento
-	 * know about. Avoid a `parent` call to prevent an additional orders
-	 * collection from being instantiated and immediately replaced.
-	 */
+	const ORDERS_TO_SHOW = 5;	// carried over from the parent class where it is a hard-coded value
+
 	public function __construct()
 	{
 		$this->setOrders(
 			Mage::helper('eb2corder')->getCurCustomerOrders()
-				// This is the created_at in Magento, not OMS. As the sort is done
-				// via the SQL when the collection is loaded, it needs to be sorted by
-				// something Magento knows about.
-				->addAttributeToSort('created_at', 'desc')
-				->setPageSize(self::ORDERS_TO_SHOW)
 		);
 	}
+	/**
+	 * Return the default number of orders to show
+	 * @return int number of orders
+	 */
+	public function getMaxOrdersToShow()
+	{
+		return self::ORDERS_TO_SHOW;
+	}
+	/**
+	 * Returns URL for view a specific order id.
+	 * @param string $orderId
+	 * @return string
+	 */
+	public function getViewUrl($orderId)
+	{
+		return $this->getUrl('sales/order/romview', array('order_id' => $orderId));
+	}
+	/**
+	 * Returns Helper
+	 * @param helper type (default eb2corder)
+	 * @return EbayEnterprise_Eb2cOrder_Helper_Data
+	 */
+	public function getHelper($type='eb2corder')
+    {
+		return Mage::helper($type);
+	}
+	/**
+	 * Given an amount format according Sale/ Order formatting rules
+	 * @param string amount
+	 * @return string formatted amount
+	 */
+	public function formatPrice($amount)
+	{
+		return Mage::getModel('sales/order')->formatPrice($amount);
+	}
 }
+

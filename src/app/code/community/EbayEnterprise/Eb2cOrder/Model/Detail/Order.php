@@ -52,8 +52,9 @@ class EbayEnterprise_Eb2cOrder_Model_Detail_Order
 	 * reload flag doesn't really mean anything as the collection can't really
 	 * be reloaded.
 	 * @return Varien_Data_Collection
+	 * @SuppressWarnings(PHPMD.UnusedLocalVariable)
 	 */
-	public function getStatusHistoryCollection()
+	public function getStatusHistoryCollection($reload=false)
 	{
 		return $this->_statusHistory;
 	}

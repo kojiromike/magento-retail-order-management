@@ -132,17 +132,13 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	 * @param  array  $incrementIds
 	 * @return Mage_Sales_Model_Resource_Order_Collection
 	 */
-	protected function _getSummaryOrderCollection($incrementIds=array())
+	protected function _getSummaryOrderCollection($orderSummaryResponses=array())
 	{
-		return Mage::getResourceModel('eb2corder/summary_order_collection')
-			// this appears to be the minimum data needed by Magento for the order
-			// history/recent orders - increment id to match up w/ summary request,
-			// store id and customer id to enable the "View Order" and "Reorder"
-			// links to work when allowed for the order
-			->addFieldToSelect(array('increment_id', 'store_id', 'customer_id'))
-			->setCustomerId($this->_getCurrentCustomer()->getId())
-			->addFieldToFilter('state', array('in' => Mage::getSingleton('sales/order_config')->getVisibleOnFrontStates()))
-			->addFieldToFilter('increment_id', array('in' => $incrementIds));
+		$orderSummaryCollection = new Varien_Data_Collection();
+		foreach($orderSummaryResponses as $orderSummaryResponse) {
+			$orderSummaryCollection->addItem($orderSummaryResponse);
+		}
+		return $orderSummaryCollection;
 	}
 	/**
 	 * Prefix a customer id with the configured client customer id prefix
@@ -184,7 +180,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 		$orderHistorySearchResults = Mage::getModel('eb2corder/customer_order_search')
 			->getOrderSummaryData($customerId);
 		// search results keyed by order increment ids
-		return $this->_getSummaryOrderCollection(array_keys($orderHistorySearchResults));
+		return $this->_getSummaryOrderCollection($orderHistorySearchResults);
 	}
 	/**
 	 * Remove a client order id prefix from the increment id. As the prefix on the
@@ -268,4 +264,14 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 		$qty = ($item instanceof Mage_Sales_Model_Order_Item) ? $item->getQtyOrdered() : 1;
 		return (float) $qty * $item->getGwPrice();
 	}
+	/**
+	 * Given an amount format according Sale/ Order formatting rules
+	 * @param string amount
+	 * @return string formatted amount
+	 */
+	public function formatPrice($amount)
+	{
+		return Mage::getModel('sales/order')->formatPrice($amount);
+	}
 }
+

@@ -16,34 +16,6 @@
 class EbayEnterprise_Eb2cOrder_Test_Model_DetailTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	/**
-	 * @see self::testInjectOrderDetail, however, the turn response will
-	 * be empty and expect an exception to be thrown
-	 * @dataProvider dataProvider
-	 * @expectedException EbayEnterprise_Eb2cOrder_Exception_Order_Detail_Notfound
-	 */
-	public function testInjectOrderDetailEmptyResponseThrowException($orderDetailReply)
-	{
-		$orderId = '1007800093822';
-		$cacheResponse = '';
-
-		$detailHelper = $this->getHelperMock('eb2corder/detail', array('getCachedOrderDetailResponse'));
-		$detailHelper->expects($this->once())
-			->method('getCachedOrderDetailResponse')
-			->with($this->identicalTo($orderId))
-			->will($this->returnValue($cacheResponse));
-		$this->replaceByMock('helper', 'eb2corder/detail', $detailHelper);
-
-		$order = Mage::getModel('sales/order', array('real_order_id' => $orderId));
-
-		$api = $this->getModelMock('eb2ccore/api', array('request'));
-		$api->expects($this->once())
-			->method('request')
-			->will($this->returnValue($orderDetailReply));
-		$this->replaceByMock('model', 'eb2ccore/api', $api);
-
-		Mage::getModel('eb2corder/detail')->injectOrderDetail($order);
-	}
-	/**
 	 * Testing that when the method EbayEnterprise_Eb2cOrder_Model_Detail::_requestOrderDetail
 	 * and find a cache response base on the passed in order id it will return the cache
 	 * response.

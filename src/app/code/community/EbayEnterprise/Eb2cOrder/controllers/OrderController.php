@@ -34,4 +34,35 @@ class EbayEnterprise_Eb2cOrder_OrderController extends Mage_Sales_Controller_Abs
 			}
 		}
 	}
+
+	/**
+	 * Request details on the order you are given.
+	 */
+	public function romviewAction()
+	{
+		Mage::unregister('rom_order');
+		$orderId = $this->getRequest()->getParam('order_id');
+		Mage::getSingleton('core/session')->getMessages(true);
+		$detailApi = Mage::getModel('eb2corder/detail');
+		try {
+			$romOrderObject = $detailApi->requestOrderDetail($orderId);
+		} catch(EbayEnterprise_Eb2cOrder_Exception_Order_Detail_Notfound $e) {
+			Mage::getSingleton('core/session')->addError($e->getMessage());
+			if (Mage::getSingleton('customer/session')->isLoggedIn()) {
+				$this->_redirect('*/*/history');
+			} else {
+				$this->_redirect('sales/guest/form');
+			}
+			return;
+		}
+		Mage::register('rom_order', $romOrderObject);
+		$this->loadLayout();
+		$this->_initLayoutMessages('catalog/session');
+		$navigationBlock = $this->getLayout()->getBlock('customer_account_navigation');
+		if ($navigationBlock) {
+			$navigationBlock->setActive('sales/order/history');
+		}
+		$this->renderLayout();
+	}
 }
+

@@ -1,0 +1,71 @@
+<?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license	 http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+?>
+<?php /** @var $this EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Items */ ?>
+<?php $_order = $this->getOrder(); ?>
+<table class="data-table" id="my-orders-table" summary="<?php echo $this->getHelper()->__('Items Ordered') ?>">
+	<col />
+	<col width="1" />
+	<col width="1" />
+	<col width="1" />
+	<col width="1" />
+	<thead>
+		<tr>
+			<th><?php echo $this->getHelper()->__('Product Name') ?></th>
+			<th><?php echo $this->getHelper()->__('SKU') ?></th>
+			<th class="a-right"><?php echo $this->getHelper()->__('Price') ?></th>
+			<th class="a-center"><?php echo $this->getHelper()->__('Qty') ?></th>
+			<th class="a-right"><?php echo $this->getHelper()->__('Subtotal') ?></th>
+		</tr>
+	</thead>
+	<tfoot>
+			<!-- Totals child html was here in original. -->
+	</tfoot>
+		<?php $_items = $_order->getItemsCollection(); ?>
+		<tbody>
+			<?php foreach ($_items as $_item): ?>
+			<tr>
+				<td><?php echo $_item->getName(); ?></td>
+				<td><?php echo $_item->getSku(); ?></td>
+				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_item->getPrice()); ?></td>
+				<td class="a-center"><?php echo print_r($_item->getQty()); ?></td>
+				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_item->getRowTotal()); ?></td>
+			</tr>
+			<?php endforeach; ?>
+			<tr>
+				<?php $_subtotal = $_order->getSubtotal();?>
+				<?php $_total = $_subtotal; ?>
+				<td class="a-right" colspan="4"><?php echo $this->getHelper()->__('Subtotal')?></td>
+				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_subtotal); ?></td>
+			</tr>
+			<tr>
+				<?php $_shippingAmount = $_order->getShippingAmount();?>
+				<?php $_total += $_shippingAmount; ?>
+				<td class="a-right" colspan="4"><?php echo $this->getHelper()->__('Shipping and Handling')?></td>
+				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_shippingAmount)?></td>
+			</tr>
+			<tr>
+				<?php $_taxAmount = $_order->getTaxAmount();?>
+				<?php $_total += $_taxAmount; ?>
+				<td class="a-right" colspan="4"><?php echo $this->getHelper()->__('Tax')?></td>
+				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_order->getTaxAmount()); ?></td>
+			</tr>
+			<tr>
+				<td class="a-right" colspan="4"><?php echo $this->getHelper()->__('Total')?></td>
+				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_total); ?></td>
+			</tr>
+		</tbody>
+</table>
+<script type="text/javascript">decorateTable('my-orders-table', {'tbody' : ['odd', 'even'], 'tbody tr' : ['first', 'last']})</script>

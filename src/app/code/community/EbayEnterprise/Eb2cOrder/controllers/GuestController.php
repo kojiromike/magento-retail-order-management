@@ -33,4 +33,36 @@ class EbayEnterprise_Eb2cOrder_GuestController extends Mage_Sales_GuestControlle
 		  $this->_redirect('sales/guest/form');
 		}
 	}
+	/**
+	 * Redirect to romview after validating that correct information has actually been answered
+	 */
+	public function viewAction()
+	{
+		Mage::unregister('rom_order');
+		$orderId       = $this->getRequest()->getPost('oar_order_id');
+		$orderEmail    = $this->getRequest()->getPost('oar_email');
+		$orderZip      = $this->getRequest()->getPost('oar_zip');
+		$orderLastname = $this->getRequest()->getPost('oar_billing_lastname');
+
+		Mage::getSingleton('core/session')->getMessages(true);
+		$detailApi = Mage::getModel('eb2corder/detail');
+		try {
+			$romOrderObject = $detailApi->requestOrderDetail($orderId);
+		} catch(EbayEnterprise_Eb2cOrder_Exception_Order_Detail_Notfound $e) {
+			Mage::getSingleton('core/session')->addError($e->getMessage());
+			$this->_redirect('sales/guest/form');
+			return;
+		}
+		$billingAddress = $romOrderObject->getBillingAddress();
+		if ($orderLastname === $billingAddress->getLastname()
+			&& ((!empty($orderZip) && $orderZip === $billingAddress->getPostalCode())
+				|| (!empty($orderEmail) && $orderEmail === $romOrderObject->getEmailAddress())))
+		{
+			$this->_redirect('sales/order/romview/order_id/'.$orderId);
+		} else {
+			Mage::getSingleton('core/session')->addError(Mage::helper('eb2corder')->__('Order not found.'));
+			$this->_redirect('sales/guest/form');
+		}
+		return;
+	}
 }

@@ -1,7 +1,7 @@
 -
   - <_/>
   -
-    method: ebayenterprise_paypal_express
+    method: paypal_express
     additional_information:
       paypal_express_checkout_shipping_method:
       paypal_payer_id: P9PMKWC782MJ8
@@ -13,14 +13,17 @@
       paypal_express_checkout_redirect_required:
       paypal_payment_status:
       paypal_pending_reason:
+  - true
   - <_><PayPalPayerInfo><PayPalPayerID>P9PMKWC782MJ8</PayPalPayerID><PayPalPayerStatus>verified</PayPalPayerStatus><PayPalAddressStatus>Confirmed</PayPalAddressStatus></PayPalPayerInfo></_>
 -
   - <_/>
   -
     method: ebayenterprise_creditcard
+  - true
   - <_/>
 -
   - <_/>
   -
-    method: foo_pay
+    method: paypal_express
+  - false
   - <_/>

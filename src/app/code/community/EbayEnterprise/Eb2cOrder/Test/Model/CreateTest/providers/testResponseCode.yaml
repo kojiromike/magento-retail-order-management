@@ -1,6 +1,6 @@
 -
   - <_/>
   -
-    method: ebayenterprise_paypal_express
+    method: paypal_express
   - PayPal
   - APPROVED

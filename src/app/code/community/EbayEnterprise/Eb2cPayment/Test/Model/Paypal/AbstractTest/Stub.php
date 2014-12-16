@@ -13,21 +13,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-/**
- * PayPal payment info block
- */
-class EbayEnterprise_PayPal_Block_Express_Payment_Info
-	extends Mage_Payment_Block_Info
+class EbayEnterprise_Eb2cPayment_Test_Model_Paypal_AbstractTest_Stub
+	extends EbayEnterprise_Eb2cPayment_Model_Paypal_Abstract
 {
-	/**
-	 * Prepare PayPal-specific payment information
-	 *
-	 * @param Varien_Object|array $transport
-	 * return Varien_Object
-	 */
-	protected function _prepareSpecificInformation($transport=null)
-	{
-		$transport = parent::_prepareSpecificInformation($transport);
-		return $transport;
-	}
+	const STORED_FIELD = 'some_field';
 }

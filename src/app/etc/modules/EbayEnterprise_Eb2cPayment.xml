@@ -14,14 +14,13 @@
 -->
 <config>
 	<modules>
-		<EbayEnterprise_PayPal>
+		<EbayEnterprise_Eb2cPayment>
 			<active>true</active>
 			<codePool>community</codePool>
 			<depends>
-				<Mage_Payment/>
-				<EbayEnterprise_Eb2cCore/>
-				<EbayEnterprise_MageLog/>
+				<Enterprise_GiftCardAccount />
+				<Mage_Paypal />
 			</depends>
-		</EbayEnterprise_PayPal>
+		</EbayEnterprise_Eb2cPayment>
 	</modules>
 </config>

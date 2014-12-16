@@ -41,8 +41,7 @@
 			<group>EbayEnterprise_Eb2cFraud</group>
 			<group>EbayEnterprise_Eb2cInventory</group>
 			<group>EbayEnterprise_Eb2cOrder</group>
-			<group>EbayEnterprise_PayPal</group>
-			<group>EbayEnterprise_Catalog</group>
+			<group>EbayEnterprise_Eb2cPayment</group>
 			<group>EbayEnterprise_Eb2cTax</group>
 			<group>EbayEnterprise_GiftCard</group>
 		</include>

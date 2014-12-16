@@ -326,6 +326,7 @@ abstract class EbayEnterprise_Eb2cOrder_Test_Abstract extends EbayEnterprise_Eb2
 			'apiXsdPath'              => '/home/mwest/projects/magento-enterprise/src/app/code/local/EbayEnterprise/Eb2cCore/xsd',
 
 			// Eb2cOrder-specific Values:
+			'eb2cPaymentsEnabled'     => true,
 			'statusFeedLocalPath'     => 'some_local_path_for_files',
 			'statusFeedRemotePath'    => 'doesnt_matter_just_some_path',
 			'statusFeedEventType'     => 'OrderStatus',

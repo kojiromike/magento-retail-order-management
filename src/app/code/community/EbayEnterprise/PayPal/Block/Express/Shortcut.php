@@ -189,10 +189,10 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 	{
 		parent::_beforeToHtml();
 
-		$this->_shouldRender = $this->_shouldRenderProductPage();
-		$this->_shouldRender = $this->_isPositiveProductPrice();
-		$this->_shouldRender = $this->_shouldRenderCartPage();
-		$this->_shouldRender = $this->_shouldRenderQuote();
+		$this->_shouldRender = $this->_shouldRenderProductPage()
+			|| $this->_isPositiveProductPrice()
+			|| $this->_shouldRenderCartPage()
+			|| $this->_shouldRenderQuote();
 
 		if ($this->_shouldRender) {
 			// set misc data

@@ -58,7 +58,7 @@ class EbayEnterprise_PayPal_Block_Payment_Mark extends Mage_Core_Block_Template
 	 * @param string $staticSize
 	 */
 	public function getPaymentMarkImageUrl(
-		$localeCode, $orderTotal = null, $pal = null, $staticSize = null
+		$localeCode, $staticSize = null
 	) {
 		if (null === $staticSize) {
 			$staticSize = $this->_config->paymentMarkSize;

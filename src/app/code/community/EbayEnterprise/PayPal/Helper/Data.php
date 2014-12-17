@@ -13,11 +13,26 @@
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
+
+/**
+ * This class doesn't do anything testworthy
+ * @codeCoverageIgnore
+ */
 class EbayEnterprise_PayPal_Helper_Data extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
-	//@TODO This is replaced by ... something in the SDK.
 	const STATUS_HANDLER_PATH = 'ebayenterprise_paypal/api_status_handler';
+
+	/** @var EbayEnterprise_PayPal_Model_Config */
+	protected $_configModel;
+
+	/**
+	 * setup the config model
+	 */
+	public function __construct()
+	{
+		$this->_configModel = Mage::getSingleton('ebayenterprise_paypal/config');
+	}
 
 	/**
 	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
@@ -31,9 +46,7 @@ class EbayEnterprise_PayPal_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getModel('eb2ccore/config_registry')
 			->setStore($store)
-			->addConfigModel(
-				Mage::getSingleton('ebayenterprise_paypal/config')
-			);
+			->addConfigModel($this->_configModel);
 	}
 
 	/**

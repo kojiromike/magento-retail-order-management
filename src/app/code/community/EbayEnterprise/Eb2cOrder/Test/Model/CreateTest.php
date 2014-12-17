@@ -1164,41 +1164,6 @@ INVALID_XML;
 		$this->assertSame($expect->C14N(), $doc->C14N());
 	}
 
-	/**
-	 * ensure the hostname and charset nodes do not have empty values
-	 */
-	public function testBuildBrowserDataMissingValues()
-	{
-		$order = $this->getModelMockBuilder('sales/order')
-			->disableOriginalConstructor()
-			->setMethods(array('none'))
-			->getMock();
-		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
-			->setMethods(array('_buildSessionInfo'))
-			->getMock();
-		$checkout = $this->getModelMockBuilder('checkout/session')
-			->disableOriginalConstructor()
-			->setMethods(array('getEb2cFraudCookies', 'getEb2cFraudConnection', 'getEb2cFraudSessionInfo', 'getEb2cFraudTimestamp'))
-			->getMock();
-
-		$checkout->expects($this->any())
-			->method('getEb2cFraudSessionInfo')
-			->will($this->returnValue(array()));
-
-		$this->replaceByMock('singleton', 'checkout/session', $checkout);
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
-
-		$doc = $this->_coreHelper->getNewDomDocument();
-		$doc->loadXML('<root/>');
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildBrowserData', array($doc->documentElement));
-		$xml = $doc->saveXML();
-
-		$this->assertTag(array('tag' => 'HostName'), $xml, '', false);
-		$this->assertTag(array('tag' => 'CharSet'), $xml, '', false);
-		$this->assertNotTag(array('tag' => 'Cookies'), $xml, '', false);
-	}
-
 	public function provideForTestXsdStringLength()
 	{
 		return array(
@@ -1666,39 +1631,7 @@ INVALID_XML;
 
 		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayments', array($doc->documentElement)));
 	}
-	/**
-	 * Test the 'eb2corder/create::_buildMerchandise' method by passing it a known DOMElement object and a known
-	 * 'sales/order_item' class instance object with known initialized data to build the 'Merchandise' node and all its
-	 * child nodes, then assert that the child 'Amount' node exists and have a known value expected value.
-	 * @param string $xml
-	 * @param array $itemData
-	 * @param string $expectedAmountNode
-	 * @param string $expectedAmountValue
-	 * @dataProvider dataProvider
-	 */
-	public function testBuildMerchandise($xml, array $itemData, $expectedAmountNode, $expectedAmountValue)
-	{
-		/** @var EbayEnterprise_Dom_Document $doc */
-		$doc = $this->_coreHelper->getNewDomDocument();
-		$doc->loadXML($xml);
-		/** @var Mage_Sales_Model_Order_Item $orderItem */
-		$orderItem = Mage::getModel('sales/order_item', $itemData);
-		/** @var EbayEnterprise_Eb2cOrder_Model_Create $create */
-		$create = Mage::getModel('eb2corder/create');
 
-		/** @see EbayEnterprise_Eb2cOrder_Model_Create::_buildTaxDataNodes */
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_domRequest', $doc);
-
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildMerchandise', array($doc->documentElement, $orderItem));
-
-		$matcher = array('tag' => '_', 'child' => array('tag' => 'Merchandise', 'child' => array('tag' => $expectedAmountNode)));
-		// asserting that the node 'Amount' exists
-		$this->assertTag($matcher, $doc->C14N(), '', false);
-
-		$xpath = $this->_coreHelper->getNewDomXPath($doc);
-		// asserting that the 'Amount' node equal to an expected value
-		$this->assertSame((string) $expectedAmountValue, $xpath->evaluate("string(//$expectedAmountNode)"));
-	}
 	/**
 	 * Test formatting the CC expiration date
 	 */

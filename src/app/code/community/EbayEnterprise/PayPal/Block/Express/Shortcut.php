@@ -94,7 +94,7 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 		$this->_localeCode = $locale->getLocaleCode();
 		$this->_payPalImageUrl = sprintf(
 			self::PAYPAL_LOCAL_IMAGE_URL,
-			$this->_getLocaleCode()
+			$this->_localeCode
 		);
 		$this->_htmlId = $this->_coreHelper->uniqHash(self::HTML_ID_PREFIX);
 	}

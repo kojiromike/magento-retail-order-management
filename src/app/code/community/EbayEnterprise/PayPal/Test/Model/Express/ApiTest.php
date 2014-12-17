@@ -368,7 +368,6 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest
 	 */
 	public function testSendRequestWithSdkException($sdkException)
 	{
-		$expectedException = Mage::exception('EbayEnterprise_PayPal');
 		$requestPayload = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\IPayload');
 		$requestPayload->expects($this->any())
 			->method('serialize')

@@ -36,10 +36,12 @@ class EbayEnterprise_Paypal_Test_Model_ObserverTest
 				array('quote' => $quote, 'order' => $order)
 			))
 		);
-
-		// check if the payment is express and is was successfully authorized.
-
+		$voidModel = $this->getModelMock('ebayenterprise_paypal/void');
+		$voidModel->expects($this->once())
+			->method('void')
+			->will($this->returnSelf());
+		$this->replaceByMock('model', 'ebayenterprise_paypal/void', $voidModel);
 		Mage::getModel('ebayenterprise_paypal/observer')
-			->rollbackExpressPayment($observer);
+			->rollbackExpressPayment($observerData);
 	}
 }

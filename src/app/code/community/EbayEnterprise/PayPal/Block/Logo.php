@@ -34,7 +34,7 @@ class EbayEnterprise_PayPal_Block_Logo extends Mage_Core_Block_Template
 	 */
 	public function getAboutPaypalPageUrl()
 	{
-		$local = Mage::app()->getLocale();
+		$locale = Mage::app()->getLocale();
 		return sprintf(
 			'https://www.paypal.com/%s/cgi-bin/webscr?cmd=xpt/Marketing/popup/OLCWhatIsPayPal-outside',
 			$locale->getLocaleCode()

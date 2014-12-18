@@ -87,7 +87,7 @@ When a customer checks their order status via the "Orders and Returns" or "My Or
 
 - Order data will be retrieved in real-time to be displayed to the customer.
 - Invoices will not be shown on the order detail page.
-- Since order data originates from the Retail Order Management order service, reorder links will not be shown. 
+- Since order data originates from the Retail Order Management order service, reorder links will not be shown.
 - The Retail Order Management order service does not include the Ship To address in the Order Summary response. The Ship To address will not be displayed on the "My Orders" section of the Customer's "My Account" profile.  However, the Ship To address will display in the Order Details page.
 - Order Status will be displayed as received from the Retail Order Management order service. This text may be optimized for customer consumption by using the Magento translation functionality.
 
@@ -139,7 +139,7 @@ class Observer {
 | Rejected    | `ebayenterprise_amqp_message_order_rejected` | The order was rejected by ROM. | Cancels the Magento order. |
 | Return      | | | |
 | Return in Transit ||  | None |
-| Shipped     | | Some quantity of one or more line items were shipped. May include adjustments to the order (e.g. price, tax, shipping). | Creates a Magento shipment for the indicated line items and quantity. Includes the tracking information. <br /><br />**Note**: Adjustments are not applied to the Magento order. |
+| Shipped     | `ebayenterprise_amqp_message_order_shipped` | Some quantity of one or more line items were shipped. May include adjustments to the order (e.g. price, tax, shipping). | Creates a Magento shipment for the indicated line items and quantity. Includes the tracking information. <br /><br />**Note**: Adjustments are not applied to the Magento order. |
 
 ## Transactional Emails
 

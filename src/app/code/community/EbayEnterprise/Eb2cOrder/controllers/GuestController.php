@@ -58,7 +58,7 @@ class EbayEnterprise_Eb2cOrder_GuestController extends Mage_Sales_GuestControlle
 			&& ((!empty($orderZip) && $orderZip === $billingAddress->getPostalCode())
 				|| (!empty($orderEmail) && $orderEmail === $romOrderObject->getEmailAddress())))
 		{
-			$this->_redirect('sales/order/romview/order_id/'.$orderId);
+			$this->_redirect('sales/order/romguestview/order_id/'.$orderId);
 		} else {
 			Mage::getSingleton('core/session')->addError(Mage::helper('eb2corder')->__('Order not found.'));
 			$this->_redirect('sales/guest/form');

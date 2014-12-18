@@ -83,12 +83,14 @@ The extension includes a sample order custom attribute configuration file—[`/p
 
 ## Order History
 
-When a customer checks their order status via the "Orders and Returns" or "My Orders" section of their "My Account" profile, the order service is called to provide up-to-date order history and details, including order status and shipment tracking numbers. This information is not saved back into the Magento sales database.
+When a customer checks their order status via the "Orders and Returns" or "My Orders" section of their "My Account" profile, the order service is called to provide up-to-date order history and details, including order status and shipment tracking numbers. All of the customer's orders, even those that did not originate with Magento, are displayed. This information is not saved back into the Magento sales database.
 
 - Order data will be retrieved in real-time to be displayed to the customer.
-- Orders must exist in both Magento and the Retail Order Management System.
 - Invoices will not be shown on the order detail page.
-- The "Recent Orders" and "My Orders" sections of the customer account pages display the "Ship To" name for the order in Magento, not the Retail Order Management System. The templates being used to display this data may be modified to prevent this data from displaying.
+- Since order data originates from the Retail Order Management order service, reorder links will not be shown. 
+- The Retail Order Management order service does not include the Ship To address in the Order Summary response. The Ship To address will not be displayed on the "My Orders" section of the Customer's "My Account" profile.  However, the Ship To address will display in the Order Details page.
+- Order Status will be displayed as received from the Retail Order Management order service. This text may be optimized for customer consumption by using the Magento translation functionality.
+
 
 ## Order Events
 

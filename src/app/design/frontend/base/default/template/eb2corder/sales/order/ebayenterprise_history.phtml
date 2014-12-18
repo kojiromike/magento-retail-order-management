@@ -41,7 +41,7 @@
 			<td class="number"><?php echo $_order->getCustomerOrderId() ?></td>
 			<td class="date"><span class="nobr"><?php echo $this->formatDate($_order->getOrderDate()) ?></span></td>
 			<td><?php echo $this->getHelper()->formatPrice($_order->getGrandTotal()) ?></td>
-			<td class="status"><em><?php echo $_order->getStatus() ?></em></td>
+			<td class="status"><em><?php echo $this->getHelper()->__($_order->getStatus()) ?></em></td>
 			<td class="a-center">
 				<span class="nobr"><a href="<?php echo $this->getViewUrl($_order->getCustomerOrderId()) ?>"><?php echo $this->getHelper()->__('View Order') ?></a>
 				</span>

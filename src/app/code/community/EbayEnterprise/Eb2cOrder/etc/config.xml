@@ -403,9 +403,9 @@
 						<xpath>a:Locale</xpath>
 					</locale>
 					<status>
-						<class>eb2corder/map</class>
+						<class>ebayenterprise_catalog/map</class>
 						<type>helper</type>
-						<method>extractOrderStatus</method>
+						<method>extractStringValue</method>
 						<xpath>a:Status</xpath>
 					</status>
 					<tax_amount>

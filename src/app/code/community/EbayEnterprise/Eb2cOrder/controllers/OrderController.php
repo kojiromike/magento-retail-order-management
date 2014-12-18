@@ -38,7 +38,7 @@ class EbayEnterprise_Eb2cOrder_OrderController extends Mage_Sales_Controller_Abs
 	/**
 	 * Request details on the order you are given.
 	 */
-	public function romviewAction()
+	public function _viewAction()
 	{
 		Mage::unregister('rom_order');
 		$orderId = $this->getRequest()->getParam('order_id');
@@ -56,12 +56,25 @@ class EbayEnterprise_Eb2cOrder_OrderController extends Mage_Sales_Controller_Abs
 			return;
 		}
 		Mage::register('rom_order', $romOrderObject);
+	}
+
+	public function romViewAction()
+	{
+		$this->_viewAction();
 		$this->loadLayout();
 		$this->_initLayoutMessages('catalog/session');
 		$navigationBlock = $this->getLayout()->getBlock('customer_account_navigation');
 		if ($navigationBlock) {
 			$navigationBlock->setActive('sales/order/history');
 		}
+		$this->renderLayout();
+	}
+
+	public function romGuestViewAction()
+	{
+		$this->_viewAction();
+		$this->loadLayout();
+		$this->_initLayoutMessages('catalog/session');
 		$this->renderLayout();
 	}
 }

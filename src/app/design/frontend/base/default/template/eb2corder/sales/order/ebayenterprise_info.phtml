@@ -17,7 +17,7 @@
 <?php $_order = $this->getOrder() ?>
 <?php echo $this->getMessagesBlock()->toHtml() ?>
 <div class="page-title title-buttons">
-	<h1><?php echo $this->getHelper()->__('Order #') . ' ' . $_order->getCustomerOrderId() . ' ' . $this->getHelper()->__($_order->getStatusLabel()) ?></h1>
+	<h1><?php echo $this->getHelper()->__('Order #') . ' ' . $_order->getCustomerOrderId() . ' ' . $this->getHelper()->__($_order->getStatus()) ?></h1>
 </div>
 <?php echo $this->getStatusHistoryRssUrl($_order) ?>
 <dl class="order-info">

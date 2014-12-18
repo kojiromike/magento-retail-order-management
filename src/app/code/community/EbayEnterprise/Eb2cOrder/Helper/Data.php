@@ -61,21 +61,6 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		return Mage::getUrl('sales/order/view', array('_store' => $order->getStoreId(), 'order_id' => $order->getId()));
 	}
-
-	/**
-	 * Retrieves the Magento State mapping to the Eb2c Status passed in eb2cLabelIn
-	 * @param eb2cLabelIn - and Eb2c Status Message
-	 * @return string mapped state
-	 */
-	public function mapEb2cOrderStatusToMage($eb2cLabelIn)
-	{
-		if (is_null($this->_orderStatusCollection)) {
-			$this->_orderStatusCollection = Mage::getResourceModel('sales/order_status_collection')
-				->joinStates();
-		}
-		$mageStatus = $this->_orderStatusCollection->getItemByColumnValue('label', $eb2cLabelIn);
-		return $mageStatus ? $mageStatus->getState() : Mage_Sales_Model_Order::STATE_NEW;
-	}
 	/**
 	 * Generate a key for the customer id and order id pair. Order summary
 	 * searches are based upon these two values so just need to make sure that

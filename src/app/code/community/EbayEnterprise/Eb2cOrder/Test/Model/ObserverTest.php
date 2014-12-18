@@ -62,11 +62,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 	public $orderStatus = 'Processing';
 	// @var string Id of the customer the collection is for
 	public $customerId = '0001';
-	/**
-	 * Mock eb2corder/data helper, scripted to translate OMS status => Mangeto status
-	 * @var EbayEnterprise_Eb2cOrder_Helper_Data (stub)
-	 */
-	public $orderHelper;
 
 	// @var Mage_Core_Controller_Request_Http
 	public $originalRequest;
@@ -141,13 +136,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 			->method('getOrderSummaryData')
 			->will($this->returnValueMap(array(
 				array($this->customerId, '', $this->summaryData),
-			)));
-
-		$this->orderHelper = $this->getHelperMock('eb2corder/data', array('mapEb2cOrderStatusToMage'));
-		$this->orderHelper->expects($this->any())
-			->method('mapEb2cOrderStatusToMage')
-			->will($this->returnValueMap(array(
-				array($this->omsStatus, $this->orderStatus),
 			)));
 
 		// replace the request to simulate having the shipment id in the url

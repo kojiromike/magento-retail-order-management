@@ -82,41 +82,6 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 			$this->_helper->getOperationUri('cancel')
 		);
 	}
-
-	/**
-	 * Test method to map Eb2c Status to Mage State
-	 * @loadFixture testMapEb2cStatus.yaml
-	 */
-	public function testMapEb2cStatus()
-	{
-		// clear out the helper's order status cache so it will get populated
-		// with the fixture data
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
-			Mage::helper('eb2corder'),
-			'_orderStatusCollection',
-			null
-		);
-		$aKnownEb2cStatus = 'Some Test Value Called Horse';
-		$this->assertSame(
-			'reined_in',
-			Mage::helper('eb2corder')->mapEb2cOrderStatusToMage($aKnownEb2cStatus)
-		);
-
-		$anUnknownEb2cStatus = '8edfa9d(*&^(*&^(*Q&#^$*(&Q^#$&*^Q#$fa9d3b2';
-		$this->assertSame(
-			'new',
-			Mage::helper('eb2corder')->mapEb2cOrderStatusToMage($anUnknownEb2cStatus)
-		);
-
-		// clear out the helper's order status cache so it doesn't stay populated
-		// with the fixture data
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue(
-			Mage::helper('eb2corder'),
-			'_orderStatusCollection',
-			null
-		);
-	}
-
 	/**
 	 * Test getting an order history URL for a given store
 	 */

@@ -61,6 +61,7 @@
 			<eb2corder_setup>
 				<setup>
 					<module>EbayEnterprise_Eb2cOrder</module>
+					<class>EbayEnterprise_Eb2cOrder_Model_Resource_Setup</class>
 				</setup>
 			</eb2corder_setup>
 		</resources>

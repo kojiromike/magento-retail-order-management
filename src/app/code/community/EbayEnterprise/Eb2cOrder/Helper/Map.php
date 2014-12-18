@@ -27,17 +27,6 @@ class EbayEnterprise_Eb2cOrder_Helper_Map
 		return Mage::helper('core')->escapeHtml($item->getDataUsingMethod($attributeCode));
 	}
 	/**
-	 * extract order status as a magento order status value
-	 * @param  DOMNodeList $nodes
-	 * @return string|null
-	 */
-	public function extractOrderStatus(DOMNodeList $nodes)
-	{
-		return $nodes->length ?
-			Mage::helper('eb2corder')->mapEb2cOrderStatusToMage($nodes->item(0)->nodeValue) :
-			null;
-	}
-	/**
 	 * extract data from a nodelist as an array of each node's value
 	 * @param  DOMNodeList $nodes
 	 * @return array

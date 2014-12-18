@@ -1,17 +1,37 @@
-# eBay Enterprise PayPal
+![ebay logo](../../../../../../docs/static/logo-vert.png)
 
+**Magento Retail Order Management Extension**
+# PayPal Payments
 
-## Configuration
+The intended audience for this guide is Magento merchants, business users and system integrators.
 
+## Contents
 
-| Configuration | Values | Scope |
-| ------------ | ------------- | ------------ |
-| Enabled | Yes/ No | Website |
-| Title  | (Frontend Text to Display)| Store View
-| Sort Order|||
-| Sandbox Mode|Yes/ No| Website
-| Shortcut on Shopping Cart|Yes/ No| Store View
-| Shortcut on Product View|Yes/ No| Store View
-| Transfer Card Line Items |Yes/ No| Website
-| Payment from Applicable Countries|Yes/ No| Website
-| Payment from Specific Countries|(If Applicable Countries is yes, select Applicable Countries here)| Website
+- [Introduction](#introduction)
+- [Dependencies](#dependencies)
+
+## Introduction
+
+The Magento Retail Order Management Extension enables PayPal payment processing via the Retail Order Management payment service.
+
+## Dependencies
+
+### Magento Modules
+
+- Mage_Core
+- Mage_Checkout
+- Mage_Sales
+- Mage_Tax
+- EbayEnterprise_Eb2cCore
+- EbayEnterprise_MageLog
+
+### Other Dependencies
+
+- [RetailOrderManagement-SDK](https://github.com/eBayEnterprise/RetailOrderManagement-SDK)
+
+### Test Dependencies
+
+- EcomDev_PHPUnit
+
+- - -
+Copyright © 2014 eBay Enterprise, Inc.

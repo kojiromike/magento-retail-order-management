@@ -40,6 +40,12 @@ class EbayEnterprise_PayPal_Model_Config
 			'api_operation_do_authorization'     => 'ebayenterprise_paypal/api/operation_do_authorization',
 			'api_operation_do_void'              => 'ebayenterprise_paypal/api/operation_do_void',
 			'api_service'                        => 'ebayenterprise_paypal/api/service',
+			// URL and Image configuration
+			'logo_image_src'                     => 'ebayenterprise_paypal/url/logo_image_src',
+			'logo_about_page_uri'                => 'ebayenterprise_paypal/url/logo_about_page_uri',
+			'mark_image_src'                     => 'ebayenterprise_paypal/url/mark_image_src',
+			'shortcut_express_checkout_button'   => 'ebayenterprise_paypal/url/shortcut_express_checkout_button',
+			'redirect_uri'                       => 'ebayenterprise_paypal/url/redirect_uri',
 		);
 
 	public function __construct()

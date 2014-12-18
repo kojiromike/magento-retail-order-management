@@ -27,20 +27,41 @@ class EbayEnterprise_PayPal_Block_Logo extends Mage_Core_Block_Template
 {
 	/** @var bool Whether the block should be eventually rendered */
 	protected $_shouldRender = true;
+	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry $_config */
+	protected $_config;
 
+	public function _construct()
+	{
+		parent::_construct();
+		$this->_config = Mage::helper('ebayenterprise_paypal')->getConfigModel();
+		$this->addData(array(
+			'locale_code' => Mage::app()->getLocale()->getLocaleCode(),
+			// can be assigned in layout
+			'logo_type' => $this->getLogoType() ?: $this->_config->logoType
+		));
+	}
 	/**
-	 * Get the url for the PayPal "about" page
+	 * Normalize a passed in string content that might have one or two
+	 * known place holders to be replaced.
+	 * @param string $stringContent
+	 * @return string
+	 */
+	protected function _normalizeString($stringContent)
+	{
+		return str_replace(
+			array('{locale_code}', '{logo_type}'),
+			array($this->getLocaleCode(), $this->getLogoType()),
+			$stringContent
+		);
+	}
+	/**
+	 * Get the URL for the PayPal "about" page
 	 * @return string
 	 */
 	public function getAboutPaypalPageUrl()
 	{
-		$locale = Mage::app()->getLocale();
-		return sprintf(
-			'https://www.paypal.com/%s/cgi-bin/webscr?cmd=xpt/Marketing/popup/OLCWhatIsPayPal-outside',
-			$locale->getLocaleCode()
-		);
+		return $this->_normalizeString($this->_config->logoAboutPageUri);
 	}
-
 	/**
 	 * override to ensure we set the logo type based on what's in
 	 * the layout update xml
@@ -48,14 +69,6 @@ class EbayEnterprise_PayPal_Block_Logo extends Mage_Core_Block_Template
 	 */
 	protected function _toHtml()
 	{
-		$config = Mage::helper('ebayenterprise_paypal')->getConfigModel();
-		$localeCode = Mage::app()->getLocale()->getLocaleCode();
-		$type = $this->getLogoType() ?: $config->logoType; // can be assigned in layout
-		$logoUrl = sprintf(
-			'https://www.paypalobjects.com/%s/i/bnr/bnr_%s.gif',
-			$localeCode,
-			$type
-		);
-		$this->setLogoImageUrl($logoUrl);
+		$this->setLogoImageUrl($this->_normalizeString($this->_config->logoImageSrc));
 	}
 }

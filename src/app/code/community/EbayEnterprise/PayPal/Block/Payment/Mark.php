@@ -76,9 +76,10 @@ class EbayEnterprise_PayPal_Block_Payment_Mark extends Mage_Core_Block_Template
 			default:
 				$staticSize = self::PAYMENT_MARK_50x34;
 		}
-		return sprintf(
-			'https://www.paypal.com/%s/i/logo/PayPal_mark_%s.gif', $localeCode,
-			$staticSize
+		return str_replace(
+			array('{locale_code}', '{static_size}'),
+			array($localeCode, $staticSize),
+			$this->_config->markImageSrc
 		);
 	}
 

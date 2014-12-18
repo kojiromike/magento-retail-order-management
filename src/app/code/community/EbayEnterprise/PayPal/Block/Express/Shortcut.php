@@ -27,8 +27,6 @@
 class EbayEnterprise_PayPal_Block_Express_Shortcut
 	extends Mage_Core_Block_Template
 {
-	const PAYPAL_LOCAL_IMAGE_URL =
-		'https://www.paypal.com/%s/i/btn/btn_xpressCheckout.gif';
 	const VISIBLE_PRODUCT = 'visible_on_product';
 	const VISIBLE_CART = 'visible_on_cart';
 	const HTML_ID_PREFIX = 'ebayenterprise_paypal_shortcut_';
@@ -91,9 +89,10 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 		$this->_helper = Mage::helper('ebayenterprise_paypal');
 		$this->_config = $this->_helper->getConfigModel();
 		$this->_localeCode = $locale->getLocaleCode();
-		$this->_payPalImageUrl = sprintf(
-			self::PAYPAL_LOCAL_IMAGE_URL,
-			$this->_localeCode
+		$this->_payPalImageUrl = str_replace(
+			array('{locale_code}'),
+			array($this->_localeCode),
+			$this->_config->shortcutExpressCheckoutButton
 		);
 		$this->_htmlId = $this->_coreHelper->uniqHash(self::HTML_ID_PREFIX);
 	}

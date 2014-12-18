@@ -520,13 +520,13 @@ class EbayEnterprise_PayPal_CheckoutController
 	protected function _redirectToPayPalSite(array $data)
 	{
 		$data['cmd'] = '_express-checkout';
-		$this->getResponse()->setRedirect(
-			sprintf(
-				'https://www.%spaypal.com/cgi-bin/webscr%s',
-				$this->_config->isSandboxedFlag ? 'sandbox.' : '',
-				"?" . http_build_query($data)
-			)
-		);
+		$mode = $this->_config->isSandboxedFlag ? 'sandbox.' : '';
+		$queryString = http_build_query($data);
+		$this->getResponse()->setRedirect(str_replace(
+			array('{mode}', '{query_string}'),
+			array($mode, $queryString),
+			$this->_config->redirectUri
+		));
 		return $this;
 	}
 }

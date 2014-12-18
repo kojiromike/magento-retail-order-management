@@ -45,6 +45,8 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	protected $_quote;
 	/** @var EbayEnterprise_PayPal_Model_Config */
 	protected $_config;
+	/** @var EbayEnterprise_PayPal_Helper_Data */
+	protected $_helper;
 	/** @var EbayEnterprise_Paypal_Model_Express_Api */
 	protected $_api;
 
@@ -54,6 +56,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	protected $_customerId;
 	/** @var Mage_Sales_Model_Order */
 	protected $_order;
+
 
 	public function __construct(array $initParams = array())
 	{
@@ -124,7 +127,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 			&& !$this->_quote->hasNominalItems()
 		) {
 			Mage::throwException(
-				Mage::helper('ebayenterprise_paypal')->__(
+				$this->_helper->__(
 					self::EBAYENTERPRISE_PAYPAL_ZERO_CHECKOUT_NOT_SUPPORTED
 				)
 			);

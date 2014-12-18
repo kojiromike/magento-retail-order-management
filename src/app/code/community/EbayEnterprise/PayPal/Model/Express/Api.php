@@ -51,8 +51,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		$paypalHelper = Mage::helper('ebayenterprise_paypal');
 		$coreHelper = Mage::helper('eb2ccore');
 		$logHelper = Mage::helper('ebayenterprise_magelog');
-		list($this->_helper, $this->_coreHelper, $this->_logger)
-			= $this->_checkTypes(
+		list($this->_helper, $this->_coreHelper, $this->_logger) = $this->_checkTypes(
 			$this->_nullCoalesce($initParams, 'helper', $paypalHelper),
 			$this->_nullCoalesce($initParams, 'core_helper', $coreHelper),
 			$this->_nullCoalesce($initParams, 'logger', $logHelper)

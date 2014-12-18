@@ -20,7 +20,6 @@
  * @method string getImageUrl()
  * @method string getCheckoutUrl()
  * @method string getConfirmationUrl()
- * @method string getIsInCatalogProduct()
  * @method string getIsOnCatalogProductPage()
  * @method string getConfirmationMessage()
  * @method bool   getIsQuoteAllowed()

@@ -25,6 +25,11 @@ class EbayEnterprise_PayPal_Block_Express_Review
 	protected $_quote;
 
 	/**
+	 * helper instance for taxes
+	 */
+	protected $_taxHelper;
+
+	/**
 	 * Currently selected shipping rate
 	 *
 	 * @var Mage_Sales_Model_Quote_Address_Rate
@@ -37,6 +42,12 @@ class EbayEnterprise_PayPal_Block_Express_Review
 	 * @var string
 	 */
 	protected $_paypalActionPrefix = 'paypal-express';
+
+	protected function _construct()
+	{
+		parent::_construct();
+		$this->_taxHelper = Mage::helper('tax');
+	}
 
 	/**
 	 * Quote object setter
@@ -142,7 +153,7 @@ class EbayEnterprise_PayPal_Block_Express_Review
 				&& $this->helper('tax')->displayShippingBothPrices()
 			) {
 				$renderedInclTax = sprintf(
-					$inclTaxFormat, Mage::helper('tax')->__('Incl. Tax'), $incl
+					$inclTaxFormat, $this->_taxHelper->__('Incl. Tax'), $incl
 				);
 			}
 		}

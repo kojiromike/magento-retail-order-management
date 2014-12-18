@@ -29,12 +29,16 @@ class EbayEnterprise_PayPal_Block_Payment_Mark extends Mage_Core_Block_Template
 	 */
 	protected $_config;
 
+	/** @var EbayEnterprise_PayPal_Helper_Data */
+	protected $_helper;
+
 	/**
 	 * Set template and redirect message
 	 */
 	protected function _construct()
 	{
-		$this->_config = Mage::helper('ebayenterprise_paypal')->getConfigModel(
+		$this->_helper = Mage::helper('ebayenterprise_paypal');
+		$this->_config = $this->_helper->getConfigModel(
 		);
 		$locale = Mage::app()->getLocale();
 		$this->setTemplate('ebayenterprise_paypal/payment/mark.phtml')
@@ -80,6 +84,6 @@ class EbayEnterprise_PayPal_Block_Payment_Mark extends Mage_Core_Block_Template
 
 	public function getAcceptanceMarkMessage()
 	{
-		Mage::helper('ebayenterprise_paypal')->__('Acceptance Mark');
+		$this->_helper->__('Acceptance Mark');
 	}
 }

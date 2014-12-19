@@ -26,6 +26,20 @@ db:
         - dbdata
     ports:
         - 3306:3306
+unitdbdata:
+    image: mysql:5
+    command: echo 'Docker Volume Container'
+unitdb:
+    image: mysql:5
+    environment:
+        - MYSQL_ROOT_PASSWORD=mage
+        - MYSQL_USER=mage
+        - MYSQL_PASSWORD=mage
+        - MYSQL_DATABASE=unit
+    volumes_from:
+        - unitdbdata
+    expose:
+        - "3306"
 setup:
     image: kojiromike/magento_tools
     volumes:
@@ -92,6 +106,7 @@ phpunit:
         - .:/git/magento-retail-order-management
     links:
         - db
+        - unitdb
     entrypoint: phpunit
 xmllint:
     image: kojiromike/magento_tools

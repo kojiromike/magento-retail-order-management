@@ -4,7 +4,10 @@
         <resources>
             <default_setup>
                 <connection>
-                    <dbname>mage</dbname>
+                    <host>unitdb_1</host>
+                    <username>mage</username>
+                    <password>mage</password>
+                    <dbname>unit</dbname>
                 </connection>
             </default_setup>
         </resources>
@@ -26,6 +29,6 @@
         </web>
     </default>
     <phpunit>
-        <allow_same_db>1</allow_same_db>
+        <allow_same_db>0</allow_same_db>
     </phpunit>
 </config>

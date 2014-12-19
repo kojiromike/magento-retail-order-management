@@ -129,7 +129,7 @@ class Observer {
 
 | Order Event | Magento Event | Description | Action |
 |:------------|:--------------|:------------|:-------|
-| Accepted    | | | None |
+| Accepted    | `ebayenterprise_amqp_message_order_accepted` | The order was accepted by the Retail Order Management public API, order service or OMS as indicated by the event message. | None |
 | Backorder   | `ebayenterprise_amqp_message_order_backorder` | Some quantity of one or more line items were backordered. | None |
 | Cancelled      | `ebayenterprise_amqp_message_order_cancelled` | Some quantity of one or more line items were cancelled. | None |
 | Credit Issued | | A credit was issued against one or more line items after shipment. | Creates a Magento credit memo. For partial line item credits, sums the credit as the adjustment refund of the credit memo. |

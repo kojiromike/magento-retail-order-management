@@ -94,7 +94,7 @@ install_magento() (
     if [[ ! $MAGENTO_HOST ]]; then
         # No base url was specified, so disable redirecting to base url.
         mysql -e 'DELETE FROM core_config_data WHERE path LIKE "web/%secure/base_url"\g'
-        n98-magerun cache:disable config
+        n98-magerun --skip-root-check cache:disable config
     fi
     cd errors && mv local.xml.sample local.xml
 )

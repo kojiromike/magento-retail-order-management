@@ -139,3 +139,9 @@ modman:
         - .:/git/magento-retail-order-management
     entrypoint: ["modman"]
     command: list
+composerCommandIntegrator:
+    image: kojiromike/magento_tools
+    volumes:
+        - ./build/magento:/srv/magento
+    entrypoint: ["vendor/bin/composerCommandIntegrator.php"]
+    command: list

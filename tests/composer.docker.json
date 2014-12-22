@@ -4,6 +4,8 @@
 	"license": "proprietary",
 	"type": "project",
 	"require": {
+		"magento-hackathon/magento-composer-installer": "*",
+		"magento-hackathon/composer-command-integrator": "*",
 		"ebayenterprise/magento-retail-order-management": "dev-master"
 	},
 	"require-dev": {
@@ -53,7 +55,9 @@
 		}
 	],
 	"extra": {
-		"magento-deploystrategy": "copy",
+		"composer-command-registry": [
+			"MagentoHackathon\\Composer\\Magento\\Command\\DeployCommand"
+		],
 		"magento-root-dir": "."
 	}
 }

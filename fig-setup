@@ -10,6 +10,7 @@ main() {
     fetch_unpack_magento "$magento_version"
     install_magento
     copy_testkit
+    validate
 }
 
 makedirs() {
@@ -94,13 +95,27 @@ install_magento() (
     if [[ ! $MAGENTO_HOST ]]; then
         # No base url was specified, so disable redirecting to base url.
         mysql -e 'DELETE FROM core_config_data WHERE path LIKE "web/%secure/base_url"\g'
-        n98-magerun cache:disable config
+        magerun cache:disable config
+        magerun dev:log --on --global .
+        magerun dev:symlinks --on --global .
+        magerun index:reindex:all .
+    fi
+    if cd errors && [[ ! -f local.xml.sample ]]; then
+        ln -s local.xml.sample local.xml
     fi
 )
+
+magerun() {
+    n98-magerun --skip-root-check "$@"
+}
 
 copy_testkit() {
     cp tests/local.xml.phpunit.docker build/magento/app/etc/local.xml.phpunit
     cp tests/phpunit.xml.dist build/magento/
 }
+
+validate() (
+    cd build/magento && magerun sys:check .
+)
 
 main "$@"

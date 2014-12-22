@@ -5,8 +5,6 @@
             <default_setup>
                 <connection>
                     <host>unitdb_1</host>
-                    <username>mage</username>
-                    <password>mage</password>
                     <dbname>unit</dbname>
                 </connection>
             </default_setup>

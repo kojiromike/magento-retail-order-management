@@ -26,6 +26,15 @@ db:
         - dbdata
     ports:
         - 3306:3306
+unitdb:
+    image: mysql:5
+    environment:
+        - MYSQL_ROOT_PASSWORD=mage
+        - MYSQL_USER=mage
+        - MYSQL_PASSWORD=mage
+        - MYSQL_DATABASE=unit
+    expose:
+        - 3306
 setup:
     image: kojiromike/magento_tools
     volumes:
@@ -91,6 +100,7 @@ phpunit:
         - ./build/magento:/srv/magento
     links:
         - db
+        - unitdb
     entrypoint: phpunit
 xmllint:
     image: kojiromike/magento_tools
@@ -122,3 +132,10 @@ magerun:
         - db
     entrypoint: ["n98-magerun", "--skip-root-check"]
     command: list commands
+modman:
+    image: kojiromike/magento_tools
+    volumes:
+        - ./build/magento:/srv/magento
+        - .:/git/magento-retail-order-management
+    entrypoint: ["modman"]
+    command: list

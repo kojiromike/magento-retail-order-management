@@ -23,30 +23,12 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Status_VfsFeedTest extends EbayEnterpr
 	protected function _getStubStatusFeedModel()
 	{
 		$stubStatusFeed = $this->getModelMockBuilder('eb2corder/status_feed')
-			->setMethods(
-				array(
-					'_loadMageOrder',
-//					'_confirmation',
-//					'_shipment',
-				)
-			)
+			->setMethods(array('_loadMageOrder'))
 			->getMock();
-
-/*
-		$stubStatusFeed->expects($this->any())
-			->method('_confirmation')
-			->will($this->returnValue(true));
-
-		$stubStatusFeed->expects($this->any())
-			->method('_shipment')
-			->will($this->returnValue(true));
- */
-
 		$mockSalesOrder = $this->getMockSalesOrder();
 		$stubStatusFeed->expects($this->any())
 			->method('_loadMageOrder')
 			->will($this->returnValue($mockSalesOrder));
-
 		return $stubStatusFeed;
 	}
 
@@ -170,21 +152,5 @@ class EbayEnterprise_Eb2cOrder_Test_Model_Status_VfsFeedTest extends EbayEnterpr
 				}
 			}
 		}
-	}
-
-	/**
-	 * @loadFixture sampleFeeds.yaml
-	 */
-	public function testFeed()
-	{
-	/*
-		$feedLive = Mage::getModel('eb2corder/status_feed');
-		$feedLive->processDom($this->_getHugeDom());
-	 */
-
-		// Mock up the feed methods that do confirm, shipment status etc.
-		$feedStub = $this->_getStubStatusFeedModel();
-		$this->replaceByMock('model', 'eb2corder/status_feed', $feedStub);
-		$feedStub->processDom($this->_getTestDom());
 	}
 }

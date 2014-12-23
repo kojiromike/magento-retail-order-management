@@ -417,9 +417,9 @@ INVALID_XML;
 		$createRequest->setValue($create, $requestDoc);
 		$create->sendRequest();
 	}
+
 	/**
 	 * Building the XML nodes for a given order item
-	 * @todo This method should really be broken down into some smaller chunks to make this test less complicated
 	 * @param array $itemData Order item object data
 	 * @param array $orderData Order object data
 	 * @param bool $merchTax Should this item have merchandise taxes
@@ -493,6 +493,7 @@ INVALID_XML;
 		$diff = array_diff($expectedChildNodes, $includedChildNodes);
 		$this->assertEmpty($diff, 'Item is missing required child nodes - ' . implode(', ', $diff));
 	}
+
 	/**
 	 * verify the order collection filters are prepared properly
 	 */
@@ -1433,41 +1434,6 @@ INVALID_XML;
 		$doc->formatOutput = true;
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildSessionInfo', array($sessionInfoData, $doc->documentElement));
 		$this->assertSame($expect->C14N(), $doc->C14N());
-	}
-
-	/**
-	 * ensure the hostname and charset nodes do not have empty values
-	 */
-	public function testBuildBrowserDataMissingValues()
-	{
-		$order = $this->getModelMockBuilder('sales/order')
-			->disableOriginalConstructor()
-			->setMethods(array('none'))
-			->getMock();
-		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
-			->setMethods(array('_buildSessionInfo'))
-			->getMock();
-		$checkout = $this->getModelMockBuilder('checkout/session')
-			->disableOriginalConstructor()
-			->setMethods(array('getEb2cFraudCookies', 'getEb2cFraudConnection', 'getEb2cFraudSessionInfo', 'getEb2cFraudTimestamp'))
-			->getMock();
-
-		$checkout->expects($this->any())
-			->method('getEb2cFraudSessionInfo')
-			->will($this->returnValue(array()));
-
-		$this->replaceByMock('singleton', 'checkout/session', $checkout);
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
-
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML('<root/>');
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildBrowserData', array($doc->documentElement));
-		$xml = $doc->saveXML();
-
-		$this->assertTag(array('tag' => 'HostName'), $xml, '', false);
-		$this->assertTag(array('tag' => 'CharSet'), $xml, '', false);
-		$this->assertNotTag(array('tag' => 'Cookies'), $xml, '', false);
 	}
 
 	public function provideForTestXsdStringLength()

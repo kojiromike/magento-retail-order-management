@@ -87,11 +87,10 @@ class EbayEnterprise_Eb2cOrder_Test_Model_CreditissuedTest extends EbayEnterpris
 	/**
 	 * @param string $payload
 	 * @param array $itemData
-	 * @param string $returnOrCredit
 	 * @param array $expectedReturn
 	 * @dataProvider dataProvider
 	 */
-	public function testCreditmemoInitData($payload, array $itemData, $returnOrCredit, $expectedReturn)
+	public function testCreditmemoInitData($payload, array $itemData, $expectedReturn)
 	{
 		$this->_payload->deserialize(file_get_contents(__DIR__ . '/CreditIssuedTest/fixtures/' . $payload));
 

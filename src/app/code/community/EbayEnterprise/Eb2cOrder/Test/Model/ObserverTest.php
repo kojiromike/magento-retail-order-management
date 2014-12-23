@@ -200,25 +200,6 @@ class EbayEnterprise_Eb2cOrder_Test_Model_ObserverTest extends EbayEnterprise_Eb
 		));
 	}
 	/**
-	 * verify the shipment is stored in the registry
-	 */
-	public function testPrepareForPrintShipment()
-	{
-		$observerModel = $this->getModelMock('eb2corder/observer', array('replaceCurrentOrder'));
-		$order = $this->detailOrder;
-		// emulate the expected side-effect of the replaceCurrentOrder method.
-		$observerModel->expects($this->once())
-			->method('replaceCurrentOrder')
-			->will($this->returnCallback(
-				function () use ($order) {
-					Mage::unregister('current_order');
-					Mage::register('current_order', $order);
-				}));
-		$observerModel->prepareForPrintShipment($this->observer);
-		// ensure the shipment model we expect has been stored in the registry.
-		$this->assertSame($this->shipment, Mage::registry('current_shipment'));
-	}
-	/**
 	 * Test that the 'ebayenterprise_amqp_credit_issued' event is defined
 	 */
 	public function testCreditIssuedEventIsDefined()

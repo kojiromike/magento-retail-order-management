@@ -860,6 +860,35 @@ INVALID_XML;
 		);
 	}
 
+	/**
+	 * When using the "free" payment method, should be no payment data added to
+	 * the request doc.
+	 */
+	public function testBuildFreePayments()
+	{
+		$initialXml = '<root></root>';
+		$doc = $this->_coreHelper->getNewDomDocument();
+		$doc->loadXML($initialXml);
+		// use the "free" payment method - should result in an unchanged document
+		$payment = Mage::getModel('sales/order_payment')->addData(array(
+			'method' => 'free',
+		));
+
+		$order = $this->getModelMockBuilder('sales/order')
+			->disableOriginalConstructor()
+			->setMethods(array('getAllPayments'))
+			->getMock();
+		$order->expects($this->once())
+			->method('getAllPayments')
+			->will($this->returnValue(array($payment)));
+
+		$create = Mage::getModel('eb2corder/create');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		$this->assertSame($create, EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayments', array($doc->documentElement)));
+		// XML in the document should not have changed
+		$this->assertSame($initialXml, $doc->C14N());
+	}
+
 	public function provideForTestGetOrderSource()
 	{
 		return array(

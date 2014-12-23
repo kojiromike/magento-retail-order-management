@@ -742,7 +742,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		foreach ($this->_o->getAllPayments() as $payment) {
 			$payMethod = $payment->getMethod();
 			switch ($payMethod) {
-				case 'ebayenterprise_creditcard':
+				case Mage::getModel('ebayenterprise_creditcard/method_ccpayment')->getCode():
 					$thisPayment = $payments->createChild('CreditCard');
 					$paymentContext = $thisPayment->createChild('PaymentContext');
 					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
@@ -763,9 +763,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$auth->createChild('AmountAuthorized', $this->_getPaymentAmountAuthorized($payment));
 					$thisPayment->createChild('ExpirationDate', $this->_getPaymentExpirationDate($payment));
 					break;
-				case 'ebayenterprise_paypal_express':
-					$payMethodNode
-						= 'PayPal'; // Also used in the ResponseCode node
+				case Mage::getModel('ebayenterprise_paypal/method_express')->getCode():
+					$payMethodNode = 'PayPal'; // Also used in the ResponseCode node
 					$thisPayment = $payments->createChild('PayPal');
 					$amount = $this->_o->getGrandTotal();
 					$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $amount));
@@ -782,6 +781,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$this->_addPaymentRequestId($thisPayment, $this->_getPaymentRequestId($payment));
 					$auth = $thisPayment->createChild('Authorization');
 					$auth->createChild('ResponseCode', $this->_getResponseCode($payment, $payMethodNode));
+					break;
+				case Mage::getModel('payment/method_free')->getCode():
+					// When using the "free" payment method, no actual payment data was
+					// captured, so don't attempt send any in the request.
 					break;
 				default:
 					$thisPayment = $payments->createChild('PrepaidCreditCard');

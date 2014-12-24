@@ -421,7 +421,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		Mage_Sales_Model_Quote $quote,
 		Payload\Payment\ILineItemContainer $container
 	) {
-		if ($this->_skipAddingLineItems($quote)) {
+		if (!$this->_canIncludeLineItems($quote)) {
 			return;
 		}
 		$items = (array) $quote->getAllItems();
@@ -451,12 +451,22 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		$lineItems->setCurrencyCode($quote->getQuoteCurrencyCode());
 	}
 
-	protected function _skipAddingLineItems($quote)
+	/**
+	 * return true if the line items can be included in the message
+	 * @param  Mage_Sales_Model_Quote $quote
+	 * @return bool
+	 */
+	protected function _canIncludeLineItems($quote)
 	{
 		$reductions = -$this->_getTotal('discount', $quote);
 		$reductions += $this->_getTotal('giftcardaccount', $quote);
 		$reductions += $this->_getTotal('ebayenterprise_giftcard', $quote);
-		return  $this->_getTotal('subtotal', $quote) < $reductions;
+		// due to the way paypal verifies line items total and the need to send
+		// discount/giftcard (admustment) amounts as negative line items, the LineItemsTotal
+		// will not match what paypal is expecting when the adustment amounts add up to more
+		// than the total amount for the line items.
+		return $this->_helper->getConfigModel()->transferLines &&
+			$this->_getTotal('subtotal', $quote) >= $reductions;
 	}
 
 	/**

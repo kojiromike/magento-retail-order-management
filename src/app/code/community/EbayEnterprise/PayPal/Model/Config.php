@@ -27,6 +27,7 @@ class EbayEnterprise_PayPal_Model_Config
 			'order_status'                       => 'ebayenterprise_paypal/general/order_status',
 			'allowspecific'                      => 'ebayenterprise_paypal/general/allowspecific',
 			'specificcountry'                    => 'ebayenterprise_paypal/general/specificcountry',
+			'transfer_lines'                     => 'ebayenterprise_paypal/general/transfer_lines',
 			// config that should not be put on the admin
 			'payment_action'                     => 'ebayenterprise_paypal/general/payment_action',
 			'min_order_total'                    => 'ebayenterprise_paypal/general/min_order_total',

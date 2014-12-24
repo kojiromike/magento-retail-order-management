@@ -85,6 +85,7 @@
 				<payment_action>authorize</payment_action>
 				<logo_type>wePrefer_150x60</logo_type>
 				<payment_mark_size></payment_mark_size>
+				<transfer_lines>1</transfer_lines>
 			</general>
 			<api>
 				<service>payments</service>

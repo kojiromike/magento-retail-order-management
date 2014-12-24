@@ -94,13 +94,6 @@
 				<operation_do_authorization>paypal/doAuth</operation_do_authorization>
 				<operation_do_void>paypal/void</operation_do_void>
 			</api>
-			<url>
-				<logo_image_src>https://www.paypalobjects.com/{locale_code}/i/bnr/bnr_{logo_type}.gif</logo_image_src>
-				<logo_about_page_uri>https://www.paypal.com/{locale_code}/cgi-bin/webscr?cmd=xpt/Marketing/popup/OLCWhatIsPayPal-outside</logo_about_page_uri>
-				<mark_image_src>https://www.paypal.com/%s/i/logo/PayPal_mark_{static_size}.gif</mark_image_src>
-				<shortcut_express_checkout_button>https://www.paypal.com/{locale_code}/i/btn/btn_xpressCheckout.gif</shortcut_express_checkout_button>
-				<redirect_uri>https://www.{mode}paypal.com/cgi-bin/webscr?{query_string}</redirect_uri>
-			</url>
 		</ebayenterprise_paypal>
 	</default>
 	<phpunit>

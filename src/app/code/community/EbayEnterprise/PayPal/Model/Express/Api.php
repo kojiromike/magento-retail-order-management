@@ -437,7 +437,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			$totalAmount = $this->_getTotal($totalType, $quote);
 			if ($totalAmount) {
 				$lineItem = $lineItems->getEmptyLineItem();
-				$lineItem->setName($totalType)
+				$lineItem->setName($this->_helper->__($totalType))
 					->setSequenceNumber($totalType)
 					->setQuantity(1)
 					->setUnitAmount($totalType === 'discount' ? $totalAmount : -$totalAmount)
@@ -493,7 +493,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			}
 		} else {
 			$lineItem = $lineItems->getEmptyLineItem();
-			$lineItem->setName($item->getProduct()->getName())
+			$lineItem->setName($this->_helper->__($item->getProduct()->getName()))
 				->setSequenceNumber($item->getId())
 				->setQuantity($item->getQty())
 				->setUnitAmount($item->getPrice())

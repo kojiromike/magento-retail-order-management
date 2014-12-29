@@ -137,7 +137,6 @@ class Observer {
 | Gift Certificate | | A virtual gift certificate was issued. | None |
 | Price Adjustment | | The price of one or more line items was adjusted. | None |
 | Rejected    | `ebayenterprise_amqp_message_order_rejected` | The order was rejected by ROM. | Cancels the Magento order. |
-| Return      | | | |
 | Return in Transit | `ebayenterprise_amqp_message_order_return_in_transit` | A return for the order is in transit. | None |
 | Shipped     | `ebayenterprise_amqp_message_order_shipped` | Some quantity of one or more line items were shipped. May include adjustments to the order (e.g. price, tax, shipping). | Creates a Magento shipment for the indicated line items and quantity. Includes the tracking information. <br /><br />**Note**: Adjustments are not applied to the Magento order. |
 

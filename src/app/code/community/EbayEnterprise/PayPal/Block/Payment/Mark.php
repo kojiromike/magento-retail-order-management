@@ -18,6 +18,7 @@
  */
 class EbayEnterprise_PayPal_Block_Payment_Mark extends Mage_Core_Block_Template
 {
+	const DEFAULT_MARK_IMAGE_SRC = 'https://www.paypal.com/%s/i/logo/PayPal_mark_{static_size}.gif';
 	const PAYMENT_MARK_37x23 = '37x23';
 	const PAYMENT_MARK_50x34 = '50x34';
 	const PAYMENT_MARK_60x38 = '60x38';
@@ -76,10 +77,11 @@ class EbayEnterprise_PayPal_Block_Payment_Mark extends Mage_Core_Block_Template
 			default:
 				$staticSize = self::PAYMENT_MARK_50x34;
 		}
+		$markImageSrc = $this->_config->markImageSrc ?: self::DEFAULT_MARK_IMAGE_SRC;
 		return str_replace(
 			array('{locale_code}', '{static_size}'),
 			array($localeCode, $staticSize),
-			$this->_config->markImageSrc
+			$markImageSrc
 		);
 	}
 

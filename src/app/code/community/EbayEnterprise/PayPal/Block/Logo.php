@@ -25,6 +25,10 @@
  */
 class EbayEnterprise_PayPal_Block_Logo extends Mage_Core_Block_Template
 {
+	const DEFAULT_LOGO_IMAGE_SRC =
+		'https://www.paypalobjects.com/{locale_code}/i/bnr/bnr_{logo_type}.gif';
+	const DEFAULT_LOGO_ABOUT_URI =
+		'https://www.paypal.com/{locale_code}/cgi-bin/webscr?cmd=xpt/Marketing/popup/OLCWhatIsPayPal-outside';
 	/** @var bool Whether the block should be eventually rendered */
 	protected $_shouldRender = true;
 	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry $_config */
@@ -60,7 +64,9 @@ class EbayEnterprise_PayPal_Block_Logo extends Mage_Core_Block_Template
 	 */
 	public function getAboutPaypalPageUrl()
 	{
-		return $this->_normalizeString($this->_config->logoAboutPageUri);
+		return $this->_normalizeString(
+			$this->_config->logoAboutPageUri ?: self::DEFAULT_LOGO_ABOUT_URI
+		);
 	}
 	/**
 	 * override to ensure we set the logo type based on what's in
@@ -69,6 +75,10 @@ class EbayEnterprise_PayPal_Block_Logo extends Mage_Core_Block_Template
 	 */
 	protected function _toHtml()
 	{
-		$this->setLogoImageUrl($this->_normalizeString($this->_config->logoImageSrc));
+		$result = parent::_toHtml();
+		$this->setLogoImageUrl(
+			$this->_normalizeString($this->_config->logoImageSrc ?: self::DEFAULT_LOGO_IMAGE_SRC)
+		);
+		return $result;
 	}
 }

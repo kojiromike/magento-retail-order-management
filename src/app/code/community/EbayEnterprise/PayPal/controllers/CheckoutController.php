@@ -525,7 +525,7 @@ class EbayEnterprise_PayPal_CheckoutController
 		$this->getResponse()->setRedirect(str_replace(
 			array('{mode}', '{query_string}'),
 			array($mode, $queryString),
-			$this->_config->redirectUri
+			'https://www.{mode}paypal.com/cgi-bin/webscr?{query_string}'
 		));
 		return $this;
 	}

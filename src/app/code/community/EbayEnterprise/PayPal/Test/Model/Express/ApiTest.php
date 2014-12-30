@@ -194,7 +194,7 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest
 	 */
 	protected function _injectConfig(array $config)
 	{
-		$config = $this->buildCoreConfigRegistry($config);
+		$config = $this->buildCoreConfigRegistry(array_merge(array('transferLines' => true), $config));
 		$this->_helper->expects($this->any())
 			->method('getConfigModel')->will($this->returnValue($config));
 	}

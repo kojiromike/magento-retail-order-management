@@ -30,6 +30,7 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 	const VISIBLE_PRODUCT = 'visible_on_product';
 	const VISIBLE_CART = 'visible_on_cart';
 	const HTML_ID_PREFIX = 'ebayenterprise_paypal_shortcut_';
+	const DEFAULT_IMAGE_URL = 'https://www.paypal.com/{locale_code}/i/btn/btn_xpressCheckout.gif';
 	/**
 	 * Position of "OR" label against shortcut
 	 */
@@ -89,11 +90,8 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 		$this->_helper = Mage::helper('ebayenterprise_paypal');
 		$this->_config = $this->_helper->getConfigModel();
 		$this->_localeCode = $locale->getLocaleCode();
-		$this->_payPalImageUrl = str_replace(
-			array('{locale_code}'),
-			array($this->_localeCode),
-			$this->_config->shortcutExpressCheckoutButton
-		);
+		$url = 	$this->_config->shortcutExpressCheckoutButton ?: self::DEFAULT_IMAGE_URL;
+		$this->_payPalImageUrl = str_replace(array('{locale_code}'), array($this->_localeCode), $url);
 		$this->_htmlId = $this->_coreHelper->uniqHash(self::HTML_ID_PREFIX);
 	}
 

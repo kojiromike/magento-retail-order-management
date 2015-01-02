@@ -26,6 +26,7 @@ The Magento Retail Order Management Extension is designed as a framework that st
 		1. [Product Image Export]()
 1. [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
 1. [Contributing to This Project](CONTRIBUTING.md)
+1. [Change Log](CHANGELOG.md)
 
 ## License
 

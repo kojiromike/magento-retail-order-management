@@ -132,8 +132,8 @@ class Observer {
 | Accepted    | `ebayenterprise_amqp_message_order_accepted` | The order was accepted by the Retail Order Management public API, order service or OMS as indicated by the event message. | None |
 | Backorder   | `ebayenterprise_amqp_message_order_backorder` | Some quantity of one or more line items were backordered. | None |
 | Cancelled      | `ebayenterprise_amqp_message_order_cancelled` | Some quantity of one or more line items were cancelled. | None |
+| Confirmed | `ebayenterprise_amqp_message_order_confirmed` | The order was confirmed by ROM, and released for fulfillment. May include adjustments to the order (e.g. price, tax, shipping). | None |
 | Credit Issued | `ebayenterprise_amqp_message_order_credit_issued`  | A credit was issued against one or more line items after shipment. | Creates a Magento credit memo. For partial line item credits, sums the credit as the adjustment refund of the credit memo. |
-| Confirmation | `ebayenterprise_amqp_message_order_confirmed` | The order was confirmed by ROM, and released for fulfillment. May include adjustments to the order (e.g. price, tax, shipping). | None |
 | Gift Certificate | | A virtual gift certificate was issued. | None |
 | Price Adjustment | | The price of one or more line items was adjusted. | None |
 | Rejected    | `ebayenterprise_amqp_message_order_rejected` | The order was rejected by ROM. | Cancels the Magento order. |

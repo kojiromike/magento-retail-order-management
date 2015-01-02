@@ -92,7 +92,7 @@ class EbayEnterprise_Eb2cOrder_Test_Model_CreditissuedTest extends EbayEnterpris
 	 */
 	public function testCreditmemoInitData($payload, array $itemData, $expectedReturn)
 	{
-		$this->_payload->deserialize(file_get_contents(__DIR__ . '/CreditIssuedTest/fixtures/' . $payload));
+		$this->_payload->deserialize(file_get_contents(__DIR__ . '/CreditissuedTest/fixtures/' . $payload));
 
 		$collection = Mage::helper('eb2ccore')->getNewVarienDataCollection();
 		foreach ($itemData as $data) {

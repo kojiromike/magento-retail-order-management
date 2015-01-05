@@ -190,6 +190,9 @@
 							<comment>The private key for authenticating to the feeds service. (The feeds service must be provided a corresponding public key.)</comment>
 							<validate>required-entry</validate>
 						</filetransfer_sftp_password>
+						<filetransfer_sftp_host translate="label">
+							<backend_model>eb2ccore/system_config_backend_sftp_host</backend_model>
+						</filetransfer_sftp_host>
 						<!-- END HACK -->
 						<sftp_location translate="label">
 							<label>SFTP Location</label>

@@ -88,21 +88,11 @@
 	</adminhtml>
 	<default>
 		<eb2ccore>
-			<general>
-				<catalog_id/>
-				<client_customer_id_prefix/>
-				<client_id/>
-				<client_order_id_prefix/>
-				<language_code/>
-				<store_id/>
-			</general>
 			<api>
-				<hostname></hostname>
 				<key backend_model="adminhtml/system_config_backend_encrypted"/>
 				<major_version>1</major_version>
 				<minor_version>0</minor_version>
 				<region>na</region>
-				<timeout/>
 				<xml_namespace><![CDATA[http://api.gsicommerce.com/schema/checkout/1.0]]></xml_namespace>
 				<xsd_path><![CDATA[app/code/community/EbayEnterprise/Eb2cCore/xsd]]></xsd_path>
 				<default_status_handlers>

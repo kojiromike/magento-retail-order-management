@@ -74,7 +74,6 @@
 	<default>
 		<payment>
 			<ebayenterprise_creditcard>
-				<active>0</active>
 				<model>ebayenterprise_creditcard/method_ccpayment</model>
 				<title>Credit Card (eBay Enterprise)</title>
 				<order_status>pending</order_status>

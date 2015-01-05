@@ -157,9 +157,6 @@
 	</adminhtml>
 	<default>
 		<ebayenterprise_giftcard>
-			<general>
-				<is_enabled>0</is_enabled>
-			</general>
 			<api>
 				<service>payments</service>
 				<operations>

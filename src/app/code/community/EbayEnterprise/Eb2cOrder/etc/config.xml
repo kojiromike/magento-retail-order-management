@@ -161,11 +161,6 @@
 		</translate>
 	</adminhtml>
 	<default>
-		<eb2ccore>
-			<email>
-				<transactional_emailer>'mage'</transactional_emailer>
-			</email>
-		</eb2ccore>
 		<eb2corder>
 			<api>
 				<service>orders</service>

@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Order Confirmed event
 - Order Credit Issued event
 - Order Return in Transit event
+- Order Price Adjustment event
 
 ### Removed
 - Order Status mapping between ROM Order Statuses and Magento Order Status table

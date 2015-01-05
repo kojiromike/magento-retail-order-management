@@ -412,6 +412,11 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 				break;
 		}
 		$this->_order = $order;
+
+		Mage::dispatchEvent(
+			'checkout_submit_all_after',
+			array('order' => $order, 'quote' => $this->_quote)
+		);
 	}
 
 	/**
@@ -558,6 +563,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	protected function _setAdditionalCustomerBillingData()
 	{
 		$quote = $this->_quote;
+		$billing = $quote->getBillingAddress();
 		if ($quote->getCustomerDob() && !$billing->getCustomerDob()) {
 			$billing->setCustomerDob($quote->getCustomerDob());
 		}

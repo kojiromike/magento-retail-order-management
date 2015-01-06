@@ -15,8 +15,16 @@
 
 class EbayEnterprise_Catalog_Model_Feed_File
 {
-	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
+	/** @var EbayEnterprise_MageLog_Helper_Data       $_log */
 	protected $_log;
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data      $_coreHelper */
+	protected $_coreHelper;
+	/** @var EbayEnterprise_Eb2cCore_Helper_Languages $_languageHelper */
+	protected $_languageHelper;
+	/** @var EbayEnterprise_Catalog_Helper_Xslt       $_xsltHelper */
+	protected $_xsltHelper;
+	/** @var EbayEnterprise_Catalog_Helper_Data       $_helper */
+	protected $_helper;
 	/**
 	 * Array of information about the feed file to be processed. Expected to be
 	 * passed to the constructor and *must* contain the following keys:
@@ -44,6 +52,11 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	public function __construct(array $feedDetails)
 	{
 		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_coreHelper = Mage::helper('eb2ccore');
+		$this->_languageHelper = Mage::helper('eb2ccore/languages');
+		$this->_xsltHelper = Mage::helper('ebayenterprise_catalog/xslt');
+		$this->_helper = Mage::helper('ebayenterprise_catalog');
+
 		$missingKeys = array_diff(array('doc', 'error_file'), array_keys($feedDetails));
 		if ($missingKeys) {
 			trigger_error(
@@ -98,7 +111,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
 		$this->_removeItemsFromWebsites($cfgData, $items);
 		$skusToReport = array_merge($skusToReport, $this->_importedSkus);
 
-		$siteFilters = Mage::helper('ebayenterprise_catalog')->loadWebsiteFilters();
+		$siteFilters = $this->_helper->loadWebsiteFilters();
 		foreach($siteFilters as $siteFilter) {
 			$this->_importedSkus = array();
 			$this->_processWebsite($siteFilter, $cfgData, $items)
@@ -153,7 +166,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	 */
 	protected function _removeFromWebsites(Mage_Catalog_Model_Resource_Product_Collection $collection, array $dData)
 	{
-		foreach (Mage::helper('ebayenterprise_catalog')->loadWebsiteFilters() as $siteFilter) {
+		foreach ($this->_helper->loadWebsiteFilters() as $siteFilter) {
 			foreach ($this->_getSkusInWebsite($dData, $siteFilter) as $dSku) {
 				$product = $collection->getItemById($dSku);
 				if ($product) {
@@ -175,14 +188,15 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	 */
 	protected function _getSkusToRemoveFromWebsites(array $cfgData)
 	{
-		$productHelper = Mage::helper('ebayenterprise_catalog');
-		$coreHelper = Mage::helper('eb2ccore');
 		$result = array();
-		$dlDoc = $productHelper->splitDomByXslt($this->_getDoc(), $this->_getXsltPath($cfgData['xslt_deleted_sku'], $cfgData['xslt_module']));
-		$xpath = $coreHelper->getNewDomXPath($dlDoc);
+		$dlDoc = $this->_helper->splitDomByXslt(
+			$this->_getDoc(),
+			$this->_getXsltPath($cfgData['xslt_deleted_sku'], $cfgData['xslt_module'])
+		);
+		$xpath = $this->_coreHelper->getNewDomXPath($dlDoc);
 		foreach ($xpath->query($cfgData['deleted_base_xpath'], $dlDoc->documentElement) as $item) {
 			$catalogId = $item->getAttribute('catalog_id');
-			$sku = Mage::helper('ebayenterprise_catalog')->normalizeSku($item->nodeValue, $catalogId);
+			$sku = $this->_helper->normalizeSku($item->nodeValue, $catalogId);
 
 			$result[$sku] = array(
 				'gsi_client_id' => $item->getAttribute('gsi_client_id'),
@@ -224,19 +238,25 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	/**
 	 * Get an array of SKUs included in the given DOMXPath.
 	 * @param  DOMXPath $xpath
-	 * @param array $cfgData
+	 * @param  array    $cfgData
 	 * @return array
 	 */
 	protected function _getSkusToUpdate(DOMXPath $xpath, array $cfgData)
 	{
+		$skusToUpdate = array();
 		if (empty($this->_importedSkus)) {
 			$updateSkuNodes = $xpath->query($cfgData['all_skus_xpath']);
+			$catalogId = $this->_coreHelper->getConfigModel()->catalogId;
 			foreach ($updateSkuNodes as $skuNode) {
-				$this->_importedSkus[] = Mage::helper('ebayenterprise_catalog')->normalizeSku(trim($skuNode->nodeValue),
-					Mage::helper('eb2ccore')->getConfigModel()->catalogId);
+				$skusToUpdate[] = $this->_helper->normalizeSku(
+					trim($skuNode->nodeValue),
+					$catalogId
+				);
 			}
+			// keep track of skus we've processed for the website
+			$this->_importedSkus = array_unique(array_merge($this->_importedSkus, $skusToUpdate));
 		}
-		return $this->_importedSkus;
+		return $skusToUpdate;
 	}
 	/**
 	 * Get the path to the given XSLT template. Methods assumes all XSLTs are
@@ -260,11 +280,11 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	 */
 	protected function _splitByFilter($websiteFilter, $template, $module)
 	{
-		return Mage::helper('ebayenterprise_catalog')->splitDomByXslt(
+		return $this->_helper->splitDomByXslt(
 			$this->_getDoc(),
 			$this->_getXsltPath($template, $module),
 			array('lang_code' => $websiteFilter['lang_code']),
-			array($this, '_xslCallBack'), // Call Back to massage XSL after initial load
+			array($this->_xsltHelper, 'xslCallBack'), // Call Back to massage XSL after initial load
 			$websiteFilter // Site Context
 		);
 	}
@@ -280,7 +300,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	 */
 	protected function _importExtractedData(DOMDocument $itemDataDoc, $storeId, array $cfgData, EbayEnterprise_Catalog_Interface_Import_Items $items)
 	{
-		$feedXPath = Mage::helper('eb2ccore')->getNewDomXPath($itemDataDoc);
+		$feedXPath = $this->_coreHelper->getNewDomXPath($itemDataDoc);
 		$skusToUpdate = $this->_getSkusToUpdate($feedXPath, $cfgData);
 		if (count($skusToUpdate)) {
 			$collection = $items->buildCollection($skusToUpdate);
@@ -319,9 +339,9 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	)
 	{
 		$extractor = Mage::getSingleton('ebayenterprise_catalog/feed_extractor');
-		$sku = Mage::helper('ebayenterprise_catalog')->normalizeSku(
+		$sku = $this->_helper->normalizeSku(
 			$extractor->extractSku($feedXPath, $itemNode, $cfgData['extractor_sku_xpath']),
-				Mage::helper('eb2ccore')->getConfigModel()->catalogId
+				$this->_coreHelper->getConfigModel()->catalogId
 		);
 		$websiteId = Mage::getModel('core/store')->load($storeId)->getWebsiteId();
 		$item = $itemCollection->getItemById($sku);
@@ -349,7 +369,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	 */
 	protected function _processTranslations(array $siteFilter, array $cfgData, EbayEnterprise_Catalog_Interface_Import_Items $items)
 	{
-		foreach (Mage::helper('eb2ccore/languages')->getLanguageCodesList() as $language) {
+		foreach ($this->_languageHelper->getLanguageCodesList() as $language) {
 			if ($siteFilter['lang_code'] === $language) {
 				$this->_processForLanguage($siteFilter, $cfgData, $items);
 			}
@@ -368,7 +388,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	{
 		$this->_log->logDebug('[%s] processing %s language', array(__CLASS__, $siteFilter['lang_code']));
 		$splitDoc = $this->_splitByFilter($siteFilter, $cfgData['xslt_single_template_path'], $cfgData['xslt_module']);
-		foreach (Mage::helper('eb2ccore/languages')->getStores($siteFilter['lang_code']) as $store) {
+		foreach ($this->_languageHelper->getStores($siteFilter['lang_code']) as $store) {
 			// do not reprocess the default store
 			$storeId = $store->getId();
 			if ($siteFilter['mage_store_id'] === $storeId && $storeId !== Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID) {
@@ -394,18 +414,5 @@ class EbayEnterprise_Catalog_Model_Feed_File
 			$this->_splitByFilter($websiteFilter, $cfgData['xslt_default_template_path'], $cfgData['xslt_module']),
 			$mageStoreId, $cfgData, $items
 		);
-	}
-	/**
-	 * This is a callback; adds additional template handling for configurable variables that XSLT 1.0 just doesn't do.
-	 */
-	protected function _xslCallBack(DOMDocument $xslDoc, array $websiteFilter)
-	{
-		$helper = Mage::helper('ebayenterprise_catalog');
-		foreach( array('Item', 'PricePerItem', 'Content') as $nodeToMatch) {
-			$helper->appendXslTemplateMatchNode($xslDoc, "/*/{$nodeToMatch}[(@catalog_id and @catalog_id!='{$websiteFilter['catalog_id']}')]");
-			$helper->appendXslTemplateMatchNode($xslDoc, "/*/{$nodeToMatch}[(@gsi_client_id and @gsi_client_id!='{$websiteFilter['client_id']}')]");
-			$helper->appendXslTemplateMatchNode($xslDoc, "/*/{$nodeToMatch}[(@gsi_store_id and @gsi_store_id!='{$websiteFilter['store_id']}')]");
-		}
-		$xslDoc->loadXML($xslDoc->saveXML());
 	}
 }

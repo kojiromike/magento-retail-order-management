@@ -8,7 +8,7 @@
 		"ebayenterprise/magento-retail-order-management": "dev-master"
 	},
 	"require-dev": {
-		"ecomdev/ecomdev_phpunit": "~0.3",
+		"ecomdev/ecomdev_phpunit": "dev-master as 0.3.x-dev",
 		"firegento/psr0autoloader": "*",
 		"mikey179/vfsStream": "~1.0",
 		"pdepend/pdepend": "~1.1",

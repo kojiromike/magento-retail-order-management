@@ -26,10 +26,6 @@
 	"prefer-stable": true,
 	"repositories": [
 		{
-			"type": "composer",
-			"url": "http://packages.firegento.com"
-		},
-		{
 			"type": "vcs",
 			"url": "/home/stack/git/magento-active-config.git"
 		},
@@ -56,6 +52,10 @@
 		{
 			"type": "git",
 			"url": "/home/stack/git/RetailOrderManagement-SDK.git"
+		},
+		{
+			"type": "composer",
+			"url": "http://packages.firegento.com"
 		}
 	],
 	"extra": {

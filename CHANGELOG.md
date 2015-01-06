@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Orders using gift cards are submitted with PrepaidCreditCard payment node that fails in OMS
+- Ensure trailing whitespace is stripped off before saving SFTP Remote Host configuration in the backend
 
 [unreleased]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-10...HEAD
 [1.4.0-alpha-10]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-9...1.4.0-alpha-10

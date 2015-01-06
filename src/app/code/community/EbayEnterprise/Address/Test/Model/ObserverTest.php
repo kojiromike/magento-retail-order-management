@@ -145,6 +145,8 @@ class EbayEnterprise_Address_Test_Model_ObserverTest
 	 */
 	public function testResponseSuggestionsNoErrors()
 	{
+		$this->_mockConfig(1);
+
 		$suggestionGroup = $this->getModelMock('ebayenterprise_address/suggestion_group', array('setHasFreshSuggestions'));
 		$suggestionGroup->expects($this->once())
 			->method('setHasFreshSuggestions')

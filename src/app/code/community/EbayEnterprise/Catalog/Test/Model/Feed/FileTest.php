@@ -134,7 +134,6 @@ class EbayEnterprise_Catalog_Test_Model_Feed_FileTest
 				array($skus[0], $catalogId, $skus[0]),
 				array($skus[1], $catalogId, $skus[1])
 			)));
-		$this->replaceByMock('helper', 'ebayenterprise_catalog', $productHelperMock);
 
 		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
@@ -144,7 +143,6 @@ class EbayEnterprise_Catalog_Test_Model_Feed_FileTest
 			->method('getNewDomXPath')
 			->with($this->equalTo($dlDoc))
 			->will($this->returnValue($xpath));
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 
 		$file = $this->getModelMockBuilder('ebayenterprise_catalog/feed_file')
 			->disableOriginalConstructor()
@@ -161,14 +159,18 @@ class EbayEnterprise_Catalog_Test_Model_Feed_FileTest
 			)
 			->will($this->returnValue($xslt));
 
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($file, '_feedDetails', array(
+		$feedDetails = array(
 			'doc' => $doc,
 			'local' => '/EbayEnterprise/Eb2c/Feed/Product/ItemMaster/outbound/ItemMaster_Subset.xml',
 			'remote' => '/ItemMaster/',
 			'timestamp' => '2012-07-06 10:09:05',
 			'type' => 'ItemMaster',
 			'error_file' => '/EbayEnterprise/Eb2c/Feed/Product/ItemMaster/outbound/ItemMaster_20140107224605_12345_ABCD.xml'
-		));
+		);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues(
+			$file,
+			array('_helper' => $productHelperMock, '_coreHelper' => $coreHelperMock, '_feedDetails' => $feedDetails)
+		);
 
 		$this->assertSame($dData, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$file, '_getSkusToRemoveFromWebsites', array($cfgData)
@@ -205,9 +207,8 @@ class EbayEnterprise_Catalog_Test_Model_Feed_FileTest
 				array($skus[1], $catalogId, $skus[1]),
 				array($skus[2], $catalogId, $skus[2])
 			)));
-		$this->replaceByMock('helper', 'ebayenterprise_catalog', $catalogHelperMock);
 
-		$coreHelperMock = $this->getHelperMockBuilder('eb2cccore/data')
+		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
 			->setMethods(array('getConfigModel'))
 			->getMock();
@@ -216,12 +217,15 @@ class EbayEnterprise_Catalog_Test_Model_Feed_FileTest
 			->will($this->returnValue($this->buildCoreConfigRegistry(array(
 				'catalogId' => $catalogId
 			))));
-		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 
 		$file = $this->getModelMockBuilder('ebayenterprise_catalog/feed_file')
 			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues(
+			$file,
+			array('_helper' => $catalogHelperMock, '_coreHelper' => $coreHelperMock)
+		);
 		$this->assertSame($skus, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$file, '_getSkusToUpdate', array($xpath, $cfgData)
 		));
@@ -302,6 +306,7 @@ class EbayEnterprise_Catalog_Test_Model_Feed_FileTest
 			->with($this->identicalTo($wIds), $this->identicalTo($websiteFilters[0]['mage_website_id']))
 			->will($this->returnValue($removedIds));
 
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues($fileMock, array('_helper' => $helperMock));
 		$this->assertSame($fileMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$fileMock, '_removeFromWebsites', array($collectionMock, $dData)
 		));

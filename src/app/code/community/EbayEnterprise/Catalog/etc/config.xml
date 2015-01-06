@@ -42,6 +42,9 @@
 			</ebayenterprise_catalog_setup>
 		</resources>
 		<events>
+			<!--
+				observe the `ebayenterprise_feed_dom_loaded` event to process a feed
+			-->
 			<catalog_product_edit_action>
 				<observers>
 					<lock_readonly_attributes>
@@ -111,15 +114,6 @@
 					</ebayenterprise_product_export_collector_combined>
 				</observers>
 			</ebayenterprise_product_export_content_map>
-			<ebayenterprise_feed_dom_loaded>
-				<observers>
-					<!-- iShip should probably move to its own module. -->
-					<iship_product_feed_dom>
-						<class>ebayenterprise_catalog/iship_observers</class>
-						<method>processDom</method>
-					</iship_product_feed_dom>
-				</observers>
-			</ebayenterprise_feed_dom_loaded>
 		</events>
 	</global>
 	<default>

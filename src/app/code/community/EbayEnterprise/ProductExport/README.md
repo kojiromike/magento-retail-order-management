@@ -169,9 +169,9 @@ Some values in the _Magento Attribute Code_ column are not truly product attribu
 			<td>No</td>
 		</tr>
 		<tr>
-			<td>manage_stock</td>
-			<td>ExtendedAttributes/SalesClass</td>
-			<td>Determines product display behavior based on inventory availability. Items set to have "Managed Stock" will be given a sales class of <code>stock</code>, tying display to inventory availability. Items set to not have "Managed Stock" will be given a sales class of <code>advanceOrderOpen</code>, making display independent of inventory availability.</td>
+			<td>See the <a href="#language">Language</a> section below for more information on how the extension handles translations.</td>
+			<td>sales_class</td>
+			<td>See the <a href=#product-attribute-requirements>Product Attribute Requirements</td> section below for more information.</td>
 			<td>No</td>
 		</tr>
 		<tr>
@@ -404,6 +404,7 @@ The following product requirements must be met for a product to be exported from
 | Hierarchy Dept Number     | Non-empty value. Must be provided by eBay Enterprise. |
 | Hierarchy Subclass Number | Non-empty value. Must be provided by eBay Enterprise. |
 | Hierarchy Subdept Number  | Non-empty value. Must be provided by eBay Enterprise. |
+| Sales Class               | One of `stock` (the default), `advanceOrderLimited`, `advanceOrderOpen`, or `backOrderLimited` |
 | Tax Code                  | Non-empty value. Must be provided by eBay Enterprise. |
 
 ## Product Export Mapping

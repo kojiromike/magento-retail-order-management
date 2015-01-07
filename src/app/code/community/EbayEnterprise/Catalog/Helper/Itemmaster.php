@@ -148,7 +148,7 @@ class EbayEnterprise_Catalog_Helper_Itemmaster
 		return $this->passString($itemType, $attribute, $product, $doc);
 	}
 	/**
-	 * Translate a visbility into CatalogClass
+	 * Translate a visibility into CatalogClass
 	 * which will return DOMNode object
 	 * @param  string                              $attrValue
 	 * @param  string                              $attribute
@@ -279,16 +279,15 @@ class EbayEnterprise_Catalog_Helper_Itemmaster
 	 * @param  string                              $attrValue
 	 * @param  string                              $attribute
 	 * @param  Mage_Catalog_Model_Product          $product
-	 * @param  DOMDocument         $doc
+	 * @param  DOMDocument $doc
 	 * @return DOMNode
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function passSalesClass($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
-		$enum = 'advanceOrderOpen';
-		if (!empty($attrValue)) {
-			$enum = 'stock';
-		}
+		$enum = empty($attrValue) ? 'stock' :
+			Mage::getSingleton('eav/entity_attribute')
+				->loadByCode($product::ENTITY, $attribute)
+				->getSource()->getOptionText($attrValue);
 		return $this->passString($enum, $attribute, $product, $doc);
 	}
 	/**

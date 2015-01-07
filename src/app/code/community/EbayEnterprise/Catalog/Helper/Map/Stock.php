@@ -18,7 +18,7 @@ class EbayEnterprise_Catalog_Helper_Map_Stock extends Mage_Core_Helper_Abstract
 	const STOCK_CONFIG_PATH = 'ebayenterprise_catalog/feed/stock_map';
 
 	/**
-	 * @var array holding eb2c manage stock value type
+	 * @var array holding ROM backorder value types
 	 */
 	protected $_stockMap = array();
 
@@ -37,42 +37,33 @@ class EbayEnterprise_Catalog_Helper_Map_Stock extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * extract the salesClass from DOMNOdeList object
-	 * then get a configuration array of SalesClass possible values map to a known manage_stock value
-	 * check if the extracted salesClass value is a key in the array of configuration map
-	 * then return an array with key mage_stock with value of extracted salesclass parsed as bool
-	 * if the key is not found in the map simply return null
+	 * extract the SalesClass from DOMNOdeList object and map to a known Magento 'backorder' value
 	 * @param DOMNodeList $nodes
 	 * @param Mage_Catalog_Model_Product $product
-	 * @return array an array with key manage_stock with value otherwise an empty array
+	 * @return null
 	 */
 	public function extractStockData(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
 	{
 		$value = Mage::helper('eb2ccore')->extractNodeVal($nodes);
 		$mapData = $this->_getStockMap();
-		$id = (int) $product->getId();
-		if (isset($mapData[$value]) && $id) {
-			$stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($id);
+		$productId = (int) $product->getId();
+		if ($productId) {
+			$stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($productId);
 			if ($stockItem) {
-				$stockItem->addData(array(
-					'manage_stock' => $this->_boolToInt(Mage::helper('eb2ccore')->parseBool($mapData[$value])),
-					'use_config_manage_stock' => false,
-					'product_id' => $id,
-					'stock_id' => Mage_CatalogInventory_Model_Stock::DEFAULT_STOCK_ID,
-				))
-				->save();
+				$backorders = isset($mapData[$value]) ?
+					(int) $mapData[$value] : Mage_CatalogInventory_Model_Stock::BACKORDERS_NO;
+				$stockData = array(
+					'product_id' => $productId,
+					'stock_id'   => Mage_CatalogInventory_Model_Stock::DEFAULT_STOCK_ID,
+					'backorders' => $backorders,
+					'use_config_backorders' => false,
+				);
+				if ($backorders > Mage_CatalogInventory_Model_Stock::BACKORDERS_NO) {
+					$stockData['is_in_stock'] = true; // Seems awkward, but you have to set this true if you want to allow an attempt to add to cart.
+				}
+				$stockItem->addData($stockData)->save();
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * return int value of a given boolean value
-	 * @param bool $value
-	 * @return int
-	 */
-	protected function _boolToInt($value)
-	{
-		return $value? 1 : 0;
 	}
 }

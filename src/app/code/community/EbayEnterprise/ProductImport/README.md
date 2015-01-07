@@ -158,17 +158,12 @@ Consists of at least 2 child nodes:
 		<tr>
 			<td>ExtendedAttributes/SalesClass</td>
 			<td>
-				Specifies the "Manage Stock" inventory setting for the product. The following mapping between valid sales classes and Magento "Managed Stock" settings.
-				<table>
-					<thead>
-						<tr><th>Feed Value</th><th>Managed Stock Setting</th></tr>
-					</thead>
-					<tbody>
-						<tr><td>stock</td><td>Yes</td></tr>
-						<tr><td>advanceOrderOpen</td><td>No</td></tr>
-						<tr><td>advanceOrderLimited</td><td>Yes</td></tr>
-					</tbody>
-				</table>
+				Specifies the <code>Backorder</code> inventory setting for the product. This affects the behavior of Inventory Service Calls.
+				<ul>
+				<li>The SalesClass value <code>stock</code> is mapped to Magento <code>Backorders = No</code> and cannot be remapped.
+				<li>Mappings for the other possible SalesClass values are included in <code>app/etc/productimport.xml.sample</code> and may be customized as needed.
+				Complete documentation included in <code>app/etc/productimport.xml.sample</code>.</li>
+				</ul>
 			</td>
 			<td>No</td>
 		</tr>

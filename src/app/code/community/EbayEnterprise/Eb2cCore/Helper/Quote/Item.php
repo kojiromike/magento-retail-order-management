@@ -38,15 +38,22 @@ class EbayEnterprise_Eb2cCore_Helper_Quote_Item
 		// products to not care individually
 		if ($item->getHasChildren()) {
 			foreach ($item->getChildren() as $childItem) {
-				if ($childItem->getProduct()->getStockItem()->getManageStock()) {
+				$childStock = $childItem->getProduct()->getStockItem();
+				if ($childStock->getBackorders() === Mage_CatalogInventory_Model_Stock::BACKORDERS_NO
+					&& $childStock->getManageStock() !== false)
+				{
+					// This Parent is inventoried. Child's ROM setting is 'No backorders', and Manage Stock check hasn't been manually overridden
 					return true;
 				}
 			}
 			// if none of the children were managed stock, the parent is not inventoried
 			return false;
 		}
-		// if dealing with a standalone product, no parent or children, use the
-		// manage stock setting of that product
-		return $item->getProduct()->getStockItem()->getManageStock();
+		// Dealing with a standalone product, no parent or children.  If manageStock has been manually set to false
+		// *or* Backorders are OK as per ROM, there's no call.
+		$stock = $item->getProduct()->getStockItem();
+        return ($stock->getBackorders() > Mage_CatalogInventory_Model_Stock::BACKORDERS_NO || $stock->getManageStock() === false)  ?
+				false : true;
 	}
 }
+

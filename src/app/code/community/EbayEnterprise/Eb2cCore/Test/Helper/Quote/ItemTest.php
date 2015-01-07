@@ -23,43 +23,46 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Quote_ItemTest extends EcomDev_PHPUnit
 	 */
 	public function providerIsItemInventoried()
 	{
-		$manageProduct = Mage::getModel(
+		$inventoriedProduct = Mage::getModel( // Should be inventoried:
 			'catalog/product',
 			array(
 				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
-					'manage_stock' => true,
-					'use_config_manage_stock' => false
+					'backorders' => Mage_CatalogInventory_Model_Stock::BACKORDERS_NO,
 				)),
 			)
 		);
-		$noManageProduct = Mage::getModel(
+		$nonInventoriedProduct = Mage::getModel( // Should not be inventoried; Backorders are OK
 			'catalog/product',
 			array(
 				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
+					'backorders'   => Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY,
+				)),
+			)
+		);
+		$overrideInventoriedProduct = Mage::getModel( // Should not be inventoried, because manage_stock was set to false.
+			'catalog/product',
+			array(
+				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
+					'backorders'   => Mage_CatalogInventory_Model_Stock::BACKORDERS_NO,
 					'manage_stock' => false,
-					'use_config_manage_stock' => false
 				)),
 			)
 		);
 
-		$singleItemManaged        = Mage::getModel('sales/quote_item', array('product' => $manageProduct));
-		$singleItemNoManaged      = Mage::getModel('sales/quote_item', array('product' => $noManageProduct));
-		$parentItemManagedChild   = Mage::getModel('sales/quote_item', array('product' => $noManageProduct,));
-		$parentItemNoManagedChild = Mage::getModel('sales/quote_item', array('product' => $noManageProduct,));
-		$managedChildItem         = Mage::getModel('sales/quote_item', array('product' => $manageProduct, 'parent_item_id' => 2,));
-		$noManagedChildItem       = Mage::getModel('sales/quote_item', array('product' => $noManageProduct, 'parent_item_id' => null,));
+		$inventoriedSku         = Mage::getModel('sales/quote_item', array('product' => $inventoriedProduct));
+		$nonInventoriedSku      = Mage::getModel('sales/quote_item', array('product' => $nonInventoriedProduct));
+		$overrideInventoriedSku = Mage::getModel('sales/quote_item', array('product' => $overrideInventoriedProduct));
+		$inventoriedChildSku    = Mage::getModel('sales/quote_item', array('product' => $inventoriedProduct, 'parent_item_id' => 2,));
 
-		// Relate parent and child items:
-		$managedChildItem->setParentItem($parentItemManagedChild);
-		$noManagedChildItem->setParentItem($parentItemNoManagedChild);
+		$childInventoriesParentSku = Mage::getModel('sales/quote_item', array('product' => $nonInventoriedProduct));
+		$childInventoriesParentSku->addChild($inventoriedChildSku);
 
 		return array(
-			array($singleItemManaged, true),
-			array($singleItemNoManaged, false),
-			array($parentItemManagedChild, true),
-			array($parentItemNoManagedChild, false),
-			array($managedChildItem, false),
-			array($noManagedChildItem, false),
+			array($inventoriedSku, true),            // Set by ROM to be inventoried
+			array($nonInventoriedSku, false),        // Set by ROM to not be inventoried
+			array($overrideInventoriedSku, false),   // Set by ROM to be inventoried, but overridden by manage-stock flag
+			array($inventoriedChildSku, false),      // Set by ROM to be inventoried, but has parent, so no check
+			array($childInventoriesParentSku, true), // Set by ROM to not be inventoried, but child forces it.
 		);
 	}
 	/**

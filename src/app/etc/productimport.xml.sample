@@ -45,6 +45,21 @@ Carefully review all options to ensure they match you specific implementation.
 			</feed>
 		</eb2ccore>
 		<ebayenterprise_catalog>
+			<feed>
+				<!--
+				'stock_map' maps SalesClass possible values to a known Magento value for product stock item backorder attribute.
+				This determines whether or not a ROM Inventory Call is made for an item.
+				Valid Values are found in Mage_CatalogInventory_Model_Stock:
+					BACKORDERS_NO           = 0; // Send to ROM Inventory API. This is the default if not mapped. Notably, 'stock' is not mapped and therefore is always set to 0.
+					BACKORDERS_YES_NONOTIFY = 1; // Do not send to ROM Inventory API.
+					BACKORDERS_YES_NOTIFY   = 2; // Do not send to ROM Inventory API.
+				-->
+				<stock_map>
+					<advanceOrderOpen>1</advanceOrderOpen>
+					<advanceOrderLimited>1</advanceOrderLimited>
+					<backOrderLimited>2</backOrderLimited>
+				</stock_map>
+			</feed>
 			<!--
 			Product Import Mapping: Detailed documentation can be found in the Product Import module's documentation
 			located at: ../app/code/community/EbayEnterprise/ProductImport/README.md#product-import-mapping

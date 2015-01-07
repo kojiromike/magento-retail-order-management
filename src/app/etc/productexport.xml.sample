@@ -19,23 +19,6 @@ You can use this file as a starting point for your implementation by renaming th
 Carefully review all options to ensure they match you specific implementation.
 -->
 <config>
-	<!--
-	Cron Jobs for Product Export
-	-->
-	<crontab>
-		<jobs>
-			<!--
-			Product Export: This job will export the item master, pricing and content feeds to the Product Hub.
-
-			Suggested Schedule: Once every fifteen minutes
-			-->
-			<eb2cproduct_pim_export_feed>
-				<schedule>
-					<cron_expr>*/15 * * * *</cron_expr>
-				</schedule>
-			</eb2cproduct_pim_export_feed>
-		</jobs>
-	</crontab>
 	<default>
 		<ebayenterprise_catalog>
 			<!--
@@ -185,13 +168,13 @@ Carefully review all options to ensure they match you specific implementation.
 							<xml_dest>ExtendedAttributes/Manufacturer/Name</xml_dest>
 							<translate>0</translate>
 						</manufacturer>
-						<manage_stock>
+						<sales_class>
 							<class>ebayenterprise_catalog/itemmaster</class>
 							<type>helper</type>
 							<method>passSalesClass</method>
 							<xml_dest>ExtendedAttributes/SalesClass</xml_dest>
 							<translate>0</translate>
-						</manage_stock>
+						</sales_class>
 						<_style>
 							<class>ebayenterprise_catalog/itemmaster</class>
 							<type>helper</type>

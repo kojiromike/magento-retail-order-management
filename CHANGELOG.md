@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Ensure trailing whitespace is stripped before saving SFTP Remote Host configuration.
 - Customers should only see one error message when trying to cart an understocked item.
 - Gift Card from previous order applied when current Gift Card fails.
+- Checkout fails when multiple credit card payment methods are enabled.
 
 ## [1.4.0-alpha-10] - 2015-01-05
 ### Added

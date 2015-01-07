@@ -17,8 +17,10 @@
 <script type="text/javascript" src="<?php echo $this->getCollectorUrl() ?>"></script>
 <script type="text/javascript">
 document.observe("dom:loaded", function() {
-	$('co-payment-form').insert('<?php echo $this->getField() ?>');
-	$('co-payment-form').insert('<?php echo $this->getMappingField() ?>');
+	var field = '<?php echo $this->getField() ?>';
+	var mappingField = '<?php echo $this->getMappingField() ?>';
+	$('co-payment-form').insert(field);
+	$('co-payment-form').insert(mappingField);
 	/**
 	 * Wrapper function around the PayPal Express review submit button.
 	 * Populates form with JSC data and then proceeds with existing
@@ -32,7 +34,8 @@ document.observe("dom:loaded", function() {
 		}
 		// re-enable the payment form - JSC fields disabled when finishing the
 		// payment step
-		Form.enable(payment.form);
+		$('<?php echo $this->getFieldName() ?>').enable();
+		$('<?php echo $this->getMappingFieldName() ?>').enable();
 		// call the original, wrapped function
 		originalFn.call(this);
 	};

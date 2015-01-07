@@ -54,6 +54,8 @@ class EbayEnterprise_Eb2cFraud_Block_Jsc extends Mage_Core_Block_Template
 				'<input type="hidden" name="%1$s" id="%1$s" value="%2$s" />',
 				EbayEnterprise_Eb2cFraud_Helper_Data::JSC_FIELD_NAME, $collector['formfield']
 			),
+			'field_name' => $collector['formfield'],
+			'mapping_field_name' => EbayEnterprise_Eb2cFraud_Helper_Data::JSC_FIELD_NAME
 		));
 	}
 }

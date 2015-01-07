@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased][unreleased]
 
+### Fixed
+- Passing unit tests
+
 ## [1.4.0-alpha-10] - 2015-01-05
 ### Added
 - PayPal configuration for Image URLs

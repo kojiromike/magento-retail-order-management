@@ -9,7 +9,8 @@ All notable changes to this project will be documented in this file.
 - Unnecessary default configuration values from module etc/config.xml files.
 
 ### Fixed
-- Ensure trailing whitespace is stripped before saving SFTP Remote Host configuration
+- Ensure trailing whitespace is stripped before saving SFTP Remote Host configuration.
+- Customers should only see one error message when trying to cart an understocked item.
 
 ## [1.4.0-alpha-10] - 2015-01-05
 ### Added
@@ -26,7 +27,7 @@ All notable changes to this project will be documented in this file.
 - ROM Order Status importation into the Magento Order Status table
 
 ### Fixed
-- Orders using gift cards are submitted with PrepaidCreditCard payment node that fails in OMS
+- Orders using gift cards are submitted with PrepaidCreditCard payment node that fails in OMS.
 
 [unreleased]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-10...HEAD
 [1.4.0-alpha-10]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-9...1.4.0-alpha-10

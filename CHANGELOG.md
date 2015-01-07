@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased][unreleased]
 
+### Removed
+- Unnecessary default configuration values from module etc/config.xml files.
+
 ### Fixed
 - Passing unit tests
 

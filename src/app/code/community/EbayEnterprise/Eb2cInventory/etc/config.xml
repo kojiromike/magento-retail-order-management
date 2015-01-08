@@ -26,11 +26,6 @@
 			<eb2cinventoryoverride>
 				<class>EbayEnterprise_Eb2cInventory_Overrides_Model</class>
 			</eb2cinventoryoverride>
-			<checkout>
-				<rewrite>
-					<cart>EbayEnterprise_Eb2cInventory_Overrides_Model_Cart</cart>
-				</rewrite>
-			</checkout>
 			<cataloginventory>
 				<rewrite>
 					<stock_item>EbayEnterprise_Eb2cInventory_Overrides_Model_Stock_Item</stock_item>

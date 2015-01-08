@@ -6,5 +6,3 @@
 "EbayEnterprise_Eb2cinventory_Product_Not_Exist", "The product does not exist."
 "EbayEnterprise_Eb2cInventory_Quantity_Out_Of_Stock_Message", "Sorry for the inconvenience, however, this product is out of stock."
 "EbayEnterprise_Eb2cInventory_Quantity_Request_Greater_Message", "Sorry for the inconvenience, however, the requested quantity %3$d of %1$s is greater than what we currently have in stock %4$d."
-"EbayEnterprise_Eb2cinventory_Quote_Item_Not_Exist", "Quote item does not exist."
-"EbayEnterprise_Eb2cInventory_Terms_Agreement_Error", "Please agree to all the terms and conditions before placing the order."

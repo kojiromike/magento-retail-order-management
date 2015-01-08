@@ -17,6 +17,15 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 {
 	const CANNOT_ADD_TO_CART_MESSAGE = 'EbayEnterprise_Eb2cInventory_Cannot_Add_To_Cart_Message';
 	const ALLOCATION_ERROR_MESSAGE = 'EbayEnterprise_Eb2cInventory_Allocation_Error_Message';
+
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
+	public function __construct()
+	{
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * Validate the quote against inventory service calls. When items or item quantities in the quote
 	 * have changed, this method will trigger a new inventory quantity service call and have the quote
@@ -118,9 +127,6 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 		$allocation = Mage::getModel('eb2cinventory/allocation');
 		// only allow allocation only when, there's no previous allocation or the previous allocation expired
 		if ($allocation->requiresAllocation($quote)) {
-			// flag for failure or success allocation
-			$isAllocated = true;
-
 			// generate request and send request to eb2c allocation
 			$allocationResponseMessage = $allocation->allocateQuoteItems($quote);
 			if ($allocationResponseMessage) {
@@ -132,13 +138,18 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 
 				// Got an allocation failure
 				if (!empty($allocatedErr)) {
-					$isAllocated = false;
+					$message = Mage::helper('eb2cinventory')->__(self::ALLOCATION_ERROR_MESSAGE, implode(' ', $allocatedErr));
+					throw Mage::exception('EbayEnterprise_Eb2cInventory_Model_Allocation', $message);
 				}
-			}
-
-			if (!$isAllocated) {
-				$message = Mage::helper('eb2cinventory')->__(self::ALLOCATION_ERROR_MESSAGE, implode(' ', $allocatedErr));
-				throw Mage::exception('EbayEnterprise_Eb2cInventory_Model_Allocation', $message);
+			} else {
+				$this->_logger
+					->logWarn(
+						'[%s] Allocation response message returned %s.',
+						array(
+							__CLASS__,
+							$allocationResponseMessage === '' ? 'empty string' : 'false'
+						)
+					);
 			}
 		}
 		return $this;

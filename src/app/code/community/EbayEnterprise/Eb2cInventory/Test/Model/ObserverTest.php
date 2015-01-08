@@ -316,6 +316,44 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 		Mage::getModel('eb2cinventory/observer')->processAllocation($eventObserver);
 	}
 	/**
+	 * allocateQuoteItems may return an empty string or false.
+	 * Fail silently in these cases and log a warning
+	 *
+	 * @param string|bool $message
+	 * @param array $expected
+	 * @dataProvider dataProvider
+	 */
+public function testNoAllocationRequestMessageLogsWarning($message, $expected)
+	{
+		$mockLogger = $this->getHelperMock('ebayenterprise_magelog', array('logWarn'));
+		$this->replaceByMock('helper', 'ebayenterprise_magelog', $mockLogger);
+
+		$mockQuote = $this->getModelMock('sales/quote');
+		$eventObserver = new Varien_Event_Observer(
+			array('event' => new Varien_Event(
+				array('quote' => $mockQuote)
+			))
+		);
+		$allocationMock = $this->getModelMock('eb2cinventory/allocation', array('requiresAllocation', 'allocateQuoteItems'));
+		// make requiresAllocation fail
+		$allocationMock->expects($this->once())
+			->method('requiresAllocation')
+			->with($this->identicalTo($mockQuote))
+			->will($this->returnValue(true));
+		// ensure allocateQuoteItems is not called
+		$allocationMock->expects($this->any())
+			->method('allocateQuoteItems')
+			->with($this->identicalTo($mockQuote))
+			->will($this->returnValue($message));
+		$this->replaceByMock('model', 'eb2cinventory/allocation', $allocationMock);
+		// check that 'logWarn' is called with the appropriate message
+		$mockLogger->expects($this->once())
+			->method('logWarn')
+			->with($this->identicalTo($expected));
+
+		Mage::getModel('eb2cinventory/observer')->processAllocation($eventObserver);
+	}
+	/**
 	 * Test rolling back an allocation - should retrieve the quote the allocation
 	 * was made from from the event observer and pass it through to the
 	 * eb2cinventory/quote helper's rollbackAllocation method.

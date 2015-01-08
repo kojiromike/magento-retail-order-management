@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased][unreleased]
 ### Added
 - Order Price Adjustment event
+- Log warning if API call to allocate inventory fails.
 
 ### Removed
 - Unnecessary default configuration values from module etc/config.xml files.

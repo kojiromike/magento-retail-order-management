@@ -467,8 +467,9 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract
 		// create a DOMDocument from the transformed XML
 		$transformed = $helper->getNewDomDocument();
 		$transformed->loadXML($xslProcessor->transformToXML($doc));
-		preg_match_all('/<ClientItemId ?.*>(.*)<\/ClientItemId>/', $transformed->saveXML(), $matches);
-		$this->_log->logDebug('[%s] transformed, SKUs eligible: (%s)', array(__CLASS__, implode(", ", $matches[1])));
+		$skuNodes = $helper->getNewDomXpath($transformed)
+			->query('/Items/Item/ItemId/ClientItemId|/Items/Item/UniqueID|/Items/Item/ClientItemId');
+		$this->_log->logInfo('[%s] Number of SKUs eligible: (%s)', array(__CLASS__, $skuNodes->length));
 		return $transformed;
 	}
 

@@ -14,8 +14,7 @@
  */
 
 /**
- * generate the xml for an EB2C tax and duty quote request.
- * @author Michael Phang <mphang@ebay.com>
+ * Generate the xml for an EB2C tax and duty quote request.
  */
 class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 {
@@ -32,8 +31,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	protected $_xml                = '';
 
-	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
-	protected $_log;
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
 
 	/** @var DOMDocument $_doc */
 	protected $_doc;
@@ -56,6 +55,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * @var bool
 	 */
 	protected $_isValid = false;
+
 	/**
 	 * map skus to a quote item
 	 * @var array('string' => Mage_Sales_Model_Quote_Item_Abstract)
@@ -65,7 +65,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	protected function _construct()
 	{
 		parent::_construct();
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 	/**
 	 * @see _isValid
@@ -174,7 +174,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			$this->_isValid = true;
 		}
 		catch (Exception $e) {
-			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
+			$this->_logger->logException($e);
 			$this->_isValid = false;
 		}
 		return $this;
@@ -487,8 +487,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			throw Mage::exception('Mage_Core', $message);
 		}
 		if (strlen($newSku) < strlen($item['item_id'])) {
-			$message = 'Item sku "' . $item['item_id'] . '" is too long and has been truncated';
-			$this->_log->logWarn('[%s] SKU "%s" was truncated', array(__CLASS__, $item['item_id']));
+			$this->_logger->logWarn('[%s] SKU "%s" was truncated', array(__CLASS__, $item['item_id']));
 		}
 		return $newSku;
 	}
@@ -513,7 +512,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			$destinations     = $shipping->createChild('Destinations');
 			$this->_processAddresses($destinations, $shipGroups);
 		} catch (Mage_Core_Exception $e) {
-			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
+			$this->_logger->logException($e);
 		}
 	}
 

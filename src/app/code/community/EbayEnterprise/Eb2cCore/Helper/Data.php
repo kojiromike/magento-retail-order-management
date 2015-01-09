@@ -24,6 +24,9 @@ use eBayEnterprise\RetailOrderManagement\Api;
 class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
 	/**
 	 * Service URI has the following format:
 	 * https://{host}/v{M}.{m}/stores/{storeid}/{service}/{operation}{/parameters}.{format}
@@ -38,6 +41,11 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	const URI_FORMAT = 'https://%s/v%s.%s/stores/%s/%s/%s%s.%s';
 	const PERMISSION = 0750;
+
+	public function __construct()
+	{
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
+	}
 
 	/**
 	 * Get the API URI for the given service/request.
@@ -569,7 +577,8 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 			$operation,
 			$endpointParams
 		);
-		Mage::helper('ebayenterprise_magelog')->logDebug('[%s] SDK API endpoint: %s', array(__CLASS__, $apiConfig->getEndpoint()));
+		// @todo: standardize logging
+		$this->_logger->logDebug('[%s] SDK API endpoint: %s', array(__CLASS__, $apiConfig->getEndpoint()));
 		return new Api\HttpApi($apiConfig);
 	}
 	/*

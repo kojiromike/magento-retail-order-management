@@ -22,14 +22,15 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 	const TRACKING_TITLE = 'Custom Value';
 	const ENTITY_TYPE = 'shipment';
 
-	/**  @var EbayEnterprise_MageLog_Helper_Data $_log */
-	protected $_log;
+	/**  @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
 	/** @var Mage_Eav_Model_Config $_eavConfig */
 	protected $_eavConfig;
 
 	public function __construct()
 	{
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 		$this->_eavConfig = Mage::getSingleton('eav/config');
 	}
 	/**
@@ -217,8 +218,8 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 			// attempting to register all shipment items.
 			$shipment->register();
 		} catch (Mage_Core_Exception $e) {
-			$logMessage = '[%s] Exception "%s" was thrown while registering shipment items for order (id: %s).';
-			$this->_log->logErr($logMessage, array(__CLASS__, $e->getMessage(), $incrementId));
+			$this->_logger->logErr('[%s] An error occurred registering shipment items for order id "%s". See exception log for details.', array(__CLASS__, $incrementId));
+			$this->_logger->logException($e);
 		}
 		return $this;
 	}
@@ -238,9 +239,8 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 		try {
 			$transactionSave->save();
 		} catch (Exception $e) {
-			// Logging error when Exception is thrown while saving order shipment data.
-			$logMessage = '[%s] Exception "%s" was thrown while saving shipment confirmation data to the order (id: %s).';
-			$this->_log->logErr($logMessage, array(__CLASS__, $e->getMessage(), $incrementId));
+			$this->_logger->logErr('[%s] An error occurred saving shipment confirmation to order id "%s". See exception log for details.', array(__CLASS__, $incrementId));
+			$this->_logger->logException($e);
 		}
 		return $this;
 	}
@@ -256,8 +256,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 	{
 		$shipment = Mage::getModel('sales/order_shipment')->loadByIncrementId($shipmentId);
 		if (!$shipment->getId()) {
-			$logMessage = '[%s] Magento did not add an expected shipment to the following order (id: %s).';
-			$this->_log->logWarn($logMessage, array(__CLASS__, $orderIncrementId));
+			$this->_logger->logWarn('[%s] Magento did not add an expected shipment to the following order (id: %s).', array(__CLASS__, $orderIncrementId));
 		}
 		$this->_reconcileItems($shipment->getItemsCollection(), $orderItems)
 			->_reconcileTracks($shipment->getTracksCollection(), $orderItems);
@@ -289,7 +288,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 		$item = $items->getItemByColumnValue('sku', $sku);
 		if (is_null($item)) {
 			$logMessage = '[%s] Magento did not add an expected-to-be-shipped item (%s) to the shipment.';
-			$this->_log->logWarn($logMessage, array(__CLASS__, $sku));
+			$this->_logger->logWarn($logMessage, array(__CLASS__, $sku));
 		}
 		return $this;
 	}
@@ -332,7 +331,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 		$track = $tracks->getItemByColumnValue('track_number', $number);
 		if (is_null($track)) {
 			$logMessage = '[%s] Magento did not add an expected-to-be-shipped Track number (%s) to the shipment.';
-			$this->_log->logWarn($logMessage, array(__CLASS__, $number));
+			$this->_logger->logWarn($logMessage, array(__CLASS__, $number));
 		}
 		return $this;
 	}

@@ -217,10 +217,6 @@ class EbayEnterprise_Eb2cOrder_Model_Detail
 			$billingAddress = $cloneOrder->getAddressesCollection()->getItemById($destinationId);
 			if ($billingAddress) {
 				$billingAddress->setAddressType(Mage_Customer_Model_Address_Abstract::TYPE_BILLING);
-				Mage::helper('ebayenterprise_magelog')->logInfo(
-					'[%s] set billing address (id="%")',
-					array(__METHOD__, $destinationId)
-				);
 			}
 		}
 		return $this;
@@ -233,10 +229,6 @@ class EbayEnterprise_Eb2cOrder_Model_Detail
 	 */
 	protected function _determineShippingAddress(DOMXpath $xpath, EbayEnterprise_Eb2cOrder_Model_Detail_Order $cloneOrder)
 	{
-		Mage::helper('ebayenterprise_magelog')->logInfo(
-			'[%s] determining shipping address',
-			array(__METHOD__)
-		);
 		$shipGroups = $xpath->query('//a:ShipGroup');
 		foreach ($shipGroups as $shipGroup) {
 			$chargeType = $shipGroup->getAttribute('chargeType');
@@ -251,10 +243,6 @@ class EbayEnterprise_Eb2cOrder_Model_Detail
 					'address_type' => Mage_Customer_Model_Address_Abstract::TYPE_SHIPPING,
 					'charge_type' => $chargeType,
 				));
-				Mage::helper('ebayenterprise_magelog')->logInfo(
-					'[%s] shipping address (id="%s") %s',
-					array(__METHOD__, $destinationId, $shippingAddress->isEmpty() ? 'not found' : 'found')
-				);
 			}
 		}
 		return $this;

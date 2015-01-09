@@ -20,8 +20,8 @@ abstract class EbayEnterprise_Catalog_Model_Feed_Abstract extends Varien_Object
 {
 	protected $_coreFeed; // Handles file moving, listing, etc.
 
-	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
-	protected $_log;
+	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
+	protected $_logger;
 
 	/**
 	 * Validate that the feed model has necessary configuration for the core
@@ -34,7 +34,7 @@ abstract class EbayEnterprise_Catalog_Model_Feed_Abstract extends Varien_Object
 	protected function _construct()
 	{
 		parent::_construct();
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 		if(!$this->hasFeedConfig()) {
 			throw new EbayEnterprise_Eb2cCore_Exception_Feed_Configuration(__CLASS__ . ' no configuration specifed.');
 		}
@@ -80,7 +80,7 @@ abstract class EbayEnterprise_Catalog_Model_Feed_Abstract extends Varien_Object
 				$this->processFile($feedFile);
 				$filesProcessed++;
 			} catch (Mage_Core_Exception $e) {
-				$this->_log->logWarn('[%s] Failed to process file, %s. %s', array(__CLASS__, basename($feedFile['local_file']), $e->getMessage()));
+				$this->_logger->logErr('[%s] Failed to process file, %s. %s', array(__CLASS__, basename($feedFile['local_file']), $e->getMessage()));
 			}
 		}
 		return $filesProcessed;
@@ -96,12 +96,12 @@ abstract class EbayEnterprise_Catalog_Model_Feed_Abstract extends Varien_Object
 		$dom = Mage::helper('eb2ccore')->getNewDomDocument();
 		$basename = basename($fileDetail['local_file']);
 		if (!$dom->load($fileDetail['local_file'])) {
-			$this->_log->logWarn('[%s] DomDocument could not load file "%s"', array(__CLASS__, $basename));
+			$this->_logger->logWarn('[%s] DomDocument could not load file "%s"', array(__CLASS__, $basename));
 			return null;
 		}
 		// Validate Eb2c Header Information
 		if (!Mage::helper('ebayenterprise_catalog/feed')->validateHeader($dom, $fileDetail['core_feed']->getEventType())) {
-			$this->_log->logWarn('[%s] Invalid header for file "%s"', array(__CLASS__, $basename));
+			$this->_logger->logWarn('[%s] Invalid header for file "%s"', array(__CLASS__, $basename));
 			return null;
 		}
 		return $dom;

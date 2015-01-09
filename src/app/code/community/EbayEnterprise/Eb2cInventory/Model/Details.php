@@ -32,12 +32,18 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 		'<OrderItem lineId="item%s" itemId="%s">
 			<Quantity>%d</Quantity>%s
 		</OrderItem>';
-	const SHIPPING_METHOD_WARNING_MESSAGE =
-		'[%s] Unable to translate ship method %s to Exchange Platform';
 	// Key used by the eb2cinventory/data helper to identify the URI for this request
 	const OPERATION_KEY = 'get_inventory_details';
 	// Config key used to identify the xsd file used to validate the request message
 	const XSD_FILE_CONFIG = 'xsd_file_details';
+
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
+	public function __construct()
+	{
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
+	}
 
 	/*****************************************************************************
 	 * Request methods                                                           *
@@ -96,10 +102,7 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	{
 		$translatedShipMethod = Mage::helper('eb2ccore')->lookupShipMethod($shippingMethod);
 		if (empty($translatedShipMethod)) {
-			Mage::helper('ebayenterprise_magelog')->logWarn(
-				static::SHIPPING_METHOD_WARNING_MESSAGE,
-				array(__METHOD__, $shippingMethod)
-			);
+			$this->_logger->logErr('[%s] Unable to translate ship method "%s".', array(__METHOD__, $shippingMethod));
 		}
 		return $translatedShipMethod;
 	}

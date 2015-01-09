@@ -24,6 +24,16 @@ class EbayEnterprise_Eb2cCustomerService_Model_Token_Request
 	const ROOT_NODE = 'TokenValidateRequest';
 	// config path to special API status handling for this service
 	const API_STATUS_HANDLER = 'eb2ccore/customer_service/api/status_handlers';
+
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
+	public function _construct()
+	{
+		parent::_construct();
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * Make a request to the token validation service using the token set in
 	 * "magic" data. Should return the response message from the service.
@@ -33,7 +43,7 @@ class EbayEnterprise_Eb2cCustomerService_Model_Token_Request
 	{
 		// if there's no token, don't attempt to validate it
 		if (!$this->getToken()) {
-			Mage::helper('ebayenterprise_magelog')->logInfo('[%s] No token to make request for', array(__CLASS__));
+			$this->_logger->logInfo('[%s] No token to make request for', array(__CLASS__));
 			return '';
 		}
 		$response = Mage::getModel('eb2ccore/api')

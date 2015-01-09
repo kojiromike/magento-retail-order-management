@@ -16,12 +16,12 @@
 class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
-	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
-	protected $_log;
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
 
 	public function __construct()
 	{
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 
 	/**
@@ -308,7 +308,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract
 				&& $productTypeId === Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
 				&& $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product))
 		{
-			$this->_log->logWarn('[%s] Cannot change existing configurable attributes; update discarded for SKU "%s"', array(__CLASS__, $product->getSku()));
+			$this->_logger->logWarn('[%s] Cannot change existing configurable attributes; update discarded for SKU "%s"', array(__CLASS__, $product->getSku()));
 			return null;
 		}
 		return $source->getData('configurable_attributes_data');
@@ -469,7 +469,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract
 		$transformed->loadXML($xslProcessor->transformToXML($doc));
 		$skuNodes = $helper->getNewDomXpath($transformed)
 			->query('/Items/Item/ItemId/ClientItemId|/Items/Item/UniqueID|/Items/Item/ClientItemId');
-		$this->_log->logInfo('[%s] Number of SKUs eligible: (%s)', array(__CLASS__, $skuNodes->length));
+		$this->_logger->logInfo('[%s] Number of SKUs eligible: (%s)', array(__CLASS__, $skuNodes->length));
 		return $transformed;
 	}
 

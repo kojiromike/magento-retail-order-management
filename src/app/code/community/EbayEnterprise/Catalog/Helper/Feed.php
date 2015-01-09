@@ -32,11 +32,11 @@ class EbayEnterprise_Catalog_Helper_Feed extends Mage_Core_Helper_Abstract
 	const KEY_EVENT_TYPE = 'event_type';
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
-	protected $_log;
+	protected $_logger;
 
 	public function __construct()
 	{
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 
 	/**
@@ -80,8 +80,7 @@ class EbayEnterprise_Catalog_Helper_Feed extends Mage_Core_Helper_Abstract
 		if ($matches->length) {
 			return true;
 		} else {
-			$msg = '[%s] Feed does not have an EventType node "%s".';
-			$this->_log->logWarn($msg, array(__CLASS__, $eventType));
+			$this->_logger->logWarn('[%s] Feed does not have an EventType node "%s".', array(__CLASS__, $eventType));
 			return false;
 		}
 	}
@@ -99,7 +98,7 @@ class EbayEnterprise_Catalog_Helper_Feed extends Mage_Core_Helper_Abstract
 	{
 		$messageDate = $this->_getDateTimeFromFeed($filename);
 		if (!$messageDate) {
-			$this->_log->logWarn('[%s] Unable to read the message date from file "%s"', array(__CLASS__, $filename));
+			$this->_logger->logWarn('[%s] Unable to read the message date from file "%s"', array(__CLASS__, $filename));
 			// When no CreateDateAndTime node found in the feed, fallback
 			// to the file's mtime.
 			$mtime = filemtime($filename);

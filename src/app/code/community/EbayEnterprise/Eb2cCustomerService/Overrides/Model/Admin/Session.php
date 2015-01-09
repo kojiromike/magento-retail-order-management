@@ -17,13 +17,13 @@
 class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 	extends Mage_Admin_Model_Session
 {
-	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
-	protected $_log;
+	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
+	protected $_logger;
 
 	public function __construct()
 	{
 		parent::__construct();
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 
 	/**
@@ -40,9 +40,9 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 	 */
 	public function loginCSRWithToken($token, Mage_Core_Controller_Request_Http $request=null)
 	{
-		$this->_log->logDebug('[%s] Attempting CSR login using token.', array(__CLASS__));
 		// An empty token should never validate so don't bother trying and just
 		// return nothing.
+		/** @var EbayEnterprise_Eb2cCustomerService_Helper_Data $helper */
 		$helper = Mage::helper('eb2ccsr');
 		/** @var Mage_Admin_Model_User $user */
 		$user = Mage::getModel('admin/user');
@@ -93,7 +93,7 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 	 */
 	protected function _passValidation(Mage_Admin_Model_User $user, Mage_Core_Controller_Request_Http $request=null)
 	{
-		$this->_log->logDebug('[%s] Successfully authenticated using token.', array(__CLASS__));
+		$this->_logger->logInfo('[%s] Successfully authenticated using token.', array(__CLASS__));
 		// This may potentially cause some issues as the user password is not
 		// included since we never receive it when loggin in with the token. So far
 		// it doesn't seem to be causing any issues but may have some impact on the
@@ -150,7 +150,7 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 		Mage_Core_Controller_Request_Http $request=null,
 		Mage_Core_Exception $authException)
 	{
-		$this->_log->logDebug('[%s] Failed to authenticate using token.', array(__CLASS__));
+		$this->_logger->logInfo('[%s] Failed to authenticate using token.', array(__CLASS__));
 		// This may be problematic due to the missing user password. It is never
 		// given while doing the token auth so we don't have one to pass. So far
 		// it doesn't seem to be causing any issues but may have some impact on the

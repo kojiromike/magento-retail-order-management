@@ -27,11 +27,8 @@ class EbayEnterprise_Catalog_Model_Pim
 	const KEY_IS_VALIDATE = 'is_validate';
 	const KEY_ITEM_NODE = 'item_node';
 
-	const KEY_DOC = 'doc';
-	const KEY_CORE_FEED = 'core_feed';
-	const KEY_BATCH = 'batch';
-
-	const WARNING_CANNOT_GENERATE_FEED = '[%s] %s could not be generated because of missing required product data or the sku exceeded %d characters.';
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
 
 	/**
 	 * document object used when building the feed contents
@@ -52,29 +49,34 @@ class EbayEnterprise_Catalog_Model_Pim
 	protected $_batch;
 	/**
 	 * Set up the doc, batch and core feed
+	 *
+	 * @param array
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_batch, $this->_coreFeed, $this->_doc) = $this->_checkTypes(
-			$this->_nullCoalesce($initParams, self::KEY_BATCH, Mage::getModel('ebayenterprise_catalog/pim_batch')),
-			$this->_nullCoalesce($initParams, self::KEY_CORE_FEED, $this->_setUpCoreFeed()),
-			$this->_nullCoalesce($initParams, self::KEY_DOC, Mage::helper('eb2ccore')->getNewDomDocument())
+		list($this->_batch, $this->_coreFeed, $this->_doc, $this->_logger) = $this->_checkTypes(
+			$this->_nullCoalesce($initParams, 'batch', Mage::getModel('ebayenterprise_catalog/pim_batch')),
+			$this->_nullCoalesce($initParams, 'core_feed', $this->_setUpCoreFeed()),
+			$this->_nullCoalesce($initParams, 'doc', Mage::helper('eb2ccore')->getNewDomDocument()),
+			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
 		);
 	}
 	/**
 	 * Just for type hinting
 	 *
 	 * @param  EbayEnterprise_Catalog_Model_Pim_Batch $batch
-	 * @param  EbayEnterprise_Catalog_Model_Feed         $coreFeed
-	 * @param  EbayEnterprise_Dom_Document                $doc
+	 * @param  EbayEnterprise_Catalog_Model_Feed_Core $coreFeed
+	 * @param  EbayEnterprise_Dom_Document $doc
+	 * @param  EbayEnterprise_MageLog_Helper_Data $logger
 	 * @return array the arguments
 	 */
 	public function _checkTypes(
 		EbayEnterprise_Catalog_Model_Pim_Batch $batch,
 		EbayEnterprise_Catalog_Model_Feed_Core $coreFeed,
-		EbayEnterprise_Dom_Document $doc
+		EbayEnterprise_Dom_Document $doc,
+		EbayEnterprise_MageLog_Helper_Data $logger
 	) {
-		return array($batch, $coreFeed, $doc);
+		return array($batch, $coreFeed, $doc, $logger);
 	}
 	/**
 	 * return the $field element of the array if it exists;
@@ -114,10 +116,7 @@ class EbayEnterprise_Catalog_Model_Pim
 	 */
 	public function buildFeed()
 	{
-		Mage::helper('ebayenterprise_magelog')->logDebug(
-			"[%s] Exportable Entity Ids:\n%s",
-			array(__CLASS__, json_encode($this->_batch->getProductIds()))
-		);
+		$this->_logger->logInfo('[%s] About to export %d entity ids.', array(__CLASS__, count($this->_batch->getProductIds())));
 		$feedFilePath = '';
 		$feedDataSet = $this->_createFeedDataSet();
 		if ($feedDataSet->count()) {
@@ -126,10 +125,7 @@ class EbayEnterprise_Catalog_Model_Pim
 			$feedDoc->save($feedFilePath);
 		} else {
 			$skuLength = EbayEnterprise_Catalog_Helper_Pim::MAX_SKU_LENGTH;
-			Mage::helper('ebayenterprise_magelog')->logWarn(
-				static::WARNING_CANNOT_GENERATE_FEED,
-				array( __METHOD__, basename($feedFilePath), $skuLength)
-			);
+			$this->_logger->logWarn('[%s] Could not generate %s because of missing required product data or the sku exceeded %d characters', array(__METHOD__, basename($feedFilePath), $skuLength));
 		}
 		return $feedFilePath;
 	}
@@ -238,10 +234,8 @@ class EbayEnterprise_Catalog_Model_Pim
 					$product, $this->_doc, $this->_getFeedConfig(), $this->_getFeedAttributes($currentStoreId)
 				);
 			} catch(EbayEnterprise_Catalog_Model_Pim_Product_Validation_Exception $e) {
-				Mage::helper('ebayenterprise_magelog')->logWarn(
-					'[%s] Product excluded from export (%s)',
-					array( __METHOD__, $e->getMessage())
-				);
+				$this->_logger->logWarn('[%s] Product "%s" excluded from export.', array( __METHOD__, $pimProduct->getSku()));
+				$this->_logger->logException($e);
 				$excludedProductIds[]= $product->getId();
 				$pimProducts->deleteItem($pimProduct);
 			}
@@ -325,7 +319,6 @@ class EbayEnterprise_Catalog_Model_Pim
 	 */
 	protected function _validateDocument()
 	{
-		Mage::helper('ebayenterprise_magelog')->logInfo("[%s] Validating document:\n%s", array(__METHOD__, $this->_doc->C14N()));
 		$config = $this->_getFeedConfig();
 		Mage::getModel('eb2ccore/api')
 			->schemaValidate($this->_doc, $config[self::KEY_SCHEMA_LOCATION]);

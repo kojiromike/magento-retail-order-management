@@ -90,8 +90,10 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	protected $_coreHelper;
 	/** @var Mage_Core_Helper_Http */
 	protected $_httpHelper;
+
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+
 	/** @var bool */
 	protected $_isUsingClientSideEncryption;
 	/**
@@ -262,9 +264,12 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	{
 		$api = $this->_getApi($payment);
 		$this->_prepareApiRequest($api, $payment);
-		$this->_logger->logDebug(sprintf("[%s] Sending auth request:\n%s", __CLASS__, $this->_helper->cleanAuthXml($api->getRequestBody()->serialize())));
+		$this->_logger->logInfo('[%s] Sending credit card auth request.', array(__CLASS__));
+		$cleanedRequestXml = $this->_helper->cleanAuthXml($api->getRequestBody()->serialize());
+		$this->_logger->logDebug("[%s] %s", array(__CLASS__, $cleanedRequestXml));
 		$this->_sendAuthRequest($api);
-		$this->_logger->logDebug(sprintf("[%s] Received auth response:\n%s", __CLASS__, $this->_helper->cleanAuthXml($api->getResponseBody()->serialize())));
+		$cleanedResponseXml = $this->_helper->cleanAuthXml($api->getResponseBody()->serialize());
+		$this->_logger->logDebug("[%s] %s", array(__CLASS__, $cleanedResponseXml));
 		$this->_handleApiResponse($api, $payment);
 		return $this;
 	}
@@ -454,11 +459,13 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 		} catch (Payload\Exception\InvalidPayload $e) {
 			// Invalid payloads cannot be valid - log the error and fail the auth
 			$this->_logger->logWarn('[%s] Credit card auth payload invalid: %s', array(__CLASS__, $e->getMessage()));
+			$this->_logger->logException($e);
 			$this->_failPaymentAuth(self::CREDITCARD_AUTH_FAILED_MESSAGE);
 		} catch (Api\Exception\NetworkError $e) {
 			// Can't accept an auth request that could not be made successfully - log
 			// the error and fail the auth.
 			$this->_logger->logWarn('[%s] Credit card auth request failed: %s', array(__CLASS__, $e->getMessage()));
+			$this->_logger->logException($e);
 			$this->_failPaymentAuth(self::CREDITCARD_AUTH_FAILED_MESSAGE);
 		}
 		return $this;

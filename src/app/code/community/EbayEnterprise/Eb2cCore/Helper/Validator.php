@@ -24,12 +24,12 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	const SFTP_CONNECTION_SUCCESS = 'EbayEnterprise_Eb2cCore_Sftp_Conection_Success';
 	const SFTP_CONNECTION_FAILED = 'EbayEnterprise_Eb2cCore_Sftp_Connection_Failed';
 
-	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
-	protected $_log;
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
 
 	public function __construct()
 	{
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 
 	/**
@@ -197,10 +197,10 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		try {
 			$sftp->connect()->login();
 		} catch (EbayEnterprise_Eb2cCore_Exception_Sftp_Configuration $e) {
-			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
+			$this->_logger->logCrit('[%s] %s', array(__CLASS__, $e));
 			$resp = array('message' => $helper->__(self::INVALID_SFTP_CONNECTION), 'success' => false);
 		} catch (EbayEnterprise_FileTransfer_Exception_Authentication $e) {
-			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
+			$this->_logger->logCrit('[%s] %s', array(__CLASS__, $e));
 			$resp = array('message' => $helper->__(self::INVALID_SFTP_AUTHENTICATION_CONFIG), 'success' => false);
 		}
 		// Restore the error handler to get rid of the exception throwing one.

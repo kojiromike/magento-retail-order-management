@@ -132,7 +132,7 @@ class EbayEnterprise_Amqp_Model_Runner
 	protected function _dispatchPayload(IOrderEvent $payload, Mage_Core_Model_Store $store)
 	{
 		$eventName = $this->_eventPrefix . '_' . $this->_coreHelper->underscoreWords($payload->getEventType());
-		$this->_logger->logDebug('[%s] Dispatching event for payload: %s', array(__CLASS__, $eventName));
+		$this->_logger->logInfo('[%s] Dispatching event "%s" for payload.', array(__CLASS__, $eventName));
 		Mage::dispatchEvent($eventName, array('payload' => $payload, 'store' => $store));
 		return $this;
 	}

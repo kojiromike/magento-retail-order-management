@@ -26,8 +26,8 @@ class EbayEnterprise_Rom_Shell_Add_Categories extends Mage_Shell_Abstract
 	private $_storeRootCategoryId;
 	private $_defaultStoreId;
 
-    /** @var EbayEnterprise_MageLog_Helper_Data $_log */
-    protected $_log;
+	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
+	protected $_logger;
 
     /**
 	 * Instantiate the catalog/category
@@ -35,7 +35,7 @@ class EbayEnterprise_Rom_Shell_Add_Categories extends Mage_Shell_Abstract
 	public function _construct()
 	{
 		parent::_construct();
-        $this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 		$this->_categoryObject = Mage::getModel('catalog/category');
 		$this->_attributeSetId = $this->_getCategoryAttributeSetId();
 		$this->_defaultParentCategoryId = $this->_getDefaultParentCategoryId();
@@ -137,7 +137,8 @@ class EbayEnterprise_Rom_Shell_Add_Categories extends Mage_Shell_Abstract
 					))->save();
 					$categoryId = $this->_categoryObject->getId();
 				} catch (Exception $e) {
-                    $this->_log->logErr('[%s] Error adding categories: %s', array(__CLASS__, $e->getMessage()));
+					echo 'There was an error adding categories. See exception log for details.';
+					$this->_logger->logException($e);
 				}
 			}
 		}

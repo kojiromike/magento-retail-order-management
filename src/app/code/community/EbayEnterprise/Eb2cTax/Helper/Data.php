@@ -57,7 +57,9 @@ class EbayEnterprise_Eb2cTax_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function failTaxRequest()
 	{
-		Mage::getSingleton('eb2ccore/session')->setHaveTaxRequestsFailed(true);
+		/** @var EbayEnterprise_Eb2cCore_Model_Session $session */
+		$session = Mage::getSingleton('eb2ccore/session');
+		$session->setHaveTaxRequestsFailed(true);
 	}
 	/**
 	 * Determine if a tax request is needed for the given address object. Request is only needed

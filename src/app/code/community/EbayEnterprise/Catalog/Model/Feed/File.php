@@ -15,8 +15,9 @@
 
 class EbayEnterprise_Catalog_Model_Feed_File
 {
-	/** @var EbayEnterprise_MageLog_Helper_Data       $_log */
-	protected $_log;
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
 	/** @var EbayEnterprise_Eb2cCore_Helper_Data      $_coreHelper */
 	protected $_coreHelper;
 	/** @var EbayEnterprise_Eb2cCore_Helper_Languages $_languageHelper */
@@ -51,7 +52,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	 */
 	public function __construct(array $feedDetails)
 	{
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 		$this->_coreHelper = Mage::helper('eb2ccore');
 		$this->_languageHelper = Mage::helper('eb2ccore/languages');
 		$this->_xsltHelper = Mage::helper('ebayenterprise_catalog/xslt');
@@ -141,7 +142,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	protected function _removeItemsFromWebsites(array $cfgData, EbayEnterprise_Catalog_Interface_Import_Items $items)
 	{
 		$dData = $this->_getSkusToRemoveFromWebsites($cfgData);
-		$this->_log->logDebug('[%s] deleting %d skus', array(__CLASS__, count($dData)));
+		$this->_logger->logInfo('[%s] deleting %d skus', array(__CLASS__, count($dData)));
 		if (!empty($dData)) {
 			$skus = array_keys($dData);
 			$collection = $items->buildCollection($skus);
@@ -310,7 +311,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
 			foreach ($feedXPath->query($cfgData['base_item_xpath']) as $itemNode) {
 				$this->_updateItem($feedXPath, $itemNode, $collection, $storeId, $cfgData, $items);
 			}
-			$this->_log->logDebug('[%s] saving collection of %d %s', array(__CLASS__, $collection->getSize(), $cfgData['feed_type']));
+			$this->_logger->logInfo('[%s] saving collection of %d %s', array(__CLASS__, $collection->getSize(), $cfgData['feed_type']));
 			$collection->save();
 		}
 		return $this;
@@ -349,7 +350,6 @@ class EbayEnterprise_Catalog_Model_Feed_File
 			$item = $items->createNewItem($sku);
 			$item->setWebsiteIds(array($websiteId));
 			$itemCollection->addItem($item);
-			$this->_log->logDebug('[%s] creating new %s %s', array(__CLASS__, $cfgData['feed_type'], $sku));
 		} elseif ($cfgData['feed_type'] === 'product') {
 			$item->setUrlKey(false);
 		}
@@ -386,7 +386,6 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	 */
 	protected function _processForLanguage(array $siteFilter, array $cfgData, EbayEnterprise_Catalog_Interface_Import_Items $items)
 	{
-		$this->_log->logDebug('[%s] processing %s language', array(__CLASS__, $siteFilter['lang_code']));
 		$splitDoc = $this->_splitByFilter($siteFilter, $cfgData['xslt_single_template_path'], $cfgData['xslt_module']);
 		foreach ($this->_languageHelper->getStores($siteFilter['lang_code']) as $store) {
 			// do not reprocess the default store
@@ -408,7 +407,6 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	 */
 	protected function _processWebsite(array $websiteFilter, array $cfgData, EbayEnterprise_Catalog_Interface_Import_Items $items)
 	{
-		$this->_log->logDebug('[%s] site filter = %s', array(__CLASS__, json_encode($websiteFilter)));
 		$mageStoreId = $websiteFilter['mage_store_id'];
 		return $this->_importExtractedData(
 			$this->_splitByFilter($websiteFilter, $cfgData['xslt_default_template_path'], $cfgData['xslt_module']),

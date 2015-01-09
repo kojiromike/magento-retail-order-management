@@ -219,7 +219,7 @@ class EbayEnterprise_GiftCard_Model_Observer
 		try {
 			$card->void();
 		} catch (EbayEnterprise_GiftCard_Exception $e) {
-			$this->_logger->logWarn($e->getMessage());
+			$this->_logger->logException($e);
 		}
 		return $card;
 	}

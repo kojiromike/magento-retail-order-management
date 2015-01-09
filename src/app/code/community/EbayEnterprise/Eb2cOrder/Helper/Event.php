@@ -84,13 +84,11 @@ class EbayEnterprise_Eb2cOrder_Helper_Event
 	{
 		try {
 			$order->cancel()->save();
-			$this->_logger->logDebug('[%s]: Canceling order %s', array(__CLASS__, $order->getIncrementId()));
+			$this->_logger->logInfo('[%s]: Canceling order %s', array(__CLASS__, $order->getIncrementId()));
 		} catch (Exception $e) {
 			// Catching any exception that might be thrown due to calling cancel method on the order object.
-			$this->_logger->logWarn(
-				'[%s] Exception "%s" was thrown while canceling order #: %s for the following event %s.',
-				array(__CLASS__, $e->getMessage(), $order->getIncrementId(), $eventName)
-			);
+			$this->_logger->logWarn('[%s] An error occurred canceling order "%s". See the exception log for details.', array(__CLASS__, $order->getIncrementId()));
+			$this->_logger->logException($e);
 		}
 		return $this;
 	}
@@ -104,13 +102,10 @@ class EbayEnterprise_Eb2cOrder_Helper_Event
 	{
 		try {
 			$order->hold()->save();
-			$this->_logger->logDebug('[%s]: Holding order %s', array(__CLASS__, $order->getIncrementId()));
+			$this->_logger->logInfo('[%s]: Holding order %s', array(__CLASS__, $order->getIncrementId()));
 		} catch (Exception $e) {
-			// Catching any exception that might be thrown due to calling hold method on the order object.
-			$this->_logger->logWarn(
-				'[%s] Exception "%s" was thrown while holding order #: %s for the following event %s.',
-				array(__CLASS__, $e->getMessage(), $order->getIncrementId(), $eventName)
-			);
+			$this->_logger->logWarn('[%s] An error occurred holding order "%s". See the exception log for details.', array(__CLASS__, $order->getIncrementId()));
+			$this->_logger->logException($e);
 		}
 		return $this;
 	}

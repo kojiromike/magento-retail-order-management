@@ -26,8 +26,10 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 	// to keep the list of used product ids for a configurable product up-to-date
 	// throughout the cleaning process.
 	const USED_PRODUCT_IDS_PROPERTY = '_cache_instance_product_ids';
-	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
-	protected $_log;
+
+	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
+	protected $_logger;
+
 	/**
 	 * Collection of products that will be used by the cleaner. Includes any
 	 * products that need to be cleaned as well as any products that will be
@@ -59,7 +61,7 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 	 */
 	public function __construct($args)
 	{
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 		// If a collection of products is supplied, use it as long as it is at least
 		// a Varien_Data_Collection. More strictly checking for a
 		// Mage_Catalog_Model_Resource_Product_Collection may be useful but is probably
@@ -86,7 +88,7 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 		// values by the collection, any products that do not include an 'is_clean'
 		// column will be included.
 		$productsToClean = $this->_products->getItemsByColumnValue('is_clean', false);
-		$this->_log->logInfo('[%s]: Cleaning %d products.', array(__CLASS__, count($productsToClean)));
+		$this->_logger->logInfo('[%s]: Cleaning %d products.', array(__CLASS__, count($productsToClean)));
 		foreach ($productsToClean as $product) {
 			$this->cleanProduct($product);
 		}
@@ -399,8 +401,8 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 				->setStatus(Mage_Catalog_Model_Product_Status::STATUS_ENABLED)
 				->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
 		} elseif (empty($usedProductIds)) {
-			$msg = '[%s] No products found to use for configurable product with SKU "%s"';
-			$this->_log->logWarn($msg, array(__CLASS__, $product->getSku()));
+			// @todo put in error confirmation feed
+			$this->_logger->logWarn('[%s] No products found to use for configurable product with SKU "%s"', array(__CLASS__, $product->getSku()));
 		}
 		return $this;
 	}
@@ -440,8 +442,8 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 				->setStatus(Mage_Catalog_Model_Product_Status::STATUS_ENABLED)
 				->setVisibility(Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
 		} else {
-			$msg = '[%s] No configurable product with SKU "%s" found for used product with SKU "%s".';
-			$this->_log->logWarn($msg, array(__CLASS__, $product->getStyleId(), $product->getSku()));
+			// @todo put in error confirmation feed
+			$this->_logger->logWarn('[%s] No configurable product with SKU "%s" found for used product with SKU "%s".', array(__CLASS__, $product->getStyleId(), $product->getSku()));
 		}
 		return $this;
 	}
@@ -460,10 +462,6 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 		$isClean = empty($unresolvedLinks);
 		// update flag on product
 		$product->setIsClean($isClean);
-		Mage::helper('ebayenterprise_magelog')->logDebug(
-			'[%s] Product "%s" marked%s clean.',
-			array(__CLASS__, $product->getSku(), $isClean ? '' : ' not')
-		);
 		return $this;
 	}
 }

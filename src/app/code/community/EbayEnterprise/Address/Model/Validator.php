@@ -23,6 +23,14 @@ class EbayEnterprise_Address_Model_Validator
 	const SUGGESTIONS_ERROR_MESSAGE    = 'EbayEnterprise_Address_Suggestions_Error_Message';
 	const NO_SUGGESTIONS_ERROR_MESSAGE = 'EbayEnterprise_Address_No_Suggestions_Error_Message';
 
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
+	public function __construct()
+	{
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * Get the session object to use for storing address information.
 	 * Currently will use the customer session but may be swapped out later.
@@ -202,30 +210,29 @@ class EbayEnterprise_Address_Model_Validator
 	 */
 	public function shouldValidateAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
-		$log = Mage::helper('ebayenterprise_magelog');
 		if ($this->_hasAddressBeenValidated($address)) {
-			$log->logDebug('[%s] No validation - already validated', array(__CLASS__));
+			$this->_logger->logDebug('[%s] No validation - already validated', array(__CLASS__));
 			return false;
 		}
 		if ($this->_isCheckoutAddress($address)) {
 			if ($this->_isAddressFromAddressBook($address)) {
-				$log->logDebug('[%s] No validation - from address book', array(__CLASS__));
+				$this->_logger->logDebug('[%s] No validation - from address book', array(__CLASS__));
 				return false;
 			}
 			if ($this->_isAddressBeingSaved()) {
-				$log->logDebug('[%s] Require validation - saving address in address book', array(__CLASS__));
+				$this->_logger->logDebug('[%s] Require validation - saving address in address book', array(__CLASS__));
 				return true;
 			}
 			if ($this->_isVirtualOrder()) {
-				$log->logDebug('[%s] No validation - virtual order', array(__CLASS__));
+				$this->_logger->logDebug('[%s] No validation - virtual order', array(__CLASS__));
 				return false;
 			}
 			if ($this->_isAddressBillingOnly($address)) {
-				$log->logDebug('[%s] No validation - billing only', array(__CLASS__));
+				$this->_logger->logDebug('[%s] No validation - billing only', array(__CLASS__));
 				return false;
 			}
 			if ($this->_isMissingRequiredFields($address)) {
-				$log->logDebug('[%s] No validation - missing required fields', array(__CLASS__));
+				$this->_logger->logDebug('[%s] No validation - missing required fields', array(__CLASS__));
 				return false;
 			}
 		}
@@ -246,12 +253,11 @@ class EbayEnterprise_Address_Model_Validator
 			EbayEnterprise_Address_Model_Validation_Request::API_OPERATION
 		);
 		$msg = Mage::getModel('ebayenterprise_address/validation_request')->setAddress($address)->getMessage();
-		$log = Mage::helper('ebayenterprise_magelog');
 		$apiResponse = Mage::getModel('eb2ccore/api')->request($msg, $xsd, $uri);
 		if (isset($apiResponse) && trim($apiResponse)) {
 			return Mage::getModel('ebayenterprise_address/validation_response', array('message' => $apiResponse));
 		}
-		$log->logWarn('[%s] Address validation service returned empty response.', array(__CLASS__));
+		$this->_logger->logWarn('[%s] Address validation service returned empty response.', array(__CLASS__));
 		return null;
 	}
 
@@ -270,16 +276,9 @@ class EbayEnterprise_Address_Model_Validator
 		$response        = null;
 		$errorMessage    = null;
 		$address         = $this->_updateAddressWithSelection($address);
-		$adminValidation = false;
-
-		if ($area === Mage_Core_Model_App_Area::AREA_ADMINHTML
-				&& !$this->_isBillingAddress($address)
-				&& !$this->_hasAddressBeenValidated($address))
-		{
-			Mage::helper('ebayenterprise_magelog')->logDebug('[%s] Admin Area Address Validation', array(__CLASS__));
-			$adminValidation = true;
-		}
-
+		$adminValidation = ($area === Mage_Core_Model_App_Area::AREA_ADMINHTML
+			&& !$this->_isBillingAddress($address)
+			&& !$this->_hasAddressBeenValidated($address));
 		if ($adminValidation || $this->shouldValidateAddress($address)) {
 			$this->clearSessionAddresses();
 			$response = $this->_processRequest($address, $errorMessage);

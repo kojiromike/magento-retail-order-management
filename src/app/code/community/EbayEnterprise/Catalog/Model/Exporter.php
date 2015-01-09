@@ -18,17 +18,17 @@
  */
 class EbayEnterprise_Catalog_Model_Exporter
 {
-	 // @var string lower limit of product change dates that are applicable.
+	/** @var string lower limit of product change dates that are applicable */
 	protected $_cutoffDate;
-	// @var string base name for the events this model dispatches
+	/** @var string base name for the events this model dispatches */
 	protected $_eventBase = 'ebayenterprise_product_export';
-	 // @var string date/time the export started.
+	/** @var string date/time the export started */
 	protected $_startDate;
-	// @var EbayEnterprise_Eb2cCore_Model_Config_Registry
+	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
 	protected $_config;
-	// @var array
+	/** @var array */
 	protected $_feedConfig;
-	// @var EbayEnterprise_MageLog_Helper_Data
+	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
 
 	public function __construct()
@@ -44,17 +44,10 @@ class EbayEnterprise_Catalog_Model_Exporter
 	public function runExport()
 	{
 		$this->_startDate = Mage::helper('eb2ccore')->getNewDateTime()->format('c');
-		$this->_logger->logInfo(
-			'[%s] Starting Ebay Enterprise Product Export with start date "%s"',
-			array(__CLASS__, $this->_startDate)
-		);
+		// @todo Varien profiler
 		$this->_loadConfig();
 		$batches = $this->_gatherAllBatches();
 		$this->_buildBatches($batches);
-		$this->_logger->logInfo(
-			'[%s] Ebay Enterprise Product Export finished',
-			array(__CLASS__)
-		);
 		return $this;
 	}
 	/**
@@ -70,10 +63,7 @@ class EbayEnterprise_Catalog_Model_Exporter
 			}
 			$this->_updateCutoffDate();
 		} catch (EbayEnterprise_Eb2cCore_Exception_InvalidXml $e) {
-			$this->_logger->logCrit(
-				"[%s] Error building export feeds:\n%s",
-				array(__CLASS__, $e)
-			);
+			$this->_logger->logCrit("[%s] Error building export feeds:\n%s", array(__CLASS__, $e));
 		}
 		return $this;
 	}
@@ -109,10 +99,6 @@ class EbayEnterprise_Catalog_Model_Exporter
 	 */
 	protected function _updateCutoffDate()
 	{
-		$this->_logger->logDebug(
-			'[%s] Updateing cutoff date to "%s"',
-			array(__CLASS__, $this->_startDate)
-		);
 		$config = Mage::getModel('core/config_data');
 		$config->addData(array(
 			'path' => 'ebayenterprise_catalog/pim_export_feed/cutoff_date',

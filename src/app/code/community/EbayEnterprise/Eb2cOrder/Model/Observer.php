@@ -20,7 +20,7 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	/** @var EbayEnterprise_Eb2cOrder_Helper_Data */
 	protected $_orderHelper;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
-	protected $_log;
+	protected $_logger;
 	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
 	protected $_orderCfg;
 	/** @var EbayEnterprise_Eb2cOrder_Helper_Event */
@@ -33,7 +33,7 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	{
 		$this->_shipmentEventHelper = Mage::helper('eb2corder/event_shipment');
 		$this->_orderHelper = Mage::helper('eb2corder');
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 		$this->_orderCfg = $this->_orderHelper->getConfigModel();
 		$this->_orderEventHelper = Mage::helper('eb2corder/event');
 	}
@@ -90,7 +90,7 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 		Mage::getModel('eb2corder/orderrejected', array(
 			'payload' => $observer->getEvent()->getPayload(),
 			'order_event_helper' => $this->_orderEventHelper,
-			'logger' => $this->_log
+			'logger' => $this->_logger
 		))->process();
 
 		return $this;
@@ -105,7 +105,6 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 	public function updateCanceledStatus(Varien_Event_Observer $observer)
 	{
 		$message = trim($observer->getEvent()->getMessage());
-		$this->_log->logDebug("\n[%s]: received cancel event with message:\n%s", array(__CLASS__, $message));
 		$orderCollection = $this->_loadOrdersFromXml($message);
 		$eventName = $observer->getEvent()->getName();
 		foreach ($orderCollection as $order) {
@@ -138,7 +137,7 @@ class EbayEnterprise_Eb2cOrder_Model_Observer
 		Mage::getModel('eb2corder/ordershipped', array(
 			'payload' => $observer->getEvent()->getPayload(),
 			'shipment_event_helper' => $this->_shipmentEventHelper,
-			'logger' => $this->_log
+			'logger' => $this->_logger
 		))->process();
 		return $this;
 	}

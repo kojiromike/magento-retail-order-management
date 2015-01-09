@@ -17,8 +17,7 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 	extends EbayEnterprise_Catalog_Model_Feed_Abstract
 	implements EbayEnterprise_Catalog_Interface_Feed
 {
-	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
-	protected $_log;
+    /** @note The _logger property is set up in parent. */
 
 	/**
 	 * Set up extractor, stock item and stock status models to use while
@@ -43,7 +42,6 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 			);
 		}
 		parent::_construct();
-		$this->_log = Mage::helper('ebayenterprise_magelog');
 	}
 	/**
 	 * Take a DOMDocument loaded with xml to update product inventory.
@@ -108,7 +106,7 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 		if ($id) {
 			$this->_setProdQty($id, $qty);
 		} else {
-			$this->_log->logWarn('[%s] SKU "%s" not found for inventory update.', array(__CLASS__, $sku));
+			$this->_logger->logWarn('[%s] SKU "%s" not found for inventory update.', array(__CLASS__, $sku));
 		}
 		return $this;
 	}
@@ -131,7 +129,7 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 	 */
 	public function updateInventories(array $feedItems)
 	{
-		$this->_log->logInfo('[%s] Updating inventory for %d items', array(__CLASS__, count($feedItems)));
+		$this->_logger->logInfo('[%s] Updating inventory for %d items', array(__CLASS__, count($feedItems)));
 		foreach ($feedItems as $feedItem) {
 			$sku = $this->_extractSku($feedItem);
 			$qty = $feedItem->getMeasurements()->getAvailableQuantity();

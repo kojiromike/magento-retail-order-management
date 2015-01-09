@@ -210,7 +210,8 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 		try {
 			$creditmemo->register();
 		} catch (Mage_Core_Exception $e) {
-			$this->_logger->logWarn('[%s] Could not refund order %s', array(__CLASS__, $creditmemo->getOrderId(), $e->getMessage()));
+			$this->_logger->logWarn('[%s] Could not refund order %s', array(__CLASS__, $creditmemo->getOrderId()));
+			$this->_logger->logException($e);
 		}
 
 		$transactionSave = Mage::getModel('core/resource_transaction')
@@ -223,7 +224,8 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 		try {
 			$transactionSave->save();
 		} catch (Exception $e) {
-			$this->_logger->logWarn('[$s] Could not save credit memo for order %s', array(__CLASS__, $creditmemo->getOrderId(), $e->getMessage()));
+			$this->_logger->logWarn('[$s] Could not save credit memo for order %s', array(__CLASS__, $creditmemo->getOrderId()));
+			$this->_logger->logException($e);
 		}
 	}
 
@@ -301,7 +303,7 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 		$orderId = $this->_payload->getCustomerOrderId();
 		$this->_order = $this->_getOrder($orderId);
 		if (!$this->_order) {
-			$this->_logger->logWarn('[%s] Could not process order %s.', array(__CLASS__, $orderId));
+			$this->_logger->logWarn('[%s] Order "%s" not found in Magento. Could not process that order.', array(__CLASS__, $orderId));
 			return $this;
 		}
 

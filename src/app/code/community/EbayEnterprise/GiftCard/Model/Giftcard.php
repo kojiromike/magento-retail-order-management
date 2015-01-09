@@ -253,13 +253,27 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
 	{
 		return $this->_redeemedAt ?: new DateTime();
 	}
+
+	/**
+	 * Log the different requests consistently.
+	 *
+	 * @param string $type 'balance', 'redeem', 'void'
+	 * @param string $body the serialized xml body
+	 * @param string $direction 'request' or 'response'
+	 */
+	protected function _logApiCall($type, $body, $direction)
+	{
+		$this->_logger->logInfo('[%s] Processing gift card %s %s.', array(__CLASS__, $type, $direction));
+		$this->_logger->logDebug('[%s] %s', array(__CLASS__, $body));
+	}
+
 	public function checkBalance()
 	{
 		$api = $this->_getApi($this->_helper->getConfigModel()->apiOperationBalance);
 		$this->_prepareApiForBalanceCheck($api);
-		$this->_logger->logDebug(sprintf("[%s] Sending gift card balance request:\n%s", __CLASS__, $api->getRequestBody()->serialize()));
+		$this->_logApiCall('balance', 'request', $api->getRequestBody()->serialize());
 		$this->_sendRequest($api);
-		$this->_logger->logDebug(sprintf("[%s] Received gift card balance response:\n%s", __CLASS__, $api->getResponseBody()->serialize()));
+		$this->_logApiCall('balance', 'response', $api->getResponseBody()->serialize());
 		$this->_handleBalanceResponse($api);
 		return $this;
 	}
@@ -267,9 +281,9 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
 	{
 		$api = $this->_getApi($this->_helper->getConfigModel()->apiOperationRedeem);
 		$this->_prepareApiForRedeem($api);
-		$this->_logger->logDebug(sprintf("[%s] Sending gift card redeem request:\n%s", __CLASS__, $api->getRequestBody()->serialize()));
+		$this->_logApiCall('redeem', 'request', $api->getRequestBody()->serialize());
 		$this->_sendRequest($api);
-		$this->_logger->logDebug(sprintf("[%s] Received gift card redeem response:\n%s", __CLASS__, $api->getResponseBody()->serialize()));
+		$this->_logApiCall('redeem', 'response', $api->getResponseBody()->serialize());
 		$this->_handleRedeemResponse($api);
 		return $this;
 	}
@@ -277,9 +291,9 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
 	{
 		$api = $this->_getApi($this->_helper->getConfigModel()->apiOperationVoid);
 		$this->_prepareApiForVoid($api);
-		$this->_logger->logDebug(sprintf("[%s] Sending gift card void request:\n%s", __CLASS__, $api->getRequestBody()->serialize()));
+		$this->_logApiCall('void', 'request', $api->getRequestBody()->serialize());
 		$this->_sendRequest($api);
-		$this->_logger->logDebug(sprintf("[%s] Received gift card void response:\n%s", __CLASS__, $api->getResponseBody()->serialize()));
+		$this->_logApiCall('void', 'response', $api->getResponseBody()->serialize());
 		$this->_handleVoidResponse($api);
 		return $this;
 	}
@@ -388,10 +402,12 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
 		try {
 			$api->send();
 		} catch (Api\Exception\NetworkError $e) {
-			$this->_logger->logWarn('[%s] Stored value request failed: %s', array(__CLASS__, $e->getMessage()));
+			$this->_logger->logWarn('[%s] Stored value request failed. See exception log for details.', array(__CLASS__));
+			$this->_logger->logException($e);
 			throw Mage::exception('EbayEnterprise_GiftCard_Exception_Network', $this->_helper->__(self::REQUEST_FAILED_MESSAGE));
 		} catch (Payload\Exception\InvalidPayload $e) {
-			$this->_logger->logWarn('[%s] Stored value invalid payload: %s', array(__CLASS__, $e->getMessage()));
+			$this->_logger->logWarn('[%s] Invalid payload for stored value response. See exception log for details.', array(__CLASS__));
+			$this->_logger->logException($e);
 			throw Mage::exception('EbayEnterprise_GiftCard', $this->_helper->__(self::REQUEST_FAILED_MESSAGE));
 		}
 		return $this;

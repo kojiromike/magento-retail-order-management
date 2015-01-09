@@ -28,6 +28,9 @@ class EbayEnterprise_GiftCard_Model_Adminhtml_Observer
 	protected $_container;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_GiftCard_Helper_Data */
+	protected $_helper;
+
 	public function __construct()
 	{
 		$this->_container = Mage::getModel('ebayenterprise_giftcard/container');
@@ -90,7 +93,6 @@ class EbayEnterprise_GiftCard_Model_Adminhtml_Observer
 	 */
 	public function _addGiftCard($cardNumber, $pin)
 	{
-		$this->_logger->logDebug('[%s] Adding gift card %s', array(__CLASS__, $cardNumber));
 		$giftcard = $this->_container->getGiftCard($cardNumber)->setPin($pin);
 		$this->_helper->addGiftCardToOrder($giftcard);
 		return $this;
@@ -102,7 +104,6 @@ class EbayEnterprise_GiftCard_Model_Adminhtml_Observer
 	 */
 	protected function _removeGiftCard($cardNumber)
 	{
-		$this->_logger->logDebug('[%s] Removing gift card %s', array(__CLASS__, $cardNumber));
 		$giftcard = $this->_container->getGiftCard($cardNumber);
 		$this->_container->removeGiftCard($giftcard);
 		return $this;

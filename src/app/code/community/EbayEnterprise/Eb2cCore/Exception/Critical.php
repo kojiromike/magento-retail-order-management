@@ -18,12 +18,21 @@
  */
 class EbayEnterprise_Eb2cCore_Exception_Critical extends EbayEnterprise_Eb2cCore_Exception
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
 	/**
 	 * @link http://www.php.net/manual/en/class.exception.php
 	 */
 	public function __construct($message="", $code=0, Exception $previous=null)
 	{
-		Mage::helper('ebayenterprise_magelog')->logCrit('%s', array($this));
+        $this->_logger = Mage::helper('ebayenterprise_magelog');
+        /**
+         * @note This runs counter to our styleguide because it is
+         * itself an exception. Furthermore we want to be both
+         * inescapable and verbose with critical exceptions.
+         */
+		$this->_logger->logCrit('%s', array($this));
 		parent::__construct($message, $code, $previous);
 	}
 }

@@ -31,6 +31,10 @@
 class EbayEnterprise_Catalog_Helper_Map
 {
 	const TYPE_GIFTCARD = 'giftcard';
+
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
 	/**
 	 * Map ownerDocuments to DomXPath objects to avoid recreating them.
 	 *
@@ -43,6 +47,11 @@ class EbayEnterprise_Catalog_Helper_Map
 	 * @var Mage_Catalog_Model_Resource_Category_Collection
 	 */
 	protected $_categoryCollection = null;
+
+	public function __construct()
+	{
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
+	}
 	/**
 	 * check if the node list has item and if the first item node value equal to 'active' to return
 	 * the status for enable otherwise status for disable
@@ -236,10 +245,8 @@ class EbayEnterprise_Catalog_Helper_Map
 		$attributeSetName = Mage::helper('eb2ccore')->extractNodeVal($nodes);
 		$attributeSetId = Mage::helper('ebayenterprise_catalog')->getAttributeSetIdByName($attributeSetName);
 		if (is_null($attributeSetId)) {
-			Mage::helper('ebayenterprise_magelog')->logWarn(
-				'[%s] Attribute Set (%s) has not yet been setup for this magento instance.',
-				array(__CLASS__, $attributeSetName)
-			);
+			// @todo: move to error confirmation feed
+			$this->_logger->logWarn('[%s] Attribute Set (%s) has not yet been setup for this Magento instance.', array(__CLASS__, $attributeSetName));
 		}
 		return $attributeSetId ?: $product->getAttributeSetId();
 	}

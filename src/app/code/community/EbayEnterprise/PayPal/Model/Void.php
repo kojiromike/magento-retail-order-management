@@ -1,9 +1,16 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: smithm5
- * Date: 12/16/14
- * Time: 3:58 PM
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
 /**
@@ -13,14 +20,14 @@
  */
 class EbayEnterprise_PayPal_Model_Void {
 	/** @var EbayEnterprise_MageLog_Helper_Data */
-	protected $_log;
+	protected $_logger;
 
 	/**
 	 * Set up the logger
 	 */
 	public function __construct()
 	{
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 
 	/**
@@ -29,16 +36,13 @@ class EbayEnterprise_PayPal_Model_Void {
 	 */
 	public function void(Mage_Sales_Model_Order $order)
 	{
-		if (!$this->_canVoid($order)) {
-			return $this;
-		}
-		$logClass = array(__CLASS__);
-		$this->_log->logDebug('[%s] Sending void request', $logClass);
-		try {
-			$this->_getVoidApi()->doVoid($order);
-			$this->_log->logDebug('[%s] Void request completed', $logClass);
-		} catch (EbayEnterprise_PayPal_Exception $e) {
-			$this->_log->logWarn('[%s] Void request failed', $logClass);
+		if ($this->_canVoid($order)) {
+			try {
+				$this->_getVoidApi()->doVoid($order);
+			} catch (EbayEnterprise_PayPal_Exception $e) {
+				$this->_logger->logWarn('[%s] Void request failed. See exception log for details.', array(__CLASS__));
+				$this->_logger->logException($e);
+			}
 		}
 		return $this;
 	}

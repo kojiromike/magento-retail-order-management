@@ -19,14 +19,14 @@
 class EbayEnterprise_Paypal_Model_Observer
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data */
-	protected $_log;
+	protected $_logger;
 
 	/**
 	 * Set up the logger
 	 */
 	public function __construct()
 	{
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 
 	/**

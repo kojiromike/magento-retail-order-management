@@ -123,7 +123,6 @@ class EbayEnterprise_Amqp_Helper_Config
 	public function updateLastTimestamp(ITestMessage $payload, Mage_Core_Model_Store $store)
 	{
 		list($scope, $scopeId) = $this->getScopeForStoreSettings($store);
-		$this->_logger->logInfo('[%s] Received test message - timestamp %s', array(__CLASS__, $payload->getTimestamp()->format('c')));
 		return Mage::getModel('core/config_data')
 			->addData(array(
 				'path' => $this->_amqpConfigMap->getPathForKey('last_test_message_timestamp'),

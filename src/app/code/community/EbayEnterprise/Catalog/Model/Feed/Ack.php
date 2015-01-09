@@ -38,12 +38,12 @@ class EbayEnterprise_CataLog_Model_Feed_Ack
 	const ACK_KEY = 'ack';
 	const RELATED_KEY = 'related';
 
-	/** @var EbayEnterprise_MageLog_Helper_Data $_log */
-	protected $_log;
+	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
+	protected $_logger;
 
 	public function __construct()
 	{
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 
 	/**
@@ -167,17 +167,16 @@ class EbayEnterprise_CataLog_Model_Feed_Ack
 
 		try{
 			$helper->moveFile($sourceFile, $destination);
-			$this->_log->logDebug('[%s] Moving file %s to %s', array(__CLASS__, $sourceFile, $destination));
 		} catch (EbayEnterprise_CataLog_Exception_Feed_File $e) {
 			$isDeletable = false;
-			$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
+			$this->_logger->logException($e);
 		}
 
 		if ($isDeletable) {
 			try{
 				$helper->removeFile($sourceFile);
 			} catch (EbayEnterprise_CataLog_Exception_Feed_File $e) {
-				$this->_log->logWarn('[%s] %s', array(__CLASS__, $e->getMessage()));
+				$this->_logger->logException($e);
 			}
 		}
 
@@ -237,7 +236,6 @@ class EbayEnterprise_CataLog_Model_Feed_Ack
 	 */
 	public function process()
 	{
-		$this->_log->logInfo('[%s] Processing incoming acks', array(__CLASS__));
 		$exportedList = $this->_listFilesByCfgKey(self::CFG_EXPORTED_FEED_DIR);
 		if (!empty($exportedList)) {
 			$importedList = $this->_getImportedAckFiles();

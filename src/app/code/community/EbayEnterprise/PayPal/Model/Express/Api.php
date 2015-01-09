@@ -118,18 +118,30 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		}
 		$this->_addLineItems($quote, $payload);
 		$sdk->setRequestBody($payload);
+		$this->_logApiCall('set express', $sdk->getRequestBody()->serialize(), 'request');
 		$reply = $this->_sendRequest($sdk);
 		if (!$reply->isSuccess() || is_null($reply->getToken())) {
-			$this->_logger->logWarn(
-				'[%s] SetExpressCheckout request failed: %s',
-				array(__CLASS__, $reply->getErrorMessage())
-			);
-			throw Mage::exception(
-				'EbayEnterprise_PayPal',
-				$this->_helper->__(self::EBAYENTERPRISE_PAYPAL_API_FAILED)
-			);
+			// Only set and do express have the error message in the reply.
+			$this->_logger->logWarn('[%s] SetExpressCheckout request failed with message "%s". See exception log for details.', array(__CLASS__, $reply->getErrorMessage()));
+			$e = Mage::exception('EbayEnterprise_PayPal', $this->_helper->__(self::EBAYENTERPRISE_PAYPAL_API_FAILED));
+			$this->_logger->logException($e);
+			throw $e;
 		}
+		$this->_logApiCall('set express', $sdk->getResponseBody()->serialize(), 'response');
 		return array('token' => $reply->getToken());
+	}
+
+	/**
+	 * Log the different requests consistently.
+	 *
+	 * @param string $type 'do authorization', 'do express', 'do void', 'get express', 'set express'
+	 * @param string $body the serialized xml body
+	 * @param string $direction 'request' or 'response'
+	 */
+	protected function _logApiCall($type, $body, $direction)
+	{
+		$this->_logger->logInfo('[%s] Processing PayPal %s %s', array(__CLASS__, $type, $direction));
+		$this->_logger->logDebug('[%s] %s', array(__CLASS__, $body));
 	}
 
 	/**
@@ -146,27 +158,20 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		$sdk = $this->_getSdk(
 			$this->_helper->getConfigModel()->apiOperationGetExpressCheckout
 		);
-		$this->_logger->logDebug(
-			'[%s] GetExpressCheckout started', array(__CLASS__)
-		);
 		$payload = $sdk->getRequestBody();
 		$payload->setOrderId($orderId)
 			->setToken($token)
 			->setCurrencyCode($currencyCode);
 		$sdk->setRequestBody($payload);
+		$this->_logApiCall('get express', $sdk->getRequestBody()->serialize(), 'request');
 		$reply = $this->_sendRequest($sdk);
 		if (!$reply->isSuccess()) {
-			$this->_logger->logWarn(
-				'[%s] PayPal request failed', array(__CLASS__)
-			);
-			throw Mage::exception(
-				'EbayEnterprise_PayPal',
-				$this->_helper->__(self::EBAYENTERPRISE_PAYPAL_API_FAILED)
-			);
+			$this->_logger->logWarn('[%s] PayPal request failed. See exception log for details.', array(__CLASS__));
+			$e = Mage::exception('EbayEnterprise_PayPal', $this->_helper->__(self::EBAYENTERPRISE_PAYPAL_API_FAILED));
+			$this->_logger->logException($e);
+			throw $e;
 		}
-		$this->_logger->logDebug(
-			'[%s] GetExpressCheckout completed', array(__CLASS__)
-		);
+		$this->_logApiCall('get express', $sdk->getResponseBody()->serialize(), 'response');
 		return array(
 			'order_id'         => $reply->getOrderId(),
 			'country_id'       => $reply->getPayerCountry(),
@@ -230,16 +235,15 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		}
 		$this->_addLineItems($quote, $payload);
 		$sdk->setRequestBody($payload);
+		$this->_logApiCall('do express', $sdk->getRequestBody()->serialize(), 'request');
 		$reply = $this->_sendRequest($sdk);
 		if (!$reply->isSuccess()) {
-			$this->_logger->logWarn(
-				'[%s] PayPal request failed: %s', array(__CLASS__, $reply->getErrorMessage())
-			);
-			throw Mage::exception(
-				'EbayEnterprise_PayPal',
-				$this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED)
-			);
+			$this->_logger->logWarn('[%s] PayPal request failed with message "%s". See exception log for details.', array(__CLASS__, $reply->getErrorMessage()));
+			$e = Mage::exception('EbayEnterprise_PayPal', $this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED));
+			$this->_logger->logException($e);
+			throw $e;
 		}
+		$this->_logApiCall('do express', $sdk->getResponseBody()->serialize(), 'response');
 		return array(
 			'order_id'       => $reply->getOrderId(),
 			'transaction_id' => $reply->getTransactionId(),
@@ -270,24 +274,16 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			->setCurrencyCode($quote->getQuoteCurrencyCode())
 			->setAmount($this->_getTotal('grand_total', $quote));
 		$sdk->setRequestBody($payload);
-		$this->_logger->logDebug(
-			'[%s] Sending DoAuthorization', array(__CLASS__)
-		);
-
+		$this->_logApiCall('do authorization', $sdk->getRequestBody()->serialize(), 'request');
 		$reply = $this->_sendRequest($sdk);
-		$this->_logger->logDebug(
-			'[%s] Received DoAuthorization response', array(__CLASS__)
-		);
 		$isSuccess = $reply->isSuccess();
 		if (!$isSuccess) {
-			$this->_logger->logWarn(
-				'[%s] PayPal request failed', array(__CLASS__)
-			);
-			throw Mage::exception(
-				'EbayEnterprise_PayPal',
-				$this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED)
-			);
+			$this->_logger->logWarn('[%s] PayPal request failed.', array(__CLASS__));
+			$e = Mage::exception('EbayEnterprise_PayPal', $this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED));
+			$this->_logger->logException($e);
+			throw $e;
 		}
+		$this->_logApiCall('do authorization', $sdk->getResponseBody()->serialize(), 'response');
 		return array(
 			'order_id'       => $reply->getOrderId(),
 			'payment_status' => $reply->getPaymentStatus(),
@@ -312,28 +308,19 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		);
 		$payload = $sdk->getRequestBody();
 		$payload->setOrderId($order->getIncrementId())
-			->setRequestId(
-				$this->_coreHelper->generateRequestId(
-					self::PAYPAL_DOVOID_REQUEST_ID_PREFIX
-				)
-			)
+			->setRequestId($this->_coreHelper->generateRequestId(self::PAYPAL_DOVOID_REQUEST_ID_PREFIX))
 			->setCurrencyCode($order->getOrderCurrencyCode());
 		$sdk->setRequestBody($payload);
-		$this->_logger->logDebug('[%s] Sending DoVoid', array(__CLASS__));
+		$this->_logApiCall('do void', $sdk->getRequestBody()->serialize(), 'request');
 		$reply = $this->_sendRequest($sdk);
-		$this->_logger->logDebug(
-			'[%s] Received DoVoid response', array(__CLASS__)
-		);
 		$isVoided = $reply->isSuccess();
 		if (!$reply->isSuccess()) {
-			$this->_logger->logWarn(
-				'[%s] PayPal DoVoid failed', array(__CLASS__)
-			);
-			throw Mage::exception(
-				'EbayEnterprise_PayPal',
-				$this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED)
-			);
+			$this->_logger->logWarn('[%s] PayPal DoVoid failed. See exception log for details.', array(__CLASS__));
+			$e = Mage::exception('EbayEnterprise_PayPal', $this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED));
+			$this->_logger->logException($e);
+			throw $e;
 		}
+		$this->_logApiCall('do void', $sdk->getResponseBody()->serialize(), 'response');
 		return array(
 			'order_id'  => $reply->getOrderId(),
 			'is_voided' => $isVoided
@@ -367,35 +354,24 @@ class EbayEnterprise_Paypal_Model_Express_Api
 	 *
 	 * @throws EbayEnterprise_PayPal_Exception
 	 * @throws EbayEnterprise_PayPal_Exception_Network
-	 * @return self
+	 * @return Payload
 	 */
 	protected function _sendRequest(Api\IBidirectionalApi $sdk)
 	{
 		try {
-			$this->_logger->logDebug(
-				"[%s] Sending request:\n%s",
-				array(__CLASS__, $sdk->getRequestBody()->serialize())
-			);
 			$sdk->send();
 			$reply = $sdk->getResponseBody();
-			$this->_logger->logDebug(
-				"[%s] Received reply:\n%s",
-				array(__CLASS__, $reply->serialize())
-			);
 			return $reply;
 		} catch (Payload\Exception\InvalidPayload $e) {
-			$this->_logger->logWarn(
-				"[%s] PayPal payload invalid:\n%s", array(__CLASS__, $e)
-			);
+			$this->_logger->logWarn('[%s] PayPal payload invalid. See exception log for details.', array(__CLASS__));
+			$this->_logger->logException($e);
 		} catch (Api\Exception\NetworkError $e) {
-			$this->_logger->logWarn(
-				"[%s] PayPal request failed:\n%s", array(__CLASS__, $e)
-			);
+			$this->_logger->logWarn('[%s] PayPal request encountered a network error. See exception log for details.', array(__CLASS__));
+			$this->_logger->logException($e);
 		}
-		throw Mage::exception(
-			'EbayEnterprise_PayPal',
-			$this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED)
-		);
+		$e = Mage::exception('EbayEnterprise_PayPal', $this->_helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED));
+		$this->_logger->logException($e);
+		throw $e;
 	}
 
 	/**

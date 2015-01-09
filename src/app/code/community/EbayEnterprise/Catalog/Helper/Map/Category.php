@@ -43,12 +43,21 @@
  */
 class EbayEnterprise_Catalog_Helper_Map_Category extends Mage_Core_Helper_Abstract
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
 	/**
 	 * Memoized map of name paths to ids.
 	 *
 	 * @var array
 	 */
 	protected $_namePathToIdMap = array();
+
+	public function __construct()
+	{
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * Convert a list of CategoryLink Name nodes into an array of category
 	 * ids the given product should be in.
@@ -114,7 +123,8 @@ class EbayEnterprise_Catalog_Helper_Map_Category extends Mage_Core_Helper_Abstra
 		if (isset($this->_namePathToIdMap[$namePath])) {
 			return $this->_namePathToIdMap[$namePath];
 		} else {
-			Mage::helper('ebayenterprise_magelog')->logWarn('[%s] No category was found with path matching "%s".', array(__CLASS__, $namePath));
+			// @todo: move to error confirmation feed
+			$this->_logger->logWarn('[%s] No category was found with path matching "%s".', array(__CLASS__, $namePath));
 			return -1;
 		}
 	}

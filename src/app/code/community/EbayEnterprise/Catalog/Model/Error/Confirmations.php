@@ -79,11 +79,11 @@ class EbayEnterprise_Catalog_Model_Error_Confirmations
 	const ERROR_FILE_PERMISSIONS_MASK = 0027;
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
-	protected $_log;
+	protected $_logger;
 
 	public function __construct()
 	{
-		$this->_log = Mage::helper('ebayenterprise_magelog');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 
 	/**
@@ -355,9 +355,6 @@ class EbayEnterprise_Catalog_Model_Error_Confirmations
 		$type = $detail['core_feed']->getEventType();
 
 		$this->loadFile($errorFile);
-
-		$msg = '[%s] Generate error confirmation for %d %sed product(s) on file "%s".';
-		$this->_log->logDebug($msg, array(__CLASS__, count($skus), $operationType, $fileName));
 
 		return ($operationType === 'delete')?
 			$this->_addDeleteErrors($collection, $fileName, $type) :

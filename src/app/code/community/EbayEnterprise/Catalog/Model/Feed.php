@@ -47,13 +47,13 @@ class EbayEnterprise_Catalog_Model_Feed
 	 */
 	protected function _construct()
 	{
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 		$cfg = Mage::helper('ebayenterprise_catalog')->getConfigModel();
 		foreach ($this->_feedConfigKeys as $feedConfig) {
 			$coreFeed = Mage::getModel('ebayenterprise_catalog/feed_core', array('feed_config' => $cfg->$feedConfig));
 			$this->_coreFeedTypes[] = $coreFeed;
 			$this->_eventTypes[] = $coreFeed->getEventType();
 		}
-		$this->_log = Mage::helper('ebayenterprise_magelog');
 	}
 
 	/**
@@ -142,10 +142,8 @@ class EbayEnterprise_Catalog_Model_Feed
 			// one should just log the error and move on. Leaving out the EbayEnterprise_Core_Feed_Failure
 			// for now as none of the feeds expect to use it.
 			} catch (Mage_Core_Exception $e) {
-				$this->_log->logWarn(
-					'[%s] Failed to process file, %s. %s',
-					array(__CLASS__, basename($feedFile['local_file']), $e->getMessage())
-				);
+				$this->_logger->logErr('[%s] Failed to process file, %s.', array(__CLASS__, basename($feedFile['local_file'])));
+				$this->_logger->logException($e);
 			}
 		}
 		// Only trigger the cleaner and reindexing event if at least one feed

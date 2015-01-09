@@ -1,4 +1,17 @@
 <?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 
 /**
  * Wrapper that performs Paypal Express and Checkout communication
@@ -49,6 +62,8 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	protected $_helper;
 	/** @var EbayEnterprise_Paypal_Model_Express_Api */
 	protected $_api;
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
 
 	/** @var Mage_Customer_Model_Session */
 	protected $_customerSession;
@@ -391,7 +406,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 			try {
 				$this->_involveNewCustomer();
 			} catch (Exception $e) {
-				Mage::logException($e);
+				$this->_logger->logException($e);
 			}
 		}
 

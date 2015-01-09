@@ -18,6 +18,9 @@
  */
 class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
 {
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
 	/**
 	 * Mapping of XPath expressions used to fetch various parts of the message
 	 * @var array
@@ -36,6 +39,7 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
 	protected $_doc;
 	protected function _construct()
 	{
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 		$this->_doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		// Apply the side-effects of setMessage
 		if ($this->hasMessage()) {
@@ -163,7 +167,6 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
 	{
 		if (!$this->hasData('is_valid')) {
 			$resultCode = $this->_lookupPath('result_code');
-			$logger = Mage::helper('ebayenterprise_magelog');
 			switch ($resultCode) {
 				case 'V':
 				case 'N':
@@ -176,35 +179,28 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
 					$validity = false;
 					break;
 				case 'U':
-					$logger->logWarn('[%s] Unable to contact provider', array(__CLASS__));
+					$this->_logger->logWarn('[%s] Unable to contact provider', array(__CLASS__));
 					$validity = true;
 					break;
 				case 'T':
-					$logger->logWarn('[%s] Provider timed out', array(__CLASS__));
+					$this->_logger->logWarn('[%s] Provider timed out', array(__CLASS__));
 					$validity = true;
 					break;
 				case 'P':
-					$logger->logWarn('[%s] Provider returned a system error', array(__CLASS__));
-					$logger->logDebug('[%s] %s', array(__CLASS__, $this->_lookupPath('provider_error')));
+					$this->_logger->logWarn('[%s] Provider returned a system error: %s', array(__CLASS__, $this->_lookupPath('provider_error')));
 					$validity = true;
 					break;
 				case 'M':
-					$logger->logWarn('[%s] The request message was malformed or contained invalid data', array(__CLASS__));
+					$this->_logger->logWarn('[%s] The request message was malformed or contained invalid data', array(__CLASS__));
 					$validity = true;
 					break;
 				default:
-					$logger->logWarn(
-						'[%s] Response message did not contain a known result code. Result Code: %s',
-						array(__CLASS__, $resultCode)
-					);
+					$this->_logger->logWarn('[%s] Response message did not contain a known result code. Result Code: %s', array(__CLASS__, $resultCode));
 					$validity = true;
 					break;
 			}
 			$this->setData('is_valid', $validity);
-			$logger->logDebug(
-				'[%s]: Response with status code "%s" is %s.',
-				array(__CLASS__, $resultCode, ($validity ? 'valid' : 'invalid'))
-			);
+			$this->_logger->logDebug('[%s] Response with status code "%s" is %s.', array(__CLASS__, $resultCode, ($validity ? 'valid' : 'invalid')));
 		}
 		return $this->getData('is_valid');
 	}

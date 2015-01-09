@@ -22,6 +22,8 @@ class EbayEnterprise_Amqp_Model_Adminhtml_System_Config_Backend_Lasttestmessage
 	protected $_helper;
 	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
 	protected $_coreHelper;
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
 
 	protected function _construct()
 	{

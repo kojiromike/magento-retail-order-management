@@ -29,6 +29,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const GENDER_MALE = 1;
 	const ESTIMATED_DELIVERY_DATE_MODE = 'LEGACY';
 	const ESTIMATED_DELIVERY_DATE_MESSAGETYPE = 'DeliveryDate';
+
 	/**
 	 * The Shipping Charge Type recognized by the Exchange Platform for flatrate/order level shipping costs
 	 */
@@ -41,9 +42,6 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 
 	const GIFT_MESSAGE_PRINTED_CARD_NODE = 'GiftCard';
 	const GIFT_MESSAGE_PACKSLIP_NODE = 'Packslip';
-	const RETRY_BEGIN_MESSAGE = '[%s]: Begin order retry at: %s. Found %s order(s) to be retried';
-	const RETRY_END_MESSAGE = '[%s]: Order retry finished at: %s';
-	const RETRY_NOT_FOUND_MESSAGE = '[%s]: Original OrderCreateRequest not found: %s';
 	// Response status reported by OrderCreateResponse message orders successfully created
 	const RESPONSE_SUCCESS_STATUS = 'SUCCESS';
 	// Response status reported by OrderCreateResponse message orders that filed to be created
@@ -77,6 +75,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	const PRICE_FORMAT = '%.02F';
 	const TIMESTAMP_FORMAT = 'c';
 
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -94,12 +95,14 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * @var array, Saves an array of item_id's for use in shipping node
 	 */
 	protected $_orderItemRef = array();
-	/** @var EbayEnterprise_Eb2cOrder_Helper_Data $_helper **/
+
+	/** @var EbayEnterprise_Eb2cOrder_Helper_Data **/
 	protected $_helper;
 
 	public function __construct()
 	{
 		$this->_helper = Mage::helper('eb2corder');
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 	/**
 	 * The event observer version of transmit order
@@ -181,10 +184,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		$status = $this->_extractResponseStatus($response);
 		$this->_o->setStatus($status, true);
-		Mage::helper('ebayenterprise_magelog')->logDebug(
-			'[%s] setting order (%s) status to %s',
-			array(__METHOD__, $this->_o->getIncrementId(), $status)
-		);
+		$this->_logger->logDebug('[%s] setting order (%s) status to %s', array(__METHOD__, $this->_o->getIncrementId(), $status));
 		Mage::dispatchEvent('eb2c_order_create_succeeded', array('order' => $this->_o));
 		$this->_o->setEb2cOrderCreateRequest($this->_domRequest->saveXML());
 		return $this;
@@ -1000,16 +1000,14 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		// first get all order with state equal to 'new'
 		$orders = $this->_getNewOrders();
-
-		$logger = Mage::helper('ebayenterprise_magelog');
 		$currentDate = Mage::getModel('core/date')->date('m/d/Y H:i:s');
-		$logger->logDebug(self::RETRY_BEGIN_MESSAGE, array(__METHOD__, $currentDate, $orders->count()));
+		$this->_logger->logDebug('[%s]: Begin order retry at: %s. Found %s order(s) to be retried', array(__METHOD__, $currentDate, $orders->count()));
 
 		foreach ($orders as $order) {
 			$xmlCreateRequest = $order->getEb2cOrderCreateRequest();
 			if (empty($xmlCreateRequest)) {
 				// Original request empty, log at Warn level and move on
-				$logger->logWarn(self::RETRY_NOT_FOUND_MESSAGE, array(__METHOD__, $order->getIncrementId()));
+				$this->_logger->logErr('[%s]: Original OrderCreateRequest not found: %s', array(__METHOD__, $order->getIncrementId()));
 			} else {
 				// running same code to send request create eb2c orders
 				$this->_o = $order;
@@ -1019,7 +1017,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$orders->save();
 
 		$newDate = Mage::getModel('core/date')->date('m/d/Y H:i:s');
-		$logger->logDebug(self::RETRY_END_MESSAGE, array(__METHOD__, $newDate));
+		$this->_logger->logDebug('[%s]: Order retry finished at: %s', array(__METHOD__, $newDate));
 	}
 	/**
 	 * given a string of order create request xml message, assigned an EbayEnterprise_Dom_Document instantiated class

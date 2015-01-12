@@ -1,13 +1,6 @@
 -
   - false
-  - [%s] Allocation response message returned %s.
-  -
-    - EbayEnterprise_Eb2cInventory_Model_Observer
-    - 'false'
 -
   -
-  - [%s] Allocation response message returned %s.
-  -
-    - EbayEnterprise_Eb2cInventory_Model_Observer
-    - 'empty string'
-
+-
+  - null

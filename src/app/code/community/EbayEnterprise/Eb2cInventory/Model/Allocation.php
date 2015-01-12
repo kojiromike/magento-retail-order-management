@@ -21,6 +21,15 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 	const ALLOCATION_REQUEST_ID_PREFIX = 'IA-';
 	const ROLLBACK_REQUEST_ID_PREFIX = 'IR-';
 
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
+	public function __construct()
+	{
+		parent::__construct();
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
+	}
+
 	/**
 	 * A quote only requires an allocation if it has items with managed stock, does not already have
 	 * an allocation or has an allocation that has expired.
@@ -43,13 +52,15 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 		$responseMessage = '';
 		// Shipping address required for the allocation request, if there's no address,
 		// can't make the allocation request.
-		if ($quote && $quote->getShippingAddress()) {
+		if ($quote->getShippingAddress()) {
 			// build request
 			$doc = $this->_buildAllocationRequestMessage($quote);
 			$helper = Mage::helper('eb2cinventory');
 			$uri = $helper->getOperationUri('allocate_inventory');
 			$xsd = $helper->getConfigModel()->xsdFileAllocation;
 			$responseMessage = Mage::getModel('eb2ccore/api')->request($doc, $xsd, $uri);
+		} else {
+			$this->_logger->logWarn('[%s] %s missing shipping address.', array(__CLASS__, __FUNCTION__));
 		}
 		return $responseMessage;
 	}

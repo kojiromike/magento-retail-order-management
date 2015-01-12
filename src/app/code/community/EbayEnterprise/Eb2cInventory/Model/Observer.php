@@ -142,14 +142,7 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 					throw Mage::exception('EbayEnterprise_Eb2cInventory_Model_Allocation', $message);
 				}
 			} else {
-				$this->_logger
-					->logWarn(
-						'[%s] Allocation response message returned %s.',
-						array(
-							__CLASS__,
-							$allocationResponseMessage === '' ? 'empty string' : 'false'
-						)
-					);
+				$this->_logger->logWarn('[%s] Allocation response message returned empty value.', array(__CLASS__));
 			}
 		}
 		return $this;

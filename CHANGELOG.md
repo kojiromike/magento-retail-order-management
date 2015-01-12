@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Fixed
+- Address validation shows suggestions after valid address is saved.
+
 ## [1.2.8] - 2015-02-05
 ### Fixed
 - Order details page was not displaying country, state or postal code

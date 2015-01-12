@@ -124,7 +124,7 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
 	{
 		if (!$this->hasData('has_address_suggestions')) {
 			$suggestionCount = (int) $this->_lookupPath('suggestion_count');
-			$this->setData('has_address_suggestions', ($suggestionCount > 1));
+			$this->setData('has_address_suggestions', ($suggestionCount > 0));
 		}
 		return $this->getData('has_address_suggestions');
 	}

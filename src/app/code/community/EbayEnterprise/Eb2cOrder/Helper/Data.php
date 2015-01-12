@@ -259,4 +259,3 @@ class EbayEnterprise_Eb2cOrder_Helper_Data extends Mage_Core_Helper_Abstract
 		return Mage::getModel('sales/order')->formatPrice($amount);
 	}
 }
-

@@ -16,4 +16,3 @@
 class EbayEnterprise_Catalog_Model_Feed_Exception extends Mage_Core_Exception
 {
 }
-

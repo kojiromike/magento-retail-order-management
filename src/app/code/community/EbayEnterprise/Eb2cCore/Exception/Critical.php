@@ -27,4 +27,3 @@ class EbayEnterprise_Eb2cCore_Exception_Critical extends EbayEnterprise_Eb2cCore
 		parent::__construct($message, $code, $previous);
 	}
 }
-

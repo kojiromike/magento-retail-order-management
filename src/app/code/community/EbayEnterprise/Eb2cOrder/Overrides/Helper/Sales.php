@@ -42,4 +42,3 @@ class EbayEnterprise_Eb2cOrder_Overrides_Helper_Sales extends Mage_Sales_Helper_
 	public function canSendNewCreditmemoEmail($s=null)        { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
 	public function canSendCreditmemoCommentEmail($s=null)    { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
 }
-

@@ -12,11 +12,11 @@
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
+
 /**
- * This class is responsible for making order detail request to ROM OMS to get order
- * detail data for a Magento Order Id. The Order Id does not necessarily match an
- * order that exists in our local database. Instead a sales-order-like object is created
- * from the OMS OrderDetailRequest.
+ * Makes order detail request to ROM OMS to get order detail data for a Magento Order Id.
+ * The Order Id does not necessarily match an order that exists in our local database.
+ * Instead a sales-order-like object is created from the OMS OrderDetailRequest.
  */
 class EbayEnterprise_Eb2cOrder_Model_Detail
 {

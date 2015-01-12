@@ -67,4 +67,3 @@ foreach ($eb2cStatusAttributes as $a) {
 		->addColumn($table, $columnName, $a['options']);
 }
 $installer->endSetup();
-

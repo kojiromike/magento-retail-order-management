@@ -59,4 +59,3 @@ class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Recent extends Mage_Sales_B
 		return Mage::getModel('sales/order')->formatPrice($amount);
 	}
 }
-

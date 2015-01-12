@@ -12,6 +12,7 @@
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
+
 class EbayEnterprise_Eb2cCore_Test_Helper_Quote_ItemTest extends EcomDev_PHPUnit_Test_Case
 {
 	/**
@@ -48,7 +49,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Quote_ItemTest extends EcomDev_PHPUnit
 		$managedChildItem         = Mage::getModel('sales/quote_item', array('product' => $manageProduct, 'parent_item_id' => 2,));
 		$noManagedChildItem       = Mage::getModel('sales/quote_item', array('product' => $noManageProduct, 'parent_item_id' => null,));
 
-		// Relate parent and child items: 
+		// Relate parent and child items:
 		$managedChildItem->setParentItem($parentItemManagedChild);
 		$noManagedChildItem->setParentItem($parentItemNoManagedChild);
 
@@ -72,4 +73,3 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Quote_ItemTest extends EcomDev_PHPUnit
 		$this->assertSame($isInventoried, Mage::helper('eb2ccore/quote_item')->isItemInventoried($item));
 	}
 }
-

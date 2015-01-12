@@ -119,4 +119,3 @@ class EbayEnterprise_Catalog_Helper_Map_Category extends Mage_Core_Helper_Abstra
 		}
 	}
 }
-

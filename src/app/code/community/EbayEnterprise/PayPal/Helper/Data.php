@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright (c) 2013-2014 eBay Enterprise, Inc.
  *

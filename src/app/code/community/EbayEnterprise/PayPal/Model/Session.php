@@ -24,4 +24,3 @@ class EbayEnterprise_PayPal_Model_Session
 		$this->init('ebayenterprise_paypal');
 	}
 }
-

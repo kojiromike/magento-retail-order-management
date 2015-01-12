@@ -12,6 +12,7 @@
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
+
 /**
  * Installing 'unsubmitted' status associated with a state 'new' for the
  * purpose of flagging when an order fail to submit successfully to the ROM API.

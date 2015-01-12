@@ -575,4 +575,3 @@ class EbayEnterprise_Eb2cInventory_Test_Model_DetailsTest
 		$this->assertSame($details, EcomDev_Utils_Reflection::invokeRestrictedMethod($details, '_updateQuoteItemWithDetails', array($item, $inventoryData)));
 	}
 }
-

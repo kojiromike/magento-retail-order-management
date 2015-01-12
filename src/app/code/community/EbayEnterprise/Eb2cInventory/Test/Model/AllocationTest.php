@@ -238,6 +238,34 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 		$this->assertSame($response, $testModel->allocateQuoteItems($quote));
 	}
 
+	/**
+	 * Verify that allocateQuoteItems logs a warning when the quote object
+	 * doesn't include a shipping address
+	 *
+	 */
+	public function testAllocateQuoteItemsLogsWarning()
+	{
+		$mockLogger = $this->getHelperMock('ebayenterprise_magelog', array('logWarn'));
+		$this->replaceByMock('helper', 'ebayenterprise_magelog', $mockLogger);
+
+		$quote = $this->getModelMockBuilder('sales/quote')
+			->disableOriginalConstructor()
+			->setMethods(array('getShippingAddress'))
+			->getMock();
+		$quote->expects($this->once())
+			->method('getShippingAddress')
+			->willReturn(null);
+
+		$testModel = $this->getModelMock('eb2cinventory/allocation', array('_buildAllocationRequestMessage'));
+
+		// check that 'logWarn' is called with the appropriate message
+		$mockLogger->expects($this->once())
+			->method('logWarn')
+			->with($this->identicalTo('[%s] %s missing shipping address.'));
+		// Validate the request message returns an empty string
+		$this->assertSame('', $testModel->allocateQuoteItems($quote));
+	}
+
 	public function providerHasAllocation()
 	{
 		$stockItemMock = $this->getMock(

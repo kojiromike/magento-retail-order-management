@@ -319,11 +319,10 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	 * allocateQuoteItems may return an empty string or false.
 	 * Fail silently in these cases and log a warning
 	 *
-	 * @param string|bool $message
-	 * @param array $expected
+	 * @param string|bool|null $message
 	 * @dataProvider dataProvider
 	 */
-public function testNoAllocationRequestMessageLogsWarning($message, $expected)
+public function testNoAllocationRequestMessageLogsWarning($message)
 	{
 		$mockLogger = $this->getHelperMock('ebayenterprise_magelog', array('logWarn'));
 		$this->replaceByMock('helper', 'ebayenterprise_magelog', $mockLogger);
@@ -349,7 +348,7 @@ public function testNoAllocationRequestMessageLogsWarning($message, $expected)
 		// check that 'logWarn' is called with the appropriate message
 		$mockLogger->expects($this->once())
 			->method('logWarn')
-			->with($this->identicalTo($expected));
+			->with($this->identicalTo('[%s] Allocation response message returned empty value.'));
 
 		Mage::getModel('eb2cinventory/observer')->processAllocation($eventObserver);
 	}

@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Gift Card from previous order applied when current Gift Card fails.
 - Checkout fails when multiple credit card payment methods are enabled.
 - The import product collection is being saved when there are no changes.
+- Address validation shows suggestions after valid address is saved.
 
 ## [1.4.0-alpha-10] - 2015-01-05
 ### Added

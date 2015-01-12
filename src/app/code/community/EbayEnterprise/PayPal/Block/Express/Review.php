@@ -271,4 +271,3 @@ class EbayEnterprise_PayPal_Block_Express_Review
 		return parent::_beforeToHtml();
 	}
 }
-

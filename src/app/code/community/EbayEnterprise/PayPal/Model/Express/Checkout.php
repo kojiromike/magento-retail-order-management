@@ -702,4 +702,3 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 		return $this->_customerSession;
 	}
 }
-

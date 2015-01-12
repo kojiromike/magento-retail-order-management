@@ -44,4 +44,3 @@ class EbayEnterprise_Eb2cOrder_Overrides_Model_Enterprise_Rma
 		}
 	}
 }
-

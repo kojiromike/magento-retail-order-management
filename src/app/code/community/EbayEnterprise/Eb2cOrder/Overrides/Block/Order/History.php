@@ -53,4 +53,3 @@ class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History extends Mage_Core_B
 		return Mage::helper($type);
 	}
 }
-

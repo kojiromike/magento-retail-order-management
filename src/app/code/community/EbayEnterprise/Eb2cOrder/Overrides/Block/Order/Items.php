@@ -10,10 +10,10 @@
  * http://opensource.org/licenses/osl-3.0.php
  *
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
- * @license	 http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class
-EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Items extends Mage_Core_Block_Template
+
+class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Items extends Mage_Core_Block_Template
 {
 	protected $_template = 'eb2corder/sales/order/ebayenterprise_items.phtml';
 	/**
@@ -35,4 +35,3 @@ EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Items extends Mage_Core_Block_Tem
 		return Mage::helper($type);
 	}
 }
-

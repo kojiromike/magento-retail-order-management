@@ -12,11 +12,14 @@
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-/*
-	@var $installer Mage_Sales_Model_Resource_Setup - Uses a Mage_Sales_Model_Resource_Setup because
-	that's the class responsible for setting up and managing each of the entities we are adding to,
-	including doing the right things if there's a "flat_" version of that entity.
-*/
+
+/**
+ * Uses a Mage_Sales_Model_Resource_Setup because that's the class responsible for setting up
+ * and managing each of the entities we are adding to, including doing the right things if
+ * there's a "flat_" version of that entity.
+ *
+ * @var $installer Mage_Sales_Model_Resource_Setup
+ */
 $installer = $this;
 $installer->startSetup();
 $entities = array('order_item', 'quote_address_item', 'quote_item');
@@ -49,4 +52,3 @@ foreach ($entities as $entity) {
 	}
 }
 $installer->endSetup();
-

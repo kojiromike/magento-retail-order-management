@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright (c) 2013-2014 eBay Enterprise, Inc.
  *
@@ -13,6 +12,7 @@
  * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
+
 class EbayEnterprise_PayPal_Block_Express_Review_Billing
 	extends Mage_Checkout_Block_Onepage_Billing
 {

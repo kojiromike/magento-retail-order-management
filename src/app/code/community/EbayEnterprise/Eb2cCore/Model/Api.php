@@ -20,7 +20,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 
 	/**
 	 * If _timeout is not set via $this->setApiTimeout() for request(), and the configuration does not contain one,
-	 * this our default value.  This value is taken from Zend_Http_Client's default.
+	 * this our default value. This value is taken from Zend_Http_Client's default.
 	 */
 	const DEFAULT_TIMEOUT = 10;
 	/**
@@ -74,7 +74,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 			$apiKey = Mage::helper('eb2ccore')->getConfigModel()->apiKey;
 		}
 		$xmlStr = $doc->C14N();
-		$this->_logger->logDebug("[%s] Validating request:\n%s", array(__CLASS__, $xmlStr));
+		$this->_logger->logDebug("[%s] Validating request: %s", array(__CLASS__, $xmlStr));
 		$this->schemaValidate($doc, $xsdName);
 		$client = $this->_setupClient($client, $apiKey, $uri, $xmlStr, $adapter, $timeout);
 		$this->_logger->logInfo("[%s] Sending request to %s", array(__CLASS__, $uri));
@@ -110,11 +110,27 @@ class EbayEnterprise_Eb2cCore_Model_Api
 			));
 		return $client;
 	}
+
+	/**
+	 * Debug log things with multiple lines.
+	 *
+	 * @param string
+	 * @return self
+	 */
+	protected function _logDebug($msg)
+	{
+		$msgs = explode("\n", trim($msg));
+		foreach($msgs as $line) {
+			$this->_logger->logDebug('[%s] %s', array(__CLASS__, $line));
+		}
+		return $this;
+	}
+
 	/**
 	 * log the response and return the result of the configured handler method.
 	 *
 	 * @param  Zend_Http_Response $response
-	 * @param  string             $uri
+	 * @param  string $uri
 	 * @return string response body or empty
 	 */
 	protected function _processResponse(Zend_Http_Response $response, $uri)
@@ -122,8 +138,8 @@ class EbayEnterprise_Eb2cCore_Model_Api
 		$this->_status = $response->getStatus();
 		$config = $this->_getHandlerConfig($this->_getHandlerKey($response));
 		$logMethod = isset($config['logger']) ? $config['logger'] : 'logDebug';
-		// @todo reexamine
-		$this->_logger->$logMethod("[%s] Received response for request to %s:\n%s", array(__CLASS__, $uri, $response->asString()));
+		$this->_logger->$logMethod('[%s] Received response from "%s".', array(__CLASS__, $uri));
+		$this->_logDebug($response->asString());
 		if (!$response->getBody()) {
 			$this->_logger->logWarn("[%s] Received response with no body from %s with status %s.", array(__CLASS__, $uri, $this->_status));
 		}
@@ -170,7 +186,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	 * handle the exception thrown by the zend client and return the result of the
 	 * configured handler.
 	 * @param  Zend_Http_Client_Exception $exception
-	 * @param  string                     $uri
+	 * @param  string $uri
 	 * @return string
 	 */
 	protected function _processException(Zend_Http_Client_Exception $exception, $uri)

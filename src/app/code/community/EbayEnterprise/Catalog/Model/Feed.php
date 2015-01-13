@@ -130,7 +130,7 @@ class EbayEnterprise_Catalog_Model_Feed
 		// the list of files processed, which wouldn't be accessible if just using
 		// a call to the parent method.
 		foreach ($feedFiles as $feedFile) {
-			$this->_log->logInfo(
+			$this->_logger->logInfo(
 				'[%s] Begin processing file, %s',
 				array(__CLASS__, basename($feedFile['local_file']))
 			);

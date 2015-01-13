@@ -76,8 +76,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 	protected function _construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
-		$this->_doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
-		$this->_doc->preserveWhiteSpace = false;
+		$this->_doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		// Magic 'xml' data set when instantiated with the results of a tax response
 		if ($this->hasXml()) {
 			$xml = $this->getXml();
@@ -462,8 +461,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 	protected function _checkXml($xml)
 	{
 		$result = true;
-		$doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
-		$doc->preserveWhiteSpace = false;
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$message = '';
 		try {
 			libxml_use_internal_errors(true);

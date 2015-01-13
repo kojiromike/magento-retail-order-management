@@ -266,10 +266,11 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 		$this->_prepareApiRequest($api, $payment);
 		$this->_logger->logInfo('[%s] Sending credit card auth request.', array(__CLASS__));
 		$cleanedRequestXml = $this->_helper->cleanAuthXml($api->getRequestBody()->serialize());
-		$this->_logger->logDebug("[%s] %s", array(__CLASS__, $cleanedRequestXml));
+		$this->_logger->logDebug('[%s] %s', array(__CLASS__, $cleanedRequestXml));
 		$this->_sendAuthRequest($api);
 		$cleanedResponseXml = $this->_helper->cleanAuthXml($api->getResponseBody()->serialize());
-		$this->_logger->logDebug("[%s] %s", array(__CLASS__, $cleanedResponseXml));
+		$this->_logger->logInfo('[%s] Received credit card auth response.', array(__CLASS__));
+		$this->_logger->logDebug('[%s] %s', array(__CLASS__, $cleanedResponseXml));
 		$this->_handleApiResponse($api, $payment);
 		return $this;
 	}

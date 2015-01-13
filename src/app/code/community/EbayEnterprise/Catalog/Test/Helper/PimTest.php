@@ -935,7 +935,6 @@ class EbayEnterprise_Catalog_Test_Helper_PimTest
 		$messageMaxLen = $allowMessage ? '10' : '0';
 		$digitalField = $isVirtual === Enterprise_GiftCard_Model_Giftcard::TYPE_VIRTUAL ? 'true' : 'false';
 		$expected = Mage::helper('eb2ccore')->getNewDomDocument();
-		$expected->preserveWhiteSpace = false;
 		$expected->loadXML(sprintf('
 			<root>
 				<Digital><![CDATA[%s]]></Digital>
@@ -951,7 +950,6 @@ class EbayEnterprise_Catalog_Test_Helper_PimTest
 	protected function _newDocument($xml=null)
 	{
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->preserveWhiteSpace = false;
 		$doc->formatOutput = true;
 		if ($xml) {
 			$doc->loadXML($xml);

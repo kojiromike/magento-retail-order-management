@@ -469,8 +469,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_CalculationTest extends EbayEn
 	protected function _mockOrderItem($lineNumber=1, $xml=null)
 	{
 		$xml = $xml ? $xml : EbayEnterprise_Eb2cTax_Overrides_Model_Calculation::$orderItemXml;
-		$doc = new EbayEnterprise_Dom_Document();
-		$doc->preserveWhiteSpace = false;
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML($xml);
 		$itemResponse = Mage::getModel('eb2ctax/response_orderitem', array('node' => $doc->documentElement));
 		$itemResponse->setLineNumber($lineNumber);

@@ -64,7 +64,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_QuantityTest
 		$this->replaceByMock('helper', 'eb2cinventory', $helper);
 
 		$qtyRequestMsg = Mage::helper('eb2ccore')->getNewDomDocument();
-		$qtyRequestMsg->preserveWhiteSpace = false;
 		$qtyRequestMsg->loadXML(
 			'<?xml version="1.0" encoding="UTF-8"?>
 			<QuantityRequestMessage xmlns="http://api.gsicommerce.com/schema/checkout/1.0">

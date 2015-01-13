@@ -85,7 +85,6 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		if (!$this->_doc || !$this->_doc->documentElement) {
 			$doc        = Mage::helper('eb2ccore')->getNewDomDocument();
 			$this->_doc = $doc;
-			$doc->preserveWhiteSpace = false;
 			if ($this->isValid()) {
 				$this->_buildTaxDutyRequest();
 			}

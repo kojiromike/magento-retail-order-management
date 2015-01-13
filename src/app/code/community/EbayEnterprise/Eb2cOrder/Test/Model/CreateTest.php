@@ -1052,7 +1052,6 @@ INVALID_XML;
 	public function testBuildContext()
 	{
 		$expect = $this->_coreHelper->getNewDomDocument();
-		$expect->preserveWhiteSpace = false;
 		$expect->formatOutput = true;
 		$expect->loadXML('
 		<root>
@@ -1165,7 +1164,6 @@ INVALID_XML;
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
 
 		$expect = $this->_coreHelper->getNewDomDocument();
-		$expect->preserveWhiteSpace = false;
 		$expect->formatOutput = true;
 		$expect->loadXML('
 			<root xmlns="http://namespace/foo">

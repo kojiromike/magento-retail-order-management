@@ -192,8 +192,7 @@ XML;
 	 */
 	public function testGetAddressId($xml, $expected)
 	{
-		$doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
-		$doc->preserveWhiteSpace = false;
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML($xml);
 		$response = $this->getModelMockBuilder('eb2ctax/response')
 			->setMethods(null)
@@ -268,8 +267,7 @@ XML;
 				<CalculatedTax>0.12</CalculatedTax>
 			</Tax>
 		</Taxes>';
-		$doc = new EbayEnterprise_Dom_Document();
-		$doc->preserveWhiteSpace = false;
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML($xml);
 		$node = $doc->documentElement->firstChild;
 		$a = array(
@@ -351,8 +349,7 @@ XML;
 					</Merchandise>
 				</Pricing>
 			</OrderItem>';
-		$doc = new EbayEnterprise_Dom_Document();
-		$doc->preserveWhiteSpace = false;
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$doc->loadXML($xml);
 		$node = $doc->documentElement->firstChild;
 		$obj  = Mage::getModel('eb2ctax/response_quote', array('node' => $node));
@@ -431,10 +428,8 @@ XML;
 			->getModelMockBuilder('eb2ctax/response')
 			->disableOriginalConstructor()
 			->getMock();
-		$docA = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
-		$docB = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
-		$docA->preserveWhiteSpace = false;
-		$docB->preserveWhiteSpace = false;
+		$docA = Mage::helper('eb2ccore')->getNewDomDocument();
+		$docB = Mage::helper('eb2ccore')->getNewDomDocument();
 		$val = EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_validateResponseItems', array($docA, $docB));
 		$this->assertSame(false, $val);
 	}
@@ -524,8 +519,7 @@ XML;
 	 */
 	protected function _mockRequest($xml='', $isValid=true)
 	{
-		$doc = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
-		$doc->preserveWhiteSpace = false;
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		if ($xml) {
 			$doc->loadXML($xml);
 		} else {

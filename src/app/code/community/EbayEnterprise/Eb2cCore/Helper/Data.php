@@ -91,7 +91,9 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	 */
 	public function getNewDomDocument()
 	{
-		return new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
+		$d = new EbayEnterprise_Dom_Document('1.0', 'UTF-8');
+		$d->preserveWhiteSpace = false;
+		return $d;
 	}
 
 	/**

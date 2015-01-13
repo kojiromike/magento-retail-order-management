@@ -74,7 +74,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 			$apiKey = Mage::helper('eb2ccore')->getConfigModel()->apiKey;
 		}
 		$xmlStr = $doc->C14N();
-		$this->_logger->logDebug("[%s] Validating request: %s", array(__CLASS__, $xmlStr));
+		$this->_logDebug("[%s] Validating request: %s", array(__CLASS__, $xmlStr));
 		$this->schemaValidate($doc, $xsdName);
 		$client = $this->_setupClient($client, $apiKey, $uri, $xmlStr, $adapter, $timeout);
 		$this->_logger->logInfo("[%s] Sending request to %s", array(__CLASS__, $uri));

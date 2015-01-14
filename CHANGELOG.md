@@ -1,22 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased][unreleased]
+## [1.4.0-rc-1] - 2015-01-15
 ### Added
 - Order Price Adjustment event
-- Log warning if API call to allocate inventory fails.
+- Order Gift Certificate event
+- Log warning if API call to allocate inventory fails
 
 ### Removed
-- Unnecessary default configuration values from module etc/config.xml files.
+- Unnecessary default configuration values from module etc/config.xml files
 
 ### Fixed
-- Ensure trailing whitespace is stripped before saving SFTP Remote Host configuration.
-- Customers should only see one error message when trying to cart an understocked item.
-- Gift Card from previous order applied when current Gift Card fails.
-- Checkout fails when multiple credit card payment methods are enabled.
-- The import product collection is being saved when there are no changes.
-- Address validation shows suggestions after valid address is saved.
-- Log warning on API failure allocating order items.
+- Multiple error messages in the shopping cart when inventory is out-of-stock
+- Gift Card from previous session applied when current Gift Card fails
+- File Transfer fails from cron, while SFTP test button succeeds
+- Number formats should not be locale-specific
+- Address validation shows suggestions after valid address is saved
+- Unnecessary override of Cart.php in Eb2cInventory
+- Checkout fails when multiple credit card payment methods are enabled
+- The import product collection is being saved when there are no changes
 - Cron scheduling samples for ProductExport and ProductImageExport modules
 
 ## [1.4.0-alpha-10] - 2015-01-05
@@ -159,7 +161,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
-[unreleased]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-10...HEAD
+[1.4.0-rc-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-10...1.4.0-rc-1
 [1.4.0-alpha-10]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-9...1.4.0-alpha-10
 [1.4.0-alpha-9]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-8...1.4.0-alpha-9
 [1.4.0-alpha-8]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-7...1.4.0-alpha-8

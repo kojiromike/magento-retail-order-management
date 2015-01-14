@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.5.0-alpha-1] - 2015-01-15
+### Added
+- InStore module to create and import in-store pick-up, ship-to-store and ship-from-store product attribute
 
 ## [1.4.0-rc-1] - 2015-01-15
 ### Added

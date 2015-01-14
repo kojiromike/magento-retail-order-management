@@ -21,6 +21,9 @@ All notable changes to this project will be documented in this file.
 - The import product collection is being saved when there are no changes
 - Cron scheduling samples for ProductExport and ProductImageExport modules
 
+### Changed
+- Use version "~1.0" of eBayEnterprise/RetailOrderManagement-SDK
+
 ## [1.4.0-alpha-10] - 2015-01-05
 ### Added
 - PayPal configuration for Image URLs

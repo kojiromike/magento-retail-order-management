@@ -19,6 +19,19 @@ You can use this file as a starting point for your implementation by renaming th
 Carefully review all options to ensure they match you specific implementation.
 -->
 <config>
+	<crontab>
+		<jobs>
+			<!--
+			Catalog Export: This job will export product data
+			Suggested Schedule: Every 15 minutes
+			-->
+			<ebayenterprise_catalog_pim_export_feed>
+				<schedule>
+					<cron_expr>*/15 * * * *</cron_expr>
+				</schedule>
+			</ebayenterprise_catalog_pim_export_feed>
+		</jobs>
+	</crontab>
 	<default>
 		<ebayenterprise_catalog>
 			<!--
@@ -412,17 +425,4 @@ Carefully review all options to ensure they match you specific implementation.
 			</feed_pim_mapping>
 		</ebayenterprise_catalog>
 	</default>
-	<crontab>
-		<jobs>
-			<!--
-			Catalog Export: This job will export product data
-			Suggested Schedule: Once Per Day
-			-->
-			<ebayenterprise_catalog_pim_export_feed>
-				<schedule>
-					<cron_expr>0 1 * * *</cron_expr>
-				</schedule>
-			</ebayenterprise_catalog_pim_export_feed>
-		</jobs>
-	</crontab>
 </config>

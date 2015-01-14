@@ -19,15 +19,15 @@
 class EbayEnterprise_Catalog_Test_Model_Pim_Batch_ContainerTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	// @var Varien_Data_Collection
+	/** @var Varien_Data_Collection */
 	protected $_collection;
-	// @var array stub list of stores
+	/** @var array stub list of stores */
 	protected $_stores;
-	// @var array stub feed config
+	/** @var array stub feed config */
 	protected $_config;
-	// @var array list of product ids
+	/** @var array list of product ids */
 	protected $_idList;
-	// @var Mage_Core_Model_Store
+	/** @var Mage_Core_Model_Store */
 	protected $_store;
 
 	public function setUp()

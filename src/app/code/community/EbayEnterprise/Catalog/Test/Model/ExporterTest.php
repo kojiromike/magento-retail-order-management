@@ -19,19 +19,19 @@ class EbayEnterprise_Catalog_Test_Model_ExporterTest
 {
 	const FEED_TYPE = 'madeup_feed';
 
-	// @var EbayEnterprise_Catalog_Model_Pim
+	/** @var EbayEnterprise_Catalog_Model_Pim */
 	protected $_pimMock;
-	// @var EbayEnterprise_Catalog_Model_Pim_Batch
+	/** @var EbayEnterprise_Catalog_Model_Pim_Batch */
 	protected $_batch;
-	// @var EbayEnterprise_Eb2cCore_Model_Config_Registry
+	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
 	protected $_configRegistry;
-	// @var array product entity id's
+	/** @var array product entity id's */
 	protected $_entityIds = array(87, 98);
-	// @var string
+	/** @var string */
 	protected $_cutoffDate = '2014-03-27T13:56:32+00:00';
-	// @var string
+	/** @var string */
 	protected $_startTime = '2014-03-27T13:56:32+00:00';
-	// @var array stubbed config data for a feed
+	/** @var array stubbed config data for a feed */
 	protected $_feedConfig = array(self::FEED_TYPE => array('feed config data'));
 
 	public function setUp()
@@ -85,9 +85,10 @@ class EbayEnterprise_Catalog_Test_Model_ExporterTest
 	 */
 	public function testRunExportBuildFeedThrowException()
 	{
-		$invalidXml = 'Unittest Throwing exception';
-		$xmlException = new EbayEnterprise_Eb2cCore_Exception_InvalidXml($invalidXml);
-
+		/**
+		 * Exception instantiates the log helper, so replace it before
+		 * constructing the exception.
+		 */
 		$magelogHelperMock = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
 			->disableOriginalConstructor()
 			->setMethods(array('logInfo', 'logDebug', 'logCrit'))
@@ -96,6 +97,10 @@ class EbayEnterprise_Catalog_Test_Model_ExporterTest
 			->method('logCrit')
 			->with($this->isType('string'), $this->isType('array'))
 			->will($this->returnSelf());
+		$this->replaceByMock('helper', 'ebayenterprise_magelog', $magelogHelperMock);
+
+		$invalidXml = 'Unittest Throwing exception';
+		$xmlException = new EbayEnterprise_Eb2cCore_Exception_InvalidXml($invalidXml);
 
 		$this->replaceByMock('model', 'ebayenterprise_catalog/pim_batch_container', $this->_container);
 		$batches = array($this->_batch);

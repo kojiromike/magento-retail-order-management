@@ -23,8 +23,7 @@ class EbayEnterprise_Catalog_Model_Pim_Batch
 	const FT_CONFIG_KEY = 'feed_type_config';
 	const DEFAULT_STORE_KEY = 'default_store';
 
-	// @var array template so there's no need for an isset check on
-	// each key.
+	/** @var array template so there's no need for an isset check on each key. */
 	protected static $_defaultArgs = array(
 		self::COLLECTION_KEY => null,
 		self::STORES_KEY => null,
@@ -32,11 +31,11 @@ class EbayEnterprise_Catalog_Model_Pim_Batch
 		self::DEFAULT_STORE_KEY => null,
 	);
 
-	// @var Varien_Data_Collection A collection of items with a entity_id field
+	/** @var Varien_Data_Collection A collection of items with a entity_id field */
 	protected $_productIdCollection;
-	// @var array A list of Mage_Core_Model_Store models
+	/** @var array A list of Mage_Core_Model_Store models */
 	protected $_storeViews;
-	// @var array config data for a single feed
+	/** @var array config data for a single feed */
 	protected $_feedTypeConfig;
 
 	/**

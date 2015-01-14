@@ -23,9 +23,9 @@ class EbayEnterprise_Catalog_Test_Model_Pim_Collector_CombinedTest
 	protected $_stores;
 	// object to add batches to for processing.
 	protected $_batchContainer;
-	// @var EbayEnterprise_Eb2cCore_Helper_Languages
+	/** @var EbayEnterprise_Eb2cCore_Helper_Languages */
 	protected $_langHelper;
-	// @var EbayEnterprise_Catalog_Helper_Data
+	/** @var EbayEnterprise_Catalog_Helper_Data */
 	protected $_prodHelper;
 
 	public function setUp()

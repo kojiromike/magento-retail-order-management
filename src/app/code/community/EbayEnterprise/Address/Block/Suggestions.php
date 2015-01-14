@@ -34,7 +34,7 @@ class EbayEnterprise_Address_Block_Suggestions extends Mage_Core_Block_Template
 	 * @var string Path to the template value in theme
 	 */
 	protected $_template = 'ebayenterprise_address/customer/address/suggestions.phtml';
-	// @var array Mapping of messages used by this block
+	/** @var array Mapping of messages used by this block */
 	protected $_messages = array(
 		'new_label'         => 'EbayEnterprise_Address_New_Address_Label',
 		'original_label'    => 'EbayEnterprise_Address_Original_Address_Label',

@@ -16,11 +16,11 @@
 class EbayEnterprise_Catalog_Test_Helper_PimTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	// @var Mage_Catalog_Model_Product emtpy product object
+	/** @var Mage_Catalog_Model_Product empty product object */
 	public $product;
-	// @var Mage_Catalog_Model_Product configurable "style" product
+	/** @var Mage_Catalog_Model_Product configurable "style" product */
 	public $configProduct;
-	// @var Mage_Catalog_Model_Product simple product used by the configurable
+	/** @var Mage_Catalog_Model_Product simple product used by the configurable */
 	public $simpleProduct;
 	/**
 	 * Scripted resource model used to lookup parent configurable products
@@ -28,18 +28,18 @@ class EbayEnterprise_Catalog_Test_Helper_PimTest
 	 * @var Mock_Mage_Catalog_Model_Resource_Product_Type_Configurable
 	 */
 	public $configTypeResource;
-	// @var Mock_EbayEnterprise_Eb2cCore_Model_Config_Registry mock config for eb2ccore
+	/** @var Mock_EbayEnterprise_Eb2cCore_Model_Config_Registry mock config for eb2ccore */
 	public $coreConfig;
 	/**
 	 * Mock core helper scripted to return a mocked set of config data and a
 	 * @var Mock_EbayEnterprise_Eb2cCore_Helper_Data
 	 */
 	public $coreHelper;
-	// @var string mocked catalog id configuration
+	/** @var string mocked catalog id configuration */
 	public $catalogId = '11';
-	// @var string expected product style id
+	/** @var string expected product style id */
 	public $styleId = 'ABC123';
-	// @var EbayEnterprise_Dom_Document document to use in mapping callbacks
+	/** @var EbayEnterprise_Dom_Document document to use in mapping callbacks */
 	public $doc;
 
 	/**

@@ -209,7 +209,6 @@ INVALID_XML;
 		$event = new Varien_Event(array('order' => $order));
 		$observer = new Varien_Event_Observer(array('event' => $event));
 		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('buildRequest', 'sendRequest'))
 			->getMock();
 		$create->expects($this->once())
@@ -407,7 +406,6 @@ INVALID_XML;
 		$orderItem = $doc->addElement('OrderItem')
 			->documentElement;
 		$testModel = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('none'))
 			->getMock();
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($testModel, '_buildEstimatedDeliveryDate', array($orderItem, $item));
@@ -462,7 +460,6 @@ INVALID_XML;
 		$expectedStatus = 'unsubmitted';
 
 		$orderCreate = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_extractResponseStatus'))
 			->getMock();
 		$order = $this->getModelMock('sales/order', array('setStatus', 'setEb2cOrderCreateRequest'));
@@ -553,7 +550,6 @@ INVALID_XML;
 			->method('getAllVisibleItems')
 			->will($this->returnValue(array($itemModelMock)));
 		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildOrderItem'))
 			->getMock();
 		$createModelMock->expects($this->once())
@@ -578,7 +574,6 @@ INVALID_XML;
 			</root>'
 		);
 		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildShipGroup', '_buildShipping'))
 			->getMock();
 		$createModelMock->expects($this->once())
@@ -667,7 +662,6 @@ INVALID_XML;
 		}
 
 		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->getMock();
 
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($createModelMock, '_o', $order);
@@ -714,7 +708,6 @@ INVALID_XML;
 			->setMethods(array())
 			->getMock();
 		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildOrderCreateRequest', '_buildOrder', '_buildItems', '_buildShip', '_buildPayment', '_buildAdditionalOrderNodes', '_buildContext'))
 			->getMock();
 		$createModelMock->expects($this->once())
@@ -934,7 +927,6 @@ INVALID_XML;
 		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$createMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 
@@ -1036,7 +1028,6 @@ INVALID_XML;
 			)));
 
 		$createMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 
@@ -1115,7 +1106,6 @@ INVALID_XML;
 		$this->replaceByMock('singleton', 'checkout/session', $checkout);
 
 		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildSessionInfo', '_getOrderSource', '_buildCustomAttributesByLevel'))
 			->getMock();
 		$create->expects($this->any())
@@ -1164,7 +1154,6 @@ INVALID_XML;
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
 
 		$expect = $this->_coreHelper->getNewDomDocument();
-		$expect->formatOutput = true;
 		$expect->loadXML('
 			<root xmlns="http://namespace/foo">
 				<SessionInfo>
@@ -1186,9 +1175,8 @@ INVALID_XML;
 
 		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root xmlns="http://namespace/foo"/>');
-		$doc->formatOutput = true;
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildSessionInfo', array($sessionInfoData, $doc->documentElement));
-		$this->assertSame($expect->C14N(), $doc->C14N());
+		$this->assertXmlStringEqualsXmlString($expect->C14N(), $doc->C14N());
 	}
 
 	public function provideForTestXsdStringLength()
@@ -1229,7 +1217,6 @@ INVALID_XML;
 		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root/>');
 		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('none'))
 			->getMock();
 
@@ -1282,16 +1269,6 @@ INVALID_XML;
 			->method('load')
 			->will($this->returnSelf());
 
-		$logHelperMock = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
-			->disableOriginalConstructor()
-			->setMethods(array('logDebug', 'logWarn'))
-			->getMock();
-		// Test that logWarn gets called once, because my invalidOrder has no XML data:
-		$logHelperMock->expects($this->once())
-			->method('logWarn')
-			->will($this->returnSelf());
-		$this->replaceByMock('helper', 'ebayenterprise_magelog', $logHelperMock);
-
 		$dateMock = $this->getModelMockBuilder('core/date')
 			->disableOriginalConstructor()
 			->setMethods(array('date'))
@@ -1303,7 +1280,6 @@ INVALID_XML;
 		$this->replaceByMock('model', 'core/date', $dateMock);
 
 		$createMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_loadRequest', 'sendRequest', '_getNewOrders'))
 			->getMock();
 		$createMock->expects($this->once())
@@ -1349,7 +1325,6 @@ INVALID_XML;
 		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$createMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 
@@ -1454,7 +1429,6 @@ INVALID_XML;
 		$this->replaceByMock('model', 'salesrule/rule', $rule);
 
 		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildTaxDataNodes', 'getItemTaxQuotes', '_getProductTaxCode'))
 			->getMock();
 		$create->expects($this->once())

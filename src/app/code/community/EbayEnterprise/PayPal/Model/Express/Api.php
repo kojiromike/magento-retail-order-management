@@ -127,7 +127,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			$this->_logger->logException($e);
 			throw $e;
 		}
-		$this->_logApiCall('set express', $sdk->getResponseBody()->serialize(), 'response');
+		$this->_logApiCall('set express', $reply->serialize(), 'response');
 		return array('token' => $reply->getToken());
 	}
 
@@ -171,7 +171,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			$this->_logger->logException($e);
 			throw $e;
 		}
-		$this->_logApiCall('get express', $sdk->getResponseBody()->serialize(), 'response');
+		$this->_logApiCall('get express', $reply->serialize(), 'response');
 		return array(
 			'order_id'         => $reply->getOrderId(),
 			'country_id'       => $reply->getPayerCountry(),
@@ -243,7 +243,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			$this->_logger->logException($e);
 			throw $e;
 		}
-		$this->_logApiCall('do express', $sdk->getResponseBody()->serialize(), 'response');
+		$this->_logApiCall('do express', $reply->serialize(), 'response');
 		return array(
 			'order_id'       => $reply->getOrderId(),
 			'transaction_id' => $reply->getTransactionId(),
@@ -283,7 +283,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			$this->_logger->logException($e);
 			throw $e;
 		}
-		$this->_logApiCall('do authorization', $sdk->getResponseBody()->serialize(), 'response');
+		$this->_logApiCall('do authorization', $reply->serialize(), 'response');
 		return array(
 			'order_id'       => $reply->getOrderId(),
 			'payment_status' => $reply->getPaymentStatus(),
@@ -320,7 +320,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
 			$this->_logger->logException($e);
 			throw $e;
 		}
-		$this->_logApiCall('do void', $sdk->getResponseBody()->serialize(), 'response');
+		$this->_logApiCall('do void', $reply->serialize(), 'response');
 		return array(
 			'order_id'  => $reply->getOrderId(),
 			'is_voided' => $isVoided

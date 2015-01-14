@@ -29,6 +29,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			$method
 		);
 	}
+
 	/**
 	 * Mock a Varien_Event_Observer with a Varien_Event with a 'getQuote' method
 	 * that will return the given quote
@@ -49,6 +50,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			->will($this->returnValue($quote));
 		return $observer;
 	}
+
 	public function providerCheckInventoryQuantity()
 	{
 		return array(
@@ -58,6 +60,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			array(false,    false,),
 		);
 	}
+
 	/**
 	 * When a quote's items quantities have changed, inventory quantities and details should
 	 * be updated. Test provider should run through all necessary scenarios, providing the expected
@@ -165,6 +168,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 
 		$this->assertSame($observer, $observer->checkInventory($this->_mockObserverWithQuote($quote)));
 	}
+
 	/**
 	 * Data provider for the testUpdateQuantity test. Provides the expected response
 	 * from the inventory service - simulate a non-empty and an empty response.
@@ -174,6 +178,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	{
 		return array(array('<MockResponse/>'), array(''));
 	}
+
 	/**
 	 * Test updating a quote with a quantity request. Method should make the request and update the
 	 * quote via the observer's _makeRequestAndUpdate method, passing along the request object,
@@ -219,6 +224,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 
 		$this->assertSame($observer, EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_updateQuantity', array($quote)));
 	}
+
 	/**
 	 * Test updating a quote with a inventory details request. Method should make the request and update
 	 * the quote via the observer's _makeRequestAndUpdate method, passing along the request object,
@@ -264,6 +270,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 
 		$this->assertSame($observer, EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_updateDetails', array($quote)));
 	}
+
 	/**
 	 * Test the abstract method for making an inventory service request and updating
 	 * the quote with the results.
@@ -290,6 +297,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 
 		$this->assertSame($response , EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_makeRequestAndUpdate', array($request, $quote, $quoteDiff)));
 	}
+
 	/**
 	 * When a quote does not have any items that have managed stock, no allocation
 	 * request should be made.
@@ -314,44 +322,47 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			->method('allocateQuoteItems');
 		$this->replaceByMock('model', 'eb2cinventory/allocation', $allocationMock);
 		Mage::getModel('eb2cinventory/observer')->processAllocation($eventObserver);
-	}
+    }
+
 	/**
-	 * allocateQuoteItems may return an empty string or false.
+	 * AllocateQuoteItems may return an empty string or false.
 	 * Fail silently in these cases and log a warning
 	 *
 	 * @param string|bool|null $message
 	 * @dataProvider dataProvider
 	 */
-public function testNoAllocationRequestMessageLogsWarning($message)
+	public function testNoAllocationRequestMessageLogsWarning($message)
 	{
-		$mockLogger = $this->getHelperMock('ebayenterprise_magelog', array('logWarn'));
-		$this->replaceByMock('helper', 'ebayenterprise_magelog', $mockLogger);
+		// Sanity check
+		if ($message) {
+			$this->fail("Expected a falsy message. Instead, got '$message'.");
+		}
 
-		$mockQuote = $this->getModelMock('sales/quote');
-		$eventObserver = new Varien_Event_Observer(
-			array('event' => new Varien_Event(
-				array('quote' => $mockQuote)
-			))
-		);
+		// `logWarn` should be called once if `$message` is falsy.
+		$logger = $this->getHelperMock('ebayenterprise_magelog', array('logWarn'));
+		$logger->expects($this->once())
+			->method('logWarn')
+			->with($this->stringStartsWith('[%s] '));
+		$this->replaceByMock('helper', 'ebayenterprise_magelog', $logger);
+
+		// Stubs
 		$allocationMock = $this->getModelMock('eb2cinventory/allocation', array('requiresAllocation', 'allocateQuoteItems'));
-		// make requiresAllocation fail
-		$allocationMock->expects($this->once())
+		$allocationMock->expects($this->any())
 			->method('requiresAllocation')
-			->with($this->identicalTo($mockQuote))
 			->will($this->returnValue(true));
-		// ensure allocateQuoteItems is not called
 		$allocationMock->expects($this->any())
 			->method('allocateQuoteItems')
-			->with($this->identicalTo($mockQuote))
 			->will($this->returnValue($message));
 		$this->replaceByMock('model', 'eb2cinventory/allocation', $allocationMock);
-		// check that 'logWarn' is called with the appropriate message
-		$mockLogger->expects($this->once())
-			->method('logWarn')
-			->with($this->identicalTo('[%s] Allocation response message returned empty value.'));
+		$eventObserver = new Varien_Event_Observer(
+			array('event' => new Varien_Event(
+				array('quote' => $this->getModelMock('sales/quote'))
+			))
+		);
 
 		Mage::getModel('eb2cinventory/observer')->processAllocation($eventObserver);
 	}
+
 	/**
 	 * Test rolling back an allocation - should retrieve the quote the allocation
 	 * was made from from the event observer and pass it through to the
@@ -378,6 +389,7 @@ public function testNoAllocationRequestMessageLogsWarning($message)
 			)
 		);
 	}
+
 	/**
 	 * When the session contains a flag indicating the allocation should not be
 	 * rolled back, such as in the case that a quote could not be fully allocated,

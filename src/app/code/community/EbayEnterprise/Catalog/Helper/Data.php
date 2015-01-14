@@ -282,7 +282,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract
 	/**
 	 * Flattens translations into arrays keyed by language
 	 * @param array $languageSet
-	 * @return array in the form a['lang-code'] = 'localized value'; emtpy array if $languageSet is null
+	 * @return array in the form a['lang-code'] = 'localized value'; empty array if $languageSet is null
 	 */
 	public function parseTranslations(array $languageSet=null)
 	{

@@ -9,6 +9,9 @@ All notable changes to this project will be documented in this file.
 - Order Gift Certificate event
 - Log warning if API call to allocate inventory fails
 
+### Changed
+- Use version "~1.0" of eBayEnterprise/RetailOrderManagement-SDK
+
 ### Removed
 - Unnecessary default configuration values from module etc/config.xml files
 
@@ -22,9 +25,6 @@ All notable changes to this project will be documented in this file.
 - Checkout fails when multiple credit card payment methods are enabled
 - The import product collection is being saved when there are no changes
 - Cron scheduling samples for ProductExport and ProductImageExport modules
-
-### Changed
-- Use version "~1.0" of eBayEnterprise/RetailOrderManagement-SDK
 
 ## [1.4.0-alpha-10] - 2015-01-05
 ### Added

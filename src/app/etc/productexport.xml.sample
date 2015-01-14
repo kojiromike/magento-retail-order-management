@@ -139,6 +139,46 @@ Carefully review all options to ensure they match you specific implementation.
 							<xml_dest>DropShipSupplierInformation/SupplierPartNumber</xml_dest>
 							<translate>0</translate>
 						</drop_ship_supplier_part_number>
+						<!-- 	Begin InStore only attributes
+								these attributes are only available if the InStore module
+								has been installed. Leaving them in this file has no affect
+								if the InStore module is not installed -->
+						<isp_eligible>
+							<class>ebayenterprise_catalog/pim</class>
+							<type>helper</type>
+							<method>passYesNoToBool</method>
+							<xml_dest>ExtendedAttributes/IspEligible</xml_dest>
+							<translate>0</translate>
+						</isp_eligible>
+						<inventory_check_eligible>
+							<class>ebayenterprise_catalog/pim</class>
+							<type>helper</type>
+							<method>passYesNoToBool</method>
+							<xml_dest>ExtendedAttributes/InventoryCheckEligible</xml_dest>
+							<translate>0</translate>
+						</inventory_check_eligible>
+						<isp_reserve_eligible>
+							<class>ebayenterprise_catalog/pim</class>
+							<type>helper</type>
+							<method>passYesNoToBool</method>
+							<xml_dest>ExtendedAttributes/IspReserveEligible</xml_dest>
+							<translate>0</translate>
+						</isp_reserve_eligible>
+						<sts_eligible>
+							<class>ebayenterprise_catalog/pim</class>
+							<type>helper</type>
+							<method>passYesNoToBool</method>
+							<xml_dest>ExtendedAttributes/StsEligible</xml_dest>
+							<translate>0</translate>
+						</sts_eligible>
+						<sfs_eligible>
+							<class>ebayenterprise_catalog/pim</class>
+							<type>helper</type>
+							<method>passYesNoToBool</method>
+							<xml_dest>ExtendedAttributes/SfsEligible</xml_dest>
+							<translate>0</translate>
+						</sfs_eligible>
+						<!-- End InStore only attributes -->
 						<gift_message_available>
 							<class>ebayenterprise_catalog/pim</class>
 							<type>helper</type>

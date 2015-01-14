@@ -46,7 +46,7 @@
 					<root_node>ItemMaster</root_node>
 					<item_node>Item</item_node>
 					<event_type>ItemMaster</event_type>
-					<schema_location>ItemMasterV11.xsd</schema_location>
+					<schema_location>ItemMaster-1.2.0.xsd</schema_location>
 					<is_validate>true</is_validate>
 				</item_map>
 				<content_map>

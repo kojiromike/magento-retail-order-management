@@ -156,8 +156,9 @@ class EbayEnterprise_Catalog_Helper_Pim
 		return $this->createTextNode($this->createInteger($attrValue), $doc);
 	}
 	/**
-	 * the method self::createBool will be invoked in this method given attrValue if the attribute value is the literal
-	 * 'yes' the return value will be 'true' otherwise the return value will be 'false', this value will then passed to
+	 * The Yes/No selector control passes 1 or 0 to represent Yes or No respectively.
+	 * the method self::createBool will be invoked in this method given attrValue if the attribute value is the value
+	 * '1' the return value will be 'true' otherwise the return value will be 'false', this value will then passed to
 	 * the method self::createTextNode then return a DOMNode object given the attrValue and DOMDocument object
 	 * @param  string                              $attrValue
 	 * @param  string                              $attribute
@@ -298,13 +299,13 @@ class EbayEnterprise_Catalog_Helper_Pim
 		return is_numeric($value)? (float) $value : null;
 	}
 	/**
-	 * given a string if it is 'yes' return 'true' otherwise 'false'
+	 * given a string if it is '1' return 'true' otherwise 'false'
 	 * @param string $value
 	 * @return string
 	 */
 	public function createBool($value)
 	{
-		return (strtolower($value) === 'yes')? 'true' : 'false';
+		return ($value === '1')? 'true' : 'false';
 	}
 	/**
 	 * For a given product, look for a configurable product using that product.

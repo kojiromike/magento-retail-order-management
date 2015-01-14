@@ -417,7 +417,7 @@ class EbayEnterprise_Catalog_Test_Helper_PimTest
 	 */
 	public function testPassYesNoToBool()
 	{
-		$attrValue = 'yes';
+		$attrValue = '1';
 		$attrValueBool = 'true';
 		$attribute = 'enabled';
 
@@ -785,7 +785,7 @@ class EbayEnterprise_Catalog_Test_Helper_PimTest
 	 */
 	public function testCreateBool()
 	{
-		$value = 'yes';
+		$value = '1';
 		$result	= 'true';
 
 		$pimHelperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/pim')

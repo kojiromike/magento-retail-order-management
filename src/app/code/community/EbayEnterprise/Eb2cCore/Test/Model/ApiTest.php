@@ -57,10 +57,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 		$requestText = 'request';
 		$httpClient = $this->getMock('Varien_Http_Client', array('setHeaders', 'setUri', 'setConfig', 'setRawData', 'setEncType', 'request'));
 		$httpResponse = $this->getMock('Zend_Http_Response', array('getStatus', 'isSuccessful', 'getBody'), array(200, array()));
-		$helper = $this->getHelperMock('ebayenterprise_magelog/data', array('logInfo'));
 		$api = $this->getModelMock('eb2ccore/api', array('_processResponse', '_processException', 'schemaValidate'));
-
-		$this->replaceByMock('helper', 'ebayenterprise_magelog', $helper);
 
 		$request->expects($this->at(0))
 			->method('C14N')
@@ -93,10 +90,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 			->method('request')
 			->with($this->identicalTo('POST'))
 			->will($this->returnValue($httpResponse));
-
-		$helper->expects($this->any())
-			->method('logInfo')
-			->will($this->returnSelf());
 
 		$api->expects($this->once())
 			->method('_processResponse')
@@ -137,7 +130,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	}
 	/**
 	 * Test that we can handle a Zend_Http_Client_Exception
-	 * verify the response is logged even when an exception is thrown.
 	 *
 	 * @dataProvider provideApiCall
 	 */
@@ -147,7 +139,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 		$exception = new Zend_Http_Client_Exception;
 		$api = $this->getModelMock('eb2ccore/api', array('_setupClient', '_processResponse', '_processException'));
 		$httpClient = $this->getMock('Varien_Http_Client', array('request'));
-		$log = $this->getHelperMock('ebayenterprise_magelog/data');
 
 		$httpClient->expects($this->once())
 			->method('request')
@@ -161,7 +152,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 			->with($this->identicalTo($exception), $this->identicalTo($apiUri))
 			->will($this->returnValue($responseBody));
 
-		$this->replaceByMock('helper', 'ebayenterprise_magelog', $log);
 		$this->assertSame($responseBody, $api->request($request, $xsdName, $apiUri, 0, self::ADAPTER_CLASS_NAME, $httpClient));
 	}
 	/**
@@ -186,8 +176,9 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 			->will($this->returnValueMap($mockConfig));
 		$this->replaceByMock('model', 'eb2ccore/config_registry', $mock);
 	}
+
 	/**
-	 * log the response and call the configured method.
+	 * Call the configured method.
 	 */
 	public function testProcessResponse()
 	{
@@ -195,13 +186,11 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 		$handlerKey = 'success';
 		$uri = 'https://some.url/to/service';
 		$responseBody = 'this is some response text';
-		$logMethod = 'logDebug';
-		$handlerConfig = array('logger' => $logMethod, 'callback' => array('method' => 'foo'));
+		$handlerConfig = array('callback' => array('method' => 'foo'));
 		$response = $this->getMock('Zend_Http_Response', array('getStatus', 'asString'), array(200, array()));
 		$callbackConfigWithArgs = array('method' => 'foo', 'parameters' => array($response));
 		$helper = $this->getHelperMock('eb2ccore/data', array('invokeCallback'));
 		$api = $this->getModelMock('eb2ccore/api', array('_getHandlerConfig', '_getHandlerKey'));
-		$log = $this->getHelperMock('ebayenterprise_magelog/data', array('logInfo'));
 
 		$api->expects($this->once())
 			->method('_getHandlerKey')
@@ -223,29 +212,25 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 			->will($this->returnValue($responseBody));
 
 		$this->replaceByMock('helper', 'eb2ccore', $helper);
-		$this->replaceByMock('helper', 'ebayenterprise_magelog', $log);
 		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($api, '_processResponse', array($response, $uri));
 		$this->assertSame($responseBody, $result);
 		$this->assertSame($statusCode, $api->getStatus());
 	}
 
 	/**
-	 * log the response and call the configured method.
+	 * Call the configured method.
 	 */
 	public function testProcessException()
 	{
 		$handlerKey = 'no_response';
 		$uri = 'https://some.url/to/service';
-		$logMethod = 'logWarn';
-		$handlerConfig = array('logger' => $logMethod, 'callback' => array('method' => 'foo'));
+		$handlerConfig = array('callback' => array('method' => 'foo'));
 		$callbackConfig = array('method' => 'foo');
 		$exception = new Zend_Http_Client_Exception('some error message');
 		$helper = $this->getHelperMock('eb2ccore/data', array('invokeCallback'));
-		$logHelper = $this->getHelperMock('ebayenterprise_magelog/data', array($logMethod));
 		$zendClient = $this->getMock('Zend_Http_Client', array('getUri'));
 		$api = $this->getModelMock('eb2ccore/api', array('_getHandlerConfig', '_getHandlerKey'));
 
-		$this->replaceByMock('helper', 'ebayenterprise_magelog', $logHelper);
 		$this->replaceByMock('helper', 'eb2ccore', $helper);
 
 		$api->expects($this->once())->method('_getHandlerKey')->will($this->returnValue($handlerKey));
@@ -255,10 +240,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 			->will($this->returnValue($handlerConfig));
 
 		$zendClient->expects($this->any())->method('getUri')->will($this->returnValue($uri));
-
-		$logHelper->expects($this->once())
-			->method($logMethod)
-			->will($this->returnSelf());
 
 		$helper->expects($this->once())
 			->method('invokeCallback')

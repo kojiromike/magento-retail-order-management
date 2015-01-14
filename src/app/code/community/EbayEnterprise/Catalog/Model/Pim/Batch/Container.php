@@ -18,7 +18,7 @@
  */
 class EbayEnterprise_Catalog_Model_Pim_Batch_Container
 {
-	// @var array list of batches
+	/** @var array list of batches */
 	protected $_batches = array();
 	/**
 	 * Create a batch and add to the list.

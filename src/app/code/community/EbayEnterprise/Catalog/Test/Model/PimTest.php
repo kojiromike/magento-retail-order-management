@@ -13,7 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
 class EbayEnterprise_Catalog_Test_Model_PimTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
@@ -25,44 +24,45 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 	const KEY_IS_VALIDATE = EbayEnterprise_Catalog_Model_Pim::KEY_IS_VALIDATE;
 	const KEY_ITEM_NODE = EbayEnterprise_Catalog_Model_Pim::KEY_ITEM_NODE;
 	const KEY_MAPPINGS = EbayEnterprise_Catalog_Model_Pim::KEY_MAPPINGS;
-	// @var EbayEnterprise_Eb2cCore_Helper_Data
+
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
 	protected $_realCoreHelper;
-	// @var EbayEnterprise_Dom_Document
+	/** @var EbayEnterprise_Dom_Document */
 	protected $_doc;
-	// @var EbayEnterprise_Catalog_Pim_Batch
+	/** @var EbayEnterprise_Catalog_Pim_Batch */
 	protected $_batch;
-	// @var EbayEnterprise_Catalog_Pim_Batch
+	/** @var EbayEnterprise_Catalog_Pim_Batch */
 	protected $_emptyBatch;
 
 	// mocked objects and stubs
-	// @var EbayEnterprise_Catalog_Model_Feed
+	/** @var EbayEnterprise_Catalog_Model_Feed */
 	protected $_coreFeed;
-	// @var EbayEnterprise_Eb2cCore_Helper_Data
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
 	protected $_coreHelper;
-	// @var EbayEnterprise_Catalog_Helper_Data
+	/** @var EbayEnterprise_Catalog_Helper_Data */
 	protected $_prodHelper;
-	// @var EbayEnterprise_Dom_Document
+	/** @var EbayEnterprise_Dom_Document */
 	protected $_docMock;
-	// @var array feed configuration
+	/** @var array feed configuration */
 	protected $_feedTypeConfig;
-	// @var EbayEnterprise_Catalog_Model_Pim_Product_Collection
+	/** @var EbayEnterprise_Catalog_Model_Pim_Product_Collection */
 	protected $_pimProductCollection;
-	// @var Varien_Data_Collection collection of objects with an entity id field
+	/** @var Varien_Data_Collection collection of objects with an entity id field */
 	protected $_productIdCollection;
-	// @var Mage_Core_Model_Store
+	/** @var Mage_Core_Model_Store */
 	protected $_store;
-	// @var Mage_Core_Model_Store
+	/** @var Mage_Core_Model_Store */
 	protected $_store2;
-	// @var Mage_Core_Model_Store
+	/** @var Mage_Core_Model_Store */
 	protected $_defaultStore;
-	// @var array store list
+	/** @var array store list */
 	protected $_storesArray = array();
-	// @var array list of product attribute codes
+	/** @var array list of product attribute codes */
 	protected $_attributes = array('_gsi_client_id', 'sku', 'name');
 	protected $_translatableAttributes = array('description', 'keywords');
-	// @var string expected file path
+	/** @var string expected file path */
 	protected $_outboundPath = 'Path/To/Outbound/Dir';
-	// @var string expected file name
+	/** @var string expected file name */
 	protected $_tmpFileName = 'MageMaster_File_Name.xml';
 
 	public function setUp()
@@ -186,7 +186,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 			->will($this->returnValue($this->_outboundPath));
 
 		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array('_createFeedDataSet', '_createDomFromFeedData'))
 			->getMock();
 		$pim->expects($this->any())->method('_createFeedDataSet')
@@ -223,7 +222,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 			->will($this->returnValue(0));
 
 		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array('_createFeedDataSet', '_createDomFromFeedData', '_getFeedFilePath'))
 			->getMock();
 		$pim->expects($this->once())
@@ -247,7 +245,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 	{
 		$pimProductCollection = $this->getModelMock('ebayenterprise_catalog/pim_product_collection');
 		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array('_createProductCollectionForStore', '_processProductCollection'))
 			->getMock();
 
@@ -282,7 +279,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 		$attributeList = array('_gsi_client_id', 'sku');
 
 		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array('_getFeedAttributes', '_getFeedConfig'))
 			->getMock();
 		$pim->expects($this->once())
@@ -399,7 +395,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
 
 		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array('_getFeedConfig'))
 			->getMock();
 		$pim->expects($this->once())
@@ -480,7 +475,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 			->will($this->returnValue($pimAttributes));
 
 		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array('_appendAttributeValue'))
 			->getMock();
 		$pim->expects($this->once())
@@ -551,7 +545,9 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 			->method('addAttributes')
 			->with($this->identicalTo(array('xml:lang' => $languageCode)));
 
-		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')->disableOriginalConstructor()->setMethods(array('_clumpWithSimilar'))->getMock();
+		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
+			->setMethods(array('_clumpWithSimilar'))
+			->getMock();
 		$pim->expects($this->once())
 			->method('_clumpWithSimilar')
 			->will($this->returnValue($attributeNode));
@@ -616,7 +612,9 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 		$attributeNode->expects($this->never())
 			->method('addAttributes');
 
-		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')->disableOriginalConstructor()->setMethods(array('_clumpWithSimilar'))->getMock();
+		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
+			->setMethods(array('_clumpWithSimilar'))
+			->getMock();
 		$pim->expects($this->once())
 			->method('_clumpWithSimilar')
 			->will($this->returnValue($attributeNode));
@@ -659,7 +657,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 		$attributeMock->value = $domAttribute;
 
 		$pimModelMock = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 
@@ -673,7 +670,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 	public function testValidateDocument()
 	{
 		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array('_getFeedConfig'))
 			->getMock();
 		$pim->expects($this->once())
@@ -709,7 +705,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 			->disableOriginalConstructor()
 			->getMock();
 		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 
@@ -737,7 +732,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 			->setMethods(array('addAttributeToSelect', 'addFieldToFilter', 'addExpressionAttributeToSelect', 'setStore'))
 			->getMock();
 		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array('none'))
 			->getMock();
 
@@ -785,7 +779,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 		$storeId = 0;
 		$attributes = array_merge($this->_attributes, $this->_translatableAttributes);
 		$pimModelMock = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array())
 			->getMock();
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($pimModelMock, '_batch', $this->_batch);
@@ -802,7 +795,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 	{
 		$storeId = 2;
 		$pimModelMock = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array())
 			->getMock();
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($pimModelMock, '_batch', $this->_batch);
@@ -819,7 +811,6 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 	{
 		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		$pim = $this->getModelMockBuilder('ebayenterprise_catalog/pim')
-			->disableOriginalConstructor()
 			->setMethods(array('none'))
 			->getMock();
 

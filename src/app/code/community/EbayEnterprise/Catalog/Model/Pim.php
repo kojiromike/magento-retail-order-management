@@ -45,7 +45,7 @@ class EbayEnterprise_Catalog_Model_Pim
 	 * @var EbayEnterprise_Catalog_Model_Pim_Product_Collection
 	 */
 	protected $_pimProducts;
-	// @var EbayEnterprise_Catalog_Model_Pim_Batch
+	/** @var EbayEnterprise_Catalog_Model_Pim_Batch */
 	protected $_batch;
 	/**
 	 * Set up the doc, batch and core feed

@@ -176,7 +176,7 @@ class EbayEnterprise_Address_Model_Validator
 	protected function _isAddressBeingSaved()
 	{
 		$request = Mage::app()->getRequest();
-		// get billing post data or shipping post data or emtpy array
+		// get billing post data or shipping post data or empty array
 		$data = $request->getPost('billing') ?: $request->getPost('shipping', array());
 		// was the "save_in_address_book" checkbox submitted
 		$postFlag = isset($data['save_in_address_book']) && $data['save_in_address_book'];

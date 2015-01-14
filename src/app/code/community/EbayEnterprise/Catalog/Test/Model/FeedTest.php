@@ -289,11 +289,19 @@ class EbayEnterprise_Catalog_Test_Model_FeedTest
 	}
 	/**
 	 * When feeds fail to process, the cleaner should not be triggered, the error
-	 * message should be logged as a warning and the method should report back
+	 * message should be logged and the method should report back
 	 * that 0 files were processed.
 	 */
 	public function testProcessFeedsFailure()
 	{
+		$logger = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
+			->setMethods(array('logErr'))
+			->getMock();
+		$logger->expects($this->once())
+			->method('logErr')
+			->will($this->returnSelf());
+		$this->replaceByMock('helper', 'ebayenterprise_magelog', $logger);
+
 		$cleanerModelMock = $this->getModelMockBuilder('ebayenterprise_catalog/feed_cleaner')
 			->disableOriginalConstructor()
 			->setMethods(array('cleanAllProducts'))
@@ -302,11 +310,6 @@ class EbayEnterprise_Catalog_Test_Model_FeedTest
 		$cleanerModelMock->expects($this->never())
 			->method('cleanAllProducts');
 		$this->replaceByMock('model', 'ebayenterprise_catalog/feed_cleaner', $cleanerModelMock);
-		$logger = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
-			->setMethods(array('logWarn'))
-			->getMock();
-		$this->replaceByMock('helper', 'ebayenterprise_magelog', $logger);
-
 		$prodFeed = $this->getModelMockBuilder('ebayenterprise_catalog/feed')
 			->setMethods(array('_getFilesToProcess', 'processFile'))
 			->getMock();
@@ -322,10 +325,6 @@ class EbayEnterprise_Catalog_Test_Model_FeedTest
 			->method('processFile')
 			->with($this->identicalTo($filesToProcess[0]))
 			->will($this->throwException(new Mage_Core_Exception()));
-		$logger->expects($this->once())
-			->method('logWarn')
-			->will($this->returnSelf());
-
 		$this->assertSame(0, $prodFeed->processFeeds());
 	}
 }

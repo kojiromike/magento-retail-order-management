@@ -771,7 +771,7 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
 	public function testMarkProductCleanNoUnresolvedLinkData()
 	{
 		$product = $this->getModelMockBuilder('catalog/product')
-			->setMethods(array('getUnresolvedProductLinks', 'setIsClean', 'getSku'))
+			->setMethods(array('getUnresolvedProductLinks', 'setIsClean'))
 			->getMock();
 		$product->expects($this->once())
 			->method('getUnresolvedProductLinks')
@@ -782,9 +782,6 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
 			->method('setIsClean')
 			->with($this->equalTo(false))
 			->will($this->returnSelf());
-		$product->expects($this->once())
-			->method('getSku')
-			->will($this->returnValue('1234'));
 
 		$cleanerObject = Mage::getModel('ebayenterprise_catalog/feed_cleaner', array('products' => $this->_getProductCollectionStub()));
 

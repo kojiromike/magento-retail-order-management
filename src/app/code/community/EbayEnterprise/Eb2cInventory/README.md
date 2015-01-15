@@ -36,6 +36,8 @@ The Inventory Service provides:
 
 When using Magento's persistent cart, the amount of time to cache the validated inventory quantity of a cart session is configurable at **System > Configuration > eBay Enterprise > Retail Order Management > Web Services > Inventory Expiration**.
 
+The Magento Retail Order Management Extension will check the inventory service for all products that are set to Manage Stock and do not allow backorders. If a product is set to not Manage Stock or allows backorders, then the inventory service is not checked for inventory quantity.
+
 ## Dependencies
 
 ### Magento Modules

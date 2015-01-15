@@ -79,6 +79,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Event
 	 * @param  Mage_Sales_Model_Order $order
 	 * @param  string                 $eventName
 	 * @return self
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function attemptCancelOrder(Mage_Sales_Model_Order $order, $eventName)
 	{
@@ -97,6 +98,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Event
 	 * @param  Mage_Sales_Model_Order $order
 	 * @param  string                 $eventName
 	 * @return self
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
 	public function attemptHoldOrder(Mage_Sales_Model_Order $order, $eventName)
 	{

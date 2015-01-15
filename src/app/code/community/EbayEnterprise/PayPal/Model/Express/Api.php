@@ -421,10 +421,10 @@ class EbayEnterprise_Paypal_Model_Express_Api
 				$lineItems->offsetSet($lineItem, null);
 			}
 		}
-		$lineItems->calculateLineItemsTotal();
-		$lineItems->setShippingTotal($this->_getTotal('shipping', $quote));
-		$lineItems->setTaxTotal($this->_getTotal('tax', $quote));
-		$lineItems->setCurrencyCode($quote->getQuoteCurrencyCode());
+		$container->calculateLineItemsTotal();
+		$container->setShippingTotal($this->_getTotal('shipping', $quote));
+		$container->setTaxTotal($this->_getTotal('tax', $quote));
+		$container->setCurrencyCode($quote->getQuoteCurrencyCode());
 	}
 
 	/**

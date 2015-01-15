@@ -28,6 +28,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Quote_ItemTest extends EcomDev_PHPUnit
 			array(
 				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
 					'backorders' => Mage_CatalogInventory_Model_Stock::BACKORDERS_NO,
+					'manage_stock' => 1,
 				)),
 			)
 		);
@@ -36,6 +37,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Quote_ItemTest extends EcomDev_PHPUnit
 			array(
 				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
 					'backorders'   => Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY,
+					'manage_stock' => '1',
 				)),
 			)
 		);
@@ -44,7 +46,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Quote_ItemTest extends EcomDev_PHPUnit
 			array(
 				'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
 					'backorders'   => Mage_CatalogInventory_Model_Stock::BACKORDERS_NO,
-					'manage_stock' => false,
+					'manage_stock' => '0',
 				)),
 			)
 		);

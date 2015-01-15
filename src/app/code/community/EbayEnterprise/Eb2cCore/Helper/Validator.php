@@ -113,19 +113,38 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		return $this;
 	}
 	/**
-	 * Create an address validation request message using a hardcoded address.
+	 * Create an address validation request message using hardcoded address and MaxSuggestions.
 	 * @return EbayEnterprise_Dom_Document
 	 */
 	protected function _buildTestRequest()
 	{
-		$address = Mage::getModel('customer/address', array(
+		$coreHelper =  Mage::helper('eb2ccore');
+		$testAddress = Mage::getModel('customer/address', array(
 			'street' => array('935 1st Ave'), 'city' => 'King of Prussia', 'region_id' => '51',
 			'country_id' => 'US', 'postcode' => '19406'
 		));
-		$request = Mage::getModel('ebayenterprise_address/validation_request', array('address' => $address));
-		return $request->getMessage();
-	}
 
+		$dom = $coreHelper->getNewDomDocument();
+		$dom->addElement(EbayEnterprise_Address_Model_Validation_Request::DOM_ROOT_NODE_NAME, null,
+			$coreHelper->getConfigModel()->apiNamespace);
+		$nsUri = $dom->documentElement->namespaceURI;
+
+		$header = $dom->createDocumentFragment();
+		$header->appendChild(
+			$dom->createElement('Header',
+				$dom->createElement('MaxAddressSuggestions', 3, $nsUri ), $nsUri
+			)
+		);
+		$address = $dom->createDocumentFragment();
+		$address->appendChild(
+			$dom->createElement('Address',
+				Mage::helper('ebayenterprise_address')->addressToPhysicalAddressXml($testAddress, $dom, $nsUri), $nsUri
+			)
+		);
+		$dom->documentElement->appendChild($header);
+		$dom->documentElement->appendChild($address);
+		return $dom;
+	}
 	/**
 	 * Validate the store id, API key and hostname settings, ensuring that
 	 * none are empty.

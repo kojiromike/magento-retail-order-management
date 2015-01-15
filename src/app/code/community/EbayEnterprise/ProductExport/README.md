@@ -169,8 +169,8 @@ Some values in the _Magento Attribute Code_ column are not truly product attribu
 			<td>No</td>
 		</tr>
 		<tr>
-			<td>See the <a href="#language">Language</a> section below for more information on how the extension handles translations.</td>
 			<td>sales_class</td>
+			<td>ExtendedAttributes/SalesClass</td>
 			<td>See the <a href=#product-attribute-requirements>Product Attribute Requirements</td> section below for more information.</td>
 			<td>No</td>
 		</tr>

@@ -224,7 +224,11 @@ class EbayEnterprise_Catalog_Test_Model_Feed_FileTest
 			->getMock();
 		EcomDev_Utils_Reflection::setRestrictedPropertyValues(
 			$file,
-			array('_helper' => $catalogHelperMock, '_coreHelper' => $coreHelperMock)
+			array(
+				'_helper' => $catalogHelperMock,
+				'_coreHelper' => $coreHelperMock,
+				'_logger' => Mage::helper('ebayenterprise_magelog')
+			)
 		);
 		$this->assertSame($skus, EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$file, '_getSkusToUpdate', array($xpath, $cfgData)

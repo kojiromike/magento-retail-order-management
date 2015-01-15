@@ -62,9 +62,11 @@ class EbayEnterprise_Catalog_Test_Helper_Map_StockTest extends EbayEnterprise_Eb
 		$productId = 5;
 
 		$data = array(
-			'backorders' => 1,
 			'product_id' => $productId,
 			'stock_id'   => Mage_CatalogInventory_Model_Stock::DEFAULT_STOCK_ID,
+			'backorders' => 1,
+			'use_config_backorders' => false,
+			'is_in_stock' => true,
 		);
 
 		$productMock = $this->getModelMockBuilder('catalog/product')

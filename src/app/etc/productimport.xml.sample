@@ -55,9 +55,9 @@ Carefully review all options to ensure they match you specific implementation.
 					BACKORDERS_YES_NOTIFY   = 2; // Do not send to ROM Inventory API.
 				-->
 				<stock_map>
-					<advanceOrderOpen>1</advanceOrderOpen>
-					<advanceOrderLimited>1</advanceOrderLimited>
-					<backOrderLimited>2</backOrderLimited>
+					<advanceOrderOpen>2</advanceOrderOpen>
+					<advanceOrderLimited>0</advanceOrderLimited>
+					<backOrderLimited>0</backOrderLimited>
 				</stock_map>
 			</feed>
 			<!--

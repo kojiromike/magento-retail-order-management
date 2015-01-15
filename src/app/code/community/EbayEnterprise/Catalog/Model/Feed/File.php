@@ -110,14 +110,18 @@ class EbayEnterprise_Catalog_Model_Feed_File
 		$cfgData = $config->getImportConfigData();
 		$skusToReport = array();
 		$this->_removeItemsFromWebsites($cfgData, $items);
-		$skusToReport = array_merge($skusToReport, $this->_importedSkus);
 
 		$siteFilters = $this->_helper->loadWebsiteFilters();
+		$processedWebsites = array();
 		foreach($siteFilters as $siteFilter) {
 			$this->_importedSkus = array();
-			$this->_processWebsite($siteFilter, $cfgData, $items)
-				->_processTranslations($siteFilter, $cfgData, $items);
-			$skusToReport = array_merge($skusToReport, $this->_importedSkus);
+			if (!in_array($siteFilter['mage_website_id'], $processedWebsites)) {
+				// prevent treating each store view as a website
+				$this->_processWebsite($siteFilter, $cfgData, $items);
+				$processedWebsites[] = $siteFilter['mage_website_id'];
+			}
+			$this->_processTranslations($siteFilter, $cfgData, $items);
+			$skusToReport = array_unique(array_merge($skusToReport, $this->_importedSkus));
 		}
 
 		if (count($skusToReport) && $cfgData['feed_type'] === 'product') {
@@ -245,17 +249,14 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	protected function _getSkusToUpdate(DOMXPath $xpath, array $cfgData)
 	{
 		$skusToUpdate = array();
-		if (empty($this->_importedSkus)) {
-			$updateSkuNodes = $xpath->query($cfgData['all_skus_xpath']);
-			$catalogId = $this->_coreHelper->getConfigModel()->catalogId;
-			foreach ($updateSkuNodes as $skuNode) {
-				$skusToUpdate[] = $this->_helper->normalizeSku(
-					trim($skuNode->nodeValue),
-					$catalogId
-				);
-			}
-			// keep track of skus we've processed for the website
-			$this->_importedSkus = array_unique(array_merge($this->_importedSkus, $skusToUpdate));
+		$updateSkuNodes = $xpath->query($cfgData['all_skus_xpath']);
+		$this->_logger->logInfo('[%s] Number of SKUs eligible: (%s)', array(__CLASS__, $updateSkuNodes->length));
+		$catalogId = $this->_coreHelper->getConfigModel()->catalogId;
+		foreach ($updateSkuNodes as $skuNode) {
+			$skusToUpdate[] = $this->_helper->normalizeSku(
+				trim($skuNode->nodeValue),
+				$catalogId
+			);
 		}
 		return $skusToUpdate;
 	}
@@ -312,6 +313,8 @@ class EbayEnterprise_Catalog_Model_Feed_File
 				$this->_updateItem($feedXPath, $itemNode, $collection, $storeId, $cfgData, $items);
 			}
 			$this->_logger->logInfo('[%s] saving collection of %d %s', array(__CLASS__, $collection->getSize(), $cfgData['feed_type']));
+			// keep track of skus we've processed for the website
+			$this->_importedSkus = array_unique(array_merge($this->_importedSkus, $skusToUpdate));
 			$collection->save();
 		}
 		return $this;

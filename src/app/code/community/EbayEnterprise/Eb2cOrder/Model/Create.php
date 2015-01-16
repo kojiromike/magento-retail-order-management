@@ -79,29 +79,56 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 * @var array, Saves an array of item_id's for use in shipping node
 	 */
 	protected $_orderItemRef;
-	/**
-	 * @var EbayEnterprise_Eb2cCore_Model_Config_Registry, config Object
-	 */
+
+	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry, config Object */
 	protected $_config;
-	/**
-	 * @var array, hold magento payment map to eb2c
-	 */
+
+	/** @var array Magento payment map to eb2c */
 	protected $_ebcPaymentMethodMap = array(
-			'Pbridge_eb2cpayment_cc' => 'CreditCard',
-			'Paypal_express' => 'PayPal',
-			'PrepaidCreditCard' => 'PrepaidCreditCard', // Not use
-			'StoredValueCard' => 'StoredValueCard', // Not use
-			'Points' => 'Points', // Not use
-			'PrepaidCashOnDelivery' => 'PrepaidCashOnDelivery', // Not use
-			'Free' => 'StoredValueCard',
-		);
+		'Pbridge_eb2cpayment_cc' => 'CreditCard',
+		'Paypal_express' => 'PayPal',
+		'Free' => 'StoredValueCard',
+	);
+
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+
+	/** @var EbayEnterprise_Eb2cOrder_Helper_Data */
+	protected $_orderHelper;
+
+	/** @var EbayEnterprise_Eb2cPayment_Helper_Data */
+	protected $_paymentHelper;
+
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
+	protected $_coreHelper;
+
+	/** @var Mage_Core_Helper_Data */
+	protected $_mageHelper;
+
+	/** @var Mage_Admin_Model_Session */
+	protected $_adminSession;
+
+	/** @var Mage_Checkout_Model_Session */
+	protected $_checkoutSession;
+
+	/** @var EbayEnterprise_Eb2cPayment_Helper_Data */
+	protected $_paymentConfig;
+
+	/**
+	 * Initialize class properties
+	 */
 	public function __construct()
 	{
-		$this->_config = Mage::helper('eb2corder')->getConfig();
-		// initiaze these class properties in the constructor.
-		$this->_o = null;
+		$this->_orderHelper = Mage::helper('eb2corder');
+		$this->_config = $this->_orderHelper->getConfig();
+		$this->_coreHelper = Mage::helper('eb2ccore');
 		$this->_domRequest = null;
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_mageHelper = Mage::helper('core');
+		$this->_o = null;
 		$this->_orderItemRef = array();
+		$this->_paymentHelper = Mage::helper('eb2cpayment');
+		$this->_paymentConfig = $this->_paymentHelper->getConfigModel();
 	}
 	/**
 	 * The event observer version of transmit order
@@ -119,7 +146,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	public function sendRequest()
 	{
-		$uri = Mage::helper('eb2corder')->getOperationUri($this->_config->apiCreateOperation);
+		$uri = $this->_orderHelper->getOperationUri($this->_config->apiCreateOperation);
 		$response = '';
 		if ($this->_domRequest instanceof DOMDocument) {
 			$response = Mage::getModel('eb2ccore/api')
@@ -143,7 +170,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _extractResponseState($response)
 	{
 		if (trim($response) !== '') {
-			$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+			$doc = $this->_coreHelper->getNewDomDocument();
 			$doc->loadXML($response);
 			$statusEle = $doc->getElementsByTagName('ResponseStatus')->item(0);
 			$status = $statusEle ? strtoupper(trim($statusEle->nodeValue)) : '';
@@ -151,7 +178,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 				return Mage_Sales_Model_Order::STATE_PROCESSING;
 			} elseif ($status === static::RESPONSE_FAILURE_STATUS) {
 				throw new EbayEnterprise_Eb2cOrder_Exception_Order_Create_Fail(
-					Mage::helper('eb2corder')->__(static::ORDER_CREATE_FAIL_MESSAGE)
+					$this->_orderHelper->__(static::ORDER_CREATE_FAIL_MESSAGE)
 				);
 			}
 		}
@@ -170,10 +197,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		$state = $this->_extractResponseState($response);
 		$this->_o->setState($state, true);
-		Mage::helper('ebayenterprise_magelog')->logDebug(
-			'[%s] setting order (%s) state to %s',
-			array(__METHOD__, $this->_o->getIncrementId(), $state)
-		);
+		$this->_logger->logDebug('[%s] setting order (%s) state to %s', array(__METHOD__, $this->_o->getIncrementId(), $state));
 		Mage::dispatchEvent('eb2c_order_create_succeeded', array('order' => $this->_o));
 		$this->_o->setEb2cOrderCreateRequest($this->_domRequest->saveXML());
 		return $this;
@@ -199,7 +223,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			->addElement($this->_config->apiCreateDomRootNodeName, null, $this->_config->apiXmlNs)
 			->firstChild;
 		$orderCreateRequest->setAttribute('orderType', $this->_config->apiOrderType);
-		$orderCreateRequest->setAttribute('requestId', Mage::helper('eb2ccore')->generateRequestId('OCR-'));
+		$orderCreateRequest->setAttribute('requestId', $this->_coreHelper->generateRequestId('OCR-'));
 		return $orderCreateRequest;
 	}
 	/**
@@ -286,6 +310,20 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		}
 		return $this;
 	}
+
+	/**
+	 * Get the admin session singleton
+	 *
+	 * @return Mage_Admin_Model_Session
+	 */
+	protected function _getAdminSession()
+	{
+		if (!$this->_adminSession) {
+			$this->_adminSession = Mage::getSingleton('admin/session');
+		}
+		return $this->_adminSession;
+	}
+
 	/**
 	 * Build DOM additonal node
 	 * @param EbayEnterprise_Dom_Element $order
@@ -297,7 +335,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$order->createChild('TaxHeader')->createChild('Error', ($this->_taxHeaderError == true) ? 'true':'false');
 		$order->createChild('Locale', 'en_US');
 		if (Mage::app()->getStore()->isAdmin()) {
-			$adminSession = Mage::getSingleton('admin/session');
+			$adminSession = $this->_getAdminSession();
 			$adminUser = $adminSession->getUser();
 			if ($adminUser && $adminUser->getId()) {
 				$csr = $adminSession->getCustomerServiceRep() ?: Mage::getModel('eb2ccsr/representative');
@@ -314,7 +352,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 			$orderSourceNode = $order->createChild('OrderSource', $orderSource['source']);
 			$orderSourceNode->setAttribute('type', $orderSource['type']);
 		}
-		$order->createChild('OrderHistoryUrl', Mage::helper('eb2corder')->getOrderHistoryUrl($this->_o));
+		$order->createChild('OrderHistoryUrl', $this->_orderHelper->getOrderHistoryUrl($this->_o));
 		$order->createChild('OrderTotal', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
 		return $this;
 	}
@@ -328,7 +366,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	public function buildRequest(Mage_Sales_Model_Order $orderObject)
 	{
 		$this->_o = $orderObject;
-		$this->_domRequest = Mage::helper('eb2ccore')->getNewDomDocument();
+		$this->_domRequest = $this->_coreHelper->getNewDomDocument();
 		$orderCreateRequest = $this->_buildOrderCreateRequest();
 		$order = $this->_buildOrder($orderCreateRequest);
 		$this->_buildItems($order)
@@ -345,9 +383,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildCustomer(DomElement $customer)
 	{
-		$cfg = Mage::getModel('eb2ccore/config_registry')
-			->addConfigModel(Mage::getSingleton('eb2ccore/config'));
-		$customer->setAttribute('customerId', sprintf('%s%s', $cfg->clientCustomerIdPrefix, $this->_o->getCustomerId()));
+		$customer->setAttribute('customerId', sprintf('%s%s', $this->_config->clientCustomerIdPrefix, $this->_o->getCustomerId()));
 		$name = $customer->createChild('Name');
 		$name->createChild('Honorific', $this->_o->getCustomerPrefix());
 		$name->createChild('LastName', trim($this->_o->getCustomerLastname() . ' ' . $this->_o->getCustomerSuffix()));
@@ -425,7 +461,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		// End Duty
 		$orderItem->createChild(
 			'ShippingMethod',
-			Mage::helper('eb2ccore')->lookupShipMethod($order->getShippingMethod()),
+			$this->_coreHelper->lookupShipMethod($order->getShippingMethod()),
 			array('displayText' => $order->getShippingDescription())
 		);
 		$this->_buildEstimatedDeliveryDate($orderItem, $item);
@@ -484,7 +520,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		return Mage::getResourceModel('catalog/product')->getAttributeRawValue(
 			$productId,
 			$attribute,
-			Mage::helper('core')->getStoreId()
+			$this->_mageHelper->getStoreId()
 		);
 	}
 
@@ -648,17 +684,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$addressElement->createChild('CountryCode', $address->getCountryId());
 		$addressElement->createChild('PostalCode', $address->getPostcode());
 	}
-	/**
-	 * Populate the Payment Element of the request
-	 * @param DomElement payment
-	 * @return self
-	 */
-	protected function _buildPayment($payment)
-	{
-		$payment->createChild('BillingAddress')->setAttribute('ref', $this->_config->apiShipGroupBillingId);
-		$this->_buildPayments($payment->createChild('Payments'));
-		return $this;
-	}
+
 	/**
 	 * Get the paypal-specific value for the payment account unique id field.
 	 * NOTE: The parameters are purposely left unused to reduce the chances of
@@ -672,21 +698,37 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		return 'PAYPAL';
 	}
+
 	/**
-	 * Creates the Tender entries within the Payments Element
-	 * @param DomElement payments node into which payment info is placed
+	 * Populate the Payment Element of the request
+	 *
+	 * @param DomElement payment
 	 * @return self
 	 */
-	protected function _buildPayments(DomElement $payments)
+	protected function _buildPayment(DomElement $payment)
 	{
-		if (Mage::helper('eb2cpayment')->getConfigModel()->isPaymentEnabled) {
+		$payment->createChild('BillingAddress')->setAttribute('ref', $this->_config->apiShipGroupBillingId);
+		return $this->_buildPayments($payment);
+	}
+
+	/**
+	 * Creates the Tender entries within the Payments Element
+	 * @param DomElement payment node into which payment info is placed
+	 * @return self
+	 */
+	protected function _buildPayments(DomElement $paymentNode)
+	{
+		$payments = $paymentNode->createChild('Payments');
+		$incrementId = $this->_o->getIncrementId();
+		if ($this->_paymentConfig->isPaymentEnabled) {
 			foreach ($this->_o->getAllPayments() as $payment) {
 				$payMethod = $payment->getMethod();
 				$payMethodNode = $this->_ebcPaymentMethodMap[ucfirst($payMethod)];
-				if ($payMethodNode === 'CreditCard') {
+				switch ($payMethodNode) {
+				case 'CreditCard':
 					$thisPayment = $payments->createChild($payMethodNode);
 					$paymentContext = $thisPayment->createChild('PaymentContext');
-					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
+					$paymentContext->createChild('PaymentSessionId', $incrementId);
 					$paymentContext->createChild('TenderType', $payment->getAdditionalInformation('tender_code'));
 					$paymentContext->createChild('PaymentAccountUniqueId', $payment->getAdditionalInformation('gateway_transaction_id'))
 						->setAttribute('isToken', 'true');
@@ -704,7 +746,8 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$auth->createChild('EmailResponseCode', $payment->getAdditionalInformation('email_response_code'));
 					$auth->createChild('AmountAuthorized', sprintf(static::PRICE_FORMAT, $payment->getAmountAuthorized()));
 					$thisPayment->createChild('ExpirationDate', $payment->getAdditionalInformation('expiration_date'));
-				} elseif ($payMethodNode === 'PayPal') {
+					break;
+				case 'PayPal':
 					$thisPayment = $payments->createChild($payMethodNode);
 					$amount = $this->_o->getGrandTotal();
 					$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $amount));
@@ -713,7 +756,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					// Although, the XSD claims this node is optional, however, not sending this node will cause OMS to cancel the payment on the order.
 					$thisPayment->createChild('AmountAuthorized', sprintf(static::PRICE_FORMAT, $amount));
 					$paymentContext = $thisPayment->createChild('PaymentContext');
-					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
+					$paymentContext->createChild('PaymentSessionId', $incrementId);
 					$paymentContext->createChild('TenderType', self::PAYPAL_TENDER_TYPE);
 					$paymentContext->createChild('PaymentAccountUniqueId', $this->_getPaypalAccountUniqueId($payment, $payMethod))
 						->setAttribute('isToken', 'true');
@@ -721,16 +764,17 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					$this->_addPaymentRequestId($thisPayment, $this->_getPaymentRequestId($payment));
 					$auth = $thisPayment->createChild('Authorization');
 					$auth->createChild('ResponseCode', $this->_getResponseCode($payment, $payMethodNode));
-				} elseif ($payMethodNode === 'StoredValueCard') {
+					break;
+				case 'StoredValueCard':
 					// the payment method is free and there is gift card for the order
 					if ($this->_o->getGiftCardsAmount() > 0) {
 						$thisPayment = $payments->createChild($payMethodNode);
 						$paymentContext = $thisPayment->createChild('PaymentContext');
-						$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
+						$paymentContext->createChild('PaymentSessionId', $incrementId);
 						// this **must always** use the raw PAN to be able to look up the tender type
 						$paymentContext->createChild(
 							'TenderType',
-							Mage::helper('eb2cpayment')->getTenderType($this->_getOrderGiftCardPan($this->_o))
+							$this->_paymentHelper->getTenderType($this->_getOrderGiftCardPan($this->_o))
 						);
 						// this **must always** be the PAN token for the OMS to be able to issue adjustments
 						$paymentContext->createChild('PaymentAccountUniqueId', $this->_getOrderGiftCardPan($this->_o, true))
@@ -739,19 +783,22 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 						$thisPayment->createChild('CreateTimeStamp', str_replace(' ', 'T', $payment->getCreatedAt()));
 						$thisPayment->createChild('Pin', $this->_getOrderGiftCardPin($this->_o));
 						$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGiftCardsAmount()));
-					} else {
-						// there is no gift card for the order and the payment method is free
-						$thisPayment = $payments->createChild('PrepaidCreditCard');
-						$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
 					}
+					break;
+				default:
+					$this->_logger->logDebug('[%s] No eBay Enterprise payment tender matches ', array(__CLASS__, $payMethodNode));
+					break;
 				}
 			}
-		} else {
-			$thisPayment = $payments->createChild('PrepaidCreditCard');
-			$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
+		}
+		if (!$payments->hasChildNodes()) {
+			$incrementId = $this->_o->getIncrementId();
+			$this->_logger->logInfo('[%s] Submitting no payment tender for order %s.', array(__CLASS__, $incrementId));
+			$paymentNode->removeChild($payments);
 		}
 		return $this;
 	}
+
 	/**
 	 * Add non-null payment request ids to the payment node. Do nothing if no
 	 * payment request id is provided.
@@ -829,6 +876,20 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		}
 		return '';
 	}
+
+	/**
+	 * Get the checkout session singleton
+	 *
+	 * @return Mage_Checkout_Model_Session
+	 */
+	protected function _getCheckoutSession()
+	{
+		if (!$this->_checkoutSession) {
+			$this->_checkoutSession = Mage::getSingleton('checkout/session');
+		}
+		return $this->_checkoutSession;
+	}
+
 	/**
 	 * Populates the Context element
 	 * @param DomElement context
@@ -836,7 +897,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildContext(DomElement $context)
 	{
-		$checkout = Mage::getSingleton('checkout/session');
+		$checkout = $this->_getCheckoutSession();
 		$this->_buildBrowserData($context->createChild('BrowserData'));
 		$context->addChild('TdlOrderTimestamp', $this->_restrictText($checkout->getEb2cFraudTimestamp()));
 		$this->_buildSessionInfo($checkout->getEb2cFraudSessionInfo(), $context)
@@ -854,7 +915,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildBrowserData(DomElement $browserData)
 	{
-		$checkout = Mage::getSingleton('checkout/session');
+		$checkout = $this->_getCheckoutSession();
 		$browserData->addChild('HostName', $this->_restrictText($this->_o->getEb2cFraudHostName(), 50))
 			->addChild('IPAddress', $this->_restrictText($this->_o->getEb2cFraudIpAddress(), 45))
 			->addChild('SessionId', $this->_restrictText($this->_o->getEb2cFraudSessionId(), 255))
@@ -881,7 +942,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _getOrderSource()
 	{
-		return (Mage::helper('eb2ccore')->getCurrentStore()->isAdmin()) ? self::BACKEND_ORDER_SOURCE:
+		return ($this->_coreHelper->getCurrentStore()->isAdmin()) ? self::BACKEND_ORDER_SOURCE:
 			$this->_o->getEb2cFraudReferrer() ?: self::FRONTEND_ORDER_SOURCE;
 	}
 
@@ -916,15 +977,14 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		// first get all order with state equal to 'new'
 		$orders = $this->_getNewOrders();
 
-		$logger = Mage::helper('ebayenterprise_magelog');
 		$currentDate = Mage::getModel('core/date')->date('m/d/Y H:i:s');
-		$logger->logDebug(self::RETRY_BEGIN_MESSAGE, array(__METHOD__, $currentDate, $orders->count()));
+		$this->_logger->logDebug(self::RETRY_BEGIN_MESSAGE, array(__METHOD__, $currentDate, $orders->count()));
 
 		foreach ($orders as $order) {
 			$xmlCreateRequest = $order->getEb2cOrderCreateRequest();
 			if (empty($xmlCreateRequest)) {
 				// Original request empty, log at Warn level and move on
-				$logger->logWarn(self::RETRY_NOT_FOUND_MESSAGE, array(__METHOD__, $order->getIncrementId()));
+				$this->_logger->logWarn(self::RETRY_NOT_FOUND_MESSAGE, array(__METHOD__, $order->getIncrementId()));
 			} else {
 				// running same code to send request create eb2c orders
 				$this->_o = $order;
@@ -934,7 +994,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$orders->save();
 
 		$newDate = Mage::getModel('core/date')->date('m/d/Y H:i:s');
-		$logger->logDebug(self::RETRY_END_MESSAGE, array(__METHOD__, $newDate));
+		$this->_logger->logDebug(self::RETRY_END_MESSAGE, array(__METHOD__, $newDate));
 	}
 	/**
 	 * given a string of order create request xml message, assigned an EbayEnterprise_Dom_Document instantiated class
@@ -945,7 +1005,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _loadRequest($requestMessage)
 	{
-		$this->_domRequest = Mage::helper('eb2ccore')->getNewDomDocument();
+		$this->_domRequest = $this->_coreHelper->getNewDomDocument();
 		$this->_domRequest->loadXML($requestMessage);
 		return $this;
 	}
@@ -1003,7 +1063,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _restrictText($str, $maxLength=0, $default='')
 	{
-		return Mage::helper('eb2ccore')->getNewDomText(
+		return $this->_coreHelper->getNewDomText(
 			($maxLength ? substr($str, 0, $maxLength) : $str) ?: $default
 		);
 	}
@@ -1088,7 +1148,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	 */
 	protected function _buildPayPalPayerInfo(EbayEnterprise_Dom_Element $context)
 	{
-		if (Mage::helper('eb2cpayment')->getConfigModel()->isPaymentEnabled) {
+		if ($this->_paymentConfig->isPaymentEnabled) {
 			$payment = $this->_getPaypalPayment($this->_o->getAllPayments());
 			if ($payment) {
 				$context->createChild('PayPalPayerInfo')

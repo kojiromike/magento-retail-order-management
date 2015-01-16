@@ -15,6 +15,19 @@
 
 class EbayEnterprise_Eb2cCore_Model_Observer
 {
+	/** @var  EbayEnterprise_Eb2cCore_Model_Session */
+	protected $_session;
+
+	/**
+	 * @return EbayEnterprise_Eb2cCore_Model_Session|Mage_Core_Model_Abstract
+	 */
+	protected function _getCoreSession()
+	{
+		if (!$this->_session) {
+			$this->_session = Mage::getSingleton('eb2ccore/session');
+		}
+		return $this->_session;
+	}
 	/**
 	 * Update the eb2ccore session with the new quote.
 	 * @param  Varien_Event_Observer $observer Event observer object containing a quote object
@@ -22,7 +35,7 @@ class EbayEnterprise_Eb2cCore_Model_Observer
 	 */
 	public function checkQuoteForChanges($observer)
 	{
-		Mage::getSingleton('eb2ccore/session')->updateWithQuote($observer->getEvent()->getQuote());
+		$this->_getCoreSession()->updateWithQuote($observer->getEvent()->getQuote());
 		return $this;
 	}
 
@@ -68,6 +81,19 @@ class EbayEnterprise_Eb2cCore_Model_Observer
 			'quote' => $observer->getEvent()->getQuote(),
 			'order' => $observer->getEvent()->getOrder()
 		));
+		return $this;
+	}
+	/**
+	 * Listen to the 'checkout_onepage_controller_success_action' event
+	 * Clear the session
+	 *
+	 * @param Varien_Event_Observer $observer
+	 * @return self
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function clearSession(Varien_Event_Observer $observer)
+	{
+		$this->_getCoreSession()->clear();
 		return $this;
 	}
 }

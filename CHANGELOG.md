@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased][unreleased]
+### Fixed
+- No inventory check when adding an item to the cart that was just ordered
+
 ## [1.4.0-rc-1] - 2015-01-15
 ### Added
 - Order Price Adjustment event

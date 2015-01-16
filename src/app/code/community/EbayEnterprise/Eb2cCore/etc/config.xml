@@ -62,6 +62,15 @@
 					</eb2ccore_rollback_order_failuer>
 				</observers>
 			</sales_model_service_quote_submit_failure>
+			<checkout_submit_all_after>
+				<observers>
+					<eb2ccore_clear_session_quote>
+						<class>eb2ccore/observer</class>
+						<method>clearSession</method>
+						<type>singleton</type>
+					</eb2ccore_clear_session_quote>
+				</observers>
+			</checkout_submit_all_after>
 		</events>
 	</global>
 	<admin>

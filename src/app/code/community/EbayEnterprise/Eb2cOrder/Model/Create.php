@@ -705,6 +705,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$addressElement->createChild('CountryCode', $address->getCountryId());
 		$addressElement->createChild('PostalCode', $address->getPostcode());
 	}
+
 	/**
 	 * Populate the Payment Element of the request
 	 *
@@ -716,9 +717,13 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		$payment->createChild('BillingAddress')->setAttribute(
 			'ref', $this->_helper->getConfigModel()->apiShipGroupBillingId
 		);
-		$this->_buildPayments($payment->createChild('Payments'));
+		$grandTotal = $this->_o->getGrandTotal();
+		if ($grandTotal > 0) {
+			$this->_buildPayments($payment);
+		}
 		return $this;
 	}
+
 	/**
 	 * Get the paypal-specific value for the payment account unique id field.
 	 * NOTE: The parameters are purposely left unused to reduce the chances of
@@ -732,20 +737,26 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		return 'PAYPAL';
 	}
+
 	/**
 	 * Creates the Tender entries within the Payments Element
-	 * @param DomElement $payments node into which payment info is placed
+	 * @param DomElement $paymentNode node into which payments info is placed
 	 * @return self
 	 */
-	protected function _buildPayments(DomElement $payments)
+	protected function _buildPayments(DomElement $paymentNode)
 	{
+		$payments = $paymentNode->createChild('Payments');
+		$incrementId = $this->_o->getIncrementId();
+		$grandTotal = $this->_o->getGrandTotal();
+		$amount = sprintf(static::PRICE_FORMAT, $grandTotal);
+		/** @var Mage_Sales_Model_Order_Payment $payment */
 		foreach ($this->_o->getAllPayments() as $payment) {
 			$payMethod = $payment->getMethod();
 			switch ($payMethod) {
 				case Mage::getModel('ebayenterprise_creditcard/method_ccpayment')->getCode():
 					$thisPayment = $payments->createChild('CreditCard');
 					$paymentContext = $thisPayment->createChild('PaymentContext');
-					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
+					$paymentContext->createChild('PaymentSessionId', $incrementId);
 					$paymentContext->createChild('TenderType', $this->_getPaymentTenderType($payment));
 					$paymentContext->createChild('PaymentAccountUniqueId', $this->_getPaymentAccountUniqueId($payment))
 						->setAttribute('isToken', $this->_getPaymentPanIsToken($payment));
@@ -766,14 +777,13 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 				case Mage::getModel('ebayenterprise_paypal/method_express')->getCode():
 					$payMethodNode = 'PayPal'; // Also used in the ResponseCode node
 					$thisPayment = $payments->createChild('PayPal');
-					$amount = $this->_o->getGrandTotal();
-					$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $amount));
+					$thisPayment->createChild('Amount', $amount);
 					// The payment method is no longer 'authorized' causing the 'AmountAuthorized' not to be set in the 'sales/order_payment' object.
 					// In order to send the amount authorized in order create request, we are using the order grand total value.
 					// Although, the XSD claims this node is optional, however, not sending this node will cause OMS to cancel the payment on the order.
-					$thisPayment->createChild('AmountAuthorized', sprintf(static::PRICE_FORMAT, $amount));
+					$thisPayment->createChild('AmountAuthorized', $amount);
 					$paymentContext = $thisPayment->createChild('PaymentContext');
-					$paymentContext->createChild('PaymentSessionId', $this->_o->getIncrementId());
+					$paymentContext->createChild('PaymentSessionId', $incrementId);
 					$paymentContext->createChild('TenderType', self::PAYPAL_TENDER_TYPE);
 					$paymentContext->createChild('PaymentAccountUniqueId', $this->_getPaypalAccountUniqueId($payment, $payMethod))
 						->setAttribute('isToken', 'true');
@@ -787,18 +797,21 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					// captured, so don't attempt send any in the request.
 					break;
 				default:
+					$this->_logger->logDebug('[%s] Mapping payment method "%s" to "PrepaidCreditCard"', array(__CLASS__, $payMethod));
 					$thisPayment = $payments->createChild('PrepaidCreditCard');
-					$thisPayment->createChild(
-						'Amount', sprintf(
-							static::PRICE_FORMAT, $this->_o->getGrandTotal()
-						)
-					);
+					/** @note this amount is an AmountBaseType, which requires no currency code. */
+					$thisPayment->createChild('Amount', $amount);
 					break;
 			}
 		}
 		$this->_buildGiftCardPayments($payments);
+		if (!$payments->hasChildNodes()) {
+			$this->_logger->logInfo('[%s] Submitting no payment tender for order %s.', array(__CLASS__, $incrementId));
+			$paymentNode->removeChild($payments);
+		}
 		return $this;
 	}
+
 	/**
 	 * Build payment nodes for gift cards (stored value card)
 	 * @param  EbayEnterprise_Dom_Element $paymentNode

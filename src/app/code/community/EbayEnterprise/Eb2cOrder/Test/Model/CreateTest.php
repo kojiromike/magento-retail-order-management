@@ -742,6 +742,92 @@ INVALID_XML;
 			$createModelMock->buildRequest($orderModelMock)
 		);
 	}
+
+	/**
+	 * Provide both ROM and non-ROM payment method names.
+	 */
+	public function providePaymentMethodNames()
+	{
+		$magePaymentMethods = Mage::getModel('payment/config')->getAllMethods();
+		$names = array_keys($magePaymentMethods);
+		$names[] = 'stub_unknown_method';
+		return array_map(function ($i) { return array($i); }, $names);
+	}
+
+	/**
+	 * When I submit an order with a $0 subtotal, the OCR should
+	 * contain `Payment` with `BillingAddress`, but no `Payments`
+	 * node, regardless of the selected payment method.
+	 *
+	 * @dataProvider providePaymentMethodNames
+	 */
+	public function testPaymentZeroSubtotal($method)
+	{
+		// Stub the DOMElement
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<Payment/>');
+		$el = $doc->documentElement;
+		// Use a variety of payment methods, known and unknown.
+		$paymentMethod = Mage::getModel('sales/order_payment')
+			->setMethod($method);
+		// Stub the config
+		$cfgData = array(
+			'apiShipGroupBillingId' => 'stub-billing-id',
+			'isPaymentEnabled' => true,
+		);
+		$this->replaceCoreConfigRegistry($cfgData);
+		// Stub order
+		$order = $this->getModelMockBuilder('sales/order')
+			->setMethods(array('getIncrementId', 'getAllPayments'))
+			->getMock();
+		$order->expects($this->any())
+			->method('getIncrementId')
+			->will($this->returnValue('stub-increment-id'));
+		$order->expects($this->any())
+			->method('getAllPayments')
+			->will($this->returnValue(array($paymentMethod)));
+		// Set up Model Under Test
+		$create = Mage::getModel('eb2corder/create');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayment', array($el));
+		$expected = '<Payment><BillingAddress ref="stub-billing-id"/></Payment>';
+		$this->assertXmlStringEqualsXmlString($expected, $doc->C14N());
+	}
+
+	/**
+	 * If I use a third-party payment method not supported by ROM
+	 * the OCR should have a `PrepaidCreditCard` node in `Payments`.
+	 */
+	public function testPrepaidCreditCard()
+	{
+		// Stub the DOMElement
+		$doc = $this->_coreHelper->getNewDomDocument();
+		$doc->loadXML('<Payment/>');
+		$el = $doc->documentElement;
+		// Stub the payment method
+		$paymentMethod = Mage::getModel('sales/order_payment')
+			->setMethod('stubbed_payment');
+		// Stub the order
+		$order = $this->getModelMockBuilder('sales/order')
+			->setMethods(array('getIncrementId', 'getAllPayments', 'getGrandTotal'))
+			->getMock();
+		$order->expects($this->any())
+			->method('getIncrementId')
+			->will($this->returnValue('stub-increment-id'));
+		$order->expects($this->any())
+			->method('getAllPayments')
+			->will($this->returnValue(array($paymentMethod)));
+		$order->expects($this->any())
+			->method('getGrandTotal')
+			->will($this->returnValue(1));
+		// Set up model under test
+		$create = Mage::getModel('eb2corder/create');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayments', array($el));
+		$expected = '<Payment><Payments><PrepaidCreditCard><Amount>1.00</Amount></PrepaidCreditCard></Payments></Payment>';
+		$this->assertXmlStringEqualsXmlString($expected, $doc->C14N());
+	}
+
 	/**
 	 * Test _buildPayments method for the following expectations for building paypal payment node type
 	 * Expectation 1: first this test is mocking the EbayEnterprise_Eb2cCore_Model_Config_Registry::__get so that it can
@@ -764,13 +850,12 @@ INVALID_XML;
 	 * @mock Mage_Sales_Model_Order::getAllPayments
 	 * @mock Mage_Sales_Model_Order::getGrandTotal
 	 * @param string $response the xml string content to be loaded into the DOMDocument object
-	 * @dataProvider dataProvider
 	 * @loadExpectation
 	 */
-	public function testBuildPaymentsPaypal($response)
+	public function testBuildPaymentsPaypal()
 	{
 		$doc = $this->_coreHelper->getNewDomDocument();
-		$doc->loadXML($response);
+		$doc->loadXML('<Payment/>');
 		$payment = Mage::getModel('sales/order_payment')->addData(array(
 			'entity_id' => 1,
 			'method' => 'ebayenterprise_paypal_express',
@@ -800,9 +885,10 @@ INVALID_XML;
 
 		// ensure the payment account unique id is set correctly.
 		$x = new DOMXPath($doc);
-		$this->assertSame(1, $x->query('PayPal/PaymentContext/PaymentAccountUniqueId[@isToken="true" and . = "PAYPAL"]')->length);
-		$this->assertSame(sprintf($this->expected('paypal')->getPaymentNode(), "\n"), trim($doc->saveXML()));
+		$this->assertSame(1, $x->query('//PayPal/PaymentContext/PaymentAccountUniqueId[@isToken="true" and . = "PAYPAL"]')->length);
+		$this->assertXmlStringEqualsXmlString($this->expected('paypal')->getPaymentNode(), $doc->C14N());
 	}
+
 	/**
 	 * Test building the payment nodes for gift cards (stored value cards). Should
 	 * build the <StoreValueCard> and necessary child nodes and attach it to the

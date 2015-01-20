@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased][unreleased]
 ### Fixed
 - No inventory check when adding an item to the cart that was just ordered
+- Magento admin can place $0 orders regardless of configured payment types.
 
 ## [1.5.0-alpha-1] - 2015-01-15
 ### Added

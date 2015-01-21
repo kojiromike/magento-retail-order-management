@@ -124,8 +124,8 @@ INVALID_XML;
 		$calculationModelMock->expects($this->exactly(6))
 			->method('round')
 			->will($this->returnCallback(function($n) {
-					return round($n, 2);
-				}));
+				return round($n, 2);
+			}));
 		$this->replaceByMock('model', 'tax/calculation', $calculationModelMock);
 		$taxQuotes = array();
 		$taxQuotes[] = Mage::getModel('eb2ctax/response_quote', array(
@@ -195,15 +195,15 @@ INVALID_XML;
 			foreach ($taxNode->childNodes as $taxData) {
 				// test a few of the child nodes, making sure they're getting set properly per tax quote
 				switch ($taxData->nodeName) {
-					case 'Situs':
-						$this->assertSame($taxQuotes[$idx]->getSitus(), $taxData->nodeValue);
-						break;
-					case 'EffectiveRate':
-						$this->assertSame($taxQuotes[$idx]->getEffectiveRate(), (float) $taxData->nodeValue);
-						break;
-					case 'Imposition':
-						$this->assertSame($taxQuotes[$idx]->getImposition(), $taxData->nodeValue);
-						break;
+				case 'Situs':
+					$this->assertSame($taxQuotes[$idx]->getSitus(), $taxData->nodeValue);
+					break;
+				case 'EffectiveRate':
+					$this->assertSame($taxQuotes[$idx]->getEffectiveRate(), (float) $taxData->nodeValue);
+					break;
+				case 'Imposition':
+					$this->assertSame($taxQuotes[$idx]->getImposition(), $taxData->nodeValue);
+					break;
 				}
 			}
 		}
@@ -218,7 +218,6 @@ INVALID_XML;
 		$event = new Varien_Event(array('order' => $order));
 		$observer = new Varien_Event_Observer(array('event' => $event));
 		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('buildRequest', 'sendRequest'))
 			->getMock();
 		$create->expects($this->once())
@@ -276,7 +275,7 @@ INVALID_XML;
 	}
 	/**
 	 * Building the XML nodes for a given order item
-	 * @todo This method should really be broken down into some smaller chunks to make this test less complicated
+	 *
 	 * @param array $itemData Order item object data
 	 * @param array $orderData Order object data
 	 * @param boolean $merchTax Should this item have merchandise taxes
@@ -385,7 +384,6 @@ INVALID_XML;
 			->will($this->returnSelf());
 		$this->replaceByMock('resource_model', 'sales/order_collection', $collection);
 		$testModel = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('none'))
 			->getMock();
 		$this->assertSame(
@@ -424,7 +422,6 @@ INVALID_XML;
 		$orderItem = $doc->addElement('OrderItem')
 			->documentElement;
 		$testModel = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('none'))
 			->getMock();
 		$this->_reflectMethod($testModel, '_buildEstimatedDeliveryDate')
@@ -481,7 +478,6 @@ INVALID_XML;
 		$expectedState = 'NEW';
 
 		$orderCreate = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_extractResponseState'))
 			->getMock();
 		$order = $this->getModelMock('sales/order', array('setState', 'setEb2cOrderCreateRequest'));
@@ -566,7 +562,6 @@ INVALID_XML;
 			->method('getAllVisibleItems')
 			->will($this->returnValue(array($itemModelMock)));
 		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildOrderItem'))
 			->getMock();
 		$createModelMock->expects($this->once())
@@ -587,11 +582,10 @@ INVALID_XML;
 		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML(
 			'<root>
-				<foo></foo>
+			<foo></foo>
 			</root>'
 		);
 		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildShipGroup', '_buildShipping'))
 			->getMock();
 		$createModelMock->expects($this->once())
@@ -680,7 +674,6 @@ INVALID_XML;
 		}
 
 		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->getMock();
 
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($createModelMock, '_o', $order);
@@ -711,7 +704,7 @@ INVALID_XML;
 		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML(
 			'<root>
-				<foo></foo>
+			<foo></foo>
 			</root>'
 		);
 		$coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
@@ -727,7 +720,6 @@ INVALID_XML;
 			->setMethods(array())
 			->getMock();
 		$createModelMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildOrderCreateRequest', '_buildOrder', '_buildItems', '_buildShip', '_buildPayment', '_buildAdditionalOrderNodes', '_buildContext'))
 			->getMock();
 		$createModelMock->expects($this->once())
@@ -762,6 +754,106 @@ INVALID_XML;
 			$createModelMock->buildRequest($orderModelMock)
 		);
 	}
+
+	/**
+	 * Provide both ROM and non-ROM payment method names.
+	 */
+	public function providePaymentMethodNames()
+	{
+		$magePaymentMethods = Mage::getModel('payment/config')->getAllMethods();
+		$names = array_keys($magePaymentMethods);
+		$names[] = 'stub_unknown_method';
+		return array_map(function ($i) { return array($i); }, $names);
+	}
+
+	/**
+	 * When I submit an order with a $0 subtotal, the OCR should
+	 * contain `Payment` with `BillingAddress`, but no `Payments`
+	 * node, regardless of the selected payment method.
+	 *
+	 * @dataProvider providePaymentMethodNames
+	 */
+	public function testPaymentZeroSubtotal($method)
+	{
+		// Stub the DOMElement
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<Payment/>');
+		$el = $doc->documentElement;
+		// Use a variety of payment methods, known and unknown.
+		$paymentMethod = Mage::getModel('sales/order_payment')
+			->setMethod($method);
+		// Stub the config
+		$cfgData = array(
+			array('apiShipGroupBillingId', 'stub-billing-id'),
+			array('isPaymentEnabled', true),
+		);
+		$cfg = $this->getModelMockBuilder('eb2ccore/config_registry')
+			->setMethods(array('__get'))
+			->getMock();
+		$cfg->expects($this->any())
+			->method('__get')
+			->will($this->returnValueMap($cfgData));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $cfg);
+		// Stub order
+		$order = $this->getModelMockBuilder('sales/order')
+			->setMethods(array('getIncrementId', 'getAllPayments'))
+			->getMock();
+		$order->expects($this->any())
+			->method('getIncrementId')
+			->will($this->returnValue('stub-increment-id'));
+		$order->expects($this->any())
+			->method('getAllPayments')
+			->will($this->returnValue(array($paymentMethod)));
+		// Set up Model Under Test
+		$create = Mage::getModel('eb2corder/create');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayment', array($el));
+		$expected = '<Payment><BillingAddress ref="stub-billing-id"/></Payment>';
+		$this->assertXmlStringEqualsXmlString($expected, $doc->C14N());
+	}
+
+	/**
+	 * If I use a third-party payment method not supported by ROM
+	 * the OCR should have a `PrepaidCreditCard` node in `Payments`.
+	 */
+	public function testPrepaidCreditCard()
+	{
+		// Stub the DOMElement
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<Payment/>');
+		$el = $doc->documentElement;
+		// Stub the config
+		$cfg = $this->getModelMockBuilder('eb2ccore/config_registry')
+			->setMethods(array('__get'))
+			->getMock();
+		$cfg->expects($this->any())
+			->method('__get')
+			->will($this->returnValueMap(array(array('isPaymentEnabled', true))));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $cfg);
+		// Stub the payment method
+		$paymentMethod = Mage::getModel('sales/order_payment')
+			->setMethod('stubbed_payment');
+		// Stub the order
+		$order = $this->getModelMockBuilder('sales/order')
+			->setMethods(array('getIncrementId', 'getAllPayments', 'getGrandTotal'))
+			->getMock();
+		$order->expects($this->any())
+			->method('getIncrementId')
+			->will($this->returnValue('stub-increment-id'));
+		$order->expects($this->any())
+			->method('getAllPayments')
+			->will($this->returnValue(array($paymentMethod)));
+		$order->expects($this->any())
+			->method('getGrandTotal')
+			->will($this->returnValue(1));
+		// Set up model under test
+		$create = Mage::getModel('eb2corder/create');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayments', array($el));
+		$expected = '<Payment><Payments><PrepaidCreditCard><Amount>1.00</Amount></PrepaidCreditCard></Payments></Payment>';
+		$this->assertXmlStringEqualsXmlString($expected, $doc->C14N());
+	}
+
 	/**
 	 * Test _buildPayments method for the following expectations for building paypal payment node type
 	 * Expectation 1: first this test is mocking the EbayEnterprise_Eb2cCore_Model_Config_Registry::__get so that it can
@@ -779,19 +871,18 @@ INVALID_XML;
 	 *                and then pass in the DomElment of this dom object to the EbayEnterprise_Eb2cOrder_Model_Create::_buildPayments method
 	 *                when invoked by this test, it then asserted the xml in this dom object should match what is expected in the loaded expectation
 	 *                for this test.
+	 *
 	 * @mock EbayEnterprise_Eb2cPayment_Helper_Data::getConfigModel
 	 * @mock EbayEnterprise_Eb2cCore_Model_Config_Registry::__get
 	 * @mock Mage_Sales_Model_Order::getAllPayments
 	 * @mock Mage_Sales_Model_Order::getGrandTotal
 	 * @param string $response the xml string content to be loaded into the DOMDocument object
-	 * @dataProvider dataProvider
 	 * @loadExpectation
 	 */
-	public function testBuildPaymentsPaypal($response)
+	public function testBuildPaymentsPaypal()
 	{
 		$doc = $this->_coreHelper->getNewDomDocument();
-		$doc->loadXML($response);
-
+		$doc->loadXML('<Payment/>');
 		$mockConfig = $this->getModelMockBuilder('eb2ccore/config_registry')
 			->setMethods(array('__get'))
 			->getMock();
@@ -800,7 +891,6 @@ INVALID_XML;
 			->will($this->returnValueMap(array(
 				array('isPaymentEnabled', true)
 			)));
-
 		$helperMock = $this->getHelperMockBuilder('eb2cpayment/data')
 			->disableOriginalConstructor()
 			->setMethods(array('getConfigModel'))
@@ -809,7 +899,6 @@ INVALID_XML;
 			->method('getConfigModel')
 			->will($this->returnValue($mockConfig));
 		$this->replaceByMock('helper', 'eb2cpayment', $helperMock);
-
 		$payment = Mage::getModel('sales/order_payment')->addData(array(
 			'entity_id' => 1,
 			'method' => 'Paypal_express',
@@ -818,7 +907,6 @@ INVALID_XML;
 			'cc_status' => 'success',
 			'additional_information' => array('request_id' => 'PAYMENT_REQUEST_ID_12345')
 		));
-
 		$order = $this->getModelMockBuilder('sales/order')
 			->disableOriginalConstructor()
 			->setMethods(array('getAllPayments', 'getGrandTotal', 'getIncrementId'))
@@ -832,17 +920,16 @@ INVALID_XML;
 		$order->expects($this->once())
 			->method('getIncrementId')
 			->will($this->returnValue('012345678'));
-
 		$create = Mage::getModel('eb2corder/create');
 		$this->_reflectProperty($create, '_o')->setValue($create, $order);
 		$this->_reflectProperty($create, '_ebcPaymentMethodMap')->setValue($create, array('Paypal_express' => 'PayPal'));
 		$this->assertSame($create, $this->_reflectMethod($create, '_buildPayments')->invoke($create, $doc->documentElement));
-
 		// ensure the payment account unique id is set correctly.
-		$x = new DOMXPath($doc);
-		$this->assertSame(1, $x->query('PayPal/PaymentContext/PaymentAccountUniqueId[@isToken="true" and . = "PAYPAL"]')->length);
-		$this->assertSame(sprintf($this->expected('paypal')->getPaymentNode(), "\n"), trim($doc->saveXML()));
+		$expected = $this->expected('paypal')->getPaymentNode();
+		$xml = $doc->C14N();
+		$this->assertXmlStringEqualsXmlString($expected, $xml);
 	}
+
 	/**
 	 * Test building the payment nodes for stored value cards. Should build the
 	 * <StoreValueCard> and necessary child nodes and attach it to the DOMElement
@@ -851,7 +938,7 @@ INVALID_XML;
 	public function testBuildPaymentsStoredValue()
 	{
 		$doc = $this->_coreHelper->getNewDomDocument();
-		$doc->loadXML('<root/>');
+		$doc->loadXML('<Payment/>');
 
 		$paymentId = 12;
 		$orderIncrementId = '012345678';
@@ -903,15 +990,12 @@ INVALID_XML;
 		$this->_reflectProperty($create, '_o')->setValue($create, $order);
 		$this->assertSame($create, $this->_reflectMethod($create, '_buildPayments')->invoke($create, $doc->documentElement));
 
-		$resultDoc = new DOMDocument();
-		$resultDoc->loadXML(sprintf(
-			'<?xml version="1.0"?><root><StoredValueCard><PaymentContext><PaymentSessionId>%1$s</PaymentSessionId><TenderType>%2$s</TenderType><PaymentAccountUniqueId isToken="true">%3$s</PaymentAccountUniqueId></PaymentContext><PaymentRequestId>%7$s</PaymentRequestId><CreateTimeStamp>%5$s</CreateTimeStamp><Pin>%6$s</Pin><Amount>%4$.2f</Amount></StoredValueCard></root>',
+		$expected = sprintf(
+			'<Payment><Payments><StoredValueCard><PaymentContext><PaymentSessionId>%1$s</PaymentSessionId><TenderType>%2$s</TenderType><PaymentAccountUniqueId isToken="true">%3$s</PaymentAccountUniqueId></PaymentContext><PaymentRequestId>%7$s</PaymentRequestId><CreateTimeStamp>%5$s</CreateTimeStamp><Pin>%6$s</Pin><Amount>%4$.2f</Amount></StoredValueCard></Payments></Payment>',
 			$orderIncrementId, $svcTenderType, $svcPanToken, $gcAmount, $paymentCreatedAt, $svcPin, $paymentRequestId
-		));
-		$this->assertSame(
-			$resultDoc->C14N(),
-			trim($doc->C14N())
 		);
+		$xml = $doc->C14N();
+		$this->assertXmlStringEqualsXmlString($expected, $xml);
 	}
 
 	/**
@@ -1042,7 +1126,6 @@ INVALID_XML;
 		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$createMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 
@@ -1144,7 +1227,6 @@ INVALID_XML;
 			)));
 
 		$createMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 
@@ -1163,26 +1245,26 @@ INVALID_XML;
 		$expect->preserveWhiteSpace = false;
 		$expect->formatOutput = true;
 		$expect->loadXML('
-		<root>
+			<root>
 			<BrowserData>
-				<HostName><![CDATA[some.h.ost]]></HostName>
-				<IPAddress><![CDATA[1.0.0.1]]></IPAddress>
-				<SessionId><![CDATA[sessionid]]></SessionId>
-				<UserAgent><![CDATA[the name\'s fox. fire fox. i have a license - gpl]]></UserAgent>
-				<Connection><![CDATA[close]]></Connection>
-				<Cookies><![CDATA[cookie1=dacookies;cookie2=dacookiespartdeux]]></Cookies>
-				<JavascriptData><![CDATA[data stuff n things]]></JavascriptData>
-				<Referrer><![CDATA[this is the order_source]]></Referrer>
-				<HTTPAcceptData>
-					<ContentTypes><![CDATA[text/test]]></ContentTypes>
-					<Encoding><![CDATA[holy encoded text, batman]]></Encoding>
-					<Language><![CDATA[ebonicode]]></Language>
-					<CharSet><![CDATA[some charset]]></CharSet>
-				</HTTPAcceptData>
+			<HostName><![CDATA[some.h.ost]]></HostName>
+			<IPAddress><![CDATA[1.0.0.1]]></IPAddress>
+			<SessionId><![CDATA[sessionid]]></SessionId>
+			<UserAgent><![CDATA[the name\'s fox. fire fox. i have a license - gpl]]></UserAgent>
+			<Connection><![CDATA[close]]></Connection>
+			<Cookies><![CDATA[cookie1=dacookies;cookie2=dacookiespartdeux]]></Cookies>
+			<JavascriptData><![CDATA[data stuff n things]]></JavascriptData>
+			<Referrer><![CDATA[this is the order_source]]></Referrer>
+			<HTTPAcceptData>
+			<ContentTypes><![CDATA[text/test]]></ContentTypes>
+			<Encoding><![CDATA[holy encoded text, batman]]></Encoding>
+			<Language><![CDATA[ebonicode]]></Language>
+			<CharSet><![CDATA[some charset]]></CharSet>
+			</HTTPAcceptData>
 			</BrowserData>
 			<TdlOrderTimestamp><![CDATA[2014-01-01T10:05:01]]></TdlOrderTimestamp>
 			<SessionInfo><![CDATA[this is session data]]></SessionInfo>
-		</root>'
+			</root>'
 		);
 
 		$doc = $this->_coreHelper->getNewDomDocument();
@@ -1224,16 +1306,15 @@ INVALID_XML;
 		$this->replaceByMock('singleton', 'checkout/session', $checkout);
 
 		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildSessionInfo', '_getOrderSource', '_buildCustomAttributesByLevel'))
 			->getMock();
 		$create->expects($this->any())
 			->method('_buildSessionInfo')
 			->with($this->identicalTo(array('this is session data')), $this->identicalTo($element))
 			->will($this->returnCallback(function($a, $node) use ($create) {
-					$node->appendChild($node->ownerDocument->createElement('SessionInfo', $a[0]));
-					return $create;
-				}));
+				$node->appendChild($node->ownerDocument->createElement('SessionInfo', $a[0]));
+				return $create;
+			}));
 		$create->expects($this->any())
 			->method('_buildCustomAttributesByLevel')
 			->with(
@@ -1277,14 +1358,14 @@ INVALID_XML;
 		$expect->formatOutput = true;
 		$expect->loadXML('
 			<root xmlns="http://namespace/foo">
-				<SessionInfo>
-					<TimeSpentOnSite><![CDATA[1:00:00]]></TimeSpentOnSite>
-					<LastLogin><![CDATA[2014-01-01T09:05:01]]></LastLogin>
-					<UserPassword><![CDATA[password]]></UserPassword>
-					<TimeOnFile><![CDATA[milliseconds]]></TimeOnFile>
-				</SessionInfo>
+			<SessionInfo>
+			<TimeSpentOnSite><![CDATA[1:00:00]]></TimeSpentOnSite>
+			<LastLogin><![CDATA[2014-01-01T09:05:01]]></LastLogin>
+			<UserPassword><![CDATA[password]]></UserPassword>
+			<TimeOnFile><![CDATA[milliseconds]]></TimeOnFile>
+			</SessionInfo>
 			</root>
-		');
+			');
 		$sessionInfoData = array(
 			'TimeSpentOnSite' => '1:00:00',
 			'LastLogin' => '2014-01-01T09:05:01',
@@ -1311,7 +1392,6 @@ INVALID_XML;
 			->setMethods(array('none'))
 			->getMock();
 		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildSessionInfo'))
 			->getMock();
 		$checkout = $this->getModelMockBuilder('checkout/session')
@@ -1329,11 +1409,9 @@ INVALID_XML;
 		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root/>');
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildBrowserData', array($doc->documentElement));
-		$xml = $doc->saveXML();
-
-		$this->assertTag(array('tag' => 'HostName'), $xml, '', false);
-		$this->assertTag(array('tag' => 'CharSet'), $xml, '', false);
-		$this->assertNotTag(array('tag' => 'Cookies'), $xml, '', false);
+		$expected='<root><HostName/><IPAddress/><SessionId/><UserAgent/><Connection/><JavascriptData/><Referrer>phone</Referrer><HTTPAcceptData><ContentTypes/><Encoding/><Language/><CharSet/></HTTPAcceptData></root>';
+		$xml = $doc->C14N();
+		$this->assertXmlStringEqualsXmlString($expected, $xml);
 	}
 
 	public function provideForTestXsdStringLength()
@@ -1374,7 +1452,6 @@ INVALID_XML;
 		$doc = $this->_coreHelper->getNewDomDocument();
 		$doc->loadXML('<root/>');
 		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('none'))
 			->getMock();
 
@@ -1448,7 +1525,6 @@ INVALID_XML;
 		$this->replaceByMock('model', 'core/date', $dateMock);
 
 		$createMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_loadRequest', 'sendRequest', '_getNewOrders'))
 			->getMock();
 		$createMock->expects($this->once())
@@ -1494,7 +1570,6 @@ INVALID_XML;
 		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
 		$createMock = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 
@@ -1599,7 +1674,6 @@ INVALID_XML;
 		$this->replaceByMock('model', 'salesrule/rule', $rule);
 
 		$create = $this->getModelMockBuilder('eb2corder/create')
-			->disableOriginalConstructor()
 			->setMethods(array('_buildTaxDataNodes', 'getItemTaxQuotes', '_getProductTaxCode'))
 			->getMock();
 		$create->expects($this->once())
@@ -1854,8 +1928,6 @@ INVALID_XML;
 		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildMerchandise', array($doc->documentElement, $orderItem));
 
 		$matcher = array('tag' => '_', 'child' => array('tag' => 'Merchandise', 'child' => array('tag' => $expectedAmountNode)));
-		// asserting that the node 'Amount' exists
-		$this->assertTag($matcher, $doc->C14N(), '', false);
 
 		$xpath = $this->_coreHelper->getNewDomXPath($doc);
 		// asserting that the 'Amount' node equal to an expected value

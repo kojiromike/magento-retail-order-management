@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased][unreleased]
+### Fixed
+- Magento admin can place $0 orders regardless of configured payment types.
+
 ## [1.3.2] - 2014-12-04
 ### Fixed
 - Shipping method not appearing on transactional e-mails

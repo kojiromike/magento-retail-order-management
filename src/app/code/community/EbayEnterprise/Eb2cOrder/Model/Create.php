@@ -708,7 +708,11 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	protected function _buildPayment(DomElement $payment)
 	{
 		$payment->createChild('BillingAddress')->setAttribute('ref', $this->_config->apiShipGroupBillingId);
-		return $this->_buildPayments($payment);
+		$grandTotal = $this->_o->getGrandTotal();
+		if ($grandTotal > 0) {
+			$this->_buildPayments($payment);
+		}
+		return $this;
 	}
 
 	/**
@@ -723,7 +727,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		if ($this->_paymentConfig->isPaymentEnabled) {
 			foreach ($this->_o->getAllPayments() as $payment) {
 				$payMethod = $payment->getMethod();
-				$payMethodNode = $this->_ebcPaymentMethodMap[ucfirst($payMethod)];
+				$payMethodNode = isset($this->_ebcPaymentMethodMap[ucfirst($payMethod)])
+					? $this->_ebcPaymentMethodMap[ucfirst($payMethod)]
+					: 'undefined';
 				switch ($payMethodNode) {
 				case 'CreditCard':
 					$thisPayment = $payments->createChild($payMethodNode);
@@ -786,7 +792,10 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					}
 					break;
 				default:
-					$this->_logger->logDebug('[%s] No eBay Enterprise payment tender matches ', array(__CLASS__, $payMethodNode));
+					$this->_logger->logDebug('[%s] Mapping payment method "%s" to "PrepaidCreditCard"', array(__CLASS__, $payMethod));
+					$thisPayment = $payments->createChild('PrepaidCreditCard');
+					/** @note this amount is an AmountBaseType, which requires no currency code. */
+					$thisPayment->createChild('Amount', sprintf(static::PRICE_FORMAT, $this->_o->getGrandTotal()));
 					break;
 				}
 			}

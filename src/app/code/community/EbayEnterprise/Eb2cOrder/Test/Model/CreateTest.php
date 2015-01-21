@@ -887,6 +887,106 @@ INVALID_XML;
 			$createModelMock->buildRequest($orderModelMock)
 		);
 	}
+
+	/**
+	 * Provide both ROM and non-ROM payment method names.
+	 */
+	public function providePaymentMethodNames()
+	{
+		$magePaymentMethods = Mage::getModel('payment/config')->getAllMethods();
+		$names = array_keys($magePaymentMethods);
+		$names[] = 'stub_unknown_method';
+		return array_map(function ($i) { return array($i); }, $names);
+	}
+
+	/**
+	 * When I submit an order with a $0 subtotal, the OCR should
+	 * contain `Payment` with `BillingAddress`, but no `Payments`
+	 * node, regardless of the selected payment method.
+	 *
+	 * @dataProvider providePaymentMethodNames
+	 */
+	public function testPaymentZeroSubtotal($method)
+	{
+		// Stub the DOMElement
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<Payment/>');
+		$el = $doc->documentElement;
+		// Use a variety of payment methods, known and unknown.
+		$paymentMethod = Mage::getModel('sales/order_payment')
+			->setMethod($method);
+		// Stub the config
+		$cfgData = array(
+			array('apiShipGroupBillingId', 'stub-billing-id'),
+			array('isPaymentEnabled', true),
+		);
+		$cfg = $this->getModelMockBuilder('eb2ccore/config_registry')
+			->setMethods(array('__get'))
+			->getMock();
+		$cfg->expects($this->any())
+			->method('__get')
+			->will($this->returnValueMap($cfgData));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $cfg);
+		// Stub order
+		$order = $this->getModelMockBuilder('sales/order')
+			->setMethods(array('getIncrementId', 'getAllPayments'))
+			->getMock();
+		$order->expects($this->any())
+			->method('getIncrementId')
+			->will($this->returnValue('stub-increment-id'));
+		$order->expects($this->any())
+			->method('getAllPayments')
+			->will($this->returnValue(array($paymentMethod)));
+		// Set up Model Under Test
+		$create = Mage::getModel('eb2corder/create');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayment', array($el));
+		$expected = '<Payment><BillingAddress ref="stub-billing-id"/></Payment>';
+		$this->assertXmlStringEqualsXmlString($expected, $doc->C14N());
+	}
+
+	/**
+	 * If I use a third-party payment method not supported by ROM
+	 * the OCR should have a `PrepaidCreditCard` node in `Payments`.
+	 */
+	public function testPrepaidCreditCard()
+	{
+		// Stub the DOMElement
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<Payment/>');
+		$el = $doc->documentElement;
+		// Stub the config
+		$cfg = $this->getModelMockBuilder('eb2ccore/config_registry')
+			->setMethods(array('__get'))
+			->getMock();
+		$cfg->expects($this->any())
+			->method('__get')
+			->will($this->returnValueMap(array(array('isPaymentEnabled', true))));
+		$this->replaceByMock('model', 'eb2ccore/config_registry', $cfg);
+		// Stub the payment method
+		$paymentMethod = Mage::getModel('sales/order_payment')
+			->setMethod('stubbed_payment');
+		// Stub the order
+		$order = $this->getModelMockBuilder('sales/order')
+			->setMethods(array('getIncrementId', 'getAllPayments', 'getGrandTotal'))
+			->getMock();
+		$order->expects($this->any())
+			->method('getIncrementId')
+			->will($this->returnValue('stub-increment-id'));
+		$order->expects($this->any())
+			->method('getAllPayments')
+			->will($this->returnValue(array($paymentMethod)));
+		$order->expects($this->any())
+			->method('getGrandTotal')
+			->will($this->returnValue(1));
+		// Set up model under test
+		$create = Mage::getModel('eb2corder/create');
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayments', array($el));
+		$expected = '<Payment><Payments><PrepaidCreditCard><Amount>1.00</Amount></PrepaidCreditCard></Payments></Payment>';
+		$this->assertXmlStringEqualsXmlString($expected, $doc->C14N());
+	}
+
 	/**
 	 * Test _buildPayments method for the following expectations for building paypal payment node type
 	 * Expectation 1: first this test is mocking the EbayEnterprise_Eb2cCore_Model_Config_Registry::__get so that it can
@@ -969,45 +1069,6 @@ INVALID_XML;
 		$x = new DOMXPath($doc);
 		$paypalNodes = $x->query('//PayPal/PaymentContext/PaymentAccountUniqueId[@isToken="true" and . = "PAYPAL"]');
 		$this->assertSame(1, $paypalNodes->length);
-	}
-
-	/**
-	 * When I submit an order with a $0 subtotal, the OCR should
-	 * contain `Payment` with `BillingAddress`, but no `Payments`
-	 * node.
-	 */
-	public function testPaymentZeroSubtotal()
-	{
-		// Stub the config
-		$cfgData = array(
-			array('apiShipGroupBillingId', 'stub-billing-id'),
-			array('isPaymentEnabled', true),
-		);
-		$cfg = $this->getModelMockBuilder('eb2ccore/config_registry')
-			->setMethods(array('__get'))
-			->getMock();
-		$cfg->expects($this->any())
-			->method('__get')
-			->will($this->returnValueMap($cfgData));
-		$this->replaceByMock('model', 'eb2ccore/config_registry', $cfg);
-		// Stub the DOMElement
-		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
-		$doc->loadXML('<Payment/>');
-		$el = $doc->documentElement;
-		// Stub getIncrementId
-		$order = $this->getModelMockBuilder('sales/order')
-			->setMethods(array('getIncrementId'))
-			->getMock();
-		$order->expects($this->any())
-			->method('getIncrementId')
-			->will($this->returnValue('stub-increment-id'));
-		$this->replaceByMock('model', 'sales/order', $order);
-		// Set up Model Under Test
-		$create = Mage::getModel('eb2corder/create');
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($create, '_o', $order);
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_buildPayment', array($el));
-		$expected = '<Payment><BillingAddress ref="stub-billing-id"></BillingAddress></Payment>';
-		$this->assertXmlStringEqualsXmlString($expected, $doc->C14N());
 	}
 
 	/**

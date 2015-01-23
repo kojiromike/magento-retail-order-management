@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.2.5] - 2015-01-23
 
 ### Fixed
 - Magento admin can place $0 orders regardless of configured payment types.

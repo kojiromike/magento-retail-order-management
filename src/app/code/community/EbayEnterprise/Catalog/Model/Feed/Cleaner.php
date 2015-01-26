@@ -29,6 +29,10 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 
 	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
 	protected $_logger;
+	/** @var EbayEnterprise_Catalog_Helper_Data $_helper */
+	protected $_helper;
+	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry $_config */
+	protected $_config;
 
 	/**
 	 * Collection of products that will be used by the cleaner. Includes any
@@ -62,6 +66,8 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 	public function __construct($args)
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_helper = Mage::helper('ebayenterprise_catalog');
+		$this->_config = Mage::helper('eb2ccore')->getConfigModel();
 		// If a collection of products is supplied, use it as long as it is at least
 		// a Varien_Data_Collection. More strictly checking for a
 		// Mage_Catalog_Model_Resource_Product_Collection may be useful but is probably
@@ -172,8 +178,10 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 	 */
 	protected function _getAllParentConfigurableSkus(Varien_Data_Collection $productCollection)
 	{
+		$helper = $this->_helper;
+		$catalogId = $this->_config->catalogId;
 		return array_map(
-			function ($product) { return $product->getStyleId(); },
+			function ($product) use ($helper, $catalogId) { return $helper->normalizeSku($product->getStyleId(), $catalogId); },
 			array_filter(
 				$productCollection->getItems(),
 				array($this, '_filterProductWithConfigParent')
@@ -234,7 +242,7 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 	{
 		return $product->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_SIMPLE &&
 			$product->getStyleId() &&
-			$product->getStyleId() !== $product->getSku();
+			$this->_helper->normalizeSku($product->getStyleId(), $this->_config->catalogId) !== $product->getSku();
 	}
 	/**
 	 * Update any product links.
@@ -248,7 +256,7 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 		// update configurable relationships
 		if ($product->getTypeId() === 'configurable') {
 			$this->_addUsedProducts($product);
-		} elseif ($product->getStyleId() && $product->getStyleId() !== $product->getSku()) {
+		} elseif ($product->getStyleId() && $this->_helper->normalizeSku($product->getStyleId(), $this->_config->catalogId) !== $product->getSku()) {
 			$this->_addToConfigurableProduct($product);
 		}
 		$this->markProductClean($product);
@@ -373,7 +381,7 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 			// configurable product's sku
 			if (
 				$collectionProduct->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_SIMPLE &&
-				$collectionProduct->getStyleId() === $product->getSku()
+				$this->_helper->normalizeSku($collectionProduct->getStyleId(), $this->_config->catalogId) === $product->getSku()
 			) {
 				$addProductIds[] = $collectionProduct->getId();
 			}
@@ -415,7 +423,7 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
 	protected function _addToConfigurableProduct(Mage_Catalog_Model_Product $product)
 	{
 		$configurableProduct = null;
-		$styleId = $product->getStyleId();
+		$styleId = $this->_helper->normalizeSku($product->getStyleId(), $this->_config->catalogId);
 		foreach ($this->_products as $collectionProduct) {
 			if ($collectionProduct->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE &&
 				$collectionProduct->getSku() === $styleId

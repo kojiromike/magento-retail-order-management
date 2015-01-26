@@ -122,7 +122,7 @@
 				<style_id>
 					<class>ebayenterprise_catalog/map</class>
 					<type>helper</type>
-					<method>extractSkuValue</method>
+					<method>extractStringValue</method>
 					<xpath>ExtendedAttributes/Style/StyleID|StyleID</xpath>
 				</style_id>
 				<tax_code>

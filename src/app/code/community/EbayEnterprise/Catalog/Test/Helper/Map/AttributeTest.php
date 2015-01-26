@@ -256,8 +256,9 @@ class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest
 	 */
 	public function testExtractConfigurableAttributesData()
 	{
+		$catalogId = 54;
 		$sku = '54-HTSC883399';
-		$styleId = $sku;
+		$styleId = 'HTSC883399';
 		$confAttr = 'color,size';
 		$data = explode(',', $confAttr);
 		$result = array(array(
@@ -339,12 +340,17 @@ class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest
 
 		$coreHelper = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
-			->setMethods(array('extractNodeVal'))
+			->setMethods(array('extractNodeVal', 'getConfigModel'))
 			->getMock();
 		$coreHelper->expects($this->once())
 			->method('extractNodeVal')
 			->with($this->identicalTo($nodeList))
 			->will($this->returnValue($confAttr));
+		$coreHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'catalogId' => $catalogId
+			))));
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
 
 		$attributeHelperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/map_attribute')
@@ -381,8 +387,9 @@ class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest
 	 */
 	public function testExtractConfigurableAttributesDataNotInSet()
 	{
+		$catalogId = 54;
 		$sku = '54-HTSC883399';
-		$styleId = $sku;
+		$styleId = 'HTSC883399';
 		$confAttr = 'color,size';
 		$data = explode(',', $confAttr);
 		$result = array(array(
@@ -464,12 +471,17 @@ class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest
 
 		$coreHelper = $this->getHelperMockBuilder('eb2ccore/data')
 			->disableOriginalConstructor()
-			->setMethods(array('extractNodeVal'))
+			->setMethods(array('extractNodeVal', 'getConfigModel'))
 			->getMock();
 		$coreHelper->expects($this->once())
 			->method('extractNodeVal')
 			->with($this->identicalTo($nodeList))
 			->will($this->returnValue($confAttr));
+		$coreHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'catalogId' => $catalogId
+			))));
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
 
 		$attributeHelperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/map_attribute')

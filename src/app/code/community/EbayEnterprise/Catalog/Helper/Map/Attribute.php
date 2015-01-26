@@ -111,6 +111,16 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
 	}
 
 	/**
+	 * Normalize the raw style id. Prepends the catalog id to the style id.
+	 * @param sting $styleId
+	 * @return string
+	 */
+	protected function _normalizeStyleId($styleId)
+	{
+		return Mage::helper('ebayenterprise_catalog')->normalizeSku($styleId, Mage::helper('eb2ccore')->getConfigModel()->catalogId);
+	}
+
+	/**
 	 * given a DOMNodeList and a Mage_Catalog_Model_Product make sure this is
 	 * a product of type configurable and then extract the configurable attribute from the node list
 	 * then get the configurable attribute array for each configured attributes
@@ -123,7 +133,7 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
 		// We are ensuring that the given product is a parent configurable product by first checking if the product sku
 		// doesn't match the product style id. If this condition is met then we know we have a child product and we won't
 		// proceed otherwise we know we have a parent product and proceed continue.
-		if ($product->getSku() !== $product->getStyleId()) {
+		if ($product->getSku() !== $this->_normalizeStyleId($product->getStyleId())) {
 			return null;
 		}
 		$typeInstance = $product->getTypeInstance(true);
@@ -350,7 +360,6 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
 		}
 		return $allOptionValues;
 	}
-	
 	/**
 	 * Returns the text of the attributeOption for the given store
 	 *

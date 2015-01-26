@@ -147,11 +147,12 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
 	 */
 	public function testGetAllParentConfigurableSkus()
 	{
+		$catalogId = 45;
 		$products = $this->_getProductCollectionStub();
 		// should not be included as style_id and sku match
 		$products->addItem(Mage::getModel('catalog/product', array(
 			'type_id' => Mage_Catalog_Model_Product_Type::TYPE_SIMPLE,
-			'style_id' => '45-simple-matching-styleid',
+			'style_id' => 'simple-matching-styleid',
 			'sku' => '45-simple-matching-styleid'
 		)));
 		// should not be included as product has no style_id
@@ -162,15 +163,23 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
 		// should not be included as only simple products can be child products
 		$products->addItem(Mage::getModel('catalog/product', array(
 			'type_id' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE,
-			'style_id' => '45-config-style',
+			'style_id' => 'config-style',
 			'sku' => '45-config-sku'
 		)));
 		// should be included - simple product with style_id that does not match sku
 		$products->addItem(Mage::getModel('catalog/product', array(
 			'type_id' => Mage_Catalog_Model_Product_Type::TYPE_SIMPLE,
-			'style_id' => '45-parent-sku',
+			'style_id' => 'parent-sku',
 			'sku' => '45-child-sku'
 		)));
+
+		$helper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$helper->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'catalogId' => $catalogId
+			))));
+		$this->replaceByMock('helper', 'eb2ccore', $helper);
 
 		$cleaner = Mage::getModel('ebayenterprise_catalog/feed_cleaner', array('products' => $products));
 		$this->assertEquals(
@@ -399,7 +408,7 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
 
 		$feedCleanerModelProductMock = $this->getModelMockBuilder('ebayenterprise_catalog/feed_cleaner')
 			->setMethods(array('_resolveProductLinks', '_addToConfigurableProduct', 'markProductClean'))
-			->disableOriginalConstructor()
+			->setConstructorArgs(array(array()))
 			->getMock();
 		$feedCleanerModelProductMock->expects($this->once())
 			->method('_resolveProductLinks')
@@ -556,10 +565,21 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
 	 */
 	public function testAddUsedProducts()
 	{
+		$catalogId = 45;
 		$parentId = 1;
-		$parentSku = '45-parent-style';
+		$parentSku = 'parent-style';
+		$sku = $catalogId . '-' . $parentSku;
 		$childId = 2;
 		$existingId = 3;
+
+		$helper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$helper->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'catalogId' => $catalogId
+			))));
+		$this->replaceByMock('helper', 'eb2ccore', $helper);
+
 		// Products the cleaner knows about
 		$productCollection = $this->_getProductCollectionStub();
 		// expect this product to be added
@@ -586,7 +606,7 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
 			'catalog/product',
 			array('getTypeInstance'),
 			false,
-			array(array('sku' => $parentSku, 'entity_id' => $parentId))
+			array(array('sku' => $sku, 'entity_id' => $parentId))
 		);
 		// product type model of the product being cleaned
 		$configurable = $this->getModelMockBuilder('catalog/product_type_configurable')
@@ -634,7 +654,17 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
 	 */
 	public function testAddToConfigurableProduct()
 	{
-		$parentSku = '1234-Configurable';
+		$catalogId = 1234;
+		$helper = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+		$helper->expects($this->once())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(array(
+				'catalogId' => $catalogId
+			))));
+		$this->replaceByMock('helper', 'eb2ccore', $helper);
+
+		$parentSku = 'Configurable';
+		$sku = $catalogId . '-' . $parentSku;
 		// Products the cleaner knows about
 		$productCollection = $this->_getProductCollectionStub();
 		// simple product to link to a configurable
@@ -644,12 +674,12 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
 
 		// the parent product expected to have the simple product added to
 		$parentProduct = Mage::getModel('catalog/product', array(
-			'sku' => $parentSku, 'type_id' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
+			'sku' => $sku, 'type_id' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
 		));
 		// add in some other products not expected to be chosen
 		$productCollection->addItem(Mage::getModel('catalog/product', array(
 			// must be configurable product
-			'sku' => $parentSku, 'type_id' => Mage_Catalog_Model_Product_Type::TYPE_SIMPLE
+			'sku' => $sku, 'type_id' => Mage_Catalog_Model_Product_Type::TYPE_SIMPLE
 		)));
 		$productCollection->addItem(Mage::getModel('catalog/product', array(
 			// sku must patch used product's style id

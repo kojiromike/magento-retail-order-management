@@ -19,7 +19,7 @@
  * after a configurable elapse time it will move the exported file to the out-box to be exported.
  * when an exported file have a match acknowledgment file this exported file will be move to export_archive folder
  */
-class EbayEnterprise_CataLog_Model_Feed_Ack
+class EbayEnterprise_Catalog_Model_Feed_Ack
 {
 	const CFG_EXPORT_ARCHIVE = 'export_archive';
 	const CFG_IMPORT_ARCHIVE = 'import_archive';
@@ -167,7 +167,7 @@ class EbayEnterprise_CataLog_Model_Feed_Ack
 
 		try{
 			$helper->moveFile($sourceFile, $destination);
-		} catch (EbayEnterprise_CataLog_Exception_Feed_File $e) {
+		} catch (EbayEnterprise_Catalog_Exception_Feed_File $e) {
 			$isDeletable = false;
 			$this->_logger->logException($e);
 		}
@@ -175,7 +175,7 @@ class EbayEnterprise_CataLog_Model_Feed_Ack
 		if ($isDeletable) {
 			try{
 				$helper->removeFile($sourceFile);
-			} catch (EbayEnterprise_CataLog_Exception_Feed_File $e) {
+			} catch (EbayEnterprise_Catalog_Exception_Feed_File $e) {
 				$this->_logger->logException($e);
 			}
 		}

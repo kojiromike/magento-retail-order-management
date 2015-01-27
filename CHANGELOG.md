@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 - No inventory check when adding an item to the cart that was just ordered
 - Magento admin can place $0 orders regardless of configured payment types.
 
+### Changed
+- Undo prepending catalog id to the custom product attribute `style_id` when importing products
+
 ## [1.5.0-alpha-1] - 2015-01-15
 ### Added
 - InStore module to create and import in-store pick-up, ship-to-store and ship-from-store product attribute

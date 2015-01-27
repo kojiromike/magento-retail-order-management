@@ -249,7 +249,6 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 			$shippingAddress->setCollectShippingRates(true);
 			$shippingAddress->setSameAsBilling(0);
 			$quote->setShippingAddress($shippingAddress);
-			$quote->getShippingAddress()->collectShippingRates();
 		}
 
 		// Import billing address if we are here via Button - which is to say we didn't have a billing address yet:

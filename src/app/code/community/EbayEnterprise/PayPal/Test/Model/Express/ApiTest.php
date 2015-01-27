@@ -215,7 +215,7 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest
 			->method('setAmount')
 			->with($this->_isNumeric())
 			->will($this->returnSelf());
-		$request->expects($this->once())
+		$request->expects($this->exactly(2))
 			->method('getLineItems')
 			->will($this->returnValue($this->_lineItemIterableStub));
 
@@ -396,7 +396,7 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest
 			array('setRequestId', 'setOrderId', 'setToken', 'setPayerId', 'setCurrencyCode'),
 			$request
 		);
-		$request->expects($this->once())
+		$request->expects($this->exactly(2))
 			->method('getLineItems')
 			->will($this->returnValue($this->_lineItemIterableStub));
 		$request->expects($this->once())

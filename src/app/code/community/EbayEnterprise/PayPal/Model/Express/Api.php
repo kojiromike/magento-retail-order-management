@@ -397,34 +397,58 @@ class EbayEnterprise_Paypal_Model_Express_Api
 		Mage_Sales_Model_Quote $quote,
 		Payload\Payment\ILineItemContainer $container
 	) {
-		if (!$this->_canIncludeLineItems($quote)) {
-			return;
+		if ($this->_canIncludeLineItems($quote)) {
+			$this->_processLineItems($quote, $container->getLineItems())
+				->_processNegativeLineItems($quote, $container->getLineItems());
+			$container->calculateLineItemsTotal();
+			$container->setShippingTotal($this->_getTotal('shipping', $quote));
+			$container->setTaxTotal($this->_getTotal('tax', $quote));
+			$container->setCurrencyCode($quote->getQuoteCurrencyCode());
 		}
-		$items = (array) $quote->getAllItems();
-		$lineItems = $container->getLineItems();
+	}
+
+	/**
+	 * recursively process line items into payloads
+	 * @param  Mage_Sales_Model_Quote            $quote
+	 * @param  Payload\Payment\ILineItemIterable $lineItems
+	 * @return self
+	 */
+	protected function _processLineItems(Mage_Sales_Model_Quote $quote, Payload\Payment\ILineItemIterable $lineItems)
+	{
+		$items = $quote->getAllItems();
 		$currencyCode = $quote->getQuoteCurrencyCode();
 		foreach ($items as $item) {
 			$this->_processItem($item, $lineItems, $currencyCode);
 		}
-		foreach (
-			array('discount', 'giftcardaccount', 'ebayenterprise_giftcard') as
-			$totalType
-		) {
+		return $this;
+	}
+
+	/**
+	 * process specific amount types into negative-value line item
+	 * payloads
+	 * @param  Mage_Sales_Model_Quote            $quote
+	 * @param  Payload\Payment\ILineItemIterable $lineItems
+	 * @return self
+	 */
+	protected function _processNegativeLineItems(Mage_Sales_Model_Quote $quote, Payload\Payment\ILineItemIterable $lineItems)
+	{
+		$negativeAmountTypes = array('discount', 'giftcardaccount', 'ebayenterprise_giftcard');
+		$currencyCode = $quote->getQuoteCurrencyCode();
+		foreach ($negativeAmountTypes as $totalType) {
 			$totalAmount = $this->_getTotal($totalType, $quote);
 			if ($totalAmount) {
+				// ensure all amounts are negative
+				$totalAmount = -abs($totalAmount);
 				$lineItem = $lineItems->getEmptyLineItem();
 				$lineItem->setName($this->_helper->__($totalType))
 					->setSequenceNumber($totalType)
 					->setQuantity(1)
-					->setUnitAmount($totalType === 'discount' ? $totalAmount : -$totalAmount)
+					->setUnitAmount($totalAmount)
 					->setCurrencyCode($currencyCode);
 				$lineItems->offsetSet($lineItem, null);
 			}
 		}
-		$container->calculateLineItemsTotal();
-		$container->setShippingTotal($this->_getTotal('shipping', $quote));
-		$container->setTaxTotal($this->_getTotal('tax', $quote));
-		$container->setCurrencyCode($quote->getQuoteCurrencyCode());
+		return $this;
 	}
 
 	/**

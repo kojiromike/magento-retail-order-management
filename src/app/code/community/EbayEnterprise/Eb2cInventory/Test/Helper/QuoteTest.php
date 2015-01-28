@@ -106,59 +106,6 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 	}
 
 	/**
-	 * @see self::testAddNotice test. This test will be testing the scenario where the current store is admin
-	 */
-	public function testAddNoticeAdminStore()
-	{
-		$message = 'message';
-		$code = 1;
-		$errorType = EbayEnterprise_Eb2cInventory_Helper_Quote::ERROR_TYPE;
-		$errorOrigin = EbayEnterprise_Eb2cInventory_Helper_Quote::ERROR_ORIGIN;
-
-		$isAdmin = true;
-		$storeMock = $this->getModelMockBuilder('core/store')
-			->disableOriginalConstructor()
-			->setMethods(array('isAdmin'))
-			->getMock();
-		$storeMock->expects($this->once())
-			->method('isAdmin')
-			->will($this->returnValue($isAdmin));
-
-		$helperMock = $this->getHelperMockBuilder('eb2ccore/data')
-			->disableOriginalConstructor()
-			->setMethods(array('getCurrentStore'))
-			->getMock();
-		$helperMock->expects($this->once())
-			->method('getCurrentStore')
-			->will($this->returnValue($storeMock));
-		$this->replaceByMock('helper', 'eb2ccore', $helperMock);
-
-		$quote = $this->getModelMock('sales/quote', array('addErrorInfo'));
-		$session = $this->getModelMockBuilder('adminhtml/session_quote')
-			->disableOriginalConstructor()
-			->setMethods(array('addNotice'))
-			->getMock();
-		$this->replaceByMock('singleton', 'adminhtml/session_quote', $session);
-
-		$quote
-			->expects($this->once())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo($errorType),
-				$this->identicalTo($errorOrigin),
-				$this->identicalTo($code),
-				$this->identicalTo($message)
-			)
-			->will($this->returnSelf());
-		$session
-			->expects($this->once())
-			->method('addNotice')
-			->with($this->identicalTo($message))
-			->will($this->returnSelf());
-		$quoteHelper = Mage::helper('eb2cinventory/quote');
-		$this->assertSame($quoteHelper, $quoteHelper->addCartNotice($quote, $message, $code));
-	}
-	/**
 	 * Test removing an item from a quote. Method should delete the item from the quote
 	 * and add a user notice. Notice may contain the item name and sku so both should be
 	 * passed to the method adding the notice to the session.
@@ -173,7 +120,7 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 
 		$quote = $this->getModelMock('sales/quote', array('deleteItem', 'addErrorInfo'));
 		$item = $this->getModelMock('sales/quote_item', array('getName', 'getSku'));
-		$quoteHelper = $this->getHelperMock('eb2cinventory/quote', array('_getCartMessage', 'addCartNotice'));
+		$quoteHelper = $this->getHelperMock('eb2cinventory/quote', array('_getCartMessage', '_addCartNotice'));
 		$helper = $this->getHelperMock('eb2cinventory/data', array('__'));
 		$this->replaceByMock('helper', 'eb2cinventory', $helper);
 
@@ -192,8 +139,8 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 			->will($this->returnValue($translated));
 		$quoteHelper
 			->expects($this->once())
-			->method('addCartNotice')
-			->with($this->identicalTo($quote), $this->identicalTo($translated), $this->identicalTo($oosCode))
+			->method('_addCartNotice')
+			->with($this->identicalTo($quote), $this->identicalTo($translated), $this->identicalTo($oosCode), $this->identicalTo($item))
 			->will($this->returnSelf());
 		$quote
 			->expects($this->once())
@@ -202,6 +149,7 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 			->will($this->returnSelf());
 		$this->assertSame($quoteHelper, $quoteHelper->removeItemFromQuote($quote, $item));
 	}
+
 	public function testUpdateQuoteItemQuantity()
 	{
 		$code = EbayEnterprise_Eb2cInventory_Helper_Quote::CODE_LIMITED_STOCK_ITEM;
@@ -214,7 +162,7 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 
 		$quote = $this->getModelMock('sales/quote');
 		$item = $this->getModelMock('sales/quote_item', array('setQty', 'getName', 'getSku', 'getQty'));
-		$quoteHelper = $this->getHelperMock('eb2cinventory/quote', array('addCartNotice'));
+		$quoteHelper = $this->getHelperMock('eb2cinventory/quote', array('_addCartNotice'));
 		$helper = $this->getHelperMock('eb2cinventory/data', array('__'));
 		$this->replaceByMock('helper', 'eb2cinventory', $helper);
 
@@ -248,8 +196,8 @@ class EbayEnterprise_Eb2cInventory_Test_Helper_QuoteTest extends EbayEnterprise_
 			->will($this->returnValue($translated));
 		$quoteHelper
 			->expects($this->once())
-			->method('addCartNotice')
-			->with($this->identicalTo($quote), $this->identicalTo($translated), $this->identicalTo($code))
+			->method('_addCartNotice')
+			->with($this->identicalTo($quote), $this->identicalTo($translated), $this->identicalTo($code), $this->identicalTo($item))
 			->will($this->returnSelf());
 		$this->assertSame($quoteHelper, $quoteHelper->updateQuoteItemQuantity($quote, $item, $availQty));
 	}

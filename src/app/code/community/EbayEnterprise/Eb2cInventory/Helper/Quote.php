@@ -13,7 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-
 class EbayEnterprise_Eb2cInventory_Helper_Quote
 {
 	const QUANTITY_REQUEST_GREATER_MESSAGE = 'EbayEnterprise_Eb2cInventory_Quantity_Request_Greater_Message';
@@ -22,6 +21,10 @@ class EbayEnterprise_Eb2cInventory_Helper_Quote
 	const CODE_LIMITED_STOCK_ITEM = 2;
 	const ERROR_TYPE = 'qty';
 	const ERROR_ORIGIN = 'eb2cinventory';
+
+	/** Mage_Checkout_Model_Session */
+	protected $_checkoutSession;
+
 	/**
 	 * If the quote has been allocated, roll it back.
 	 * @param  Mage_Sales_Model_Quote $quote Quote to rollback allocation for.
@@ -57,16 +60,52 @@ class EbayEnterprise_Eb2cInventory_Helper_Quote
 		$xpath->registerNamespace('a', Mage::helper('eb2cinventory')->getXmlNs());
 		return $xpath;
 	}
+
+	/**
+	 * Stash and provide the checkout session.
+	 *
+	 * @return Mage_Checkout_Model_Session
+	 */
+	protected function _getCheckoutSession()
+	{
+		if (!$this->_checkoutSession) {
+			$this->_checkoutSession = Mage::getSingleton('checkout/session');
+		}
+		return $this->_checkoutSession;
+	}
+
+	/**
+	 * Add a product id to the array of known quote errors
+	 * contained in the checkout session to work around changes
+	 * in Mage_Checkout_CartController::addAction by SUPEE-3345.
+	 *
+	 * @param string $productId
+	 * @return self
+	 */
+	protected function _addQuoteErrorsProductId($productId)
+	{
+		$session = $this->_getCheckoutSession();
+		$productIds = (array) $session->getQuoteErrorsProductIds();
+		$productIds[] = $productId;
+		$session->setQuoteErrorsProductIds($productIds);
+		return $this;
+	}
+
 	/**
 	 * Add a notice to the front-end checkout session or backend adminhtml quote session.
 	 * Assume any messages already translated via _getCartMessage.
 	 * @param Mage_Sales_Model_Quote $quote     Quote the message applied to
 	 * @param string                 $message   Message to add as a notice to the checkout session
 	 * @param string                 $errorCode Error code for the message
+	 * @param Mage_Sales_Model_Quote_Item $item The item the notice is about.
 	 * @return self
 	 */
-	public function addCartNotice(Mage_Sales_Model_Quote $quote, $message, $errorCode)
+	protected function _addCartNotice(Mage_Sales_Model_Quote $quote, $message, $errorCode, Mage_Sales_Model_Quote_Item $item)
 	{
+		// Magento patched with SUPEE-3345 will still add a success message
+		// to the cart if the checkout session does not have a
+		// quote_errors_product_ids array or that array is empty.
+		$this->_addQuoteErrorsProductId($item->getProductId());
 		$quote->addErrorInfo(self::ERROR_TYPE, self::ERROR_ORIGIN, $errorCode, $message);
 		if (Mage::helper('eb2ccore')->getCurrentStore()->isAdmin()) {
 			Mage::getSingleton('adminhtml/session_quote')->addNotice($message);
@@ -85,7 +124,7 @@ class EbayEnterprise_Eb2cInventory_Helper_Quote
 		$message = Mage::helper('eb2cinventory')->__(
 			self::QUANTITY_OUT_OF_STOCK_MESSAGE, $item->getName(), $item->getSku()
 		);
-		$this->addCartNotice($quote, $message, self::CODE_OOS_ITEM);
+		$this->_addCartNotice($quote, $message, self::CODE_OOS_ITEM, $item);
 		$quote->deleteItem($item);
 		return $this;
 	}
@@ -105,7 +144,7 @@ class EbayEnterprise_Eb2cInventory_Helper_Quote
 		$message = Mage::helper('eb2cinventory')->__(
 			self::QUANTITY_REQUEST_GREATER_MESSAGE, $item->getName(), $item->getSku(), $item->getQty(), $qty
 		);
-		$this->addCartNotice($quote, $message, self::CODE_LIMITED_STOCK_ITEM);
+		$this->_addCartNotice($quote, $message, self::CODE_LIMITED_STOCK_ITEM, $item);
 		$item->setQty($qty);
 		return $this;
 	}

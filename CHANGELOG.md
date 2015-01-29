@@ -3,7 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## [1.3.3] - 2015-01-29
 ### Fixed
-- Magento admin can place $0 orders regardless of configured payment types.
+- Customers should only see one error message when trying to cart an understocked item
+- Magento admin can place $0 orders regardless of configured payment types
 
 ## [1.3.2] - 2014-12-04
 ### Fixed

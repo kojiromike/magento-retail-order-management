@@ -176,6 +176,7 @@ All notable changes to this project will be documented in this file.
 - Product import not importing color descriptions
 
 [1.4.0-rc-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-rc-1...1.4.0-rc-2
+[1.4.0-rc-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-10...1.4.0-rc-1
 [1.4.0-alpha-10]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-9...1.4.0-alpha-10
 [1.4.0-alpha-9]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-8...1.4.0-alpha-9
 [1.4.0-alpha-8]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-7...1.4.0-alpha-8

@@ -1,11 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased][unreleased]
+## [1.5.0-alpha-2] - 2015-01-29
 ### Fixed
-- Unnecessary tax api calls when PayPal Express Checkout used from cart or product page
+- Unnecessary TDF requests when PayPal Express Checkout used from cart or product page
 - No inventory check when adding an item to the cart that was just ordered
-- Magento admin can place $0 orders regardless of configured payment types.
+- Magento admin can place $0 orders regardless of configured payment types
+- Unable to start PayPal Express Checkout
+- Test API (Web Services) fails if Address Validation->Maximum Suggestions is not configured
 
 ### Changed
 - Undo prepending catalog id to the custom product attribute `style_id` when importing products
@@ -178,6 +180,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.5.0-alpha-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-1...1.5.0-alpha-2
 [1.5.0-alpha-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-rc-1...1.5.0-alpha-1
 [1.4.0-rc-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-10...1.4.0-rc-1
 [1.4.0-alpha-10]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-9...1.4.0-alpha-10

@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased][unreleased]
+## [1.3.3] - 2015-01-29
 ### Fixed
 - Magento admin can place $0 orders regardless of configured payment types.
 
@@ -66,6 +66,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.3.3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.3.2...1.3.3
 [1.3.2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.3.1...1.3.2
 [1.3.1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.3.0...1.3.0-beta-3

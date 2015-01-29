@@ -80,4 +80,14 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_ObserversTest extends EbayEnterpris
 
 		$this->assertSame($observers, $observers->processDom($observer));
 	}
+
+	/**
+	 * Validate expected event configuration.
+	 *
+	 * @dataProvider dataProvider
+	 */
+	public function testEventSetup($area, $eventName, $observerClassAlias, $observerMethod)
+	{
+		$this->_testEventConfig($area, $eventName, $observerClassAlias, $observerMethod);
+	}
 }

@@ -34,6 +34,19 @@
 				<class>EbayEnterprise_Eb2cCustomerService_Helper</class>
 			</eb2ccsr>
 		</helpers>
+		<events>
+			<ebayenterprise_order_create_before_attach>
+				<!-- This is possibly more appropriate for adminhtml than global;
+					 however, if OCR runs in a non-admin context it should still
+					 make the attempt. -->
+				<observers>
+					<ebayenterprise_order_create_before_attach>
+						<class>eb2ccsr/observer</class>
+						<method>handleEbayEnterpriseOrderCreateBeforeAttach</method>
+					</ebayenterprise_order_create_before_attach>
+				</observers>
+			</ebayenterprise_order_create_before_attach>
+		</events>
 	</global>
 	<admin>
 		<routers>

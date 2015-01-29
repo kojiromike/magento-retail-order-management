@@ -1,0 +1,15 @@
+-
+    - global
+    - ebayenterprise_order_create_item
+    - tax/observer
+    - handleOrderCreateItemEvent
+-
+    - global
+    - ebayenterprise_order_create_ship_group
+    - tax/observer
+    - handleOrderCreateShipGroupEvent
+-
+    - global
+    - ebayenterprise_order_create_before_attach
+    - tax/observer
+    - handleOrderCreateBeforeAttachEvent

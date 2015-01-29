@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2013-2014 eBay Enterprise, Inc.
+
+  NOTICE OF LICENSE
+
+  This source file is subject to the Open Software License (OSL 3.0)
+  that is bundled with this package in the file LICENSE.md.
+  It is also available through the world-wide-web at this URL:
+  http://opensource.org/licenses/osl-3.0.php
+
+  @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+  @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+-->
+<config>
+	<modules>
+		<EbayEnterprise_Order>
+			<version>1.4.0.0</version>
+		</EbayEnterprise_Order>
+	</modules>
+	<global>
+		<fieldsets>
+			<sales_copy_order_billing_address>
+				<id>
+					<to_order>quote_address_id</to_order>
+				</id>
+			</sales_copy_order_billing_address>
+			<sales_copy_order_shipping_address>
+				<id>
+					<to_order>quote_address_id</to_order>
+				</id>
+			</sales_copy_order_shipping_address>
+			<sales_convert_quote_address>
+				<id>
+					<to_order_address>quote_address_id</to_order_address>
+				</id>
+			</sales_convert_quote_address>
+		</fieldsets>
+		<models>
+			<ebayenterprise_order>
+				<class>EbayEnterprise_Order_Model</class>
+			</ebayenterprise_order>
+		</models>
+		<helpers>
+			<ebayenterprise_order>
+				<class>EbayEnterprise_Order_Helper</class>
+			</ebayenterprise_order>
+		</helpers>
+		<events>
+			<ebayenterprise_amqp_message_order_credit_issued>
+				<observers>
+					<order_credit_issued_observer>
+						<class>ebayenterprise_order/observer</class>
+						<method>handleEbayEnterpriseAmqpMessageOrderCreditIssued</method>
+					</order_credit_issued_observer>
+				</observers>
+			</ebayenterprise_amqp_message_order_credit_issued>
+			<ebayenterprise_amqp_message_order_rejected>
+				<observers>
+					<order_update_event_order_status_rejected>
+						<class>ebayenterprise_order/observer</class>
+						<method>handleEbayEnterpriseAmqpMessageOrderRejected</method>
+					</order_update_event_order_status_rejected>
+				</observers>
+			</ebayenterprise_amqp_message_order_rejected>
+			<ebayenterprise_amqp_message_order_shipped>
+				<observers>
+					<order_update_event_order_shipment_confirmation>
+						<class>ebayenterprise_order/observer</class>
+						<method>handleEbayEnterpriseAmqpMessageOrderShipped</method>
+					</order_update_event_order_shipment_confirmation>
+				</observers>
+			</ebayenterprise_amqp_message_order_shipped>
+			<ebayenterprise_order_event_cancel>
+				<observers>
+					<order_update_event_order_status_cancel>
+						<class>ebayenterprise_order/observer</class>
+						<method>handleEbayEnterpriseOrderEventCancel</method>
+					</order_update_event_order_status_cancel>
+				</observers>
+			</ebayenterprise_order_event_cancel>
+			<sales_convert_quote_address_to_order_address>
+				<observers>
+					<ebayenterprise_copy_discounts_observer>
+						<class>ebayenterprise_order/observer</class>
+						<method>handleSalesConvertQuoteAddressToOrderAddress</method>
+					</ebayenterprise_copy_discounts_observer>
+				</observers>
+			</sales_convert_quote_address_to_order_address>
+			<sales_order_place_after>
+				<observers>
+					<ebayenterprise_order_placed_observer>
+						<class>ebayenterprise_order/observer</class>
+						<method>handleSalesOrderPlaceAfter</method>
+					</ebayenterprise_order_placed_observer>
+				</observers>
+			</sales_order_place_after>
+			<salesrule_validator_process>
+				<observers>
+					<ebayenterprise_salesrule_discount_observer>
+						<class>ebayenterprise_order/observer</class>
+						<method>handleSalesRuleValidatorProcess</method>
+					</ebayenterprise_salesrule_discount_observer>
+				</observers>
+			</salesrule_validator_process>
+			<sales_convert_quote_item_to_order_item>
+				<observers>
+					<sales_convert_quote_item_to_order_item_observer>
+						<class>ebayenterprise_order/observer</class>
+						<method>handleSalesConvertQuoteItemToOrderItem</method>
+					</sales_convert_quote_item_to_order_item_observer>
+				</observers>
+			</sales_convert_quote_item_to_order_item>
+		</events>
+	</global>
+	<crontab>
+		<jobs>
+			<ebayenterprise_order_create_retry>
+				<run>
+					<!-- Users will still need to define a schedule. Please see the documentation. -->
+					<model>ebayenterprise_order/observer::handleEbayEnterpriseOrderCreateRetryJob</model>
+				</run>
+			</ebayenterprise_order_create_retry>
+		</jobs>
+	</crontab>
+	<default>
+		<ebayenterprise_order>
+			<api>
+				<service>orders</service>
+				<create_operation>create</create_operation>
+			</api>
+			<create>
+				<gender_map/>
+				<order_type>SALES</order_type>
+				<level_of_service>REGULAR</level_of_service>
+			</create>
+		</ebayenterprise_order>
+	</default>
+	<phpunit>
+		<suite>
+			<modules>
+				<EbayEnterprise_Order/>
+			</modules>
+		</suite>
+	</phpunit>
+</config>

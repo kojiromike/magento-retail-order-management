@@ -91,6 +91,33 @@
 					</eb2ctax_reset_tax_flags>
 				</observers>
 			</sales_quote_collect_totals_after>
+			<ebayenterprise_order_create_item>
+				<observers>
+					<eb2ctax_order_create_item_observer>
+						<type>model</type>
+						<class>tax/observer</class>
+						<method>handleOrderCreateItemEvent</method>
+					</eb2ctax_order_create_item_observer>
+				</observers>
+			</ebayenterprise_order_create_item>
+			<ebayenterprise_order_create_ship_group>
+				<observers>
+					<eb2ctax_order_create_ship_group_observer>
+						<type>model</type>
+						<class>tax/observer</class>
+						<method>handleOrderCreateShipGroupEvent</method>
+					</eb2ctax_order_create_ship_group_observer>
+				</observers>
+			</ebayenterprise_order_create_ship_group>
+			<ebayenterprise_order_create_before_attach>
+				<observers>
+					<eb2ctax_order_create_before_attach_observer>
+						<type>model</type>
+						<class>tax/observer</class>
+						<method>handleOrderCreateBeforeAttachEvent</method>
+					</eb2ctax_order_create_before_attach_observer>
+				</observers>
+			</ebayenterprise_order_create_before_attach>
 		</events>
 		<sales>
 			<quote>

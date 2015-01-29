@@ -1,0 +1,5 @@
+-
+    - global
+    - ebayenterprise_order_create_payment
+    - ebayenterprise_giftcard/observer
+    - handleEbayEnterpriseOrderCreatePayment

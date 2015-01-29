@@ -77,16 +77,16 @@
 			</eb2cfraud>
 		</blocks>
 		<events>
-			<!-- Capture browser context data for the order create message -->
-			<sales_model_service_quote_submit_before>
+			<!-- Update the order create request with collected context data -->
+			<ebayenterprise_order_create_context>
 				<observers>
-					<capture_order_context>
+					<ebayenterprise_eb2cfraud_order_create_context_observer>
 						<type>model</type>
 						<class>eb2cfraud/observer</class>
-						<method>captureOrderContext</method>
-					</capture_order_context>
+						<method>handleOrderCreateContextEvent</method>
+					</ebayenterprise_eb2cfraud_order_create_context_observer>
 				</observers>
-			</sales_model_service_quote_submit_before>
+			</ebayenterprise_order_create_context>
 		</events>
 	</global>
 	<frontend>

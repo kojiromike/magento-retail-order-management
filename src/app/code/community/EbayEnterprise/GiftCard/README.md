@@ -23,6 +23,8 @@ Gift cards will only ever be redeemed for the amount displayed in the totals whi
 
 While creating orders in the admin, gift card amounts listed in the form are based upon order totals when the gift card is applied and may not necessarily reflect the amount to be applied to the order. The totals line for gift cards should display the appropriate amount to be applied to gift cards.
 
+Note: This module is incompatible with any payment method that calculates totals and is unaware of this modules' implementaion.
+
 ## Local XML Configuration
 
 Gift cards are mapped to a tender type by the card number. Ranges of card numbers belonging to a specific tender type are configured via local XML configuration. The extension includes a sample configuration file—[`/path/to/magento/root/dir/app/etc/rom.xml.sample`](../../../../etc/rom.xml.sample)—that includes detailed documentation and example configuration options.

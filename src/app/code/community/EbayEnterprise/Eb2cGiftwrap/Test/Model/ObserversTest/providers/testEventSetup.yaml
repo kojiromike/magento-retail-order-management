@@ -1,0 +1,10 @@
+-
+    - global
+    - ebayenterprise_order_create_ship_group
+    - eb2cgiftwrap/observers
+    - handleEbayEnterpriseOrderCreateShipGroup
+-
+    - global
+    - ebayenterprise_order_create_item
+    - eb2cgiftwrap/observers
+    - handleEbayEnterpriseOrderCreateItem

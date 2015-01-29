@@ -32,5 +32,6 @@ class EbayEnterprise_Eb2cInventory_Model_Config extends EbayEnterprise_Eb2cCore_
 		'xsd_file_details'                      => 'eb2cinventory/xsd/details_file',
 		'xsd_file_quantity'                     => 'eb2cinventory/xsd/quantity_file',
 		'xsd_file_rollback'                     => 'eb2cinventory/xsd/rollback_file',
+		'estimated_delivery_template'           => 'eb2cinventory/estimated_delivery/template',
 	);
 }

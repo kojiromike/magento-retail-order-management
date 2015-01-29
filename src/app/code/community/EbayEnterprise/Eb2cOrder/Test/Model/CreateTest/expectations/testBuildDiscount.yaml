@@ -1,2 +1,0 @@
-result:
-  discount_node: <_><PromotionalDiscounts><Discount appliedCount="2"><Id>8-5</Id><Code>Buy1Ge1Free</Code><Amount>2.04</Amount><Description>This is sale rule label</Description><EffectType>by_percent</EffectType><TaxData></TaxData></Discount></PromotionalDiscounts></_>

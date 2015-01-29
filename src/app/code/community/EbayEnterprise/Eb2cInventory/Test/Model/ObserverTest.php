@@ -479,4 +479,19 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			$observer, '_extractQuoteErrorMessage', array($quote)
 		));
 	}
+
+	/**
+	 * Test that events are configured as expected.
+	 * (Set up a fixture and call this from your public test method.)
+	 *
+	 * @param string $area the area of event observer definition, possible values are global, frontend, adminhtml
+	 * @param string $eventName is the name of the event that should be observed
+	 * @param string $observerClassAlias observer class alias, for instance catalog/observer
+	 * @param string $observerMethod the method name that should be invoked for
+	 * @dataProvider dataProvider
+	 */
+	public function testEventSetup($area, $eventName, $observerClassAlias, $observerMethod)
+	{
+		$this->_testEventConfig($area, $eventName, $observerClassAlias, $observerMethod);
+	}
 }

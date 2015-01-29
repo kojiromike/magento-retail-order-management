@@ -15,36 +15,63 @@
 
 class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 {
-	// Relative path where scripts are stored
-	const JSC_JS_PATH = 'ebayenterprise_eb2cfraud';
-	// Form field name that will contain the name of the randomly selected JSC
-	// form field. Used to find the generated JSC data in the POST data
-	const JSC_FIELD_NAME = 'eb2cszyvl';
 	// format strings for working with Zend_Date
 	const MAGE_DATETIME_FORMAT = 'Y-m-d H:i:s';
 	const XML_DATETIME_FORMAT = 'c';
 	const TIME_FORMAT = '%h:%I:%S';
+	// order source constants
+	const BACKEND_ORDER_SOURCE = 'phone';
+	const FRONTEND_ORDER_SOURCE = 'web';
+
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
+	protected $_coreHelper;
+	/** @var Mage_Log_Model_Visitor */
+	protected $_visitorLog;
+	/** @var Mage_Log_Model_Customer */
+	protected $_customerLog;
+	/** @var Mage_Core_Model_Session */
+	protected $_session;
 	/**
-	 * get url to our JavaScript
-	 * @return string
+	 * inject dependencies
+	 * @param array
 	 */
-	public function getJscUrl()
+	public function __construct(array $args=[])
 	{
-		return Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_JS, true) . self::JSC_JS_PATH;
+		list($this->_customerLog, $this->_visitorLog, $this->_coreHelper) =
+			$this->_checkTypes(
+				$this->_nullCoalesce('customer_log', $args, Mage::getModel('log/customer')),
+				$this->_nullCoalesce('visitor_log', $args, Mage::getModel('log/visitor')),
+				$this->_nullCoalesce('core_helper', $args, Mage::helper('eb2ccore'))
+			);
 	}
+
 	/**
-	 * Find the generated JS data from the given request's POST data. This uses
-	 * a known form field in the POST data, self::JSC_FIELD_NAME, to find the
-	 * form field populated by the JS collector. As the form field populated is
-	 * selected at random, this mapping is the only way to find the data
-	 * populated by the collector.
-	 * @param  Mage_Core_Controller_Request_Http $request
-	 * @return string
+	 * ensure correct types
+	 * @param  Mage_Log_Model_Customer
+	 * @param  Mage_Log_Model_Visitor
+	 * @param  EbayEnterprise_Eb2cCore_Helper_Data
+	 * @return array
 	 */
-	public function getJavaScriptFraudData($request)
-	{
-		return $request->getPost($request->getPost(static::JSC_FIELD_NAME, ''), '');
+	protected function _checkTypes(
+		Mage_Log_Model_Customer $customerLog,
+		Mage_Log_Model_Visitor $visitorLog,
+		EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
+	) {
+		return [$customerLog, $visitorLog, $coreHelper];
 	}
+
+	/**
+	 * return $ar[$key] if it exists otherwise return $default
+	 * @param  string
+	 * @param  array
+	 * @param  mixed
+	 * @return mixed
+	 */
+	protected function _nullCoalesce($key, array $ar, $default)
+	{
+		return isset($ar[$key]) ? $ar[$key] : $default;
+	}
+
 	/**
 	 * return an array with data for the session info element
 	 * @return array
@@ -55,34 +82,77 @@ class EbayEnterprise_Eb2cFraud_Helper_Data extends Mage_Core_Helper_Abstract
 		 * @var Mage_Customer_Model_Session $session
 		 * @var Mage_Log_Model_Visitor $visitorLog
 		 */
-		$session = Mage::getSingleton('customer/session');
-		$visitorLog = Mage::getModel('log/visitor')
-			->load($session->getEncryptedSessionId(), 'session_id');
+		$session = $this->_getCustomerSession();
+		$sessionId = $session->getEncryptedSessionId();
+		$visitorLog = $this->_visitorLog->load($sessionId, 'session_id');
+		return array(
+			'encrypted_session_id' => hash('sha256', $sessionId),
+			'last_login' => $this->_getLastLoginTime($session, $visitorLog),
+			'order_source' => $this->_getOrderSource(),
+			'rtc_transaction_response_code' => null,
+			'rtc_reason_codes' => null,
+			'time_on_file' => null,
+			'time_spent_on_site' => $this->_getTimeSpentOnSite($visitorLog),
+		);
+	}
 
-		$timeSpentOnSite = '';
-		$start = $visitorLog->getFirstVisitAt() ? date_create_from_format(self::MAGE_DATETIME_FORMAT, $visitorLog->getFirstVisitAt()) : null;
-		$end = $visitorLog->getLastVisitAt() ? date_create_from_format(self::MAGE_DATETIME_FORMAT, $visitorLog->getLastVisitAt()) : null;
-		if ($start && $end && $start < $end) {
-			$timeSpentOnSite = $end->diff($start)->format(self::TIME_FORMAT);
-		}
-		$password = '';
-		$lastLogin = '';
-		if ($session->isLoggedIn()) {
-			$customer = $session->getCustomer();
-			$password = $customer->decryptPassword($customer->getPassword());
+	/**
+	 * return the last login time as a DateTime object.
+	 * return null if the last login time cannot be calculated.
+	 * @param  Mage_Customer_Model_Session
+	 * @param  Mage_Log_Model_Visitor
+	 * @return DateTime
+	 */
+	protected function _getLastLoginTime(Mage_Customer_Model_Session $session, Mage_Log_Model_Visitor $visitorLog=null)
+	{
+		if ($visitorLog && $session->isLoggedIn()) {
 			$lastLogin = date_create_from_format(
 				self::MAGE_DATETIME_FORMAT,
-				Mage::getModel('log/customer')->load($visitorLog->getId(), 'visitor_id')->getLoginAt()
+				$this->_customerLog->load($visitorLog->getId(), 'visitor_id')->getLoginAt()
 			);
-			$lastLogin = $lastLogin ? $lastLogin->format(self::XML_DATETIME_FORMAT) : '';
 		}
-		return array(
-			'TimeSpentOnSite' => $timeSpentOnSite,
-			'LastLogin' => $lastLogin,
-			'UserPassword' => $password,
-			'TimeOnFile' => '',
-			'RTCTransactionResponseCode' => '',
-			'RTCReasonCodes' => '',
-		);
+		return isset($lastLogin) ? $lastLogin : null;
+	}
+
+	/**
+	 * get the time spent on the site as a DateInterval
+	 * returns null if unable to calculate the interval.
+	 * @param  Mage_Log_Model_Visitor
+	 * @return DateInterval
+	 */
+	protected function _getTimeSpentOnSite(Mage_Log_Model_Visitor $visitorLog=null)
+	{
+		if ($visitorLog) {
+			$start = date_create_from_format(self::MAGE_DATETIME_FORMAT, $visitorLog->getFirstVisitAt()) ?: null;
+			$end = date_create_from_format(self::MAGE_DATETIME_FORMAT, $visitorLog->getLastVisitAt()) ?: null;
+			if ($start && $end && $start < $end) {
+				$timeSpentOnSite = $end->diff($start);
+			}
+		}
+		return isset($timeSpentOnSite) ? $timeSpentOnSite : null;
+	}
+
+	/**
+	 * getting the referrer value as self::BACKEND_ORDER_SOURCE when the order is placed via ADMIN
+	 * otherwise this order is being placed in the FRONTEND return this constant value self::FRONTEND_ORDER_SOURCE
+	 * @return string
+	 */
+	protected function _getOrderSource()
+	{
+		$session = $this->_getCustomerSession();
+		$orderSource = $session->getOrderSource() ?: self::FRONTEND_ORDER_SOURCE;
+		return ($this->_coreHelper->getCurrentStore()->isAdmin()) ? self::BACKEND_ORDER_SOURCE : $orderSource;
+	}
+
+	/**
+	 * get the current customer session
+	 * @return Mage_Customer_Model_Session
+	 */
+	protected function _getCustomerSession()
+	{
+		if (!$this->_session) {
+			$this->_session = Mage::getSingleton('customer/session');
+		}
+		return $this->_session;
 	}
 }

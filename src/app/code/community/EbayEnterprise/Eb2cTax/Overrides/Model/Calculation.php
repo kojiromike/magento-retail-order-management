@@ -42,7 +42,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Calculation extends Mage_Tax_Model_
 	 * @param float|int $amount The amount to calculate tax on
 	 * @param Varien_Object $itemSelector
 	 * @param int $type One of the values of these constants [MERCHANDISE_TYPE, SHIPPING_TYPE, DUTY_TYPE]
-	 * @param string $mode [regular | discount | discount-for-amount, regular, regular-for-amount]
+	 * @param string $mode [regular | discount | discount-for-amount, regular-for-amount]
 	 * @return float the total tax amount for any discounts
 	 */
 	protected function _calcTaxByMode($amount=0, Varien_Object $itemSelector, $type=self::MERCHANDISE_TYPE, $mode=self::TAX_REGULAR)

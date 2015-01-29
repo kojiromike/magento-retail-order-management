@@ -114,4 +114,14 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_ObserverTest
 			$csrObserver->preDispatchTokenLogin($observer)
 		);
 	}
+
+	/**
+	 * Validate expected event configuration.
+	 *
+	 * @dataProvider dataProvider
+	 */
+	public function testEventSetup($area, $eventName, $observerClassAlias, $observerMethod)
+	{
+		$this->_testEventConfig($area, $eventName, $observerClassAlias, $observerMethod);
+	}
 }

@@ -25,6 +25,8 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
 	const BALANCE_REQUEST_FAILED_MESSAGE = 'EbayEnterprise_GiftCard_Request_Failed_Balance';
 	const REDEEM_REQUEST_FAILED_MESSAGE = 'EbayEnterprise_GiftCard_Request_Failed_Redeem';
 	const VOID_REQUEST_FAILED_MESSAGE = 'EbayEnterprise_GiftCard_Request_Failed_Void';
+	/** @var bool **/
+	protected $_panIsToken;
 	/** @var string **/
 	protected $_orderId;
 	/** @var string **/
@@ -43,6 +45,8 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
 	protected $_amountToRedeem;
 	/** @var float **/
 	protected $_amountRedeemed;
+	/** @var DateTime **/
+	protected $_redeemedAt;
 	/** @var string **/
 	protected $_redeemCurrencyCode;
 	/** @var float **/

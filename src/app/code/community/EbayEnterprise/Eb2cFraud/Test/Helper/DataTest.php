@@ -15,43 +15,36 @@
 
 class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	protected $_helper;
-	protected $_jsModuleName;
+	/** @var Mage_Customer_Model_Session stub */
+	protected $_customerSessionStub;
+	protected $_coreHelperStub;
+	protected $_storeStub;
 
-	/**
-	 * setUp method
-	 */
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_helper = new EbayEnterprise_Eb2cFraud_Helper_Data();
-		$this->_jsModuleName = EbayEnterprise_Eb2cFraud_Helper_Data::JSC_JS_PATH;
-	}
-
-	/**
-	 * Get back sensible URL
-	 */
-	public function testGetJscUrl()
-	{
-		$url = $this->_helper->getJscUrl();
-		$this->assertStringEndsWith($this->_jsModuleName, $url);
-	}
-	public function testGetJavaScriptFraudData()
-	{
-		$request = $this->getMockBuilder('Mage_Core_Controller_Request_Http')
+		// stub the customer session
+		$this->_customerSessionStub = $this->getModelMockBuilder('customer/session')
 			->disableOriginalConstructor()
-			->setMethods(array('getPost'))
+			->setMethods(['isLoggedIn', 'getEncryptedSessionId'])
 			->getMock();
-		$request->expects($this->exactly(2))
-			->method('getPost')
-			->will($this->returnValueMap(array(
-				array('eb2cszyvl', '', 'random_field_name'),
-				array('random_field_name', '', 'javascript_data'),
-			)));
-		$this->assertSame(
-			'javascript_data',
-			Mage::helper('eb2cfraud')->getJavaScriptFraudData($request)
-		);
+		$this->_customerSessionStub->expects($this->any())
+			->method('getEncryptedSessionId')
+			->will($this->returnValue('sessionid'));
+
+		$this->_storeStub = $this->getModelMockBuilder('core/store')
+			->disableOriginalConstructor() // prevent issues with the session
+			->setMethods(['isAdmin'])
+			->getMock();
+
+		$this->_coreHelperStub = $this->getHelperMock('eb2ccore/data', ['getCurrentStore']);
+		$this->_coreHelperStub->expects($this->any())
+			->method('getCurrentStore')
+			->will($this->returnValue($this->_storeStub));
+		$this->_orderStub = $this->getModelMock('sales/order', ['getId']);
+		$this->_payload = Mage::helper('eb2ccore')
+			->getSdkApi('orders', 'create')
+			->getRequestBody();
 	}
 
 	/**
@@ -61,70 +54,58 @@ class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
 	 */
 	public function testGetSessionInfo($isLoggedIn)
 	{
-		$session = $this->getModelMockBuilder('customer/session')
-			->disableOriginalConstructor()
-			->setMethods(array('getCustomer', 'isLoggedIn', 'getEncryptedSessionId'))
-			->getMock();
-		$customer = $this->getModelMockBuilder('customer/customer')
-			->disableOriginalConstructor()
-			->setMethods(array('getId', 'decryptPassword', 'getPassword'))
-			->getmock();
-		$visitorLog = $this->getModelMock('log/visitor', array('load', 'getFirstVisitAt', 'getLastVisitAt', 'getId'));
-		$customerLog = $this->getModelMock('log/customer', array('load', 'getLoginAt'));
-		$helper = $this->_helper;
-
-		$this->replaceByMock('singleton', 'customer/session', $session);
-		$this->replaceByMock('model', 'log/visitor', $visitorLog);
-		$this->replaceByMock('model', 'log/customer', $customerLog);
-
-		$expect = array(
-			'TimeSpentOnSite' => '1:00:00',
-			'LastLogin' => $isLoggedIn ? '2014-01-01T09:05:01+00:00' : '',
-			'UserPassword' => $isLoggedIn ? 'password' : '',
-			'TimeOnFile' => '',
-			'RTCTransactionResponseCode' => '',
-			'RTCReasonCodes' => '',
-		);
 		$sessionId = 'somesessionid';
-		$visitorId = 10;
 
-		$session->expects($this->any())
-			->method('getCustomer')
-			->will($this->returnValue($customer));
-		$session->expects($this->any())
-			->method('getEncryptedSessionId')
-			->will($this->returnValue($sessionId));
-		$session->expects($this->any())
+		$visitorLog = $this->getModelMock('log/visitor', ['load']);
+		$visitorLog->expects($this->any())
+			->method('load')
+			->will($this->returnSelf());
+		$visitorLog->setIdFieldName('visitor_id')
+			->setFirstVisitAt('2014-01-01 08:55:01')
+			->setLastVisitAt('2014-01-01 09:55:00');
+
+		$customerLog = $this->getModelMock('log/customer', ['load']);
+		$customerLog->expects($this->any())
+			->method('load')
+			->will($this->returnSelf());
+		$customerLog->setIdFieldName('id')
+			->setLoginAt('2014-01-01 09:05:01');
+
+		$this->_customerSessionStub->expects($this->any())
 			->method('isLoggedIn')
 			->will($this->returnValue($isLoggedIn));
 
-		$visitorLog->expects($this->any())
-			->method('load')
-			->with($this->identicalTo($sessionId), $this->identicalTo('session_id'))
-			->will($this->returnSelf());
-		$visitorLog->expects($this->any())
-			->method('getId')
-			->will($this->returnValue($visitorId));
-		$visitorLog->expects($this->any())
-			->method('getFirstVisitAt')
-			->will($this->returnValue('2014-01-01 08:55:01'));
-		$visitorLog->expects($this->any())
-			->method('getLastVisitAt')
-			->will($this->returnValue('2014-01-01 09:55:01'));
+		$helperMock = $this->getHelperMock('eb2cfraud/data', ['_getCustomerSession']);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues($helperMock, [
+			'_customerLog' => $customerLog,
+			'_visitorLog' => $visitorLog,
+			'_coreHelper' => $this->_coreHelperStub,
+		]);
+		$helperMock->expects($this->any())
+			->method('_getCustomerSession')
+			->will($this->returnValue($this->_customerSessionStub));
+		$result = $helperMock->getSessionInfo();
 
-		$customer->expects($this->any())
-			->method('decryptPassword')
-			->will($this->returnValue('password'));
+		$interval = $result['time_spent_on_site'];
+		$this->assertNotNull($interval);
+		foreach (['y', 'm', 'd', 'h'] as $property) {
+			$this->assertSame(0, $interval->$property);
+		}
+		$this->assertSame(59, $interval->i);
+		$this->assertSame(59, $interval->s);
 
-		$customerLog->expects($this->any())
-			->method('load')
-			->with($this->identicalTo($visitorId), $this->identicalTo('visitor_id'))
-			->will($this->returnSelf());
-		$customerLog->expects($this->any())
-			->method('getLoginAt')
-			->will($this->returnValue('2014-01-01 09:05:01'));
-
-		$this->assertSame($expect, $helper->getSessionInfo());
+		$lastLogin = $result['last_login'];
+		if ($isLoggedIn) {
+			$this->assertSame(
+				'2014-01-01 09:05:01',
+				$lastLogin->format(EbayEnterprise_Eb2cFraud_Helper_Data::MAGE_DATETIME_FORMAT)
+			);
+		} else {
+			$this->assertNull($result['last_login']);
+		}
+		$this->assertNotEmpty($result['encrypted_session_id']);
+		// the session ids should not match because of the hash
+		$this->assertNotEquals($sessionId, $result['encrypted_session_id']);
 	}
 	/**
 	 * Test that when customer/visitor logging is disabled, empty values are
@@ -132,70 +113,94 @@ class EbayEnterprise_Eb2cFraud_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
 	 */
 	public function testGetSessionInfoMissingLogData()
 	{
-		$session = $this->getModelMockBuilder('customer/session')
-			->disableOriginalConstructor()
-			->setMethods(array('getCustomer', 'isLoggedIn', 'getEncryptedSessionId'))
-			->getMock();
-		$customer = $this->getModelMockBuilder('customer/customer')
-			->disableOriginalConstructor()
-			->setMethods(array('getId', 'decryptPassword', 'getPassword'))
-			->getmock();
-		$visitorLog = $this->getModelMock('log/visitor', array('load', 'getFirstVisitAt', 'getLastVisitAt', 'getId'));
-		$customerLog = $this->getModelMock('log/customer', array('load', 'getLoginAt'));
-		$helper = $this->_helper;
+		$visitorLog = $this->getModelMock('log/visitor', ['load']);
+		$visitorLog->expects($this->any())
+			->method('load')
+			->will($this->returnValue(null));
+		$visitorLog->setIdFieldName('visitor_id');
 
-		$this->replaceByMock('singleton', 'customer/session', $session);
-		$this->replaceByMock('model', 'log/visitor', $visitorLog);
-		$this->replaceByMock('model', 'log/customer', $customerLog);
+		$customerLog = $this->getModelMock('log/customer', ['load']);
+		$customerLog->expects($this->any())
+			->method('load')
+			->will($this->returnValue(null));
+		$customerLog->setIdFieldName('id');
 
-		$expect = array(
-			'TimeSpentOnSite' => '',
-			'LastLogin' => '',
-			'UserPassword' => 'password',
-			'TimeOnFile' => '',
-			'RTCTransactionResponseCode' => '',
-			'RTCReasonCodes' => '',
-		);
-		$sessionId = 'somesessionid';
-
-		$session->expects($this->any())
-			->method('getCustomer')
-			->will($this->returnValue($customer));
-		$session->expects($this->any())
-			->method('getEncryptedSessionId')
-			->will($this->returnValue($sessionId));
-		$session->expects($this->any())
+		$this->_customerSessionStub->expects($this->any())
 			->method('isLoggedIn')
-			->will($this->returnValue(true));
+			->will($this->returnValue(false));
 
+		$helperMock = $this->getHelperMock('eb2cfraud/data', ['_getCustomerSession']);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues($helperMock, [
+			'_customerLog' => $customerLog,
+			'_visitorLog' => $visitorLog,
+			'_coreHelper' => $this->_coreHelperStub,
+		]);
+		$helperMock->expects($this->any())
+			->method('_getCustomerSession')
+			->will($this->returnValue($this->_customerSessionStub));
+		$result = $helperMock->getSessionInfo();
+
+		$this->assertNull($result['time_spent_on_site']);
+		$this->assertNull($result['last_login']);
+	}
+
+
+	public function provideOrderSourceData()
+	{
+		return [
+			[true, 'sessionsource', EbayEnterprise_Eb2cFraud_Helper_Data::BACKEND_ORDER_SOURCE],
+			[false, null, EbayEnterprise_Eb2cFraud_Helper_Data::FRONTEND_ORDER_SOURCE],
+			[false, 'sessionsource', 'sessionsource'],
+		];
+	}
+	/**
+	 * verify
+	 * - order source is from the backend when placing an order from
+	 *   the admin store.
+	 * - order source is frontend when placing the order from the frontend
+	 *   and no order source is found in the session
+	 * - order source is taken from the session when placing an order from the
+	 *   frontend and order_source is set in the session
+	 *
+	 * @param  bool   $isAdmin
+	 * @param  string $isAdmin
+	 * @param  string $orderSource
+	 * @dataProvider provideOrderSourceData
+	 */
+	public function testGetOrderSource($isAdmin, $orderSource, $expOrderSource)
+	{
+		$this->_storeStub->expects($this->any())
+			->method('isAdmin')
+			->will($this->returnValue($isAdmin));
+		$this->_customerSessionStub->setOrderSource($orderSource);
+
+		$visitorLog = $this->getModelMock('log/visitor', ['load']);
 		$visitorLog->expects($this->any())
 			->method('load')
-			->with($this->identicalTo($sessionId), $this->identicalTo('session_id'))
-			->will($this->returnSelf());
-		// when customer/visitor logging is disabled, there will be no record to
-		// back these models so any "get" methods will return null
-		$visitorLog->expects($this->any())
-			->method('getId')
 			->will($this->returnValue(null));
-		$visitorLog->expects($this->any())
-			->method('getFirstVisitAt')
-			->will($this->returnValue(null));
-		$visitorLog->expects($this->any())
-			->method('getLastVisitAt')
-			->will($this->returnValue(null));
+		$visitorLog->setIdFieldName('visitor_id');
 
-		$customer->expects($this->any())
-			->method('decryptPassword')
-			->will($this->returnValue('password'));
-
+		$customerLog = $this->getModelMock('log/customer', ['load']);
 		$customerLog->expects($this->any())
 			->method('load')
-			->with($this->identicalTo(null), $this->identicalTo('visitor_id'))
-			->will($this->returnSelf());
-		$customerLog->expects($this->any())
-			->method('getLoginAt')
 			->will($this->returnValue(null));
+		$customerLog->setIdFieldName('id');
 
-		$this->assertSame($expect, $helper->getSessionInfo());
+		$this->_customerSessionStub->expects($this->any())
+			->method('isLoggedIn')
+			->will($this->returnValue(false));
+
+		$helperMock = $this->getHelperMock('eb2cfraud/data', ['_getCustomerSession']);
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues($helperMock, [
+			'_customerLog' => $customerLog,
+			'_visitorLog' => $visitorLog,
+			'_coreHelper' => $this->_coreHelperStub,
+		]);
+		$helperMock->expects($this->any())
+			->method('_getCustomerSession')
+			->will($this->returnValue($this->_customerSessionStub));
+		$result = $helperMock->getSessionInfo();
+
+		$this->assertSame($expOrderSource, $result['order_source']);
 	}
 }

@@ -378,7 +378,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		foreach ($fields as $field) {
 			$value = isset($destData[$field]) ? $destData[$field] : null;
 			if (is_null($value)) {
-				$message = sprintf('field %s: value [%s] is invalid length', $field, $value);
+				$message = sprintf("field %s is missing", $field, $value);
 				throw Mage::exception('Mage_Core', $message);
 			}
 		}

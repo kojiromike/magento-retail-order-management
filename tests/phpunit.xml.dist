@@ -33,19 +33,22 @@
 	<groups>
 		<include>
 			<group>EbayEnterprise_Address</group>
-			<group>EbayEnterprise_Eb2cGiftwrap</group>
 			<group>EbayEnterprise_Amqp</group>
 			<group>EbayEnterprise_Catalog</group>
 			<group>EbayEnterprise_CreditCard</group>
 			<group>EbayEnterprise_Eb2cCore</group>
 			<group>EbayEnterprise_Eb2cCustomerService</group>
 			<group>EbayEnterprise_Eb2cFraud</group>
+			<group>EbayEnterprise_Eb2cGiftwrap</group>
 			<group>EbayEnterprise_Eb2cInventory</group>
 			<group>EbayEnterprise_Eb2cOrder</group>
-			<group>EbayEnterprise_PayPal</group>
-			<group>EbayEnterprise_Catalog</group>
 			<group>EbayEnterprise_Eb2cTax</group>
 			<group>EbayEnterprise_GiftCard</group>
+			<group>EbayEnterprise_Order</group>
+			<group>EbayEnterprise_PayPal</group>
+			<group>EbayEnterprise_ProductExport</group>
+			<group>EbayEnterprise_ProductImageExport</group>
+			<group>EbayEnterprise_ProductImport</group>
 		</include>
 	</groups>
 	<filter>
@@ -56,6 +59,7 @@
 			<directory suffix=".php">app/code/community/EbayEnterprise/CreditCard</directory>
 			<directory suffix=".php">app/code/community/EbayEnterprise/Eb2c*</directory>
 			<directory suffix=".php">app/code/community/EbayEnterprise/GiftCard</directory>
+			<directory suffix=".php">app/code/community/EbayEnterprise/Order</directory>
 			<exclude>
 				<directory suffix=".php">app/code/community/EbayEnterprise/*/Test</directory>
 			</exclude>

@@ -20,6 +20,7 @@ class EbayEnterprise_Eb2cGiftwrap_Helper_Data extends Mage_Core_Helper_Abstract
 	 * @var array boilerplate for initializing a new gift wrapping with limited information.
 	 */
 	protected $_giftWrapTplt;
+
 	/**
 	 * @return array the static defaults for a new gift wrapping
 	 */
@@ -36,6 +37,7 @@ class EbayEnterprise_Eb2cGiftwrap_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 		return $this->_giftWrapTplt;
 	}
+
 	/**
 	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * Get giftwrap config instantiated object.
@@ -48,6 +50,7 @@ class EbayEnterprise_Eb2cGiftwrap_Helper_Data extends Mage_Core_Helper_Abstract
 			->setStore($store)
 			->addConfigModel(Mage::getSingleton('eb2cgiftwrap/config'));
 	}
+
 	/**
 	 * instantiate new gift wrapping object and apply dummy data to it
 	 * @param  string $sku
@@ -60,6 +63,7 @@ class EbayEnterprise_Eb2cGiftwrap_Helper_Data extends Mage_Core_Helper_Abstract
 		$giftWrapping = Mage::getModel('enterprise_giftwrapping/wrapping');
 		return $this->_applyDummyData($giftWrapping, $sku, $additionalData);
 	}
+
 	/**
 	 * Fill a gift wrapping model with dummy data so that it can be saved and edited later.
 	 * @see http://www.magentocommerce.com/boards/viewthread/289906/
@@ -75,5 +79,17 @@ class EbayEnterprise_Eb2cGiftwrap_Helper_Data extends Mage_Core_Helper_Abstract
 		$wrapData['design'] = $design ?: "Incomplete gift wrapping: $sku";
 		$wrapData['eb2c_sku'] = $sku;
 		return $wrap->addData($wrapData);
+	}
+
+	/**
+	 * Calculating the order item gift wrapping row total when the passed in object is
+	 * a concrete 'sales/order_item' instance otherwise simply return the gift wrap price.
+	 * @param  Varien_Object $item
+	 * @return float
+	 */
+	public function calculateGwItemRowTotal(Varien_Object $item)
+	{
+		$qty = ($item instanceof Mage_Sales_Model_Order_Item) ? $item->getQtyOrdered() : 1;
+		return Mage::app()->getStore()->roundPrice($qty * $item->getGwPrice() + $item->getGwCardPrice());
 	}
 }

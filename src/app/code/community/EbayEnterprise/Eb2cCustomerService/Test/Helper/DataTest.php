@@ -142,4 +142,33 @@ class EbayEnterprise_Eb2cCustomerService_Test_Helper_DataTest
 		);
 		$helper->validateToken($token);
 	}
+
+	/**
+	 * Given a non-admin store
+	 * When I request a dashboard rep id
+	 * Then I will get null.
+	 *
+	 * Given an admin store
+	 * When I request a dashboard rep id
+	 * Then Magento will call getRepId on an eb2ccsr/representative object.
+	 *
+	 * @dataProvider provideTrueFalse
+	 */
+	public function testGetDashboardRepId($isAdminStore)
+	{
+		$store = $this->getModelMock('core/store', ['isAdmin']);
+		$store->expects($this->any())
+			->method('isAdmin')
+			->will($this->returnValue($isAdminStore));
+		if ($isAdminStore) {
+			// Stub the session
+			$this->replaceByMock('singleton', 'admin/session', $this->getModelMock('admin/session'));
+			$csr = $this->getModelMock('eb2ccsr/representative', ['getRepId']);
+			$csr->expects($this->once())
+				->method('getRepId')
+				->will($this->returnValue(null));
+			$this->replaceByMock('model', 'eb2ccsr/representative', $csr);
+		}
+		$this->assertSame(null, Mage::helper('eb2ccsr')->getDashboardRepId($store));
+	}
 }

@@ -43,6 +43,24 @@
 					</ebayenterprise_paypal_express_rollback>
 				</observers>
 			</eb2c_order_creation_failure>
+			<ebayenterprise_order_create_payment>
+				<observers>
+					<ebayenterprise_paypal_order_create_payment_observer>
+						<type>model</type>
+						<class>ebayenterprise_paypal/observer</class>
+						<method>handleOrderCreatePaymentEvent</method>
+					</ebayenterprise_paypal_order_create_payment_observer>
+				</observers>
+			</ebayenterprise_order_create_payment>
+			<ebayenterprise_order_create_context>
+				<observers>
+					<ebayenterprise_paypal_order_create_context_observer>
+						<type>model</type>
+						<class>ebayenterprise_paypal/observer</class>
+						<method>handleOrderCreateContextEvent</method>
+					</ebayenterprise_paypal_order_create_context_observer>
+				</observers>
+			</ebayenterprise_order_create_context>
 		</events>
 	</global>
 	<frontend>

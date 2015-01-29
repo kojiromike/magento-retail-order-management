@@ -46,28 +46,28 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 		return $this;
 	}
 
-	public function buildCoreConfigRegistry($userConfigValuePairs=array())
+	public function buildCoreConfigRegistry($userConfigValuePairs=[])
 	{
-		$configValuePairs = array (
+		$configValuePairs = [
 			// Core Values:
 			'clientId'                => 'TAN-OS-CLI',
 			'feedDestinationType'     => 'MAILBOX',
-		);
+		];
 
 		// Replace and/ or add to the default configValuePairs if the user has supplied some config values
-		foreach( $userConfigValuePairs as $configPath => $configValue ) {
+		foreach ($userConfigValuePairs as $configPath => $configValue) {
 			$configValuePairs[$configPath] = $configValue;
 		}
 
 		// Build the array in the format returnValueMap wants
-		$valueMap = array();
-		foreach( $configValuePairs as $configPath => $configValue ) {
-			$valueMap[] = array($configPath, $configValue);
+		$valueMap = [];
+		foreach ($configValuePairs as $configPath => $configValue ) {
+			$valueMap[] = [$configPath, $configValue];
 		}
 
 		$mockConfig = $this->getModelMock(
 			self::EB2CCORE_CONFIG_REGISTRY_MODEL,
-			array('__get', 'setStore', 'addConfigModel')
+			['__get', 'setStore', 'addConfigModel']
 		);
 		$mockConfig->expects($this->any())
 			->method('__get')
@@ -87,7 +87,7 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	 *
 	 * @param array name/ value map
 	 */
-	public function replaceCoreConfigRegistry($userConfigValuePairs=array())
+	public function replaceCoreConfigRegistry($userConfigValuePairs=[])
 	{
 		$this->replaceByMock('model', self::EB2CCORE_CONFIG_REGISTRY_MODEL, $this->buildCoreConfigRegistry($userConfigValuePairs));
 	}
@@ -100,7 +100,7 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	public function clearStoreConfigCache($store=null)
 	{
 		$store = EcomDev_PHPUnit_Test_Case_Util::app()->getStore($store);
-		EcomDev_Utils_Reflection::setRestrictedPropertyValue($store, '_configCache', array());
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($store, '_configCache', []);
 	}
 
 	/**
@@ -127,7 +127,7 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	 * @param  array  $methodActions   mapping of method name to a value or PHPUnit_Framework_MockObject_Stub
 	 * @return object                  mock object with specified methods mocked under the 'any' invokation constraint.
 	 */
-	protected function _buildModelMock($alias, array $methods=array())
+	protected function _buildModelMock($alias, array $methods=[])
 	{
 		$mock = $this->getModelMock($alias, array_keys((array) $methods));
 		foreach (array_filter((array) $methods) as $name => $will) {
@@ -167,7 +167,7 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	protected function _setupBaseUrl()
 	{
 		parent::setUp();
-		$_SESSION = array();
+		$_SESSION = [];
 		$_baseUrl = Mage::getStoreConfig('web/unsecure/base_url');
 		$this->app()->getRequest()->setBaseUrl($_baseUrl);
 	}
@@ -176,7 +176,7 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	{
 		$cookieMock = $this->getModelMockBuilder('core/cookie')
 			->disableOriginalConstructor() // This one removes session_start and other methods usage
-			->setMethods(array('set')) // Enables original methods usage, because by default it overrides all methods
+			->setMethods(['set']) // Enables original methods usage, because by default it overrides all methods
 			->getMock();
 		$cookieMock->expects($this->any())
 			->method('set')
@@ -189,7 +189,7 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	 */
 	public function provideTrueFalse()
 	{
-		return array(array(true), array(false));
+		return [[true], [false]];
 	}
 	/**
 	 * Build a simple event observer.
@@ -198,6 +198,26 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base
 	 */
 	public function _buildEventObserver(array $magicData)
 	{
-		return new Varien_Event_Observer(array('event' => new Varien_Event($magicData)));
+		return new Varien_Event_Observer(['event' => new Varien_Event($magicData)]);
+	}
+
+	/**
+	 * Test that events are configured as expected.
+	 * (Set up a fixture and call this from your public test method.)
+	 *
+	 * @param string $area the area of event observer definition, possible values are global, frontend, adminhtml
+	 * @param string $eventName is the name of the event that should be observed
+	 * @param string $observerClassAlias observer class alias, for instance catalog/observer
+	 * @param string $observerMethod the method name that should be invoked for
+	 */
+	protected function _testEventConfig($area, $eventName, $observerClassAlias, $observerMethod)
+	{
+	   	$config = Mage::getConfig();
+		$observerClassName = $config->getGroupedClassName('model', $observerClassAlias);
+		EcomDev_PHPUnit_Test_Case_Config::assertEventObserverDefined($area, $eventName, $observerClassAlias, $observerMethod);
+		$this->assertTrue(
+			method_exists($observerClassName, $observerMethod),
+			"Expected method '$observerClassName::$observerMethod' is not defined."
+		);
 	}
 }

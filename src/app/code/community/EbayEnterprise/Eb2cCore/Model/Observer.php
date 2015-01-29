@@ -96,4 +96,18 @@ class EbayEnterprise_Eb2cCore_Model_Observer
 		$this->_getCoreSession()->clear();
 		return $this;
 	}
+
+	/**
+	 * respond to the order create's request for a valid ship group
+	 * charge type
+	 * @param  Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function handleShipGroupChargeType(Varien_Event_Observer $observer)
+	{
+		$event = $observer->getEvent();
+		$shipGroup = $event->getShipGroupPayload();
+		Mage::helper('eb2ccore/shipping_chargetype')->setShippingChargeType($shipGroup);
+		return $this;
+	}
 }

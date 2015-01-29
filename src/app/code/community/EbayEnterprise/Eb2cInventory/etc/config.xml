@@ -117,6 +117,15 @@
 					</inventory>
 				</observers>
 			</sales_quote_item_qty_set_after>
+			<!-- Order Create Events -->
+			<ebayenterprise_order_create_item>
+				<observers>
+					<eb2cinventory_order_create_item_observer>
+						<class>eb2cinventory/observer</class>
+						<method>handleEbayEnterpriseOrderCreateItem</method>
+					</eb2cinventory_order_create_item_observer>
+				</observers>
+			</ebayenterprise_order_create_item>
 			<!-- Inventory Allocation Events -->
 			<eb2c_allocate_inventory>
 				<observers>
@@ -196,6 +205,9 @@
 		</eb2ccore>
 		<eb2cinventory>
 			<allocation_expired>60</allocation_expired>
+			<estimated_delivery>
+				<template />
+			</estimated_delivery>
 			<api_service>inventory</api_service>
 			<api_opt_inventory_qty>quantity/get</api_opt_inventory_qty>
 			<api_opt_inventory_details>details/get</api_opt_inventory_details>

@@ -34,6 +34,17 @@
 				<class>EbayEnterprise_CreditCard_Helper</class>
 			</ebayenterprise_creditcard>
 		</helpers>
+		<events>
+			<ebayenterprise_order_create_payment>
+				<observers>
+					<ebayenterprise_creditcard_order_create_payment_observer>
+						<type>model</type>
+						<class>ebayenterprise_creditcard/observer</class>
+						<method>handleOrderCreatePaymentEvent</method>
+					</ebayenterprise_creditcard_order_create_payment_observer>
+				</observers>
+			</ebayenterprise_order_create_payment>
+		</events>
 	</global>
 	<frontend>
 		<layout>

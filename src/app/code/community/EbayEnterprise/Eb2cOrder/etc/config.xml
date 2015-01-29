@@ -75,53 +75,8 @@
 					</createrequest_observer>
 				</observers>
 			</sales_order_place_after>
-			<ebayenterprise_amqp_message_order_credit_issued>
-				<observers>
-					<eb2corder_credit_issued_observer>
-						<type>model</type>
-						<class>eb2corder/observer</class>
-						<method>processAmqpMessageCreditIssued</method>
-					</eb2corder_credit_issued_observer>
-				</observers>
-			</ebayenterprise_amqp_message_order_credit_issued>
-			<ebayenterprise_amqp_message_order_rejected>
-				<observers>
-					<eb2corder_update_event_order_status_rejected>
-						<type>model</type>
-						<class>eb2corder/observer</class>
-						<method>processAmqpMessageOrderRejected</method>
-					</eb2corder_update_event_order_status_rejected>
-				</observers>
-			</ebayenterprise_amqp_message_order_rejected>
-			<ebayenterprise_order_event_cancel>
-				<observers>
-					<eb2corder_update_event_order_status_cancel>
-						<type>model</type>
-						<class>eb2corder/observer</class>
-						<method>updateCanceledStatus</method>
-					</eb2corder_update_event_order_status_cancel>
-				</observers>
-			</ebayenterprise_order_event_cancel>
-			<ebayenterprise_amqp_message_order_shipped>
-				<observers>
-					<eb2corder_update_event_order_shipment_confirmation>
-						<type>model</type>
-						<class>eb2corder/observer</class>
-						<method>processAmqpMessageOrderShipped</method>
-					</eb2corder_update_event_order_shipment_confirmation>
-				</observers>
-			</ebayenterprise_amqp_message_order_shipped>
 		</events>
 	</global>
-	<crontab>
-		<jobs>
-			<eb2corder_order_create_retry>
-				<run>
-					<model>eb2corder/create::retryOrderCreate</model>
-				</run>
-			</eb2corder_order_create_retry>
-		</jobs>
-	</crontab>
 	<frontend>
 		<routers>
 			<sales>

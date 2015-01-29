@@ -41,4 +41,35 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Observers
 		Varien_Profiler::stop(__METHOD__);
 		return $this;
 	}
+
+	/**
+	 * Add order level gifting to the payload for order create requests.
+	 *
+	 * @param Varien_Event_Observer
+	 */
+	public function handleEbayEnterpriseOrderCreateShipGroup(Varien_Event_Observer $observer)
+	{
+		$event = $observer->getEvent();
+		Mage::getModel('eb2cgiftwrap/order_create_gifting')->injectGifting(
+			$event->getOrder(),
+			$event->getShipGroupPayload()
+		);
+		return $this;
+	}
+
+	/**
+	 * Add item level gifting to the payload for order create requests.
+	 *
+	 * @param Varien_Event_Observer
+	 */
+	public function handleEbayEnterpriseOrderCreateItem(Varien_Event_Observer $observer)
+	{
+		$event = $observer->getEvent();
+		Mage::getModel('eb2cgiftwrap/order_create_gifting')->injectGifting(
+			$event->getItem(),
+			$event->getOrder(),
+			$event->getItemPayload()
+		);
+		return $this;
+	}
 }

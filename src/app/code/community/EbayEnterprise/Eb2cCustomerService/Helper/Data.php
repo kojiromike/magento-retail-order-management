@@ -18,6 +18,9 @@ class EbayEnterprise_Eb2cCustomerService_Helper_Data
 	extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
+	/** @var Mage_Admin_Model_Session */
+	protected $_adminSession;
+
 	/**
 	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
 	 * Get a config registry instance with the eb2ccsr config loaded.
@@ -58,5 +61,40 @@ class EbayEnterprise_Eb2cCustomerService_Helper_Data
 				'Unable to authenticate.'
 			);
 		}
+	}
+
+	/**
+	 * Get the admin session singleton
+	 *
+	 * @return Mage_Admin_Model_Session
+	 */
+	protected function _getAdminSession()
+	{
+		if (!$this->_adminSession) {
+			$this->_adminSession = Mage::getSingleton('admin/session');
+		}
+		return $this->_adminSession;
+	}
+
+	/**
+	 * Get the dashboard rep id, if applicable
+	 * null otherwise
+	 *
+	 * @param Mage_Core_Model_Store
+	 * @return string|null
+	 */
+	public function getDashboardRepId(Mage_Core_Model_Store $store)
+	{
+		if ($store->isAdmin()) {
+			$adminSession = $this->_getAdminSession();
+			$csr = $adminSession->getCustomerServiceRep() ?: Mage::getModel('eb2ccsr/representative');
+			$repId = $csr->getRepId();
+			if ($repId) {
+				return $repId;
+			}
+			$adminUser = $adminSession->getUser();
+			return $adminUser ? $adminUser->getUsername() : null;
+		}
+		return null;
 	}
 }

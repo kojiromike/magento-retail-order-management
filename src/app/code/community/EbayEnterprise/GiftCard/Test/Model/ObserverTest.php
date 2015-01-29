@@ -254,4 +254,13 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
 		// invoke the method, should void any redeemed card in the container
 		$observer->redeemVoidGiftCards($this->_eventObserver);
 	}
+	/**
+	 * Validate expected event configuration.
+	 *
+	 * @dataProvider dataProvider
+	 */
+	public function testEventSetup($area, $eventName, $observerClassAlias, $observerMethod)
+	{
+		$this->_testEventConfig($area, $eventName, $observerClassAlias, $observerMethod);
+	}
 }

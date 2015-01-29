@@ -66,6 +66,22 @@
 					</giftwrapping_feed_dom>
 				</observers>
 			</ebayenterprise_feed_dom_loaded>
+			<ebayenterprise_order_create_ship_group>
+				<observers>
+					<giftwrapping_order_create_order_gifting>
+						<class>eb2cgiftwrap/observers</class>
+						<method>handleEbayEnterpriseOrderCreateShipGroup</method>
+					</giftwrapping_order_create_order_gifting>
+				</observers>
+			</ebayenterprise_order_create_ship_group>
+			<ebayenterprise_order_create_item>
+				<observers>
+					<giftwrapping_order_create_item_gifting>
+						<class>eb2cgiftwrap/observers</class>
+						<method>handleEbayEnterpriseOrderCreateItem</method>
+					</giftwrapping_order_create_item_gifting>
+				</observers>
+			</ebayenterprise_order_create_item>
 		</events>
 	</global>
 	<default>

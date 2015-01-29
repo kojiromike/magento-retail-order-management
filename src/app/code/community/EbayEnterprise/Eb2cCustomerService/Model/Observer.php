@@ -19,6 +19,14 @@ class EbayEnterprise_Eb2cCustomerService_Model_Observer
 	// (GET) Parameter passing the token from Epiphany
 	const EPIPHANY_TOKEN_PARAM = 'token';
 	const EPIPHANY_ENTRYPOINT_ACTION = '/admin/csrlogin';
+	/** @var EbayEnterprise_Eb2cCustomerService_Helper_Data */
+	protected $_helper;
+
+	public function __construct()
+	{
+		$this->_helper = Mage::helper('eb2ccsr');
+	}
+
 	/**
 	 * Check for Epiphany Token Authentication. If the original path, before being
 	 * forwarded for standard Magento auth system,
@@ -43,5 +51,26 @@ class EbayEnterprise_Eb2cCustomerService_Model_Observer
 			$request
 		);
 		return $this;
+	}
+
+	/**
+	 * Supply the dashboard rep id to the order create request
+	 * if applicable.
+	 *
+	 * @param Varien_Event_Observer $observer
+	 * @return void
+	 * @codeCoverageIgnore
+	 */
+	public function handleEbayEnterpriseOrderCreateBeforeAttach(Varien_Event_Observer $observer)
+	{
+		/** @var Varien_Event */
+		$event = $observer->getEvent();
+		/** @var Mage_Sales_Model_Order */
+		$order = $event->getOrder();
+		/** @var \eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateRequest */
+		$payload = $event->getPayload();
+		$store = $order->getStore();
+		$repId = $this->_helper->getDashboardRepId($store);
+		$payload->setDashboardRepId($repId);
 	}
 }

@@ -71,6 +71,15 @@
 					</eb2ccore_clear_session_quote>
 				</observers>
 			</checkout_submit_all_after>
+			<ebayenterprise_order_create_ship_group>
+				<observers>
+					<eb2ccore_order_create_ship_group_chargetype>
+						<type>model</type>
+						<class>EbayEnterprise_Eb2cCore_Model_Observer</class>
+						<method>handleShipGroupChargeType</method>
+					</eb2ccore_order_create_ship_group_chargetype>
+				</observers>
+			</ebayenterprise_order_create_ship_group>
 		</events>
 	</global>
 	<admin>

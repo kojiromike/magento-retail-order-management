@@ -321,20 +321,4 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_DataTest extends EbayEnterprise_Eb2cO
 	{
 		$this->assertSame(array(), Mage::helper('eb2corder')->extractOrderEventIncrementIds('', '//some/x/path'));
 	}
-	/**
-	 * Test the helper method 'EbayEnterprise_Eb2cOrder_Helper_Data::calculateGwItemRowTotal' using a data provider
-	 * that will test various scenarios and the expects the return value to be the same as known result. The first
-	 * scenario will instantiate a 'sales/order_item' object and initialize it with known gift wrapping price and
-	 * quantity data and then expects it to be the same as the product of quantity time the gift wrapping price.
-	 * The second scenario will instantiate a 'sales/order' object and initialize it with a known quantity, a known
-	 * gift wrapping price and expects only the gift wrapping price to be returned.
-	 * @param string $class
-	 * @param array $data
-	 * @param float $expected
-	 * @dataProvider dataProvider
-	 */
-	public function testcalculateGwItemRowTotal($class, array $data, $expected)
-	{
-		$this->assertSame($expected, Mage::helper('eb2corder')->calculateGwItemRowTotal(Mage::getModel($class, $data)));
-	}
 }

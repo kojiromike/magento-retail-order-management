@@ -68,6 +68,18 @@ all options to ensure they match you specific implementation.
 				<flatrate_flatrate>ANY_STD</flatrate_flatrate>
 			</shipmap>
 		</eb2ccore>
+		<eb2cinventory>
+			<estimated_delivery>
+				<!-- Template to use to display the estimated delivery date. -->
+				<template></template>
+			</estimated_delivery>
+		</eb2cinventory>
+		<eb2ctax>
+			<tax_class>
+				<!-- tax class to use for the shipping price group -->
+				<shipping>93000</shipping>
+			</tax_class>
+		</eb2ctax>
 		<!--
 		Message Queue: Configuration to fetch messages from the ROM message queue. Unless otherwise noted, the provided
 		sample values should suffice for most uses.
@@ -154,6 +166,19 @@ all options to ensure they match you specific implementation.
 				<VL>9900000000000000-9900000010000000</VL>
 			</card_number_bin_ranges>
 		</ebayenterprise_giftcard>
+		<ebayenterprise_order>
+			<create>
+				<gender_map>
+					<!--
+						Map customer gender options to the Appropriate ROM Values.
+					  Invalid mappings are ignored.
+					  Currently ROM supports 'M' and 'F' as valid values.
+					-->
+					<Male>M</Male>
+					<Female>F</Female>
+				</gender_map>
+			</create>
+		</ebayenterprise_order>
 		<ebayenterprise_paypal>
 			<url>
 				<!-- logo image for category pages -->

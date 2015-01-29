@@ -763,4 +763,14 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 
 		Mage::getModel('tax/observer')->salesEventOrderAfterSave($observerMock);
 	}
+
+	/**
+	 * Validate expected event configuration.
+	 *
+	 * @dataProvider dataProvider
+	 */
+	public function testEventSetup($area, $eventName, $observerClassAlias, $observerMethod)
+	{
+		$this->_testEventConfig($area, $eventName, $observerClassAlias, $observerMethod);
+	}
 }

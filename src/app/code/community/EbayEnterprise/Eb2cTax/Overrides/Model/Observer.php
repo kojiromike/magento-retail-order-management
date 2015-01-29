@@ -51,6 +51,48 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 		return $this;
 	}
 	/**
+	 * set the tax header error flag on the order create request.
+	 * @param  Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function handleOrderCreateBeforeAttachEvent(Varien_Event_Observer $observer)
+	{
+		$event = $observer->getEvent();
+		Mage::getModel('eb2ctax/order_create_order')
+			->setTaxHeaderErrorFlag($event->getPayload(), $event->getOrder());
+		return $this;
+	}
+	/**
+	 * set tax data on the orderitem payload for the order create request
+	 * @param  Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function handleOrderCreateItemEvent(Varien_Event_Observer $observer)
+	{
+		$event = $observer->getEvent();
+		Mage::getModel('eb2ctax/order_create_orderitem')->addTaxesToPayload(
+			$event->getItemPayload(),
+			$event->getItem(),
+			$event->getAddress()
+		);
+		return $this;
+	}
+	/**
+	 * set gifting tax data on the shipgroup payload for the order create request
+	 * @param  Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function handleOrderCreateShipGroupEvent(Varien_Event_Observer $observer)
+	{
+		$event = $observer->getEvent();
+		Mage::getModel('eb2ctax/order_create_shipgroup')->addGiftTaxesToPayload(
+			$event->getShipGroupPayload(),
+			$event->getAddress(),
+			$event->getOrder()
+		);
+		return $this;
+	}
+	/**
 	 * saving response data into response_quote table
 	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
 	 * @param Mage_Sales_Model_Quote_Address $address

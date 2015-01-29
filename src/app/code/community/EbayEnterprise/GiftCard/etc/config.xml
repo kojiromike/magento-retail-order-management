@@ -90,6 +90,15 @@
 					</ebayenterprise_giftcard_empty_container>
 				</observers>
 			</checkout_submit_all_after>
+			<ebayenterprise_order_create_payment>
+				<observers>
+					<ebayenterprise_giftcard_order_create_payment_observer>
+						<type>model</type>
+						<class>ebayenterprise_giftcard/observer</class>
+						<method>handleEbayEnterpriseOrderCreatePayment</method>
+					</ebayenterprise_giftcard_order_create_payment_observer>
+				</observers>
+			</ebayenterprise_order_create_payment>
 		</events>
 	</global>
 	<frontend>

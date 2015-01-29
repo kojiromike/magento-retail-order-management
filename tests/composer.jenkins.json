@@ -28,31 +28,35 @@
 	"repositories": [
 		{
 			"type": "vcs",
-			"url": "/home/stack/git/magento-active-config.git"
+			"url": "https://gitlab.gspt.net/Cheetah/magento-active-config.git"
 		},
 		{
 			"type": "vcs",
-			"url": "/home/stack/git/EcomDev_PHPUnit.git"
+			"url": "https://gitlab.gspt.net/Cheetah/EcomDev_PHPUnit.git"
 		},
 		{
 			"type": "vcs",
-			"url": "/home/stack/git/magento-retail-order-management.git"
+			"url": "https://gitlab.gspt.net/Cheetah/magento-retail-order-management.git"
 		},
 		{
 			"type": "vcs",
-			"url": "/home/stack/git/magento-file-transfer.git"
+			"url": "https://gitlab.gspt.net/Cheetah/magento-file-transfer.git"
 		},
 		{
 			"type": "vcs",
-			"url": "/home/stack/git/magento-log.git"
+			"url": "https://gitlab.gspt.net/Cheetah/magento-log.git"
 		},
 		{
 			"type": "vcs",
-			"url": "/home/stack/git/php-dom.git"
+			"url": "https://gitlab.gspt.net/Cheetah/php-dom.git"
 		},
 		{
-			"type": "git",
-			"url": "/home/stack/git/RetailOrderManagement-SDK.git"
+			"type": "vcs",
+			"url": "https://gitlab.gspt.net/Cheetah/RetailOrderManagement-SDK.git"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/kojiromike/EcomDev_PHPUnit"
 		},
 		{
 			"type": "composer",

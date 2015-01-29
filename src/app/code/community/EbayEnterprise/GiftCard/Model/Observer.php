@@ -243,4 +243,20 @@ class EbayEnterprise_GiftCard_Model_Observer
 		}
 		return $this;
 	}
+	/**
+	 * add giftcard payment payloads to the order create
+	 * request.
+	 * @param  Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function handleEbayEnterpriseOrderCreatePayment(Varien_Event_Observer $observer)
+	{
+		$event = $observer->getEvent();
+		$order = $event->getOrder();
+		$processedPayments = $event->getProcessedPayments();
+		$paymentContainer = $event->getPaymentContainer();
+		Mage::getModel('ebayenterprise_giftcard/order_create_payment')
+			->addPaymentsToPayload($order, $paymentContainer, $processedPayments);
+		return $this;
+	}
 }

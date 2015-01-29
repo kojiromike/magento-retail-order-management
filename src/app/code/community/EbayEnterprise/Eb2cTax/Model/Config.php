@@ -32,5 +32,6 @@ class EbayEnterprise_Eb2cTax_Model_Config extends EbayEnterprise_Eb2cCore_Model_
 		'tax_duty_rate_code'                  => 'eb2ccore/eb2ctax_defaults/duty_amount_code',
 		'tax_vat_inclusive_pricing'           => 'eb2ccore/eb2ctax_calculation/vat_inclusive_pricing',
 		'xsd_file_tax_duty_fee_quote_request' => 'eb2ccore/eb2ctax_xsd/quote_request_file',
+		'shipping_tax_class'                  => 'eb2ctax/tax_class/shipping',
 	);
 }

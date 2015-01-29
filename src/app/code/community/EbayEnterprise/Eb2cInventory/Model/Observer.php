@@ -226,4 +226,17 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 		$this->_getCheckoutSession()->addMessage($error);
 		return $this;
 	}
+
+	/**
+	 * add estimated shipping information to the item payload
+	 * @param  Varien_Event_Observer $observer
+	 * @return self
+	 */
+	public function handleEbayEnterpriseOrderCreateItem(Varien_Event_Observer $observer)
+	{
+		$event = $observer->getEvent();
+		Mage::getModel('eb2cinventory/order_create_inventory')
+			->injectShippingEstimates($event->getItemPayload(), $event->getItem());
+		return $this;
+	}
 }

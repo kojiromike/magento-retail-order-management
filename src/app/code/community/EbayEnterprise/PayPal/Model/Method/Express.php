@@ -24,6 +24,8 @@ class EbayEnterprise_PayPal_Model_Method_Express
 {
 	const CODE = 'ebayenterprise_paypal_express';
 
+	const PAYMENT_INFO_AUTH_REQUEST_ID = 'auth_request_id';
+
 	protected $_code = self::CODE; // compatibility with mage payment method expectations
 	protected $_formBlockType = 'ebayenterprise_paypal/express_form';
 	protected $_infoBlockType = 'ebayenterprise_paypal/express_payment_info';
@@ -60,7 +62,8 @@ class EbayEnterprise_PayPal_Model_Method_Express
 		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_BILLING_AGREEMENT,
 		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_BUTTON,
 		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_IS_AUTHORIZED_FLAG,
-		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_IS_VOIDED_FLAG
+		EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_IS_VOIDED_FLAG,
+		self::PAYMENT_INFO_AUTH_REQUEST_ID,
 	);
 
 	/**
@@ -207,11 +210,17 @@ class EbayEnterprise_PayPal_Model_Method_Express
 		}
 		if (is_array($data)) {
 			// array keys for the fields to store into the payment info object.
-			$data = array_intersect_key($data, array_flip($this->_selectorKeys));
+			$filteredData = array_intersect_key($data, array_flip($this->_selectorKeys));
 			$info = $this->getInfoInstance();
-			foreach ($data as $key => $value) {
+			foreach ($filteredData as $key => $value) {
 				$info->setAdditionalInformation(
 					$key, $value
+				);
+			}
+			if (isset($data['shipping_address']['status'])) {
+				$this->getInfoInstance()->setAdditionalInformation(
+					EbayEnterprise_PayPal_Model_Express_Checkout::PAYMENT_INFO_ADDRESS_STATUS,
+					$data['shipping_address']['status']
 				);
 			}
 		}

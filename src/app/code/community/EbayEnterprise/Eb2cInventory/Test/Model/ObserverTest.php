@@ -97,7 +97,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 		);
 		$observer = $this->getModelMock(
 			'eb2cinventory/observer',
-			array('_initInventoryCheck', '_updateQuantity', '_updateDetails')
+			array('_initInventoryCheck', '_updateQuantity', '_updateDetails', '_extractQuoteErrorMessage')
 		);
 
 		$this->replaceByMock('helper', 'eb2cinventory/quote', $helper);
@@ -134,6 +134,11 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 				->method('rollbackAllocation')
 				->with($this->identicalTo($quote))
 				->will($this->returnSelf());
+			$observer
+				->expects($this->once())
+				->method('_extractQuoteErrorMessage')
+				->with($this->identicalTo($quote))
+				->will($this->returnSelf());
 		} else {
 			$quote->expects($this->never())
 				->method('getShippingAddress');
@@ -141,6 +146,10 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			$helper
 				->expects($this->never())
 				->method('rollbackAllocation');
+
+			$observer
+				->expects($this->never())
+				->method('_extractQuoteErrorMessage');
 		}
 
 		if ($isQtyUpdated) {
@@ -426,5 +435,36 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 				)
 			)
 		);
+	}
+	/**
+	 * Test that the method 'EbayEnterprise_Eb2cInventory_Model_Observer::extractQuoteErrorMessage'
+	 * when invoked and passed a sales/quote instance with known error message it will extract it and passed along
+	 * to be added to the checkout session.
+	 */
+	public function testExtractQuoteErrorMessage()
+	{
+		$message = 'This is an error message';
+		$error = Mage::getModel('core/message')->error($message);
+		$quote = $this->getModelMock('sales/quote', array('getErrors'));
+		$quote->expects($this->once())
+			->method('getErrors')
+			->will($this->returnValue(array($error)));
+
+		$session = $this->getModelMockBuilder('checkout/session')
+			// Disabling the checkout session in order to prevent the following
+			// exception from being thrown: "Exception: Warning: session_start(): Cannot send session cookie:
+			->disableOriginalConstructor()
+			->setMethods(array('addMessage'))
+			->getMock();
+		$session->expects($this->once())
+			->method('addMessage')
+			->with($this->identicalTo($error))
+			->will($this->returnSelf());
+		$this->replaceByMock('model', 'checkout/session', $session);
+
+		$observer = Mage::getModel('eb2cinventory/observer');
+		$this->assertSame($observer, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+			$observer, '_extractQuoteErrorMessage', array($quote)
+		));
 	}
 }

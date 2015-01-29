@@ -20,10 +20,24 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var Mage_Checkout_Model_Session */
+	protected $_checkoutSession;
 
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+	}
+	/**
+	 * Stash and provide the checkout session.
+	 *
+	 * @return Mage_Checkout_Model_Session
+	 */
+	protected function _getCheckoutSession()
+	{
+		if (!$this->_checkoutSession) {
+			$this->_checkoutSession = Mage::getSingleton('checkout/session');
+		}
+		return $this->_checkoutSession;
 	}
 
 	/**
@@ -56,6 +70,7 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 			if ($dtsRequired && Mage::helper('eb2cinventory')->hasRequiredShippingDetail($quote->getShippingAddress())) {
 				$this->_updateDetails($quote);
 			}
+			$this->_extractQuoteErrorMessage($quote);
 		}
 		return $this;
 	}
@@ -181,6 +196,30 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 			Mage::getModel('eb2cinventory/feed_item_inventories')->process($fileDetail['doc']);
 		}
 		Varien_Profiler::stop(__METHOD__);
+		return $this;
+	}
+	/**
+	 * Extract all errors from the quote and then pass them down to be
+	 * added to the checkout session.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 * @return self
+	 */
+	protected function _extractQuoteErrorMessage(Mage_Sales_Model_Quote $quote)
+	{
+		$errors = $quote->getErrors();
+		foreach($errors as $error) {
+			$this->_addErrorMessageToSession($error);
+		}
+		return $this;
+	}
+	/**
+	 * Add error message to checkout session in order to be displayed in the front-end.
+	 * @param  Mage_Core_Model_Message_Error $error
+	 * @return self
+	 */
+	protected function _addErrorMessageToSession(Mage_Core_Model_Message_Error $error)
+	{
+		$this->_getCheckoutSession()->addMessage($error);
 		return $this;
 	}
 }

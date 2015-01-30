@@ -74,7 +74,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 			$apiKey = Mage::helper('eb2ccore')->getConfigModel()->apiKey;
 		}
 		$xmlStr = $doc->C14N();
-		$this->_logDebug("[%s] Validating request: %s", array(__CLASS__, $xmlStr));
+		$this->_logger->logDebug("[%s] Validating request: %s", array(__CLASS__, $xmlStr));
 		$this->schemaValidate($doc, $xsdName);
 		$client = $this->_setupClient($client, $apiKey, $uri, $xmlStr, $adapter, $timeout);
 		$this->_logger->logInfo("[%s] Sending request to %s", array(__CLASS__, $uri));
@@ -112,21 +112,6 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	}
 
 	/**
-	 * Debug log things with multiple lines.
-	 *
-	 * @param string
-	 * @return self
-	 */
-	protected function _logDebug($msg)
-	{
-		$msgs = explode("\n", trim($msg));
-		foreach($msgs as $line) {
-			$this->_logger->logDebug('[%s] %s', array(__CLASS__, $line));
-		}
-		return $this;
-	}
-
-	/**
 	 * log the response and return the result of the configured handler method.
 	 *
 	 * @param  Zend_Http_Response $response
@@ -139,7 +124,7 @@ class EbayEnterprise_Eb2cCore_Model_Api
 		$config = $this->_getHandlerConfig($this->_getHandlerKey($response));
 		$logMethod = isset($config['logger']) ? $config['logger'] : 'logDebug';
 		$this->_logger->$logMethod('[%s] Received response from "%s".', array(__CLASS__, $uri));
-		$this->_logDebug($response->asString());
+		$this->_logger->logDebug('[%s] %s', array(__CLASS__, $response->asString()));
 		if (!$response->getBody()) {
 			$this->_logger->logWarn("[%s] Received response with no body from %s with status %s.", array(__CLASS__, $uri, $this->_status));
 		}

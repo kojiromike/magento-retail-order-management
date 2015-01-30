@@ -86,7 +86,7 @@ class EbayEnterprise_Eb2cInventory_Helper_Quote
 	{
 		$session = $this->_getCheckoutSession();
 		$productIds = (array) $session->getQuoteErrorsProductIds();
-		$productIds[] = $productId;
+		$productIds[$productId] = true;
 		$session->setQuoteErrorsProductIds($productIds);
 		return $this;
 	}

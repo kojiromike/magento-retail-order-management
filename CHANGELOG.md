@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Fixed
+- A log statement was outputting uninterpolated sprintf formatting
+
 ## [1.5.0-alpha-2] - 2015-01-29
 ### Fixed
 - Unnecessary TDF requests when PayPal Express Checkout used from cart or product page

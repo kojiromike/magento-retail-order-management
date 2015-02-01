@@ -6,7 +6,7 @@
 	"require": {
 		"magento-hackathon/magento-composer-installer": "*",
 		"magento-hackathon/composer-command-integrator": "*",
-		"ebayenterprise/magento-retail-order-management": "dev-master"
+		"ebayenterprise/magento-retail-order-management": "~1.4.0"
 	},
 	"require-dev": {
 		"ecomdev/ecomdev_phpunit": "~0.3",

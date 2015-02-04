@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Fixed
+- Order details page was not displaying country, state or postal code
+
 ## [1.2.7] - 2015-01-30
 ### Fixed
 - Magento no longer displays erroneous success message with SUPEE-3345 patch applied. For real this time.

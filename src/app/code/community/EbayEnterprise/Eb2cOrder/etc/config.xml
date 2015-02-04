@@ -366,24 +366,24 @@
 						<method>extractStringValue</method>
 						<xpath>a:Address/a:City</xpath>
 					</city>
-					<main_division>
+					<region>
 						<class>eb2ccore/map</class>
 						<type>helper</type>
 						<method>extractStringValue</method>
 						<xpath>a:Address/a:MainDivision</xpath>
-					</main_division>
-					<country_code>
+					</region>
+					<country>
 						<class>eb2ccore/map</class>
 						<type>helper</type>
 						<method>extractStringValue</method>
 						<xpath>a:Address/a:CountryCode</xpath>
-					</country_code>
-					<postal_code>
+					</country>
+					<postcode>
 						<class>eb2ccore/map</class>
 						<type>helper</type>
 						<method>extractStringValue</method>
 						<xpath>a:Address/a:PostalCode</xpath>
-					</postal_code>
+					</postcode>
 				</address_data>
 				<order_item>
 					<sku>

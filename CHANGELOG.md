@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 ### Fixed
 - A log statement was outputting uninterpolated sprintf formatting
+- Order details page was not displaying country, state or postal code
 
 ## [1.5.0-alpha-2] - 2015-01-29
 ### Fixed

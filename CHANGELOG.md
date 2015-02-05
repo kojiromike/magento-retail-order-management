@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.2.8] - 2015-02-05
 ### Fixed
 - Order details page was not displaying country, state or postal code
 
@@ -102,6 +102,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.2.8]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.2.7...1.2.8
 [1.2.7]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.2.6...1.2.7
 [1.2.6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.2.5...1.2.6
 [1.2.5]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.2.4...1.2.5

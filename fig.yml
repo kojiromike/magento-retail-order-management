@@ -138,12 +138,17 @@ magerun:
     entrypoint: ["n98-magerun", "--skip-root-check"]
     command: list commands
 modman:
-    # fig run --rm modman init
-    # fig run --rm modman link /git/magento-retail-order-management
-    # fig run --rm modman clone https://github.com/kojiromike/EcomDev_PHPUnit
     image: kojiromike/magento_tools
     volumes:
         - build/magento:/srv/magento
         - .:/git/magento-retail-order-management
     entrypoint: ["modman"]
     command: list
+modmansetup:
+    image: kojiromike/magento_tools
+    volumes:
+        - build/magento:/srv/magento
+        - .:/git/magento-retail-order-management
+    command: sh -c 'modman init &&
+             modman link /git/magento-retail-order-management &&
+             modman clone https://github.com/kojiromike/EcomDev_PHPUnit'

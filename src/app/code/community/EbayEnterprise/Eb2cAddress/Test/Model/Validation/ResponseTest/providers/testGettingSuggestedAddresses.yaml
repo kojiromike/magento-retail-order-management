@@ -1,0 +1,35 @@
+-
+  - >
+    <AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
+      <Result>
+        <SuggestedAddresses>
+          <SuggestedAddress>
+            <Line1>1671 S Clark Street Rd</Line1>
+            <City>Foo</City>
+            <MainDivision>NY</MainDivision>
+            <CountryCode>US</CountryCode>
+            <PostalCode>13021-9523</PostalCode>
+            <FormattedAddress>1671 S Clark Street Rd\nAuburn NY 13021-9523\nUS</FormattedAddress>
+            <ErrorLocations>
+              <ErrorLocation>Line1</ErrorLocation>
+              <ErrorLocation>MainDivision</ErrorLocation>
+              <ErrorLocation>PostalCode</ErrorLocation>
+            </ErrorLocations>
+          </SuggestedAddress>
+          <SuggestedAddress>
+            <Line1>1671 N Clark Street Rd</Line1>
+            <City>Bar</City>
+            <MainDivision>PA</MainDivision>
+            <CountryCode>US</CountryCode>
+            <PostalCode>19406-1234</PostalCode>
+            <FormattedAddress>1671 N Clark Street Rd\nAuburn NY 13021-9511\nUS</FormattedAddress>
+            <ErrorLocations>
+              <ErrorLocation>Line1</ErrorLocation>
+              <ErrorLocation>City</ErrorLocation>
+              <ErrorLocation>MainDivision</ErrorLocation>
+              <ErrorLocation>PostalCode</ErrorLocation>
+            </ErrorLocations>
+          </SuggestedAddress>
+        </SuggestedAddresses>
+      </Result>
+    </AddressValidationResponse>

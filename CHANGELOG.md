@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.2.9]
+## [1.2.9] - 2015-02-09
 ### Fixed
 - Correctly handle when address validation returns only a single suggestion
 

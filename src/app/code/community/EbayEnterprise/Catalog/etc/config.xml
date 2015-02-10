@@ -248,10 +248,10 @@
 			<readonly_attributes><![CDATA[hts_codes,is_clean,unresolved_product_links]]></readonly_attributes>
 			<dummy>
 				<!-- Default values for product attributes where Vanilla Magento doesn't already have defaults. -->
-				<description>This product is invalid. If you are seeing this product, please do not attempt to purchase and contact customer service.</description>
+				<description>This product is incomplete. If you are seeing this product, please do not attempt to purchase and contact customer service.</description>
 				<in_stock>1</in_stock>
 				<manage_stock>1</manage_stock>
-				<short_description>invalid product. Please do not attempt to purchase.</short_description>
+				<short_description>Incomplete product. Please do not attempt to purchase.</short_description>
 				<stock_quantity>0</stock_quantity>
 				<type_id>simple</type_id>
 				<weight>0</weight>

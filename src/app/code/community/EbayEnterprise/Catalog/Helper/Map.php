@@ -180,7 +180,7 @@ class EbayEnterprise_Catalog_Helper_Map
 		$urlKey = Mage::helper('eb2ccore')->extractNodeVal($nodes);
 		return ($urlKey !== '')?
 			$urlKey . '-' . $product->getStoreId() :
-			'Invalid Product: ' . $product->getSku() . '-' . $product->getStoreId();
+			'Incomplete Product: ' . $product->getSku() . '-' . $product->getStoreId();
 	}
 	/**
 	 * given a gift card type return the gift card constant mapped to it

@@ -224,7 +224,7 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest
 			->will($this->returnValue(array()));
 		$prod = EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_applyDummyData', array(Mage::getModel('catalog/product'), $sku, $additionalData));
 		$this->assertSame($sku, $prod->getSku());
-		$this->assertSame($name ?: "Invalid Product: $sku", $prod->getName());
+		$this->assertSame($name ?: "Incomplete Product: $sku", $prod->getName());
 		$this->assertSame($sku, $prod->getUrlKey());
 	}
 	/**

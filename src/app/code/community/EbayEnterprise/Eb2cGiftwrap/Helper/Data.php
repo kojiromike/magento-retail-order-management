@@ -72,7 +72,7 @@ class EbayEnterprise_Eb2cGiftwrap_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		$wrapData = array_merge($this->_getGiftWrapTplt(), $additionalData);
 		$design = isset($wrapData['design']) ? $wrapData['design'] : null;
-		$wrapData['design'] = $design ?: "Invalid gift wrapping: $sku";
+		$wrapData['design'] = $design ?: "Incomplete gift wrapping: $sku";
 		$wrapData['eb2c_sku'] = $sku;
 		return $wrap->addData($wrapData);
 	}

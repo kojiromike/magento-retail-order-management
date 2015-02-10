@@ -244,7 +244,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		$prodData = array_merge($this->_getProdTplt(), $additionalData);
 		$name = isset($prodData['name']) ? $prodData['name'] : null;
-		$prodData['name'] = $name ?: "Invalid Product: $sku";
+		$prodData['name'] = $name ?: "Incomplete Product: $sku";
 		$prodData['sku'] = $prodData['url_key'] = $sku;
 		return $prod->addData($prodData);
 	}

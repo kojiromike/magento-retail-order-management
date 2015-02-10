@@ -28,7 +28,7 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Helper_DataTest
 			'base_price' => 0.0,
 			'image' => null,
 			'status' => 1,
-			'design' => "Invalid gift wrapping: $sku",
+			'design' => "Incomplete gift wrapping: $sku",
 			'eb2c_sku' => $sku
 		);
 

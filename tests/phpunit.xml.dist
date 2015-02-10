@@ -33,6 +33,7 @@
 	<groups>
 		<include>
 			<group>EbayEnterprise_Address</group>
+			<group>EbayEnterprise_Eb2cGiftwrap</group>
 			<group>EbayEnterprise_Amqp</group>
 			<group>EbayEnterprise_Catalog</group>
 			<group>EbayEnterprise_CreditCard</group>

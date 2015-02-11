@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 - Order details page was not displaying country, state or postal code
 - Resolve no inventory message not showing when adding products to shopping cart.
 
+### Changed
+ - Change "Invalid" to "Incomplete" for products not yet fully imported
+
 ## [1.4.0-rc-2] - 2015-01-29
 ### Fixed
 - Unnecessary TDF requests when PayPal Express Checkout used from cart or product page

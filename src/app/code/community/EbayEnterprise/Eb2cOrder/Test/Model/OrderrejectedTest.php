@@ -36,7 +36,8 @@ class EbayEnterprise_Eb2cOrder_Test_Model_OrderrejectedTest extends EbayEnterpri
 		parent::setUp();
 		$this->_payload = new OrderEvents\OrderRejected(
 			new Payload\ValidatorIterator([$this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\IValidator')]),
-			$this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\ISchemaValidator')
+			$this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\ISchemaValidator'),
+			$this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\IPayloadMap')
 		);
 		$this->_payload->setCustomerOrderId(static::PAYLOAD_CUSTOMER_ORDER_ID)
 			->setStoreId(static::PAYLOAD_STORE_ID)

@@ -31,7 +31,18 @@ class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Items extends Mage_Core_Blo
 	 * @return EbayEnterprise_Eb2cOrder_Helper_Data
 	 */
 	public function getHelper($type='eb2corder')
-    {
+	{
 		return Mage::helper($type);
+	}
+
+	/**
+	 * Calculate the grand order total.
+	 *
+	 * @return float
+	 */
+	public function getOrderTotal()
+	{
+		$order = $this->getOrder();
+		return $order->getSubtotal() + $order->getShippingAmount() + $order->getDiscountAmount() + $order->getTaxAmount();
 	}
 }

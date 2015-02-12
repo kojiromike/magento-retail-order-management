@@ -178,6 +178,18 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest
 		);
 	}
 	/**
+	 * Test getting a negative sum of amounts for use as a discount amount.
+	 */
+	public function testDiscountSum()
+	{
+		$doc = Mage::helper('eb2ccore')->getNewDomDocument();
+		$doc->loadXML('<_><a>1.1</a><b>5.5</b><c>3.0</c></_>');
+		$this->assertSame(
+			-9.6,
+			Mage::helper('ebayenterprise_catalog/map')->extractDiscountSum($doc->documentElement->childNodes)
+		);
+	}
+	/**
 	 * Test extractStatusValue method for the following expectations
 	 * Expectation 1: this test is expected to call the EbayEnterprise_Catalog_Helper_Map::extractStatusValue method with a known
 	 *                DOMNodeList object the method is then expected to return a value for enabling magento product by first

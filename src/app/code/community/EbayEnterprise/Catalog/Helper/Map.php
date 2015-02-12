@@ -319,4 +319,15 @@ class EbayEnterprise_Catalog_Helper_Map
 		}
 		return $sum;
 	}
+
+	/**
+	 * Return a negative sum of the data for all elements retrieved by the xpath.
+	 * Used to get a negative amount for discount sums.
+	 * @param DOMNodeList $nodes
+	 * @return float
+	 */
+	public function extractDiscountSum(DOMNodeList $nodes)
+	{
+		return -$this->extractFloatSum($nodes);
+	}
 }

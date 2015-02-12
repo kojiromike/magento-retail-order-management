@@ -6,7 +6,6 @@ All notable changes to this project will be documented in this file.
 - Sprintf-format specifiers not replaced in log messages
 - Order details page was not displaying country, state or postal code
 - No error message when a product with no inventory is removed from cart
-- Correctly handle when address validation returns only a single suggestion
 
 ### Changed
  - Change "Invalid" to "Incomplete" for products not yet fully imported

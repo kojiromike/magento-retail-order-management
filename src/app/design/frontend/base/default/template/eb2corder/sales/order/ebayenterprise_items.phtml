@@ -40,7 +40,7 @@
 				<td><?php echo $_item->getName(); ?></td>
 				<td><?php echo $_item->getSku(); ?></td>
 				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_item->getPrice()); ?></td>
-				<td class="a-center"><?php echo print_r($_item->getQty()); ?></td>
+				<td class="a-center"><?php echo $_item->getQtyOrdered(); ?></td>
 				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_item->getRowTotal()); ?></td>
 			</tr>
 			<?php endforeach; ?>

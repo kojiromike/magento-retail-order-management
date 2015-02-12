@@ -14,7 +14,12 @@
  */
 ?>
 <?php /** @var $this EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Items */ ?>
-<?php $_order = $this->getOrder(); ?>
+<?php
+/** @var Mage_Sales_Model_Order */
+$_order = $this->getOrder();
+/** @var EbayEnterprise_Eb2cOrder_Helper_Data */
+$_helper = $this->getHelper();
+?>
 <table class="data-table" id="my-orders-table" summary="<?php echo $this->getHelper()->__('Items Ordered') ?>">
 	<col />
 	<col width="1" />
@@ -23,11 +28,11 @@
 	<col width="1" />
 	<thead>
 		<tr>
-			<th><?php echo $this->getHelper()->__('Product Name') ?></th>
-			<th><?php echo $this->getHelper()->__('SKU') ?></th>
-			<th class="a-right"><?php echo $this->getHelper()->__('Price') ?></th>
-			<th class="a-center"><?php echo $this->getHelper()->__('Qty') ?></th>
-			<th class="a-right"><?php echo $this->getHelper()->__('Subtotal') ?></th>
+			<th><?php echo $_helper->__('Product Name') ?></th>
+			<th><?php echo $_helper->__('SKU') ?></th>
+			<th class="a-right"><?php echo $_helper->__('Price') ?></th>
+			<th class="a-center"><?php echo $_helper->__('Qty') ?></th>
+			<th class="a-right"><?php echo $_helper->__('Subtotal') ?></th>
 		</tr>
 	</thead>
 	<tfoot>
@@ -39,32 +44,30 @@
 			<tr>
 				<td><?php echo $_item->getName(); ?></td>
 				<td><?php echo $_item->getSku(); ?></td>
-				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_item->getPrice()); ?></td>
+				<td class="a-right"><?php echo $_helper->formatPrice($_item->getPrice()); ?></td>
 				<td class="a-center"><?php echo $_item->getQtyOrdered(); ?></td>
-				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_item->getRowTotal()); ?></td>
+				<td class="a-right"><?php echo $_helper->formatPrice($_item->getRowTotal()); ?></td>
 			</tr>
 			<?php endforeach; ?>
 			<tr>
-				<?php $_subtotal = $_order->getSubtotal();?>
-				<?php $_total = $_subtotal; ?>
-				<td class="a-right" colspan="4"><?php echo $this->getHelper()->__('Subtotal')?></td>
-				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_subtotal); ?></td>
+				<td class="a-right" colspan="4"><?php echo $_helper->__('Subtotal')?></td>
+				<td class="a-right"><?php echo $_helper->formatPrice($_order->getSubtotal()); ?></td>
 			</tr>
 			<tr>
-				<?php $_shippingAmount = $_order->getShippingAmount();?>
-				<?php $_total += $_shippingAmount; ?>
-				<td class="a-right" colspan="4"><?php echo $this->getHelper()->__('Shipping and Handling')?></td>
-				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_shippingAmount)?></td>
+				<td class="a-right" colspan="4"><?php echo $_helper->__('Shipping and Handling')?></td>
+				<td class="a-right"><?php echo $_helper->formatPrice($_order->getShippingAmount())?></td>
 			</tr>
 			<tr>
-				<?php $_taxAmount = $_order->getTaxAmount();?>
-				<?php $_total += $_taxAmount; ?>
-				<td class="a-right" colspan="4"><?php echo $this->getHelper()->__('Tax')?></td>
-				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_order->getTaxAmount()); ?></td>
+				<td class="a-right" colspan="4"><?php echo $_helper->__('Discounts')?></td>
+				<td class="a-right"><?php echo $_helper->formatPrice($_order->getDiscountAmount()); ?></td>
 			</tr>
 			<tr>
-				<td class="a-right" colspan="4"><?php echo $this->getHelper()->__('Total')?></td>
-				<td class="a-right"><?php echo $this->getHelper()->formatPrice($_total); ?></td>
+				<td class="a-right" colspan="4"><?php echo $_helper->__('Tax')?></td>
+				<td class="a-right"><?php echo $_helper->formatPrice($_order->getTaxAmount()); ?></td>
+			</tr>
+			<tr>
+				<td class="a-right" colspan="4"><?php echo $_helper->__('Total')?></td>
+				<td class="a-right"><?php echo $_helper->formatPrice($this->getOrderTotal()); ?></td>
 			</tr>
 		</tbody>
 </table>

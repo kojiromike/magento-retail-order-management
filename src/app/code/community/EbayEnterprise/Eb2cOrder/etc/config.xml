@@ -434,7 +434,7 @@
 					<discount_amount>
 						<class>ebayenterprise_catalog/map</class>
 						<type>helper</type>
-						<method>extractFloatSum</method>
+						<method>extractDiscountSum</method>
 						<xpath>//a:Pricing/*/a:PromotionalDiscounts/a:Discount/a:Amount</xpath>
 					</discount_amount>
 					<!-- custom attributes go here -->

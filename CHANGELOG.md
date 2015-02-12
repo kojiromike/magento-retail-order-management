@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 ### Fixed
 - Display correct quantity ordered on order details page
+- Include discount amount in order totals on order details page
 
 ## [1.4.0-rc-3] - 2015-02-12
 ### Fixed

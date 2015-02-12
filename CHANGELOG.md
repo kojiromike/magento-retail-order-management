@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Fixed
+- Display correct quantity ordered on order details page
+
 ## [1.5.0-alpha-3] - 2015-02-12
 ### Fixed
 - Sprintf-format specifiers not replaced in log messages
@@ -190,6 +194,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[Unreleased]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-3..HEAD
 [1.5.0-alpha-3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-2...1.5.0-alpha-3
 [1.5.0-alpha-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-1...1.5.0-alpha-2
 [1.5.0-alpha-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-rc-1...1.5.0-alpha-1

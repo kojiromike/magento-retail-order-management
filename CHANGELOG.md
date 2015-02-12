@@ -1,14 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.3.4] - 2015-02-12
+### Fixed
+- Correctly handle when address validation returns only a single suggestion
 - Order details page was not displaying country, state or postal code
 
 ## [1.3.3] - 2015-01-29
 ### Fixed
 - Customers should only see one error message when trying to cart an understocked item
 - Magento admin can place $0 orders regardless of configured payment types
-- Order details page was not displaying country, state or postal code
 
 ## [1.3.2] - 2014-12-04
 ### Fixed
@@ -71,6 +72,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.3.4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.3.3...1.3.4
 [1.3.3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.3.2...1.3.3
 [1.3.2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.3.1...1.3.2
 [1.3.1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.3.0...1.3.1

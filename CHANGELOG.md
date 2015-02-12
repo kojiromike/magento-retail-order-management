@@ -1,11 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.4.0-rc-3] - 2015-02-12
 ### Fixed
-- A log statement was outputting uninterpolated sprintf formatting
+- Sprintf-format specifiers not replaced in log messages
 - Order details page was not displaying country, state or postal code
-- Resolve no inventory message not showing when adding products to shopping cart.
+- No error message when a product with no inventory is removed from cart
+- Correctly handle when address validation returns only a single suggestion
 
 ### Changed
  - Change "Invalid" to "Incomplete" for products not yet fully imported
@@ -184,6 +185,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.4.0-rc-3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-rc-2...1.4.0-rc-3
 [1.4.0-rc-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-rc-1...1.4.0-rc-2
 [1.4.0-rc-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-10...1.4.0-rc-1
 [1.4.0-alpha-10]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-alpha-9...1.4.0-alpha-10

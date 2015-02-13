@@ -597,7 +597,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	 */
 	protected function _prepareCustomerQuote()
 	{
-		$shipping = $this->quote->isVirtual() ? null
+		$shipping = $this->_quote->isVirtual() ? null
 			: $this->_quote->getShippingAddress();
 		$customer = $this->_getCustomerSession()->getCustomer();
 		$customerBilling = $this->_prepareCustomerBilling($customer);

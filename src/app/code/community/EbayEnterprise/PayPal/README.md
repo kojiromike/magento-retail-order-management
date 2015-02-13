@@ -15,6 +15,10 @@ The intended audience for this guide is Magento merchants, business users and sy
 
 The Magento Retail Order Management Extension enables PayPal payment processing via the Retail Order Management payment service.
 
+## Configuration
+
+The PayPal button image URLs may be optionally modified in configuration via local XML. The extension includes a sample configuration file—[`/path/to/magento/root/dir/app/etc/rom.xml.sample`](../../../../etc/rom.xml.sample)—that includes detailed documentation and example configuration options.
+
 ## Dependencies
 
 ### Magento Modules
@@ -33,11 +37,6 @@ The Magento Retail Order Management Extension enables PayPal payment processing 
 ### Test Dependencies
 
 - EcomDev_PHPUnit
-
-## Configuration
-
-The image urls for the paypal buttons on the cart as well as product pages can be customized.
-Refer to the rom.xml.sample configuration file.
 
 - - -
 Copyright © 2014 eBay Enterprise, Inc.

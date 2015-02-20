@@ -15,12 +15,12 @@
 
 class EbayEnterprise_Address_Model_Config extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
 {
-	protected $_configPaths = array(
+	protected $_configPaths = [
 		'address_format_address_only' => 'eb2ccore/ebayenterprise_address/suggestion_templates/address_only_html',
-		'address_format_full'         => 'eb2ccore/ebayenterprise_address/suggestion_templates/full_html',
-		'api_namespace'               => 'eb2ccore/api/xml_namespace',
-		'is_validation_enabled'       => 'eb2ccore/ebayenterprise_address/enabled',
-		'max_address_suggestions'     => 'eb2ccore/ebayenterprise_address/max_suggestions',
-		'xsd_file_address_validation' => 'eb2ccore/ebayenterprise_address/xsd/file',
-	);
+		'address_format_full' => 'eb2ccore/ebayenterprise_address/suggestion_templates/full_html',
+		'is_validation_enabled' => 'eb2ccore/ebayenterprise_address/enabled',
+		'max_address_suggestions' => 'eb2ccore/ebayenterprise_address/max_suggestions',
+		'api_service' => 'eb2ccore/ebayenterprise_address/api/service',
+		'api_operation' => 'eb2ccore/ebayenterprise_address/api/operation',
+	];
 }

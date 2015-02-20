@@ -167,9 +167,10 @@
 {{if postcode}}{{var postcode}}<br/>{{/if}}
 {{var country}}]]></address_only_html>
 				</suggestion_templates>
-				<xsd>
-					<file>Address-Validation-Service-1.0.xsd</file>
-				</xsd>
+				<api>
+					<service>address</service>
+					<operation>validate</operation>
+				</api>
 			</ebayenterprise_address>
 		</eb2ccore>
 	</default>

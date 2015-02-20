@@ -14,21 +14,69 @@
  */
 
 class EbayEnterprise_Address_Test_Model_ValidatorTest
-	extends EcomDev_PHPUnit_Test_Case
+	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	/** @var eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi (mock) */
+	protected $_sdkApi;
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data (mock) */
+	protected $_coreHelper;
+	/** @var EbayEnterprise_Address_Helper_Data (mock) */
+	protected $_addressHelper;
+	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+	protected $_addressConfig;
+
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_mockApiModel();
 		$this->_mockCustomerSession();
 		$this->_mockCheckoutSession();
+
+		$this->_sdkApi = $this->_mockSdkApi();
+
+		$this->_coreHelper = $this->getHelperMock('eb2ccore/data', ['getSdkApi']);
+		$this->_coreHelper->expects($this->any())
+			->method('getSdkApi')
+			->will($this->returnValue($this->_sdkApi));
+
+		// Stub the __get method with config key => value value map in tests that need to mock config
+		$this->_addressConfig = $this->buildCoreConfigRegistry();
+
+		$this->_addressHelper = $this->getHelperMock('ebayenterprise_address/data', ['__', 'getConfigModel']);
+		$this->_addressHelper->expects($this->any())
+			->method('__')
+			->will($this->returnArgument(0));
+		$this->_addressHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->_addressConfig));
+
+		$this->_validatorRequest = $this->getModelMockBuilder('ebayenterprise_address/validation_request')
+			->disableOriginalConstructor()
+			->setMethods(['prepareRequest', 'getRequest'])
+			->getMock();
+		$this->_validatorResponse = $this->getModelMockBuilder('ebayenterprise_address/validation_response')
+			->disableOriginalConstructor()
+			->setMethods([
+				'getValidAddress', 'getOriginalAddress', 'getHasSuggestions',
+				'getAddressSuggestions', 'isAddressValid'
+			])
+			->getMock();
+
+		$this->_validator = $this->getModelMockBuilder('ebayenterprise_address/validator')
+			// mock out interactions with validation request and response models,
+			// prevents deep mocking of SDK objects
+			->setMethods(['_prepareApiForAddressRequest', '_getValidationResponse'])
+			->setConstructorArgs([['core_helper' => $this->_coreHelper, 'helper' => $this->_addressHelper]])
+			->getMock();
+		$this->_validator->expects($this->any())
+			->method('_getValidationResponse')
+			->will($this->returnValue($this->_validatorResponse));
 	}
 
 	/**
 	 * Create an address object to pass off to the validator.
 	 * @return Mage_Customer_Model_Address
 	 */
-	protected function _createAddress($fields=array())
+	protected function _createAddress($fields=[])
 	{
 		$addr = Mage::getModel('customer/address');
 		$addr->setData($fields);
@@ -36,24 +84,28 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	}
 
 	/**
-	 * Replace the eb2ccore/api model with a mock
-	 * @param bool $emptyResponse
+	 * Mock an SDK IBidirectionalApi object.
+	 *
+	 * @return \eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi (mock)
 	 */
-	protected function _mockApiModel($emptyResponse=false)
+	protected function _mockSdkApi()
 	{
-		$mock = $this->getModelMock('eb2ccore/api', array('addData', 'request'));
-		$mock->expects($this->any())
-			->method('addData')
+		$sdk = $this->getMockBuilder('\eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi')
+			// Constructor disabled to prevent needing to create and inject
+			// API configuration.
+			->disableOriginalConstructor()
+			// Payload getters mocked but not set to return anything. The validator
+			// shouln't need to worry about manipulating the payloads so shouldn't
+			// be necessary to create valid or mocked payloads.
+			->setMethods(['getRequestBody', 'setRequestBody', 'send', 'getResponseBody'])
+			->getMock();
+		$sdk->expects($this->any())
+			->method('setRequestBody')
 			->will($this->returnSelf());
-		$mock->expects($this->any())
-			->method('request')
-			->will($this->returnValue($emptyResponse ? '' : '
-<?xml version="1.0" encoding="UTF-8"?>
-<AddressValidationResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
-</AddressValidationResponse>
-				'));
-		$this->replaceByMock('model', 'eb2ccore/api', $mock);
-		return $mock;
+		$sdk->expects($this->any())
+			->method('send')
+			->will($this->returnSelf());
+		return $sdk;
 	}
 
 	/**
@@ -85,43 +137,39 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	}
 
 	/**
-	 * Replace the ebayenterprise_address/validation_response model with a mock
-	 * @return PHPUnit_Framework_MockObject_MockObject - the mock respose model
+	 * Stub validator response methods with expected bahaviors.
+	 *
+	 * @param bool
+	 * @param bool
+	 * @param Mage_Customer_Model_Address_Abstract|null
+	 * @param Mage_Customer_Model_Address_Abstract|null
+	 * @param Mage_Customer_Model_Address_Abstract[]
+	 * @return self
 	 */
 	protected function _mockValidationResponse(
 		$isAddressValid=false,
 		$hasSuggestions=false,
 		$originalAddress=null,
 		$validAddress=null,
-		$addressSuggestions=array()
+		$addressSuggestions=[]
 	)
 	{
-		$respMock = $this->getModelMock(
-			'ebayenterprise_address/validation_response',
-			array('setMessage', 'isAddressValid', 'getValidAddress',
-				'getOriginalAddress','hasAddressSuggestions', 'getAddressSuggestions'
-			)
-		);
-		$respMock->expects($this->any())
+		$this->_validatorResponse->expects($this->any())
 			->method('isAddressValid')
 			->will($this->returnValue($isAddressValid));
-		$respMock->expects($this->any())
-			->method('hasAddressSuggestions')
+		$this->_validatorResponse->expects($this->any())
+			->method('getHasSuggestions')
 			->will($this->returnValue($hasSuggestions));
-		$respMock->expects($this->any())
+		$this->_validatorResponse->expects($this->any())
 			->method('getOriginalAddress')
 			->will($this->returnValue($originalAddress));
-		$respMock->expects($this->any())
+		$this->_validatorResponse->expects($this->any())
 			->method('getValidAddress')
 			->will($this->returnValue($validAddress));
-		$respMock->expects($this->any())
+		$this->_validatorResponse->expects($this->any())
 			->method('getAddressSuggestions')
 			->will($this->returnValue($addressSuggestions));
-		$respMock->expects($this->any())
-			->method('setMessage')
-			->will($this->returnValue($respMock));
-		$this->replaceByMock('model', 'ebayenterprise_address/validation_response', $respMock);
-		return $respMock;
+		return $this;
 	}
 
 	/**
@@ -156,11 +204,10 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testValidatorSessionNotInitialized()
 	{
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$this->assertNull($validator->getOriginalAddress());
-		$this->assertNull($validator->getSuggestedAddresses());
-		$this->assertNull($validator->getStashedAddressByKey('original_address'));
-		$this->assertFalse($validator->hasSuggestions());
+		$this->assertNull($this->_validator->getOriginalAddress());
+		$this->assertNull($this->_validator->getSuggestedAddresses());
+		$this->assertNull($this->_validator->getStashedAddressByKey('original_address'));
+		$this->assertFalse($this->_validator->hasSuggestions());
 	}
 
 	/**
@@ -175,22 +222,20 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 		$session = $this->_getSession();
 		$sessionKey = EbayEnterprise_Address_Model_Validator::SESSION_KEY;
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-
 		$session->setData($sessionKey, 'a string');
-		$this->assertInstanceOf($expectedType, $validator->getAddressCollection());
+		$this->assertInstanceOf($expectedType, $this->_validator->getAddressCollection());
 
 		$session->setData($sessionKey, new Varien_Object());
-		$this->assertInstanceOf($expectedType, $validator->getAddressCollection());
+		$this->assertInstanceOf($expectedType, $this->_validator->getAddressCollection());
 
 		$session->setData($sessionKey, 23);
-		$this->assertInstanceOf($expectedType, $validator->getAddressCollection());
+		$this->assertInstanceOf($expectedType, $this->_validator->getAddressCollection());
 
 		$session->setData($sessionKey, new EbayEnterprise_Address_Model_Suggestion_Group());
-		$this->assertInstanceOf($expectedType, $validator->getAddressCollection());
+		$this->assertInstanceOf($expectedType, $this->_validator->getAddressCollection());
 
 		$session->unsetData($sessionKey);
-		$this->assertInstanceOf($expectedType, $validator->getAddressCollection());
+		$this->assertInstanceOf($expectedType, $this->_validator->getAddressCollection());
 	}
 
 	/**
@@ -199,7 +244,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testUpdateAddressWithSelections($postValue)
 	{
-		$originalAddress = $this->_createAddress(array(
+		$originalAddress = $this->_createAddress([
 			'street' => '123 Main St',
 			'city' => 'Fooville',
 			'region_code' => 'NY',
@@ -207,9 +252,9 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			'postcode' => '12345',
 			'has_been_validated' => true,
 			'stash_key' => 'original_address',
-		));
-		$suggestions = array(
-			$this->_createAddress(array(
+		]);
+		$suggestions = [
+			$this->_createAddress([
 				'street' => '321 Main Rd',
 				'city' => 'Barton',
 				'region_code' => 'NY',
@@ -217,36 +262,35 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 				'postcode' => '54321-1234',
 				'has_been_validated' => true,
 				'stash_key' => 'suggested_addresses/0',
-			)),
-			$this->_createAddress(array(
+			]),
+			$this->_createAddress([
 				'street' => '321 Main St',
 				'city' => 'Fooville',
 				'country_id' => 'US',
 				'postcode' => '12345-6789',
 				'has_been_validated' => true,
 				'stash_key' => 'suggested_addresses/1',
-			))
-		);
+			])
+		];
 		$this->_setupSessionWithSuggestions($originalAddress, $suggestions);
 
 		// set the submitted value in the request post data
 		Mage::app()->getRequest()->setPost(EbayEnterprise_Address_Block_Suggestions::SUGGESTION_INPUT_NAME, $postValue);
 
 		// create an address object to act as the address submitted by the user
-		$submittedAddress = $this->_createAddress(array(
+		$submittedAddress = $this->_createAddress([
 			'street' => '1 Street Rd',
 			'city' => 'Foo',
 			'region_code' => 'PA',
 			'region_id' => 51,
 			'country_id' => 'US',
 			'postcode' => '23456',
-		));
+		]);
 
 		// this is necessary due to expectation not allowing a / in the key to get expectations
 		$expectationKey = str_replace('/', '', $postValue);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($validator, '_updateAddressWithSelection', array($submittedAddress));
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_validator, '_updateAddressWithSelection', [$submittedAddress]);
 
 		$this->assertSame(
 			$this->expected($expectationKey)->getStreet1(),
@@ -273,26 +317,25 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	public function testValidateAddressVerified()
 	{
 		// address to feed to the validator
-		$address = $this->_createAddress(array(
+		$address = $this->_createAddress([
 			'street' => '1671 Clark Street Rd',
 			'city' => 'Auburn',
 			'region_code' => 'NY',
 			'country_id' => 'US',
 			'postcode' => '13021-9523',
 			'has_been_validated' => true,
-		));
+		]);
 		// original address from the response model
-		$origAddress = $this->_createAddress(array(
+		$origAddress = $this->_createAddress([
 			'street' => '1671 Clark Street Rd',
 			'city' => 'Auburn',
 			'region_code' => 'NY',
 			'country_id' => 'US',
 			'postcode' => '13021',
-		));
+		]);
 
 		$this->_mockValidationResponse(true, false, $address, $address);
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$errorMessage = $validator->validateAddress($origAddress);
+		$errorMessage = $this->_validator->validateAddress($origAddress);
 		$this->assertNull($errorMessage, 'Validation of a valid address produces no errors.');
 		$this->assertTrue($origAddress->getHasBeenValidated(), 'has_been_validated "magic" data set on the address that has been validated.');
 		$this->assertSame($origAddress->getStreet1(), '1671 Clark Street Rd');
@@ -309,45 +352,44 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	public function testValidateAddressMultiSuggestions()
 	{
 		// address to feed to validator
-		$address = $this->_createAddress(array(
+		$address = $this->_createAddress([
 			'street'      => '1671 Clark Street Rd',
 			'city'        => 'Auburn',
 			'region_code' => 'NY',
 			'country_id'  => 'US',
 			'postcode'    => '13025',
-		));
+		]);
 		// original address from response model
-		$origAddress = $this->_createAddress(array(
+		$origAddress = $this->_createAddress([
 			'street' => '1671 Clark Street Rd',
 			'city' => 'Auburn',
 			'region_code' => 'NY',
 			'country_id' => 'US',
 			'postcode' => '13025-1234',
 			'has_been_validated' => true,
-		));
+		]);
 		// suggestions from the response model
-		$suggestions = array(
-			$this->_createAddress(array(
+		$suggestions = [
+			$this->_createAddress([
 				'street' => 'Suggestion 1 Line 1',
 				'city' => 'Suggestion 1 City',
 				'region_id' => 'NY',
 				'country_id' => 'US',
 				'postcode' => '13021-9876',
 				'has_been_validated' => true,
-			)),
-			$this->_createAddress(array(
+			]),
+			$this->_createAddress([
 				'street' => '1671 W Clark Street Rd',
 				'city' => 'Auburn',
 				'region_id' => 'NY',
 				'country_id' => 'US',
 				'postcode' => '13021-1234',
 				'has_been_validated' => true,
-			)),
-		);
+			]),
+		];
 		$this->_mockValidationResponse(false, true, $origAddress, null, $suggestions);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$errorMessage = $validator->validateAddress($address);
+		$errorMessage = $this->_validator->validateAddress($address);
 
 		$this->assertTrue(
 			$address->getHasBeenValidated(),
@@ -373,15 +415,14 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testWithValidatedAddress()
 	{
-		$address = $this->_createAddress(array(
+		$address = $this->_createAddress([
 			'has_been_validated' => true
-		));
+		]);
 
 		// add some data into the customer session mock.
 		$session = $this->_getSession();
 		$session->setData(EbayEnterprise_Address_Model_Validator::SESSION_KEY, 'this should be cleared out');
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$errors = $validator->validateAddress($address);
+		$errors = $this->_validator->validateAddress($address);
 
 		$this->assertNull($errors, 'An address that is marked as already having been validated is assumed valid, hence no errors.');
 		$this->assertInstanceOf('EbayEnterprise_Address_Model_Suggestion_Group', $session->getData(EbayEnterprise_Address_Model_Validator::SESSION_KEY));
@@ -395,7 +436,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testSessionInteractionsNoValidationNecessary($useForShipping)
 	{
-		$address = $this->_createAddress(array(
+		$address = $this->_createAddress([
 			'street' => '123 Main St',
 			'city' => 'Foo',
 			'region_id' => 51,
@@ -403,12 +444,11 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			'postcode' => '12345',
 			'address_type' => 'billing',
 			'has_been_validated' => true
-		));
+		]);
 
-		Mage::app()->getRequest()->setPost('billing', array('use_for_shipping' => $useForShipping));
+		Mage::app()->getRequest()->setPost('billing', ['use_for_shipping' => $useForShipping]);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$validator->validateAddress($address);
+		$this->_validator->validateAddress($address);
 
 		// inspect session to make sure everything that needed to get set was
 		// properly set
@@ -439,7 +479,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	public function testSessionInteractionsInvalidAddress()
 	{
 		// address to feed to validator
-		$address = $this->_createAddress(array(
+		$address = $this->_createAddress([
 			'firstname' => 'Foo',
 			'lastname' => 'Bar',
 			'street' => '1671 Clark Street Rd',
@@ -448,43 +488,40 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			'country_id' => 'US',
 			'postcode' => '13025',
 			'address_type' => 'shipping'
-		));
+		]);
 		// original address from response model
-		$origAddress = $this->_createAddress(array(
+		$origAddress = $this->_createAddress([
 			'street' => '1671 Clark Street Rd',
 			'city' => 'Auburn',
 			'region_code' => 'NY',
 			'country_id' => 'US',
 			'postcode' => '13025',
 			'has_been_validated' => true,
-		));
+		]);
 		// suggestions from the response model
-		$suggestions = array(
-			$this->_createAddress(array(
+		$suggestions = [
+			$this->_createAddress([
 				'street' => 'Suggestion 1 Line 1',
 				'city' => 'Suggestion 1 City',
 				'region_id' => 'NY',
 				'country_id' => 'US',
 				'postcode' => '13021-9876',
 				'has_been_validated' => true,
-			)),
-			$this->_createAddress(array(
+			]),
+			$this->_createAddress([
 				'street' => '1671 W Clark Street Rd',
 				'city' => 'Auburn',
 				'region_id' => 'NY',
 				'country_id' => 'US',
 				'postcode' => '13021-1234',
 				'has_been_validated' => true,
-			)),
-		);
+			]),
+		];
 
 		// invalid response, with suggestions, original address, no valid address and suggestions
-		$mockResponse = $this->_mockValidationResponse(
-			false, true, $origAddress, null, $suggestions
-		);
+		$this->_mockValidationResponse(false, true, $origAddress, null, $suggestions);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$validator->validateAddress($address);
+		$this->_validator->validateAddress($address);
 
 		$session = $this->_getSession();
 		$group = $session->getData(EbayEnterprise_Address_Model_Validator::SESSION_KEY);
@@ -510,7 +547,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 
 		// the response message should have been added to the session in case it needs to
 		// be queried for address data again later
-		$this->assertSame($mockResponse, $group->getResponseMessage());
+		$this->assertSame($this->_validatorResponse, $group->getResponseMessage());
 
 		// make sure the validated address data was added to the session
 		// should have a shipping address but no billing address
@@ -524,11 +561,10 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	public function testCleaningOfSession()
 	{
 		$mockSession = $this->_getSession();
-		$validator = Mage::getModel('ebayenterprise_address/validator');
 		$staleData = 'STALE_DATA';
 		$mockSession->setAddressValidationAddresses($staleData);
 		$this->assertNotNull($mockSession->getAddressValidationAddresses(), 'Session has address validation data.');
-		$validator->clearSessionAddresses();
+		$this->_validator->clearSessionAddresses();
 		$this->assertNull($mockSession->getAddressValidationAddresses(), 'Session does not have address valdidation data.');
 	}
 
@@ -539,41 +575,41 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	public function ensureSessionClearedOnNewValidation()
 	{
 		// address to feed to validator
-		$address = $this->_createAddress(array(
+		$address = $this->_createAddress([
 			'street' => '1671 Clark Street Rd',
 			'city' => 'Auburn',
 			'region_code' => 'NY',
 			'country_id' => 'US',
 			'postcode' => '13025',
-		));
+		]);
 		// original address from response model
-		$origAddress = $this->_createAddress(array(
+		$origAddress = $this->_createAddress([
 			'street' => '1671 Clark Street Rd',
 			'city' => 'Auburn',
 			'region_code' => 'NY',
 			'country_id' => 'US',
 			'postcode' => '13025',
 			'has_been_validated' => true,
-		));
+		]);
 		// suggestions from the response model
-		$suggestions = array(
-			$this->_createAddress(array(
+		$suggestions = [
+			$this->_createAddress([
 				'street' => 'Suggestion 1 Line 1',
 				'city' => 'Suggestion 1 City',
 				'region_id' => 'NY',
 				'country_id' => 'US',
 				'postcode' => '13021-9876',
 				'has_been_validated' => true,
-			)),
-			$this->_createAddress(array(
+			]),
+			$this->_createAddress([
 				'street' => '1671 W Clark Street Rd',
 				'city' => 'Auburn',
 				'region_id' => 'NY',
 				'country_id' => 'US',
 				'postcode' => '13021-1234',
 				'has_been_validated' => true,
-			)),
-		);
+			]),
+		];
 		$this->_mockValidationResponse(false, true, $origAddress, null, $suggestions);
 
 		// set up some stale data in the session that should be overwritten by the validator model
@@ -584,8 +620,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 		// make sure it has been set
 		$this->assertSame($staleSessionData, $mockSession->getData($sessionKey), 'Session has initial address validation data.');
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$validator->validateAddress($address);
+		$this->_validator->validateAddress($address);
 
 		$this->assertNotEquals(
 			$staleSessionData,
@@ -600,26 +635,25 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	public function errorMessageWithInvalidMessageAndNoSuggestions()
 	{
 		// address to feed to validator
-		$address = $this->_createAddress(array(
+		$address = $this->_createAddress([
 			'street' => '1671 Clark Street Rd',
 			'city' => 'Auburn',
 			'region_code' => 'NY',
 			'country_id' => 'US',
 			'postcode' => '13025',
-		));
+		]);
 		// original address from response model
-		$origAddress = $this->_createAddress(array(
+		$origAddress = $this->_createAddress([
 			'street' => '1671 Clark Street Rd',
 			'city' => 'Auburn',
 			'region_code' => 'NY',
 			'country_id' => 'US',
 			'postcode' => '13025',
 			'has_been_validated' => true,
-		));
+		]);
 		$this->_mockValidationResponse(false, false, $origAddress, null);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$errorMessage = $validator->validateAddress($address);
+		$errorMessage = $this->_validator->validateAddress($address);
 
 		$this->assertSame(
 			$errorMessage,
@@ -633,17 +667,18 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testEmptyResponseFromService()
 	{
-		$this->_mockApiModel(true);
 		// address to validate
-		$address = $this->_createAddress(array(
+		$address = $this->_createAddress([
 			'street' => '123 Main St',
 			'city' => 'Auburn',
 			'region_code' => 'NY',
 			'country_id' => 'US',
 			'postcode' => '13025',
-		));
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$errors = $validator->validateAddress($address);
+		]);
+		$this->_sdkApi->expects($this->any())
+			->method('send')
+			->will($this->throwException(new eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError));
+		$errors = $this->_validator->validateAddress($address);
 
 		$this->assertNull($errors);
 	}
@@ -654,7 +689,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function getStashedAddressByKeyByKey()
 	{
-		$originalAddress = $this->_createAddress(array(
+		$originalAddress = $this->_createAddress([
 			'street' => '123 Main St',
 			'city' => 'Fooville',
 			'region_code' => 'NY',
@@ -662,9 +697,9 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			'postcode' => '12345',
 			'has_been_validated' => true,
 			'stash_key' => 'original_address',
-		));
-		$suggestions = array(
-			$this->_createAddress(array(
+		]);
+		$suggestions = [
+			$this->_createAddress([
 				'street' => '321 Main Rd',
 				'city' => 'Barton',
 				'region_code' => 'NY',
@@ -672,27 +707,25 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 				'postcode' => '54321-1234',
 				'has_been_validated' => true,
 				'stash_key' => 'suggested_addresses/0',
-			)),
-			$this->_createAddress(array(
+			]),
+			$this->_createAddress([
 				'street' => '321 Main St',
 				'city' => 'Fooville',
 				'country_id' => 'US',
 				'postcode' => '12345-6789',
 				'has_been_validated' => true,
 				'stash_key' => 'suggested_addresses/1',
-			))
-		);
+			])
+		];
 		$this->_setupSessionWithSuggestions($originalAddress, $suggestions);
-
-		$validator = Mage::getModel('ebayenterprise_address/validator');
 
 		$this->assertSame(
 			$originalAddress,
-			$validator->getStashedAddressByKey($originalAddress->getStashKey())
+			$this->_validator->getStashedAddressByKey($originalAddress->getStashKey())
 		);
 		$this->assertSame(
 			$suggestions[1],
-			$validator->getStashedAddressByKey($suggestions[1]->getStashKey())
+			$this->_validator->getStashedAddressByKey($suggestions[1]->getStashKey())
 		);
 	}
 
@@ -701,8 +734,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function gettingValidatedAddressByUnknownKey()
 	{
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$this->assertNull($validator->getStashedAddressByKey('dont_know_about_this'), 'Unknown "stash_key" results in "null" response.');
+		$this->assertNull($this->_validator->getStashedAddressByKey('dont_know_about_this'), 'Unknown "stash_key" results in "null" response.');
 	}
 
 	/**
@@ -711,7 +743,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	public function testGetOriginalAddress()
 	{
 		// set up an address object to be put into the session
-		$origAddress = $this->_createAddress((array(
+		$origAddress = $this->_createAddress(([
 			'street' => '123 Main St',
 			'city' => 'Fooville',
 			'region_code' => 'NY',
@@ -719,7 +751,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			'postcode' => '12345',
 			'has_been_validated' => true,
 			'stash_key' => 'original_address'
-		)));
+		]));
 		// create the EbayEnterprise_Address_Model_Suggestion_Group that stores address data in the session
 		$addresses = new EbayEnterprise_Address_Model_Suggestion_Group();
 		$addresses->setOriginalAddress($origAddress);
@@ -729,10 +761,9 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			$addresses
 		);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
 		$this->assertSame(
 			$origAddress,
-			$validator->getOriginalAddress()
+			$this->_validator->getOriginalAddress()
 		);
 	}
 
@@ -742,24 +773,24 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	public function testGetSuggestedAddresses()
 	{
 		// set up suggested addresses to place into the session
-		$suggestions = array(
+		$suggestions = [
 			$this->_createAddress(
-				array(
+				[
 					'street' => '123 Main St',
 					'city' => 'Fooville',
 					'region_code' => 'NY',
 					'country_code' => 'US',
 					'postcode' => '12345',
-				),
-				array(
+				],
+				[
 					'street' => '321 Main Rd',
 					'city' => 'Bartown',
 					'region_code' => 'PA',
 					'country_code' => 'US',
 					'postcode' => '19231',
-				)
+				]
 			)
-		);
+		];
 		// create the EbayEnterprise_Address_Model_Suggestion_Group that stores the address data in the session
 		$addressCollection = new EbayEnterprise_Address_Model_Suggestion_Group();
 		$addressCollection->setSuggestedAddresses($suggestions);
@@ -769,10 +800,9 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			$addressCollection
 		);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
 		$this->assertSame(
 			$suggestions,
-			$validator->getSuggestedAddresses()
+			$this->_validator->getSuggestedAddresses()
 		);
 	}
 
@@ -781,15 +811,15 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testCopyNameData()
 	{
-		$destData = array(
+		$destData = [
 			'street' => '123 Main St',
 			'city' => 'Fooville',
 			'region_code' => 'PA',
 			'country_code' => 'US',
 			'postcode' => '12345',
-		);
+		];
 		$destAddr = $this->_createAddress($destData);
-		$sourceData = array(
+		$sourceData = [
 			'firstname' => 'The',
 			'lastname' => 'Bar',
 			'street' => '555 Foo St',
@@ -797,11 +827,10 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			'region_code' => 'NY',
 			'country_code' => 'US',
 			'postcode' => '12345-6789',
-		);
+		];
 		$sourceAddr = $this->_createAddress($sourceData);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($validator, '_copyAddressName', array($destAddr, $sourceAddr));
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_validator, '_copyAddressName', [$destAddr, $sourceAddr]);
 
 		// first and last name should be copied to the dest address
 		$this->assertSame($sourceAddr->getFirstname(), $destAddr->getFirstname());
@@ -818,7 +847,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	public function testCheckSessionFreshness()
 	{
 		$this->_setupSessionWithSuggestions(null, null, false);
-		$this->assertFalse(Mage::getModel('ebayenterprise_address/validator')->hasFreshSuggestions());
+		$this->assertFalse($this->_validator->hasFreshSuggestions());
 	}
 
 	/**
@@ -830,10 +859,10 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 		// something to populate the Suggestion_Group suggestions with,
 		// anything not empty will produce a true result for hasSuggestions
 		$suggestions = ($shouldHaveSuggestions)
-			? array(Mage::getModel('customer/address'), Mage::getModel('customer/address'))
-			: array();
+			? [Mage::getModel('customer/address'), Mage::getModel('customer/address')]
+			: [];
 		$group = $this->getModelMock('ebayenterprise_address/suggestion_group',
-			array('getSuggestedAddresses')
+			['getSuggestedAddresses']
 		);
 		$group->expects($this->once())
 			->method('getSuggestedAddresses')
@@ -841,8 +870,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			->will($this->returnValue($suggestions));
 		$this->replaceByMock('model', 'ebayenterprise_address/suggestion_group', $group);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$this->assertEquals($shouldHaveSuggestions, $validator->hasSuggestions());
+		$this->assertEquals($shouldHaveSuggestions, $this->_validator->hasSuggestions());
 	}
 
 	/**
@@ -852,12 +880,11 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testShouldValidateFlaggedAsValidated()
 	{
-		$address = $this->getModelMock('customer/address', array('getHasBeenValidated'));
+		$address = $this->getModelMock('customer/address', ['getHasBeenValidated']);
 		$address->expects($this->once())
 			->method('getHasBeenValidated')
 			->will($this->returnValue(true));
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$this->assertFalse($validator->shouldValidateAddress($address));
+		$this->assertFalse($this->_validator->shouldValidateAddress($address));
 	}
 
 	/**
@@ -871,35 +898,35 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testShouldValidatedAlreadyValidatedAddress($addressType, $postBillingUseForShipping, $validatedType)
 	{
-		$address = $this->getModelMock('customer/address', array('getHasBeenValidated', 'getAddressType', 'getData'));
+		$address = $this->getModelMock('customer/address', ['getHasBeenValidated', 'getAddressType', 'getData']);
 		$address->expects($this->any())
 			->method('getHasBeenValidated')
 			->will($this->returnValue(false));
 		$address->expects($this->any())
 			->method('getAddressType')
 			->will($this->returnValue($addressType));
-		$addressData = array(
-			array('street',    null, '123 Main St'),
-			array('city',      null, 'Fooville'),
-			array('region_id', null, 51),
-		);
+		$addressData = [
+			['street',    null, '123 Main St'],
+			['city',      null, 'Fooville'],
+			['region_id', null, 51],
+		];
 		$address->expects($this->any())
 			->method('getData')
 			->will($this->returnValueMap($addressData));
 
 		// setup the POST data accordingly
 		if ($postBillingUseForShipping !== null) {
-			$_POST['billing'] = array('use_for_shipping' => $postBillingUseForShipping);
+			$_POST['billing'] = ['use_for_shipping' => $postBillingUseForShipping];
 		}
 
-		$group = $this->getModelMock('ebayenterprise_address/suggestion_group', array('getValidatedAddress'));
-		$validatedAddress = $this->getModelMock('customer/address', array('getData'));
-		$validatedAddressData = array(
+		$group = $this->getModelMock('ebayenterprise_address/suggestion_group', ['getValidatedAddress']);
+		$validatedAddress = $this->getModelMock('customer/address', ['getData']);
+		$validatedAddressData = [
 			'street' => '123 Main St',
 			'city' => 'Fooville',
 			'region_id' => '51',
 			'address_type' => 'shipping',
-		);
+		];
 		$validatedAddress->expects($this->any())
 			->method('getData')
 			->will($this->returnValue($validatedAddressData));
@@ -909,8 +936,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			->will($this->returnValue($validatedAddress));
 		$this->replaceByMock('model', 'ebayenterprise_address/suggestion_group', $group);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$this->assertFalse($validator->shouldValidateAddress($address));
+		$this->assertFalse($this->_validator->shouldValidateAddress($address));
 	}
 
 	/**
@@ -920,7 +946,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testShouldValidateNonCheckouNotValidated()
 	{
-		$address = $this->getModelMock('customer/address', array('getHasBeenValidated', 'getAddressType', 'getData'));
+		$address = $this->getModelMock('customer/address', ['getHasBeenValidated', 'getAddressType', 'getData']);
 		$address->expects($this->any())
 			->method('getHasBeenValidated')
 			->will($this->returnValue(false));
@@ -929,23 +955,23 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			->will($this->returnValue('shipping'));
 		// any one of these being different from the validatedAddressData below
 		// will cause the comparison check fail
-		$addressData = array(
-			array('street',    null, 'Borg'),
-			array('city',      null, 'Barton'),
-			array('region_id', null, 41),
-		);
+		$addressData = [
+			['street',    null, 'Borg'],
+			['city',      null, 'Barton'],
+			['region_id', null, 41],
+		];
 		$address->expects($this->any())
 			->method('getData')
 			->will($this->returnValueMap($addressData));
 
-		$group = $this->getModelMock('ebayenterprise_address/suggestion_group', array('getValidatedAddress'));
-		$validatedAddress = $this->getModelMock('customer/address', array('getData'));
-		$validatedAddressData = array(
+		$group = $this->getModelMock('ebayenterprise_address/suggestion_group', ['getValidatedAddress']);
+		$validatedAddress = $this->getModelMock('customer/address', ['getData']);
+		$validatedAddressData = [
 			'street' => '123 Main St',
 			'city' => 'Fooville',
 			'region_id' => '51',
 			'address_type' => 'shipping',
-		);
+		];
 		$validatedAddress->expects($this->any())
 			->method('getData')
 			->will($this->returnValue($validatedAddressData));
@@ -954,8 +980,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			->will($this->returnValue($validatedAddress));
 		$this->replaceByMock('model', 'ebayenterprise_address/suggestion_group', $group);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$this->assertTrue($validator->shouldValidateAddress($address));
+		$this->assertTrue($this->_validator->shouldValidateAddress($address));
 	}
 
 	/**
@@ -964,22 +989,20 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	public function testDetectingACheckoutAddress()
 	{
 		$address = Mage::getModel('customer/address');
-		$address->addData(array(
+		$address->addData([
 			'street' => '123 Main St',
 			'city' => 'Foo',
 			'region_id' => 41,
 			'country_id' => 'US',
-		));
-
-		$validator = Mage::getModel('ebayenterprise_address/validator');
+		]);
 
 		// checkout address will have a quote_id
 		$address->setData('quote_id', 12);
-		$this->assertTrue(EcomDev_Utils_Reflection::invokeRestrictedMethod($validator, '_isCheckoutAddress', array($address)));
+		$this->assertTrue(EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_validator, '_isCheckoutAddress', [$address]));
 
 		// non-checkout address will not
 		$address->unsetData('quote_id');
-		$this->assertFalse(EcomDev_Utils_Reflection::invokeRestrictedMethod($validator, '_isCheckoutAddress', array($address)));
+		$this->assertFalse(EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_validator, '_isCheckoutAddress', [$address]));
 	}
 
 	/**
@@ -990,7 +1013,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testAddressBookAddressShouldNotBeValidated($id, $customerId, $customerAddressId)
 	{
-		$address = $this->getModelMock('customer/address', array('hasData', 'getId', 'getCustomerId', 'getCustomerAddressId'));
+		$address = $this->getModelMock('customer/address', ['hasData', 'getId', 'getCustomerId', 'getCustomerAddressId']);
 		// make sure this is a checkout address
 		$address->expects($this->any())
 			->method('hasData')
@@ -1006,10 +1029,10 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			->method('getCustomerAddressId')
 			->will($this->returnValue($customerAddressId));
 
-		$validator = $this->getModelMock('ebayenterprise_address/validator', array('_isMissingRequiredFields'));
+		$this->_validator = $this->getModelMock('ebayenterprise_address/validator', ['_isMissingRequiredFields']);
 		$this->assertEquals(
 			!($id && $customerId && $customerAddressId),
-			$validator->shouldValidateAddress($address)
+			$this->_validator->shouldValidateAddress($address)
 		);
 	}
 
@@ -1027,21 +1050,21 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 		$address = Mage::getModel('customer/address');
 		// address must be checkout address - have a quote_id,
 		// and not be from the address book - no id, customer_id or customer_address_id
-		$address->addData(array(
+		$address->addData([
 			'quote_id' => 12,
 			'address_type' => 'shipping',
-		));
+		]);
 
 		// set up the checkout session with a quote mock which will report
 		// it as being a virtual order
-		$quote = $this->getModelMock('sales/quote', array('isVirtual'));
+		$quote = $this->getModelMock('sales/quote', ['isVirtual']);
 		$quote->expects($this->any())
 			->method('isVirtual')
 			->will($this->returnValue(true));
 
 		$checkout = $this->getModelMockBuilder('checkout/session')
 			->disableOriginalConstructor() // This one removes session_start and other methods usage
-			->setMethods(array('getQuote')) // Enables original methods usage, because by default it overrides all methods
+			->setMethods(['getQuote']) // Enables original methods usage, because by default it overrides all methods
 			->getMock();
 		$checkout->expects($this->any())
 			->method('getQuote')
@@ -1053,21 +1076,20 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 		 * shipping[save_in_address_book] or billing[save_in_address_book] submitted
 		 */
 		if ($postType === 'billing' || $postType === 'shipping') {
-			$_POST[$postType] = array('save_in_address_book' => $postFlag);
+			$_POST[$postType] = ['save_in_address_book' => $postFlag];
 		}
 
 		// set up the checkout type
-		$onepage = $this->getModelMock('checkout/type_onepage', array('getCheckoutMethod'));
+		$onepage = $this->getModelMock('checkout/type_onepage', ['getCheckoutMethod']);
 		$onepage->expects($this->once())
 			->method('getCheckoutMethod')
 			->will($this->returnValue($checkoutMethod));
 		$this->replaceByMock('singleton', 'checkout/type_onepage', $onepage);
 
 		$expectation = $this->expected('%s-%s-%s', $postType, $postFlag, $checkoutMethod);
-		$validator = Mage::getModel('ebayenterprise_address/validator');
 		$this->assertSame(
 			$expectation->getShouldValidateAddress(),
-			$validator->shouldValidateAddress($address)
+			$this->_validator->shouldValidateAddress($address)
 		);
 	}
 
@@ -1080,22 +1102,21 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	{
 		$quote = null;
 		if ($hasQuote) {
-			$quote = $this->getModelMock('sales/quote', array('isVirtual'));
+			$quote = $this->getModelMock('sales/quote', ['isVirtual']);
 			$quote->expects($this->once())
 				->method('isVirtual')
 				->will($this->returnValue($isVirtual));
 		}
 		$sessionMock = $this->getModelMockBuilder('checkout/session')
 			->disableOriginalConstructor()
-			->setMethods(array('getQuote'))
+			->setMethods(['getQuote'])
 			->getMock();
 		$sessionMock->expects($this->once())
 			->method('getQuote')
 			->will($this->returnValue($quote));
 		$this->replaceByMock('singleton', 'checkout/session', $sessionMock);
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$this->assertSame($isVirtual, EcomDev_Utils_Reflection::invokeRestrictedMethod($validator, '_isVirtualOrder'));
+		$this->assertSame($isVirtual, EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_validator, '_isVirtualOrder'));
 	}
 
 	/**
@@ -1107,19 +1128,19 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	{
 		$address = Mage::getModel('customer/address');
 		// must be checkout address - have quote_id
-		$address->addData(array(
+		$address->addData([
 			'quote_id' => 1,
 			'address_type' => $addressType
-		));
+		]);
 		if ($hasBillingPost) {
-			$_POST['billing'] = array('use_for_shipping' => $useForShipping);
+			$_POST['billing'] = ['use_for_shipping' => $useForShipping];
 		}
 
 		$expectations = $this->expected('%s-%s-%s', $addressType, $hasBillingPost, $useForShipping);
-		$validator = $this->getModelMock('ebayenterprise_address/validator', array('_isMissingRequiredFields'));
+		$this->_validator = $this->getModelMock('ebayenterprise_address/validator', ['_isMissingRequiredFields']);
 		$this->assertSame(
 			$expectations->getShouldValidate(),
-			$validator->shouldValidateAddress($address)
+			$this->_validator->shouldValidateAddress($address)
 		);
 	}
 
@@ -1133,35 +1154,20 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testSetSameAsBillingFlagWhenAddressIsInvalid($isValid, $sameAsBilling)
 	{
-		// mock out necessary parts of the system
-		$api = $this->getModelMock('eb2ccore/api', array('addData', 'request'));
-		$api->expects($this->any())
-			->method('addData')
-			->will($this->returnSelf());
-		$api->expects($this->any())
-			->method('request')
-			->will($this->returnValue('<AddressValidationResponse></AddressValidationResponse>'));
-		$this->replaceByMock('model', 'eb2ccore/api', $api);
-
-		$response = $this->getModelMock(
-			'ebayenterprise_address/validation_response',
-			array('setMessage', 'isAddressValid', 'getOriginalAddress', 'getAddressSuggestions')
-		);
-		$response->expects($this->any())
-			->method('setMessage')
-			->will($this->returnSelf());
-		$response->expects($this->any())
+		$this->_validatorResponse->expects($this->any())
 			->method('getOriginalAddress')
 			->will($this->returnValue(Mage::getModel('customer/address')));
-		$response->expects($this->any())
+		$this->_validatorResponse->expects($this->any())
 			->method('getAddressSuggestions')
-			->will($this->returnValue(array(Mage::getModel('customer/address'), Mage::getModel('customer/address'))));
-		$response->expects($this->any())
+			->will($this->returnValue([Mage::getModel('customer/address'), Mage::getModel('customer/address')]));
+		$this->_validatorResponse->expects($this->any())
 			->method('isAddressValid')
 			->will($this->returnValue($isValid));
-		$this->replaceByMock('model', 'ebayenterprise_address/validation_response', $response);
+		$this->_validatorResponse->expects($this->any())
+			->method('getValidAddress')
+			->will($this->returnValue($isValid ? $this->_validatorResponse->getOriginalAddress() : null));
 
-		$address = $this->getModelMock('customer/address', array('getSameAsBilling', 'setSameAsBilling'));
+		$address = $this->getModelMock('customer/address', ['getSameAsBilling', 'setSameAsBilling']);
 		// when valid, don't care about the same_as_billing flag so neither should be called
 		if ($isValid) {
 			$address->expects($this->never())
@@ -1185,8 +1191,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 			}
 		}
 
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$validator->validateAddress($address);
+		$this->_validator->validateAddress($address);
 	}
 
 	/**
@@ -1196,16 +1201,14 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testIsValid($hasResponse, $isValid)
 	{
-		$validator = Mage::getModel('ebayenterprise_address/validator');
-		$group = $this->getModelMock('ebayenterprise_address/suggestion_group', array('getResponseMessage'));
+		$group = $this->getModelMock('ebayenterprise_address/suggestion_group', ['getResponseMessage']);
 		if ($hasResponse) {
-			$response = $this->getModelMock('ebayenterprise_address/validation_response', array('isAddressValid'));
-			$response->expects($this->any())
+			$this->_validatorResponse->expects($this->any())
 				->method('isAddressValid')
 				->will($this->returnValue($isValid));
 			$group->expects($this->any())
 				->method('getResponseMessage')
-				->will($this->returnValue($response));
+				->will($this->returnValue($this->_validatorResponse));
 		} else {
 			$group->expects($this->any())
 				->method('getResponseMessage')
@@ -1214,7 +1217,7 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 		$this->replaceByMock('model', 'ebayenterprise_address/suggestion_group', $group);
 		$this->assertSame(
 			$this->expected('%s-%s', $hasResponse, $isValid)->getIsValid(),
-			$validator->isValid()
+			$this->_validator->isValid()
 		);
 	}
 
@@ -1223,12 +1226,12 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function provideNonEmptyGetters()
 	{
-		return array(
-			array(array('getStreet1', 'getCity', 'getCountry'), true),
-			array(array('getStreet1', 'getCity'), false),
-			array(array('getStreet1'), false),
-			array(array(), false),
-		);
+		return [
+			[['getStreet1', 'getCity', 'getCountry'], true],
+			[['getStreet1', 'getCity'], false],
+			[['getStreet1'], false],
+			[[], false],
+		];
 	}
 	/**
 	 * if any one of the required fields are missing, return true; false otherwise.
@@ -1238,14 +1241,14 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 */
 	public function testShouldValidateIfIsMissingRequiredFields($nonEmptyGetters, $result) {
 		$address = $this->getModelMock('customer/address', $nonEmptyGetters);
-		$validator = $this->getModelMock('ebayenterprise_address/validator', array(
+		$validator = $this->getModelMock('ebayenterprise_address/validator', [
 			'_hasAddressBeenValidated',
 			'_isCheckoutAddress',
 			'_isAddressFromAddressBook',
 			'_isAddressBeingSaved',
 			'_isVirtualOrder',
 			'_isAddressBillingOnly'
-		));
+		]);
 		$validator->expects($this->any())
 			->method('_isCheckoutAddress')
 			->will($this->returnValue(true));

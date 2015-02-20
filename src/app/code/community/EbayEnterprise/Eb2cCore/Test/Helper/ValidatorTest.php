@@ -45,23 +45,26 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	 */
 	public function testValidateSettings()
 	{
-		$helper = Mage::helper('eb2ccore/validator');
+		// Use a mock of the helper being tested to make sure a new instance
+		// is generated, preventing (un)mocked dependencies from being cached
+		// in the constructor.
+		$helper = $this->getHelperMock('eb2ccore/validator', null);
 		$this->assertSame(
 			$helper,
 			EcomDev_Utils_Reflection::invokeRestrictedMethod(
 				$helper,
 				'_validateApiSettings',
-				array('STORE_ID', 'API_KEY', 'example.com')
+				['STORE_ID', 'API_KEY', 'example.com']
 			)
 		);
 	}
 	public function provideSettingsAndExceptions()
 	{
-		return array(
-			array('', '', '', 'Store Id, API Key, API Hostname'),
-			array('', '', 'example.com', 'Store Id, API Key'),
-			array('', 'apikey-123', 'example.com', 'Store Id'),
-		);
+		return [
+			['', '', '', 'Store Id, API Key, API Hostname'],
+			['', '', 'example.com', 'Store Id, API Key'],
+			['', 'apikey-123', 'example.com', 'Store Id'],
+		];
 	}
 	/**
 	 * Test doing simple validations on the settings - basically ensure that none
@@ -79,16 +82,19 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 			'EbayEnterprise_Eb2cCore_Exception_Api_Configuration',
 			$exceptionMessage
 		);
-		$translationHelper = $this->getHelperMock('eb2ccore/data', array('__'));
+		$translationHelper = $this->getHelperMock('eb2ccore/data', ['__']);
 		$translationHelper->expects($this->once())
 			->method('__')
 			->will($this->returnArgument(1));
 		$this->replaceByMock('helper', 'eb2ccore', $translationHelper);
-		$helper = Mage::helper('eb2ccore/validator');
+		// Use a mock of the helper being tested to make sure a new instance
+		// is generated, preventing (un)mocked dependencies from being cached
+		// in the constructor.
+		$helper = $this->getHelperMock('eb2ccore/validator', null);
 		EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$helper,
 			'_validateApiSettings',
-			array($storeId, $apiKey, $hostname)
+			[$storeId, $apiKey, $hostname]
 		);
 	}
 	/**
@@ -97,13 +103,16 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	 */
 	public function testValidateSftpSettings()
 	{
-		$helper = Mage::helper('eb2ccore/validator');
+		// Use a mock of the helper being tested to make sure a new instance
+		// is generated, preventing (un)mocked dependencies from being cached
+		// in the constructor.
+		$helper = $this->getHelperMock('eb2ccore/validator', null);
 		$this->assertSame(
 			$helper,
 			EcomDev_Utils_Reflection::invokeRestrictedMethod(
 				$helper,
 				'_validateSftpSettings',
-				array('host.example.com', 'test_user', '--- Private Key ---', '22')
+				['host.example.com', 'test_user', '--- Private Key ---', '22']
 			)
 		);
 	}
@@ -114,13 +123,13 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	 */
 	public function provideSftpSettingsAndExceptions()
 	{
-		return array(
-			array('', '', '', '', 'Remote Host, SFTP User Name, Private Key, Remote Port'),
-			array('', '', '', '0', 'Remote Host, SFTP User Name, Private Key, Remote Port'),
-			array('', '', '', '22', 'Remote Host, SFTP User Name, Private Key'),
-			array('', '', '---- PRIVATE KEY ----', '22', 'Remote Host, SFTP User Name'),
-			array('', 'test_user', '---- PRIVATE KEY ----', '22', 'Remote Host'),
-		);
+		return [
+			['', '', '', '', 'Remote Host, SFTP User Name, Private Key, Remote Port'],
+			['', '', '', '0', 'Remote Host, SFTP User Name, Private Key, Remote Port'],
+			['', '', '', '22', 'Remote Host, SFTP User Name, Private Key'],
+			['', '', '---- PRIVATE KEY ----', '22', 'Remote Host, SFTP User Name'],
+			['', 'test_user', '---- PRIVATE KEY ----', '22', 'Remote Host'],
+		];
 	}
 	/**
 	 * Test doing simple validations on the settings - basically ensure that none
@@ -139,16 +148,19 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 			'EbayEnterprise_Eb2cCore_Exception_Sftp_Configuration',
 			$exceptionMessage
 		);
-		$translationHelper = $this->getHelperMock('eb2ccore/data', array('__'));
+		$translationHelper = $this->getHelperMock('eb2ccore/data', ['__']);
 		$translationHelper->expects($this->once())
 			->method('__')
 			->will($this->returnArgument(1));
 		$this->replaceByMock('helper', 'eb2ccore', $translationHelper);
-		$helper = Mage::helper('eb2ccore/validator');
+		// Use a mock of the helper being tested to make sure a new instance
+		// is generated, preventing (un)mocked dependencies from being cached
+		// in the constructor.
+		$helper = $this->getHelperMock('eb2ccore/validator', null);
 		EcomDev_Utils_Reflection::invokeRestrictedMethod(
 			$helper,
 			'_validateSftpSettings',
-			array($host, $username, $privateKey, $port)
+			[$host, $username, $privateKey, $port]
 		);
 	}
 	/**
@@ -158,14 +170,14 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	 */
 	public function provideRequestParams()
 	{
-		return array(
-			array(array('website' => 'default'), true, 'Mage_Core_Model_Store'),
-			array(array('website' => 'default'), false, 'Mage_Core_Model_Website'),
-			array(array('store' => 'main'), true, 'Mage_Core_Model_Website'),
-			array(array('store' => 'main'), false, 'Mage_Core_Model_Store'),
-			array(array(), true, 'Mage_Core_Model_Store'),
-			array(array(), false, 'Mage_Core_Model_Store'),
-		);
+		return [
+			[['website' => 'default'], true, 'Mage_Core_Model_Store'],
+			[['website' => 'default'], false, 'Mage_Core_Model_Website'],
+			[['store' => 'main'], true, 'Mage_Core_Model_Website'],
+			[['store' => 'main'], false, 'Mage_Core_Model_Store'],
+			[[], true, 'Mage_Core_Model_Store'],
+			[[], false, 'Mage_Core_Model_Store'],
+		];
 	}
 	/**
 	 * Test getting the configuration source based on request params. Should result
@@ -179,9 +191,13 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	{
 		$requestMock = $this->getMockForAbstractClass('Zend_Controller_Request_Abstract');
 		$requestMock->setParams($requestParams);
+		// Use a mock of the helper being tested to make sure a new instance
+		// is generated, preventing (un)mocked dependencies from being cached
+		// in the constructor.
+		$helper = $this->getHelperMock('eb2ccore/validator', null);
 
 		$store = $this->getModelMockBuilder('core/store')
-			->setMethods(array('getWebsite'))
+			->setMethods(['getWebsite'])
 			->getMock();
 		$website = $this->getModelMockBuilder('core/website')
 			->getMock();
@@ -190,7 +206,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 			->method('getWebsite')
 			->will($this->returnValue($website));
 		$app = $this->getModelMockBuilder('core/app')
-			->setMethods(array('getWebsite', 'getStore'))
+			->setMethods(['getWebsite', 'getStore'])
 			->getMock();
 		$app->expects($this->any())
 			->method('getStore')
@@ -202,7 +218,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 
 		$this->assertInstanceOf(
 			$sourceType,
-			Mage::helper('eb2ccore/validator')->getConfigSource($requestMock, $useDefault)
+			$helper->getConfigSource($requestMock, $useDefault)
 		);
 	}
 	public function provideParamsForFallbackTest()
@@ -210,12 +226,12 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 		$paramValue = 'param value';
 		$configValue = 'config value';
 
-		return array(
-			array(array('param' => $paramValue, 'param_use_default' => '0'), $configValue, $paramValue),
-			array(array('param' => $paramValue, 'param_use_default' => '1'), $configValue, $configValue),
-			array(array('param' => '', 'param_use_default' => '0'), $configValue, ''),
-			array(array('not_the_param' => $paramValue, 'not_the_use_default' => '0'), $configValue, $configValue),
-		);
+		return [
+			[['param' => $paramValue, 'param_use_default' => '0'], $configValue, $paramValue],
+			[['param' => $paramValue, 'param_use_default' => '1'], $configValue, $configValue],
+			[['param' => '', 'param_use_default' => '0'], $configValue, ''],
+			[['not_the_param' => $paramValue, 'not_the_use_default' => '0'], $configValue, $configValue],
+		];
 	}
 	/**
 	 * Test getting the value from the param or config depending on the params
@@ -235,10 +251,13 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 		$requestMock->setParams($params);
 
 		$configSource = $this->getModelMockBuilder('core/store')
-			->setMethods(array('getConfig'))
+			->setMethods(['getConfig'])
 			->getMock();
 
-		$helper = $this->getHelperMock('eb2ccore/validator', array('getConfigSource'));
+		// Use a mock of the helper being tested to make sure a new instance
+			// is generated, preventing (un)mocked dependencies from being cached
+			// in the constructor.
+		$helper = $this->getHelperMock('eb2ccore/validator', ['getConfigSource']);
 		$helper->expects($this->any())
 			->method('getConfigSource')
 			->will($this->returnValue($configSource));
@@ -254,15 +273,15 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	}
 	public function provideEncryptedKeyParams()
 	{
-		return array(
-			array(array('api_key' => 'abcd1234', 'api_key_use_default' => ''), null, 'abcd1234'),
-			array(array('api_key' => 'abcd1234', 'api_key_use_default' => '1'), 'core/store', '4321dcba'),
-			array(array('api_key' => '******', 'api_key_use_default' => '0'), 'core/website', '4321dcba'),
-			array(array('api_key' => '******', 'api_key_use_default' => '1'), 'core/store', '4321dcba'),
-			array(array('api_key' => '', 'api_key_use_default' => '1'), 'core/website', ''),
-			array(array('api_key' => '', 'api_key_use_default' => '0'), '', ''),
-			array(array('api_key_use_default' => '1'), 'core/website', '4321dcba'),
-		);
+		return [
+			[['api_key' => 'abcd1234', 'api_key_use_default' => ''], null, 'abcd1234'],
+			[['api_key' => 'abcd1234', 'api_key_use_default' => '1'], 'core/store', '4321dcba'],
+			[['api_key' => '******', 'api_key_use_default' => '0'], 'core/website', '4321dcba'],
+			[['api_key' => '******', 'api_key_use_default' => '1'], 'core/store', '4321dcba'],
+			[['api_key' => '', 'api_key_use_default' => '1'], 'core/website', ''],
+			[['api_key' => '', 'api_key_use_default' => '0'], '', ''],
+			[['api_key_use_default' => '1'], 'core/website', '4321dcba'],
+		];
 	}
 	/**
 	 * Test getting the API key to use for the request. It is expected to either
@@ -285,13 +304,16 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 		$requestMock = $this->getMockForAbstractClass('Zend_Controller_Request_Abstract');
 		$requestMock->setParams($requestParams);
 
-		$helper = $this->getHelperMock('eb2ccore/validator', array('getConfigSource'));
+		// Use a mock of the helper being tested to make sure a new instance
+		// is generated, preventing (un)mocked dependencies from being cached
+		// in the constructor.
+		$helper = $this->getHelperMock('eb2ccore/validator', ['getConfigSource']);
 
 		// if there is a source type, expect the value to come from config, so
 		// need to set up the model it will be coming from
 		if ($sourceType) {
 			$configSource = $this->getModelMockBuilder($sourceType)
-				->setMethods(array('getConfig'))
+				->setMethods(['getConfig'])
 				->getMock();
 			$configSource->expects($this->any())
 				->method('getConfig')
@@ -304,7 +326,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 		// when coming from a website, the config value needs to be decrypted,
 		// this is handled automatically by the store model but not the website
 		if ($sourceType === 'core/website') {
-			$coreHelper = $this->getHelperMock('core/data', array('decrypt'));
+			$coreHelper = $this->getHelperMock('core/data', ['decrypt']);
 			$coreHelper->expects($this->once())
 				->method('decrypt')
 				->with($this->identicalTo($apiKey))
@@ -319,13 +341,13 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	}
 	public function provideSftpPrivateKeyParams()
 	{
-		return array(
-			array(array('ssh_key' => 'abcd1234', 'ssh_key_use_default' => ''), null, 'abcd1234'),
-			array(array('ssh_key' => 'abcd1234', 'ssh_key_use_default' => '1'), 'core/store', '4321dcba'),
-			array(array('ssh_key' => '', 'ssh_key_use_default' => '1'), 'core/website', '4321dcba'),
-			array(array('ssh_key' => '', 'ssh_key_use_default' => '0'), 'core/store', '4321dcba'),
-			array(array('ssh_key_use_default' => '1'), 'core/website', '4321dcba'),
-		);
+		return [
+			[['ssh_key' => 'abcd1234', 'ssh_key_use_default' => ''], null, 'abcd1234'],
+			[['ssh_key' => 'abcd1234', 'ssh_key_use_default' => '1'], 'core/store', '4321dcba'],
+			[['ssh_key' => '', 'ssh_key_use_default' => '1'], 'core/website', '4321dcba'],
+			[['ssh_key' => '', 'ssh_key_use_default' => '0'], 'core/store', '4321dcba'],
+			[['ssh_key_use_default' => '1'], 'core/website', '4321dcba'],
+		];
 	}
 	/**
 	 * Test getting the Sftp Private key to use for the request. It is expected
@@ -348,13 +370,16 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 
 		$configPath = 'eb2ccore/feed/filetransfer_sftp_ssh_prv_key';
 
-		$helper = $this->getHelperMock('eb2ccore/validator', array('getConfigSource'));
+		// Use a mock of the helper being tested to make sure a new instance
+		// is generated, preventing (un)mocked dependencies from being cached
+		// in the constructor.
+		$helper = $this->getHelperMock('eb2ccore/validator', ['getConfigSource']);
 
 		// if there is a source type, expect the value to come from config, so
 		// need to set up the model it will be coming from
 		if ($sourceType) {
 			$configSource = $this->getModelMockBuilder($sourceType)
-				->setMethods(array('getConfig'))
+				->setMethods(['getConfig'])
 				->getMock();
 			$configSource->expects($this->any())
 				->method('getConfig')
@@ -367,7 +392,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 		// If the key comes from any config source, the key needs to be decrypted
 		// before being returned.
 		if ($sourceType) {
-			$coreHelper = $this->getHelperMock('core/data', array('decrypt'));
+			$coreHelper = $this->getHelperMock('core/data', ['decrypt']);
 			$coreHelper->expects($this->once())
 				->method('decrypt')
 				->with($this->identicalTo($apiKey))

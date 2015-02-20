@@ -13,6 +13,9 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
+use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
+
 /**
  * Handles validating address via the address validation service,
  * storing and retrieving address suggestions.
@@ -25,10 +28,49 @@ class EbayEnterprise_Address_Model_Validator
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_Address_Helper_Data */
+	protected $_helper;
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
+	protected $_coreHelper;
 
-	public function __construct()
+	/**
+	 * @param array
+	 */
+	public function __construct(array $args=[])
 	{
-		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		list($this->_logger, $this->_helper, $this->_coreHelper) = $this->_checkTypes(
+			$this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce($args, 'helper', Mage::helper('ebayenterprise_address')),
+			$this->_nullCoalesce($args, 'core_helper', Mage::helper('eb2ccore'))
+		);
+	}
+
+	/**
+	 * Type checks for constructor args array.
+	 *
+	 * @param EbayEnterprise_MageLog_Helper_Data
+	 * @param EbayEnterprise_Address_Helper_Data
+	 * @param EbayEnterprise_Eb2cCore_Helper_Data
+	 */
+	protected function _checkTypes(
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_Address_Helper_Data $helper,
+		EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
+	) {
+		return [$logger, $helper, $coreHelper];
+	}
+
+	/**
+	 * Return the value at field in array if it exists. Otherwise, use the
+	 * default value.
+	 * @param array      $arr
+	 * @param string|int $field Valid array key
+	 * @param mixed      $default
+	 * @return mixed
+	 */
+	protected function _nullCoalesce(array $arr, $field, $default)
+	{
+		return isset($arr[$field]) ? $arr[$field] : $default;
 	}
 
 	/**
@@ -39,6 +81,29 @@ class EbayEnterprise_Address_Model_Validator
 	protected function _getSession()
 	{
 		return Mage::getSingleton('customer/session');
+	}
+
+	/**
+	 * Get a new address vaildation request model for the given address and api.
+	 *
+	 * @param Mage_Customer_Model_Address_Abstract $address
+	 * @param IBidirectionalApi $api
+	 * @return EbayEnterprise_Address_Model_Validation_Request
+	 */
+	protected function _getValidationRequest(Mage_Customer_Model_Address_Abstract $address, IBidirectionalApi $api)
+	{
+		return Mage::getModel('ebayenterprise_address/validation_request', ['api' => $api, 'address' => $address]);
+	}
+
+	/**
+	 * Get a new address validation response model for the api.
+	 *
+	 * @param IBidirectionalApi $api
+	 * @return EbayEnterprise_Address_Model_Validatoin_Response
+	 */
+	protected function _getValidationResponse(IBidirectionalApi $api)
+	{
+		return Mage::getModel('ebayenterprise_address/validation_response', ['api' => $api]);
 	}
 
 	/**
@@ -150,7 +215,7 @@ class EbayEnterprise_Address_Model_Validator
 		// only other way it could be a shipping address is during onepage checkout
 		// billing address, in which case a 'billing[use_for_shipping]' field will be
 		// submitted with the address.
-		$data = Mage::app()->getRequest()->getPost('billing', array());
+		$data = Mage::app()->getRequest()->getPost('billing', []);
 		$useForShipping = isset($data['use_for_shipping']) && $data['use_for_shipping'];
 		return $useForShipping;
 	}
@@ -177,7 +242,7 @@ class EbayEnterprise_Address_Model_Validator
 	{
 		$request = Mage::app()->getRequest();
 		// get billing post data or shipping post data or empty array
-		$data = $request->getPost('billing') ?: $request->getPost('shipping', array());
+		$data = $request->getPost('billing') ?: $request->getPost('shipping', []);
 		// was the "save_in_address_book" checkbox submitted
 		$postFlag = isset($data['save_in_address_book']) && $data['save_in_address_book'];
 
@@ -211,28 +276,28 @@ class EbayEnterprise_Address_Model_Validator
 	public function shouldValidateAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
 		if ($this->_hasAddressBeenValidated($address)) {
-			$this->_logger->logDebug('[%s] No validation - already validated', array(__CLASS__));
+			$this->_logger->logDebug('[%s] No validation - already validated', [__CLASS__]);
 			return false;
 		}
 		if ($this->_isCheckoutAddress($address)) {
 			if ($this->_isAddressFromAddressBook($address)) {
-				$this->_logger->logDebug('[%s] No validation - from address book', array(__CLASS__));
+				$this->_logger->logDebug('[%s] No validation - from address book', [__CLASS__]);
 				return false;
 			}
 			if ($this->_isAddressBeingSaved()) {
-				$this->_logger->logDebug('[%s] Require validation - saving address in address book', array(__CLASS__));
+				$this->_logger->logDebug('[%s] Require validation - saving address in address book', [__CLASS__]);
 				return true;
 			}
 			if ($this->_isVirtualOrder()) {
-				$this->_logger->logDebug('[%s] No validation - virtual order', array(__CLASS__));
+				$this->_logger->logDebug('[%s] No validation - virtual order', [__CLASS__]);
 				return false;
 			}
 			if ($this->_isAddressBillingOnly($address)) {
-				$this->_logger->logDebug('[%s] No validation - billing only', array(__CLASS__));
+				$this->_logger->logDebug('[%s] No validation - billing only', [__CLASS__]);
 				return false;
 			}
 			if ($this->_isMissingRequiredFields($address)) {
-				$this->_logger->logDebug('[%s] No validation - missing required fields', array(__CLASS__));
+				$this->_logger->logDebug('[%s] No validation - missing required fields', [__CLASS__]);
 				return false;
 			}
 		}
@@ -246,19 +311,34 @@ class EbayEnterprise_Address_Model_Validator
 	 */
 	protected function _makeRequestForAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
-		$cfg = Mage::helper('ebayenterprise_address')->getConfigModel();
-		$xsd = $cfg->xsdFileAddressValidation;
-		$uri = Mage::helper('eb2ccore')->getApiUri(
-			EbayEnterprise_Address_Model_Validation_Request::API_SERVICE,
-			EbayEnterprise_Address_Model_Validation_Request::API_OPERATION
-		);
-		$msg = Mage::getModel('ebayenterprise_address/validation_request')->setAddress($address)->getMessage();
-		$apiResponse = Mage::getModel('eb2ccore/api')->request($msg, $xsd, $uri);
-		if (isset($apiResponse) && trim($apiResponse)) {
-			return Mage::getModel('ebayenterprise_address/validation_response', array('message' => $apiResponse));
+		$config = $this->_helper->getConfigModel();
+		$api = $this->_coreHelper->getSdkApi($config->apiService, $config->apiOperation);
+		try {
+			$this->_prepareApiForAddressRequest($address, $api);
+			$api->send();
+			return $this->_getValidationResponse($api);
+		} catch (NetworkError $e) {
+			$this->_logger->logWarn('[%s] Address validation service returned empty response.', [__CLASS__]);
+		} catch (Exception $e) {
+			$this->_logger->logWarn('[%s] Unexpected exception from SDK.', [__CLASS__]);
+			$this->_logger->logException($e);
+			throw $e;
 		}
-		$this->_logger->logWarn('[%s] Address validation service returned empty response.', array(__CLASS__));
 		return null;
+	}
+
+	/**
+	 * Prepare a request payload for the API to validate the address.
+	 *
+	 * @param Mage_Customer_Model_Address_Abstract
+	 * @param IBidirectionalApi
+	 * @return \eBayEnterprise\RetailOrderManagement\Payload\Address\IValidationRequest
+	 */
+	protected function _prepareApiForAddressRequest(Mage_Customer_Model_Address_Abstract $address, IBidirectionalApi $api)
+	{
+		return $api->setRequestBody(
+			$this->_getValidationRequest($address, $api)->prepareRequest()->getRequest()
+		);
 	}
 
 	/**
@@ -273,12 +353,14 @@ class EbayEnterprise_Address_Model_Validator
 	 */
 	public function validateAddress(Mage_Customer_Model_Address_Abstract $address, $area=null)
 	{
-		$response        = null;
-		$errorMessage    = null;
-		$address         = $this->_updateAddressWithSelection($address);
-		$adminValidation = ($area === Mage_Core_Model_App_Area::AREA_ADMINHTML
+		$response = null;
+		$errorMessage = null;
+		$address = $this->_updateAddressWithSelection($address);
+		$adminValidation = (
+			$area === Mage_Core_Model_App_Area::AREA_ADMINHTML
 			&& !$this->_isBillingAddress($address)
-			&& !$this->_hasAddressBeenValidated($address));
+			&& !$this->_hasAddressBeenValidated($address)
+		);
 		if ($adminValidation || $this->shouldValidateAddress($address)) {
 			$this->clearSessionAddresses();
 			$response = $this->_processRequest($address, $errorMessage);
@@ -307,10 +389,10 @@ class EbayEnterprise_Address_Model_Validator
 					$address->setSameAsBilling(false);
 				}
 				$errorMessage = '';
-				if ($response->hasAddressSuggestions()) {
-					$errorMessage = Mage::helper('ebayenterprise_address')->__(self::SUGGESTIONS_ERROR_MESSAGE);
+				if ($response->getHasSuggestions()) {
+					$errorMessage = $this->_helper->__(self::SUGGESTIONS_ERROR_MESSAGE);
 				} else {
-					$errorMessage = Mage::helper('ebayenterprise_address')->__(self::NO_SUGGESTIONS_ERROR_MESSAGE);
+					$errorMessage = $this->_helper->__(self::NO_SUGGESTIONS_ERROR_MESSAGE);
 				}
 			}
 		}
@@ -351,14 +433,14 @@ class EbayEnterprise_Address_Model_Validator
 	 */
 	protected function _extractValidatedAddressData(Mage_Customer_Model_Address_Abstract $address)
 	{
-		$validatedAddress = Mage::getModel('customer/address')->setData(array(
+		$validatedAddress = Mage::getModel('customer/address')->setData([
 			'street'       => $address->getData('street'),
 			'city'         => $address->getCity(),
 			'region_id'    => $address->getRegionId(),
 			'country_id'   => $address->getCountryId(),
 			'postcode'     => $address->getPostcode(),
 			'address_type' => $address->getAddressType(),
-		));
+		]);
 		return $validatedAddress;
 	}
 
@@ -373,13 +455,13 @@ class EbayEnterprise_Address_Model_Validator
 		Mage_Customer_Model_Address_Abstract $source
 	)
 	{
-		$dest->addData(array(
+		$dest->addData([
 			'prefix'     => $source->getPrefix(),
 			'firstname'  => $source->getFirstname(),
 			'middlename' => $source->getMiddlename(),
 			'lastname'   => $source->getLastname(),
 			'suffix'     => $source->getSuffix()
-		));
+		]);
 		return $this;
 	}
 
@@ -390,12 +472,12 @@ class EbayEnterprise_Address_Model_Validator
 	 * gaps between what the user gives us and what the service returns (like name and phone).
 	 *
 	 * @param Mage_Customer_Model_Address_Abstract $requestAddress
-	 * @param EbayEnterprise_Address_Model_Validation_Response $response
+	 * @param EbayEnterprise_Address_Model_Validation_Response|null $response
 	 * @return self
 	 */
 	protected function _updateSession(
 		Mage_Customer_Model_Address_Abstract $requestAddress,
-		$response
+		EbayEnterprise_Address_Model_Validation_Response $response=null
 	)
 	{
 		$addressCollection = $this->getAddressCollection();
@@ -548,7 +630,7 @@ class EbayEnterprise_Address_Model_Validator
 	 */
 	protected function _isMissingRequiredFields(Mage_Customer_Model_Address_Abstract $address)
 	{
-		$methods = array('getStreet1', 'getCity', 'getCountry');
+		$methods = ['getStreet1', 'getCity', 'getCountry'];
 		$hasMissingFieds = false;
 		foreach ($methods as $method) {
 			$hasMissingFieds = $hasMissingFieds || !$address->$method();

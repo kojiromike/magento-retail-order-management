@@ -13,6 +13,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
+
 /**
  * Generate the xml request to the AddressValidation service
  * @method Mage_Customer_Model_Address_Abstract getQuote
@@ -20,69 +22,79 @@
  */
 class EbayEnterprise_Address_Model_Validation_Request extends Varien_Object
 {
-	const API_SERVICE        = 'address';
-	const API_OPERATION      = 'validate';
-	const API_FORMAT         = 'xml';
-	const DOM_ROOT_NODE_NAME = 'AddressValidationRequest';
+	/** @var EbayEnterprise_Address_Helper_Data */
+	protected $_helper;
+	/** @var Mage_Customer_Model_Address_Abstract */
+	protected $_address;
+	/** @var IBidirectionalApi */
+	protected $_api;
+	/** @var \eBayEnterprise\RetailOrderManagement\Payload\Address\IValidationRequest */
+	protected $_requestPayload;
 
 	/**
-	 * DOMDocument used to build the request message
-	 * @var EbayEnterprise_Dom_Document
+	 * @param array
 	 */
-	protected $_dom;
-
-	/**
-	 * Get the DOMDocument (EbayEnterprise_Dom_Document)
-	 * to be sent with this message.
-	 * @return EbayEnterprise_Dom_Document
-	 */
-	public function getMessage()
+	public function __construct(array $args=[])
 	{
-		$cfg = Mage::helper('eb2ccore')->getConfigModel();
-		$this->_dom = Mage::helper('eb2ccore')->getNewDomDocument();
-		$this->_dom->addElement(self::DOM_ROOT_NODE_NAME, null, $cfg->apiNamespace);
-		$this->_dom->documentElement->appendChild($this->_createMessageHeader());
-		$this->_dom->documentElement->appendChild($this->_createMessageAddress());
-		return $this->_dom;
+		list($this->_helper, $this->_address, $this->_api) = $this->_checkTypes(
+			$this->_nullCoalesce($args, 'helper', Mage::helper('ebayenterprise_address')),
+			$args['address'],
+			$args['api']
+		);
+		$this->_requestPayload = $this->_api->getRequestBody();
 	}
 
 	/**
-	 * Create a document fragment for the <Header>...</Header> portion of the message.
-	 * @return DOMDocumentFragment
+	 * Type checks for constructor args array.
+	 *
+	 * @param EbayEnterprise_Address_Helper_Data
+	 * @param Mage_Customer_Model_Address_Abstract
+	 * @param IBidirectionalApi
 	 */
-	protected function _createMessageHeader()
-	{
-		$cfg = Mage::helper('ebayenterprise_address')->getConfigModel();
-		$fragment = $this->_dom->createDocumentFragment();
-
-		$fragment->appendChild(
-			$this->_dom->createElement('Header',
-				$this->_dom->createElement('MaxAddressSuggestions',
-					$cfg->maxAddressSuggestions,
-					$this->_dom->documentElement->namespaceURI
-				),
-				$this->_dom->documentElement->namespaceURI
-			)
-		);
-		return $fragment;
+	protected function _checkTypes(
+		EbayEnterprise_Address_Helper_Data $helper,
+		Mage_Customer_Model_Address_Abstract $address,
+		IBidirectionalApi $api
+	) {
+		return [$helper, $address, $api];
 	}
 
 	/**
-	 * Create a document fragment for the <Address>...</Address> portion of the message.
-	 * @return DOMDocumentFragment
+	 * Return the value at field in array if it exists. Otherwise, use the
+	 * default value.
+	 * @param array      $arr
+	 * @param string|int $field Valid array key
+	 * @param mixed      $default
+	 * @return mixed
 	 */
-	protected function _createMessageAddress()
+	protected function _nullCoalesce(array $arr, $field, $default)
 	{
-		$fragment = $this->_dom->createDocumentFragment();
-		$nsUri = $this->_dom->documentElement->namespaceURI;
+		return isset($arr[$field]) ? $arr[$field] : $default;
+	}
 
-		$fragment->appendChild(
-			$this->_dom->createElement(
-				'Address',
-				Mage::helper('ebayenterprise_address')->addressToPhysicalAddressXml($this->getAddress(), $this->_dom, $nsUri),
-				$nsUri
+	/**
+	 * Prepare the request payload - inject address and validation header data.
+	 *
+	 * @return self
+	 */
+	public function prepareRequest()
+	{
+		$this->_helper->transferAddressToPhysicalAddressPayload(
+			$this->_address,
+			$this->_requestPayload->setMaxSuggestions(
+				$this->_helper->getConfigModel()->maxAddressSuggestions
 			)
 		);
-		return $fragment;
+		return $this;
+	}
+
+	/**
+	 * Get the request request payload to send as the request.
+	 *
+	 * @return \eBayEnterprise\RetailOrderManagement\Payload\Address\IValidationRequest
+	 */
+	public function getRequest()
+	{
+		return $this->_requestPayload;
 	}
 }

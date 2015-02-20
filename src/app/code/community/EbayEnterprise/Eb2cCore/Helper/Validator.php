@@ -18,6 +18,11 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	const API_HANDLER_PATH = 'eb2ccore/api/test_connection_status_handlers';
 	const INVALID_API_SETTINGS_ERROR_MESSAGE = 'EbayEnterprise_Eb2cCore_Api_Validation_Invalid_Settings';
 
+	// hard-coded API configuration for the test address validation request
+	const AD_VAL_SERVICE = 'address';
+	const AD_VAL_OPERATION = 'validate';
+	const AD_VAL_XSD = 'Address-Validation-Service-1.0.xsd';
+
 	const INVALID_SFTP_SETTINGS_ERROR_MESSAGE = 'EbayEnterprise_Eb2cCore_Sftp_Validation_Invalid_Settings';
 	const INVALID_SFTP_CONNECTION = 'EbayEnterprise_Eb2cCore_Sftp_Invalid_Connection';
 	const INVALID_SFTP_AUTHENTICATION_CONFIG = 'EbayEnterprise_Eb2cCore_Sftp_Invalid_Authentication_Configuration';
@@ -26,10 +31,13 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
+	protected $_helper;
 
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_helper = Mage::helper('eb2ccore');
 	}
 
 	/**
@@ -44,20 +52,18 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	 */
 	public function testApiConnection($storeId, $apiKey, $hostname)
 	{
-		// use the Address config go with the address validation request to be made
-		$coreConfig = Mage::helper('eb2ccore')->getConfigModel();
-		$addressConfig = Mage::helper('ebayenterprise_address')->getConfigModel();
 		try {
 			$this->_validateApiSettings($storeId, $apiKey, $hostname);
 		} catch (EbayEnterprise_Eb2cCore_Exception_Api_Configuration $e) {
-			return array(
+			return [
 				'message' => $e->getMessage(), 'success' => false
-			);
+			];
 		}
 		// need to manually build the URI as the eb2ccore/helper method doesn't
 		// allow specifying the store id and doesn't really make sense for it to
+		$coreConfig = $this->_helper->getConfigModel();
 		$uri = $this->_getApiUri($hostname, $storeId, $coreConfig->apiMajorVersion, $coreConfig->apiMinorVersion);
-		$xsd = $addressConfig->xsdFileAddressValidation;
+		$xsd = self::AD_VAL_XSD;
 		$adValRequest = $this->_buildTestRequest();
 
 		/** @var EbayEnterprise_Eb2cCore_Model_Api $api */
@@ -66,6 +72,7 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		$response = $api->request($adValRequest, $xsd, $uri, $api::DEFAULT_TIMEOUT, $api::DEFAULT_ADAPTER, null, $apiKey);
 		return $response;
 	}
+
 	/**
 	 * Get the URI of the API endpoint for the AdVal request using the provided
 	 * hostname, store id, and version.
@@ -79,11 +86,13 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	{
 		return sprintf(EbayEnterprise_Eb2cCore_Helper_Data::URI_FORMAT,
 			$hostname, $major, $minor, $storeId,
-			EbayEnterprise_Address_Model_Validation_Request::API_SERVICE,
-			EbayEnterprise_Address_Model_Validation_Request::API_OPERATION,
-			'', 'xml'
+			self::AD_VAL_SERVICE,
+			self::AD_VAL_OPERATION,
+			'',
+			'xml'
 		);
 	}
+
 	/**
 	 * Validate the store id, API key and hostname settings, ensuring that
 	 * none are empty.
@@ -95,7 +104,7 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	 */
 	protected function _validateApiSettings($storeId, $apiKey, $hostname)
 	{
-		$invalidSettings = array();
+		$invalidSettings = [];
 		if ($storeId === '') {
 			$invalidSettings[] = 'Store Id';
 		}
@@ -107,44 +116,36 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		}
 		if (!empty($invalidSettings)) {
 			throw new EbayEnterprise_Eb2cCore_Exception_Api_Configuration(
-				Mage::helper('eb2ccore')->__(self::INVALID_API_SETTINGS_ERROR_MESSAGE, implode(', ', $invalidSettings))
+				$this->_helper->__(self::INVALID_API_SETTINGS_ERROR_MESSAGE, implode(', ', $invalidSettings))
 			);
 		}
 		return $this;
 	}
+
 	/**
 	 * Create an address validation request message using hardcoded address and MaxSuggestions.
 	 * @return EbayEnterprise_Dom_Document
 	 */
 	protected function _buildTestRequest()
 	{
-		$coreHelper =  Mage::helper('eb2ccore');
-		$testAddress = Mage::getModel('customer/address', array(
-			'street' => array('935 1st Ave'), 'city' => 'King of Prussia', 'region_id' => '51',
-			'country_id' => 'US', 'postcode' => '19406'
-		));
-
+		$coreHelper =  $this->_helper;
+		$request = <<<REQUEST
+<AddressValidationRequest xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
+	<Header><MaxAddressSuggestions>3</MaxAddressSuggestions></Header>
+	<Address>
+		<Line1>935 1st Ave</Line1>
+		<City>King of Prussia</City>
+		<MainDivision>PA</MainDivision>
+		<CountryCode>US</CountryCode>
+		<PostalCode>19406</PostalCode>
+	</Address>
+</AddressValidationRequest>
+REQUEST;
 		$dom = $coreHelper->getNewDomDocument();
-		$dom->addElement(EbayEnterprise_Address_Model_Validation_Request::DOM_ROOT_NODE_NAME, null,
-			$coreHelper->getConfigModel()->apiNamespace);
-		$nsUri = $dom->documentElement->namespaceURI;
-
-		$header = $dom->createDocumentFragment();
-		$header->appendChild(
-			$dom->createElement('Header',
-				$dom->createElement('MaxAddressSuggestions', 3, $nsUri ), $nsUri
-			)
-		);
-		$address = $dom->createDocumentFragment();
-		$address->appendChild(
-			$dom->createElement('Address',
-				Mage::helper('ebayenterprise_address')->addressToPhysicalAddressXml($testAddress, $dom, $nsUri), $nsUri
-			)
-		);
-		$dom->documentElement->appendChild($header);
-		$dom->documentElement->appendChild($address);
+		$dom->loadXml($request);
 		return $dom;
 	}
+
 	/**
 	 * Validate the store id, API key and hostname settings, ensuring that
 	 * none are empty.
@@ -158,7 +159,7 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 	 */
 	protected function _validateSftpSettings($host, $username, $key, $port)
 	{
-		$invalidSettings = array();
+		$invalidSettings = [];
 		if ($host === '') {
 			$invalidSettings[] = 'Remote Host';
 		}
@@ -174,7 +175,7 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		}
 		if (!empty($invalidSettings)) {
 			throw new EbayEnterprise_Eb2cCore_Exception_Sftp_Configuration(
-				Mage::helper('eb2ccore')->__(self::INVALID_SFTP_SETTINGS_ERROR_MESSAGE, implode(', ', $invalidSettings))
+				$this->_helper->__(self::INVALID_SFTP_SETTINGS_ERROR_MESSAGE, implode(', ', $invalidSettings))
 			);
 		}
 		return $this;
@@ -197,7 +198,7 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		try {
 			$this->_validateSftpSettings($host, $username, $privateKey, $port);
 		} catch (EbayEnterprise_Eb2cCore_Exception_Sftp_Configuration $e) {
-			return array('message' => $e->getMessage(), 'success' => false);
+			return ['message' => $e->getMessage(), 'success' => false];
 		}
 		$configMap = Mage::getSingleton('eb2ccore/config');
 		$sftp = Mage::helper('filetransfer')->getProtocolModel($configMap->getPathForKey('sftp_config'));
@@ -205,8 +206,8 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 			->setUsername($username)
 			->setPrivateKey($privateKey)
 			->setPort($port);
-		$helper = Mage::helper('eb2ccore');
-		$resp = array();
+		$helper = $this->_helper;
+		$resp = [];
 		// When the Net_SFTP instance failes to connect, it will trigger an error
 		// instead of throwing an exception. Convert the error to an exception
 		// so it can halt execution and be caught.
@@ -216,11 +217,11 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		try {
 			$sftp->connect()->login();
 		} catch (EbayEnterprise_Eb2cCore_Exception_Sftp_Configuration $e) {
-			$this->_logger->logCrit('[%s] %s', array(__CLASS__, $e));
-			$resp = array('message' => $helper->__(self::INVALID_SFTP_CONNECTION), 'success' => false);
+			$this->_logger->logCrit('[%s] %s', [__CLASS__, $e]);
+			$resp = ['message' => $helper->__(self::INVALID_SFTP_CONNECTION), 'success' => false];
 		} catch (EbayEnterprise_FileTransfer_Exception_Authentication $e) {
-			$this->_logger->logCrit('[%s] %s', array(__CLASS__, $e));
-			$resp = array('message' => $helper->__(self::INVALID_SFTP_AUTHENTICATION_CONFIG), 'success' => false);
+			$this->_logger->logCrit('[%s] %s', [__CLASS__, $e]);
+			$resp = ['message' => $helper->__(self::INVALID_SFTP_AUTHENTICATION_CONFIG), 'success' => false];
 		}
 		// Restore the error handler to get rid of the exception throwing one.
 		restore_error_handler();
@@ -229,9 +230,9 @@ class EbayEnterprise_Eb2cCore_Helper_Validator
 		// yet been dicovered by the exception handling above, just give a lame
 		// indication that the connection could not be made.
 		if ($sftp->isLoggedIn()) {
-			$resp = array('message' => $helper->__(self::SFTP_CONNECTION_SUCCESS), 'success' => true);
+			$resp = ['message' => $helper->__(self::SFTP_CONNECTION_SUCCESS), 'success' => true];
 		} elseif (empty($resp)) {
-			$resp = array('message' => $helper->__(self::SFTP_CONNECTION_FAILED), 'success' => false);
+			$resp = ['message' => $helper->__(self::SFTP_CONNECTION_FAILED), 'success' => false];
 		}
 		return $resp;
 	}

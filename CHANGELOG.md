@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 - Display correct quantity ordered on order details page
 - Include discount amount in order totals on order details page
 
+### Changed
+- Use the Retail Order Management SDK for address validation service requests
+
 ## [1.5.0-alpha-3] - 2015-02-12
 ### Fixed
 - Sprintf-format specifiers not replaced in log messages

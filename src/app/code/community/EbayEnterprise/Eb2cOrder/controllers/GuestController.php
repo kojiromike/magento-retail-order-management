@@ -53,16 +53,38 @@ class EbayEnterprise_Eb2cOrder_GuestController extends Mage_Sales_GuestControlle
 			$this->_redirect('sales/guest/form');
 			return;
 		}
-		$billingAddress = $romOrderObject->getBillingAddress();
-		if ($orderLastname === $billingAddress->getLastname()
-			&& ((!empty($orderZip) && $orderZip === $billingAddress->getPostalCode())
-				|| (!empty($orderEmail) && $orderEmail === $romOrderObject->getEmailAddress())))
-		{
-			$this->_redirect('sales/order/romguestview/order_id/'.$orderId);
+		if ($this->_hasValidOrderResult($romOrderObject, $orderEmail, $orderZip, $orderLastname)) {
+			$this->_redirect('sales/order/romguestview/order_id/' . $orderId);
 		} else {
 			Mage::getSingleton('core/session')->addError(Mage::helper('eb2corder')->__('Order not found.'));
 			$this->_redirect('sales/guest/form');
 		}
 		return;
+	}
+	/**
+	 * Check whether we have a valid order result.
+	 * @param  EbayEnterprise_Eb2cOrder_Model_Detail_Order_Interface $romOrderObject
+	 * @param  string $orderEmail
+	 * @param  string $orderZip
+	 * @param  string $orderLastname
+	 * @return bool
+	 */
+	protected function _hasValidOrderResult(EbayEnterprise_Eb2cOrder_Model_Detail_Order_Interface $romOrderObject, $orderEmail, $orderZip, $orderLastname)
+	{
+		$billingAddress = $romOrderObject->getBillingAddress();
+		return (
+			$billingAddress
+			&& $orderLastname === $billingAddress->getLastname()
+			&& (
+				(
+					$orderZip
+					&& $orderZip === $billingAddress->getPostalCode()
+				)
+				|| (
+					$orderEmail
+					&& $orderEmail === $romOrderObject->getCustomerEmail()
+				)
+			)
+		);
 	}
 }

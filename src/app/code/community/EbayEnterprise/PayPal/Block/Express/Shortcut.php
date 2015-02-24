@@ -36,12 +36,7 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 	 */
 	const POSITION_BEFORE = 'before';
 	const POSITION_AFTER = 'after';
-	/**
-	 * Whether the block should be eventually rendered
-	 *
-	 * @var bool
-	 */
-	protected $_shouldRender = true;
+
 	protected $_paymentMethodCode = 'ebayenterprise_paypal_express';
 	/**
 	 * Start express action
@@ -107,10 +102,7 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 	 */
 	protected function _shouldRenderProductPage()
 	{
-		return $this->_shouldRender && (
-			!$this->getIsOnCatalogProductPage()
-			|| $this->_getConfigFlag(self::VISIBLE_PRODUCT)
-		);
+		return !($this->getIsOnCatalogProductPage() && !$this->_getConfigFlag(self::VISIBLE_PRODUCT));
 	}
 
 	/**
@@ -120,12 +112,6 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 	 */
 	protected function _isPositiveProductPrice()
 	{
-		if (!$this->_shouldRender) {
-			return false;
-		}
-		if (!$this->getIsOnCatalogProductPage()) {
-			return true;
-		}
 		$currentProduct = $this->_getCurrentProduct();
 		if ($currentProduct) {
 			$productPrice = (float) $currentProduct->getFinalPrice();
@@ -143,10 +129,7 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 	 */
 	protected function _shouldRenderCartPage()
 	{
-		return $this->_shouldRender && (
-			!$this->getIsOnCatalogProductPage()
-			&& $this->_getConfigFlag(self::VISIBLE_CART)
-		);
+		return !(!$this->getIsOnCatalogProductPage() && !$this->_getConfigFlag(self::VISIBLE_CART));
 	}
 
 	/**
@@ -156,16 +139,10 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 	 */
 	protected function _shouldRenderQuote()
 	{
-		if (!$this->_shouldRender) {
-			return false;
-		}
 		$quote = $this->_getQuote();
 
 		// validate minimum quote amount and validate quote for zero grandtotal
-		if (null !== $quote
-			&& (!$quote->validateMinimumAmount()
-				|| (!$quote->getGrandTotal() && !$quote->hasNominalItems()))
-		) {
+		if (null !== $quote && $this->_hasZeroGrandTotal($quote)) {
 			return false;
 		}
 		// check payment method availability
@@ -177,6 +154,26 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 		}
 		return true;
 	}
+	/**
+	 * Check if the quote has zero grandtotal.
+	 * @param  Mage_Sales_Model_Quote $quote
+	 * @return bool
+	 */
+	protected function _hasZeroGrandTotal(Mage_Sales_Model_Quote $quote)
+	{
+		return (!$quote->validateMinimumAmount() || (!$quote->getGrandTotal() && !$quote->hasNominalItems()));
+	}
+	/**
+	 * Check if we can show the paypal button.
+	 * @return bool
+	 */
+	protected function _canShowPayPalButton()
+	{
+		return $this->_shouldRenderProductPage()
+			&& $this->_isPositiveProductPrice()
+			&& $this->_shouldRenderCartPage()
+			&& $this->_shouldRenderQuote();
+	}
 
 	/**
 	 * @return self
@@ -184,20 +181,9 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 	protected function _beforeToHtml()
 	{
 		parent::_beforeToHtml();
-
-		$this->_shouldRender = $this->_shouldRenderProductPage()
-			|| $this->_isPositiveProductPrice()
-			|| $this->_shouldRenderCartPage()
-			|| $this->_shouldRenderQuote();
-
-		if ($this->_shouldRender) {
-			// set misc data
-			$this
-				->setShortcutHtmlId($this->_htmlId)
-				->setCheckoutUrl($this->getUrl($this->_startAction))
-				->setImageUrl($this->_payPalImageUrl);
-		}
-
+		$this->setShortcutHtmlId($this->_htmlId)
+			->setCheckoutUrl($this->getUrl($this->_startAction))
+			->setImageUrl($this->_payPalImageUrl);
 		return $this;
 	}
 
@@ -212,7 +198,6 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 			($this->getIsOnCatalogProductPage() && !$this->getShowOrPosition())
 			|| ($this->getShowOrPosition()
 				&& $this->getShowOrPosition() == self::POSITION_BEFORE);
-
 	}
 
 	/**
@@ -265,5 +250,14 @@ class EbayEnterprise_PayPal_Block_Express_Shortcut
 			return $prod;
 		}
 		return null;
+	}
+	/**
+	 * Render the block if needed
+	 *
+	 * @return string
+	 */
+	protected function _toHtml()
+	{
+		return $this->_canShowPayPalButton() ? parent::_toHtml() : '';
 	}
 }

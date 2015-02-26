@@ -1,13 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.5.0-alpha-4] -  2015-02-26
 ### Fixed
-- Display correct quantity ordered on order details page
-- Include discount amount in order totals on order details page
+- Guest order lookup gives "Order not found" error even when an order is found
+- PayPal Express Checkout fails when using a gift card that covers the order subtotal, but not the eventual order grand total
+- Order details page is not displaying the correct item quantity
+- Order details page is not displaying promotional discounts
+- Blank page upon submitting an order using PayPal payment method
 
 ### Changed
 - Use the Retail Order Management SDK for address validation service requests
+
+### Removed
+- Last vestiges of admin suppression
 
 ## [1.5.0-alpha-3] - 2015-02-12
 ### Fixed
@@ -197,7 +203,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
-[Unreleased]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-3..HEAD
+[1.5.0-alpha-4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-3...1.5.0-alpha-4
 [1.5.0-alpha-3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-2...1.5.0-alpha-3
 [1.5.0-alpha-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-1...1.5.0-alpha-2
 [1.5.0-alpha-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.4.0-rc-1...1.5.0-alpha-1

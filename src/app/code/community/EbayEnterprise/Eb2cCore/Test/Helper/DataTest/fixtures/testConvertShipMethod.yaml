@@ -1,5 +1,6 @@
 config:
 	default/eb2ccore/shipmap/flatrate_flatrate: ANY_STD
+	default/eb2ccore/shipmap/freeshipping_freeshipping: ''
 	# default/eb2ccore/shipmap/flatrate_flatrate: ANY_2DAY
 	# default/eb2ccore/shipmap/flatrate_flatrate: ANY_1DAY
 	default/eb2ccore/shipmap/usps_First-Class: USPS_USPS

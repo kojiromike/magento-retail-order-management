@@ -364,16 +364,29 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 				'item_desc' => $item->getName(),
 				'item_id' => $item->getSku(),
 				'line_number' => count($this->_orderItems),
-				'merchandise_amount' => $store->roundPrice($item->getBaseRowTotal()),
+				'merchandise_amount' => $store->roundPrice($this->_calculateMerchandiseAmount($item)),
 				'merchandise_tax_class' => $this->_getItemTaxClass($item),
 				'merchandise_unit_price' => $store->roundPrice($this->_getItemOriginalPrice($item)),
 				'quantity' => $item->getQty(),
 				'shipping_amount' => $store->roundPrice($this->_getShippingAmount($address)),
 				'shipping_tax_class' => self::SHIPPING_TAX_CLASS,
+				'gw_id' => $item->getGwId(),
 			),
 			$this->_extractShippingData($item),
 			$this->_extractItemDiscountData($item, $address)
 		);
+	}
+
+	/**
+	 * Calculate merchandize amount, row total minus discount amount.
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract $item
+	 * @return float
+	 */
+	protected function _calculateMerchandiseAmount(Mage_Sales_Model_Quote_Item_Abstract $item)
+	{
+		$total = $item->getBaseRowTotal();
+		$discount = $item->getBaseDiscountAmount();
+		return ($total >= $discount) ? $total - $discount : $total;
 	}
 
 	/**
@@ -660,10 +673,6 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		$taxClass = $this->_checkLength($item['merchandise_tax_class'], 1, 40);
 		if ($taxClass) {
 			$merchandiseNode->createChild('TaxClass', $taxClass); // Don't send empty node - xsd fails
-		}
-
-		if ($item['discount_amount']) {
-			$this->_buildDiscountNode($merchandiseNode, $item);
 		}
 
 		$merchandiseNode->createChild(

@@ -11,7 +11,7 @@ dhl_S:
 dhl_G:
   eb2c_ship_method: null
 freeshipping_freeshipping:
-  eb2c_ship_method: null
+  eb2c_ship_method: ''
 usps_Bound Printed Matter:
   eb2c_ship_method: null
 usps_Express Mail:

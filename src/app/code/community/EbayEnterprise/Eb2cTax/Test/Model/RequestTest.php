@@ -1865,6 +1865,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 	 */
 	public function testExtractItemData()
 	{
+		$gwId = 0;
 		$countryId = 'US';
 		$htsCode = 'sample hts code';
 		$hlpr = $this->getHelperMock('eb2ccore/data', array('getProductHtsCodeByCountry'));
@@ -1884,6 +1885,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'getQty' => $this->returnValue(1),
 			'getBaseRowTotal' => $this->returnValue(50.0),
 			'getProduct' => $this->returnValue($prod),
+			'getGwId' => $this->returnValue($gwId),
 		));
 		$request = $this->getModelMockBuilder('eb2ctax/request')
 			->setMethods(array(
@@ -1937,6 +1939,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_RequestTest extends EbayEnterprise_Eb2cC
 			'AdminOrigin' => 'the admin data',
 			'ShippingOrigin' => 'ship from data',
 			'some_discount_thing' => 'this is discount data',
+			'gw_id' => $gwId,
 		);
 		$this->assertEquals($itemData, $result);
 	}

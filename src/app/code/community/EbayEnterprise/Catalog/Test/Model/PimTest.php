@@ -104,6 +104,13 @@ class EbayEnterprise_Catalog_Test_Model_PimTest
 			->disableOriginalConstructor()
 			->setMethods(array('generateFileName'))
 			->getMock();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	/**
 	 * mock the structure of the feed config

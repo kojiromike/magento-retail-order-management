@@ -34,6 +34,8 @@ class EbayEnterprise_Catalog_Helper_Map
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * Map ownerDocuments to DomXPath objects to avoid recreating them.
@@ -51,6 +53,7 @@ class EbayEnterprise_Catalog_Helper_Map
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 	/**
 	 * check if the node list has item and if the first item node value equal to 'active' to return
@@ -246,7 +249,9 @@ class EbayEnterprise_Catalog_Helper_Map
 		$attributeSetId = Mage::helper('ebayenterprise_catalog')->getAttributeSetIdByName($attributeSetName);
 		if (is_null($attributeSetId)) {
 			// @todo: move to error confirmation feed
-			$this->_logger->logWarn('[%s] Attribute Set (%s) has not yet been setup for this Magento instance.', array(__CLASS__, $attributeSetName));
+			$logData = ['attribute_set_name' => $attributeSetName];
+			$logMessage = 'Attribute Set "{attribute_set_name}" has not yet been setup for this Magento instance.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		}
 		return $attributeSetId ?: $product->getAttributeSetId();
 	}

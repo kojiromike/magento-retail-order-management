@@ -27,6 +27,8 @@ class EbayEnterprise_Amqp_Model_Runner
 	protected $_coreHelper;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * @param array $initParams May accept:
@@ -34,14 +36,16 @@ class EbayEnterprise_Amqp_Model_Runner
 	 *                          - 'amqpConfigHelper' => EbayEnterprise_Amqp_Helper_Config
 	 *                          - 'core_helper' => EbayEnterprise_Eb2cCore_Helper_Data
 	 *                          - 'logger' => EbayEnterprise_MageLog_Helper_Data
+	 *                          - 'context' => EbayEnterprise_MageLog_Helper_Context
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_helper, $this->_amqpConfigHelper, $this->_coreHelper, $this->_logger) = $this->_checkTypes(
+		list($this->_helper, $this->_amqpConfigHelper, $this->_coreHelper, $this->_logger, $this->_context) = $this->_checkTypes(
 			$this->_nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_amqp')),
 			$this->_nullCoalesce($initParams, 'amqp_config_helper', Mage::helper('ebayenterprise_amqp/config')),
 			$this->_nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore')),
-			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
+			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
 	}
 	/**
@@ -50,15 +54,17 @@ class EbayEnterprise_Amqp_Model_Runner
 	 * @param EbayEnterprise_Amqp_Helper_Config $amqpConfigHelper
 	 * @param EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
 	 * @param EbayEnterprise_MageLog_Helper_Data $logger
+	 * @param EbayEnterprise_MageLog_Helper_Context $context
 	 * @return array
 	 */
 	protected function _checkTypes(
 		EbayEnterprise_Amqp_Helper_Data $helper,
 		EbayEnterprise_Amqp_Helper_Config $amqpConfigHelper,
 		EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
-		EbayEnterprise_MageLog_Helper_Data $logger
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($helper, $amqpConfigHelper, $coreHelper, $logger);
+		return array($helper, $amqpConfigHelper, $coreHelper, $logger, $context);
 	}
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the
@@ -114,7 +120,9 @@ class EbayEnterprise_Amqp_Model_Runner
 				$payload = $payloads->current();
 			} catch (Exception\Payload $e) {
 				// log and skip over any messages that cannot be handled by the SDK
-				$this->_logger->logWarn('[%s] Received bad payload on queue %s: %s', array(__CLASS__, $queue, $e->getMessage()));
+				$logData = ['queue' => $queue, 'error_message' => $e->getMessage()];
+				$logMessage = 'Received bad payload on queue {queue}: {error_message}';
+				$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData, $e));
 				$payloads->next();
 				continue;
 			}
@@ -132,7 +140,9 @@ class EbayEnterprise_Amqp_Model_Runner
 	protected function _dispatchPayload(IOrderEvent $payload, Mage_Core_Model_Store $store)
 	{
 		$eventName = $this->_eventPrefix . '_' . $this->_coreHelper->underscoreWords($payload->getEventType());
-		$this->_logger->logInfo('[%s] Dispatching event "%s" for payload.', array(__CLASS__, $eventName));
+		$logData = ['event_name' => $eventName];
+		$logMessage = 'Dispatching event "{event_name}" for payload.';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		Mage::dispatchEvent($eventName, array('payload' => $payload, 'store' => $store));
 		return $this;
 	}

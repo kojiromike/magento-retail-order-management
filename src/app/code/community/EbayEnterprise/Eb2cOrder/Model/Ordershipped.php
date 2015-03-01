@@ -24,35 +24,40 @@ class EbayEnterprise_Eb2cOrder_Model_Ordershipped
 	protected $_shipmentEventHelper;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * @param array $initParams Must have this key:
 	 *                          - 'payload' => OrderEvents\IOrderShipped
 	 *                          - 'shipmentEventHelper' => EbayEnterprise_Eb2cOrder_Helper_Event_Shipment
 	 *                          - 'logger' => EbayEnterprise_MageLog_Helper_Data
+	 *                          - 'context' => EbayEnterprise_MageLog_Helper_Context
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_payload, $this->_shipmentEventHelper, $this->_logger) = $this->_checkTypes(
+		list($this->_payload, $this->_shipmentEventHelper, $this->_logger, $this->_context) = $this->_checkTypes(
 			$initParams['payload'],
 			$this->_nullCoalesce($initParams, 'shipment_event_helper', Mage::helper('eb2corder/event_shipment')),
-			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
+			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
 	}
 	/**
 	 * Type hinting for self::__construct $initParams
 	 * @param  OrderEvents\IOrderShipped $payload
 	 * @param  EbayEnterprise_Eb2cOrder_Helper_Event_Shipment $shipmentEventHelper
-	 * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry $orderCfg
 	 * @param  EbayEnterprise_MageLog_Helper_Data $logger
+	 * @param  EbayEnterprise_MageLog_Helper_Context $context
 	 * @return array
 	 */
 	protected function _checkTypes(
 		OrderEvents\IOrderShipped $payload,
 		EbayEnterprise_Eb2cOrder_Helper_Event_Shipment $shipmentEventHelper,
-		EbayEnterprise_MageLog_Helper_Data $logger
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($payload, $shipmentEventHelper, $logger);
+		return array($payload, $shipmentEventHelper, $logger, $context);
 	}
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the default value.
@@ -76,13 +81,13 @@ class EbayEnterprise_Eb2cOrder_Model_Ordershipped
 		$incrementId = $this->_payload->getCustomerOrderId();
 		$order = Mage::getModel('sales/order')->loadByIncrementId($incrementId);
 		if (!$order->getId()) {
-			$logMsgOrderNotFound = '[%s] The shipment could not be added. The order (id: %s) was not found in this Magento store.';
-			$this->_logger->logWarn($logMsgOrderNotFound, array(__CLASS__, $incrementId));
+			$logMsgOrderNotFound = "The shipment could not be added. The order (id: {$incrementId}) was not found in this Magento store.";
+			$this->_logger->warning($logMsgOrderNotFound, $this->_context->getMetaData(__CLASS__));
 			return null;
 		}
 		if (!$order->canShip()) {
-			$logMsgOrderNotShippable = '[%s] Order (%s) can not be shipped.';
-			$this->_logger->logWarn($logMsgOrderNotShippable, array(__CLASS__, $incrementId));
+			$logMsgOrderNotShippable = "Order ({$incrementId}) can not be shipped.";
+			$this->_logger->warning($logMsgOrderNotShippable, $this->_context->getMetaData(__CLASS__));
 			return null;
 		}
 		return $order;

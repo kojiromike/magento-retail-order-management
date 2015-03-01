@@ -34,6 +34,13 @@ class EbayEnterprise_Amqp_Test_Model_Api_ValidatorTest
 			->method('getSdkAmqp')
 			->will($this->returnValue($this->_amqpApi));
 		$this->_validator = Mage::getModel('ebayenterprise_amqp/api_validator', array('helper' => $this->_amqpHelper));
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	public function provideTestConnectionResults()
 	{

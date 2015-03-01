@@ -16,6 +16,18 @@
 class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
+
 	/**
 	 * Test fs tool is set in the constructor when no parameter passed.
 	 */
@@ -57,7 +69,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 	{
 		$fileDetails = array('local_file' => '/Mage/var/local/file.xml');
 		$invFeed = $this->getModelMockBuilder('eb2cinventory/feed_item_inventories')
-			->disableOriginalConstructor()
 			->setMethods(array('_getFilesToProcess', 'processFile'))
 			->getMock();
 		$invFeed->expects($this->once())
@@ -78,7 +89,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 	public function testFeedProcessingNoFilesToProcess()
 	{
 		$invFeed = $this->getModelMockBuilder('eb2cinventory/feed_item_inventories')
-			->disableOriginalConstructor()
 			->setMethods(array('_getFilesToProcess', 'processFile'))
 			->getMock();
 		$invFeed->expects($this->once())
@@ -101,7 +111,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 		$extractedData = array(new Varien_Object(array('some' => 'data')));
 
 		$fii = $this->getModelMockBuilder('eb2cinventory/feed_item_inventories')
-			->disableOriginalConstructor()
 			->setMethods(array('updateInventories', 'getExtractor'))
 			->getMock();
 		$extractor = $this->getModelMockBuilder('eb2cinventory/feed_item_extractor')
@@ -216,7 +225,6 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest
 			->with($this->identicalTo($isInStock))
 			->will($this->returnSelf());
 		$fii = $this->getModelMockBuilder('eb2cinventory/feed_item_inventories')
-			->disableOriginalConstructor()
 			->setMethods(null)
 			->getMock();
 		$this->assertSame($fii, EcomDev_Utils_Reflection::invokeRestrictedMethod($fii, '_updateItemIsInStock', array($stockItem, $updateQty)));

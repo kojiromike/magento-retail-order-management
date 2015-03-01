@@ -24,35 +24,40 @@ class EbayEnterprise_Eb2cOrder_Model_Orderrejected
 	protected $_orderEventHelper;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * @param array $initParams Must have this key:
 	 *                          - 'payload' => OrderEvents\OrderRejected
 	 *                          - 'orderEventHelper' => EbayEnterprise_Eb2cOrder_Helper_Event
 	 *                          - 'logger' => EbayEnterprise_MageLog_Helper_Data
+	 *                          - 'context' => EbayEnterprise_MageLog_Helper_Context
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_payload, $this->_orderEventHelper, $this->_logger) = $this->_checkTypes(
+		list($this->_payload, $this->_orderEventHelper, $this->_logger, $this->_context) = $this->_checkTypes(
 			$this->_nullCoalesce($initParams, 'payload', $initParams['payload']),
 			$this->_nullCoalesce($initParams, 'order_event_helper', Mage::helper('eb2corder/event')),
-			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
+			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
 	}
 	/**
 	 * Type hinting for self::__construct $initParams
 	 * @param  OrderEvents\OrderRejected $payload
 	 * @param  EbayEnterprise_Eb2cOrder_Helper_Event $orderEventHelper
-	 * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry $orderCfg
 	 * @param  EbayEnterprise_MageLog_Helper_Data $logger
+	 * @param  EbayEnterprise_MageLog_Helper_Context $context
 	 * @return array
 	 */
 	protected function _checkTypes(
 		OrderEvents\OrderRejected $payload,
 		EbayEnterprise_Eb2cOrder_Helper_Event $orderEventHelper,
-		EbayEnterprise_MageLog_Helper_Data $logger
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($payload, $orderEventHelper, $logger);
+		return array($payload, $orderEventHelper, $logger, $context);
 	}
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the default value.
@@ -75,12 +80,15 @@ class EbayEnterprise_Eb2cOrder_Model_Orderrejected
 	{
 		$incrementId = trim($this->_payload->getCustomerOrderId());
 		if ($incrementId === '') {
-			$this->_logger->logWarn('[%s] Received empty customer order id.', array(__CLASS__));
+			$logMessage = 'Received empty customer order id.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
 			return $this;
 		}
 		$order = Mage::getModel('sales/order')->loadByIncrementId($incrementId);
 		if (!$order->getId()) {
-			$this->_logger->logWarn('[%s] Customer order id %s was not found.', array(__CLASS__, $incrementId));
+			$logData = ['increment_Id' => $incrementId];
+			$logMessage = 'Customer order id {increment_id} was not found.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			return $this;
 		}
 		// canceling the order

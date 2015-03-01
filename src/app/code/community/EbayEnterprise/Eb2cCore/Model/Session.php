@@ -34,6 +34,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * Class constructor - initialize the session namespace.
@@ -44,6 +46,7 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 		$this->init('eb2ccore');
 	}
 	/**
@@ -454,7 +457,10 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 		// if nothing has changed in the quote, no need to update flags, or
 		// quote data as none of them will change
 		if (!empty($quoteDiff)) {
-			$this->_logger->logDebug('[%s] Changes found in quote for: %s', array(__CLASS__, implode(', ', array_keys($quoteDiff))));
+			$changes = implode(', ', array_keys($quoteDiff));
+			$logData = ['changes' => $changes];
+			$logMessage = 'Changes found in quote for: {changes}';
+			$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			$this
 				// set the update required flags - any flags that are already true should remain true
 				// flags should only be unset explicitly by the reset methods

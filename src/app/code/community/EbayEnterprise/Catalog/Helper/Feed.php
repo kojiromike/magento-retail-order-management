@@ -33,10 +33,13 @@ class EbayEnterprise_Catalog_Helper_Feed extends Mage_Core_Helper_Abstract
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -80,7 +83,9 @@ class EbayEnterprise_Catalog_Helper_Feed extends Mage_Core_Helper_Abstract
 		if ($matches->length) {
 			return true;
 		} else {
-			$this->_logger->logWarn('[%s] Feed does not have an EventType node "%s".', array(__CLASS__, $eventType));
+			$logData = ['event_type' => $eventType];
+			$logMessage = 'Feed does not have an EventType node "{event_type}".';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			return false;
 		}
 	}
@@ -98,7 +103,9 @@ class EbayEnterprise_Catalog_Helper_Feed extends Mage_Core_Helper_Abstract
 	{
 		$messageDate = $this->_getDateTimeFromFeed($filename);
 		if (!$messageDate) {
-			$this->_logger->logWarn('[%s] Unable to read the message date from file "%s"', array(__CLASS__, $filename));
+			$logData = ['filename' => $filename];
+			$logMessage = 'Unable to read the message date from file "{filename}"';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			// When no CreateDateAndTime node found in the feed, fallback
 			// to the file's mtime.
 			$mtime = filemtime($filename);

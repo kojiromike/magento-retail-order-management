@@ -17,9 +17,13 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
+
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 	/**
 	 * Save order tax information
@@ -115,7 +119,8 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 		if ($request->isValid()) {
 			$this->_doRequest($request);
 		} else {
-			$this->_logger->logDebug('[%s] Tax request not ready.', array(__CLASS__));
+			$logMessage = 'Tax request not ready.';
+			$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__));
 			Mage::helper('eb2ctax')->failTaxRequest();
 		}
 		return $this;
@@ -131,7 +136,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 			$response = Mage::helper('eb2ctax')->sendRequest($request);
 			$this->_handleResponse($response);
 		} catch (Mage_Core_Exception $e) {
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			Mage::helper('eb2ctax')->failTaxRequest();
 		}
 		return $this;
@@ -147,7 +152,8 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Observer extends Mage_Tax_Model_Obs
 		if ($response->isValid()) {
 			$calc->setTaxResponse($response);
 		} else {
-			$this->_logger->logWarn('[%s] Invalid response to valid request', array(__CLASS__));
+			$logMessage = 'Invalid response to valid request';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
 			Mage::helper('eb2ctax')->failTaxRequest();
 		}
 		return $this;

@@ -20,19 +20,22 @@ class EbayEnterprise_Eb2cCore_Exception_Critical extends EbayEnterprise_Eb2cCore
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * @link http://www.php.net/manual/en/class.exception.php
 	 */
 	public function __construct($message="", $code=0, Exception $previous=null)
 	{
-        $this->_logger = Mage::helper('ebayenterprise_magelog');
-        /**
-         * @note This runs counter to our styleguide because it is
-         * itself an exception. Furthermore we want to be both
-         * inescapable and verbose with critical exceptions.
-         */
-		$this->_logger->logCrit('%s', array($this));
+		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
+		/**
+		 * @note This runs counter to our styleguide because it is
+		 * itself an exception. Furthermore we want to be both
+		 * inescapable and verbose with critical exceptions.
+		 */
+		$this->_logger->critical($message, $this->_context->getMetaData(__CLASS__, [], $previous));
 		parent::__construct($message, $code, $previous);
 	}
 }

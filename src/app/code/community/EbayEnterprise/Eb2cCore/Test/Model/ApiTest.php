@@ -18,6 +18,19 @@ class EbayEnterprise_Eb2cCore_Test_Model_ApiTest extends EbayEnterprise_Eb2cCore
 	const MODEL_CLASS = 'EbayEnterprise_Eb2cCore_Model_Api';
 	const ADAPTER_CLASS_NAME = 'Zend_Http_Client_Adapter_Socket';
 	const MOCK_ADAPTER_CLASS_NAME = 'Mock_Zend_Http_Client_Adapter_Socket';
+
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
+
 	public function provideApiCall()
 	{
 		$domDocument = Mage::helper('eb2ccore')->getNewDomDocument();

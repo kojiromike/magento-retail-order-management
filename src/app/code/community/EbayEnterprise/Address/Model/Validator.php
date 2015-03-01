@@ -32,16 +32,19 @@ class EbayEnterprise_Address_Model_Validator
 	protected $_helper;
 	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
 	protected $_coreHelper;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * @param array
 	 */
 	public function __construct(array $args=[])
 	{
-		list($this->_logger, $this->_helper, $this->_coreHelper) = $this->_checkTypes(
+		list($this->_logger, $this->_helper, $this->_coreHelper, $this->_context) = $this->_checkTypes(
 			$this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
 			$this->_nullCoalesce($args, 'helper', Mage::helper('ebayenterprise_address')),
-			$this->_nullCoalesce($args, 'core_helper', Mage::helper('eb2ccore'))
+			$this->_nullCoalesce($args, 'core_helper', Mage::helper('eb2ccore')),
+			$this->_nullCoalesce($args, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
 	}
 
@@ -51,13 +54,15 @@ class EbayEnterprise_Address_Model_Validator
 	 * @param EbayEnterprise_MageLog_Helper_Data
 	 * @param EbayEnterprise_Address_Helper_Data
 	 * @param EbayEnterprise_Eb2cCore_Helper_Data
+	 * @param EbayEnterprise_MageLog_Helper_Context
 	 */
 	protected function _checkTypes(
 		EbayEnterprise_MageLog_Helper_Data $logger,
 		EbayEnterprise_Address_Helper_Data $helper,
-		EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
+		EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return [$logger, $helper, $coreHelper];
+		return [$logger, $helper, $coreHelper, $context];
 	}
 
 	/**
@@ -276,28 +281,34 @@ class EbayEnterprise_Address_Model_Validator
 	public function shouldValidateAddress(Mage_Customer_Model_Address_Abstract $address)
 	{
 		if ($this->_hasAddressBeenValidated($address)) {
-			$this->_logger->logDebug('[%s] No validation - already validated', [__CLASS__]);
+			$logMessage = 'No validation - already validated';
+			$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__));
 			return false;
 		}
 		if ($this->_isCheckoutAddress($address)) {
 			if ($this->_isAddressFromAddressBook($address)) {
-				$this->_logger->logDebug('[%s] No validation - from address book', [__CLASS__]);
+				$logMessage = 'No validation - from address book';
+				$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__));
 				return false;
 			}
 			if ($this->_isAddressBeingSaved()) {
-				$this->_logger->logDebug('[%s] Require validation - saving address in address book', [__CLASS__]);
+				$logMessage = 'Require validation - saving address in address book';
+				$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__));
 				return true;
 			}
 			if ($this->_isVirtualOrder()) {
-				$this->_logger->logDebug('[%s] No validation - virtual order', [__CLASS__]);
+				$logMessage = 'No validation - virtual order';
+				$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__));
 				return false;
 			}
 			if ($this->_isAddressBillingOnly($address)) {
-				$this->_logger->logDebug('[%s] No validation - billing only', [__CLASS__]);
+				$logMessage = 'No validation - billing only';
+				$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__));
 				return false;
 			}
 			if ($this->_isMissingRequiredFields($address)) {
-				$this->_logger->logDebug('[%s] No validation - missing required fields', [__CLASS__]);
+				$logMessage = 'No validation - missing required fields';
+				$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__));
 				return false;
 			}
 		}
@@ -318,10 +329,12 @@ class EbayEnterprise_Address_Model_Validator
 			$api->send();
 			return $this->_getValidationResponse($api);
 		} catch (NetworkError $e) {
-			$this->_logger->logWarn('[%s] Address validation service returned empty response.', [__CLASS__]);
+			$logMessage = 'Address validation service returned empty response.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
 		} catch (Exception $e) {
-			$this->_logger->logWarn('[%s] Unexpected exception from SDK.', [__CLASS__]);
-			$this->_logger->logException($e);
+			$logMessage = 'Unexpected exception from SDK.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			throw $e;
 		}
 		return null;

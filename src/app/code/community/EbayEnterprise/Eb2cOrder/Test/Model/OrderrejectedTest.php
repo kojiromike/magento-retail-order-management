@@ -15,6 +15,7 @@
 
 use eBayEnterprise\RetailOrderManagement\Payload;
 use eBayEnterprise\RetailOrderManagement\Payload\OrderEvents;
+use Psr\Log\NullLogger;
 
 class EbayEnterprise_Eb2cOrder_Test_Model_OrderrejectedTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
@@ -37,13 +38,21 @@ class EbayEnterprise_Eb2cOrder_Test_Model_OrderrejectedTest extends EbayEnterpri
 		$this->_payload = new OrderEvents\OrderRejected(
 			new Payload\ValidatorIterator([$this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\IValidator')]),
 			$this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\ISchemaValidator'),
-			$this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\IPayloadMap')
+			$this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\IPayloadMap'),
+			new NullLogger()
 		);
 		$this->_payload->setCustomerOrderId(static::PAYLOAD_CUSTOMER_ORDER_ID)
 			->setStoreId(static::PAYLOAD_STORE_ID)
 			->setOrderCreateTimestamp(new DateTime(static::PAYLOAD_ORDER_CREATE_TIMESTAMP))
 			->setReason(static::PAYLOAD_REASON)
 			->setCode(static::PAYLOAD_CODE);
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 
 		$this->_eventHelper = $this->getHelperMock('eb2corder/event', array('attemptCancelOrder'));
 

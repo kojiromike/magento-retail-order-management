@@ -30,6 +30,13 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ValidatorTest
 	{
 		parent::setUp();
 		$this->_origApp = EcomDev_Utils_Reflection::getRestrictedPropertyValue('Mage', '_app');
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	/**
 	 * Restore Mage::app to the initial value

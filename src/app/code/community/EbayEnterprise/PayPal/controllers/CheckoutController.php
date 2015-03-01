@@ -30,6 +30,8 @@ class EbayEnterprise_PayPal_CheckoutController
 	protected $_quote = false;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * prepare instances of the config model and the helper.
@@ -40,6 +42,7 @@ class EbayEnterprise_PayPal_CheckoutController
 		$this->_helper = Mage::helper('ebayenterprise_paypal');
 		$this->_config = $this->_helper->getConfigModel();
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -126,7 +129,7 @@ class EbayEnterprise_PayPal_CheckoutController
 			$this->_getCheckoutSession()->addError(
 				$this->__('Unable to start Express Checkout.')
 			);
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 
 		$this->_redirect('checkout/cart');
@@ -146,7 +149,7 @@ class EbayEnterprise_PayPal_CheckoutController
 			);
 			$this->getResponse()->setBody($response);
 		} catch (Exception $e) {
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 	}
 
@@ -188,7 +191,7 @@ class EbayEnterprise_PayPal_CheckoutController
 			$this->_getCheckoutSession()->addError(
 				$this->__('Unable to cancel Express Checkout.')
 			);
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 
 		$this->_redirect('checkout/cart');
@@ -219,7 +222,7 @@ class EbayEnterprise_PayPal_CheckoutController
 			Mage::getSingleton('checkout/session')->addError(
 				$this->__('Unable to process Express Checkout approval.')
 			);
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 		$this->_redirect('checkout/cart');
 	}
@@ -252,7 +255,7 @@ class EbayEnterprise_PayPal_CheckoutController
 			Mage::getSingleton('checkout/session')->addError(
 				$this->__('Unable to initialize Express Checkout review.')
 			);
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 		$this->_redirect('checkout/cart');
 	}
@@ -301,7 +304,7 @@ class EbayEnterprise_PayPal_CheckoutController
 			$this->_getSession()->addError(
 				$this->__('Unable to update shipping method.')
 			);
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 		if ($isAjax) {
 			$this->getResponse()->setBody(
@@ -368,7 +371,7 @@ class EbayEnterprise_PayPal_CheckoutController
 			$this->_getSession()->addError(
 				$this->__('Unable to place the order.')
 			);
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			$this->_redirect('*/*/review');
 		}
 	}

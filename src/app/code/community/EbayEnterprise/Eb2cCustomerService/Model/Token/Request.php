@@ -27,11 +27,14 @@ class EbayEnterprise_Eb2cCustomerService_Model_Token_Request
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	public function _construct()
 	{
 		parent::_construct();
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -43,7 +46,8 @@ class EbayEnterprise_Eb2cCustomerService_Model_Token_Request
 	{
 		// if there's no token, don't attempt to validate it
 		if (!$this->getToken()) {
-			$this->_logger->logInfo('[%s] No token to make request for', array(__CLASS__));
+			$logMessage = 'No token to make request for';
+			$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
 			return '';
 		}
 		$response = Mage::getModel('eb2ccore/api')

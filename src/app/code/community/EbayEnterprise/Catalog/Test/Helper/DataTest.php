@@ -16,6 +16,17 @@
 class EbayEnterprise_Catalog_Test_Helper_DataTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
 	/**
 	 * testing getConfigModel method
 	 */

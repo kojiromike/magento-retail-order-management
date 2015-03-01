@@ -20,6 +20,13 @@ class EbayEnterprise_Catalog_Test_Model_FeedTest
 	{
 		parent::setUp();
 		Mage::app()->disableEvents();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	public function tearDown()
 	{
@@ -295,10 +302,10 @@ class EbayEnterprise_Catalog_Test_Model_FeedTest
 	public function testProcessFeedsFailure()
 	{
 		$logger = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
-			->setMethods(array('logErr'))
+			->setMethods(array('error'))
 			->getMock();
 		$logger->expects($this->once())
-			->method('logErr')
+			->method('error')
 			->will($this->returnSelf());
 		$this->replaceByMock('helper', 'ebayenterprise_magelog', $logger);
 

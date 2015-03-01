@@ -43,6 +43,13 @@ class EbayEnterprise_Eb2cOrder_Test_Model_CreditissuedTest extends EbayEnterpris
 			->setCurrencyCode(static::PAYLOAD_CURRENCY_CODE)
 			->setCurrencySymbol(static::PAYLOAD_CURRENCY_SYMBOL);
 
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+
 		$this->_creditissued = Mage::getModel('eb2corder/creditissued', [
 			'payload' => $this->_payload
 		]);;

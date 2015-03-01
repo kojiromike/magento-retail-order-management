@@ -23,6 +23,13 @@ class EbayEnterprise_Catalog_Test_Model_Feed_AbstractTest extends EbayEnterprise
 	{
 		parent::setUp();
 		Mage::app()->disableEvents();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	public function tearDown()
 	{
@@ -179,6 +186,7 @@ class EbayEnterprise_Catalog_Test_Model_Feed_AbstractTest extends EbayEnterprise
 			->disableOriginalConstructor()
 			->setMethods(array('processDom'))
 			->getMock();
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($abstractFeed, '_context', Mage::helper('ebayenterprise_magelog/context'));
 
 		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
 		$this->replaceByMock('helper', 'ebayenterprise_catalog/feed', $coreFeedHelper);

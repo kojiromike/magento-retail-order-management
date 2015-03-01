@@ -24,12 +24,15 @@ class EbayEnterprise_Amqp_Model_Adminhtml_System_Config_Backend_Lasttestmessage
 	protected $_coreHelper;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	protected function _construct()
 	{
 		$this->_helper = $this->getData('helper') ?: Mage::helper('ebayenterprise_amqp');
 		$this->_coreHelper = $this->getData('core_helper') ?: Mage::helper('eb2ccore');
 		$this->_logger = $this->getData('logger') ?: Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 	/**
 	 * Set the value of the "config" to the last timestamp captured from an AMQP
@@ -57,7 +60,9 @@ class EbayEnterprise_Amqp_Model_Adminhtml_System_Config_Backend_Lasttestmessage
 			// gives a DateTime for the current time, which is not desirable here.
 			$timestamp = $lastTimestamp ? $this->_coreHelper->getNewDateTime($lastTimestamp) : null;
 		} catch (Exception $e) {
-			$this->_logger->logWarn('[%s] Invalid timestamp for last AMQP test message timestamp: %s.', array(__CLASS__, $lastTimestamp));
+			$logData = ['last_timestamp' => $lastTimestamp];
+			$logMessage = 'Invalid timestamp for last AMQP test message timestamp: {last_timestamp}.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData, $e));
 		}
 		return $timestamp;
 	}

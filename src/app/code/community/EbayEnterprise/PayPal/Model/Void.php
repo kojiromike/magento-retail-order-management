@@ -21,6 +21,8 @@
 class EbayEnterprise_PayPal_Model_Void {
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * Set up the logger
@@ -28,6 +30,7 @@ class EbayEnterprise_PayPal_Model_Void {
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -40,8 +43,9 @@ class EbayEnterprise_PayPal_Model_Void {
 			try {
 				$this->_getVoidApi()->doVoid($order);
 			} catch (EbayEnterprise_PayPal_Exception $e) {
-				$this->_logger->logWarn('[%s] Void request failed. See exception log for details.', array(__CLASS__));
-				$this->_logger->logException($e);
+				$logMessage = 'Void request failed. See exception log for details.';
+				$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
+				$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			}
 		}
 		return $this;

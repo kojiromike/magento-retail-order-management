@@ -54,6 +54,13 @@ class EbayEnterprise_Catalog_Test_Model_ExporterTest
 		$this->_productHelper = $this->getHelperMock('ebayenterprise_catalog/data', array('getConfigModel'));
 		$this->_productHelper->expects($this->any())->method('getConfigModel')
 			->will($this->returnValue($this->_configRegistry));
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 
 	/**
@@ -91,12 +98,11 @@ class EbayEnterprise_Catalog_Test_Model_ExporterTest
 		 */
 		$magelogHelperMock = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
 			->disableOriginalConstructor()
-			->setMethods(array('logInfo', 'logDebug', 'logCrit'))
+			->setMethods(array('info', 'debug', 'critical'))
 			->getMock();
 		$magelogHelperMock->expects($this->at(1))
-			->method('logCrit')
-			->with($this->isType('string'), $this->isType('array'))
-			->will($this->returnSelf());
+			->method('critical')
+			->with($this->isType('string'), $this->isType('array'));
 		$this->replaceByMock('helper', 'ebayenterprise_magelog', $magelogHelperMock);
 
 		$invalidXml = 'Unittest Throwing exception';

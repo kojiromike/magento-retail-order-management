@@ -15,6 +15,17 @@
 
 class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
 	protected function _getProductCollectionStub()
 	{
 		$col = $this->getResourceModelMockBuilder('catalog/product_collection')

@@ -15,6 +15,18 @@
 
 class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
+
 	/**
 	 * Create a stub quote item scripted to return the given sku and qty
 	 * @param  string  $sku       Quote item sku

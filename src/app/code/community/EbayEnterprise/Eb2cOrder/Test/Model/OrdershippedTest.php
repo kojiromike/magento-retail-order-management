@@ -40,6 +40,13 @@ class EbayEnterprise_Eb2cOrder_Test_Model_OrdershippedTest extends EbayEnterpris
 		$this->_payload->setCustomerOrderId(static::PAYLOAD_CUSTOMER_ORDER_ID)
 			->setStoreId(static::PAYLOAD_STORE_ID);
 
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+
 		$this->_shipmentHelper = $this->getHelperMock('eb2corder/event_shipment', ['process']);
 
 		$this->_ordershipped = Mage::getModel('eb2corder/ordershipped', [

@@ -41,6 +41,9 @@ class EbayEnterprise_Catalog_Model_Feed
 	 */
 	protected $_coreFeedTypes = array();
 
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
+
 	/**
 	 * suppress the core feed's initialization
 	 * create necessary internal models.
@@ -48,6 +51,7 @@ class EbayEnterprise_Catalog_Model_Feed
 	protected function _construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 		$cfg = Mage::helper('ebayenterprise_catalog')->getConfigModel();
 		foreach ($this->_feedConfigKeys as $feedConfig) {
 			$coreFeed = Mage::getModel('ebayenterprise_catalog/feed_core', array('feed_config' => $cfg->$feedConfig));
@@ -125,12 +129,16 @@ class EbayEnterprise_Catalog_Model_Feed
 	{
 		$filesProcessed = 0;
 		$feedFiles = $this->_getFilesToProcess();
+		$logMessage = 'Begin processing file, {filename}.';
 		// This needs to be duplicated from the parent class as the error
 		// confirmation event dispatched at the end of this method needs to have
 		// the list of files processed, which wouldn't be accessible if just using
 		// a call to the parent method.
 		foreach ($feedFiles as $feedFile) {
-			$this->_logger->logInfo('[%s] Begin processing file, %s', array(__CLASS__, basename($feedFile['local_file'])));
+			$filename = basename($feedFile['local_file']);
+			$logData = ['filename' => $filename];
+			$context = $this->_context->getMetaData(__CLASS__, $logData);
+			$this->_logger->info($logMessage, $context);
 			try {
 				$this->processFile($feedFile);
 				$filesProcessed++;
@@ -139,8 +147,9 @@ class EbayEnterprise_Catalog_Model_Feed
 			// one should just log the error and move on. Leaving out the EbayEnterprise_Core_Feed_Failure
 			// for now as none of the feeds expect to use it.
 			} catch (Mage_Core_Exception $e) {
-				$this->_logger->logErr('[%s] Failed to process file, %s.', array(__CLASS__, basename($feedFile['local_file'])));
-				$this->_logger->logException($e);
+				$logMessageError = 'Failed to process file, {filename}';
+				$this->_logger->error($logMessageError, $context);
+				$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			}
 		}
 		// Only trigger the cleaner and reindexing event if at least one feed

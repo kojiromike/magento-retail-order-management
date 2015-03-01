@@ -17,6 +17,8 @@ class EbayEnterprise_Catalog_Model_Feed_File
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/** @var EbayEnterprise_Eb2cCore_Helper_Data      $_coreHelper */
 	protected $_coreHelper;
@@ -53,6 +55,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	public function __construct(array $feedDetails)
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 		$this->_coreHelper = Mage::helper('eb2ccore');
 		$this->_languageHelper = Mage::helper('eb2ccore/languages');
 		$this->_xsltHelper = Mage::helper('ebayenterprise_catalog/xslt');
@@ -146,7 +149,9 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	protected function _removeItemsFromWebsites(array $cfgData, EbayEnterprise_Catalog_Interface_Import_Items $items)
 	{
 		$dData = $this->_getSkusToRemoveFromWebsites($cfgData);
-		$this->_logger->logInfo('[%s] deleting %d skus', array(__CLASS__, count($dData)));
+		$logData = ['total_skus' => count($dData)];
+		$logMessage = 'deleting {total_skus} skus';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		if (!empty($dData)) {
 			$skus = array_keys($dData);
 			$collection = $items->buildCollection($skus);
@@ -250,7 +255,9 @@ class EbayEnterprise_Catalog_Model_Feed_File
 	{
 		$skusToUpdate = array();
 		$updateSkuNodes = $xpath->query($cfgData['all_skus_xpath']);
-		$this->_logger->logInfo('[%s] Number of SKUs eligible: (%s)', array(__CLASS__, $updateSkuNodes->length));
+		$logData = ['total_skus' => $updateSkuNodes->length];
+		$logMessage = 'Number of SKUs eligible: "{total_skus}"';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		$catalogId = $this->_coreHelper->getConfigModel()->catalogId;
 		foreach ($updateSkuNodes as $skuNode) {
 			$skusToUpdate[] = $this->_helper->normalizeSku(
@@ -312,7 +319,9 @@ class EbayEnterprise_Catalog_Model_Feed_File
 			foreach ($feedXPath->query($cfgData['base_item_xpath']) as $itemNode) {
 				$this->_updateItem($feedXPath, $itemNode, $collection, $storeId, $cfgData, $items);
 			}
-			$this->_logger->logInfo('[%s] saving collection of %d %s', array(__CLASS__, $collection->getSize(), $cfgData['feed_type']));
+			$logData = ['total_products' => $collection->getSize(), 'feed_type' => $cfgData['feed_type']];
+			$logMessage = 'saving collection of {total_products} {feed_type}';
+			$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			// keep track of skus we've processed for the website
 			$this->_importedSkus = array_unique(array_merge($this->_importedSkus, $skusToUpdate));
 			$collection->save();

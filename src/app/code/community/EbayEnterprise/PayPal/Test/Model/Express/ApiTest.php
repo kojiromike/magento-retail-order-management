@@ -15,6 +15,9 @@
 
 use eBayEnterprise\RetailOrderManagement\Api;
 use eBayEnterprise\RetailOrderManagement\Payload;
+use eBayEnterprise\RetailOrderManagement\Payload\PayloadMap;
+use eBayEnterprise\RetailOrderManagement\Payload\ValidatorIterator;
+use Psr\Log\NullLogger;
 
 class EbayEnterprise_PayPal_Test_Model_Express_ApiTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
@@ -49,6 +52,14 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest
 	public function setUp()
 	{
 		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+
 		// disable _construct to prevent excessive stubs
 		$this->_coreUrl = $this->getModelMock(
 			'core/url', array('_construct', 'getUrl')
@@ -97,9 +108,14 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest
 			->with($this->isType('int'))
 			->will($this->returnSelf());
 
+		$validatorIterator = new ValidatorIterator([$this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\IValidator')]);
+		$stubSchemaValidator = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\ISchemaValidator');
+		$payloadMap = new PayloadMap();
+		$logger = new NullLogger();
+
 		$this->_lineItemIterableStub = $this->getMockBuilder(self::LINE_ITEM_ITERABLE)
+			->setConstructorArgs([$validatorIterator, $stubSchemaValidator, $payloadMap, $logger])
 			->setMethods(array('getEmptyLineItem'))
-			->disableOriginalConstructor()
 			->getMock();
 		$this->_lineItemIterableStub->expects($this->any())
 			->method('getEmptyLineItem')

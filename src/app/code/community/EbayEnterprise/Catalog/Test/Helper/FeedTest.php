@@ -31,6 +31,13 @@ class EbayEnterprise_Catalog_Test_Helper_FeedTest
 	{
 		$this->_initTimeZone = date_default_timezone_get();
 		date_default_timezone_set(self::EXPECTED_TIME_ZONE);
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	/**
 	 * Reset the default timezone to the initial timezone.

@@ -33,6 +33,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/** @var DOMDocument $_doc */
 	protected $_doc;
@@ -66,6 +68,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	{
 		parent::_construct();
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 	/**
 	 * @see _isValid
@@ -173,7 +176,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			$this->_isValid = true;
 		}
 		catch (Exception $e) {
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			$this->_isValid = false;
 		}
 		return $this;
@@ -486,7 +489,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			throw Mage::exception('Mage_Core', $message);
 		}
 		if (strlen($newSku) < strlen($item['item_id'])) {
-			$this->_logger->logWarn('[%s] SKU "%s" was truncated', array(__CLASS__, $item['item_id']));
+			$logData = ['sku' => $item['item_id']];
+			$logMessage = 'SKU "{sku}" was truncated';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		}
 		return $newSku;
 	}
@@ -511,7 +516,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			$destinations     = $shipping->createChild('Destinations');
 			$this->_processAddresses($destinations, $shipGroups);
 		} catch (Mage_Core_Exception $e) {
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 	}
 

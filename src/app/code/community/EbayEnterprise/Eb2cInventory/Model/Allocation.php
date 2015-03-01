@@ -23,11 +23,14 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	public function __construct()
 	{
 		parent::__construct();
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -60,7 +63,9 @@ class EbayEnterprise_Eb2cInventory_Model_Allocation
 			$xsd = $helper->getConfigModel()->xsdFileAllocation;
 			$responseMessage = Mage::getModel('eb2ccore/api')->request($doc, $xsd, $uri);
 		} else {
-			$this->_logger->logWarn('[%s] %s missing shipping address.', array(__CLASS__, __FUNCTION__));
+			$logData = ['function_name' => __FUNCTION__];
+			$logMessage = '{function_name} missing shipping address.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		}
 		return $responseMessage;
 	}

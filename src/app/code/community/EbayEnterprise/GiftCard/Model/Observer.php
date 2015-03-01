@@ -22,33 +22,40 @@ class EbayEnterprise_GiftCard_Model_Observer
 	protected $_giftCardContainer;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * @param array $initParams May contain:
 	 *                          - 'helper' => EbayEnterprise_GiftCard_Helper_Data
 	 *                          - 'gift_card_container' => EbayEnterprise_GiftCard_Model_IContainer
 	 *                          - 'logger' => EbayEnterprise_MageLog_Helper_Data
+	 *                          - 'context' => EbayEnterprise_MageLog_Helper_Context
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_helper, $this->_giftCardContainer, $this->_logger) = $this->_checkTypes(
+		list($this->_helper, $this->_giftCardContainer, $this->_logger, $this->_context) = $this->_checkTypes(
 			$this->_nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_giftcard')),
 			$this->_nullCoalesce($initParams, 'gift_card_container', Mage::getModel('ebayenterprise_giftcard/container')),
-			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
+			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
 	}
 	/**
 	 * Type checks for self::__construct $initParams
-	 * @param EbayEnterprise_GiftCard_Model_IContainer $container
-	 * @param EbayEnterprise_MageLog_Helper_Data $logger
+	 * @param  EbayEnterprise_GiftCard_Helper_Data $helper
+	 * @param  EbayEnterprise_GiftCard_Model_IContainer $container
+	 * @param  EbayEnterprise_MageLog_Helper_Data $logger
+	 * @param  EbayEnterprise_MageLog_Helper_Context $context
 	 * @return mixed[]
 	 */
 	protected function _checkTypes(
 		EbayEnterprise_GiftCard_Helper_Data $helper,
 		EbayEnterprise_GiftCard_Model_IContainer $giftCardContainer,
-		EbayEnterprise_MageLog_Helper_Data $logger
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($helper, $giftCardContainer, $logger);
+		return array($helper, $giftCardContainer, $logger, $context);
 	}
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the
@@ -219,7 +226,7 @@ class EbayEnterprise_GiftCard_Model_Observer
 		try {
 			$card->void();
 		} catch (EbayEnterprise_GiftCard_Exception $e) {
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 		return $card;
 	}

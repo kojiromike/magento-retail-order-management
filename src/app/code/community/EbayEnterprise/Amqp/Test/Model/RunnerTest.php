@@ -39,6 +39,12 @@ class EbayEnterprise_Amqp_Test_Model_RunnerTest
 		$this->_sdk = $this->getMock('eBayEnterprise\RetailOrderManagement\Api\IAmqpApi');
 		$this->_payloadIterator = $this->getMock('eBayEnterprise\RetailOrderManagement\Payload\IPayloadIterator');
 		$this->_payload = $this->getMock('eBayEnterprise\RetailOrderManagement\Payload\OrderEvents\IOrderEvent');
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	/**
 	 * Test looping though all of the necessary stores and queues to consume

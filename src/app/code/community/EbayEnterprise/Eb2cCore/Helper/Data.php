@@ -26,6 +26,8 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * Service URI has the following format:
@@ -45,6 +47,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -577,11 +580,10 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract
 			$config->storeId,
 			$service,
 			$operation,
-			$endpointParams
+			$endpointParams,
+			$this->_logger
 		);
-		// @todo: standardize logging
-		$this->_logger->logDebug('[%s] SDK API endpoint: %s', array(__CLASS__, $apiConfig->getEndpoint()));
-		return new Api\HttpApi($apiConfig);
+		return new Api\HttpApi($apiConfig, $this->_logger);
 	}
 	/*
 	 * call a class static method base on the meta data in the given array

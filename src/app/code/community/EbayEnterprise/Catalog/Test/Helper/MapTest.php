@@ -25,6 +25,13 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest
 	{
 		parent::setUp();
 		$this->_doc = Mage::helper('eb2ccore')->getNewDomDocument();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	public function tearDown()
 	{

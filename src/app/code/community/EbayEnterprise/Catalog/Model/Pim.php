@@ -29,6 +29,8 @@ class EbayEnterprise_Catalog_Model_Pim
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * document object used when building the feed contents
@@ -54,11 +56,12 @@ class EbayEnterprise_Catalog_Model_Pim
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_batch, $this->_coreFeed, $this->_doc, $this->_logger) = $this->_checkTypes(
+		list($this->_batch, $this->_coreFeed, $this->_doc, $this->_logger, $this->_context) = $this->_checkTypes(
 			$this->_nullCoalesce($initParams, 'batch', Mage::getModel('ebayenterprise_catalog/pim_batch')),
 			$this->_nullCoalesce($initParams, 'core_feed', $this->_setUpCoreFeed()),
 			$this->_nullCoalesce($initParams, 'doc', Mage::helper('eb2ccore')->getNewDomDocument()),
-			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
+			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
 	}
 	/**
@@ -68,15 +71,17 @@ class EbayEnterprise_Catalog_Model_Pim
 	 * @param  EbayEnterprise_Catalog_Model_Feed_Core $coreFeed
 	 * @param  EbayEnterprise_Dom_Document $doc
 	 * @param  EbayEnterprise_MageLog_Helper_Data $logger
+	 * @param  EbayEnterprise_MageLog_Helper_Context $context
 	 * @return array the arguments
 	 */
 	public function _checkTypes(
 		EbayEnterprise_Catalog_Model_Pim_Batch $batch,
 		EbayEnterprise_Catalog_Model_Feed_Core $coreFeed,
 		EbayEnterprise_Dom_Document $doc,
-		EbayEnterprise_MageLog_Helper_Data $logger
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($batch, $coreFeed, $doc, $logger);
+		return array($batch, $coreFeed, $doc, $logger, $context);
 	}
 	/**
 	 * return the $field element of the array if it exists;
@@ -116,7 +121,9 @@ class EbayEnterprise_Catalog_Model_Pim
 	 */
 	public function buildFeed()
 	{
-		$this->_logger->logInfo('[%s] About to export %d entity ids.', array(__CLASS__, count($this->_batch->getProductIds())));
+		$logData = ['total_entity_ids' => count($this->_batch->getProductIds())];
+		$logMessage = 'About to export {total_entity_ids} entity ids.';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		$feedFilePath = '';
 		$feedDataSet = $this->_createFeedDataSet();
 		if ($feedDataSet->count()) {
@@ -125,7 +132,10 @@ class EbayEnterprise_Catalog_Model_Pim
 			$feedDoc->save($feedFilePath);
 		} else {
 			$skuLength = EbayEnterprise_Catalog_Helper_Pim::MAX_SKU_LENGTH;
-			$this->_logger->logWarn('[%s] Could not generate %s because of missing required product data or the sku exceeded %d characters', array(__METHOD__, basename($feedFilePath), $skuLength));
+			$filename = basename($feedFilePath);
+			$logData = ['filename' => $filename, 'sku_length' => $skuLength];
+			$logMessage = 'Could not generate {filename} because of missing required product data or the sku exceeded {sku_length} characters';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		}
 		return $feedFilePath;
 	}
@@ -234,8 +244,10 @@ class EbayEnterprise_Catalog_Model_Pim
 					$product, $this->_doc, $this->_getFeedConfig(), $this->_getFeedAttributes($currentStoreId)
 				);
 			} catch(EbayEnterprise_Catalog_Model_Pim_Product_Validation_Exception $e) {
-				$this->_logger->logWarn('[%s] Product "%s" excluded from export.', array( __METHOD__, $pimProduct->getSku()));
-				$this->_logger->logException($e);
+				$logData = ['sku' => $pimProduct->getSku()];
+				$logMessage = 'Product "{sku}" excluded from export.';
+				$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+				$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 				$excludedProductIds[]= $product->getId();
 				$pimProducts->deleteItem($pimProduct);
 			}

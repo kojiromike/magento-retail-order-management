@@ -16,6 +16,17 @@
 class EbayEnterprise_Eb2cCustomerService_Test_Model_Overrides_Admin_SessionTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
 	/**
 	 * Test getting the current user in session's start page url, running it
 	 * through the adminhtml/url method is necessary to account for url secret

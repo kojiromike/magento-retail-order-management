@@ -23,6 +23,9 @@ class EbayEnterprise_Eb2cOrder_Helper_Event
 	protected $_coreHelper;
 	// @var EbayEnterprise_MageLog_Helper_Data
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
+
 	/**
 	 * Set up dependencies
 	 */
@@ -30,6 +33,7 @@ class EbayEnterprise_Eb2cOrder_Helper_Event
 	{
 		$this->_coreHelper = Mage::helper('eb2ccore');
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 	/**
 	 * Get the specific name of the order event to dispatch for a given message.
@@ -55,7 +59,9 @@ class EbayEnterprise_Eb2cOrder_Helper_Event
 		// an event type from the message to fail and throw an appropriate
 		// exception.
 		if (!$doc->loadXML($message)) {
-			$this->_logger->logErr('[%s] Failed to load message into DOM: %s%s', array(__CLASS__, "\n", $message));
+			$logData = ['error_message' => $message];
+			$logMessage = "Failed to load message into DOM: \n{error_message}";
+			$this->_logger->error($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		}
 		return $doc;
 	}
@@ -83,13 +89,16 @@ class EbayEnterprise_Eb2cOrder_Helper_Event
 	 */
 	public function attemptCancelOrder(Mage_Sales_Model_Order $order, $eventName)
 	{
+		$logData = ['increment_id' => $order->getIncrementId()];
 		try {
 			$order->cancel()->save();
-			$this->_logger->logInfo('[%s]: Canceling order %s', array(__CLASS__, $order->getIncrementId()));
+			$logMessage = 'Canceling order {increment_id}';
+			$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		} catch (Exception $e) {
 			// Catching any exception that might be thrown due to calling cancel method on the order object.
-			$this->_logger->logWarn('[%s] An error occurred canceling order "%s". See the exception log for details.', array(__CLASS__, $order->getIncrementId()));
-			$this->_logger->logException($e);
+			$logMessage = 'An error occurred canceling order "{increment_id}". See the exception log for details.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 		return $this;
 	}
@@ -102,12 +111,15 @@ class EbayEnterprise_Eb2cOrder_Helper_Event
 	 */
 	public function attemptHoldOrder(Mage_Sales_Model_Order $order, $eventName)
 	{
+		$logData = ['increment_id' => $order->getIncrementId()];
 		try {
 			$order->hold()->save();
-			$this->_logger->logInfo('[%s]: Holding order %s', array(__CLASS__, $order->getIncrementId()));
+			$logMessage = 'Holding order {increment_id}';
+			$this->_logger->info($logMessage, array(__CLASS__, $logData));
 		} catch (Exception $e) {
-			$this->_logger->logWarn('[%s] An error occurred holding order "%s". See the exception log for details.', array(__CLASS__, $order->getIncrementId()));
-			$this->_logger->logException($e);
+			$logMessage = 'An error occurred holding order "{increment_id}". See the exception log for details.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 		return $this;
 	}

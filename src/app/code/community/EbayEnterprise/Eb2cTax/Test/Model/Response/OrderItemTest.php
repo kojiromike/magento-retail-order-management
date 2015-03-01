@@ -19,6 +19,18 @@
 class EbayEnterprise_Eb2cTax_Test_Model_Response_OrderItemTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
+
 	/**
 	 * Testing _validate method with the following expectations
 	 * Expectation 1: when the method EbayEnterprise_Eb2cTax_Model_Response_Orderitem::_validate get invoke by this test

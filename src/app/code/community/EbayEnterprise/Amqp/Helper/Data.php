@@ -23,10 +23,13 @@ class EbayEnterprise_Amqp_Helper_Data
 	protected $_logger;
 	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
 	protected $_coreHelper;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	public function __construct()
 	{
 		$this->_coreHelper = Mage::helper('eb2ccore');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
 	}
 	/**
@@ -81,10 +84,10 @@ class EbayEnterprise_Amqp_Helper_Data
 			$config->queueDurableFlag,
 			$config->queueExclusiveFlag,
 			$config->queueAutoDeleteFlag,
-			$config->queueNowaitFlag
+			$config->queueNowaitFlag,
+			$this->_logger
 		);
-		$this->_logger->logDebug('[%s] AMQP API to: amqp://%s@%s:%s/%s for queue %s', array(__CLASS__, $username, $hostname, $config->port, urlencode($config->vhost), $queueName));
-		return new Api\AmqpApi($amqpConfig);
+		return new Api\AmqpApi($amqpConfig, [], $this->_logger);
 	}
 	/**
 	 * Replace placeholder strings in the queue name with config values. Currently

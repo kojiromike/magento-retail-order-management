@@ -22,6 +22,8 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 	protected $_payload;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 	/** @var Mage_Sales_Model_Order_Creditmemo */
 	protected $_creditMemo;
 	/** @var Mage_Sales_Model_Order */
@@ -30,12 +32,14 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 	 * @param array $initParams Must include the payload key:
 	 *                          - 'payload' => OrderEvents\OrderCreditIssued
 	 *                          - 'logger' => EbayEnterprise_MageLog_Helper_Data
+	 *                          - 'context' => EbayEnterprise_MageLog_Helper_Context
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_payload, $this->_logger) = $this->_checkTypes(
+		list($this->_payload, $this->_logger, $this->_context) = $this->_checkTypes(
 			$initParams['payload'],
-			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
+			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
 	}
 
@@ -43,13 +47,15 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 	 * Type hinting for self::__construct $initParams
 	 * @param  OrderEvents\IOrderCreditIssued $payload
 	 * @param  EbayEnterprise_MageLog_Helper_Data $logger
+	 * @param  EbayEnterprise_MageLog_Helper_Context $context
 	 * @return array
 	 */
 	protected function _checkTypes(
 		OrderEvents\IOrderCreditIssued $payload,
-		EbayEnterprise_MageLog_Helper_Data $logger
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($payload, $logger);
+		return array($payload, $logger, $context);
 	}
 
 	/**
@@ -84,7 +90,9 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 	{
 		$order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
 		if (!$order->getId()) {
-			$this->_logger->logWarn('[%s] Customer order id %s was not found.', array(__CLASS__, $orderId));
+			$logData = ['order_id' => $orderId];
+			$logMessage = 'Customer order id {order_id} was not found.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			return false;
 		}
 
@@ -206,12 +214,13 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 	protected function _saveCreditMemo(Mage_Sales_Model_Order_Creditmemo $creditmemo)
 	{
 		$creditmemo = $this->_fixupTotals($creditmemo);
-
+		$logData = ['order_id' => $creditmemo->getOrderId()];
 		try {
 			$creditmemo->register();
 		} catch (Mage_Core_Exception $e) {
-			$this->_logger->logWarn('[%s] Could not refund order %s', array(__CLASS__, $creditmemo->getOrderId()));
-			$this->_logger->logException($e);
+			$logMessage = 'Could not refund order {order_id}';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 
 		$transactionSave = Mage::getModel('core/resource_transaction')
@@ -224,8 +233,9 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 		try {
 			$transactionSave->save();
 		} catch (Exception $e) {
-			$this->_logger->logWarn('[$s] Could not save credit memo for order %s', array(__CLASS__, $creditmemo->getOrderId()));
-			$this->_logger->logException($e);
+			$logMessage = 'Could not save credit memo for order {order_id}';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 	}
 
@@ -243,14 +253,8 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 	protected function _refund(Mage_Sales_Model_Order_Creditmemo $creditmemo, $amount)
 	{
 		if (!$this->_canRefundAmount($creditmemo, $amount)) {
-			$this->_logger->logWarn('[%s] Requested refund amount $%F exceeds allowable refund amount $%F for order %s',
-				array(
-					__CLASS__,
-					$amount,
-					$creditmemo->getBaseCustomerBalanceReturnMax(),
-					$this->_payload->getCustomerOrderId()
-				)
-			);
+			$logMessage = "Requested refund amount {$amount} exceeds allowable refund amount {$creditmemo->getBaseCustomerBalanceReturnMax()} for order {$this->_payload->getCustomerOrderId()}";
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
 			return;
 		}
 
@@ -302,13 +306,16 @@ class EbayEnterprise_Eb2cOrder_Model_Creditissued
 	{
 		$orderId = $this->_payload->getCustomerOrderId();
 		$this->_order = $this->_getOrder($orderId);
+		$logData = ['order_id' => $orderId];
 		if (!$this->_order) {
-			$this->_logger->logWarn('[%s] Order "%s" not found in Magento. Could not process that order.', array(__CLASS__, $orderId));
+			$logMessage = 'Order ({order_id}) not found in Magento. Could not process that order.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			return $this;
 		}
 
 		if (!$this->_order->canCreditMemo()) {
-			$this->_logger->logWarn('[%s] Credit memo cannot be created for order %s', array(__CLASS__, $orderId));
+			$logMessage = 'Credit memo cannot be created for order {order_id}';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			return $this;
 		}
 

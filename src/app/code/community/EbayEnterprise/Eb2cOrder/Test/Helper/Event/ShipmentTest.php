@@ -33,6 +33,14 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_Event_ShipmentTest
 		$this->_payloadFactory = new PayloadFactory();
 		$this->_payload = $this->_payloadFactory->buildPayload('\eBayEnterprise\RetailOrderManagement\Payload\OrderEvents\OrderShipped');
 		$this->_payload->deserialize(file_get_contents(__DIR__ . '/ShipmentTest/fixtures/OrderShipped.xml'));
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+
 		$this->_shipmentHelper = Mage::helper('eb2corder/event_shipment');
 	}
 

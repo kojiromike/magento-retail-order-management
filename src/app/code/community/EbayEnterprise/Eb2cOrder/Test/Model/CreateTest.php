@@ -44,6 +44,13 @@ INVALID_XML;
 		Mage::app()->disableEvents();
 		parent::setUp();
 		$this->_coreHelper = Mage::helper('eb2ccore');
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	/**
 	 * Re-enable events disabled in setUp

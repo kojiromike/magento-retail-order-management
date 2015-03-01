@@ -17,6 +17,17 @@
 class EbayEnterprise_Catalog_Test_Model_Feed_FileTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
 	/**
 	 * Data provider for testing the constructor. Provides the array
 	 * of file details and, if expected for the given set of details, the
@@ -227,7 +238,8 @@ class EbayEnterprise_Catalog_Test_Model_Feed_FileTest
 			array(
 				'_helper' => $catalogHelperMock,
 				'_coreHelper' => $coreHelperMock,
-				'_logger' => Mage::helper('ebayenterprise_magelog')
+				'_logger' => Mage::helper('ebayenterprise_magelog'),
+				'_context' => Mage::helper('ebayenterprise_magelog/context'),
 			)
 		);
 		$this->assertSame($skus, EcomDev_Utils_Reflection::invokeRestrictedMethod(

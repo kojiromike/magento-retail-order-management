@@ -109,7 +109,7 @@
 						<alert_level>loud</alert_level>
 						<status>
 							<no_response>
-								<logger>logWarn</logger>
+								<logger>warning</logger>
 								<callback>
 									<type>helper</type>
 									<class>eb2ccore/api_action</class>
@@ -117,7 +117,7 @@
 								</callback>
 							</no_response>
 							<server_error>
-								<logger>logWarn</logger>
+								<logger>warning</logger>
 								<callback>
 									<type>helper</type>
 									<class>eb2ccore/api_action</class>
@@ -130,7 +130,7 @@
 						<alert_level>silent</alert_level>
 						<status>
 							<no_response>
-								<logger>logWarn</logger>
+								<logger>warning</logger>
 								<callback>
 									<type>helper</type>
 									<class>eb2ccore/api_action</class>
@@ -138,7 +138,7 @@
 								</callback>
 							</no_response>
 							<server_error>
-								<logger>logWarn</logger>
+								<logger>warning</logger>
 								<callback>
 									<type>helper</type>
 									<class>eb2ccore/api_action</class>
@@ -146,7 +146,7 @@
 								</callback>
 							</server_error>
 							<client_error>
-								<logger>logCrit</logger>
+								<logger>critical</logger>
 								<callback>
 									<type>helper</type>
 									<class>eb2ccore/api_action</class>
@@ -154,7 +154,7 @@
 								</callback>
 							</client_error>
 							<success>
-								<logger>logInfo</logger>
+								<logger>info</logger>
 								<callback>
 									<type>helper</type>
 									<class>eb2ccore/api_action</class>
@@ -168,7 +168,7 @@
 					<alert_level>silent</alert_level>
 					<status>
 						<no_response>
-							<logger>logInfo</logger>
+							<logger>info</logger>
 							<callback>
 								<type>helper</type>
 								<class>eb2ccore/api_validator</class>
@@ -176,7 +176,7 @@
 							</callback>
 						</no_response>
 						<server_error>
-							<logger>logInfo</logger>
+							<logger>info</logger>
 							<callback>
 								<type>helper</type>
 								<class>eb2ccore/api_validator</class>
@@ -184,7 +184,7 @@
 							</callback>
 						</server_error>
 						<client_error>
-							<logger>logInfo</logger>
+							<logger>info</logger>
 							<callback>
 								<type>helper</type>
 								<class>eb2ccore/api_validator</class>
@@ -192,7 +192,7 @@
 							</callback>
 						</client_error>
 						<success>
-							<logger>logInfo</logger>
+							<logger>info</logger>
 							<callback>
 								<type>helper</type>
 								<class>eb2ccore/api_validator</class>

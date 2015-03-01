@@ -16,6 +16,18 @@
 class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
+
 	/**
 	 * verify the observer is configured to listen for necessary events.
 	 * @dataProvider dataProvider
@@ -331,7 +343,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			->method('allocateQuoteItems');
 		$this->replaceByMock('model', 'eb2cinventory/allocation', $allocationMock);
 		Mage::getModel('eb2cinventory/observer')->processAllocation($eventObserver);
-    }
+	}
 
 	/**
 	 * AllocateQuoteItems may return an empty string or false.
@@ -347,11 +359,11 @@ class EbayEnterprise_Eb2cInventory_Test_Model_ObserverTest
 			$this->fail("Expected a falsy message. Instead, got '$message'.");
 		}
 
-		// `logWarn` should be called once if `$message` is falsy.
-		$logger = $this->getHelperMock('ebayenterprise_magelog', array('logWarn'));
+		// `warning` should be called once if `$message` is falsy.
+		$logger = $this->getHelperMock('ebayenterprise_magelog', array('warning'));
 		$logger->expects($this->once())
-			->method('logWarn')
-			->with($this->stringStartsWith('[%s] '));
+			->method('warning')
+			->with($this->stringStartsWith('Allocation response '), $this->isType('array'));
 		$this->replaceByMock('helper', 'ebayenterprise_magelog', $logger);
 
 		// Stubs

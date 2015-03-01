@@ -17,6 +17,17 @@
 class EbayEnterprise_Eb2cCustomerService_Test_Model_Token_RequestTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
 	/**
 	 * Test making a request for a token. The token should be set on the request
 	 * instance as a "token" magic data property.

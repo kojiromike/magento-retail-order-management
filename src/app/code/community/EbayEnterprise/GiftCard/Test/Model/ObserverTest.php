@@ -28,6 +28,13 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
 	{
 		$this->_event = Mage::getModel('Varien_Event');
 		$this->_eventObserver = Mage::getModel('Varien_Event_Observer', array('event' => $this->_event));
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	/**
 	 * Test redeeming gift cards that have been applied to an order - expecetd to

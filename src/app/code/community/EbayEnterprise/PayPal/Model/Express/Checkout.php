@@ -64,6 +64,8 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	protected $_api;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/** @var Mage_Customer_Model_Session */
 	protected $_customerSession;
@@ -75,7 +77,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 
 	public function __construct(array $initParams = array())
 	{
-		list($this->_helper, $this->_logger, $this->_config, $this->_quote)
+		list($this->_helper, $this->_logger, $this->_config, $this->_quote, $this->_context)
 			= $this->_checkTypes(
 			$this->_nullCoalesce(
 				$initParams, 'helper', Mage::helper('ebayenterprise_paypal')
@@ -87,7 +89,10 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 				$initParams, 'config',
 				Mage::helper('ebayenterprise_paypal')->getConfigModel()
 			),
-			$this->_nullCoalesce($initParams, 'quote', null)
+			$this->_nullCoalesce($initParams, 'quote', null),
+			$this->_nullCoalesce(
+				$initParams, 'context', Mage::helper('ebayenterprise_magelog/context')
+			)
 		);
 		if (!$this->_quote) {
 			throw new Exception('Quote instance is required.');
@@ -101,6 +106,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	 * @param EbayEnterprise_MageLog_Helper_Data            $logger ,
 	 * @param EbayEnterprise_Eb2cCore_Model_Config_Registry $config ,
 	 * @param Mage_Sales_Model_Quote                        $quote  ,
+	 * @param EbayEnterprise_MageLog_Helper_Context        $context
 	 *
 	 * @return array
 	 */
@@ -108,9 +114,10 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 		EbayEnterprise_PayPal_Helper_Data $helper,
 		EbayEnterprise_MageLog_Helper_Data $logger,
 		EbayEnterprise_Eb2cCore_Model_Config_Registry $config,
-		Mage_Sales_Model_Quote $quote
+		Mage_Sales_Model_Quote $quote,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($helper, $logger, $config, $quote);
+		return array($helper, $logger, $config, $quote, $context);
 	}
 
 	/**
@@ -405,7 +412,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 			try {
 				$this->_involveNewCustomer();
 			} catch (Exception $e) {
-				$this->_logger->logException($e);
+				$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			}
 		}
 

@@ -39,10 +39,13 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/*****************************************************************************
@@ -102,7 +105,9 @@ class EbayEnterprise_Eb2cInventory_Model_Details
 	{
 		$translatedShipMethod = Mage::helper('eb2ccore')->lookupShipMethod($shippingMethod);
 		if (empty($translatedShipMethod)) {
-			$this->_logger->logErr('[%s] Unable to translate ship method "%s".', array(__METHOD__, $shippingMethod));
+			$logData = ['shipping_method' => $shippingMethod];
+			$logMessage = 'Unable to translate ship method "{shipping_method}".';
+			$this->_logger->error($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		}
 		return $translatedShipMethod;
 	}

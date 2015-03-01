@@ -57,31 +57,39 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
 	protected $_coreHelper;
 	/** @var EbayEnterprise_MageLog_Helper_Data **/
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 	/**
 	 * @param array $initParams May contain:
 	 *                          - 'helper' => EbayEnterprise_GiftCard_Helper_Data
 	 *                          - 'core_helper' => EbayEnterprise_Eb2cCore_Helper_Data
 	 *                          - 'logger' => EbayEnterprise_MageLog_Helper_Data
+	 *                          - 'context' => EbayEnterprise_MageLog_Helper_Context
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_helper, $this->_coreHelper, $this->_logger) = $this->_checkTypes(
+		list($this->_helper, $this->_coreHelper, $this->_logger, $this->_context) = $this->_checkTypes(
 			$this->_nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_giftcard')),
 			$this->_nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore')),
-			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
+			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
 	}
 	/**
 	 * Type checks for self::__construct $initParams.
+	 * @param  EbayEnterprise_Giftcard_Helper_Data $helper
 	 * @param  EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
+	 * @param  EbayEnterprise_MageLog_Helper_Data $logger
+	 * @param  EbayEnterprise_MageLog_Helper_Context $context
 	 * @return mixed[]
 	 */
 	protected function _checkTypes(
 		EbayEnterprise_Giftcard_Helper_Data $helper,
 		EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
-		EbayEnterprise_MageLog_Helper_Data $logger
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($helper, $coreHelper, $logger);
+		return array($helper, $coreHelper, $logger, $context);
 	}
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the
@@ -263,8 +271,13 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
 	 */
 	protected function _logApiCall($type, $body, $direction)
 	{
-		$this->_logger->logInfo('[%s] Processing gift card %s %s.', array(__CLASS__, $type, $direction));
-		$this->_logger->logDebug('[%s] %s', array(__CLASS__, $body));
+		$logData = ['type' => $type, 'direction' => $direction];
+		$logMessage = 'Processing gift card {type} {direction}.';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+
+		$logData = ['rom_request_body' => $body];
+		$logMessage = 'Request Data';
+		$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 	}
 
 	public function checkBalance()
@@ -402,12 +415,14 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
 		try {
 			$api->send();
 		} catch (Api\Exception\NetworkError $e) {
-			$this->_logger->logWarn('[%s] Stored value request failed. See exception log for details.', array(__CLASS__));
-			$this->_logger->logException($e);
+			$logMessage = 'Stored value request failed. See exception log for details.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			throw Mage::exception('EbayEnterprise_GiftCard_Exception_Network', $this->_helper->__(self::REQUEST_FAILED_MESSAGE));
 		} catch (Payload\Exception\InvalidPayload $e) {
-			$this->_logger->logWarn('[%s] Invalid payload for stored value response. See exception log for details.', array(__CLASS__));
-			$this->_logger->logException($e);
+			$logMessage = 'Invalid payload for stored value response. See exception log for details.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			throw Mage::exception('EbayEnterprise_GiftCard', $this->_helper->__(self::REQUEST_FAILED_MESSAGE));
 		}
 		return $this;

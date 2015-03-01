@@ -20,6 +20,8 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/** @var DomXPath $_xpath */
 	protected $_xpath;
@@ -75,6 +77,7 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	{
 		parent::_construct();
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 		if ($this->getNode()) {
 			$xpath = new DOMXPath($this->getNode()->ownerDocument);
 			$xpath->registerNamespace('a', $this->getNode()->namespaceURI);
@@ -256,7 +259,8 @@ class EbayEnterprise_Eb2cTax_Model_Response_Orderitem extends Varien_Object
 	protected function _validate()
 	{
 		if (!$this->getSku()) {
-			$this->_logger->logWarn('[%s] OrderItem received with an empty sku.', array(__CLASS__));
+			$logMessage = 'OrderItem received with an empty sku.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
 			$this->_isValid = false;
 		}
 	}

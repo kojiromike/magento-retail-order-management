@@ -70,6 +70,13 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 		$this->_validator->expects($this->any())
 			->method('_getValidationResponse')
 			->will($this->returnValue($this->_validatorResponse));
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 
 	/**

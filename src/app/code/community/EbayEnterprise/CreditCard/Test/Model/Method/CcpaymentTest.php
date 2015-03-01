@@ -27,6 +27,13 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest
 		$this->_checkoutSession = $this->getModelMockBuilder('checkout/session')
 			->disableOriginalConstructor()
 			->getMock();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	/**
 	 * Needs to be called in ever test method to prevent "headers already sent

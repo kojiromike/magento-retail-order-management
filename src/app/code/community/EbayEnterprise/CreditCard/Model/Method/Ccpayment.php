@@ -94,6 +94,9 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
 
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
+
 	/** @var bool */
 	protected $_isUsingClientSideEncryption;
 	/**
@@ -104,33 +107,37 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	 *                          -  'core_helper' => EbayEnterprise_Eb2cCore_Helper_Data
 	 *                          -  'http_helper' => Mage_Core_Helper_Http
 	 *                          -  'logger' => EbayEnterprise_MageLog_Helper_Data
+	 *                          -  'context' => EbayEnterprise_MageLog_Helper_Context
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_helper, $this->_coreHelper, $this->_httpHelper, $this->_logger) = $this->_checkTypes(
+		list($this->_helper, $this->_coreHelper, $this->_httpHelper, $this->_logger, $this->_context) = $this->_checkTypes(
 			$this->_nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_creditcard')),
 			$this->_nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore')),
 			$this->_nullCoalesce($initParams, 'http_helper', Mage::helper('core/http')),
-			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
+			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
 		$this->_isUsingClientSideEncryption = $this->_helper->getConfigModel()->useClientSideEncryptionFlag;
 	}
 	/**
 	 * Type hinting for self::__construct $initParams
-	 * @param EbayEnterprise_CreditCard_Helper_Data $helper
-	 * @param EbayEnterprise_Eb2cCore_Helper_Data   $coreHelper
-	 * @param Mage_Core_Helper_Http                 $httpHelper
-	 * @param Mage_Checkout_Model_Session           $checkoutSession
-	 * @param EbayEnterprise_MageLog_Helper_Data    $logger
+	 * @param EbayEnterprise_CreditCard_Helper_Data  $helper
+	 * @param EbayEnterprise_Eb2cCore_Helper_Data    $coreHelper
+	 * @param Mage_Core_Helper_Http                  $httpHelper
+	 * @param Mage_Checkout_Model_Session            $checkoutSession
+	 * @param EbayEnterprise_MageLog_Helper_Data     $logger
+	 * @param EbayEnterprise_MageLog_Helper_Context $context
 	 * @return array
 	 */
 	protected function _checkTypes(
 		EbayEnterprise_CreditCard_Helper_Data $helper,
 		EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
 		Mage_Core_Helper_Http $httpHelper,
-		EbayEnterprise_MageLog_Helper_Data $logger
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($helper, $coreHelper, $httpHelper, $logger);
+		return array($helper, $coreHelper, $httpHelper, $logger, $context);
 	}
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the
@@ -264,13 +271,15 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 	{
 		$api = $this->_getApi($payment);
 		$this->_prepareApiRequest($api, $payment);
-		$this->_logger->logInfo('[%s] Sending credit card auth request.', array(__CLASS__));
+		$logMessage = 'Sending credit card auth request.';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
 		$cleanedRequestXml = $this->_helper->cleanAuthXml($api->getRequestBody()->serialize());
-		$this->_logger->logDebug('[%s] %s', array(__CLASS__, $cleanedRequestXml));
+		$this->_logger->debug($cleanedRequestXml, $this->_context->getMetaData(__CLASS__));
 		$this->_sendAuthRequest($api);
 		$cleanedResponseXml = $this->_helper->cleanAuthXml($api->getResponseBody()->serialize());
-		$this->_logger->logInfo('[%s] Received credit card auth response.', array(__CLASS__));
-		$this->_logger->logDebug('[%s] %s', array(__CLASS__, $cleanedResponseXml));
+		$logMessage = 'Received credit card auth response.';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
+		$this->_logger->debug($cleanedResponseXml, $this->_context->getMetaData(__CLASS__));
 		$this->_handleApiResponse($api, $payment);
 		return $this;
 	}
@@ -459,14 +468,18 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
 			$api->send();
 		} catch (Payload\Exception\InvalidPayload $e) {
 			// Invalid payloads cannot be valid - log the error and fail the auth
-			$this->_logger->logWarn('[%s] Credit card auth payload invalid: %s', array(__CLASS__, $e->getMessage()));
-			$this->_logger->logException($e);
+			$logData = ['error_message' => $e->getMessage()];
+			$logMessage = 'Credit card auth payload invalid: {error_message}';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			$this->_failPaymentAuth(self::CREDITCARD_AUTH_FAILED_MESSAGE);
 		} catch (Api\Exception\NetworkError $e) {
 			// Can't accept an auth request that could not be made successfully - log
 			// the error and fail the auth.
-			$this->_logger->logWarn('[%s] Credit card auth request failed: %s', array(__CLASS__, $e->getMessage()));
-			$this->_logger->logException($e);
+			$logData = ['error_message' => $e->getMessage()];
+			$logMessage = 'Credit card auth request failed: {error_message}';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			$this->_failPaymentAuth(self::CREDITCARD_AUTH_FAILED_MESSAGE);
 		}
 		return $this;

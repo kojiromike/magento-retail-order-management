@@ -78,6 +78,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
 
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
+
 	/**
 	 * @var Mage_Sales_Model_Order, Magento Order Object
 	 */
@@ -103,6 +106,7 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		$this->_helper = Mage::helper('eb2corder');
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 	/**
 	 * The event observer version of transmit order
@@ -184,7 +188,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 	{
 		$status = $this->_extractResponseStatus($response);
 		$this->_o->setStatus($status, true);
-		$this->_logger->logDebug('[%s] setting order (%s) status to %s', array(__METHOD__, $this->_o->getIncrementId(), $status));
+		$logData = ['increment_id' => $this->_o->getIncrementId(), 'status' => $status];
+		$logMessage = 'setting order "{increment_id}" status to {status}';
+		$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		Mage::dispatchEvent('eb2c_order_create_succeeded', array('order' => $this->_o));
 		$this->_o->setEb2cOrderCreateRequest($this->_domRequest->saveXML());
 		return $this;
@@ -797,7 +803,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 					// captured, so don't attempt send any in the request.
 					break;
 				default:
-					$this->_logger->logDebug('[%s] Mapping payment method "%s" to "PrepaidCreditCard"', array(__CLASS__, $payMethod));
+					$logData = ['payment_method' => $payMethod];
+					$logMessage = 'Mapping payment method "{payment_method}"" to "PrepaidCreditCard"';
+					$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 					$thisPayment = $payments->createChild('PrepaidCreditCard');
 					/** @note this amount is an AmountBaseType, which requires no currency code. */
 					$thisPayment->createChild('Amount', $amount);
@@ -806,7 +814,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		}
 		$this->_buildGiftCardPayments($payments);
 		if (!$payments->hasChildNodes()) {
-			$this->_logger->logInfo('[%s] Submitting no payment tender for order %s.', array(__CLASS__, $incrementId));
+			$logData = ['increment_id' => $incrementId];
+			$logMessage = 'Submitting no payment tender for order {increment_id}.';
+			$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			$paymentNode->removeChild($payments);
 		}
 		return $this;
@@ -1014,13 +1024,17 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		// first get all order with state equal to 'new'
 		$orders = $this->_getNewOrders();
 		$currentDate = Mage::getModel('core/date')->date('m/d/Y H:i:s');
-		$this->_logger->logDebug('[%s]: Begin order retry at: %s. Found %s order(s) to be retried', array(__METHOD__, $currentDate, $orders->count()));
+		$logData = ['total_orders' => $orders->count(), 'current_date' => $currentDate];
+		$logMessage = 'Begin order retry at: {current_date}. Found {total_orders} order(s) to be retried';
+		$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 
 		foreach ($orders as $order) {
 			$xmlCreateRequest = $order->getEb2cOrderCreateRequest();
 			if (empty($xmlCreateRequest)) {
 				// Original request empty, log at Warn level and move on
-				$this->_logger->logErr('[%s]: Original OrderCreateRequest not found: %s', array(__METHOD__, $order->getIncrementId()));
+				$logData = ['increment_id' => $order->getIncrementId()];
+				$logMessage = 'Original OrderCreateRequest not found: {increment_id}';
+				$this->_logger->error($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			} else {
 				// running same code to send request create eb2c orders
 				$this->_o = $order;
@@ -1029,8 +1043,9 @@ class EbayEnterprise_Eb2cOrder_Model_Create
 		}
 		$orders->save();
 
-		$newDate = Mage::getModel('core/date')->date('m/d/Y H:i:s');
-		$this->_logger->logDebug('[%s]: Order retry finished at: %s', array(__METHOD__, $newDate));
+		$logData = ['finished_at' => Mage::getModel('core/date')->date('m/d/Y H:i:s')];
+		$logMessage = 'Order retry finished at: {finished_at}';
+		$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 	}
 	/**
 	 * given a string of order create request xml message, assigned an EbayEnterprise_Dom_Document instantiated class

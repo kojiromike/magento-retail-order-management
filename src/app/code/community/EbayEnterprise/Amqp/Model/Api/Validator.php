@@ -29,19 +29,23 @@ class EbayEnterprise_Amqp_Model_Api_Validator
 	protected $_helper;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * @param array $initParams May contain:
 	 *                          - 'store' => Mage_Core_Model_Store
 	 *                          - 'helper' => EbayEnterprise_Amqp_Helper_Data
 	 *                          - 'logger' => EbayEnterprise_MageLog_Helper_Data
+	 *                          - 'context' => EbayEnterprise_MageLog_Helper_Context
 	 */
 	public function __construct(array $initParams=array())
 	{
-		list($this->_store, $this->_helper, $this->_logger) = $this->_checkTypes(
+		list($this->_store, $this->_helper, $this->_logger, $this->_context) = $this->_checkTypes(
 			$this->_nullCoalesce($initParams, 'store', Mage::app()->getStore()),
 			$this->_nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_amqp')),
-			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog'))
+			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
 	}
 	/**
@@ -49,14 +53,16 @@ class EbayEnterprise_Amqp_Model_Api_Validator
 	 * @param  Mage_Core_Model_Store              $store
 	 * @param  EbayEnterprise_Amqp_Helper_Data    $helper
 	 * @param  EbayEnterprise_MageLog_Helper_Data $logger
+	 * @param  EbayEnterprise_MageLog_Helper_Context $context
 	 * @return mixed[]
 	 */
 	protected function _checkTypes(
 		Mage_Core_Model_Store $store,
 		EbayEnterprise_Amqp_Helper_Data $helper,
-		EbayEnterprise_MageLog_Helper_Data $logger
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($store, $helper, $logger);
+		return array($store, $helper, $logger, $context);
 	}
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the
@@ -118,7 +124,9 @@ class EbayEnterprise_Amqp_Model_Api_Validator
 		try {
 			$amqpApi->openConnection();
 		} catch (ConnectionError $e) {
-			$this->_logger->logWarn('[%s] Failed to connect to AMQP server with message: %s', array(__CLASS__, $e->getMessage()));
+			$logData = ['error_message' => $e->getMessage()];
+			$logMessage = 'Failed to connect to AMQP server with message: {error_message}';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData, $e));
 		}
 		if (!$amqpApi->isConnected()) {
 			throw Mage::exception('EbayEnterprise_Amqp_Exception_Connection', $this->_helper->__(self::CONNECTION_FAILED));
@@ -141,7 +149,9 @@ class EbayEnterprise_Amqp_Model_Api_Validator
 		} catch (EbayEnterprise_Amqp_Exception $e) {
 			return array('message' => $e->getMessage(), 'success' => false);
 		} catch (Exception $e) {
-			$this->_logger->logWarn('[%s] Failed to connect to AMQP server with message: %s', array(__CLASS__, $e->getMessage()));
+			$logData = ['error_message' => $e->getMessage()];
+			$logMessage = 'Failed to connect to AMQP server with message: {error_message}';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData, $e));
 			return array('message' => $this->_helper->__(self::UNABLE_TO_VALIDATE), 'success' => false);
 		}
 		return array('message' => $this->_helper->__(self::CONNECTION_SUCCESS), 'success' => true);

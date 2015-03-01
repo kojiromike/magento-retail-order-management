@@ -15,9 +15,6 @@
 
 class EbayEnterprise_Eb2cCore_Model_Api
 {
-	/** @var EbayEnterprise_MageLog_Helper_Data */
-	protected $_logger;
-
 	/**
 	 * If _timeout is not set via $this->setApiTimeout() for request(), and the configuration does not contain one,
 	 * this our default value. This value is taken from Zend_Http_Client's default.
@@ -48,10 +45,17 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	 * @var int the status of the last response.
 	 */
 	protected $_status = 0;
+	/** @var EbayEnterprise_MageLog_Helper_Data */
+	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
+	/** @var string */
+	protected $_logAppContext = ['app_context' => 'http'];
 
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -74,10 +78,16 @@ class EbayEnterprise_Eb2cCore_Model_Api
 			$apiKey = Mage::helper('eb2ccore')->getConfigModel()->apiKey;
 		}
 		$xmlStr = $doc->C14N();
-		$this->_logger->logDebug("[%s] Validating request: %s", array(__CLASS__, $xmlStr));
+		$logData = array_merge(['rom_request_body' => $xmlStr], $this->_logAppContext);
+		$logMessage = 'Validating request.';
+		$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+
 		$this->schemaValidate($doc, $xsdName);
 		$client = $this->_setupClient($client, $apiKey, $uri, $xmlStr, $adapter, $timeout);
-		$this->_logger->logInfo("[%s] Sending request to %s", array(__CLASS__, $uri));
+		$logData = array_merge(['rom_request_url' => $uri], $this->_logAppContext);
+		$logMessage = 'Sending request.';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+
 		try {
 			$response = $client->request(self::DEFAULT_METHOD);
 			return $this->_processResponse($response, $uri);
@@ -122,11 +132,16 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	{
 		$this->_status = $response->getStatus();
 		$config = $this->_getHandlerConfig($this->_getHandlerKey($response));
-		$logMethod = isset($config['logger']) ? $config['logger'] : 'logDebug';
-		$this->_logger->$logMethod('[%s] Received response from "%s".', array(__CLASS__, $uri));
-		$this->_logger->logDebug('[%s] %s', array(__CLASS__, $response->asString()));
+		$logMethod = isset($config['logger']) ? $config['logger'] : 'debug';
+		$logData = array_merge(['rom_request_url' => $uri], $this->_logAppContext);
+		$this->_logger->$logMethod('Received response from.', $this->_context->getMetaData(__CLASS__, $logData));
+		$responseData = $logData;
+		$responseData['rom_response_body'] = $response->asString();
+		$logMessage = 'Response data.';
+		$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $responseData));
 		if (!$response->getBody()) {
-			$this->_logger->logWarn("[%s] Received response with no body from %s with status %s.", array(__CLASS__, $uri, $this->_status));
+			$logMessage = "Received response with no body from {$uri} with status {$this->_status}.";
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		}
 		$callbackConfig = isset($config['callback']) ? $config['callback'] : array();
 		$callbackConfig['parameters'] = array($response);
@@ -178,10 +193,12 @@ class EbayEnterprise_Eb2cCore_Model_Api
 	{
 		$this->_status = 0;
 		$config = $this->_getHandlerConfig($this->_getHandlerKey());
-		$logMethod = isset($config['logger']) ? $config['logger'] : 'logDebug';
+		$logMethod = isset($config['logger']) ? $config['logger'] : 'debug';
 		// the zend http client throws exceptions that are generic and make it impractical to
 		// generate a message that is more representative of what went wrong.
-		$this->_logger->$logMethod("[%s] Problem with request to %s:\n%s", array(__CLASS__, $uri, $exception));
+		$logData = array_merge(['rom_request_url' => $uri], $this->_logAppContext);
+		$logMessage = "Problem with request to {$uri}:\n{$exception->getMessage()}";
+		$this->_logger->$logMethod($logMessage, $this->_context->getMetaData(__CLASS__, $logData, $exception));
 		$callbackConfig = isset($config['callback']) ? $config['callback'] : array();
 		return Mage::helper('eb2ccore')->invokeCallBack($callbackConfig);
 	}

@@ -22,6 +22,8 @@ abstract class EbayEnterprise_Catalog_Model_Feed_Abstract extends Varien_Object
 
 	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * Validate that the feed model has necessary configuration for the core
@@ -35,6 +37,7 @@ abstract class EbayEnterprise_Catalog_Model_Feed_Abstract extends Varien_Object
 	{
 		parent::_construct();
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 		if(!$this->hasFeedConfig()) {
 			throw new EbayEnterprise_Eb2cCore_Exception_Feed_Configuration(__CLASS__ . ' no configuration specifed.');
 		}
@@ -80,7 +83,9 @@ abstract class EbayEnterprise_Catalog_Model_Feed_Abstract extends Varien_Object
 				$this->processFile($feedFile);
 				$filesProcessed++;
 			} catch (Mage_Core_Exception $e) {
-				$this->_logger->logErr('[%s] Failed to process file, %s. %s', array(__CLASS__, basename($feedFile['local_file']), $e->getMessage()));
+				$logData = ['local_file' => basename($feedFile['local_file']), 'error_message' => $e->getMessage()];
+				$logMessage = 'Failed to process file, {local_file}. {error_message}';
+				$this->_logger->error($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			}
 		}
 		return $filesProcessed;
@@ -95,13 +100,17 @@ abstract class EbayEnterprise_Catalog_Model_Feed_Abstract extends Varien_Object
 	{
 		$dom = Mage::helper('eb2ccore')->getNewDomDocument();
 		$basename = basename($fileDetail['local_file']);
+		$logData = ['basename' => $basename];
+		$context = $this->_context->getMetaData(__CLASS__, $logData);
 		if (!$dom->load($fileDetail['local_file'])) {
-			$this->_logger->logWarn('[%s] DomDocument could not load file "%s"', array(__CLASS__, $basename));
+			$logMessage = 'DomDocument could not load file "{basename}"';
+			$this->_logger->warning($logMessage, $context);
 			return null;
 		}
 		// Validate Eb2c Header Information
 		if (!Mage::helper('ebayenterprise_catalog/feed')->validateHeader($dom, $fileDetail['core_feed']->getEventType())) {
-			$this->_logger->logWarn('[%s] Invalid header for file "%s"', array(__CLASS__, $basename));
+			$logMessage = 'Invalid header for file "{basename}"';
+			$this->_logger->warning($logMessage, $context);
 			return null;
 		}
 		return $dom;

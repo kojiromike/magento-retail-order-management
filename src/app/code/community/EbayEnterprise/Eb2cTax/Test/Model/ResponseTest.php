@@ -35,6 +35,13 @@ class EbayEnterprise_Eb2cTax_Test_Model_ResponseTest extends EbayEnterprise_Eb2c
 				->setMethods(null)
 				->getMock()
 		);
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	/**
 	 * verify a fault message is properly parsed to a log message.

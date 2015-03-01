@@ -30,6 +30,13 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	{
 		parent::setUp();
 		$this->_allocation = Mage::getModel('eb2cinventory/allocation');
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 
 	/**
@@ -245,7 +252,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 	 */
 	public function testAllocateQuoteItemsLogsWarning()
 	{
-		$mockLogger = $this->getHelperMock('ebayenterprise_magelog', array('logWarn'));
+		$mockLogger = $this->getHelperMock('ebayenterprise_magelog', array('warning'));
 		$this->replaceByMock('helper', 'ebayenterprise_magelog', $mockLogger);
 
 		$quote = $this->getModelMockBuilder('sales/quote')
@@ -258,10 +265,10 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest
 
 		$testModel = $this->getModelMock('eb2cinventory/allocation', array('_buildAllocationRequestMessage'));
 
-		// check that 'logWarn' is called with the appropriate message
+		// check that 'warning' is called with the appropriate message
 		$mockLogger->expects($this->once())
-			->method('logWarn')
-			->with($this->identicalTo('[%s] %s missing shipping address.'));
+			->method('warning')
+			->with($this->identicalTo('{function_name} missing shipping address.'), $this->isType('array'));
 		// Validate the request message returns an empty string
 		$this->assertSame('', $testModel->allocateQuoteItems($quote));
 	}

@@ -22,10 +22,13 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 	protected $_logger;
 	/** @var Mage_Checkout_Model_Session */
 	protected $_checkoutSession;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 	/**
 	 * Stash and provide the checkout session.
@@ -157,7 +160,8 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
 					throw Mage::exception('EbayEnterprise_Eb2cInventory_Model_Allocation', $message);
 				}
 			} else {
-				$this->_logger->logWarn('[%s] Allocation response message returned empty value.', array(__CLASS__));
+				$logMessage = 'Allocation response message returned empty value.';
+				$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
 			}
 		}
 		return $this;

@@ -45,6 +45,8 @@ class EbayEnterprise_Catalog_Helper_Map_Category extends Mage_Core_Helper_Abstra
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * Memoized map of name paths to ids.
@@ -56,6 +58,7 @@ class EbayEnterprise_Catalog_Helper_Map_Category extends Mage_Core_Helper_Abstra
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -124,7 +127,9 @@ class EbayEnterprise_Catalog_Helper_Map_Category extends Mage_Core_Helper_Abstra
 			return $this->_namePathToIdMap[$namePath];
 		} else {
 			// @todo: move to error confirmation feed
-			$this->_logger->logWarn('[%s] No category was found with path matching "%s".', array(__CLASS__, $namePath));
+			$logData = ['name_path' => $namePath];
+			$logMessage = 'No category was found with path matching "{name_path}".';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			return -1;
 		}
 	}

@@ -20,6 +20,8 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 	/**
 	 * the sales/quote_address object
 	 * @var Mage_Sales_Model_Quote_Address
@@ -76,6 +78,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 	protected function _construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 		$this->_doc = Mage::helper('eb2ccore')->getNewDomDocument();
 		// Magic 'xml' data set when instantiated with the results of a tax response
 		if ($this->hasXml()) {
@@ -195,7 +198,9 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 		}
 		if (!$id) {
 			$this->_isValid = false;
-			$this->_logger->logWarn('[%s] Unable to parse the address id from the shipgroup "%s"', array(__CLASS__, $idRef));
+			$logData = ['address_id' => $idRef];
+			$logMessage = 'Unable to parse the address id from the shipgroup "{address_id}"';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		}
 		return $id;
 	}
@@ -283,7 +288,9 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 					$isValid = $isValid && $responseXpath->query($resPath)->length === 1;
 					$orderItemPath = $sgPath . '/a:Items/a:OrderItem/a:ItemId[.="' . $val . '"]/..';
 					if (!$isValid) {
-						$this->_logger->logWarn('[%s] SKU "%s" not found in the response', array(__CLASS__, $val));
+						$logData = ['sku' => $val];
+						$logMessage = 'SKU "{sku}" not found in the response';
+						$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 						// don't bother checking any other fields since they will not be found
 						break;
 					}
@@ -482,7 +489,7 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 			}
 		} catch (Exception $e) {
 			$result = false;
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 		return $result;
 	}
@@ -553,7 +560,9 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 	 */
 	protected function _logMissingInResponse($itemSku, $val, $xpathExpr)
 	{
-		$this->_logger->logWarn('[%s] %s "%s" not found in the response for %s', array(__CLASS__, $itemSku, $val, $xpathExpr));
+		$logData = ['item_sku' => $itemSku, 'sku_value' => $val, 'xpath_expression' => $xpathExpr];
+		$logMessage = '{item_sku} "{sku_value}" not found in the response for {$xpath_expression}';
+		$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 	}
 
 	/**
@@ -562,6 +571,8 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 	 */
 	protected function _logNoMatchInReq($name, $val)
 	{
-		$this->_logger->logWarn('[%s] %s "%s" did not match in the request', array(__CLASS__, $name, $val));
+		$logData = ['name' => $name, 'value' => $val];
+		$logMessage = '{name} "{value}" did not match in the request';
+		$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 	}
 }

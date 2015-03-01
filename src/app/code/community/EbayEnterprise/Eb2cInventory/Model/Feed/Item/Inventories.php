@@ -17,7 +17,7 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 	extends EbayEnterprise_Catalog_Model_Feed_Abstract
 	implements EbayEnterprise_Catalog_Interface_Feed
 {
-    /** @note The _logger property is set up in parent. */
+	/** @note The _logger property is set up in parent. */
 
 	/**
 	 * Set up extractor, stock item and stock status models to use while
@@ -106,7 +106,9 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 		if ($id) {
 			$this->_setProdQty($id, $qty);
 		} else {
-			$this->_logger->logWarn('[%s] SKU "%s" not found for inventory update.', array(__CLASS__, $sku));
+			$logData = ['sku' => $sku];
+			$logMessage = 'SKU ({sku}) not found for inventory update.';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		}
 		return $this;
 	}
@@ -129,7 +131,9 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories
 	 */
 	public function updateInventories(array $feedItems)
 	{
-		$this->_logger->logInfo('[%s] Updating inventory for %d items', array(__CLASS__, count($feedItems)));
+		$logData = ['total_items' => count($feedItems)];
+		$logMessage = 'Updating inventory for {total_items} items';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		foreach ($feedItems as $feedItem) {
 			$sku = $this->_extractSku($feedItem);
 			$qty = $feedItem->getMeasurements()->getAvailableQuantity();

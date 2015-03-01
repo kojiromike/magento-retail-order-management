@@ -18,10 +18,13 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -308,7 +311,9 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract
 				&& $productTypeId === Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
 				&& $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product))
 		{
-			$this->_logger->logWarn('[%s] Cannot change existing configurable attributes; update discarded for SKU "%s"', array(__CLASS__, $product->getSku()));
+			$logData = ['sku' => $product->getSku()];
+			$logMessage = 'Cannot change existing configurable attributes; update discarded for SKU "{sku}"';
+			$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 			return null;
 		}
 		return $source->getData('configurable_attributes_data');

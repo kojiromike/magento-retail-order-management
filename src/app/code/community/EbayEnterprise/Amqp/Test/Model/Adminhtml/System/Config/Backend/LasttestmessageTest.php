@@ -37,6 +37,13 @@ class EbayEnterprise_Amqp_Test_Model_Adminhtml_System_Config_Backend_Lasttestmes
 	 */
 	public function testAfterLoad($lastTimestamp, $value)
 	{
+		// suppression the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+
 		$helper = $this->getHelperMock('ebayenterprise_amqp/data');
 
 		$helper->expects($this->any())

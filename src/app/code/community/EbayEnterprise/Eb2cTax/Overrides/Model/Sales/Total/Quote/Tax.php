@@ -20,6 +20,8 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	/**
 	 * running total of tax amount for the address.
@@ -34,6 +36,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 	{
 		parent::__construct();
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 	/**
 	 * Collect tax totals for quote address
@@ -62,7 +65,7 @@ class EbayEnterprise_Eb2cTax_Overrides_Model_Sales_Total_Quote_Tax extends Mage_
 				$this->_roundTotals($address);
 			}
 		} catch (Exception $e) {
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 		return $this;
 	}

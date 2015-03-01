@@ -40,10 +40,13 @@ class EbayEnterprise_Catalog_Model_Feed_Ack
 
 	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context $_context */
+	protected $_context;
 
 	public function __construct()
 	{
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -169,14 +172,14 @@ class EbayEnterprise_Catalog_Model_Feed_Ack
 			$helper->moveFile($sourceFile, $destination);
 		} catch (EbayEnterprise_Catalog_Exception_Feed_File $e) {
 			$isDeletable = false;
-			$this->_logger->logException($e);
+			$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 
 		if ($isDeletable) {
 			try{
 				$helper->removeFile($sourceFile);
 			} catch (EbayEnterprise_Catalog_Exception_Feed_File $e) {
-				$this->_logger->logException($e);
+				$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
 			}
 		}
 

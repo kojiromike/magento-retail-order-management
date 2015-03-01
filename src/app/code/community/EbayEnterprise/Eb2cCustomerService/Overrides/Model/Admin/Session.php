@@ -19,11 +19,14 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 {
 	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	public function __construct()
 	{
 		parent::__construct();
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -93,7 +96,8 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 	 */
 	protected function _passValidation(Mage_Admin_Model_User $user, Mage_Core_Controller_Request_Http $request=null)
 	{
-		$this->_logger->logInfo('[%s] Successfully authenticated using token.', array(__CLASS__));
+		$logMessage = 'Successfully authenticated using token.';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
 		// This may potentially cause some issues as the user password is not
 		// included since we never receive it when loggin in with the token. So far
 		// it doesn't seem to be causing any issues but may have some impact on the
@@ -150,7 +154,8 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
 		Mage_Core_Controller_Request_Http $request=null,
 		Mage_Core_Exception $authException)
 	{
-		$this->_logger->logInfo('[%s] Failed to authenticate using token.', array(__CLASS__));
+		$logMessage = 'Failed to authenticate using token.';
+		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
 		// This may be problematic due to the missing user password. It is never
 		// given while doing the token auth so we don't have one to pass. So far
 		// it doesn't seem to be causing any issues but may have some impact on the

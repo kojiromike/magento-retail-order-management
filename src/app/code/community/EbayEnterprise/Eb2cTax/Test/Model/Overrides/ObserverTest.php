@@ -17,6 +17,18 @@ class EbayEnterprise_Eb2cTax_Test_Model_Overrides_ObserverTest extends EbayEnter
 {
 	public $className = 'EbayEnterprise_Eb2cTax_Overrides_Model_Observer';
 
+	public function setUp()
+	{
+		parent::setUp();
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+	}
+
 	public function _mockEventObserver($address)
 	{
 		$quote = $this->getModelMock('sales/quote', array());

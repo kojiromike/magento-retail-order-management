@@ -22,6 +22,13 @@ class EbayEnterprise_Eb2cOrder_Test_Helper_EventTest
 	public function setUp()
 	{
 		$this->eventHelper = Mage::helper('eb2corder/event');
+
+		// suppressing the real session from starting
+		$session = $this->getModelMockBuilder('core/session')
+			->disableOriginalConstructor()
+			->setMethods(null)
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
 	}
 	/**
 	 * Test extracting the name of the order event from a DOMXPath wrapping an

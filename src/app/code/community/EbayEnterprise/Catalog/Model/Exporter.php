@@ -30,11 +30,14 @@ class EbayEnterprise_Catalog_Model_Exporter
 	protected $_feedConfig;
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
+	/** @var EbayEnterprise_MageLog_Helper_Context */
+	protected $_context;
 
 	public function __construct()
 	{
 		$this->_config = Mage::helper('ebayenterprise_catalog')->getConfigModel();
 		$this->_logger = Mage::helper('ebayenterprise_magelog');
+		$this->_context = Mage::helper('ebayenterprise_magelog/context');
 	}
 
 	/**
@@ -63,7 +66,8 @@ class EbayEnterprise_Catalog_Model_Exporter
 			}
 			$this->_updateCutoffDate();
 		} catch (EbayEnterprise_Eb2cCore_Exception_InvalidXml $e) {
-			$this->_logger->logCrit("[%s] Error building export feeds:\n%s", array(__CLASS__, $e));
+			$logMessage = 'Error building export feeds';
+			$this->_logger->critical($logMessage, $this->_context->getMetaData(__CLASS__, [], $e));
 		}
 		return $this;
 	}

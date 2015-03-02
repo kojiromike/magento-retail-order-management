@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2.10] - 2015-03-02
+### Fixed
+- Correctly calculate taxes for discounted items
+
 ## [1.2.9] - 2015-02-09
 ### Fixed
 - Correctly handle when address validation returns only a single suggestion

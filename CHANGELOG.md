@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.5.0-alpha-5] -  2015-03-12
+### Changed
+- Log statements now utilize [eBay Enterprise Magento Logger](https://github.com/eBayEnterprise/magento-log) 2.0
+- Log statements now contain meta information
+
+
 ## [1.5.0-alpha-4] -  2015-02-26
 ### Fixed
 - Guest order lookup gives "Order not found" error even when an order is found
@@ -203,6 +209,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.5.0-alpha-5]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-4...1.5.0-alpha-5
 [1.5.0-alpha-4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-3...1.5.0-alpha-4
 [1.5.0-alpha-3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-2...1.5.0-alpha-3
 [1.5.0-alpha-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-1...1.5.0-alpha-2

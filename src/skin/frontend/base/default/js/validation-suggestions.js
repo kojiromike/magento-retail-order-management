@@ -49,12 +49,16 @@
 					// and have street lines match what they are called when split on the backend ('street1' instead of 'street_1')
 					fieldName = element.id && element.id.replace(/^(?:billing|shipping):/, '').replace(/(street)_(\d)/, '$1$2');
 					// apparently the 'postcode' field may be called 'zip' on the frontend...even though it's postcode *everywhere* else
-					if (fieldName === 'zip') {
-						fieldName = 'postcode';
-					}
-					// and the 'country_id' field may just be 'country'
-					if (fieldName === 'country') {
-						fieldName = 'country_id';
+					switch (fieldName) {
+						case 'country':
+							fieldName = 'country_id';
+							break;
+						case 'region':
+							fieldName = 'region_id';
+							break;
+						case 'zip':
+							fieldName = 'postcode';
+							break;
 					}
 					if (addressData[fieldName] && addressData[fieldName] !== element.value) {
 						element.value = addressData[fieldName];

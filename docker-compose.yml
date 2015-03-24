@@ -25,7 +25,7 @@ db:
     volumes_from:
         - dbdata
     ports:
-        - 3306:3306
+        - 3306
 unitdb:
     image: mysql:5
     environment:
@@ -33,7 +33,7 @@ unitdb:
         - MYSQL_USER=mage
         - MYSQL_PASSWORD=mage
         - MYSQL_DATABASE=unit
-    expose:
+    ports:
         - 3306
 setup:
     image: kojiromike/magento_tools
@@ -48,6 +48,7 @@ composer:
     volumes:
         - .:/git/magento-retail-order-management
         - build/magento:/srv/magento
+        - ~/.composer/auth.json:/root/.composer/auth.json
     entrypoint: composer
     command: list
 document:
@@ -115,7 +116,7 @@ webapp:
     links:
         - db
     ports:
-        - "80:80"
+        - 80
 tools:
     image: kojiromike/magento_tools
     volumes:

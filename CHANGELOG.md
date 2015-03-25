@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.5.0-alpha-6] -  2015-03-26
+### Added
+- Mapping for customer gender (see rom.xml.sample)
+
+### Changed
+- Order create has been rewritten to:
+    - Expose events to allow modification of the request without model rewrites
+    - Use the sdk
+- Refactor modules to use events to inject data into the order create request.
+### Removed
+- Custom attribute mappings
+
+
 ## [1.5.0-alpha-5] -  2015-03-12
 ### Changed
 - Log statements now utilize [eBay Enterprise Magento Logger](https://github.com/eBayEnterprise/magento-log) 2.0

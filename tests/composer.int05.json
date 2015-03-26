@@ -1,0 +1,69 @@
+{
+    "name": "ebayenterprise/magento-with-retail-order-management",
+    "description": "eBay Enterprise Retail Order Management Magento Extension",
+    "license": "OSL-3.0",
+    "type": "project",
+    "require": {
+        "ebayenterprise/magento-retail-order-management": "dev-master",
+        "ebayenterprise/rom-environment-configuration": "dev-int05-import",
+        "ebayenterprise/retail-order-management": "dev-master as 1.1.x-dev"
+    },
+    "require-dev": {
+        "aoepeople/aoe_scheduler": "*",
+        "kojiromike/magento-log-mail": "dev-master",
+        "magento-hackathon/composer-command-integrator": "dev-master"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://gitlab.gspt.net/Cheetah/magento-active-config.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://gitlab.gspt.net/Cheetah/magento-retail-order-management.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://gitlab.gspt.net/Cheetah/magento-file-transfer.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://gitlab.gspt.net/Cheetah/magento-amqp.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://gitlab.gspt.net/Cheetah/magento-log.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://gitlab.gspt.net/Cheetah/php-dom.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://gitlab.gspt.net/Cheetah/retailordermanagement-sdk.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://gitlab.gspt.net/Cheetah/rom-environment-configuration.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://gitlab.gspt.net/Cheetah/rom-test-data.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://gitlab.gspt.net/Cheetah/rom-ecomdev-tests.git"
+        },
+        {
+            "type": "composer",
+            "url": "http://packages.firegento.com"
+        }
+    ],
+    "extra": {
+        "magento-deploystrategy": "symlink",
+        "magento-root-dir": "./",
+        "magento-force": "override"
+    }
+}

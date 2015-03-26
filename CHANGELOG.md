@@ -222,6 +222,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.5.0-alpha-6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-5...1.5.0-alpha-6
 [1.5.0-alpha-5]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-4...1.5.0-alpha-5
 [1.5.0-alpha-4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-3...1.5.0-alpha-4
 [1.5.0-alpha-3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-2...1.5.0-alpha-3

@@ -270,13 +270,9 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 
 		// import payment info
 		$quote->getPayment()
-			->setAdditionalInformation(
-				self::PAYMENT_INFO_PAYER_ID,
-				$getExpressCheckoutReply['payer_id']
-			)
-			->setAdditionalInformation(
-				self::PAYMENT_INFO_TOKEN, $token
-			);
+			->setAdditionalInformation(self::PAYMENT_INFO_PAYER_ID, $getExpressCheckoutReply['payer_id'])
+			->setAdditionalInformation(self::PAYMENT_INFO_TOKEN, $token)
+			->setAdditionalInformation(self::PAYMENT_INFO_ADDRESS_STATUS, $paypalShippingAddress['status']);
 		$quote->collectTotals()->save();
 	}
 

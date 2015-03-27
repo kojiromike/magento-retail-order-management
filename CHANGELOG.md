@@ -3,15 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## [1.5.0-alpha-6] -  2015-03-26
 ### Added
-- Mapping for customer gender (see rom.xml.sample)
+- Configuration mapping for customer gender
+- Exposed events to allow modification or addition of information to the Order Create request
 
 ### Changed
-- Order create has been rewritten to:
-    - Expose events to allow modification of the request without model rewrites
-    - Use the sdk
+- Order create has been refactored to use the [RetailOrderManagement-SDK](https://github.com/eBayEnterprise/RetailOrderManagement-SDK)
 - Refactor modules to use events to inject data into the order create request.
+
 ### Removed
-- Custom attribute mappings
+- Order custom attribute mappings
 
 
 ## [1.5.0-alpha-5] -  2015-03-12

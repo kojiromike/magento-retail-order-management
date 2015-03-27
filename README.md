@@ -9,7 +9,7 @@ The Magento Retail Order Management Extension is designed as a framework that st
 1. [Overview](docs/OVERVIEW.md)
 1. [Installation and Configuration](docs/INSTALL.md)
 1. Modules and Capabilities
-	1. [Distributed Order Management](/src/app/code/community/EbayEnterprise/Eb2cOrder/README.md)
+	1. [Distributed Order Management](/src/app/code/community/EbayEnterprise/Order/README.md)
 	1. [Omnichannel Inventory Management](/src/app/code/community/EbayEnterprise/Eb2cInventory/README.md)
 	1. [Customer Service Tools](/src/app/code/community/EbayEnterprise/Eb2cCustomerService/README.md)
 	1. [Address Validation](/src/app/code/community/EbayEnterprise/Address/README.md)

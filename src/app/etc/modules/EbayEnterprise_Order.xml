@@ -18,7 +18,12 @@
 			<active>true</active>
 			<codePool>community</codePool>
 			<depends>
+				<Mage_Core/>
+				<Mage_Customer/>
+				<Mage_Eav/>
+				<Mage_Payment/>
 				<Mage_Sales/>
+				<Mage_Shipping/>
 				<EbayEnterprise_Eb2cCore/>
 				<EbayEnterprise_MageLog/>
 			</depends>

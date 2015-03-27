@@ -40,7 +40,8 @@ The order service requires both billing and shipping address information when cr
 It is possible to modify or pass additional order information to the Retail Order Management order service when submitting an order by observing appropriate events.
 
 Order custom attributes can apply to the order at three different levels. The extension dispatches events appropriate to modifying and injecting custom information at these levels, described below.
-### Supported Order Events
+
+### Supported Order Create Events
 
 |  Level  |                  Event Name                 |
 |:--------|:--------------------------------------------|

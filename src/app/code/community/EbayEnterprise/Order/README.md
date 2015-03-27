@@ -37,7 +37,16 @@ The order service requires both billing and shipping address information when cr
 
 ### Extending Order Create
 
-It is possible to modify or pass additional order information to the Retail Order Management order service when submitting an order. To do so, 
+It is possible to modify or pass additional order information to the Retail Order Management order service when submitting an order by observing appropriate events.
+
+Order custom attributes can apply to the order at three different levels. The extension dispatches events appropriate to modifying and injecting custom information at these levels, described below.
+
+|  Level  |                 Event Name                  |
+|=========|=============================================|
+| Item    | `ebayenterprise_order_create_item`          |
+| Context | `ebayenterprise_order_create_context`       |
+| Order   | `ebayenterprise_order_create_before_attach` |
+| Order   | `ebayenterprise_order_create_before_send`   |
 
 #### Local XML Configuration
 

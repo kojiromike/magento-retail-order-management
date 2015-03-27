@@ -115,7 +115,7 @@ class EbayEnterprise_Order_Model_Create
 			$args['config'],
 			$args['api'],
 			$args['payload'],
-			$this->_nullCoalesce('logger', $args, Mage::helper('ebayenterprise_magelog/context'))
+			$this->_nullCoalesce('log_context', $args, Mage::helper('ebayenterprise_magelog/context'))
 		);
 		// Possibly one valid exception to the DI rule; we're so beholden to the Mage class anyway...
 		$this->_app = Mage::app();
@@ -402,7 +402,7 @@ class EbayEnterprise_Order_Model_Create
 		$sessionIdHash = hash('sha256', $this->_getCustomerSession()->getEncryptedSessionId());
 		// when placing the order as a guest, there is no customer increment;
 		// use a hash of the session id instead.
-		return $prefix . substr($sessionIdHash, 0, 40 - strlen($prefix));
+		return $prefix . substr($sessionIdHash, -40 + strlen($prefix));
 	}
 
 	/**

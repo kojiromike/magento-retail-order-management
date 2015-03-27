@@ -69,10 +69,9 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 			'levelOfService' => $this->_expectedLevelOfService,
 			'orderType' => $this->_expectedOrderType,
 			'requestIdPrefix' => $this->_expectedRequestIdPrefix,
-			'clientCustomerIdPrefix' => '12345',
 			'apiCreateOperation' => 'create',
 			'apiService' => 'orders',
-			'customerGenderMap' => [
+			'genderMap' => [
 				'Female' => 'F',
 				'Male' => 'M',
 				'SomeOtherGender' => 'Invalid'
@@ -337,7 +336,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 	public function testGetCustomerGender($customerGender, $expected)
 	{
 		$customerResource = $this->getResourceModelMock('customer/customer', ['getAttribute', 'getSource', 'getAllOptions']);
-		$this->replaceByMock('resource_singleton', 'customer/customer', $customerResource);
+		$this->replaceByMock('resource_model', 'customer/customer', $customerResource);
 		$customerResource->expects($this->any())
 			->method('getAttribute')
 			->will($this->returnSelf());
@@ -368,12 +367,17 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 	}
 
 	/**
-	 * test getting the customer id
+	 * when checking out as a guest the the encrypted session id will be used as
+	 * the customer id.
+	 * When logged in, use the customer's increment id
 	 * @param  bool $isGuest
 	 * @dataProvider provideTrueFalse
 	 */
 	public function testGetCustomerId($isGuest)
 	{
+		if ($isGuest) {
+			$this->_customer->setIncrementId(null);
+		}
 		$session = $this->getModelMockBuilder('customer/session')
 			// prevent extraneous mocking
 			->disableOriginalConstructor()
@@ -393,7 +397,8 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 			->method('getEncryptedSessionId')
 			->will($this->returnValue('sessid'));
 		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getCustomerId');
-		$this->assertStringStartsWith('12345', $result);
+		$hashedSessionId = hash('sha256', 'sessid');
 		$this->assertLessThan(41, strlen($result));
+		$this->assertSame($isGuest ? substr($hashedSessionId, -35) : '123456789', substr($result, 5));
 	}
 }

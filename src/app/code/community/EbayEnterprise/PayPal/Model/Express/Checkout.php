@@ -138,7 +138,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	 *
 	 * @return mixed
 	 */
-	public function start($returnUrl, $cancelUrl, $button = null)
+	public function start($returnUrl, $cancelUrl)
 	{
 		$this->_quote->collectTotals();
 		if (!$this->_quote->getGrandTotal()

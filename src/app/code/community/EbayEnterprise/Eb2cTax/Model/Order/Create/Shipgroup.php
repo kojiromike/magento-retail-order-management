@@ -61,12 +61,10 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Shipgroup
 	 * An exception may be thrown if an expected discount payload is not found.
 	 * @param IShipGroup                     $shipGroup
 	 * @param Mage_Sales_Model_Order_Address $address
-	 * @param Mage_Sales_Model_Order         $order
 	 */
 	public function addGiftTaxesToPayload(
 		IShipGroup $shipGroup,
-		Mage_Sales_Model_Order_Address $address,
-		Mage_Sales_Model_Order         $order
+		Mage_Sales_Model_Order_Address $address
 	) {
 		$this->_loadTaxes($address);
 		// terminate early if there are no taxes to work with or there was

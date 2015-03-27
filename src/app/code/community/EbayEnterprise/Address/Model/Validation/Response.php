@@ -24,6 +24,20 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
 	protected $_helper;
 	/** @var EbayEnterprise_MageLog_Helper_Context */
 	protected $_context;
+	/** @var array map of result code to warning message */
+	protected $_resultCodeWarningMap = [
+		// Expected result codes for when things are working normally.
+		// Nothing of interest to log here.
+		IValidationReply::RESULT_VALID => null,
+		IValidationReply::RESULT_CORRECTED_WITH_SUGGESTIONS => null,
+		IValidationReply::RESULT_FAILED => null,
+		IValidationReply::RESULT_NOT_SUPPORTED => null,
+		// Result codes that should emit a warning
+		IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER => 'Unable to contact provider',
+		IValidationReply::RESULT_TIMEOUT => 'Provider timed out',
+		IValidationReply::RESULT_PROVIDER_ERROR => 'Provider returned a system error: {provider_error}',
+		IValidationReply::RESULT_MALFORMED => 'The request message was malformed or contained invalid data',
+	];
 
 	/**
 	 * @param array
@@ -183,40 +197,39 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
 	protected function _logResultCode()
 	{
 		$resultCode = $this->getResultCode();
-		switch ($resultCode) {
-			case IValidationReply::RESULT_VALID:
-			case IValidationReply::RESULT_CORRECTED_WITH_SUGGESTIONS:
-			case IValidationReply::RESULT_FAILED:
-			case IValidationReply::RESULT_NOT_SUPPORTED:
-				// Expected result codes for when things are working normally.
-				// Nothing of interest to log here.
-				break;
-			case IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER:
-				$logMessage = 'Unable to contact provider';
-				$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
-				break;
-			case IValidationReply::RESULT_TIMEOUT:
-				$logMessage = 'Provider timed out';
-				$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
-				break;
-			case IValidationReply::RESULT_PROVIDER_ERROR:
-				$logData = ['provider_error' => $this->_lookupPath('provider_error')];
-				$logMessage = 'Provider returned a system error: {provider_error}';
-				$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
-				break;
-			case IValidationReply::RESULT_MALFORMED:
-				$logMessage = 'The request message was malformed or contained invalid data';
-				$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
-				break;
-			default:
-				$logData = ['result_code' => $resultCode];
-				$logMessage = 'Response message did not contain a known result code. Result Code: {result_code}';
-				$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
-				break;
+		$message = $this->_nullCoalesce(
+			$this->_resultCodeWarningMap,
+			$resultCode,
+			// message used when the result code is unrecognized
+			'Response message did not contain a known result code. Result Code: {result_code}'
+		);
+		if ($message) {
+			$this->_logger->warning($message, $this->_getMetaData($resultCode));
 		}
 		$logData = ['result_code' => $resultCode, 'validation' => $this->isAddressValid() ? 'valid' : 'invalid'];
 		$logMessage = 'Response with status code "{result_code}" is {validation}.';
 		$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 		return $this;
+	}
+
+	/**
+	 * get meta data used when emitting a warning for the result code
+	 * @param  string
+	 * @return array
+	 */
+	protected function _getMetaData($resultCode)
+	{
+		if (
+			$resultCode === IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER ||
+			$resultCode === IValidationReply::RESULT_TIMEOUT ||
+			$resultCode === IValidationReply::RESULT_MALFORMED
+		) {
+			$logData = [];
+		} elseif ($resultCode === IValidationReply::RESULT_PROVIDER_ERROR) {
+			$logData = ['provider_error' => $this->_lookupPath('provider_error')];
+		} else {
+			$logData = ['result_code' => $this->getResultCode()];
+		}
+		return $this->_context->getMetaData(__CLASS__, $logData);
 	}
 }

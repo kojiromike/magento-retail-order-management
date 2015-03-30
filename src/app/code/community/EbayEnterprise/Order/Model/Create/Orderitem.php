@@ -28,7 +28,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 
 	/**
 	 * inject dependencies on construction
-	 * @param array $args
+	 * @param array
 	 */
 	public function __construct(array $args=[])
 	{
@@ -41,8 +41,8 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 
 	/**
 	 * ensure correct types are being injected
-	 * @param  EbayEnterprise_Eb2cCore_Helper_Discount $discountHelper
-	 * @param  EbayEnterprise_Eb2cCore_Helper_Data     $coreHelper
+	 * @param  EbayEnterprise_Eb2cCore_Helper_Discount
+	 * @param  EbayEnterprise_Eb2cCore_Helper_Data
 	 * @return array
 	 */
 	protected function _checkTypes(
@@ -54,9 +54,9 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 
 	/**
 	 * return $ar[$key] if it exists otherwise return $default
-	 * @param  string $key
-	 * @param  array  $ar
-	 * @param  mixed  $default
+	 * @param  string
+	 * @param  array
+	 * @param  mixed
 	 * @return mixed
 	 */
 	protected function _nullCoalesce($key, array $ar, $default)
@@ -66,12 +66,12 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 
 	/**
 	 * build out the order item payload
-	 * @param  IOrderItem                     $payload
-	 * @param  Mage_Sales_Model_Order_Item    $item
-	 * @param  Mage_Sales_Model_Order         $order
-	 * @param  Mage_Sales_Model_Order_Address $address
-	 * @param  int                            $lineNumber
-	 * @param  string                         $shippingChargeType
+	 * @param  IOrderItem
+	 * @param  Mage_Sales_Model_Order_Item
+	 * @param  Mage_Sales_Model_Order
+	 * @param  Mage_Sales_Model_Order_Address
+	 * @param  int
+	 * @param  string
 	 * @return IOrderItem
 	 */
 	public function buildOrderItem(
@@ -113,8 +113,8 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 
 	/**
 	 * fillout the merchandise price group payload for the order item
-	 * @param  Mage_Sales_Model_Order_Item $item
-	 * @param  IPriceGroup                 $merch
+	 * @param  Mage_Sales_Model_Order_Item
+	 * @param  IPriceGroup
 	 * @return self
 	 */
 	protected function _prepareMerchandisePricing(Mage_Sales_Model_Order_Item $item, IPriceGroup $merch)
@@ -129,14 +129,14 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 
 	/**
 	 * fillout the shipping price group payload for the order item
-	 * @param  Mage_Sales_Model_Order_Item $item
-	 * @param  IOrderItem                  $payload
+	 * @param  Mage_Sales_Model_Order_Address
+	 * @param  IOrderItem
 	 * @return self
 	 */
 	protected function _prepareShippingPriceGroup(Mage_Sales_Model_Order_Address $address, IOrderItem $payload)
 	{
 		$shippingPriceGroup = $payload->getEmptyPriceGroup();
-		$shippingPriceGroup->setAmount($address->getOrder()->getShippingAmount() ?: 0);
+		$shippingPriceGroup->setAmount((float) $address->getOrder()->getShippingAmount());
 		$this->_discountHelper->transferDiscounts($address, $shippingPriceGroup);
 		$payload->setShippingPricing($shippingPriceGroup);
 		return $this;
@@ -144,7 +144,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 
 	/**
 	 * calculate the remainder for the line item
-	 * @param  Mage_Sales_Model_Order_Item $item
+	 * @param  Mage_Sales_Model_Order_Item
 	 * @return float|null
 	 */
 	protected function _calcRemainder($item)
@@ -160,8 +160,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 	/**
 	 * load option data for $item
 	 *
-	 * TODO: reduce number of database lookups
-	 * @param  Mage_Sales_Model_Order_Item $item
+	 * @param  Mage_Sales_Model_Order_Item
 	 * @return Mage_Eav_Model_Resource_Entity_Attribute_Option_Collection
 	 */
 	protected function _loadOrderItemOptions(Mage_Sales_Model_Order_Item $item)
@@ -185,8 +184,8 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 	/**
 	 * get the selected option's default and localized values of the item's
 	 * attribute
-	 * @param  string                       $attributeCode
-	 * @param  Mage_Sales_Model_Order_Item  $item
+	 * @param  string
+	 * @param  Mage_Sales_Model_Order_Item
 	 * @return array
 	 */
 	protected function _getOptionInfo($attributeCode, Mage_Sales_Model_Order_Item $item)
@@ -201,7 +200,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 
 	/**
 	 * get the selected default and localized value for the color attribute
-	 * @param  Mage_Sales_Model_Order_Item $item
+	 * @param  Mage_Sales_Model_Order_Item
 	 * @return array
 	 */
 	protected function _getItemColorInfo(Mage_Sales_Model_Order_Item $item)
@@ -212,7 +211,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 
 	/**
 	 * get the selected default and localized value for the size attribute
-	 * @param  Mage_Sales_Model_Order_Item $item
+	 * @param  Mage_Sales_Model_Order_Item
 	 * @return array
 	 */
 	protected function _getItemSizeInfo(Mage_Sales_Model_Order_Item $item)
@@ -222,8 +221,8 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 
 	/**
 	 * return true if the order item needs to have the shipping price group included
-	 * @param  string  $chargeType
-	 * @param  int     $lineNumber
+	 * @param  string
+	 * @param  int
 	 * @return boolean
 	 */
 	protected function _isShippingPriceGroupRequired($chargeType, $lineNumber)

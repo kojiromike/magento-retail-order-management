@@ -22,13 +22,13 @@ class EbayEnterprise_Eb2cTax_Helper_Sdk
 {
 	/**
 	 * get a tax payload for the given tax quote
-	 * @param  EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote
-	 * @param  ITax                                        $taxPayload
+	 * @param  EbayEnterprise_Eb2cTax_Model_Response_Quote
+	 * @param  ITax
 	 * @return ITax
 	 */
 	public function getAsOrderTaxPayload(EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote, ITax $taxPayload)
 	{
-		$taxPayload
+		return $taxPayload
 			->setSitus($taxQuote->getSitus())
 			->setEffectiveRate($taxQuote->getEffectiveRate())
 			->setCalculatedTax($taxQuote->getCalculatedTax())
@@ -41,6 +41,5 @@ class EbayEnterprise_Eb2cTax_Helper_Sdk
 			->setImpositionType($taxQuote->getImpositionType())
 			->setTaxableAmount($taxQuote->getTaxableAmount())
 			->setSellerRegistrationId($taxQuote->getSellerRegistrationId());
-		return $taxPayload;
 	}
 }

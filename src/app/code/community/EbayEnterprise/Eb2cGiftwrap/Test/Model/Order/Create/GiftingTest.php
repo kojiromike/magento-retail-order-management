@@ -35,6 +35,7 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_Order_Create_GiftingTest
 
 	public function setUp()
 	{
+		parent::setUp();
 		$this->_order = Mage::getModel('sales/order');
 		$this->_item = Mage::getModel('sales/order_item');
 		$this->_helperMock = $this->getHelperMock('eb2cgiftwrap/data');
@@ -56,7 +57,6 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_Order_Create_GiftingTest
 		$orderGiftingPayload = $this->_orderCreateRequest->getShipGroups()->getEmptyShipGroup();
 
 		Mage::getModel('eb2cgiftwrap/order_create_gifting')->injectGifting(
-			$this->_order,
 			$this->_order,
 			$orderGiftingPayload
 		);
@@ -98,12 +98,12 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_Order_Create_GiftingTest
 			->method('load')
 			->with($this->identicalTo($messageId))
 			->will($this->returnSelf());
-		$this->replaceByMock('model', 'gift/message', $this->_messageMock);
+		$this->replaceByMock('model', 'giftmessage/message', $this->_messageMock);
 
 		$payload = $this->_orderCreateRequest->getShipGroups()->getEmptyShipGroup();
 
 		$gifting = Mage::getModel('eb2cgiftwrap/order_create_gifting');
-		$gifting->injectGifting($this->_order, $this->_order, $payload);
+		$gifting->injectGifting($this->_order, $payload);
 
 		// If the add card flag is true, message should be included as a gift card message.
 		// When false, message should be included as a packslip message.
@@ -152,7 +152,7 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_Order_Create_GiftingTest
 		$payload = $this->_orderCreateRequest->getShipGroups()->getEmptyShipGroup();
 
 		$gifting = Mage::getModel('eb2cgiftwrap/order_create_gifting');
-		$gifting->injectGifting($this->_order, $this->_order, $payload);
+		$gifting->injectGifting($this->_order, $payload);
 
 		$this->assertSame($wrapItemId, $payload->getGiftItemId());
 		$this->assertTrue($payload->getIncludeGiftWrapping());
@@ -183,7 +183,7 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_Order_Create_GiftingTest
 		$payload = $this->_orderCreateRequest->getShipGroups()->getEmptyShipGroup();
 
 		$gifting = Mage::getModel('eb2cgiftwrap/order_create_gifting', array('helper' => $this->_helperMock));
-		$gifting->injectGifting($this->_order, $this->_order, $payload);
+		$gifting->injectGifting($this->_order, $payload);
 
 		$this->assertSame($giftPrice, $payload->getGiftPricing()->getAmount());
 		$this->assertSame($giftPrice, $payload->getGiftPricing()->getUnitPrice());
@@ -215,7 +215,7 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Model_Order_Create_GiftingTest
 		$payload = $this->_orderCreateRequest->getShipGroups()->getEmptyShipGroup();
 
 		$gifting = Mage::getModel('eb2cgiftwrap/order_create_gifting', array('helper' => $this->_helperMock));
-		$gifting->injectGifting($this->_item, $this->_order, $payload);
+		$gifting->injectGifting($this->_item, $payload);
 
 		$this->assertSame($giftPrice, $payload->getGiftPricing()->getAmount());
 		$this->assertSame($wrapPrice, $payload->getGiftPricing()->getUnitPrice());

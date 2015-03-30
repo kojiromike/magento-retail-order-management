@@ -50,7 +50,7 @@ class EbayEnterprise_Address_Test_Model_Validation_ResponseTest extends EbayEnte
 	/**
 	 * will not log a warning when the result code is
 	 * a code returned under normal circumstances
-	 * @dataProvider provideSuccessResultCodes
+	 * @dataProvider provideNormalResultCodes
 	 */
 	public function testLogResultCode($code)
 	{
@@ -65,7 +65,7 @@ class EbayEnterprise_Address_Test_Model_Validation_ResponseTest extends EbayEnte
 		$response->setResultCode($code);
 		$this->_logger->expects($this->never())
 			->method('warning');
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_logResultCode', array($code));
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_logResultCode');
 	}
 
 	/**
@@ -101,6 +101,6 @@ class EbayEnterprise_Address_Test_Model_Validation_ResponseTest extends EbayEnte
 		$response->setResultCode($code);
 		$this->_logger->expects($this->once())
 			->method('warning');
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_logResultCode', array($code));
+		EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_logResultCode');
 	}
 }

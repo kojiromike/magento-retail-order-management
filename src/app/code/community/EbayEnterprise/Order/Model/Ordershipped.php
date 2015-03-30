@@ -38,7 +38,7 @@ class EbayEnterprise_Order_Model_Ordershipped
 	{
 		list($this->_payload, $this->_shipmentEventHelper, $this->_logger, $this->_context) = $this->_checkTypes(
 			$initParams['payload'],
-			$this->_nullCoalesce($initParams, 'shipment_event_helper', Mage::helper('eb2corder/event_shipment')),
+			$this->_nullCoalesce($initParams, 'shipment_event_helper', Mage::helper('ebayenterprise_order/event_shipment')),
 			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
 			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
@@ -53,7 +53,7 @@ class EbayEnterprise_Order_Model_Ordershipped
 	 */
 	protected function _checkTypes(
 		OrderEvents\IOrderShipped $payload,
-		EbayEnterprise_Eb2cOrder_Helper_Event_Shipment $shipmentEventHelper,
+		EbayEnterprise_Order_Helper_Event_Shipment $shipmentEventHelper,
 		EbayEnterprise_MageLog_Helper_Data $logger,
 		EbayEnterprise_MageLog_Helper_Context $context
 	) {

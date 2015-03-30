@@ -35,8 +35,8 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting
 
 	/**
 	 * enforce injected types
-	 * @param  EbayEnterprise_MageLog_Helper_Data  $logger
-	 * @param  EbayEnterprise_Eb2cGiftwrap_Helper_Data    $helper
+	 * @param  EbayEnterprise_MageLog_Helper_Data
+	 * @param  EbayEnterprise_Eb2cGiftwrap_Helper_Data
 	 * @return array
 	 */
 	protected function _checkTypes(
@@ -63,8 +63,8 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting
 
 	/**
 	 * add giftwrap/giftcard pricing to the payload
-	 * @param  IGifting      $giftingPayload
-	 * @param  Varien_Object $giftingItem
+	 * @param  IGifting
+	 * @param  Varien_Object
 	 * @return self
 	 */
 	protected function _addGiftWrapPricing(IGifting $giftingPayload, Varien_Object $giftingItem)
@@ -82,7 +82,7 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting
 	/**
 	 * get the gifting pricegroup; a new price group is created
 	 * and attached if one doesn't exist.
-	 * @param  IGifting $giftingPayload
+	 * @param  IGifting
 	 * @return IPriceGroup
 	 */
 	protected function _getPriceGroup(IGifting $giftingPayload)
@@ -96,8 +96,8 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting
 	}
 	/**
 	 * add the sku for the chosen gift wrapping
-	 * @param  IGifting      $giftingPayload
-	 * @param  Varien_Object $giftingItem
+	 * @param  IGifting
+	 * @param  Varien_Object
 	 * @return self
 	 */
 	protected function _addGiftWrapItem(IGifting $giftingPayload, Varien_Object $giftingItem)
@@ -116,8 +116,8 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting
 
 	/**
 	 * add the gift sender, recipient and message to payload
-	 * @param  IGifting      $giftingPayload
-	 * @param  Varien_Object $giftingItem
+	 * @param  IGifting
+	 * @param  Varien_Object
 	 * @return self
 	 */
 	protected function _addEnvelopeInfo(IGifting $giftingPayload, Varien_Object $giftingItem)
@@ -136,10 +136,10 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting
 
 	/**
 	 * add envelope information as a gift card
-	 * @param IGifting                         $giftingPayload
-	 * @param Mage_GiftMessage_Model_Message   $message
+	 * @param IGifting
+	 * @param Mage_GiftMessage_Model_Message
 	 */
-	protected function _addAsGiftCard(IGifting $giftingPayload, $message)
+	protected function _addAsGiftCard(IGifting $giftingPayload, Mage_GiftMessage_Model_Message $message)
 	{
 		$giftingPayload
 			->setLocalizedToLabel($this->_helper->__('To'))
@@ -151,10 +151,10 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting
 
 	/**
 	 * add envelope information as a pack slip
-	 * @param IGifting                         $giftingPayload
-	 * @param Mage_GiftMessage_Model_Message   $message
+	 * @param IGifting
+	 * @param Mage_GiftMessage_Model_Message
 	 */
-	protected function _addAsPackSlip(IGifting $giftingPayload, $message)
+	protected function _addAsPackSlip(IGifting $giftingPayload, Mage_GiftMessage_Model_Message $message)
 	{
 		$giftingPayload
 			->setLocalizedToLabel($this->_helper->__('To'))

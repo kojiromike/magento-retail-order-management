@@ -14,6 +14,7 @@
  */
 
 use eBayEnterprise\RetailOrderManagement\Payload\PayloadFactory;
+use eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
 
 /**
  * Test Order Create
@@ -36,7 +37,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 	protected $_order;
 	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
 	protected $_config;
-	/** @var HttpApi */
+	/** @var IBidirectionalApi */
 	protected $_httpApi;
 
 	/** @var string */
@@ -56,7 +57,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 	public function setUp()
 	{
 		parent::setUp();
-		$this->_httpApi = $this->getMockBuilder('\ebayEnterprise\RetailOrderManagement\Api\HttpApi')
+		$this->_httpApi = $this->getMockBuilder('\eBayEnterprise\RetailOrderManagement\Api\HttpApi')
 			->disableOriginalConstructor() // prevent need to mock IHttpConfig
 			->getMock();
 		$this->_observerStub = $this->getModelMock('ebayenterprise_order/observer');
@@ -64,7 +65,11 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 		$this->_request = $this->_payloadFactory->buildPayload('\eBayEnterprise\RetailOrderManagement\Payload\Order\OrderCreateRequest');
 		$this->_requestStub = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateRequest');
 		$this->_replyStub = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateReply');
-		$this->_coreHelperStub = $this->getHelperMock('eb2ccore/data', ['generateRequestId']);
+		$this->_coreHelperStub = $this->getHelperMock('eb2ccore/data', ['generateRequestId', 'getConfigModel']);
+		$coreConfig = $this->buildCoreConfigRegistry(['clientCustomerIdPrefix' => '12345', 'language_code' => 'en-us']);
+		$this->_coreHelperStub->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($coreConfig));
 		$this->_config = $this->buildCoreConfigRegistry([
 			'levelOfService' => $this->_expectedLevelOfService,
 			'orderType' => $this->_expectedOrderType,
@@ -87,6 +92,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 			'customer_lastname' => 'lname',
 			'customer_middlename' => 'mname',
 			'customer_prefix' => 'mr',
+			'customer_id' => '123456789',
 			'customer_taxvat' => 'taxid',
 			'increment_id' => '12345123456789',
 		]);
@@ -102,26 +108,6 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 	{
 		// allow normal event handling
 		Mage::app()->enableEvents();
-	}
-
-	public function testWillRebuildExistingOrder()
-	{
-		$eventName = 'ebayenterprise_order_create_before_attach';
-		$this->_requestStub->expects($this->any())
-			->method('deserialize')
-			->will($this->throwException(new \eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload));
-		$constructorArgs = [
-			'api' => $this->_httpApi,
-			'config' => $this->_config,
-			'order' => $this->_order,
-			'payload' => $this->_requestStub,
-		];
-		$create = $this->getModelMockBuilder('ebayenterprise_order/create')
-			->setConstructorArgs([$constructorArgs])
-			->setMethods(['_buildNewPayload'])
-			->getMock();
-		EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_initPayload');
-		EcomDev_PHPUnit_Test_Case_Config::assertEventDispatched($eventName);
 	}
 
 	/**
@@ -376,7 +362,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 	public function testGetCustomerId($isGuest)
 	{
 		if ($isGuest) {
-			$this->_customer->setIncrementId(null);
+			$this->_order->setCustomerId(null);
 		}
 		$session = $this->getModelMockBuilder('customer/session')
 			// prevent extraneous mocking
@@ -384,7 +370,8 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 			->setMethods(['getEncryptedSessionId'])
 			->getMock();
 		$constructorArgs = [
-			'api' => $this->getMock('\ebayEnterprise\RetailOrderManagement\Api\HttpApi'),
+			'core_helper' => $this->_coreHelperStub,
+			'api' => $this->_httpApi,
 			'config' => $this->_config,
 			'order' => $this->_order,
 			'payload' => $this->_requestStub,
@@ -399,6 +386,6 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 		$result = EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getCustomerId');
 		$hashedSessionId = hash('sha256', 'sessid');
 		$this->assertLessThan(41, strlen($result));
-		$this->assertSame($isGuest ? substr($hashedSessionId, -35) : '123456789', substr($result, 5));
+		$this->assertSame($isGuest ? substr($hashedSessionId, 0, 35) : '123456789', substr($result, 5));
 	}
 }

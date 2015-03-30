@@ -71,7 +71,7 @@ class EbayEnterprise_Order_Test_Model_Create_PaymentTest extends EbayEnterprise_
 			->will($this->returnValue(3));
 		$freePayment->expects($this->any())
 			->method('getMethod')
-			->will($this->returnValue(Mage::getModel('payment/method_free')));
+			->will($this->returnValue(Mage::getModel('payment/method_free')->getCode()));
 		$this->_paymentStubs = [$plainPayment, $discoverCardPayment, $freePayment];
 		$this->_orderStub = $this->getModelMock('sales/order', ['getAllPayments']);
 	}
@@ -146,8 +146,7 @@ class EbayEnterprise_Order_Test_Model_Create_PaymentTest extends EbayEnterprise_
 
 	/**
 	 * verify
-	 * - no payments will be processed if all are in the
-	 *   processed list
+	 * - the free payment method will not be processed
 	 */
 	public function testAddPaymentsToPayloadFreePaymentMethod()
 	{

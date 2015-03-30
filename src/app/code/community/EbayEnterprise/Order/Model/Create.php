@@ -13,7 +13,7 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-use \eBayEnterprise\RetailOrderManagement\Api\HttpApi;
+use \eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
 use \eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkException;
 use \eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
 use \eBayEnterprise\RetailOrderManagement\Payload\Checkout\IPersonName;
@@ -30,7 +30,8 @@ use \eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderItemReferenceConta
 use \eBayEnterprise\RetailOrderManagement\Payload\Order\IPaymentContainer;
 use \eBayEnterprise\RetailOrderManagement\Payload\Order\IShipGroupIterable;
 use \eBayEnterprise\RetailOrderManagement\Payload\Order\IShipGroup;
-// use \eBayEnterprise\RetailOrderManagement\Payload\Order\IEmailAddressDestination;
+use \eBayEnterprise\RetailOrderManagement\Payload\Order\IEmailAddressDestination;
+use \eBayEnterprise\RetailOrderManagement\Payload\Order\IMailingAddressDestination;
 
 /**
  * Fills out the Order Create Request payload and triggers
@@ -65,9 +66,9 @@ class EbayEnterprise_Order_Model_Create
 	protected $_shipGroupEvent = 'ebayenterprise_order_create_ship_group';
 	/** @var string event dispatched to handle populating order item payloads for items in the order */
 	protected $_orderItemEvent = 'ebayenterprise_order_create_item';
-	/** @var \eBayEnterprise\RetailOrderManagement\Api\HttpApi */
+	/** @var IBidirectionalApi */
 	protected $_api;
-	/** @var \eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateRequest */
+	/** @var IOrderCreateRequest */
 	protected $_payload;
 	/** @var EbayEnterprise_Order_Helper_Data */
 	protected $_helper;
@@ -131,7 +132,7 @@ class EbayEnterprise_Order_Model_Create
 	 * @param  EbayEnterprise_Order_Model_Create_Orderitem
 	 * @param  Mage_Sales_Model_Order
 	 * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 * @param  HttpApi
+	 * @param  IBidirectionalApi
 	 * @param  IOrderCreateRequest
 	 * @return array
 	 */
@@ -143,7 +144,7 @@ class EbayEnterprise_Order_Model_Create
 		EbayEnterprise_Order_Model_Create_Orderitem $defaultItemHandler,
 		Mage_Sales_Model_Order $order,
 		EbayEnterprise_Eb2cCore_Model_Config_Registry $config,
-		HttpApi $api,
+		IBidirectionalApi $api,
 		IOrderCreateRequest $payload,
 		EbayEnterprise_MageLog_Helper_Context $logContext
 	) {
@@ -153,9 +154,9 @@ class EbayEnterprise_Order_Model_Create
 	/**
 	 * Fill in default values.
 	 *
-	 * @param string
-	 * @param array
-	 * @param mixed
+	 * @param  string
+	 * @param  array
+	 * @param  mixed
 	 * @return mixed
 	 */
 	protected function _nullCoalesce($key, array $arr, $default)
@@ -198,34 +199,53 @@ class EbayEnterprise_Order_Model_Create
 	 */
 	protected function _initPayload()
 	{
-		$metaData = ['order_id' => $this->_order->getIncrementId()];
 		$raw = $this->_order->getEb2cOrderCreateRequest();
 		if ($raw) {
-			try {
-				$this->_payload->deserialize($raw);
-			} catch (InvalidPayload $e) {
-				$this->_logger->error(
-					'Unable to deserialize order {order_id}',
-					$this->_logContext->getMetaData(__CLASS__, $metaData)
-				);
-				$this->_logger->logException($e);
-			}
+			$this->_rebuildPayload($raw);
 		} else {
-			$this->_buildNewPayload();
-			Mage::dispatchEvent($this->_beforeAttachEvent, [
-				'order' => $this->_order,
-				'payload' => $this->_payload,
-			]);
-			try {
-				$this->_order
-					->setEb2cOrderCreateRequest($this->_payload->serialize());
-			} catch (InvalidPayload $e) {
-				$this->_logger->error(
-					'Unable to build request for order {order_id}',
-					$this->_logContext->getMetaData(__CLASS__, $metaData)
-				);
-				$this->_logger->logException($e);
-			}
+			$this->_buildNewPayload()
+				->_attachRequest();
+		}
+		return $this;
+	}
+
+	/**
+	 * rebuild the payload by deserializing the previous
+	 * request
+	 * @param  string previously serialized request
+	 * @return self
+	 */
+	protected function _rebuildPayload($raw)
+	{
+		try {
+			$this->_payload->deserialize($raw);
+		} catch (InvalidPayload $e) {
+			$this->_logger->critical(
+				'Failed to rebuild previous order request {order_id}',
+				$this->_logContext->getMetaData(__CLASS__, ['order_id' => $this->_order->getIncrementId()])
+			);
+		}
+		return $this;
+	}
+
+	/**
+	 * save the request to the order
+	 * @return self
+	 */
+	protected function _attachRequest()
+	{
+		Mage::dispatchEvent($this->_beforeAttachEvent, [
+			'order' => $this->_order,
+			'payload' => $this->_payload,
+		]);
+		try {
+			$this->_order
+				->setEb2cOrderCreateRequest($this->_payload->serialize());
+		} catch (InvalidPayload $e) {
+			$this->_logger->critical(
+				'Unable to attach request for order {order_id}',
+				$this->_logContext->getMetaData(__CLASS__, ['order_id' => $this->_order->getIncrementId()])
+			);
 		}
 		return $this;
 	}
@@ -250,19 +270,22 @@ class EbayEnterprise_Order_Model_Create
 			$this->_logger
 				->warning(
 					'Caught a network error sending order create. Will retry later.',
-					$this->_logContext->getMetaData(__CLASS__)
+					$this->_logContext->getMetaData(__CLASS__, [], $e)
 				);
-			$this->_logger->logException($e);
 			return $this;
 		} catch(UnsupportedOperation $e) {
 			$this->_logger
-				->critical('[%s] Order create request saved, but not sent. See exception log.', $this->_logContext->getMetaData(__CLASS__));
-				$this->_logger->logException($e);
+				->critical(
+					'[%s] Order create request saved, but not sent. See exception log.',
+					$this->_logContext->getMetaData(__CLASS__, [], $e)
+				);
 			return $this;
 		} catch (UnsupportedHttpAction $e) {
 			$this->_logger
-				->critical('[%s] Order create request saved, but not sent. See exception log.', $this->_logContext->getMetaData(__CLASS__));
-				$this->_logger->logException($e);
+				->critical(
+					'[%s] Order create request saved, but not sent. See exception log.',
+					$this->_logContext->getMetaData(__CLASS__, [], $e)
+				);
 			return $this;
 		} catch (Exception $e) {
 			throw $this->_logUnhandledException($e);
@@ -292,8 +315,10 @@ class EbayEnterprise_Order_Model_Create
 			$e = Mage::exception($exceptionClassName, $errorMessage);
 		}
 		$this->_logger
-			->warning('Encountered a fatal error attempting to send order create. See the exception log.', $this->_logContext->getMetaData(__CLASS__));
-			$this->_logger->logException($e);
+			->warning(
+				'Encountered a fatal error attempting to send order create. See the exception log.',
+				$this->_logContext->getMetaData(__CLASS__, [], $e)
+			);
 		return $e;
 	}
 
@@ -322,7 +347,6 @@ class EbayEnterprise_Order_Model_Create
 	{
 		$this->_payload
 			->setBillingAddress($this->_getRomBillingAddress($this->_order->getBillingAddress()))
-			->setCreateTime($this->_getAsDateTime($this->_order->getCreatedAt()))
 			->setCurrency($this->_order->getOrderCurrencyCode())
 			->setLevelOfService($this->_config->levelOfService)
 			->setLocale($this->_getLocale())
@@ -331,6 +355,10 @@ class EbayEnterprise_Order_Model_Create
 			->setOrderTotal($this->_order->getBaseGrandTotal())
 			->setOrderType($this->_config->orderType)
 			->setRequestId($this->_coreHelper->generateRequestId('OCR-'));
+		$createdAt = $this->_getAsDateTime($this->_order->getCreatedAt());
+		if ($createdAt) {
+			$this->_payload->setCreateTime($createdAt);
+		}
 		return $this
 			->_setCustomerData($this->_order, $this->_payload)
 			->_setOrderContext($this->_order, $this->_payload)
@@ -339,19 +367,25 @@ class EbayEnterprise_Order_Model_Create
 	}
 
 	/**
-	 * Set the locale field.
+	 * get the locale code for the order
 	 *
 	 * @return string
 	 */
 	protected function _getLocale()
 	{
 		$languageCode = $this->_coreHelper->getConfigModel()->setStore($this->_order->getStore())->languageCode;
-		$matches = [];
-		preg_match('/([a-zA-Z]{2})[-_]([a-zA-Z]{2})/', $languageCode, $matches);
-		if (count($matches) === 3) {
-			return strtolower($matches[1]) . '_' . strtoupper($matches[2]);
+		$splitCode = explode('-', $languageCode);
+		if (!empty($splitCode[0]) && !empty($splitCode[1])) {
+			$result = strtolower($splitCode[0]) . '_' . strtoupper($splitCode[1]);
+		} else {
+			$logData = ['order_id' => $this->_order->getIncrementId(), 'language_code' => $languageCode];
+			$this->_logger->critical(
+				"The store for order '{order_id}' is configured with an invalid language code: '{language_code}'",
+				$this->_logContext->getMetaData(__CLASS__, $logData)
+			);
+			$result = '';
 		}
-		return null;
+		return $result;
 	}
 
 	/**
@@ -375,19 +409,21 @@ class EbayEnterprise_Order_Model_Create
 			->setIsTaxExempt($order->getCustomer()->getTaxExempt());
 		$dob = $this->_getAsDateTime($order->getCustomerDob());
 		if ($dob) {
-			$payload->setDateofBirth($dob);
+			$payload->setDateOfBirth($dob);
 		}
 		return $this;
 	}
 
 	/**
 	 * get an id for the customer
-	 * @param  Mage_Sales_Model_Order $order
 	 * @return string
 	 */
 	protected function _getCustomerId()
 	{
-		return $this->_order->getCustomer()->getIncrementId() ?: $this->_getGuestCustomerId();
+		$prefix = $this->_coreHelper->getConfigModel()
+			->setStore($this->_order->getStore())
+			->clientCustomerIdPrefix;
+		return $prefix . ($this->_order->getCustomerId() ?: $this->_getGuestCustomerId());
 	}
 
 	/**
@@ -396,13 +432,10 @@ class EbayEnterprise_Order_Model_Create
 	 */
 	protected function _getGuestCustomerId()
 	{
-		$prefix = $this->_coreHelper->getConfigModel()
-			->setStore($this->_order->getStore())
-			->clientCustomerIdPrefix;
 		$sessionIdHash = hash('sha256', $this->_getCustomerSession()->getEncryptedSessionId());
 		// when placing the order as a guest, there is no customer increment;
 		// use a hash of the session id instead.
-		return $prefix . substr($sessionIdHash, -40 + strlen($prefix));
+		return substr($sessionIdHash, 0, 35);
 	}
 
 	/**
@@ -417,8 +450,9 @@ class EbayEnterprise_Order_Model_Create
 	/**
 	 * Add payment payloads to the request
 	 *
-	 * @param Mage_Sales_Model_Order $order
-	 * @param IPaymentContainer      $paymentContainer
+	 * @param  Mage_Sales_Model_Order
+	 * @param  IPaymentContainer
+	 * @return self
 	 */
 	protected function _setPaymentData(Mage_Sales_Model_Order $order, IPaymentContainer $paymentContainer)
 	{
@@ -438,13 +472,15 @@ class EbayEnterprise_Order_Model_Create
 		]);
 		$this->_defaultPaymentHandler
 			->addPaymentsToPayload($order, $paymentContainer, $processedPayments);
+		return $this;
 	}
 
 	/**
 	 * Add order context information to the request
 	 *
-	 * @param Mage_Sales_Model_Order $order
-	 * @param IOrderContext          $orderContext
+	 * @param Mage_Sales_Model_Order
+	 * @param IOrderContext
+	 * @return self
 	 */
 	protected function _setOrderContext(Mage_Sales_Model_Order $order, IOrderContext $orderContext)
 	{
@@ -604,7 +640,7 @@ class EbayEnterprise_Order_Model_Create
 	 *
 	 * @param Mage_Customer_Model_Address_Abstract
 	 * @param IOrderDestinationIterable Used to create the new email address destination payload
-	 * @return \eBayEnterprise\RetailOrderManagement\Payload\Order\IMailingAddressDestination
+	 * @return IMailingAddressDestination
 	 */
 	protected function _buildPhysicalDestination(Mage_Customer_Model_Address_Abstract $address, IOrderDestinationIterable $destinations)
 	{
@@ -620,14 +656,13 @@ class EbayEnterprise_Order_Model_Create
 	 *
 	 * @param Mage_Customer_Model_Address_Abstract
 	 * @param IOrderDestinationIterable Used to create the new email address destination payload
-	 * @return self
+	 * @return IEmailAddressDestination
 	 */
 	protected function _buildVirtualDestination(Mage_Customer_Model_Address_Abstract $address, IOrderDestinationIterable $destinations)
 	{
 		$destination = $destinations->getEmptyEmailAddress();
-		$this->_transferPersonNameData($address, $destination)
+		return $this->_transferPersonNameData($address, $destination)
 			->setEmailAddress($address->getEmail());
-		return $this;
 	}
 
 	/**
@@ -643,7 +678,7 @@ class EbayEnterprise_Order_Model_Create
 			->setFirstName($address->getFirstname())
 			->setLastName($address->getLastname())
 			->setMiddleName($address->getMiddlename())
-			->setHonorificName($address->getPrefix());;
+			->setHonorificName($address->getPrefix());
 	}
 
 	/**
@@ -657,6 +692,7 @@ class EbayEnterprise_Order_Model_Create
 	protected function _transferPhysicalAddressData(Mage_Customer_Model_Address_Abstract $address, IPhysicalAddress $physicalAddress)
 	{
 		return $physicalAddress
+			// get all address street lines as a single, newline-delimited string
 			->setLines($address->getStreet(-1))
 			->setCity($address->getCity())
 			->setMainDivision($address->getRegionCode())
@@ -676,18 +712,19 @@ class EbayEnterprise_Order_Model_Create
 	}
 
 	/**
-	 * convert a mage string date to a datetime
-	 * @param  string $dateString
-	 * @return DateTime
+	 * convert a mage date string to a datetime.
+	 * if $dateString is invalid, return false.
+	 * @param  string
+	 * @return DateTime|false
 	 */
 	protected function _getAsDateTime($dateString)
 	{
-		return DateTime::createFromFormat('Y-m-d H:i:s', $dateString) ?: null;
+		return DateTime::createFromFormat('Y-m-d H:i:s', $dateString);
 	}
 
 	/**
 	 * Get the gender code for the customer
-	 * @param  Mage_Sales_Model_Order $order
+	 * @param  Mage_Sales_Model_Order
 	 * @return string|null
 	 */
 	protected function _getCustomerGender(Mage_Sales_Model_Order $order)
@@ -716,7 +753,7 @@ class EbayEnterprise_Order_Model_Create
 
 	/**
 	 * get the label for the customer's gender
-	 * @param  Mage_Sales_Model_Order $order
+	 * @param  Mage_Sales_Model_Order
 	 * @return string
 	 */
 	protected function _getCustomerGenderLabel(Mage_Sales_Model_Order $order)

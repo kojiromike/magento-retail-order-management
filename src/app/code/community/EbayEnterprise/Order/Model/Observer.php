@@ -38,15 +38,60 @@ class EbayEnterprise_Order_Model_Observer
 	/**
 	 * Initialize properties
 	 */
-	public function __construct()
+	public function __construct(array $args=[])
 	{
-		$this->_logger = Mage::helper('ebayenterprise_magelog');
-		$this->_orderHelper = Mage::helper('ebayenterprise_order');
-		$this->_orderCfg = $this->_orderHelper->getConfigModel();
-		$this->_orderEventHelper = Mage::helper('ebayenterprise_order/event');
-		$this->_shipmentEventHelper = Mage::helper('ebayenterprise_order/event_shipment');
-		$this->_coreHelper =  Mage::helper('eb2ccore');
-		$this->_logContext = Mage::helper('ebayenterprise_magelog/context');
+		list(
+			$this->_logger,
+			$this->_orderHelper,
+			$this->_orderCfg,
+			$this->_orderEventHelper,
+			$this->_shipmentEventHelper,
+			$this->_coreHelper,
+			$this->_logContext
+		) = $this->_checkTypes(
+			$this->_nullCoalesce('logger', $args, Mage::helper('ebayenterprise_magelog')),
+			$this->_nullCoalesce('helper', $args, Mage::helper('ebayenterprise_order')),
+			$this->_nullCoalesce('config', $args, Mage::helper('ebayenterprise_order')->getConfigModel()),
+			$this->_nullCoalesce('event_helper', $args, Mage::helper('ebayenterprise_order/event')),
+			$this->_nullCoalesce('shipment_event_helper', $args, Mage::helper('ebayenterprise_order/event_shipment')),
+			$this->_nullCoalesce('core_helper', $args, Mage::helper('eb2ccore')),
+			$this->_nullCoalesce('log_context', $args, Mage::helper('ebayenterprise_magelog/context'))
+		);
+	}
+
+	/**
+	 * ensure correct types are being injected
+	 * @param EbayEnterprise_MageLog_Helper_Data
+	 * @param EbayEnterprise_Order_Helper_Data
+	 * @param EbayEnterprise_Eb2cCore_Model_Config_Registry
+	 * @param EbayEnterprise_Order_Helper_Event
+	 * @param EbayEnterprise_Order_Helper_Event_Shipment
+	 * @param EbayEnterprise_Eb2cCore_Helper_Data
+	 * @param EbayEnterprise_MageLog_Helper_Context
+	 * @return array
+	 */
+	protected function _checkTypes(
+		EbayEnterprise_MageLog_Helper_Data $logger,
+		EbayEnterprise_Order_Helper_Data $orderHelper,
+		EbayEnterprise_Eb2cCore_Model_Config_Registry $orderCfg,
+		EbayEnterprise_Order_Helper_Event $orderEventHelper,
+		EbayEnterprise_Order_Helper_Event_Shipment $shipmentEventHelper,
+		EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
+		EbayEnterprise_MageLog_Helper_Context $logContext
+	) {
+		return [$logger, $orderHelper, $orderCfg, $orderEventHelper, $shipmentEventHelper, $coreHelper, $logContext];
+	}
+
+	/**
+	 * return $ar[$key] if it exists otherwise return $default
+	 * @param  string
+	 * @param  array
+	 * @param  mixed
+	 * @return mixed
+	 */
+	protected function _nullCoalesce($key, array $ar, $default)
+	{
+		return isset($ar[$key]) ? $ar[$key] : $default;
 	}
 
 	/**
@@ -196,8 +241,8 @@ class EbayEnterprise_Order_Model_Observer
 
 	/**
 	 * resubmit the order
-	 * @param  Mage_Sales_Model_Order $order
-	 * @param  array                  $createArgs
+	 * @param  Mage_Sales_Model_Order
+	 * @param  array
 	 */
 	protected function _resubmit(Mage_Sales_Model_Order $order, array $createArgs)
 	{

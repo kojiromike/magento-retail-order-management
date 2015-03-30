@@ -36,7 +36,7 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 
 	/**
 	 * inject dependencies
-	 * @param array $args
+	 * @param array
 	 */
 	public function __construct(array $args=[])
 	{
@@ -52,10 +52,10 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 
 	/**
 	 * ensure correct types
-	 * @param  EbayEnterprise_MageLog_Helper_Data    $logger
-	 * @param  EbayEnterprise_MageLog_Helper_Context $logContext
-	 * @param  EbayEnterprise_MageLog_Helper_Context $calculator
-	 * @param  EbayEnterprise_Eb2cTax_Helper_Data    $helper
+	 * @param EbayEnterprise_MageLog_Helper_Data
+	 * @param EbayEnterprise_MageLog_Helper_Context
+	 * @param EbayEnterprise_Eb2cTax_Overrides_Model_Calculation
+	 * @param EbayEnterprise_Eb2cTax_Helper_Data
 	 * @return array
 	 */
 	protected function _checkTypes(
@@ -70,9 +70,9 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 
 	/**
 	 * return $ar[$key] if it exists otherwise return $default
-	 * @param  string $key
-	 * @param  array  $ar
-	 * @param  mixed  $default
+	 * @param string
+	 * @param array
+	 * @param mixed
 	 * @return mixed
 	 */
 	protected function _nullCoalesce($key, array $ar, $default)
@@ -84,9 +84,9 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 	 * add tax data to the given IOrderItem.
 	 * PriceGroups are created as necessary.
 	 * An exception may be thrown if an expected discount payload is not found.
-	 * @param IOrderItem                     $itemPayload
-	 * @param Mage_Sales_Model_Order_Item    $item
-	 * @param Mage_Sales_Model_Order_Address $address
+	 * @param IOrderItem
+	 * @param Mage_Sales_Model_Order_Item
+	 * @param Mage_Sales_Model_Order_Address
 	 */
 	public function addTaxesToPayload(
 		IOrderItem $itemPayload,
@@ -109,24 +109,33 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 				$taxPayload = $this->_sdkHelper->getAsOrderTaxPayload($taxQuote, $iterable->getEmptyTax());
 				$iterable[$taxPayload] = $taxPayload;
 			}
-			$this->_addTaxClass($itemPayload, $item);
+			$this->_addTaxClass($itemPayload, $item)
+				->_addDutyAmount($itemPayload, $item, $address);
 		}
 		return $this;
 	}
 
 	/**
 	 * add the duty amount to the payload
-	 * @param IOrderItem                     $itemPayload
-	 * @param Mage_Sales_Model_Order_Item    $item
-	 * @param Mage_Sales_Model_Order_Address $address
+	 * @param IOrderItem
+	 * @param Mage_Sales_Model_Order_Item
+	 * @param Mage_Sales_Model_Order_Address
+	 * @return self
 	 */
-	protected function _addDutyAmount(IOrderItem $itemPayload, Mage_Sales_Model_Order_Item $item, Mage_Sales_Model_Order_Address $address)
-	{
-		$itemResponse = $this->_calculator->getTaxResponse()->getResponseForItem($address->getQuoteAddressId(), $item->getSku());
+	protected function _addDutyAmount(
+		IOrderItem $itemPayload,
+		Mage_Sales_Model_Order_Item $item,
+		Mage_Sales_Model_Order_Address $address
+	) {
+		$itemResponses = $this->_calculator->getTaxResponse()->getResponseItems();
+		$itemResponse =	isset($itemResponses[$address->getQuoteAddressId()][$item->getSku()]) ?
+			$itemResponses[$address->getQuoteAddressId()][$item->getSku()] :
+			Mage::getModel('eb2ctax/response_orderitem');
 		$dutyPg = $itemPayload->getDutyPricing();
 		if ($dutyPg) {
 			$dutyPg->setAmount($itemResponse->getDutyAmount());
 		}
+		return $this;
 	}
 
 	/**
@@ -149,8 +158,8 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 
 	/**
 	 * load the tax quotes for the order item
-	 * @param  Mage_Sales_Model_Order_Item    $item
-	 * @param  Mage_Sales_Model_Order_Address $address
+	 * @param Mage_Sales_Model_Order_Item
+	 * @param Mage_Sales_Model_Order_Address
 	 * @return self
 	 */
 	protected function _loadTaxQuotes(Mage_Sales_Model_Order_Item $item, Mage_Sales_Model_Order_Address $address)
@@ -163,13 +172,14 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 			$responseData[$quoteAddressId][$sku] :
 			$this->_getEmptyResponseOrderItem();
 		$this->_taxQuotes = array_merge($itemResponse->getTaxQuotes(), (array) $itemResponse->getTaxQuoteDiscounts());
+		return $this;
 	}
 
 	/**
 	 * fetch the pricegroup that should contain the given
 	 * tax info; return null if no payload exists
-	 * @param  EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote
-	 * @param  IOrderItem                                  $itemPayload
+	 * @param EbayEnterprise_Eb2cTax_Model_Response_Quote
+	 * @param IOrderItem
 	 * @return IPriceGroup|null
 	 */
 	protected function _fetchPriceGroupPayload(EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote, IOrderItem $itemPayload)
@@ -187,11 +197,17 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 		return $pg;
 	}
 
-	// create a log for the case where
-	protected function _handleUnrecognizedTax($taxQuote, $itemPayload)
+	/**
+	 * log the case where a tax quote's pricegroup cannot be
+	 * determined.
+	 * @param EbayEnterprise_Eb2cTax_Model_Response_Quote
+	 * @param IOrderItem
+	 */
+	protected function _handleUnrecognizedTax(EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote, IOrderItem $itemPayload)
 	{
-		// we should never reach here unless the response is parsing
-		// types of tax nodes that aren't in the above map or arent handled.
+		// getting here implies a change to the way pricegroups are encoded and
+		// either the taxquote or the method map was not updated to reflect the
+		// change.
 		$this->_logger->critical(
 			"Unrecognized Tax Type:\n{tax_data}",
 			$this->_logContext->getMetaData(__CLASS__, ['tax_data' => json_encode($taxQuote->getData())])
@@ -202,8 +218,8 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 	/**
 	 * retrieve the discount payload that should contain the given
 	 * tax info; if the payload doesn't exist return null.
-	 * @param  EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote
-	 * @param  IPriceGroup                                 $priceGroup
+	 * @param EbayEnterprise_Eb2cTax_Model_Response_Quote
+	 * @param IPriceGroup
 	 * @return IDiscount|null
 	 */
 	protected function _fetchDiscountPayload(EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote, IOrderItem $itemPayload)
@@ -223,8 +239,8 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 
 	/**
 	 * get the iterable payload appropriate for inserting $taxQuote's information.
-	 * @param  EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote
-	 * @param  IOrderItem                                  $itemPayload
+	 * @param EbayEnterprise_Eb2cTax_Model_Response_Quote
+	 * @param IOrderItem
 	 * @return ITaxIterable
 	 */
 	protected function _fetchIterablePayload(EbayEnterprise_Eb2cTax_Model_Response_Quote $taxQuote, IOrderItem $itemPayload)
@@ -240,8 +256,9 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 
 	/**
 	 * set the taxclass on the item payload for each price as necessary
-	 * @param IOrderItem                  $itemPayload
-	 * @param Mage_Sales_Model_Order_Item $item
+	 * @param IOrderItem
+	 * @param Mage_Sales_Model_Order_Item
+	 * @return self
 	 */
 	protected function _addTaxClass(IOrderItem $itemPayload, Mage_Sales_Model_Order_Item $item)
 	{
@@ -252,6 +269,7 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Orderitem
 			$config = $this->_helper->getConfigModel();
 			$shipping->setTaxClass($config->shippingTaxClass);
 		}
+		return $this;
 	}
 
 	/**

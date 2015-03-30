@@ -55,7 +55,7 @@ class EbayEnterprise_Giftcard_Model_Order_Create_Payment
 			$iterable = $paymentContainer->getPayments();
 			$payload = $iterable->getEmptyStoredValueCardPayment();
 			$payload
-				// payment contextl
+				// payment context
 				->setOrderId($order->getIncrementId())
 				->setTenderType($giftcard->getTenderType())
 				->setAccountUniqueId($giftcard->getCardNumber())

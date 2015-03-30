@@ -29,13 +29,12 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	const ID_ATTRIBUTE              = 'id';
 	const CALCULATE_DUTY_ATTRIBUTE  = 'calculateDuty';
 
-	protected $_xml                = '';
-
+	/** @var string */
+	protected $_xml = '';
 	/** @var EbayEnterprise_MageLog_Helper_Data */
 	protected $_logger;
 	/** @var EbayEnterprise_MageLog_Helper_Context */
 	protected $_context;
-
 	/** @var DOMDocument $_doc */
 	protected $_doc;
 	protected $_tdRequest          = null;
@@ -98,11 +97,11 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * add the billing destination data to the request
 	 *
-	 * @param $address
+	 * @param Mage_Sales_Model_Quote_Address
 	 * @throws Mage_Core_Exception
 	 * @return void
 	 */
-	protected function _addBillingDestination($address)
+	protected function _addBillingDestination(Mage_Sales_Model_Quote_Address $address)
 	{
 		$this->setBillingAddressTaxId($address->getTaxId());
 		$this->_billingInfoRef = $this->_getDestinationId($address);
@@ -120,11 +119,11 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * the item's children. Processing an item really only consists of
 	 * adding the item to a destination grouping based on the address the item
 	 * ships to.
-	 * @param  Mage_Sales_Model_Quote_Item $item The item to process
-	 * @param  Mage_Sales_Model_Quote_Address $address The address the item ships to
+	 * @param Mage_Sales_Model_Quote_Item_Abstract $item The item to process
+	 * @param Mage_Sales_Model_Quote_Address $address The address the item ships to
 	 * @return self
 	 */
-	protected function _processItem($item, $address)
+	protected function _processItem(Mage_Sales_Model_Quote_Item_Abstract $item, Mage_Sales_Model_Quote_Address $address)
 	{
 		if ($item->getHasChildren() && $item->isChildrenCalculated()) {
 			foreach ($item->getChildren() as $child) {
@@ -139,7 +138,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * Determine and stash various information about the quote address in $this object.
 	 *
-	 * @param Mage_Sales_Model_Quote_Address $address
+	 * @param Mage_Sales_Model_Quote_Address|null
 	 * @return self
 	 */
 	public function processAddress(Mage_Sales_Model_Quote_Address $address=null)
@@ -184,7 +183,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * return true if the quote has enough information to be useful.
-	 * @param  Mage_Sales_Model_Quote  $quote
+	 * @param  Mage_Sales_Model_Quote|null
 	 * @return bool
 	 */
 	protected function _isQuoteUsable(Mage_Sales_Model_Quote $quote=null)
@@ -199,7 +198,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * return true if the address has enough information to be useful.
-	 * @param Mage_Sales_Model_Quote_Address $address
+	 * @param Mage_Sales_Model_Quote_Address
 	 * @return bool
 	 */
 	protected function _hasValidBillingAddress(Mage_Sales_Model_Quote_Address $address)
@@ -213,7 +212,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * item filtering, one of the two needs to be replicated here,
 	 * which is currently the visibile items filter.
 	 *
-	 * @param  Mage_Sales_Model_Quote_Address $address
+	 * @param  Mage_Sales_Model_Quote_Address
 	 * @return array(Mage_Sales_Model_Quote_Item_Abstract)
 	 */
 	protected function _getItemsForAddress(Mage_Sales_Model_Quote_Address $address)
@@ -229,8 +228,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * return a string to use as the address's destination id
-	 * @param  Mage_Sales_Model_Quote_Address $address
-	 * @param  bool                        $isVirtual
+	 * @param  Mage_Sales_Model_Quote_Address
+	 * @param  bool|null
 	 * @return string
 	 */
 	protected function _getDestinationId(Mage_Sales_Model_Quote_Address $address, $isVirtual=false)
@@ -241,9 +240,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * add the data extracted from $item to the request and map it to the destination
 	 * data extracted from $address.
-	 * @param Mage_Sales_Model_Quote_Item_Abstract $item
-	 * @param Mage_Sales_Model_Quote_Address       $address
-	 * @param bool                        $isVirtual
+	 * @param Mage_Sales_Model_Quote_Item_Abstract
+	 * @param Mage_Sales_Model_Quote_Address
+	 * @param bool
 	 */
 	protected function _addToDestination(
 		Mage_Sales_Model_Quote_Item_Abstract $item,
@@ -267,9 +266,12 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	}
 
 	/**
-	 * generate a shipgroup id and map a destination id to it.
+	 * generate a shipgroup xml identifier and map a destination id to it.
+	 * @param Mage_Sales_Model_Quote_Address
+	 * @param bool
+	 * @return string
 	 */
-	protected function _addShipGroupId($address, $isVirtual)
+	protected function _addShipGroupId(Mage_Sales_Model_Quote_Address $address, $isVirtual)
 	{
 		$rateKey = '';
 		$addressKey = $this->_getDestinationId($address, $isVirtual);
@@ -294,10 +296,10 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * Get a valid xml:id element for virtual addresses
 	 *
-	 * @param $address
+	 * @param Mage_Sales_Model_Quote_Address
 	 * @return string
 	 */
-	protected function _getVirtualId($address)
+	protected function _getVirtualId(Mage_Sales_Model_Quote_Address $address)
 	{
 		// xml ids cannot start with a digit
 		$id = '_' . $address->getId();
@@ -307,20 +309,20 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * Extract and validate destination data from the address for tax purposes.
 	 *
-	 * @param $address
-	 * @param bool $isVirtual
+	 * @param Mage_Sales_Model_Quote_Address
+	 * @param bool
 	 * @see EbayEnterprise_Eb2cTax_Model_Request::_validateDestData
 	 * @throws Mage_Core_Exception
 	 * @return array of valid destination address data
 	 */
-	protected function _extractDestData($address, $isVirtual=false)
+	protected function _extractDestData(Mage_Sales_Model_Quote_Address $address, $isVirtual=false)
 	{
 		$id = $this->_getDestinationId($address, $isVirtual);
 		$data = array(
 			'id' => $id,
 			'is_virtual' => $isVirtual,
-			'last_name'  => $this->_checkLength($address->getLastname(), 1, 64),
-			'first_name' => $this->_checkLength($address->getFirstname(), 1, 64),
+			'last_name'  => $this->_checkLength($address->getLastname(), 0, 64),
+			'first_name' => $this->_checkLength($address->getFirstname(), 0, 64),
 		);
 		if ($address->getSameAsBilling() && !$this->_isMultiShipping) {
 			// Guard against the case where the billing destination has not already been extracted
@@ -368,8 +370,6 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 			$fields = array('email_address');
 		} else {
 			$fields = array(
-				'last_name',
-				'first_name',
 				'city',
 				'line1',
 				'country_code',
@@ -378,8 +378,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 		foreach ($fields as $field) {
 			$value = isset($destData[$field]) ? $destData[$field] : null;
 			if (is_null($value)) {
-				$message = sprintf("field %s is missing", $field, $value);
-				throw Mage::exception('Mage_Core', $message);
+				throw Mage::exception('Mage_Core', "field $field is missing");
 			}
 		}
 		return $this;
@@ -387,8 +386,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * extract data necessary to build an orderitem node
-	 * @param  Mage_Sales_Model_Quote_Item_Abstract $item
-	 * @param  Mage_Sales_Model_Quote_Address       $address
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract
+	 * @param  Mage_Sales_Model_Quote_Address
 	 * @return array extracted item data
 	 */
 	protected function _extractItemData(Mage_Sales_Model_Quote_Item_Abstract $item, Mage_Sales_Model_Quote_Address $address)
@@ -443,7 +442,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * get the tax class for the item's product.
 	 * NOTE: the taxCode should be set by the ItemMaster feed.
-	 * @param  Mage_Sales_Model_Quote_Item_Abstract $item
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract
 	 * @return string
 	 */
 	protected function _getItemTaxClass($item)
@@ -458,10 +457,10 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * Get the base shipping amount from the address.
 	 *
-	 * @param $address
+	 * @param Mage_Sales_Model_Quote_Address
 	 * @return float
 	 */
-	protected function _getShippingAmount($address)
+	protected function _getShippingAmount(Mage_Sales_Model_Quote_Address $address)
 	{
 		/** @var Mage_Sales_Model_Quote_Address_Total_Shipping $totaler */
 		$totaler = Mage::getModel('sales/quote_address_total_shipping');
@@ -473,7 +472,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * return the sku truncated down to 20 characters if too long or
 	 * null if the sku doesn't meet minimum size requirements.
 	 *
-	 * @param  array $item
+	 * @param  array
 	 * @throws Mage_Core_Exception
 	 * @return string
 	 */
@@ -608,8 +607,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * build the MailingAddress node
 	 *
-	 * @param EbayEnterprise_Dom_Element $parent
-	 * @param array $address
+	 * @param EbayEnterprise_Dom_Element
+	 * @param array
 	 * @return EbayEnterprise_Dom_Element
 	 */
 	protected function _buildMailingAddressNode(EbayEnterprise_Dom_Element $parent, array $address)
@@ -626,8 +625,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 
 	/**
 	 * build an email address node for the destinations node.
-	 * @param  EbayEnterprise_Dom_Element         $parent
-	 * @param  array $address
+	 * @param  EbayEnterprise_Dom_Element
+	 * @param  array
 	 */
 	protected function _buildEmailNode(EbayEnterprise_Dom_Element $parent, array $address)
 	{
@@ -645,8 +644,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * build 'OrderItem/Pricing/Merchandise/PromotionalDiscounts' node and its
 	 * inner nested child nodes.
-	 * @param  EbayEnterprise_Dom_Element $merchandiseNode
-	 * @param  array                      $quoteItem
+	 * @param  EbayEnterprise_Dom_Element
+	 * @param  array
 	 * @return self
 	 */
 	protected function _buildDiscountNode(
@@ -669,10 +668,10 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	 * $maxLength characters.
 	 * null is returned if $string does not meet the minimum length requirement
 	 * or if $string does not meet the max length requirement and truncate is false.
-	 * @param  string  $string
-	 * @param  int  $minLength
-	 * @param  int  $maxLength
-	 * @param  bool $truncate
+	 * @param  string
+	 * @param  int
+	 * @param  int
+	 * @param  bool
 	 * @return null|string
 	 */
 	protected function _checkLength($string, $minLength=null, $maxLength=null, $truncate=true)
@@ -695,8 +694,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * build and append an orderitem node to the parent node.
 	 *
-	 * @param array $item
-	 * @param DomElement $parent
+	 * @param array
+	 * @param DomElement
 	 */
 	protected function _buildOrderItem(array $item, DomElement $parent)
 	{
@@ -762,8 +761,8 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * update the item data in $outData with discount information and return
 	 * the newly modified array.
-	 * @param  Mage_Sales_Model_Quote_Item_Abstract $item
-	 * @param  Mage_Sales_Model_Quote_Address       $address
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract
+	 * @param  Mage_Sales_Model_Quote_Address
 	 * @return  array
 	 */
 	protected function _extractItemDiscountData(
@@ -788,7 +787,7 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * generate the code to identify a discount
 	 *
-	 * @param  Mage_Sales_Model_Quote_Address $address
+	 * @param  Mage_Sales_Model_Quote_Address
 	 * @return string
 	 */
 	protected function _getDiscountCode(Mage_Sales_Model_Quote_Address $address)
@@ -930,9 +929,9 @@ class EbayEnterprise_Eb2cTax_Model_Request extends Varien_Object
 	/**
 	 * build 'OrderItem/Gifting' node and its inner nested child nodes.
 	 *
-	 * @param EbayEnterprise_Dom_Element $giftingNode
-	 * @param array $quoteItem
-	 * @param Enterprise_GiftWrapping_Model_Wrapping $giftwrapping
+	 * @param EbayEnterprise_Dom_Element
+	 * @param array
+	 * @param Enterprise_GiftWrapping_Model_Wrapping
 	 * @return self
 	 */
 	protected function _buildGiftingNode(EbayEnterprise_Dom_Element $giftingNode, array $quoteItem, Enterprise_GiftWrapping_Model_Wrapping $giftwrapping)

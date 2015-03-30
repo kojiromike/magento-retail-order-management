@@ -22,11 +22,11 @@ class EbayEnterprise_Eb2cFraud_Test_Block_JscTest extends EcomDev_PHPUnit_Test_C
 	public function testConstruct()
 	{
 		$jscUrl = 'https://magento.domain/js';
-		$fraudHelper = $this->getHelperMock('eb2cfraud/data', array('getJscUrl'));
+		$fraudHelper = $this->getHelperMock('eb2cfraud/http', array('getJscUrl'));
 		$fraudHelper->expects($this->once())
 			->method('getJscUrl')
 			->will($this->returnValue($jscUrl));
-		$this->replaceByMock('helper', 'eb2cfraud', $fraudHelper);
+		$this->replaceByMock('helper', 'eb2cfraud/http', $fraudHelper);
 
 		// provide a single collector so it should be easy to tell which is
 		// randomly selected

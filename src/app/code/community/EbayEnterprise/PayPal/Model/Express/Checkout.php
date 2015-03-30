@@ -45,7 +45,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	const PAYMENT_INFO_BILLING_AGREEMENT = 'paypal_ec_create_ba';
 	const PAYMENT_INFO_IS_AUTHORIZED_FLAG = 'is_authorized';
 	const PAYMENT_INFO_IS_VOIDED_FLAG = 'is_voided';
-	const PAYMENT_INFO_ADDRESS_STATUS  = 'address_status';
+	const PAYMENT_INFO_ADDRESS_STATUS = 'paypal_express_checkout_address_status';
 
 	/** @var string Flag from the request that indicates checkout was initiated outside normal checkout flow */
 	const PAYMENT_INFO_BUTTON = 'button';
@@ -123,7 +123,6 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	 * @param  array      $arr
 	 * @param  string|int $field Valid array key
 	 * @param  mixed      $default
-	 *
 	 * @return mixed
 	 */
 	protected function _nullCoalesce(array $arr, $field, $default)
@@ -134,11 +133,12 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 	/**
 	 * Reserve order ID for specified quote and start checkout on PayPal
 	 *
+	 * @param string
+	 * @param string
 	 * @param bool|null $button specifies if we came from Checkout Stream or from Product/Cart directly
-	 *
 	 * @return mixed
 	 */
-	public function start($returnUrl, $cancelUrl)
+	public function start($returnUrl, $cancelUrl, $button=null)
 	{
 		$this->_quote->collectTotals();
 		if (!$this->_quote->getGrandTotal()
@@ -155,6 +155,12 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
 		$setExpressCheckoutReply = $this->_api->setExpressCheckout(
 			$returnUrl, $cancelUrl, $this->_quote
 		);
+		if ($button) {
+			// mark the payment to indicate express checkout was initiated from
+			// outside the normal checkout flow
+			// (e.g. clicked paypal checkout button from product page)
+			$setExpressCheckoutReply[self::PAYMENT_INFO_BUTTON] = 1;
+		}
 		$this->_quote->getPayment()->importData($setExpressCheckoutReply);
 		$this->_quote->getPayment()->save();
 		return $setExpressCheckoutReply;

@@ -51,13 +51,13 @@ class EbayEnterprise_Eb2cTax_Test_Model_Order_Create_ShipgroupTest
 	public function testLoadingTaxData()
 	{
 		$taxQuotes = [
-			Mage::getModel('eb2ctax/response_quote', ['tax_type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING]),
-			Mage::getModel('eb2ctax/response_quote', ['tax_type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::GIFTING])
+			Mage::getModel('eb2ctax/response_quote', ['type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING]),
+			Mage::getModel('eb2ctax/response_quote', ['type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::GIFTING])
 		];
 		$orderItem1 = Mage::getModel('eb2ctax/response_orderitem');
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem1, '_taxQuotes', $taxQuotes);
 
-		$taxQuotes = [Mage::getModel('eb2ctax/response_quote', ['tax_type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING])];
+		$taxQuotes = [Mage::getModel('eb2ctax/response_quote', ['type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING])];
 		$orderItem2 = Mage::getModel('eb2ctax/response_orderitem');
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem2, '_taxQuotes', $taxQuotes);
 
@@ -97,7 +97,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Order_Create_ShipgroupTest
 	 */
 	public function testAddGiftingTaxesToPayload()
 	{
-		$taxQuotes = [Mage::getModel('eb2ctax/response_quote', ['tax_type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING])];
+		$taxQuotes = [Mage::getModel('eb2ctax/response_quote', ['type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING])];
 		$orderItem1 = Mage::getModel('eb2ctax/response_orderitem');
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem1, '_taxQuotes', $taxQuotes);
 		// add the response item to the response
@@ -134,7 +134,7 @@ class EbayEnterprise_Eb2cTax_Test_Model_Order_Create_ShipgroupTest
 	 */
 	public function testAddGiftingTaxesToPayloadNonShipGroupTaxes($taxType)
 	{
-		$taxQuotes = [Mage::getModel('eb2ctax/response_quote', ['tax_type' => $taxType])];
+		$taxQuotes = [Mage::getModel('eb2ctax/response_quote', ['type' => $taxType])];
 		$orderItem1 = Mage::getModel('eb2ctax/response_orderitem');
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem1, '_taxQuotes', $taxQuotes);
 		// add the response item to the response

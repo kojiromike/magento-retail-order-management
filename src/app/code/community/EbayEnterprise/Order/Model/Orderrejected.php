@@ -38,7 +38,7 @@ class EbayEnterprise_Order_Model_Orderrejected
 	{
 		list($this->_payload, $this->_orderEventHelper, $this->_logger, $this->_context) = $this->_checkTypes(
 			$this->_nullCoalesce($initParams, 'payload', $initParams['payload']),
-			$this->_nullCoalesce($initParams, 'order_event_helper', Mage::helper('eb2corder/event')),
+			$this->_nullCoalesce($initParams, 'order_event_helper', Mage::helper('ebayenterprise_order/event')),
 			$this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
 			$this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
 		);
@@ -46,14 +46,14 @@ class EbayEnterprise_Order_Model_Orderrejected
 	/**
 	 * Type hinting for self::__construct $initParams
 	 * @param  OrderEvents\OrderRejected $payload
-	 * @param  EbayEnterprise_Eb2cOrder_Helper_Event $orderEventHelper
+	 * @param  EbayEnterprise_Order_Helper_Event $orderEventHelper
 	 * @param  EbayEnterprise_MageLog_Helper_Data $logger
 	 * @param  EbayEnterprise_MageLog_Helper_Context $context
 	 * @return array
 	 */
 	protected function _checkTypes(
 		OrderEvents\OrderRejected $payload,
-		EbayEnterprise_Eb2cOrder_Helper_Event $orderEventHelper,
+		EbayEnterprise_Order_Helper_Event $orderEventHelper,
 		EbayEnterprise_MageLog_Helper_Data $logger,
 		EbayEnterprise_MageLog_Helper_Context $context
 	) {

@@ -45,8 +45,8 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Order
 
 	/**
 	 * set the tax header error flag on the order payload
-	 * @param  IOrderCreateRequest            $orderPayload
-	 * @param  Mage_Sales_Model_Order         $order
+	 * @param  IOrderCreateRequest
+	 * @param  Mage_Sales_Model_Order
 	 * @return self
 	 */
 	public function setTaxHeaderErrorFlag(
@@ -65,7 +65,7 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Order
 
 	/**
 	 * check if there are any errors in the taxes.
-	 * @param  Mage_Sales_Model_Order_Address $address
+	 * @param  Mage_Sales_Model_Order_Address
 	 */
 	protected function _checkForErrors(Mage_Sales_Model_Order_Address $address)
 	{
@@ -79,7 +79,7 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Order
 
 	/**
 	 * scan through the an item's taxes, if errors are detected, set a flag.
-	 * @param  EbayEnterprise_Eb2cTax_Model_Response_Orderitem $responseItem
+	 * @param  EbayEnterprise_Eb2cTax_Model_Response_Orderitem
 	 */
 	protected function _checkItemTaxes(EbayEnterprise_Eb2cTax_Model_Response_Orderitem $responseItem)
 	{

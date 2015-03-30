@@ -40,9 +40,9 @@ class EbayEnterprise_Eb2cTax_Test_Model_Order_Create_OrderTest
 		$this->_address = Mage::getModel('sales/order_address', ['quote_address_id' => 1]);
 		$collection = new Varien_Data_Collection();
 		$collection->addItem($this->_address);
-		$this->_order = $this->getModelMock('sales/order', ['getAddressCollection']);
+		$this->_order = $this->getModelMock('sales/order', ['getAddressesCollection']);
 		$this->_order->expects($this->any())
-			->method('getAddressCollection')
+			->method('getAddressesCollection')
 			->will($this->returnValue($collection));
 	}
 
@@ -51,15 +51,12 @@ class EbayEnterprise_Eb2cTax_Test_Model_Order_Create_OrderTest
 	 */
 	public function testLoadingTaxData()
 	{
-		$taxQuotes = [
-			Mage::getModel('eb2ctax/response_quote', ['tax_type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING]),
-			Mage::getModel('eb2ctax/response_quote', ['tax_type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::GIFTING])
-		];
 		$orderItem1 = Mage::getModel('eb2ctax/response_orderitem');
+		$taxQuotes = [Mage::getModel('eb2ctax/response_quote')];
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem1, '_taxQuotes', $taxQuotes);
 
-		$taxQuotes = [Mage::getModel('eb2ctax/response_quote', ['tax_type' => EbayEnterprise_Eb2cTax_Model_Response_Quote::SHIPGROUP_GIFTING])];
 		$orderItem2 = Mage::getModel('eb2ctax/response_orderitem');
+		$taxQuotes = [Mage::getModel('eb2ctax/response_quote')];
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($orderItem2, '_taxQuotes', $taxQuotes);
 
 		EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_taxResponse, '_responseItems', [1 => ['sku1' => $orderItem1, 'sku2' => $orderItem2]]);

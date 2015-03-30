@@ -71,7 +71,7 @@ class EbayEnterprise_Eb2cTax_Model_Order_Create_Shipgroup
 		// an error on the remote side.
 		if (!$this->_hasErrors) {
 			foreach ($this->_taxQuotes as $taxQuote) {
-				$iterable = $this->_fetchIterablePayload($taxQuote, $shipGroup);
+				$iterable = $this->_fetchIterablePayload($shipGroup);
 				$taxPayload = $this->_sdkHelper->getAsOrderTaxPayload($taxQuote, $iterable->getEmptyTax());
 				$iterable[$taxPayload] = $taxPayload;
 			}

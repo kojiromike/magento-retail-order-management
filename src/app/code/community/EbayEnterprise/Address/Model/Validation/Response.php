@@ -28,10 +28,10 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
 	protected $_resultCodeWarningMap = [
 		// Expected result codes for when things are working normally.
 		// Nothing of interest to log here.
-		IValidationReply::RESULT_VALID => null,
-		IValidationReply::RESULT_CORRECTED_WITH_SUGGESTIONS => null,
-		IValidationReply::RESULT_FAILED => null,
-		IValidationReply::RESULT_NOT_SUPPORTED => null,
+		IValidationReply::RESULT_VALID => '',
+		IValidationReply::RESULT_CORRECTED_WITH_SUGGESTIONS => '',
+		IValidationReply::RESULT_FAILED => '',
+		IValidationReply::RESULT_NOT_SUPPORTED => '',
 		// Result codes that should emit a warning
 		IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER => 'Unable to contact provider',
 		IValidationReply::RESULT_TIMEOUT => 'Provider timed out',

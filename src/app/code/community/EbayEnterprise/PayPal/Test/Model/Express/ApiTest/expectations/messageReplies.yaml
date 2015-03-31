@@ -29,6 +29,7 @@ getExpress:
     country_id: ~
     status: ~
 doExpress:
+  method: ebayenterprise_paypal_express
   order_id: ~
   transaction_id: ~
   response_code: ~

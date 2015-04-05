@@ -39,9 +39,6 @@
 			</eb2cgiftwrap>
 		</helpers>
 		<blocks>
-			<eb2cgiftwrap>
-				<class>EbayEnterprise_Eb2cGiftwrap_Block</class>
-			</eb2cgiftwrap>
 			<enterprise_giftwrapping>
 				<rewrite>
 					<adminhtml_giftwrapping_edit_form>EbayEnterprise_Eb2cGiftwrap_Overrides_Block_Adminhtml_Giftwrapping_Edit_Form</adminhtml_giftwrapping_edit_form>

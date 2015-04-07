@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## UNRELEASED
+### Changed
+- Exported files are logged as critical and will no longer be resent when an acknowledgement is not received.
+
+
 ## [1.5.0-alpha-6] -  2015-03-26
 ### Added
 - Configuration mapping for customer gender

@@ -1,0 +1,44 @@
+{
+    "name": "ebayenterprise/magento-with-retail-order-management",
+    "description": "For unit testing the extension",
+    "license": "OSL-3.0",
+    "type": "project",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "ebayenterprise/magento-retail-order-management": "dev-master",
+        "magento-hackathon/composer-command-integrator": "dev-master",
+        "magento-hackathon/magento-composer-installer": "dev-master"
+    },
+    "require-dev": {
+        "ecomdev/ecomdev_phpunit": "dev-master",
+        "firegento/psr0autoloader": "*",
+        "mikey179/vfsStream": "~1.0",
+        "pdepend/pdepend": "~1.1",
+        "phpdocumentor/phpdocumentor":"~2.4",
+        "phploc/phploc": "~2.0",
+        "phpmd/phpmd": "~1.5",
+        "phpunit/dbunit": "~1",
+        "phpunit/php-invoker": "~1.1",
+        "phpunit/phpunit-selenium": "~1",
+        "phpunit/phpunit-story": "~1",
+        "sebastian/phpcpd": "~2.0",
+        "squizlabs/php_codesniffer": "~1.5"
+    },
+    "repositories": [
+        { "type": "vcs", "url": "https://gitlab.gspt.net/Cheetah/retailordermanagement-sdk.git" },
+        { "type": "vcs", "url": "https://gitlab.gspt.net/Cheetah/magento-active-config.git" },
+        { "type": "vcs", "url": "https://gitlab.gspt.net/Cheetah/magento-amqp.git" },
+        { "type": "vcs", "url": "https://gitlab.gspt.net/Cheetah/magento-file-transfer.git" },
+        { "type": "vcs", "url": "https://gitlab.gspt.net/Cheetah/magento-log.git" },
+        { "type": "vcs", "url": "https://gitlab.gspt.net/Cheetah/magento-retail-order-management.git" },
+        { "type": "vcs", "url": "https://gitlab.gspt.net/Cheetah/php-dom.git" },
+        { "type": "composer", "url": "http://packages.firegento.com" }
+    ],
+    "extra": {
+        "magento-deploystrategy": "symlink",
+        "magento-force": "override",
+        "magento-root-dir": "."
+    }
+}
+

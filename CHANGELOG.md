@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## UNRELEASED
+### Fixed
+- The PayPal address status field from the get express reply was being ignored.
+
 ### Changed
 - Exported files are logged as critical and will no longer be resent when an acknowledgement is not received.
 

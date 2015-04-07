@@ -300,6 +300,12 @@
 					<method>extractEmailTemplate</method>
 					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
 				</email_template>
+				<open_amount_max>
+					<class>ebayenterprise_catalog/map</class>
+					<type>helper</type>
+					<method>extractFloatValue</method>
+					<xpath>ExtendedAttributes/MaxGCAmount</xpath>
+				</open_amount_max>
 			</feed_attribute_mappings>
 		</ebayenterprise_catalog>
 	</default>

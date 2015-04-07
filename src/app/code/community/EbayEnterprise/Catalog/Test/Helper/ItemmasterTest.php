@@ -300,4 +300,42 @@ class EbayEnterprise_Catalog_Test_Helper_ItemmasterTest
 
 		$this->assertNull($this->itemmasterHelper->passStyle(null, '_style', $this->simpleProduct, $this->doc));
 	}
+
+	/**
+	 * When processing a gift card product, a DOM fragment with a gift card name,
+	 * gift card tender type and gift card max value should be returned.
+	 */
+	public function testPassGiftCardWithGiftCardProduct()
+	{
+		$product = Mage::getModel(
+			'catalog/product',
+			[
+				'type_id' => Enterprise_GiftCard_Model_Catalog_Product_Type_Giftcard::TYPE_GIFTCARD,
+				'name' => 'Gift Card Name',
+				'gift_card_tender_code' => 'GCTC',
+				'open_amount_max' => 499.99,
+			]
+		);
+		$giftCardFragment = $this->itemmasterHelper->passGiftCard(null, '_giftcard', $product, $this->doc);
+		$this->assertNotNull($giftCardFragment);
+		$element = $giftCardFragment->firstChild;
+		$this->assertSame('Gift Card Name', $element->nodeValue);
+		$element = $element->nextSibling;
+		$this->assertSame('GCTC', $element->nodeValue);
+		$element = $element->nextSibling;
+		$this->assertSame('499.99', $element->nodeValue);
+	}
+
+	/**
+	 * When processing a non-gift card product, a DOM fragment with an empty max
+	 * gift card amount should be returned.
+	 */
+	public function testPassGiftCardWithNonGiftCardProduct()
+	{
+		$giftCardFragment = $this->itemmasterHelper->passGiftCard(null, '_giftcard', $this->simpleProduct, $this->doc);
+		$this->assertNotNull($giftCardFragment);
+		$element = $giftCardFragment->firstChild;
+		$this->assertSame('MaxGCAmount', $element->nodeName);
+		$this->assertSame('', $element->nodeValue);
+	}
 }

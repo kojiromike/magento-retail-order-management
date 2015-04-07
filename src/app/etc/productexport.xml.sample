@@ -118,6 +118,13 @@ Carefully review all options to ensure they match you specific implementation.
 							<xml_dest>BaseAttributes/Hierarchy/</xml_dest>
 							<translate>0</translate>
 						</_hierarchy>
+						<drop_ship_supplier_prefix>
+							<class>ebayenterprise_catalog/itemmaster</class>
+							<type>helper</type>
+							<method>passDropShipSupplierPrefix</method>
+							<xml_dest>DropShipSupplierInformation/SupplierPrefix</xml_dest>
+							<translate>0</translate>
+						</drop_ship_supplier_prefix>
 						<drop_ship_supplier_name>
 							<class>ebayenterprise_catalog/pim</class>
 							<type>helper</type>
@@ -179,6 +186,25 @@ Carefully review all options to ensure they match you specific implementation.
 							<translate>0</translate>
 						</sfs_eligible>
 						<!-- End InStore only attributes -->
+						<!--
+						 - Temporary mappings for subscriptions elements that
+						 - should be optional but currently are not. Once XSDs
+						 - are updated to allow elements to be optional, these
+						 - should be removed.
+						-->
+						<_subscription_eligible>
+							<class>ebayenterprise_catalog/itemmaster</class>
+							<type>helper</type>
+							<method>passSubscriptionEligible</method>
+							<xml_dest>ExtendedAttributes/SubscriptionAttributes/SubscriptionEligible</xml_dest>
+						</_subscription_eligible>
+						<_subscription_type>
+							<class>ebayenterprise_catalog/itemmaster</class>
+							<type>helper</type>
+							<method>passSubscriptionType</method>
+							<xml_dest>ExtendedAttributes/SubscriptionAttributes/SubscriptionType</xml_dest>
+						</_subscription_type>
+						<!-- End temporary mappings for subscription elements. -->
 						<gift_message_available>
 							<class>ebayenterprise_catalog/pim</class>
 							<type>helper</type>
@@ -235,6 +261,13 @@ Carefully review all options to ensure they match you specific implementation.
 							<xml_dest>ExtendedAttributes/Style/</xml_dest>
 							<translate>0</translate>
 						</_style>
+						<supplier_part_number>
+							<class>ebayenterprise_catalog/itemmaster</class>
+							<type>helper</type>
+							<method>passSupplierPartNumber</method>
+							<xml_dest>ExtendedAttributes/Supplier/SupplierPartNumber</xml_dest>
+							<translate>0</translate>
+						</supplier_part_number>
 						<cost>
 							<class>ebayenterprise_catalog/itemmaster</class>
 							<type>helper</type>
@@ -242,13 +275,6 @@ Carefully review all options to ensure they match you specific implementation.
 							<xml_dest>ExtendedAttributes/</xml_dest>
 							<translate>0</translate>
 						</cost>
-						<open_amount_max>
-							<class>ebayenterprise_productexport/giftcard</class>
-							<type>helper</type>
-							<method>passMaxGCAmount</method>
-							<xml_dest>CustomAttributes/Attribute[@name="MaxGCAmount"]</xml_dest>
-							<translate>0</translate>
-						</open_amount_max>
 						<item_url>
 							<class>ebayenterprise_catalog/itemmaster</class>
 							<type>helper</type>

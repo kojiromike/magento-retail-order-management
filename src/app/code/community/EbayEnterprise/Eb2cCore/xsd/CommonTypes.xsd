@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2013 rel. 2 sp2 (x64) (http://www.altova.com) by Thomas Lowery (private) -->
+<!-- edited with XMLSpy v2014 rel. 2 (http://www.altova.com) by Subba Reddy (GSI Commerce Solutions, Inc.) -->
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:cc="http://www.tm-xml.org/XMLSchema/common" elementFormDefault="qualified" attributeFormDefault="qualified" version="1.1">
 	<xsd:annotation>
 		<xsd:documentation xml:lang="en-US">x`</xsd:documentation>
-		<xsd:documentation>$Id$</xsd:documentation>
-		<xsd:documentation>$URL$</xsd:documentation>
+		<xsd:documentation>$Id: CommonTypes.xsd 492 2014-12-02 23:36:01Z reddys3 $</xsd:documentation>
+		<xsd:documentation>$URL: http://svn.gspt.net/phx/ph-schemas/branches/4.4-Q4-11.9/CommonTypes.xsd $</xsd:documentation>
 		<xsd:documentation>2014-03-25-MVV- Added - Simple.StringType.40 for FulfillmentOverride for Enhanced Order Brokering Feature- US8100</xsd:documentation>
 		<xsd:documentation>2014-05-12-MVV- Added - Restrictions for StoreNet and VendorNet.</xsd:documentation>
+		<xsd:documentation>2014-12-02-Subba- Added - SupplierPartNumber</xsd:documentation>
 	</xsd:annotation>
 	<xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="common.xsd"/>
 	<xsd:include schemaLocation="external/ISOCountryCodeType-V2006.xsd"/>
@@ -436,21 +437,27 @@ Offering: Magento,   Interfaces and Tools</xsd:documentation>
 					<xsd:documentation>Identifies unique color variant for the item. 
 Allowable Values: Text string
 Required: Yes
-Length: 4000
+Length: 40
 Default Value: blank
-Restrictions: N/A
-Aliases: N/A</xsd:documentation>
+Restrictions: OMS 40 character limit
+Aliases: N/A
+Offering: Magento, Interfaces and Tools</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
-					<xsd:restriction base="Simple.StringType.Description.Value">
+					<xsd:restriction base="Simple.StringType.40">
 						<xsd:minLength value="1"/>
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:element>
 			<xsd:element name="Description" maxOccurs="unbounded">
 				<xsd:annotation>
-					<xsd:documentation>
-
+					<xsd:documentation>Description of unique color variant for the item. 
+Allowable Values: Text string
+Required: Yes
+Length: 40
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
 Offering: Magento, Interfaces and Tools</xsd:documentation>
 				</xsd:annotation>
 				<xsd:complexType>
@@ -786,6 +793,18 @@ Offering: Exchange Platform, Webstore</xsd:documentation>
 Allowable Values: Text string
 Required: No
 Length: 50
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A
+Offering: Exchange Platform, Webstore</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="SupplierPartNumber" type="Complex.StyleType.StyleID">
+				<xsd:annotation>
+					<xsd:documentation>Specifies Buyer and/or Client assigned SupplierPartNumber
+Allowable Values: Text string
+Required: No
+Length: 15
 Default Value: blank
 Restrictions: N/A
 Aliases: N/A

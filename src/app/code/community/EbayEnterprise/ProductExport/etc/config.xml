@@ -15,7 +15,7 @@
 <config>
 	<modules>
 		<EbayEnterprise_ProductExport>
-			<version>1.4.0</version>
+			<version>1.5.0</version>
 		</EbayEnterprise_ProductExport>
 	</modules>
 	<global>
@@ -46,7 +46,7 @@
 					<root_node>ItemMaster</root_node>
 					<item_node>Item</item_node>
 					<event_type>ItemMaster</event_type>
-					<schema_location>ItemMaster-1.2.0.xsd</schema_location>
+					<schema_location>ItemMaster.xsd</schema_location>
 					<is_validate>true</is_validate>
 				</item_map>
 				<content_map>

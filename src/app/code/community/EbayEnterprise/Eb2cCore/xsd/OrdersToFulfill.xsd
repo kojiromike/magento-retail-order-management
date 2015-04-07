@@ -28,6 +28,8 @@
 		<xs:documentation>20131003-Manish Vijayvergiya-Added-ProxyRelationshipType andProxyPickupAddress, CommentName for open invoice, VATInoiceNumber for VAT Invoice</xs:documentation>
 		<xs:documentation>20131018-Manish Vijayvergiya-Added-length for Associate details, Customization section deprecated as ServicesInstructions was added  </xs:documentation>
 		<xs:documentation>20140409 - Leslie Polss - Update terminology in annotations, from GSI and EB2C to eBay Enterprise and Exchange Platform.</xs:documentation>
+		<xs:documentation>20140619 - Mike McKenney - Update ReturnLabel.MaxiCode to be a complextype and added the fields under MaxiCode for separation of the individual parts of the code.</xs:documentation>
+		<xs:documentation>20140918 - Manish Vijayvergiya - Update JurisdictionId to be string from integer - US17266. Added simple type for string 6 and 9 as well.</xs:documentation>
 	</xs:annotation>
 	<xs:element name="OrdersToFulfill">
 		<xs:complexType>
@@ -1171,10 +1173,126 @@ Aliases: N/A</xs:documentation>
 															<xs:documentation>Secondary Return Label ID</xs:documentation>
 														</xs:annotation>
 													</xs:element>
-													<xs:element name="MaxiCode" type="String_256">
+													<xs:element name="MaxiCode" minOccurs="0">
 														<xs:annotation>
-															<xs:documentation>MaxiCode</xs:documentation>
+															<xs:documentation>Encapsulates the MaxiCode of the return location to be included on the return label. </xs:documentation>
 														</xs:annotation>
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="TransportationFormat" type="Int_2">
+																	<xs:annotation>
+																		<xs:documentation>Unique Trans format number assigned to the MaxiCode. 
+Allowable Values: Text string 
+Required: No
+Length: 2
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="DateValue" type="Int_2">
+																	<xs:annotation>
+																		<xs:documentation>Unique DateValue assigned to the MaxiCode. 
+Allowable Values: Text string 
+Required: No
+Length: 2
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="JulianPickupDate" type="Int_3">
+																	<xs:annotation>
+																		<xs:documentation>Unique Julian Date assigned to the MaxiCode. 
+Allowable Values: Text string 
+Required: No
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="DestinationCity" type="String_20">
+																	<xs:annotation>
+																		<xs:documentation>DestinationCity</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="DestinationState" type="String_2">
+																	<xs:annotation>
+																		<xs:documentation>DestinationState</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="DestinationZipCode" type="Int_9">
+																	<xs:annotation>
+																		<xs:documentation>Unique Postal Code assigned to the MaxiCode. 
+Allowable Values: Text string 
+Required: No
+Length: 9
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="DestinationCountryCode" type="Int_3">
+																	<xs:annotation>
+																		<xs:documentation>Unique country code assigned to the MaxiCode. 
+Allowable Values: Text string 
+Required: No
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="AddressValidation" type="String_1">
+																	<xs:annotation>
+																		<xs:documentation>AddressValidation</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="UPSService" type="Int_3">
+																	<xs:annotation>
+																		<xs:documentation>Unique UPS service number assigned to the MaxiCode. 
+Allowable Values: Text string 
+Required: No
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="UPSAccountNumber" type="String_6">
+																	<xs:annotation>
+																		<xs:documentation>UPSAccountNumber</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="TrackingNumber" type="String_10">
+																	<xs:annotation>
+																		<xs:documentation>TrackingNumber</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="SCAC" type="String_4">
+																	<xs:annotation>
+																		<xs:documentation>DestinationCity</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="PackageCode" type="String_3">
+																	<xs:annotation>
+																		<xs:documentation>PackageCode</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+																<xs:element name="PackageWeight" type="Int_3">
+																	<xs:annotation>
+																		<xs:documentation>Unique Weight assigned to the MaxiCode. 
+Allowable Values: Text string 
+Required: No
+Length: 3
+Default Value: blank
+Restrictions: N/A
+Aliases: N/A</xs:documentation>
+																	</xs:annotation>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
 													</xs:element>
 													<xs:element name="PostalBarCode" type="String_256">
 														<xs:annotation>
@@ -1767,7 +1885,7 @@ Restrictions: N/A
 Aliases: N/A</xs:documentation>
 														</xs:annotation>
 													</xs:element>
-													<xs:element name="JurisdictionId" type="Int_9" minOccurs="0">
+													<xs:element name="JurisdictionId" type="String_9" minOccurs="0">
 														<xs:annotation>
 															<xs:documentation>The Vertex-specific number that identifies a juridiction. 
 Allowable Values: Integer
@@ -2806,6 +2924,16 @@ Aliases: N/A</xs:documentation>
 	<xs:simpleType name="String_5">
 		<xs:restriction base="xs:string">
 			<xs:maxLength value="5"/>
+		</xs:restriction>
+	</xs:simpleType>
+		<xs:simpleType name="String_6">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="6"/>
+		</xs:restriction>
+	</xs:simpleType>
+		<xs:simpleType name="String_9">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="9"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="String_10">

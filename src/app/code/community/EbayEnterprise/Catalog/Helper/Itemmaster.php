@@ -16,6 +16,11 @@
 class EbayEnterprise_Catalog_Helper_Itemmaster
 	extends EbayEnterprise_Catalog_Helper_Pim
 {
+	// Max length of the SupplierPartNumber element in the export feed.
+	const SUPPLIER_PART_NUMBER_MAX_LENGTH = 35;
+	// Max length of the SupplierPrefix element in the export feed.
+	const DROP_SHIP_SUPPLIER_PREFIX_MAX_LENGTH = 15;
+
 	/**
 	 * Get a collection of color attribute options within the scope of a given
 	 * store view.
@@ -302,12 +307,76 @@ class EbayEnterprise_Catalog_Helper_Itemmaster
 	 */
 	public function passGiftCard($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
 	{
+		$fragment = $doc->createDocumentFragment();
 		if ($product->getTypeId() == Enterprise_GiftCard_Model_Catalog_Product_Type_Giftcard::TYPE_GIFTCARD) {
-			$fragment = $doc->createDocumentFragment();
 			$fragment->appendChild($doc->createElement('GiftCardFacing', $product->getName()));
 			$fragment->appendChild($doc->createElement('GiftCardTenderCode', $product->getGiftCardTenderCode()));
-			return $fragment;
 		}
-		return null;
+		// MaxGCAmount element must always be present but may be empty. This
+		// "should" be optional but currently is not. Once it is, this element
+		// should only be included for gift cards and when there is a value to include.
+		$fragment->appendChild($doc->createElement('MaxGCAmount', $product->getOpenAmountMax()));
+		return $fragment;
+	}
+	/**
+	 * Translate the drop ship supplier prefix attribute. Should only be
+	 * included if the attribute has a value. Value will be truncated to 15
+	 * characters.
+	 * @param  string
+	 * @param  string
+	 * @param  Mage_Catalog_Model_Product
+	 * @param  DOMDocument
+	 * @return DOMNode|null
+	 */
+	public function passDropShipSupplierPrefix($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		return $this->passStringIf(substr($attrValue, 0, self::DROP_SHIP_SUPPLIER_PREFIX_MAX_LENGTH), $attribute, $product, $doc);
+	}
+	/**
+	 * Translate the supplier part number attribute. Should only be included if
+	 * the attribute has a value. Value will be truncated to 35 characters.
+	 * @param  string
+	 * @param  string
+	 * @param  Mage_Catalog_Model_Product
+	 * @param  DOMDocument
+	 * @return DOMNode|null
+	 */
+	public function passSupplierPartNumber($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		return $this->passStringIf(substr($attrValue, 0, self::SUPPLIER_PART_NUMBER_MAX_LENGTH), $attribute, $product, $doc);
+	}
+	/**
+	 * Static value for subscription enabled. Currently unsupported. Always
+	 * returns false.
+	 *
+	 * To be removed when element is made optional in the XSD.
+	 *
+	 * @param  string
+	 * @param  string
+	 * @param  Mage_Catalog_Model_Product
+	 * @param  DOMDocument
+	 * @return DOMNode|null
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passSubscriptionEligible($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		return $this->passString('false', $attribute, $product, $doc);
+	}
+	/**
+	 * Static value for the subscription type. Currently unsupported. Always
+	 * returns 'None'.
+	 *
+	 * To be removed when element is made optional in the XSD.
+	 *
+	 * @param  string
+	 * @param  string
+	 * @param  Mage_Catalog_Model_Product
+	 * @param  DOMDocument
+	 * @return DOMNode|null
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+	 */
+	public function passSubscriptionType($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
+	{
+		return $this->passString('None', $attribute, $product, $doc);
 	}
 }

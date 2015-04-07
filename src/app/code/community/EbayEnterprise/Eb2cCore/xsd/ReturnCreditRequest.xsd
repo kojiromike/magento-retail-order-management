@@ -20,6 +20,7 @@
 		<xs:documentation>20110111-Manish Vijayvergiya - Corrected Schema</xs:documentation>
 		<xs:documentation>20131111-Manish Vijayvergiya-Changed-length of ClientItemId to be 35 from 15, CorrelationId to be optional, added GsiCatalogId</xs:documentation>
 		<xs:documentation>20140409 - Leslie Polss - Update terminology in annotations, from GSI and EB2C to eBay Enterprise and Exchange Platform.</xs:documentation>
+		<xs:documentation>20140930 - Subba Reddy - Added MarketplaceOrderId</xs:documentation>
 	</xs:annotation>
 	<xs:element name="ReturnCreditRequest">
 		<xs:complexType>
@@ -225,6 +226,16 @@
 										<xs:element name="OriginalCustomerOrderId" minOccurs="0">
 											<xs:annotation>
 												<xs:documentation>The Original Order Id that is known to the customer.  Typically this is assigned by the Web or Order Source System.  This is required if the OriginalOMSOrderId is not present.</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="30"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="MarketplaceOrderId" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>For clients with MP who are unable to send the OriginalOMSOrderId in the RCR’s, we have found that OMS system will throw exception since they definitely need this value at their system for MP RCR’s to pass. The only work around is that OMS can still work with the 'Marketplace Order ID' – but they need it as OMS field “ExtnReferenceOrderNo”.</xs:documentation>
 											</xs:annotation>
 											<xs:simpleType>
 												<xs:restriction base="xs:string">

@@ -27,7 +27,6 @@ class EbayEnterprise_ProductImageExport_Test_Model_Image_ExportTest
 	public function testProccess()
 	{
 		$storeId = 5;
-		$startDateTime = '2015-04-07T20:22:13+00:00';
 		$stores = array($storeId => Mage::getModel('core/store'));
 
 		$helperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/data')

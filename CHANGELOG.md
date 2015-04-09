@@ -1,13 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## UNRELEASED
+## [1.5.0-beta-1] -  2015-04-09
 ### Fixed
-- The PayPal address status field from the get express reply was being ignored.
+- PayPal module is not receiving the address status from the api
+- ProductImageExport generates new files even when no images/products have changed
+- Logger Context Helper Undefined Index Error
 
 ### Changed
-- Exported files are logged as critical and will no longer be resent when an acknowledgement is not received.
-
+- Handle unacknowledged feeds with a CRIT log instead of resending the feed file
 
 ## [1.5.0-alpha-6] -  2015-03-26
 ### Added
@@ -16,7 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Order create has been refactored to use the [RetailOrderManagement-SDK](https://github.com/eBayEnterprise/RetailOrderManagement-SDK)
-- Refactor modules to use events to inject data into the order create request.
+- Refactor modules to use events to inject data into the order create request
 
 ### Removed
 - Order custom attribute mappings
@@ -230,6 +231,8 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.5.0-beta-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-6...1.5.0-beta-1
+[1.5.0-alpha-6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-5...1.5.0-alpha-6
 [1.5.0-alpha-6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-5...1.5.0-alpha-6
 [1.5.0-alpha-5]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-4...1.5.0-alpha-5
 [1.5.0-alpha-4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-3...1.5.0-alpha-4

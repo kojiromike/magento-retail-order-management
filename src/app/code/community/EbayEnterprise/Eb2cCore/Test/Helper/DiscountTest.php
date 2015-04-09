@@ -24,6 +24,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DiscountTest
 	public function setUp()
 	{
 		parent::setUp();
+		$this->_replaceSession('core/session');
 		$this->_item = Mage::getModel('sales/order_item');
 		// get a pricegroup payload
 		$this->_payload = Mage::helper('eb2ccore')

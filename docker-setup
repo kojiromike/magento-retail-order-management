@@ -7,10 +7,36 @@ main() {
         exec bash "$@"
     fi
     makedirs
+    composer_install "$@"
     fetch_unpack_magento "$magento_version"
     install_magento
     copy_testkit
     validate
+}
+
+composer_install() {
+    for arg; do
+        case "$arg" in
+            --skip-composer|-s) return;;
+        esac
+    done
+    # Directory/finding issues make it a mess to install the extension
+    # from this script. Temporarily remove the extension from the list
+    # of things to install.
+    # Ugh.
+    php -r '
+        $lock = json_decode(file_get_contents("tests/composer.docker.lock"), true);
+        $lock["packages"] = array_filter($lock["packages"], function($p) {
+            return $p["name"] !== "ebayenterprise/magento-retail-order-management";
+        });
+        echo json_encode($lock);
+    ' > build/magento/composer.lock
+    cp tests/composer.docker.json build/magento/composer.json
+    composer install --no-interaction \
+                     --optimize-autoloader \
+                     --working-dir build/magento
+    cp tests/composer.docker.lock build/magento/composer.lock
+    PATH="/srv/magento/build/magento/vendor/bin:$PATH"
 }
 
 makedirs() {
@@ -113,7 +139,6 @@ copy_testkit() {
     cp tests/composer.xml build/magento/app/etc/
     cp tests/local.xml.phpunit.docker build/magento/app/etc/local.xml.phpunit
     cp tests/phpunit.xml.dist build/magento/
-    cp tests/composer.docker.json build/magento/composer.json
 }
 
 validate() (

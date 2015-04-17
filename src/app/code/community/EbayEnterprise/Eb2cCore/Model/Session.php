@@ -109,7 +109,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param  Mage_Sales_Model_Quote $quote Quote object to get data from
 	 * @return string|null Coupon code applied to the quote
 	 */
-	protected function _extractQuoteCouponData(Mage_Sales_Model_Quote $quote) {
+	protected function _extractQuoteCouponData(Mage_Sales_Model_Quote $quote)
+	{
 		return $quote->getCouponCode();
 	}
 	/**
@@ -117,7 +118,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param  Mage_Sales_Model_Quote $quote Quote object to extract data from
 	 * @return array Array of billing address data
 	 */
-	protected function _extractQuoteBillingData(Mage_Sales_Model_Quote $quote) {
+	protected function _extractQuoteBillingData(Mage_Sales_Model_Quote $quote)
+	{
 		$address = $quote->getBillingAddress();
 		return $address ?
 			$this->_extractAddressData($address) :
@@ -170,7 +172,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param array $newAddress Array of address data extracted from a quote
 	 * @return array Array containing new address data if address has changed, empty array of addresses match
 	 */
-	protected function _diffBilling(array $oldAddress, array $newAddress) {
+	protected function _diffBilling(array $oldAddress, array $newAddress)
+	{
 		return ($oldAddress !== $newAddress) ?
 			array('billing' => $newAddress) :
 			array();
@@ -183,7 +186,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param  array $newCoupon current coupon data
 	 * @return array Array of coupon data if coupon has changed, empty array otherwise
 	 */
-	protected function _diffCoupon($oldCoupon, $newCoupon) {
+	protected function _diffCoupon($oldCoupon, $newCoupon)
+	{
 		return ($oldCoupon !== $newCoupon) ?
 			array('coupon' => $newCoupon) :
 			array();
@@ -195,7 +199,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param  array $newShipping current shipping data
 	 * @return array Array of shipping data if data has changed, empty array otherwise
 	 */
-	protected function _diffShipping($oldShipping, $newShipping) {
+	protected function _diffShipping($oldShipping, $newShipping)
+	{
 		return ($oldShipping !== $newShipping) ?
 			array('shipping' => $newShipping) :
 			array();
@@ -208,7 +213,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param  array $newItems Item data extracted from a quote
 	 * @return array Array of item data if any items have changed, empty array otherwise
 	 */
-	protected function _diffSkus($oldItems, $newItems) {
+	protected function _diffSkus($oldItems, $newItems)
+	{
 		$skuDiff = array();
 		foreach ($newItems as $sku => $details) {
 			// only care if item qty changes - none of the other item details,
@@ -274,7 +280,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param  array $items Array of items data
 	 * @return bool True if the data contains virtual items, false if not
 	 */
-	protected function _itemsIncludeVirtualItem($items) {
+	protected function _itemsIncludeVirtualItem($items)
+	{
 		return $this->_anyItem($items, 'virtual');
 	}
 	/**
@@ -282,7 +289,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param  array $items Array of items data
 	 * @return bool True if the data contains virtual items, false if not
 	 */
-	protected function _itemsIncludeManagedItem($items) {
+	protected function _itemsIncludeManagedItem($items)
+	{
 		return $this->_anyItem($items, 'managed');
 	}
 
@@ -339,7 +347,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param  array $quoteDiff Array of changes made to the quote
 	 * @return bool true iff an inventory quantity request should be made
 	 */
-	protected function _changeRequiresQuantityUpdate($quoteData, $quoteDiff) {
+	protected function _changeRequiresQuantityUpdate($quoteData, $quoteDiff)
+	{
 		return isset($quoteData['skus']) &&
 			(isset($quoteDiff['skus']) && $this->_itemsIncludeManagedItem($quoteDiff['skus']));
 	}
@@ -352,7 +361,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param  array $quoteDiff Array of changes made to the quote
 	 * @return bool true iff an inventory details request should be made
 	 */
-	protected function _changeRequiresDetailsUpdate($quoteData, $quoteDiff) {
+	protected function _changeRequiresDetailsUpdate($quoteData, $quoteDiff)
+	{
 		return isset($quoteData['skus']) && (
 			(isset($quoteDiff['skus']) && $this->_itemsIncludeManagedItem($quoteDiff['skus'])) ||
 			(isset($quoteDiff['shipping']) && $this->_itemsIncludeManagedItem($quoteData['skus']))
@@ -365,7 +375,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param $value
 	 * @return self
 	 */
-	public function setTaxUpdateRequired($value) {
+	public function setTaxUpdateRequired($value)
+	{
 		return $this->setData('tax_update_required_flag', $value || $this->getTaxUpdateRequiredFlag());
 	}
 
@@ -375,7 +386,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param $value
 	 * @return self
 	 */
-	public function setQuantityUpdateRequired($value) {
+	public function setQuantityUpdateRequired($value)
+	{
 		return $this->setData('quantity_update_required_flag', $value || $this->getQuantityUpdateRequiredFlag());
 	}
 
@@ -385,49 +397,56 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * @param $value
 	 * @return self
 	 */
-	public function setDetailsUpdateRequired($value) {
+	public function setDetailsUpdateRequired($value)
+	{
 		return $this->setData('details_update_required_flag', $value || $this->getDetailsUpdateRequiredFlag());
 	}
 	/**
 	 * Get that flag indicating that changes to the quote require tax data to be updated
 	 * @return bool Should tax details be recollected
 	 */
-	public function isTaxUpdateRequired() {
+	public function isTaxUpdateRequired()
+	{
 		return $this->getTaxUpdateRequiredFlag();
 	}
 	/**
 	 * Get the flag indicating that changes to the quote require inventory quantity to be rechecked.
 	 * @return bool Should inventory details be rechecked
 	 */
-	public function isQuantityUpdateRequired() {
+	public function isQuantityUpdateRequired()
+	{
 		return $this->getQuantityUpdateRequiredFlag();
 	}
 	/**
 	 * Get the flag indicating that changes to the quote require inventory details to be recollected.
 	 * @return bool Should inventory details be recollected
 	 */
-	public function isDetailsUpdateRequired() {
+	public function isDetailsUpdateRequired()
+	{
 		return $this->getDetailsUpdateRequiredFlag();
 	}
 	/**
 	 * Reset the tax flag
 	 * @return self
 	 */
-	public function resetTaxUpdateRequired() {
+	public function resetTaxUpdateRequired()
+	{
 		return $this->unsTaxUpdateRequiredFlag();
 	}
 	/**
 	 * Reset the inventory quantity flag
 	 * @return self
 	 */
-	public function resetQuantityUpdateRequired() {
+	public function resetQuantityUpdateRequired()
+	{
 		return $this->unsQuantityUpdateRequiredFlag();
 	}
 	/**
 	 * Reset the inventory details flag
 	 * @return self
 	 */
-	public function resetDetailsUpdateRequired() {
+	public function resetDetailsUpdateRequired()
+	{
 		return $this->unsDetailsUpdateRequiredFlag();
 	}
 	/**
@@ -435,7 +454,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 	 * NOTE: method exists for explicitness.
 	 * @return array Array of changes made to the quote
 	 */
-	public function getQuoteChanges() {
+	public function getQuoteChanges()
+	{
 		return $this->getData('quote_changes');
 	}
 	/**

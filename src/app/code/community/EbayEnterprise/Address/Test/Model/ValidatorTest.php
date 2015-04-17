@@ -1246,7 +1246,8 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest
 	 * @param  bool   $result
 	 * @dataProvider provideNonEmptyGetters
 	 */
-	public function testShouldValidateIfIsMissingRequiredFields($nonEmptyGetters, $result) {
+	public function testShouldValidateIfIsMissingRequiredFields($nonEmptyGetters, $result)
+	{
 		$address = $this->getModelMock('customer/address', $nonEmptyGetters);
 		$validator = $this->getModelMock('ebayenterprise_address/validator', [
 			'_hasAddressBeenValidated',

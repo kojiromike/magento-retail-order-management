@@ -798,7 +798,8 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest
 	 * @param  bool $changeFlag  Should these changes require details updates
 	 * @dataProvider providerUpdateWithQuote
 	 */
-	public function testUpdateWithQuote($currFlag, $changeFlag) {
+	public function testUpdateWithQuote($currFlag, $changeFlag)
+	{
 		$quote = $this->getModelMock('sales/quote');
 		// Stub 'init' method instead of disabling constructor
 		// to avoid headers already sent error.

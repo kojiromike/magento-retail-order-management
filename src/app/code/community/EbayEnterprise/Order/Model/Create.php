@@ -707,7 +707,8 @@ class EbayEnterprise_Order_Model_Create
 	 * @param Mage_Customer_Model_Address_Abstract
 	 * @return bool
 	 */
-	protected function _isAddressBilling(Mage_Customer_Model_Address_Abstract $address) {
+	protected function _isAddressBilling(Mage_Customer_Model_Address_Abstract $address)
+	{
 		return $address->getAddressType() === Mage_Customer_Model_Address_Abstract::TYPE_BILLING;
 	}
 

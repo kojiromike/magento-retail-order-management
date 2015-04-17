@@ -23,7 +23,8 @@
  * <code>
  * // Return the mapped type_id if the product doesn't already have one.
  * // Otherwise return the product's existing value.
- * public function getTypeIdIfNew(DOMNodeList $nodes, Mage_Catalog_Model_Product $product) {
+ * public function getTypeIdIfNew(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
+ * {
  *   return $product->getTypeId() ?: $nodes->item(0)->nodeValue;
  * }
  * </code>

@@ -41,7 +41,14 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 	protected $_httpApi;
 	/** @var EbayEnterprise_Order_Helper_Item_Selection */
 	protected $_itemSelection;
-
+	/** @var Mage_Sales_Model_Order_Address */
+	protected $_billAddress;
+	/** @var int */
+	protected $_billAddressId = 1;
+	/** @var Mage_Sales_Model_Order_Address */
+	protected $_shipAddress;
+	/** @var int */
+	protected $_shipAddressId = 2;
 	/** @var string */
 	protected $_expectedLevelOfService =
 		EbayEnterprise_Order_Model_Create::LEVEL_OF_SERVICE_REGULAR;
@@ -101,8 +108,8 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 		]);
 		$this->_item1 = $this->getModelMock('sales/order_item', []);
 		$this->_item2 = $this->getModelMock('sales/order_item', []);
-		$this->_billAddress = Mage::getModel('sales/order_address', ['address_type' => Mage_Customer_Model_Address_Abstract::TYPE_BILLING]);
-		$this->_shipAddress = Mage::getModel('sales/order_address', ['address_type' => Mage_Customer_Model_Address_Abstract::TYPE_SHIPPING]);
+		$this->_billAddress = Mage::getModel('sales/order_address', ['address_type' => Mage_Customer_Model_Address_Abstract::TYPE_BILLING, 'entity_id' => $this->_billAddressId]);
+		$this->_shipAddress = Mage::getModel('sales/order_address', ['address_type' => Mage_Customer_Model_Address_Abstract::TYPE_SHIPPING, 'entity_id' => $this->_shipAddressId]);
 		// prevent magento events from actually triggering
 		Mage::app()->disableEvents();
 	}
@@ -114,33 +121,15 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 	}
 
 	/**
-	 * Provide possible order address types, used to determine how to filter
-	 * order items.
-	 *
-	 * @return array
+	 * Test filtering items by address. Addresses with an order_address_id
+	 * matching the address' id should be returned.
 	 */
-	public function provideAddressTypes()
+	public function testGetItemsForAddress()
 	{
-		return [
-			['billing'],
-			['shipping'],
-		];
-	}
-
-	/**
-	 * Test filtering items by address type. Billing address should be processed
-	 * with any virtual items, shipping address with all other items.
-	 *
-	 * @param string
-	 * @dataProvider provideAddressTypes
-	 */
-	public function testGetItemsForAddress($addressType)
-	{
-		$address = ($addressType === 'billing') ? $this->_billAddress : $this->_shipAddress;
-		$virtualItem = Mage::getModel('sales/order_item', ['is_virtual' => '1']);
-		$simpleItem = Mage::getModel('sales/order_item', ['is_virtual' => '0']);
+		$address = $this->_shipAddress;
+		$virtualItem = Mage::getModel('sales/order_item', ['order_address_id' => $this->_billAddressId]);
+		$simpleItem = Mage::getModel('sales/order_item', ['order_address_id' => $this->_shipAddressId]);
 		$this->_order->addItem($virtualItem)->addItem($simpleItem);
-		$address->setAddressType($addressType);
 		// Stubs
 		$api = $this->_httpApi;
 		$config = $this->getModelMock('eb2ccore/config_registry');
@@ -163,11 +152,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 			[$address, $this->_order->getItemsCollection()]
 		);
 		$this->assertCount(1, $itemsForAddress);
-		if ($addressType === 'billing') {
-			$this->assertSame($virtualItem, $itemsForAddress[0]);
-		} else {
-			$this->assertSame($simpleItem, $itemsForAddress[0]);
-		}
+		$this->assertSame($simpleItem, $itemsForAddress[0]);
 	}
 
 	/**
@@ -178,8 +163,8 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 	{
 		// Create an item that is exptected to be excluded from the OCR and
 		// an items that should be included.
-		$excludedItem = Mage::getModel('sales/order_item', ['is_virtual' => '0']);
-		$includedItem = Mage::getModel('sales/order_item', ['is_virtual' => '0']);
+		$excludedItem = Mage::getModel('sales/order_item', ['order_address_id' => $this->_shipAddressId]);
+		$includedItem = Mage::getModel('sales/order_item', ['order_address_id' => $this->_shipAddressId]);
 		$this->_order->addItem($excludedItem)->addItem($includedItem);
 		// Stubs
 		$api = $this->_httpApi;

@@ -51,7 +51,7 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Observers
 	{
 		$event = $observer->getEvent();
 		Mage::getModel('eb2cgiftwrap/order_create_gifting')->injectGifting(
-			$event->getOrder(),
+			$event->getAddress(),
 			$event->getShipGroupPayload()
 		);
 		return $this;

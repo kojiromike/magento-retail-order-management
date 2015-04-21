@@ -143,7 +143,7 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest
 		$handler->expects($this->any())
 			->method('_isShippingPriceGroupRequired')
 			->will($this->returnValue(false));
-		$handler->buildOrderItem($this->_payload, $this->_itemStub, $this->_orderStub, $this->_addressStub, 1, $this->_chargeType);
+		$handler->buildOrderItem($this->_payload, $this->_itemStub, $this->_orderStub, $this->_addressStub, 1, $this->_chargeType, true);
 
 		$this->assertSame('thesku', $this->_payload->getItemId());
 		$this->assertSame(null, $this->_payload->getMerchandisePricing()->getRemainder());
@@ -179,21 +179,11 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest
 		$this->assertNull($this->_payload->getColorId());
 	}
 
-	public function provideShippingPriceGroupInclusionCases()
-	{
-		return [
-			['FLATRATE', 1],
-			['NOTFLATRATE', 1],
-			['NOTFLATRATE', 2],
-			];
-	}
-
 	/**
 	 * verify
 	 * - shipping price group is included when it should be
-	 * @dataProvider provideShippingPriceGroupInclusionCases
 	 */
-	public function testBuildOrderItemsWithShippingPriceGroup($chargeType, $lineNumber)
+	public function testBuildOrderItemsWithShippingPriceGroup()
 	{
 		$handler = $this->getModelMock(
 			'ebayenterprise_order/create_orderitem',
@@ -222,8 +212,48 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest
 			$this->_itemStub,
 			$this->_orderStub,
 			$this->_addressStub,
-			$lineNumber,
-			$chargeType
+			3,
+			'ANYTHING',
+			true
+		);
+	}
+
+	/**
+	 * verify
+	 * - shipping price group is excluded when it should be
+	 */
+	public function testBuildOrderItemsWithNoShippingPriceGroup()
+	{
+		$handler = $this->getModelMock(
+			'ebayenterprise_order/create_orderitem',
+			['_loadOrderItemOptions', '_prepareMerchandisePricing', '_prepareShippingPriceGroup']
+		);
+		$handler->expects($this->any())
+			->method('_loadOrderItemOptions')
+			->will($this->returnValue($this->_optionValueCollectionStub));
+		$handler->expects($this->any())
+			->method('_prepareMerchandisePricing')
+			->will($this->returnSelf());
+		$handler->expects($this->never())
+			->method('_prepareShippingPriceGroup')
+			->will($this->returnSelf());
+		// add fake color option value
+		$this->_optionValueCollectionStub->addItem(
+			Mage::getModel('eav/entity_attribute_option', [
+			'attribute_code' => 'color',
+			'option_id' => 15,
+			'value' => 'Black',
+			'default_value' => null,
+			])
+		);
+		$handler->buildOrderItem(
+			$this->_payload,
+			$this->_itemStub,
+			$this->_orderStub,
+			$this->_addressStub,
+			1,
+			'ANYTHING',
+			false
 		);
 	}
 
@@ -252,7 +282,8 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest
 			$this->_orderStub,
 			$this->_addressStub,
 			$lineNumber,
-			$chargeType
+			$chargeType,
+			true
 		);
 		$pg = $this->_payload->getShippingPricing();
 		$this->assertNotNull($pg);
@@ -283,7 +314,8 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest
 			$this->_orderStub,
 			$this->_addressStub,
 			$lineNumber,
-			$chargeType
+			$chargeType,
+			true
 		);
 		// merchandise price group should always exist
 		$pg = $this->_payload->getMerchandisePricing();

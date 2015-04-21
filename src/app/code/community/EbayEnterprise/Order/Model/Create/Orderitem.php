@@ -72,6 +72,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 	 * @param  Mage_Sales_Model_Order_Address
 	 * @param  int
 	 * @param  string
+	 * @param  bool
 	 * @return IOrderItem
 	 */
 	public function buildOrderItem(
@@ -80,12 +81,13 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 		Mage_Sales_Model_Order $order,
 		Mage_Sales_Model_Order_Address $address,
 		$lineNumber,
-		$shippingChargeType
+		$shippingChargeType,
+		$includeShipping = false
 	) {
 		$merch = $payload->getMerchandisePricing();
 		$this->_prepareMerchandisePricing($item, $merch);
 		$romShippingMethod = $this->_coreHelper->lookupShipMethod($order->getShippingMethod());
-		if ($this->_isShippingPriceGroupRequired($shippingChargeType, $lineNumber)) {
+		if ($includeShipping) {
 			$this->_prepareShippingPriceGroup($address, $payload);
 		}
 		list($itemSize, $itemSizeId) = $this->_getItemSizeInfo($item);
@@ -135,7 +137,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 	protected function _prepareShippingPriceGroup(Mage_Sales_Model_Order_Address $address, IOrderItem $payload)
 	{
 		$shippingPriceGroup = $payload->getEmptyPriceGroup();
-		$shippingPriceGroup->setAmount((float) $address->getOrder()->getShippingAmount());
+		$shippingPriceGroup->setAmount((float) $address->getShippingAmount());
 		$this->_discountHelper->transferDiscounts($address, $shippingPriceGroup);
 		$payload->setShippingPricing($shippingPriceGroup);
 		return $this;
@@ -201,17 +203,5 @@ class EbayEnterprise_Order_Model_Create_Orderitem
 	protected function _getItemSizeInfo(Mage_Sales_Model_Order_Item $item)
 	{
 		return $this->_getOptionInfo('size', $item);
-	}
-
-	/**
-	 * return true if the order item needs to have the shipping price group included
-	 * @param  string
-	 * @param  int
-	 * @return boolean
-	 */
-	protected function _isShippingPriceGroupRequired($chargeType, $lineNumber)
-	{
-		return $chargeType !== EbayEnterprise_Order_Model_Create::SHIPPING_CHARGE_TYPE_FLATRATE ||
-			$lineNumber === 1;
 	}
 }

@@ -579,8 +579,11 @@ class EbayEnterprise_Order_Model_Create
 		Mage_Sales_Model_Order $order
 	) {
 		$itemReferences = $shipGroup->getItemReferences();
+		$shippingChargeType = $shipGroup->getChargeType();
+		// Shipping will always be included for the first item - flat-rate or
+		// non-flat-rate shipping.
+		$includeShipping = true;
 		foreach ($items as $item) {
-			$shippingChargeType = $shipGroup->getChargeType();
 			$itemPayload = $orderItems->getEmptyOrderItem();
 			$this->_defaultItemHandler->buildOrderItem(
 				$itemPayload,
@@ -588,7 +591,8 @@ class EbayEnterprise_Order_Model_Create
 				$order,
 				$address,
 				$this->_nextLineNumber += 1,
-				$shippingChargeType
+				$shippingChargeType,
+				$includeShipping
 			);
 			Mage::dispatchEvent($this->_orderItemEvent, [
 				'item' => $item,
@@ -597,10 +601,15 @@ class EbayEnterprise_Order_Model_Create
 				'address' => $address,
 				'line_number' => $this->_nextLineNumber,
 				'shipping_charge_type' => $shippingChargeType,
+				'include_shipping' => $includeShipping,
 			]);
 			$itemReferences->offsetSet(
 				$itemReferences->getEmptyItemReference()->setReferencedItem($itemPayload)
 			);
+			// For non-flat-rate shipping, include shipping for every item.
+			// For flat-rate shipping, should only be included for the first
+			// item in the ship group.
+			$includeShipping = $shippingChargeType !== self::SHIPPING_CHARGE_TYPE_FLATRATE;
 		}
 		$shipGroup->setItemReferences($itemReferences);
 		return $shipGroup;
@@ -620,11 +629,13 @@ class EbayEnterprise_Order_Model_Create
 		Mage_Customer_Model_Address_Abstract $address,
 		Mage_Sales_Model_Resource_Order_Item_Collection $orderItems
 	) {
+		// All items will have an `order_address_id` matching the id of the
+		// address the item ships to (including virtual items which "ship" to
+		// the billing address).
+		// Filter the given collection instead of using address methods to get
+		// items to prevent loading separate item collections for each address.
 		return $this->_itemSelection->selectFrom(
-			$orderItems->getItemsByColumnValue(
-				'is_virtual',
-				$this->_isAddressBilling($address)
-			)
+			$orderItems->getItemsByColumnValue('order_address_id', $address->getId())
 		);
 	}
 

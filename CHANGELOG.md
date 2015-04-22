@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+### Fixed
+- Store language codes are not being properly validated in the admin
+
 ## [1.6.0-alpha-1] -  2015-04-24
 ### Fixed
 - Invalid tax response does not cause Order Create Request tax header to be set properly

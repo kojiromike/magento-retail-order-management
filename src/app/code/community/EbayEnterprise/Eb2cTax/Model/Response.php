@@ -253,126 +253,40 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 	}
 
 	/**
-	 * compare an OrderItem element with the corresponding element in the request
-	 * to make sure we got back what we sent.
-	 * return true if all items match; false otherwise.
-	 * @param  EbayEnterprise_Dom_Document $requestDoc  The request document
-	 * @param  EbayEnterprise_Dom_Document $responseDoc The response document
-	 * @return bool
-	 * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+	 * @param  EbayEnterprise_Dom_Document
+	 * @param  EbayEnterprise_Dom_Document
+	 * @return EbayEnterprise_Eb2cTax_Model_Validation_Orderitem
 	 */
-	protected function _validateResponseItems($requestDoc, $responseDoc)
+	protected function _getOrderitemValidationInstance(EbayEnterprise_Dom_Document $requestDoc, EbayEnterprise_Dom_Document $responseDoc)
 	{
-		if (!($requestDoc && $requestDoc->documentElement && $responseDoc && $responseDoc->documentElement)) {
-			$isValid = false;
-			return $isValid;
-		}
-		$isValid = true;
-		$requestXpath = new DOMXPath($requestDoc);
-		$requestXpath->registerNamespace('a', $requestDoc->documentElement->namespaceURI);
-		$responseXpath = new DOMXPath($responseDoc);
-		$responseXpath->registerNamespace('a', $responseDoc->documentElement->namespaceURI);
+		return Mage::getModel('eb2ctax/validation_orderitem', [
+			'request_doc' => $requestDoc,
+			'response_doc' => $responseDoc,
+		]);
+	}
 
-		// foreach request shipgroup
-		$requestShipgroups = $requestXpath->query('//a:ShipGroup');
-		foreach ($requestShipgroups as $shipGroup) {
-			if (!$isValid) {
-				break;
-			}
-			// get the shipgroupid
-			$shipGroupId = $requestXpath->evaluate('string(./@id)', $shipGroup);
-			$sgPath = '//a:ShipGroup[@id="' . $shipGroupId . '"]';
-			// create response shipgroup path
-			// query the response shipgroup
-			$result = $responseXpath->query($sgPath);
-			// if nodelist is empty fail
-			$isValid = $isValid && $result->length === 1;
-			if ($isValid) {
-				$orderItems = $requestXpath->query('./a:Items/a:OrderItem', $shipGroup);
-				foreach ($orderItems as $orderItem) {
-					if (!$isValid) {
-						break;
-					}
-					// create paths for each value to check
-					$val = $requestXpath->evaluate('string(./a:ItemId)', $orderItem);
-					$itemSku = $val;
-					// constructpath to orderitem
-					$resPath = $sgPath . '/a:Items/a:OrderItem/a:ItemId[.="' . $val . '"]';
-					$isValid = $isValid && $responseXpath->query($resPath)->length === 1;
-					$orderItemPath = $sgPath . '/a:Items/a:OrderItem/a:ItemId[.="' . $val . '"]/..';
-					if (!$isValid) {
-						$logData = ['sku' => $val];
-						$logMessage = 'SKU "{sku}" not found in the response';
-						$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
-						// don't bother checking any other fields since they will not be found
-						break;
-					}
-					// create paths for each value to check
-					$val = $requestXpath->evaluate('string(./@lineNumber)', $orderItem);
-					// constructpath to orderitem
-					$resPath = $sgPath . '/a:Items/a:OrderItem[@lineNumber="' . $val . '"]/a:ItemId[.="' . $itemSku . '"]';
-					$isMatch = $responseXpath->query($resPath)->length === 1;
-					if (!$isMatch) {
-						$this->_logMissingInResponse($itemSku, $val, 'lineNumber');
-					}
+	/**
+	 * @param  EbayEnterprise_Dom_Document
+	 * @param  EbayEnterprise_Dom_Document
+	 * @return bool
+	 */
+	protected function _canValidateOrderItem(EbayEnterprise_Dom_Document $requestDoc, EbayEnterprise_Dom_Document $responseDoc)
+	{
+		return ($requestDoc && $requestDoc->documentElement && $responseDoc && $responseDoc->documentElement);
+	}
 
-					// create paths for each value to check
-					$val = $requestXpath->evaluate('string(./a:Quantity)', $orderItem);
-					// constructpath to orderitem
-					$resPath = $orderItemPath . '/a:Quantity[.="' . $val . '"]';
-					$isValid = $isValid && $responseXpath->query($resPath)->length === 1;
-					if (!$isValid) {
-						$this->_logMissingInResponse($itemSku, $val, 'Quantity');
-					}
-
-					// create paths for each value to check
-					$val = $requestXpath->evaluate('string(./a:Pricing/a:Merchandise/a:UnitPrice)', $orderItem);
-					// constructpath to orderitem
-					$resPath = $orderItemPath . '/a:Pricing/a:Merchandise/a:UnitPrice[.="' . $val . '"]';
-					$isValid = $isValid && $responseXpath->query($resPath)->length === 1;
-					if (!$isValid) {
-						$this->_logMissingInResponse($itemSku, $val, 'Pricing/Merchandise/UnitPrice');
-					}
-
-					// create paths for each value to check
-					$val = $requestXpath->evaluate('string(./a:Pricing/a:Shipping/a:Amount)', $orderItem);
-					// constructpath to orderitem
-					$resPath = $orderItemPath . '/a:Pricing/a:Shipping/a:Amount[.="' . $val . '"]';
-					$isMatch = $responseXpath->query($resPath)->length === 1;
-					if (!$isMatch) {
-						$this->_logMissingInResponse($itemSku, $val, 'Pricing/Shipping/Amount');
-					}
-
-					// create paths for each value to check
-					$val = $requestXpath->evaluate('string(./a:ItemDesc)', $orderItem);
-					// constructpath to orderitem
-					$resPath = $orderItemPath . '/a:ItemDesc[.="' . $val . '"]';
-					$isMatch = $responseXpath->query($resPath)->length === 1;
-					if (!$isMatch) {
-						$this->_logMissingInResponse($itemSku, $val, 'ItemDesc');
-					}
-
-					// create paths for each value to check
-					$val = $requestXpath->evaluate('string(./a:HTSCode)', $orderItem);
-					// constructpath to orderitem
-					$resPath = $orderItemPath . '/a:HTSCode[.="' . $val . '"]';
-					$isMatch = $responseXpath->query($resPath)->length === 1;
-					if (!$isMatch) {
-						$this->_logMissingInResponse($itemSku, $val, 'HTSCode');
-					}
-
-					// create paths for each value to check
-					$val = $requestXpath->evaluate('string(./a:Pricing/a:Merchandise/a:Amount)', $orderItem);
-					// constructpath to orderitem
-					$resPath = $orderItemPath . '/a:Pricing/a:Merchandise/a:Amount[.="' . $val . '"]';
-					$isValid = $isValid && $responseXpath->query($resPath)->length === 1;
-					if (!$isValid) {
-						$this->_logMissingInResponse($itemSku, $val, 'Pricing/Merchandise/Amount');
-					}
-				}
-			}
-		}
-		return $isValid;
+	/**
+	 * compare an OrderItem element with the corresponding element in the request
+	 * to make sure we got back what we sent. Return true if all items match; false otherwise.
+	 *
+	 * @param  EbayEnterprise_Dom_Document
+	 * @param  EbayEnterprise_Dom_Document
+	 * @return bool
+	 */
+	protected function _validateResponseItems(EbayEnterprise_Dom_Document $requestDoc, EbayEnterprise_Dom_Document $responseDoc)
+	{
+		return $this->_canValidateOrderItem($requestDoc, $responseDoc)
+			? $this->_getOrderitemValidationInstance($requestDoc, $responseDoc)->validate() : false;
 	}
 
 	/**
@@ -564,18 +478,6 @@ class EbayEnterprise_Eb2cTax_Model_Response extends Varien_Object
 			$message .= "`{$snippet}`";
 		}
 		return $message;
-	}
-
-	/**
-	 * @param $itemSku
-	 * @param $val
-	 * @param $xpathExpr
-	 */
-	protected function _logMissingInResponse($itemSku, $val, $xpathExpr)
-	{
-		$logData = ['item_sku' => $itemSku, 'sku_value' => $val, 'xpath_expression' => $xpathExpr];
-		$logMessage = '{item_sku} "{sku_value}" not found in the response for {$xpath_expression}';
-		$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
 	}
 
 	/**

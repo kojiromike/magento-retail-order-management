@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TaxDutyQuoteResponse xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
+	<Shipping>
+		<ShipGroups>
+			<ShipGroup chargeType="" id="shipGroup_102">
+				<DestinationTarget ref="_102"/>
+				<Items>
+					<OrderItem lineNumber="0">
+						<ItemId>45-MG02-BK-0</ItemId>
+						<ItemDesc>&quot;Mens Lumate</ItemDesc>
+						<HTSCode>6102.20.0010</HTSCode>
+						<Quantity>1</Quantity>
+						<Pricing>
+							<Merchandise>
+								<Amount>20.38</Amount>
+								<TaxData>
+									<TaxClass>17</TaxClass>
+									<Taxes>
+										<Tax taxType="SALES" taxability="TAXABLE">
+											<Situs>ADMINISTRATIVE_ORIGIN</Situs>
+											<Jurisdiction jurisdictionId="31152" jurisdictionLevel="STATE">PENNSYLVANIA</Jurisdiction>
+											<Imposition impositionType="General Sales and Use Tax">Sales and Use Tax</Imposition>
+											<EffectiveRate>0.06</EffectiveRate>
+											<TaxableAmount>20.38</TaxableAmount>
+											<CalculatedTax>1.23</CalculatedTax>
+										</Tax>
+									</Taxes>
+								</TaxData>
+								<UnitPrice>20.38</UnitPrice>
+							</Merchandise>
+							<Shipping>
+								<Amount>10</Amount>
+								<TaxData>
+									<TaxClass>93000</TaxClass>
+									<Taxes>
+										<Tax taxType="SALES" taxability="TAXABLE">
+											<Situs>ADMINISTRATIVE_ORIGIN</Situs>
+											<Jurisdiction jurisdictionId="31152" jurisdictionLevel="STATE">PENNSYLVANIA</Jurisdiction>
+											<Imposition impositionType="General Sales and Use Tax">Sales and Use Tax</Imposition>
+											<EffectiveRate>0.0</EffectiveRate>
+											<TaxableAmount>0.0</TaxableAmount>
+											<CalculatedTax>0.0</CalculatedTax>
+										</Tax>
+									</Taxes>
+								</TaxData>
+							</Shipping>
+						</Pricing>
+					</OrderItem>
+				</Items>
+			</ShipGroup>
+		</ShipGroups>
+		<Destinations>
+			<MailingAddress id="_101">
+				<PersonName>
+					<LastName>Berry</LastName>
+					<FirstName>Halle</FirstName>
+				</PersonName>
+				<Address>
+					<Line1>935 1st Ave</Line1>
+					<City>King of Prussia</City>
+					<MainDivision>PA</MainDivision>
+					<CountryCode>US</CountryCode>
+					<PostalCode>19406-1342</PostalCode>
+				</Address>
+			</MailingAddress>
+			<MailingAddress id="_102">
+				<PersonName>
+					<LastName>Berry</LastName>
+					<FirstName>Halle</FirstName>
+				</PersonName>
+				<Address>
+					<Line1>935 1st Ave</Line1>
+					<City>King of Prussia</City>
+					<MainDivision>PA</MainDivision>
+					<CountryCode>US</CountryCode>
+					<PostalCode>19406-1342</PostalCode>
+				</Address>
+			</MailingAddress>
+		</Destinations>
+	</Shipping>
+</TaxDutyQuoteResponse>

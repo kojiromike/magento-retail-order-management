@@ -74,12 +74,12 @@ all options to ensure they match you specific implementation.
 				<template></template>
 			</estimated_delivery>
 		</eb2cinventory>
-		<eb2ctax>
+		<ebayenterprise_tax>
 			<tax_class>
 				<!-- tax class to use for the shipping price group -->
 				<shipping>93000</shipping>
 			</tax_class>
-		</eb2ctax>
+		</ebayenterprise_tax>
 		<!--
 		Message Queue: Configuration to fetch messages from the ROM message queue. Unless otherwise noted, the provided
 		sample values should suffice for most uses.

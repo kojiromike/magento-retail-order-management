@@ -18,7 +18,7 @@ The Magento Retail Order Management Extension is designed as a framework that st
 		1. [Gift Card](/src/app/code/community/EbayEnterprise/GiftCard/README.md)
 		1. [PayPal](/src/app/code/community/EbayEnterprise/PayPal/README.md)
 	1. [Fraud Protection & Risk Management]()
-	1. [Taxes, Duties & Fees]()
+	1. [Taxes, Duties & Fees](/src/app/code/community/EbayEnterprise/Tax/README.md)
 	1. [Gift Wrap and Messaging](/src/app/code/community/EbayEnterprise/Eb2cGiftwrap/README.md)
 	1. [Catalog Management]()
 		1. [Product Export](src/app/code/community/EbayEnterprise/ProductExport/README.md)

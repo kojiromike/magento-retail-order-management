@@ -137,6 +137,7 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
 					'discount' => round($address->getDiscountAmount(), 4) ?: 0.0000,
 					'ship_amount' => round($address->getShippingAmount(), 4) ?: 0.0000,
 					'ship_discount' => round($address->getShippingDiscountAmount(), 4) ?: 0.0000,
+					'giftwrap_amount' => round($address->getGwPrice() + $address->getGwItemsPrice(), 4) ?: 0.0000,
 				);
 			},
 			$quote->getAllShippingAddresses()

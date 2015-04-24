@@ -14,6 +14,7 @@
  */
 
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IShipGroup;
+use eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IShipGroup as ITaxShipGroup;
 
 class EbayEnterprise_Eb2cCore_Helper_Shipping_Chargetype
 {

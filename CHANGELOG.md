@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## Unreleased
+### Added
+- Support tax, duty and fee calculations when using multishipping checkout
+
 ### Fixed
 - Order create merchandise amount remainder calculation wrong and unnecessary.
 

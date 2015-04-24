@@ -42,13 +42,13 @@
 			<group>EbayEnterprise_Eb2cGiftwrap</group>
 			<group>EbayEnterprise_Eb2cInventory</group>
 			<group>EbayEnterprise_Eb2cOrder</group>
-			<group>EbayEnterprise_Eb2cTax</group>
 			<group>EbayEnterprise_GiftCard</group>
 			<group>EbayEnterprise_Order</group>
 			<group>EbayEnterprise_PayPal</group>
 			<group>EbayEnterprise_ProductExport</group>
 			<group>EbayEnterprise_ProductImageExport</group>
 			<group>EbayEnterprise_ProductImport</group>
+			<group>EbayEnterprise_Tax</group>
 		</include>
 	</groups>
 	<filter>
@@ -60,6 +60,7 @@
 			<directory suffix=".php">app/code/community/EbayEnterprise/Eb2c*</directory>
 			<directory suffix=".php">app/code/community/EbayEnterprise/GiftCard</directory>
 			<directory suffix=".php">app/code/community/EbayEnterprise/Order</directory>
+			<directory suffix=".php">app/code/community/EbayEnterprise/Tax</directory>
 			<exclude>
 				<directory suffix=".php">app/code/community/EbayEnterprise/*/Test</directory>
 			</exclude>

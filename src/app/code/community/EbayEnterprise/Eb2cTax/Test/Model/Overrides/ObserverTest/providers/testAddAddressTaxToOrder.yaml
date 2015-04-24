@@ -1,9 +1,0 @@
--
-  addressTaxes: [ 1, 2 ]
-  orderTaxes: [ 2, 3, 4 ]
--
-  addressTaxes: null
-  orderTaxes: [ 1, 2 ]
--
-  addressTaxes: [ 1, 2 ]
-  orderTaxes: null

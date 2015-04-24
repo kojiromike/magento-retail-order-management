@@ -16,6 +16,9 @@
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IDiscount;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IDiscountContainer;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IDiscountIterable;
+use eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IDiscount as ITaxDiscount;
+use eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IDiscountContainer as ITaxDiscountContainer;
+use eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IDiscountIterable as ITaxDiscountIterable;
 
 /**
  * Helps transfer discount data from Mage_Sales_Model_Order to
@@ -46,6 +49,17 @@ class EbayEnterprise_Eb2cCore_Helper_Discount
 	}
 
 	/**
+	 * Get discount data collected for a sales object -
+	 * Mage_Sales_Model_Quote_Address or Mage_Sales_Model_Quote_Address.
+	 *
+	 * @return array
+	 */
+	public function getDiscountsData(Varien_Object $salesObject)
+	{
+		return (array) $salesObject->getEbayEnterpriseOrderDiscountData();
+	}
+
+	/**
 	 * Transfer discount data from Mage_Sales_Model_Order_Addresses
 	 * to IDiscountContainer.
 	 *
@@ -58,7 +72,7 @@ class EbayEnterprise_Eb2cCore_Helper_Discount
 	{
 		/** @var IDiscountIterable $discounts */
 		$discounts = $discountContainer->getDiscounts();
-		$data = (array) $salesObject->getEbayEnterpriseOrderDiscountData();
+		$data = $this->getDiscountsData($salesObject);
 		foreach ($data as $loneDiscountData) {
 			$discount = $this->_fillOutDiscount($discounts->getEmptyDiscount(), $loneDiscountData);;
 			$discounts[$discount] = $discount;
@@ -81,6 +95,40 @@ class EbayEnterprise_Eb2cCore_Helper_Discount
 			->setCode($this->_nullCoalesce($discountData, 'code', null))
 			->setDescription($this->_nullCoalesce($discountData, 'description', null))
 			->setEffectType($this->_nullCoalesce($discountData, 'effect_type', null))
+			->setId($this->_nullCoalesce($discountData, 'id', null));
+	}
+
+	/**
+	 * Transfer discount data from Mage_Sales_Model_Qoute_Addresses
+	 * or Mage_Sales_Model_Quote_Items to TaxDutyFee\IDiscountContainer.
+	 *
+	 * @param Varien_Object
+	 * @param ITaxDiscountContainer
+	 * @return ITaxDiscountContainer
+	 */
+	public function transferTaxDiscounts(Varien_Object $salesObject, ITaxDiscountContainer $discountContainer)
+	{
+		/** @var ITaxDiscountIterable $discounts */
+		$discounts = $discountContainer->getDiscounts();
+		$data = $this->getDiscountsData($salesObject);
+		foreach ($data as $loneDiscountData) {
+			$discount = $this->_fillOutTaxDiscount($discounts->getEmptyDiscount(), $loneDiscountData);;
+			$discounts[$discount] = $discount;
+		}
+		return $discountContainer->setDiscounts($discounts);
+	}
+
+	/**
+	 * Fill out the data in an ITaxDiscount
+	 *
+	 * @param ITaxDiscount
+	 * @param array $discountData
+	 * @return ITaxDiscount
+	 */
+	protected function _fillOutTaxDiscount(ITaxDiscount $discountPayload, array $discountData)
+	{
+		return $discountPayload
+			->setAmount($this->_nullCoalesce($discountData, 'amount', null))
 			->setId($this->_nullCoalesce($discountData, 'id', null));
 	}
 }

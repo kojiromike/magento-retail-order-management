@@ -113,6 +113,17 @@
 			</sales_convert_quote_item_to_order_item>
 		</events>
 	</global>
+	<frontend>
+		<translate>
+			<modules>
+				<EbayEnterprise_Order>
+					<files>
+						<default>EbayEnterprise_Order.csv</default>
+					</files>
+				</EbayEnterprise_Order>
+			</modules>
+		</translate>
+	</frontend>
 	<crontab>
 		<jobs>
 			<ebayenterprise_order_create_retry>
@@ -128,6 +139,7 @@
 			<api>
 				<service>orders</service>
 				<create_operation>create</create_operation>
+				<cancel_operation>cancel</cancel_operation>
 			</api>
 			<create>
 				<gender_map/>

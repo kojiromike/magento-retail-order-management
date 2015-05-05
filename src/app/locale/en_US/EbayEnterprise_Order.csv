@@ -1,0 +1,3 @@
+"EbayEnterprise_Order_Cancel_Fail_Message", "Your order '%s' was unable to be cancelled, please contact customer service regarding this issue."
+"EbayEnterprise_Order_Cancel_Success_Message", "Your order '%s' was successfully cancelled."
+"EbayEnterprise_Order_Order_Create_Fail_Message", "The order could not be created at this time."

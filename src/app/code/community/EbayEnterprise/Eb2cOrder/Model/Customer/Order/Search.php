@@ -107,6 +107,7 @@ class EbayEnterprise_Eb2cOrder_Model_Customer_Order_Search
 					'grand_total' => $orderTotal,
 					'order_total' => $orderTotal,
 					'source' => (string) $coreHlpr->extractNodeVal($xpath->query('a:Source/text()', $result)),
+					'is_cancellable' => $coreHlpr->parseBool($result->getAttribute('cancellable')),
 				));
 			}
 		}

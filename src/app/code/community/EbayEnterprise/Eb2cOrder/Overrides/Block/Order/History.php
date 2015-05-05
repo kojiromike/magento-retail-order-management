@@ -52,4 +52,13 @@ class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History extends Mage_Core_B
     {
 		return Mage::helper($type);
 	}
+	/**
+	 * Returns URL to cancel an order.
+	 * @param string
+	 * @return string
+	 */
+	public function getCancelUrl($orderId)
+	{
+		return $this->getUrl('sales/order/romcancel', array('order_id' => $orderId));
+	}
 }

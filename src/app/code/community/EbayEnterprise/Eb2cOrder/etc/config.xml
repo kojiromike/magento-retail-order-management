@@ -297,6 +297,12 @@
 					</product_options>
 				</order_item>
 				<order>
+					<is_cancellable>
+						<class>ebayenterprise_catalog/map</class>
+						<type>helper</type>
+						<method>extractBoolValue</method>
+						<xpath>//a:OrderDetailResponse/@cancellable</xpath>
+					</is_cancellable>
 					<real_order_id>
 						<class>ebayenterprise_catalog/map</class>
 						<type>helper</type>

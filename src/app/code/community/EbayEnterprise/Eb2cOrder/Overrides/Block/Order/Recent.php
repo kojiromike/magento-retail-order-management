@@ -58,4 +58,13 @@ class EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Recent extends Mage_Sales_B
 	{
 		return Mage::getModel('sales/order')->formatPrice($amount);
 	}
+	/**
+	 * Returns URL to cancel an order.
+	 * @param  string
+	 * @return string
+	 */
+	public function getCancelUrl($orderId)
+	{
+		return $this->getUrl('sales/order/romcancel', array('order_id' => $orderId));
+	}
 }

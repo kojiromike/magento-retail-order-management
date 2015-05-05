@@ -51,6 +51,9 @@ echo $this->getHelper()->__('Recent Orders');
 					<td class="a-center view">
 						<span class="nobr">
 							<a href="<?php echo $this->getViewUrl($_order->getCustomerOrderId()); ?>"><?php echo $this->getHelper()->__('View Order') ?></a>
+							<?php if ($_order->getIsCancellable()) : ?>
+								<span class="separator">|</span><a href="<?php echo $this->getCancelUrl($_order->getCustomerOrderId()); ?>"><?php echo $this->getHelper()->__('Cancel') ?></a>
+							<?php endif ?>
 						</span>
 					</td>
 				</tr>

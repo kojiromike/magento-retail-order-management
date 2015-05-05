@@ -18,6 +18,7 @@ class EbayEnterprise_Order_Model_Config extends EbayEnterprise_Eb2cCore_Model_Co
 	protected $_configPaths = [
 		'api_service'                    => 'ebayenterprise_order/api/service',
 		'api_create_operation'           => 'ebayenterprise_order/api/create_operation',
+		'api_cancel_operation'           => 'ebayenterprise_order/api/cancel_operation',
 		'level_of_service'               => 'ebayenterprise_order/create/level_of_service',
 		'order_type'                     => 'ebayenterprise_order/create/order_type',
 		'gender_map'                     => 'ebayenterprise_order/create/gender_map',

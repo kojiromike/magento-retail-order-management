@@ -18,6 +18,9 @@
 <?php echo $this->getMessagesBlock()->toHtml() ?>
 <div class="page-title title-buttons">
 	<h1><?php echo $this->getHelper()->__('Order #') . ' ' . $_order->getCustomerOrderId() . ' ' . $this->getHelper()->__($_order->getStatus()) ?></h1>
+	<?php if ($_order->getIsCancellable()) : ?>
+		<a href="<?php echo $this->getCancelUrl($_order->getCustomerOrderId()); ?>"><?php echo $this->getHelper()->__('Cancel') ?></a>
+	<?php endif ?>
 </div>
 <?php echo $this->getStatusHistoryRssUrl($_order) ?>
 <dl class="order-info">

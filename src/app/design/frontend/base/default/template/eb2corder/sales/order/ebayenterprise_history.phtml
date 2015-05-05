@@ -43,7 +43,11 @@
 			<td><?php echo $this->getHelper()->formatPrice($_order->getGrandTotal()) ?></td>
 			<td class="status"><em><?php echo $this->getHelper()->__($_order->getStatus()) ?></em></td>
 			<td class="a-center">
-				<span class="nobr"><a href="<?php echo $this->getViewUrl($_order->getCustomerOrderId()) ?>"><?php echo $this->getHelper()->__('View Order') ?></a>
+				<span class="nobr">
+					<a href="<?php echo $this->getViewUrl($_order->getCustomerOrderId()) ?>"><?php echo $this->getHelper()->__('View Order') ?></a>
+					<?php if ($_order->getIsCancellable()) : ?>
+						<span class="separator">|</span><a href="<?php echo $this->getCancelUrl($_order->getCustomerOrderId()); ?>"><?php echo $this->getHelper()->__('Cancel') ?></a>
+					<?php endif ?>
 				</span>
 			</td>
 		</tr>

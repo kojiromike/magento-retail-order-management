@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [1.6.0-alpha-2] -  2015-05-07
 ### Fixed
 - Store language codes are not being properly validated in the admin
 
@@ -240,6 +240,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-alpha-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-1...1.6.0-alpha-2
 [1.6.0-alpha-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-beta-1...1.6.0-alpha-1
 [1.5.0-beta-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-6...1.5.0-beta-1
 [1.5.0-alpha-6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-5...1.5.0-alpha-6

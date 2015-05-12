@@ -178,6 +178,16 @@ all options to ensure they match you specific implementation.
 					<Female>F</Female>
 				</gender_map>
 			</create>
+			<cancel>
+				<reason_map>
+					<!--
+					Map possible reason for a guest/registered customer to select from when cancelling their orders.
+					-->
+					<reason_code_001>Wrong Products</reason_code_001>
+					<reason_code_002>Duplicate Orders</reason_code_002>
+					<reason_code_003>Fraudulent Payments</reason_code_003>
+				</reason_map>
+			</cancel>
 		</ebayenterprise_order>
 		<ebayenterprise_paypal>
 			<url>

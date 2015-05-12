@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+	Copyright (c) 2013-2014 eBay Enterprise, Inc.
+
+	NOTICE OF LICENSE
+
+	This source file is subject to the Open Software License (OSL 3.0)
+	that is bundled with this package in the file LICENSE.md.
+	It is also available through the world-wide-web at this URL:
+	http://opensource.org/licenses/osl-3.0.php
+
+	@copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+	@license	 http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+-->
+<layout>
+	<sales_order_romcancel translate="label">
+		<label>Customer My Account ROM Order Cancel</label>
+		<update handle="customer_account"/>
+		<reference name="my.account.wrapper">
+			<block type="ebayenterprise_order/order_cancel" as="cancel" name="ebayenterprise_order.order.cancel" />
+		</reference>
+		<block type="core/text_list" name="additional.product.info" translate="label">
+			<label>Additional Product Info</label>
+		</block>
+	</sales_order_romcancel>
+	<sales_order_romguestcancel translate="label">
+		<label>Customer My Account Guest ROM Order View</label>
+		<reference name="root">
+			<action method="setTemplate"><template>page/1column.phtml</template></action>
+		</reference>
+		<reference name="content">
+			<block type="ebayenterprise_order/order_cancel" as="cancel" name="ebayenterprise_order.order.cancel" />
+		</reference>
+	</sales_order_romguestcancel>
+</layout>

@@ -49,4 +49,56 @@ class EbayEnterprise_Order_Helper_Data extends Mage_Core_Helper_Abstract
 		];
 		return Mage::getUrl('sales/guest/view', $mageUrlParams);
 	}
+
+	/**
+	 * Get the configurable order cancel reasons. Return an array
+	 * if the order cancel reasons are configured with data otherwise return null.
+	 *
+	 * @return array | null
+	 */
+	protected function _getOrderCancelReason()
+	{
+		$map = $this->getConfigModel()->cancelReasonMap;
+		return is_array($map) ? $map : null;
+	}
+
+	/**
+	 * Determine if order cancel reasons are configured.
+	 *
+	 * @return array | null
+	 */
+	public function hasOrderCancelReason()
+	{
+		$reasons = $this->_getOrderCancelReason();
+		return !empty($reasons);
+	}
+
+	/**
+	 * Build an order cancel reasons array with key 'value' and `label'.
+	 *
+	 * @return array
+	 */
+	public function getCancelReasonOptionArray()
+	{
+		$reasons = [];
+		$map = $this->_getOrderCancelReason() ?: [];
+		$reasons[] = ['value' => '', 'label' => ''];
+		foreach ($map as $value => $label) {
+			$reasons[] = ['value' => $value, 'label' => $label];
+		}
+		return $reasons;
+	}
+
+	/**
+	 * Get the order can reason description base on the passed in reason code.
+	 * If not found return a null value.
+	 *
+	 * @param  string
+	 * @return string | null
+	 */
+	public function getCancelReasonDescription($reasonCode)
+	{
+		$map = (array) $this->_getOrderCancelReason();
+		return isset($map[$reasonCode]) ? $map[$reasonCode] : null;
+	}
 }

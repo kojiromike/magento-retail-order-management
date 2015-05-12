@@ -17,6 +17,18 @@ require_once 'Mage/Sales/controllers/GuestController.php';
 
 class EbayEnterprise_Eb2cOrder_GuestController extends Mage_Sales_GuestController
 {
+	/** @var EbayEnterprise_Eb2cOrder_Helper_Data */
+	protected $_orderHelper;
+	/** @var EbayEnterprise_Eb2cOrder_Helper_Factory */
+	protected $_orderFactory;
+
+	protected function _construct()
+	{
+		parent::_construct();
+		$this->_orderHelper = Mage::helper('eb2corder');
+		$this->_orderFactory = Mage::helper('eb2corder/factory');
+	}
+
 	/**
 	 * load the order with the order id from the request and
 	 * bypass loading a shipment instance from the db.
@@ -39,28 +51,36 @@ class EbayEnterprise_Eb2cOrder_GuestController extends Mage_Sales_GuestControlle
 	public function viewAction()
 	{
 		Mage::unregister('rom_order');
-		$orderId       = $this->getRequest()->getPost('oar_order_id');
-		$orderEmail    = $this->getRequest()->getPost('oar_email');
-		$orderZip      = $this->getRequest()->getPost('oar_zip');
-		$orderLastname = $this->getRequest()->getPost('oar_billing_lastname');
+		/** @var Zend_Controller_Request_Http */
+		$request = $this->getRequest();
+		$orderId = $request->getPost('oar_order_id');
+		$orderEmail = $request->getPost('oar_email');
+		$orderZip = $request->getPost('oar_zip');
+		$orderLastname = $request->getPost('oar_billing_lastname');
+		/** @var Mage_Core_Model_Session */
+		$session = $this->_orderFactory->getCoreSessionModel();
 
-		Mage::getSingleton('core/session')->getMessages(true);
-		$detailApi = Mage::getModel('eb2corder/detail');
+		// Clearing out messages
+		$session->getMessages(true);
+		/** @var EbayEnterprise_Eb2cOrder_Model_Detail */
+		$detailApi = $this->_orderFactory->getNewRomOrderDetailModel();
 		try {
+			/** @var EbayEnterprise_Eb2cOrder_Model_Detail_Order $romOrderObject */
 			$romOrderObject = $detailApi->requestOrderDetail($orderId);
 		} catch(EbayEnterprise_Eb2cOrder_Exception_Order_Detail_Notfound $e) {
-			Mage::getSingleton('core/session')->addError($e->getMessage());
+			$session->addError($e->getMessage());
 			$this->_redirect('sales/guest/form');
 			return;
 		}
 		if ($this->_hasValidOrderResult($romOrderObject, $orderEmail, $orderZip, $orderLastname)) {
-			$this->_redirect('sales/order/romguestview/order_id/' . $orderId);
+			$this->_redirect('sales/order/romguestview', ['order_id' => $orderId]);
 		} else {
-			Mage::getSingleton('core/session')->addError(Mage::helper('eb2corder')->__('Order not found.'));
+			$session->addError($this->_orderHelper->__('Order not found.'));
 			$this->_redirect('sales/guest/form');
 		}
 		return;
 	}
+
 	/**
 	 * Check whether we have a valid order result.
 	 * @param  EbayEnterprise_Eb2cOrder_Model_Detail_Order_Interface $romOrderObject
@@ -73,17 +93,10 @@ class EbayEnterprise_Eb2cOrder_GuestController extends Mage_Sales_GuestControlle
 	{
 		$billingAddress = $romOrderObject->getBillingAddress();
 		return (
-			$billingAddress
-			&& $orderLastname === $billingAddress->getLastname()
+			$billingAddress && $orderLastname === $billingAddress->getLastname()
 			&& (
-				(
-					$orderZip
-					&& $orderZip === $billingAddress->getPostalCode()
-				)
-				|| (
-					$orderEmail
-					&& $orderEmail === $romOrderObject->getCustomerEmail()
-				)
+				($orderZip && $orderZip === $billingAddress->getPostalCode())
+				|| ($orderEmail	&& $orderEmail === $romOrderObject->getCustomerEmail())
 			)
 		);
 	}

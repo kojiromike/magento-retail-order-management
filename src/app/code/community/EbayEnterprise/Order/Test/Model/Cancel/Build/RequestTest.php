@@ -37,12 +37,12 @@ class EbayEnterprise_Order_Test_Model_Cancel_Build_RequestTest
 			->getMock();
 
 		/** @var Mock_EbayEnterprise_Order_Model_Cancel_Build_Request */
-		$buildRequest = $this->getModelMock('ebayenterprise_order/cancel_build_request', array('_buildPayload'), false, array(array(
+		$buildRequest = $this->getModelMock('ebayenterprise_order/cancel_build_request', ['_buildPayload'], false, [[
 			// This key is optional
 			'payload' => $payload,
 			// This key is required
 			'order' => $order,
-		)));
+		]]);
 		$buildRequest->expects($this->once())
 			->method('_buildPayload')
 			->will($this->returnSelf());
@@ -50,26 +50,37 @@ class EbayEnterprise_Order_Test_Model_Cancel_Build_RequestTest
 	}
 
 	/**
-	 * Test that the method EbayEnterprise_Order_Model_Cancel_Build_Request::_buildPayload()
-	 * is invoked, and it will call the method EbayEnterprise_Order_Model_Cancel_Build_Request::_buildPayload().
-	 * Finally, the method EbayEnterprise_Order_Model_Cancel_Build_Request::build() will return
-	 * an instance of type IOrderCancelRequest.
+	 * Test that the method ebayenterprise_order/cancel_build_request::_buildPayload()
+	 * is invoked, and it will call the method IOrderCancelRequest::setOrderType() and passed
+	 * it the class constant ebayenterprise_order/cancel_build_irequest::ORDER_TYPE. Then, the
+	 * method IOrderCancelRequest::setCustomerOrderId() will be called and passed in as parameter
+	 * the return value from calling the sales/order::getIncrementId() varien magic method. Then,
+	 * the method IOrderCancelRequest::setReasonCode() will called and passing in as parameter
+	 * the return value from calling the method ebayenterprise_order/cancel_build_request::_getReasonCode().
+	 * And then, the method IOrderCancelRequest::setReason() will invoke passing in as parameter
+	 * the return value from calling the method ebayenterprise_order/cancel_build_request::_getReasonDescription().
+	 * Finally, the method ebayenterprise_order/cancel_build_request::_buildPayload() will return itself.
 	 */
 	public function testBuildPayloadForOrderCancelRequest()
 	{
 		/** @var string */
 		$incrementId = '1000000783731';
 		/** @var string */
-		$reasonCode = uniqid('OCR-');
+		$reasonCode = 'reason_code_001';
+		/** @var string */
+		$reason = 'Wrong Products';
 
 		/** @var Mage_Sales_Model_Order */
-		$order = Mage::getModel('sales/order', array('increment_id' => $incrementId));
+		$order = Mage::getModel('sales/order', [
+			'increment_id' => $incrementId,
+			'cancel_reason_code' => $reasonCode,
+		]);
 		/** @var Mock_IOrderCancelRequest */
 		$payload = $this->getMockBuilder(EbayEnterprise_Order_Model_Cancel_Build_IRequest::PAYLOAD_CLASS)
 			// Disabling the constructor because it requires the following parameters: IValidatorIterator
 			// ISchemaValidator, IPayloadMap, LoggerInterface
 			->disableOriginalConstructor()
-			->setMethods(array('setOrderType', 'setCustomerOrderId', 'setReasonCode'))
+			->setMethods(['setOrderType', 'setCustomerOrderId', 'setReasonCode', 'setReason'])
 			->getMock();
 		$payload->expects($this->once())
 			->method('setOrderType')
@@ -83,17 +94,112 @@ class EbayEnterprise_Order_Test_Model_Cancel_Build_RequestTest
 			->method('setReasonCode')
 			->with($this->identicalTo($reasonCode))
 			->will($this->returnSelf());
+		$payload->expects($this->once())
+			->method('setReason')
+			->with($this->identicalTo($reason))
+			->will($this->returnSelf());
 
 		/** @var Mock_EbayEnterprise_Order_Model_Cancel_Build_Request */
-		$buildRequest = $this->getModelMock('ebayenterprise_order/cancel_build_request', array('_generateReasonCode'), false, array(array(
+		$buildRequest = $this->getModelMock('ebayenterprise_order/cancel_build_request', ['_getReasonCode', '_getReasonDescription'], false, [[
 			// This key is optional
 			'payload' => $payload,
 			// This key is required
 			'order' => $order,
-		)));
+		]]);
 		$buildRequest->expects($this->once())
-			->method('_generateReasonCode')
+			->method('_getReasonCode')
 			->will($this->returnValue($reasonCode));
-		$this->assertSame($buildRequest, EcomDev_Utils_Reflection::invokeRestrictedMethod($buildRequest, '_buildPayload', array()));
+		$buildRequest->expects($this->once())
+			->method('_getReasonDescription')
+			->will($this->returnValue($reason));
+		$this->assertSame($buildRequest, EcomDev_Utils_Reflection::invokeRestrictedMethod($buildRequest, '_buildPayload', []));
+	}
+
+	/**
+	 * @return array
+	 */
+	public function providerGetReasonCode()
+	{
+		return [
+			[Mage::getModel('sales/order', ['cancel_reason_code' => 'reason_code_0001']), 'reason_code_0001'],
+			[Mage::getModel('sales/order', ['cancel_reason_code' => null]), uniqid('OCR-')],
+		];
+	}
+
+	/**
+	 * Test that the method ebayenterprise_order/cancel_build_request::_getReasonCode()
+	 * is invoked, and it will call the varien magic method sales/order::getCancelReasonCode().
+	 * If the varien magic method sales/order::getCancelReasonCode() return a non-empty
+	 * string value then the method ebayenterprise_order/cancel_build_request::_getReasonCode()
+	 * will simply return that value. Otherwise the method ebayenterprise_order/cancel_build_request::_generateReasonCode()
+	 * will be invoked and the method ebayenterprise_order/cancel_build_request::_getReasonCode() will return that value.
+	 * @param Mage_Sales_Model_Order
+	 * @param string
+	 * @dataProvider providerGetReasonCode
+	 */
+	public function testGetReasonCode(Mage_Sales_Model_Order $order, $result)
+	{
+		/** @var Mock_EbayEnterprise_Order_Model_Cancel_Build_Request */
+		$buildRequest = $this->getModelMock('ebayenterprise_order/cancel_build_request', ['_generateReasonCode'], false, [[
+			// This key is required
+			'order' => $order,
+		]]);
+		$buildRequest->expects($order->getCancelReasonCode()? $this->never() : $this->once())
+			// When the varien magic method sales/order::getCancelReasonCode() return
+			// a non-empty string value then this method will never be called, otherwise
+			// we expect it to be invoked once.
+			->method('_generateReasonCode')
+			->will($this->returnValue($result));
+
+		$this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($buildRequest, '_getReasonCode', []));
+	}
+
+	/**
+	 * @return array
+	 */
+	public function providerGetReasonDescription()
+	{
+		return [
+			[Mage::getModel('sales/order', ['cancel_reason_code' => 'reason_code_0001']), 'Wrong Products'],
+			[Mage::getModel('sales/order', ['cancel_reason_code' => null]), null],
+		];
+	}
+
+	/**
+	 * Test that the method ebayenterprise_order/cancel_build_request::_getReasonDescription()
+	 * is invoked, and it will call the varien magic method sales/order::getCancelReasonCode().
+	 * If the varien magic method sales/order::getCancelReasonCode() return a non-empty
+	 * string value then the helper method ebayenterprise_order/data::getCancelReasonDescription()
+	 * will invoked and passed in the as parameter the return value from calling the
+	 * varien magic method sales/order::getCancelReasonCode(). The method
+	 * ebayenterprise_order/cancel_build_request::_getReasonDescription() will simply return that value.
+	 * However, if the return value from calling the varien magic method sales/order::getCancelReasonCode()
+	 * an empty string or null, then the method ebayenterprise_order/cancel_build_request::_getReasonDescription()
+	 * will return null.
+	 * @param Mage_Sales_Model_Order
+	 * @param string
+	 * @dataProvider providerGetReasonDescription
+	 */
+	public function testGetReasonDescription(Mage_Sales_Model_Order $order, $result)
+	{
+		$code = $order->getCancelReasonCode();
+		$orderHelper = $this->getHelperMock('ebayenterprise_order/data', ['getCancelReasonDescription']);
+		$orderHelper->expects($code? $this->once() : $this->never())
+			// When the varien magic method sales/order::getCancelReasonCode() return
+			// a non-empty string value we expect this method to be called once, otherwise
+			// it will never be called.
+			->method('getCancelReasonDescription')
+			->with($this->identicalTo($code))
+			->will($this->returnValue($result));
+
+		/** @var EbayEnterprise_Order_Model_Cancel_Build_Request */
+		$buildRequest = Mage::getModel('ebayenterprise_order/cancel_build_request', [
+			// This key is required
+			'order' => $order,
+			// This key is optional
+			'order_helper' => $orderHelper,
+		]);
+
+		$this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($buildRequest, '_getReasonDescription', []));
 	}
 }

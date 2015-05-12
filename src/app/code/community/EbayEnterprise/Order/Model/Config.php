@@ -23,5 +23,6 @@ class EbayEnterprise_Order_Model_Config extends EbayEnterprise_Eb2cCore_Model_Co
 		'order_type'                     => 'ebayenterprise_order/create/order_type',
 		'gender_map'                     => 'ebayenterprise_order/create/gender_map',
 		'shipping_tax_class'             => 'ebayenterprise_order/create/shipping/default_tax_class',
+		'cancel_reason_map'              => 'ebayenterprise_order/cancel/reason_map',
 	];
 }

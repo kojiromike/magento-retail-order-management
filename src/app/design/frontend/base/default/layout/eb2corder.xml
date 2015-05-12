@@ -24,7 +24,7 @@
 			<block type="sales/order_recent" name="customer_account_dashboard_top" as="top" template="eb2corder/sales/order/ebayenterprise_recent.phtml"/>
 		</reference>
 	</customer_account_index>
-	<!--	
+	<!--
 	<sales_order_history translate="label">
 		Sales Order History Uses the same layout as default
 	</sales_order_history>

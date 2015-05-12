@@ -36,6 +36,11 @@
 				</id>
 			</sales_convert_quote_address>
 		</fieldsets>
+		<blocks>
+			<ebayenterprise_order>
+				<class>EbayEnterprise_Order_Block</class>
+			</ebayenterprise_order>
+		</blocks>
 		<models>
 			<ebayenterprise_order>
 				<class>EbayEnterprise_Order_Model</class>
@@ -114,6 +119,13 @@
 		</events>
 	</global>
 	<frontend>
+		<layout>
+			<updates>
+				<ebayenterprise_order module="EbayEnterprise_Order">
+					<file>ebayenterprise_order.xml</file>
+				</ebayenterprise_order>
+			</updates>
+		</layout>
 		<translate>
 			<modules>
 				<EbayEnterprise_Order>

@@ -23,6 +23,8 @@ class EbayEnterprise_Order_Model_Cancel_Build_Request
 	protected $_order;
 	/** @var IOrderCancelRequest */
 	protected $_payload;
+	/** @var EbayEnterprise_Order_Helper_Data */
+	protected $_orderHelper;
 
 	/**
 	 * @param array $initParams Must have these keys:
@@ -30,9 +32,10 @@ class EbayEnterprise_Order_Model_Cancel_Build_Request
 	 */
 	public function __construct(array $initParams)
 	{
-		list($this->_order, $this->_payload) = $this->_checkTypes(
+		list($this->_order, $this->_payload, $this->_orderHelper) = $this->_checkTypes(
 			$initParams['order'],
-			$this->_nullCoalesce($initParams, 'payload', $this->_getEmptyPayload())
+			$this->_nullCoalesce($initParams, 'payload', $this->_getEmptyPayload()),
+			$this->_nullCoalesce($initParams, 'order_helper', Mage::helper('ebayenterprise_order'))
 		);
 	}
 
@@ -41,11 +44,16 @@ class EbayEnterprise_Order_Model_Cancel_Build_Request
 	 *
 	 * @param  Mage_Sales_Model_Order
 	 * @param  IOrderCancelRequest
+	 * @param  EbayEnterprise_Order_Helper_Data
 	 * @return array
 	 */
-	protected function _checkTypes(Mage_Sales_Model_Order $order, IOrderCancelRequest $payload)
+	protected function _checkTypes(
+		Mage_Sales_Model_Order $order,
+		IOrderCancelRequest $payload,
+		EbayEnterprise_Order_Helper_Data $orderHelper
+	)
 	{
-		return [$order, $payload];
+		return [$order, $payload, $orderHelper];
 	}
 
 	/**
@@ -105,7 +113,31 @@ class EbayEnterprise_Order_Model_Cancel_Build_Request
 	{
 		$this->_payload->setOrderType(static::ORDER_TYPE)
 			->setCustomerOrderId($this->_order->getIncrementId())
-			->setReasonCode($this->_generateReasonCode());
+			->setReasonCode($this->_getReasonCode())
+			->setReason($this->_getReasonDescription());
 		return $this;
+	}
+
+	/**
+	 * Get the cancel reason code from the sales/order object stash in class
+	 * property the self::_order. If it doesn't exist in sales/order object simply generate one.
+	 *
+	 * @return string
+	 */
+	protected function _getReasonCode()
+	{
+		return $this->_order->getCancelReasonCode() ?: $this->_generateReasonCode();
+	}
+
+	/**
+	 * Get the cancel reason description from the order cancel description map
+	 * on on the order cancel code in the sales/order object.
+	 *
+	 * @return string | null
+	 */
+	protected function _getReasonDescription()
+	{
+		$reasonCode = $this->_order->getCancelReasonCode();
+		return $reasonCode? $this->_orderHelper->getCancelReasonDescription($reasonCode) : null;
 	}
 }

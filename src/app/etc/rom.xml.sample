@@ -186,9 +186,9 @@ all options to ensure they match you specific implementation.
 				<!-- paypal about page -->
 				<logo_about_page_uri>https://www.paypal.com/{locale_code}/cgi-bin/webscr?cmd=xpt/Marketing/popup/OLCWhatIsPayPal-outside</logo_about_page_uri>
 				<!-- checkout payment method option image -->
-				<mark_image_src>https://www.paypal.com/%s/i/logo/PayPal_mark_{static_size}.gif</mark_image_src>
+				<mark_image_src>https://www.paypalobjects.com/webstatic/{locale_code}/i/buttons/pp-acceptance-medium.png</mark_image_src>
 				<!-- express checkout button on the product and cart pages -->
-				<shortcut_express_checkout_button>https://www.paypal.com/{locale_code}/i/btn/btn_xpressCheckout.gif</shortcut_express_checkout_button>
+				<shortcut_express_checkout_button>https://www.paypalobjects.com/webstatic/{locale_code}/i/buttons/checkout-logo-medium.png</shortcut_express_checkout_button>
 			</url>
 		</ebayenterprise_paypal>
 	</default>

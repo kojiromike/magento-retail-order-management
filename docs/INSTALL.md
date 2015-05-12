@@ -138,7 +138,7 @@ Example `composer.json`:
 Run the following command:
 
 ```bash
-composer install -o 'ebayenterprise/magento-retail-order-management=~1.4'
+composer install -o 'ebayenterprise/magento-retail-order-management=~{major}.{minor}'
 ```
 
 This command will inject `"require"` into the composer.json, install the extension, optimize the autoloader file as needed and symlink the extension files into the appropriate locations of the Magento directory tree.
@@ -157,7 +157,7 @@ You can update the extension and its dependencies by running:
 composer update -o ebayenterprise/magento-retail-order-management
 ```
 
-This command will perform the update according to the version restrictions given in the composer file. For example, in the previous example we used `"~1.4"`, which will fetch the most recent version of the extension in the 1.4.x line. You can change the version restrictions by manually modifying the `composer.json` file.
+This command will perform the update according to the version restrictions given in the composer file. For example, if in the previous example we used `"~1.4"`, then `compose update` will fetch the most recent version of the extension in the 1.4.x line. You can change the version restrictions by manually modifying the `composer.json` file.
 
 ## Admin Configuration
 

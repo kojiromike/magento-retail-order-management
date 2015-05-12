@@ -43,6 +43,7 @@
 			<group>EbayEnterprise_Eb2cInventory</group>
 			<group>EbayEnterprise_Eb2cOrder</group>
 			<group>EbayEnterprise_GiftCard</group>
+			<group>EbayEnterprise_Inventory</group>
 			<group>EbayEnterprise_Multishipping</group>
 			<group>EbayEnterprise_Order</group>
 			<group>EbayEnterprise_PayPal</group>

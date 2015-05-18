@@ -18,32 +18,32 @@
  */
 class EbayEnterprise_Inventory_Model_Session extends Mage_Core_Model_Session_Abstract
 {
-	/**
-	 * Initialize the session.
-	 */
-	protected function _construct()
-	{
-		$this->init('ebayenterprise_inventory');
-	}
+    /**
+     * Initialize the session.
+     */
+    protected function _construct()
+    {
+        $this->init('ebayenterprise_inventory');
+    }
 
-	/**
-	 * Get quantity response results stored from the last
-	 * quantity request. Will not return any results that have expired.
-	 *
-	 * @return EbayEnterprise_Inventory_Model_Quantity_Results
-	 */
-	public function getQuantityResults()
-	{
-		$results = $this->getData('quantity_results');
-		return $results && !$results->isExpired() ? $results : null;
-	}
+    /**
+     * Get quantity response results stored from the last
+     * quantity request. Will not return any results that have expired.
+     *
+     * @return EbayEnterprise_Inventory_Model_Quantity_Results
+     */
+    public function getQuantityResults()
+    {
+        $results = $this->getData('quantity_results');
+        return $results && !$results->isExpired() ? $results : null;
+    }
 
-	/**
-	 * @param EbayEnterprise_Inventory_Model_Quantity_Results
-	 * @return self
-	 */
-	public function setQuantityResults($quantityResults)
-	{
-		return $this->setData('quantity_results', $quantityResults);
-	}
+    /**
+     * @param EbayEnterprise_Inventory_Model_Quantity_Results
+     * @return self
+     */
+    public function setQuantityResults($quantityResults)
+    {
+        return $this->setData('quantity_results', $quantityResults);
+    }
 }

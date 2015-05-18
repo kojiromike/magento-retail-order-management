@@ -62,7 +62,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_AllocationTest extends EbayEnterpr
         );
         $addressMock->expects($this->any())
             ->method('getShippingMethod')
-            ->will($this->returnValue('USPS: 3 Day Select')            );
+            ->will($this->returnValue('USPS: 3 Day Select'));
         $addressMock->expects($this->any())
             ->method('getStreet')
             ->will($this->returnValue('1938 Some Street'));

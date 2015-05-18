@@ -15,15 +15,15 @@
 
 class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
-	/**
-	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
-	 * @param mixed
-	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 */
-	public function getConfigModel($store=null)
-	{
-		return Mage::getModel('eb2ccore/config_registry')
-			->setStore($store)
-			->addConfigModel(Mage::getSingleton('ebayenterprise_inventory/config'));
-	}
+    /**
+     * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
+     * @param mixed
+     * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
+     */
+    public function getConfigModel($store = null)
+    {
+        return Mage::getModel('eb2ccore/config_registry')
+            ->setStore($store)
+            ->addConfigModel(Mage::getSingleton('ebayenterprise_inventory/config'));
+    }
 }

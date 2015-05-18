@@ -51,6 +51,24 @@
 					</inventory>
 				</observers>
 			</sales_quote_item_qty_set_after>
+			<ebayenterprise_order_create_item>
+				<observers>
+					<ebayenterprise_inventory_observer1>
+						<type>singleton</type>
+						<class>ebayenterprise_inventory/observer</class>
+						<method>handleEbayEnterpriseOrderCreateItem</method>
+					</ebayenterprise_inventory_observer1>
+				</observers>
+			</ebayenterprise_order_create_item>
+			<ebayenterprise_tax_item_ship_origin>
+				<observers>
+					<ebayenterprise_inventory_observer>
+						<type>singleton</type>
+						<class>ebayenterprise_inventory/observer</class>
+						<method>handleEbayEnterpriseTaxItemShipOrigin</method>
+					</ebayenterprise_inventory_observer>
+				</observers>
+			</ebayenterprise_tax_item_ship_origin>
 		</events>
 	</global>
 	<frontend>
@@ -84,6 +102,9 @@
 				<operation>quantity/get</operation>
 				<inventory_expiration>10</inventory_expiration>
 			</quantity>
+			<details>
+				<operation>details/get</operation>
+			</details>
 		</ebayenterprise_inventory>
 	</default>
 	<phpunit>

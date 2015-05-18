@@ -117,15 +117,6 @@
 					</inventory>
 				</observers>
 			</sales_quote_item_qty_set_after>
-			<!-- Order Create Events -->
-			<ebayenterprise_order_create_item>
-				<observers>
-					<eb2cinventory_order_create_item_observer>
-						<class>eb2cinventory/observer</class>
-						<method>handleEbayEnterpriseOrderCreateItem</method>
-					</eb2cinventory_order_create_item_observer>
-				</observers>
-			</ebayenterprise_order_create_item>
 			<!-- Inventory Allocation Events -->
 			<eb2c_allocate_inventory>
 				<observers>

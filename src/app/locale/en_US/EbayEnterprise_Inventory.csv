@@ -5,3 +5,4 @@
 "EbayEnterprise_Inventory_Item_Out_Of_Stock_Message", "This product is currently out of stock."
 "EbayEnterprise_Inventory_Out_Of_Stock_Exception_Message", "This product is currently out of stock."
 "EbayEnterprise_Inventory_Quantity_Request_Failed", "Unable to retrieve inventory quantity."
+"EbayEnterprise_Inventory_Details_Request_Failed", "Unable to retrieve inventory details."

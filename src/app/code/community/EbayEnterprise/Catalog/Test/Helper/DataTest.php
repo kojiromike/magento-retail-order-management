@@ -735,7 +735,7 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 			<CorrelationId>WS</CorrelationId>
 		</MessageData>
 		<CreateDateAndTime>2014-01-09T13:47:32-00:00</CreateDateAndTime>
-	</MessageHeader>'            ));
+	</MessageHeader>'));
 
         $testData = array(
             array(

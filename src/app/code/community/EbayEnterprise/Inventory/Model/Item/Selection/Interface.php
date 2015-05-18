@@ -15,11 +15,11 @@
 
 interface EbayEnterprise_Inventory_Model_Item_Selection_Interface
 {
-	/**
-	 * Select items to be sent in the request from the given array.
-	 *
-	 * @param Mage_Sales_Model_Quote_Item_Abstract[]
-	 * @return Mage_Sales_Model_Quote_Item_Abstract[]
-	 */
-	public function selectFrom(array $items);
+    /**
+     * Select items to be sent in the request from the given array.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract[]
+     * @return Mage_Sales_Model_Quote_Item_Abstract[]
+     */
+    public function selectFrom(array $items);
 }

@@ -15,61 +15,65 @@
 
 class EbayEnterprise_Inventory_Helper_Quantity
 {
-	/**
-	 * Get the quantity requeted for a single item.
-	 *
-	 * @param Mage_Sales_Model_Quote_Item_Abstract
-	 * @return int
-	 */
-	public function getRequestedItemQuantity(Mage_Sales_Model_Quote_Item_Abstract $item)
-	{
-		// Child item quantity is the static quantity of the child
-		// item within a single unit of the parent. E.g. a configurable
-		// product's child item's quantity, will always be 1 - one child in
-		// the configurable item. Bundle items, however, will be
-		// the number of the child items in a single unit of the
-		// parent bundle, depending on how the bundle was configured when
-		// added to cart - actual quantity of the child is child
-		// quantity * parent quantity.
-		$parentItem = $item->getParentItem();
-		return $item->getQty() * ($parentItem ? $parentItem->getQty() : 1);
-	}
+    /**
+     * Get the quantity requeted for a single item.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @return int
+     */
+    public function getRequestedItemQuantity(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        // Child item quantity is the static quantity of the child
+        // item within a single unit of the parent. E.g. a configurable
+        // product's child item's quantity, will always be 1 - one child in
+        // the configurable item. Bundle items, however, will be
+        // the number of the child items in a single unit of the
+        // parent bundle, depending on how the bundle was configured when
+        // added to cart - actual quantity of the child is child
+        // quantity * parent quantity.
+        $parentItem = $item->getParentItem();
+        return $item->getQty() * ($parentItem ? $parentItem->getQty() : 1);
+    }
 
-	/**
-	 * Calculate the total quantity requested of a given item. All items in the
-	 * quote with the same SKU as the given item will be counted toward the
-	 * total quantity.
-	 *
-	 * @param Mage_Sales_Model_Quote_Item_Abstract
-	 * @param Mage_Sales_Model_Quote_Item_Abstract[]
-	 * @return int
-	 */
-	public function calculateTotalQuantityRequested(
-		Mage_Sales_Model_Quote_Item_Abstract $item,
-		array $allItems
-	) {
-		$sku = $item->getSku();
-		$quantitiesBySku = $this->calculateTotalQuantitiesBySku($allItems);
-		return isset($quantitiesBySku[$sku]) ? $quantitiesBySku[$sku] : 0;
-	}
+    /**
+     * Calculate the total quantity requested of a given item. All items in the
+     * quote with the same SKU as the given item will be counted toward the
+     * total quantity.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @param Mage_Sales_Model_Quote_Item_Abstract[]
+     * @return int
+     */
+    public function calculateTotalQuantityRequested(
+        Mage_Sales_Model_Quote_Item_Abstract $item,
+        array $allItems
+    ) {
+        $sku = $item->getSku();
+        $quantitiesBySku = $this->calculateTotalQuantitiesBySku($allItems);
+        return isset($quantitiesBySku[$sku]) ? $quantitiesBySku[$sku] : 0;
+    }
 
-	/**
-	 * Calculate the total quantity requested for all items in the given set
-	 * of items. Quantities will be keyed by unique SKU.
-	 *
-	 * @param Mage_Sale_Model_Quote_Item_Abstract
-	 * @return array Key => value pairs of SKU => quantity
-	 */
-	public function calculateTotalQuantitiesBySku(array $items)
-	{
-		$quantitiesBySku = [];
-		foreach ($items as $item) {
-			$sku = $item->getSku();
-			if (!isset($quantitiesBySku[$sku])) {
-				$quantitiesBySku[$sku] = 0;
-			}
-			$quantitiesBySku[$sku] += $this->getRequestedItemQuantity($item);
-		}
-		return $quantitiesBySku;
-	}
+    /**
+     * Calculate the total quantity requested for all items in the given set
+     * of items. Quantities will be keyed by unique SKU.
+     *
+     * @param Mage_Sale_Model_Quote_Item_Abstract[]
+     * @return array Key-value pairs of SKU => quantity
+     */
+    public function calculateTotalQuantitiesBySku(array $items)
+    {
+        $quantitiesBySku = [];
+        foreach ($items as $item) {
+            $sku = $item->getSku();
+            // there are cases where there can be multiple item instances
+            // with the same sku are in the quote.
+            // e.g. adding a simple product and a grouped product that
+            // uses the same simple product
+            if (!isset($quantitiesBySku[$sku])) {
+                $quantitiesBySku[$sku] = 0;
+            }
+            $quantitiesBySku[$sku] += $this->getRequestedItemQuantity($item);
+        }
+        return $quantitiesBySku;
+    }
 }

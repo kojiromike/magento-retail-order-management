@@ -202,23 +202,7 @@ class EbayEnterprise_Tax_Model_Request_Builder_Item
         // Shipping origin may be set on order items if this information has been
         // retrieved from ROM services. When not available, default to the same
         // address set as the admin origin.
-        $shippingOrigin = $this->_itemHasShippingOrigin()
-            ? Mage::getModel('customer/address', [
-                'street' => rtrim(
-                    implode([
-                        $this->_item->getEb2cShipFromAddressLine1(),
-                        $this->_item->getEb2cShipFromAddressLine2(),
-                        $this->_item->getEb2cShipFromAddressLine3(),
-                        $this->_item->getEb2cShipFromAddressLine4()
-                    ]),
-                    "\n"
-                ),
-                'city' => $this->_item->getEb2cShipFromAddressCity(),
-                'region_id' => $this->_item->getEb2cShipFromAddressMainDivision(),
-                'country_id' => $this->_item->getEb2cShipFromAddressCountryCode(),
-                'postcode' => $this->_item->getEb2cShipFromAddressPostalCode(),
-            ])
-            : $adminOrigin;
+        $shippingOrigin = $this->delegateShippingOrigin() ?: $adminOrigin;
 
         $this->_orderItem
             ->setAdminOrigin($this->_payloadHelper->customerAddressToPhysicalAddressPayload(
@@ -301,18 +285,26 @@ class EbayEnterprise_Tax_Model_Request_Builder_Item
         return $discountContainer;
     }
 
+    protected function delegateShippingOrigin()
+    {
+        $address = Mage::getModel('customer/address');
+        Mage::dispatchEvent('ebayenterprise_tax_item_ship_origin', ['item' => $this->_item, 'address' => $address]);
+        if ($this->isValidPhysicalAddress($address)) {
+            return $address;
+        }
+        return null;
+    }
+
     /**
      * Check for the item to have shipping origin data set.
      *
      * @return bool
      */
-    protected function _itemHasShippingOrigin()
+    protected function isValidPhysicalAddress($address)
     {
-        return $this->_item->getEb2cShipFromAddressLine1()
-            && $this->_item->getEb2cShipFromAddressCity()
-            && $this->_item->getEb2cShipFromAddressMainDivision()
-            && $this->_item->getEb2cShipFromAddressCountryCode()
-            && $this->_item->getEb2cShipFromAddressPostalCode();
+        return $address->getStreet1()
+            && $address->getCity()
+            && $address->getCountryId();
     }
 
     /**

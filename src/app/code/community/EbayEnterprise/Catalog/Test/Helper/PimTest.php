@@ -1016,7 +1016,7 @@ class EbayEnterprise_Catalog_Test_Helper_PimTest extends EbayEnterprise_Eb2cCore
 				<ProductLink link_type="ES_CrossSelling" operation_type="Add" position="1">
 					<LinkToUniqueID><![CDATA[linked3]]></LinkToUniqueID>
 				</ProductLink>
-			</root>'        );
+			</root>');
         $this->assertSame($expected->saveXML(), $doc->saveXML());
     }
     /**

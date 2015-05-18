@@ -18,36 +18,36 @@ use eBayEnterprise\RetailOrderManagement\Payload\Inventory\IRequestQuantityItem;
 
 class EbayEnterprise_Inventory_Helper_Quantity_Payload
 {
-	/**
-	 * Transfer data from a quote item to a quantity
-	 * request item payload.
-	 *
-	 * @param Mage_Sales_Model_Quote_Item_Abstract
-	 * @param IRequestQuantityItem
-	 * @return IRequestQuantityItem
-	 */
-	public function itemToRequestQuantityItem(
-		Mage_Sales_Model_Quote_Item_Abstract $item,
-		IRequestQuantityItem $itemPayload
-	) {
-		return $this->itemToQuantityItem($item, $itemPayload)
-			->setFulfillmentLocationId($item->getFulfillmentLocationId())
-			->setFulfillmentLocationType($item->getFulfillmentLocationType());
-	}
+    /**
+     * Transfer data from a quote item to a quantity
+     * request item payload.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @param IRequestQuantityItem
+     * @return IRequestQuantityItem
+     */
+    public function itemToRequestQuantityItem(
+        Mage_Sales_Model_Quote_Item_Abstract $item,
+        IRequestQuantityItem $itemPayload
+    ) {
+        return $this->itemToQuantityItem($item, $itemPayload)
+            ->setFulfillmentLocationId($item->getFulfillmentLocationId())
+            ->setFulfillmentLocationType($item->getFulfillmentLocationType());
+    }
 
-	/**
-	 * Transfer data from a quote item to a quantity
-	 * request item payload.
-	 *
-	 * @param Mage_Sales_Model_Quote_Item_Abstract
-	 * @param IQuantityItem
-	 * @return IQuantityItem
-	 */
-	public function itemToQuantityItem(
-		Mage_Sales_Model_Quote_Item_Abstract $item,
-		IQuantityItem $itemPayload
-	) {
-		return $itemPayload->setItemId($item->getSku())
-			->setLineId($item->getId());
-	}
+    /**
+     * Transfer data from a quote item to a quantity
+     * request item payload.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @param IQuantityItem
+     * @return IQuantityItem
+     */
+    public function itemToQuantityItem(
+        Mage_Sales_Model_Quote_Item_Abstract $item,
+        IQuantityItem $itemPayload
+    ) {
+        return $itemPayload->setItemId($item->getSku())
+            ->setLineId($item->getId());
+    }
 }

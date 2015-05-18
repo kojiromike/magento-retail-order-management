@@ -13,699 +13,698 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest
-	extends EcomDev_PHPUnit_Test_Case
+class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_PHPUnit_Test_Case
 {
-	/** @var EbayEnterprise_Inventory_Model_Quantity_Collector */
-	protected $_quantityCollector;
-	/** @var EbayEnterprise_Inventory_Model_Quantity_Results */
-	protected $_quantityResults;
-	/** @var EbayEnterprise_Inventory_Helper_Data */
-	protected $_inventoryHelper;
-	/** @var Mage_Sales_Model_Quote */
-	protected $_quote;
-	/** @var EbayEnterprise_Inventory_Helper_Item_Selection */
-	protected $_inventoryItemSelection;
+    /** @var EbayEnterprise_Inventory_Model_Quantity_Collector */
+    protected $_quantityCollector;
+    /** @var EbayEnterprise_Inventory_Model_Quantity_Results */
+    protected $_quantityResults;
+    /** @var EbayEnterprise_Inventory_Helper_Data */
+    protected $_inventoryHelper;
+    /** @var Mage_Sales_Model_Quote */
+    protected $_quote;
+    /** @var EbayEnterprise_Inventory_Helper_Item_Selection */
+    protected $_inventoryItemSelection;
 
-	public function setUp()
-	{
-		// Create a mock of the quantity results for the quote.
-		$this->_quantityResults = $this->getModelMockBuilder('ebayenterprise_inventory/quantity_results')
-			->disableOriginalConstructor()
-			->setMethods(['getQuantityBySku', 'getQuantityByItemId'])
-			->getMock();
+    public function setUp()
+    {
+        // Create a mock of the quantity results for the quote.
+        $this->_quantityResults = $this->getModelMockBuilder('ebayenterprise_inventory/quantity_results')
+            ->disableOriginalConstructor()
+            ->setMethods(['getQuantityBySku', 'getQuantityByItemId'])
+            ->getMock();
 
-		// Create a quote object to use within tests. Expected by
-		// default by the quantity collector when getting results for a quote.
-		$this->_quote = $this->getModelMock(
-			'sales/quote',
-			['addErrorInfo', 'getAllItems']
-		);
+        // Create a quote object to use within tests. Expected by
+        // default by the quantity collector when getting results for a quote.
+        $this->_quote = $this->getModelMock(
+            'sales/quote',
+            ['addErrorInfo', 'getAllItems']
+        );
 
-		// Mock the quantity collector to simply always return
-		// the mocked quantity results throughout the tests.
-		$this->_quantityCollector = $this->getModelMockBuilder('ebayenterprise_inventory/quantity_collector')
-			->disableOriginalConstructor()
-			->setMethods(['getQuantityResultsForQuote', 'clearResults'])
-			->getMock();
-		$this->_quantityCollector->expects($this->any())
-			->method('getQuantityResultsForQuote')
-			->with($this->identicalTo($this->_quote))
-			->will($this->returnValue($this->_quantityResults));
+        // Mock the quantity collector to simply always return
+        // the mocked quantity results throughout the tests.
+        $this->_quantityCollector = $this->getModelMockBuilder('ebayenterprise_inventory/quantity_collector')
+            ->disableOriginalConstructor()
+            ->setMethods(['getQuantityResultsForQuote', 'clearResults'])
+            ->getMock();
+        $this->_quantityCollector->expects($this->any())
+            ->method('getQuantityResultsForQuote')
+            ->with($this->identicalTo($this->_quote))
+            ->will($this->returnValue($this->_quantityResults));
 
-		// Mock of the item selection helper, used to filter
-		// down quote items down to just the items that need
-		// to be checked by the inventory service.
-		$this->_inventoryItemSelection = $this->getHelperMock(
-			'ebayenterprise_inventory/item_selection',
-			['selectFrom']
-		);
+        // Mock of the item selection helper, used to filter
+        // down quote items down to just the items that need
+        // to be checked by the inventory service.
+        $this->_inventoryItemSelection = $this->getHelperMock(
+            'ebayenterprise_inventory/item_selection',
+            ['selectFrom']
+        );
 
-		// Mock the inventory's data helper to control
-		// expected results from translations doing translations.
-		$this->_inventoryHelper = $this->getHelperMock(
-			'ebayenterprise_inventory/data',
-			['__']
-		);
-		// Mock out the translate method, while it would be nice to ensure
-		// strings are getting translated through this method, the complexity
-		// of doing so is not currently worth the effort.
-		$this->_inventoryHelper->expects($this->any())
-			->method('__')
-			->will($this->returnArgument(0));
+        // Mock the inventory's data helper to control
+        // expected results from translations doing translations.
+        $this->_inventoryHelper = $this->getHelperMock(
+            'ebayenterprise_inventory/data',
+            ['__']
+        );
+        // Mock out the translate method, while it would be nice to ensure
+        // strings are getting translated through this method, the complexity
+        // of doing so is not currently worth the effort.
+        $this->_inventoryHelper->expects($this->any())
+            ->method('__')
+            ->will($this->returnArgument(0));
 
-		// Mock calculations of total item quantity.
-		$this->_quantityHelper = $this->getHelperMock(
-			'ebayenterprise_inventory/quantity',
-			['calculateTotalQuantityRequested']
-		);
+        // Mock calculations of total item quantity.
+        $this->_quantityHelper = $this->getHelperMock(
+            'ebayenterprise_inventory/quantity',
+            ['calculateTotalQuantityRequested']
+        );
 
-		// Instance of the model being tested, injected
-		// with the mocked dependencies.
-		$this->_quantityService = Mage::getModel(
-			'ebayenterprise_inventory/quantity_service',
-			[
-				'quantity_collector' => $this->_quantityCollector,
-				'inventory_item_selection' => $this->_inventoryItemSelection,
-				'inventory_helper' => $this->_inventoryHelper,
-				'quantity_helper' => $this->_quantityHelper,
-			]
-		);
-	}
+        // Instance of the model being tested, injected
+        // with the mocked dependencies.
+        $this->_quantityService = Mage::getModel(
+            'ebayenterprise_inventory/quantity_service',
+            [
+                'quantity_collector' => $this->_quantityCollector,
+                'inventory_item_selection' => $this->_inventoryItemSelection,
+                'inventory_helper' => $this->_inventoryHelper,
+                'quantity_helper' => $this->_quantityHelper,
+            ]
+        );
+    }
 
-	/**
-	 * Create a mock quote item. Item will return an expected
-	 * sku, quantity, id, name and parent item id. It will also be set up to
-	 * return the quote used within this test class. Mock will also
-	 * have the "addErrorInfo" method mocked for testing side-effects
-	 * of this method.
-	 *
-	 * @param string
-	 * @param int
-	 * @param int|null
-	 * @param string
-	 * @param Mage_Sales_Model_Quote_Item|null
-	 * @return Mage_Sales_Model_Quote_Item
-	 */
-	protected function _mockQuoteItem(
-		$sku,
-		$qty,
-		$id=null,
-		$name='Item Name',
-		Mage_Sales_Model_Quote_Item $parentItem=null
-	) {
-		$quoteItem = $this->getModelMock(
-			'sales/quote_item',
-			[
-				'addErrorInfo',
-				'getQty',
-				'getParentItem',
-				'getSku',
-				'getId',
-				'getName',
-				'getQuote',
-			]
-		);
-		$quoteItem->expects($this->any())
-			->method('getQty')
-			->will($this->returnValue($qty));
-		$quoteItem->expects($this->any())
-			->method('getSku')
-			->will($this->returnValue($sku));
-		$quoteItem->expects($this->any())
-			->method('getName')
-			->will($this->returnValue($name));
-		$quoteItem->expects($this->any())
-			->method('getId')
-			->will($this->returnValue($id));
-		$quoteItem->expects($this->any())
-			->method('getParentItem')
-			->will($this->returnValue($parentItem));
-		$quoteItem->expects($this->any())
-			->method('getQuote')
-			->will($this->returnValue($this->_quote));
-		return $quoteItem;
-	}
+    /**
+     * Create a mock quote item. Item will return an expected
+     * sku, quantity, id, name and parent item id. It will also be set up to
+     * return the quote used within this test class. Mock will also
+     * have the "addErrorInfo" method mocked for testing side-effects
+     * of this method.
+     *
+     * @param string
+     * @param int
+     * @param int|null
+     * @param string
+     * @param Mage_Sales_Model_Quote_Item|null
+     * @return Mage_Sales_Model_Quote_Item
+     */
+    protected function _mockQuoteItem(
+        $sku,
+        $qty,
+        $id = null,
+        $name = 'Item Name',
+        Mage_Sales_Model_Quote_Item $parentItem = null
+    ) {
+        $quoteItem = $this->getModelMock(
+            'sales/quote_item',
+            [
+                'addErrorInfo',
+                'getQty',
+                'getParentItem',
+                'getSku',
+                'getId',
+                'getName',
+                'getQuote',
+            ]
+        );
+        $quoteItem->expects($this->any())
+            ->method('getQty')
+            ->will($this->returnValue($qty));
+        $quoteItem->expects($this->any())
+            ->method('getSku')
+            ->will($this->returnValue($sku));
+        $quoteItem->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue($name));
+        $quoteItem->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue($id));
+        $quoteItem->expects($this->any())
+            ->method('getParentItem')
+            ->will($this->returnValue($parentItem));
+        $quoteItem->expects($this->any())
+            ->method('getQuote')
+            ->will($this->returnValue($this->_quote));
+        return $quoteItem;
+    }
 
-	/**
-	 * Create a quantity model with the provided
-	 * quantity, sku and item id.
-	 *
-	 * @param int
-	 * @param string
-	 * @param int
-	 * @return EbayEnterprise_Inventory_Model_Quantity
-	 */
-	protected function _createQuantity($quantity, $sku, $itemId)
-	{
-		return Mage::getModel(
-			'ebayenterprise_inventory/quantity',
-			['quantity' => $quantity, 'sku' => $sku, 'item_id' => $itemId]
-		);
-	}
+    /**
+     * Create a quantity model with the provided
+     * quantity, sku and item id.
+     *
+     * @param int
+     * @param string
+     * @param int
+     * @return EbayEnterprise_Inventory_Model_Quantity
+     */
+    protected function _createQuantity($quantity, $sku, $itemId)
+    {
+        return Mage::getModel(
+            'ebayenterprise_inventory/quantity',
+            ['quantity' => $quantity, 'sku' => $sku, 'item_id' => $itemId]
+        );
+    }
 
-	/**
-	 * Script the quantity results mock to return a quantity result by
-	 * sku or item id.
-	 *
-	 * @param array $resultsData Array of arrays, each inner array must contain:
-	 *                           - sku => string
-	 *                           - item_id => int|null
-	 *                           - quantity => EbayEnterprise_Inventory_Model_Quantity
-	 */
-	protected function _mockQuantityResults($resultsData)
-	{
-		$bySku = array_map(
-			function ($result) {
-				return [$result['sku'], $result['quantity']];
-			},
-			$resultsData
-		);
-		$byId = array_map(
-			function ($result) {
-				return [$result['item_id'], $result['quantity']];
-			},
-			// If an item doesn't have an id, it will not be retrievable
-			// by id, so filter out any results that have an empty item id.
-			array_filter(
-				$resultsData,
-				function ($result) {
-					return (bool) $result['item_id'];
-				}
-			)
-		);
+    /**
+     * Script the quantity results mock to return a quantity result by
+     * sku or item id.
+     *
+     * @param array $resultsData Array of arrays, each inner array must contain:
+     *                           - sku => string
+     *                           - item_id => int|null
+     *                           - quantity => EbayEnterprise_Inventory_Model_Quantity
+     */
+    protected function _mockQuantityResults($resultsData)
+    {
+        $bySku = array_map(
+            function ($result) {
+                return [$result['sku'], $result['quantity']];
+            },
+            $resultsData
+        );
+        $byId = array_map(
+            function ($result) {
+                return [$result['item_id'], $result['quantity']];
+            },
+            // If an item doesn't have an id, it will not be retrievable
+            // by id, so filter out any results that have an empty item id.
+            array_filter(
+                $resultsData,
+                function ($result) {
+                    return (bool) $result['item_id'];
+                }
+            )
+        );
 
-		$this->_quantityResults->expects($this->any())
-			->method('getQuantityBySku')
-			->will($this->returnValueMap($bySku));
-		$this->_quantityResults->expects($this->any())
-			->method('getQuantityByItemId')
-			->will($this->returnValueMap($byId));
-	}
+        $this->_quantityResults->expects($this->any())
+            ->method('getQuantityBySku')
+            ->will($this->returnValueMap($bySku));
+        $this->_quantityResults->expects($this->any())
+            ->method('getQuantityByItemId')
+            ->will($this->returnValueMap($byId));
+    }
 
-	/**
-	 * Mock out the collection of items to be checked - quote should return an
-	 * array containing the item the the item selector, given that array, should
-	 * return it (assume the item isn't filtered out).
-	 *
-	 * @param Mage_Sales_Model_Quote_Item[]
-	 * @return self
-	 */
-	protected function _mockQuoteItemSelection($quoteItems)
-	{
-		$this->_quote->expects($this->any())
-			->method('getAllItems')
-			->will($this->returnValue($quoteItems));
-		$this->_inventoryItemSelection->expects($this->any())
-			->method('selectFrom')
-			->with($this->identicalTo($quoteItems))
-			->will($this->returnArgument(0));
-		return $this;
-	}
+    /**
+     * Mock out the collection of items to be checked - quote should return an
+     * array containing the item the the item selector, given that array, should
+     * return it (assume the item isn't filtered out).
+     *
+     * @param Mage_Sales_Model_Quote_Item[]
+     * @return self
+     */
+    protected function _mockQuoteItemSelection($quoteItems)
+    {
+        $this->_quote->expects($this->any())
+            ->method('getAllItems')
+            ->will($this->returnValue($quoteItems));
+        $this->_inventoryItemSelection->expects($this->any())
+            ->method('selectFrom')
+            ->with($this->identicalTo($quoteItems))
+            ->will($this->returnArgument(0));
+        return $this;
+    }
 
-	/**
-	 * When checking a quote to have available inventory,
-	 * each item in the quote should be checked for sufficient
-	 * available quantity. If all items are available, method
-	 * should return "self" without manipulating the quote or
-	 * any of the items.
-	 */
-	public function testCheckQuoteInventory()
-	{
-		$itemSku = 'the-item';
-		$itemQty = 5;
-		$itemId = 39;
-		// Available quantity should be greater than item quantity.
-		$availQty = 10;
+    /**
+     * When checking a quote to have available inventory,
+     * each item in the quote should be checked for sufficient
+     * available quantity. If all items are available, method
+     * should return "self" without manipulating the quote or
+     * any of the items.
+     */
+    public function testCheckQuoteInventory()
+    {
+        $itemSku = 'the-item';
+        $itemQty = 5;
+        $itemId = 39;
+        // Available quantity should be greater than item quantity.
+        $availQty = 10;
 
-		$quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId);
-		$quoteItems = [$quoteItem];
+        $quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId);
+        $quoteItems = [$quoteItem];
 
-		$this->_mockQuoteItemSelection($quoteItems);
+        $this->_mockQuoteItemSelection($quoteItems);
 
-		// Mock the mechanism used to determine total quantity of an item,
-		// can return the expected quantity of the item requested.
-		$this->_quantityHelper->expects($this->any())
-			->method('calculateTotalQuantityRequested')
-			->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
-			->will($this->returnValue($itemQty));
+        // Mock the mechanism used to determine total quantity of an item,
+        // can return the expected quantity of the item requested.
+        $this->_quantityHelper->expects($this->any())
+            ->method('calculateTotalQuantityRequested')
+            ->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
+            ->will($this->returnValue($itemQty));
 
-		// item which will be returned from the quantity results
-		// model when getting the quantity result by sku using the
-		// item's sku or id when using the item's id.
-		$itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
-		$this->_mockQuantityResults([
-			['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
-		]);
+        // item which will be returned from the quantity results
+        // model when getting the quantity result by sku using the
+        // item's sku or id when using the item's id.
+        $itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
+        $this->_mockQuantityResults([
+            ['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
+        ]);
 
-		// Side-effect tests: ensure that no error infos are added
-		// to the item or the quote.
-		$quoteItem->expects($this->never())
-			->method('addErrorInfo');
-		$this->_quote->expects($this->never())
-			->method('addErrorInfo');
+        // Side-effect tests: ensure that no error infos are added
+        // to the item or the quote.
+        $quoteItem->expects($this->never())
+            ->method('addErrorInfo');
+        $this->_quote->expects($this->never())
+            ->method('addErrorInfo');
 
-		$this->assertSame(
-			$this->_quantityService,
-			$this->_quantityService->checkQuoteInventory($this->_quote)
-		);
-	}
+        $this->assertSame(
+            $this->_quantityService,
+            $this->_quantityService->checkQuoteInventory($this->_quote)
+        );
+    }
 
-	/**
-	 * When insufficient stock is available for an item that
-	 * is already in the quote, an error info should be added
-	 * to the quote as well as the quote item.
-	 */
-	public function testCheckQuoteInventoryInsufficientStock()
-	{
-		$itemSku = 'the-item';
-		$itemName = 'Item Name';
-		$itemQty = 5;
-		$itemId = 39;
-		// Available quantity should be greater than item quantity.
-		$availQty = 1;
-		// Error messages to be added to the quote and item.
-		$quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::QUOTE_INSUFFICIENT_STOCK_MESSAGE;
-		$itemErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::ITEM_INSUFFICIENT_STOCK_MESSAGE;
+    /**
+     * When insufficient stock is available for an item that
+     * is already in the quote, an error info should be added
+     * to the quote as well as the quote item.
+     */
+    public function testCheckQuoteInventoryInsufficientStock()
+    {
+        $itemSku = 'the-item';
+        $itemName = 'Item Name';
+        $itemQty = 5;
+        $itemId = 39;
+        // Available quantity should be greater than item quantity.
+        $availQty = 1;
+        // Error messages to be added to the quote and item.
+        $quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::QUOTE_INSUFFICIENT_STOCK_MESSAGE;
+        $itemErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::ITEM_INSUFFICIENT_STOCK_MESSAGE;
 
-		$quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
-		$quoteItems = [$quoteItem];
-		$this->_mockQuoteItemSelection($quoteItems);
+        $quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
+        $quoteItems = [$quoteItem];
+        $this->_mockQuoteItemSelection($quoteItems);
 
-		// Mock the mechanism used to determine total quantity of an item,
-		// can return the expected quantity of the item requested.
-		$this->_quantityHelper->expects($this->any())
-			->method('calculateTotalQuantityRequested')
-			->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
-			->will($this->returnValue($itemQty));
+        // Mock the mechanism used to determine total quantity of an item,
+        // can return the expected quantity of the item requested.
+        $this->_quantityHelper->expects($this->any())
+            ->method('calculateTotalQuantityRequested')
+            ->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
+            ->will($this->returnValue($itemQty));
 
-		// item which will be returned from the quantity results
-		// model when getting the quantity result by sku using the
-		// item's sku or id when using the item's id.
-		$itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
-		$this->_mockQuantityResults([
-			['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
-		]);
+        // item which will be returned from the quantity results
+        // model when getting the quantity result by sku using the
+        // item's sku or id when using the item's id.
+        $itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
+        $this->_mockQuantityResults([
+            ['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
+        ]);
 
-		// Side-effect tests: ensure that both the item and
-		// the quote have error info added for the unavailable
-		// item.
-		$quoteItem->expects($this->once())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
-				$this->identicalTo($itemErrorMessage)
-			)
-			->will($this->returnSelf());
-		$this->_quote->expects($this->once())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_TYPE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
-				$this->identicalTo($quoteErrorMessage)
-			)
-			->will($this->returnSelf());
+        // Side-effect tests: ensure that both the item and
+        // the quote have error info added for the unavailable
+        // item.
+        $quoteItem->expects($this->once())
+            ->method('addErrorInfo')
+            ->with(
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
+                $this->identicalTo($itemErrorMessage)
+            )
+            ->will($this->returnSelf());
+        $this->_quote->expects($this->once())
+            ->method('addErrorInfo')
+            ->with(
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_TYPE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
+                $this->identicalTo($quoteErrorMessage)
+            )
+            ->will($this->returnSelf());
 
-		$this->assertSame(
-			$this->_quantityService,
-			$this->_quantityService->checkQuoteInventory($this->_quote)
-		);
-	}
+        $this->assertSame(
+            $this->_quantityService,
+            $this->_quantityService->checkQuoteInventory($this->_quote)
+        );
+    }
 
-	/**
-	 * When attempting to add an item to cart that does not
-	 * have sufficient stock available, an exception should
-	 * be thrown to prevent the item from being added to cart.
-	 */
-	public function testCheckQuoteInventoryPreventItemAddToQuote()
-	{
-		$itemSku = 'the-item';
-		$itemName = 'Item Name';
-		$itemQty = 5;
-		$itemId = null;
-		// Available quantity should be greater than item quantity.
-		$availQty = 1;
-		// Error messages to be added to the quote and item.
-		$quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_EXCEPTION_MESSAGE;
+    /**
+     * When attempting to add an item to cart that does not
+     * have sufficient stock available, an exception should
+     * be thrown to prevent the item from being added to cart.
+     */
+    public function testCheckQuoteInventoryPreventItemAddToQuote()
+    {
+        $itemSku = 'the-item';
+        $itemName = 'Item Name';
+        $itemQty = 5;
+        $itemId = null;
+        // Available quantity should be greater than item quantity.
+        $availQty = 1;
+        // Error messages to be added to the quote and item.
+        $quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_EXCEPTION_MESSAGE;
 
-		$quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
-		$quoteItems = [$quoteItem];
-		$this->_mockQuoteItemSelection($quoteItems);
+        $quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
+        $quoteItems = [$quoteItem];
+        $this->_mockQuoteItemSelection($quoteItems);
 
-		// Mock the mechanism used to determine total quantity of an item,
-		// can return the expected quantity of the item requested.
-		$this->_quantityHelper->expects($this->any())
-			->method('calculateTotalQuantityRequested')
-			->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
-			->will($this->returnValue($itemQty));
+        // Mock the mechanism used to determine total quantity of an item,
+        // can return the expected quantity of the item requested.
+        $this->_quantityHelper->expects($this->any())
+            ->method('calculateTotalQuantityRequested')
+            ->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
+            ->will($this->returnValue($itemQty));
 
-		// item which will be returned from the quantity results
-		// model when getting the quantity result by sku using the
-		// item's sku or id when using the item's id.
-		$itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
-		$this->_mockQuantityResults([
-			['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
-		]);
+        // item which will be returned from the quantity results
+        // model when getting the quantity result by sku using the
+        // item's sku or id when using the item's id.
+        $itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
+        $this->_mockQuantityResults([
+            ['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
+        ]);
 
-		// Item is expected to not already be in the order, so when unavailable,
-		// an exception should be thrown.
-		$this->setExpectedException('EbayEnterprise_Inventory_Exception_Quantity_Unavailable_Exception', $quoteErrorMessage);
-		$this->_quantityService->checkQuoteInventory($this->_quote);
-	}
+        // Item is expected to not already be in the order, so when unavailable,
+        // an exception should be thrown.
+        $this->setExpectedException('EbayEnterprise_Inventory_Exception_Quantity_Unavailable_Exception', $quoteErrorMessage);
+        $this->_quantityService->checkQuoteInventory($this->_quote);
+    }
 
-	/**
-	 * When multiple items with the same sku exist in the quote, each item's
-	 * quantity should be checked against the total quantity of that sku in the
-	 * quote. If the available quantity is greater than the combined quantity
-	 * no errors should be added to items or the quote.
-	 */
-	public function testCheckQuoteInventoryMultipleItemsSameSku()
-	{
-		$itemSku = 'the-item';
-		$itemName = 'Item Name';
-		$itemQty = 5;
-		$dupeSkuItemQty = 3;
-		// Both items with the same sku should have the different item ids as
-		// they will be different items in the quote.
-		$itemId = 3;
-		$dupeSkuItemId = 5;
-		// Available quantity should be greater than both item's quantities.
-		$availQty = 10;
+    /**
+     * When multiple items with the same sku exist in the quote, each item's
+     * quantity should be checked against the total quantity of that sku in the
+     * quote. If the available quantity is greater than the combined quantity
+     * no errors should be added to items or the quote.
+     */
+    public function testCheckQuoteInventoryMultipleItemsSameSku()
+    {
+        $itemSku = 'the-item';
+        $itemName = 'Item Name';
+        $itemQty = 5;
+        $dupeSkuItemQty = 3;
+        // Both items with the same sku should have the different item ids as
+        // they will be different items in the quote.
+        $itemId = 3;
+        $dupeSkuItemId = 5;
+        // Available quantity should be greater than both item's quantities.
+        $availQty = 10;
 
-		$quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
-		$dupeSkuQuoteItem = $this->_mockQuoteItem($itemSku, $dupeSkuItemQty, $itemName, $dupeSkuItemId);
-		$quoteItems = [$quoteItem, $dupeSkuQuoteItem];
-		$this->_mockQuoteItemSelection($quoteItems);
+        $quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
+        $dupeSkuQuoteItem = $this->_mockQuoteItem($itemSku, $dupeSkuItemQty, $itemName, $dupeSkuItemId);
+        $quoteItems = [$quoteItem, $dupeSkuQuoteItem];
+        $this->_mockQuoteItemSelection($quoteItems);
 
-		// Mock the mechanism used to determine total quantity of an item,
-		// can return the expected quantity of the item requested.
-		$this->_quantityHelper->expects($this->any())
-			->method('calculateTotalQuantityRequested')
-			->with(
-				$this->logicalOr($this->identicalTo($quoteItem), $this->identicalTo($dupeSkuQuoteItem)),
-				$this->identicalTo($quoteItems)
-			)
-			->will($this->returnValue($itemQty + $dupeSkuItemQty));
+        // Mock the mechanism used to determine total quantity of an item,
+        // can return the expected quantity of the item requested.
+        $this->_quantityHelper->expects($this->any())
+            ->method('calculateTotalQuantityRequested')
+            ->with(
+                $this->logicalOr($this->identicalTo($quoteItem), $this->identicalTo($dupeSkuQuoteItem)),
+                $this->identicalTo($quoteItems)
+            )
+            ->will($this->returnValue($itemQty + $dupeSkuItemQty));
 
-		// Mock the quantity results - a quantity model for the
-		// item which will be returned from the quantity results
-		// model when getting the quantity result by sku using the
-		// item's sku or id when using the item's id.
-		$itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
-		$this->_mockQuantityResults([
-			['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
-		]);
+        // Mock the quantity results - a quantity model for the
+        // item which will be returned from the quantity results
+        // model when getting the quantity result by sku using the
+        // item's sku or id when using the item's id.
+        $itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
+        $this->_mockQuantityResults([
+            ['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
+        ]);
 
-		$this->assertSame(
-			$this->_quantityService,
-			$this->_quantityService->checkQuoteInventory($this->_quote)
-		);
-	}
+        $this->assertSame(
+            $this->_quantityService,
+            $this->_quantityService->checkQuoteInventory($this->_quote)
+        );
+    }
 
-	/**
-	 * When multiple items with the same sku exist in the quote, each item's
-	 * quantity should be checked against the total quantity of that sku in the
-	 * quote. If the available quantity is less than the combined quantity for
-	 * all items with the same sku, error info should be added to all items with
-	 * the sku.
-	 */
-	public function testCheckQuoteInventoryMultipleItemsSameSkuUnavailableQuantity()
-	{
-		$itemSku = 'the-item';
-		$itemName = 'Item Name';
-		$itemQty = 5;
-		$dupeSkuItemQty = 8;
-		// Both items with the same sku should have the different item ids as
-		// they will be different items in the quote.
-		$itemId = 3;
-		$dupeSkuItemId = 5;
-		// Available quantity should be less than sum of both item's quantity.
-		$availQty = 10;
-		// Error messages to be added to the quote and item.
-		$quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::QUOTE_INSUFFICIENT_STOCK_MESSAGE;
-		$itemErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::ITEM_INSUFFICIENT_STOCK_MESSAGE;
+    /**
+     * When multiple items with the same sku exist in the quote, each item's
+     * quantity should be checked against the total quantity of that sku in the
+     * quote. If the available quantity is less than the combined quantity for
+     * all items with the same sku, error info should be added to all items with
+     * the sku.
+     */
+    public function testCheckQuoteInventoryMultipleItemsSameSkuUnavailableQuantity()
+    {
+        $itemSku = 'the-item';
+        $itemName = 'Item Name';
+        $itemQty = 5;
+        $dupeSkuItemQty = 8;
+        // Both items with the same sku should have the different item ids as
+        // they will be different items in the quote.
+        $itemId = 3;
+        $dupeSkuItemId = 5;
+        // Available quantity should be less than sum of both item's quantity.
+        $availQty = 10;
+        // Error messages to be added to the quote and item.
+        $quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::QUOTE_INSUFFICIENT_STOCK_MESSAGE;
+        $itemErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::ITEM_INSUFFICIENT_STOCK_MESSAGE;
 
-		$quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
-		$dupeSkuQuoteItem = $this->_mockQuoteItem($itemSku, $dupeSkuItemQty, $itemName, $dupeSkuItemId);
-		$quoteItems = [$quoteItem, $dupeSkuQuoteItem];
-		$this->_mockQuoteItemSelection($quoteItems);
+        $quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
+        $dupeSkuQuoteItem = $this->_mockQuoteItem($itemSku, $dupeSkuItemQty, $itemName, $dupeSkuItemId);
+        $quoteItems = [$quoteItem, $dupeSkuQuoteItem];
+        $this->_mockQuoteItemSelection($quoteItems);
 
-		// Mock the mechanism used to determine total quantity of an item,
-		// can return the expected quantity of the item requested.
-		$this->_quantityHelper->expects($this->any())
-			->method('calculateTotalQuantityRequested')
-			->with(
-				$this->logicalOr($this->identicalTo($quoteItem), $this->identicalTo($dupeSkuQuoteItem)),
-				$this->identicalTo($quoteItems)
-			)
-			->will($this->returnValue($itemQty + $dupeSkuItemQty));
+        // Mock the mechanism used to determine total quantity of an item,
+        // can return the expected quantity of the item requested.
+        $this->_quantityHelper->expects($this->any())
+            ->method('calculateTotalQuantityRequested')
+            ->with(
+                $this->logicalOr($this->identicalTo($quoteItem), $this->identicalTo($dupeSkuQuoteItem)),
+                $this->identicalTo($quoteItems)
+            )
+            ->will($this->returnValue($itemQty + $dupeSkuItemQty));
 
-		// Mock the quantity results - a quantity model for the
-		// item which will be returned from the quantity results
-		// model when getting the quantity result by sku using the
-		// item's sku or id when using the item's id.
-		$itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
-		$this->_mockQuantityResults([
-			['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
-		]);
+        // Mock the quantity results - a quantity model for the
+        // item which will be returned from the quantity results
+        // model when getting the quantity result by sku using the
+        // item's sku or id when using the item's id.
+        $itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
+        $this->_mockQuantityResults([
+            ['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
+        ]);
 
-		// Side-effect tests: ensure that both items and
-		// the quote have error info added for the unavailable
-		// item.
-		$quoteItem->expects($this->once())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
-				$this->identicalTo($itemErrorMessage)
-			)
-			->will($this->returnSelf());
-		$dupeSkuQuoteItem->expects($this->once())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
-				$this->identicalTo($itemErrorMessage)
-			)
-			->will($this->returnSelf());
-		$this->_quote->expects($this->atLeastOnce())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_TYPE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
-				$this->identicalTo($quoteErrorMessage)
-			)
-			->will($this->returnSelf());
+        // Side-effect tests: ensure that both items and
+        // the quote have error info added for the unavailable
+        // item.
+        $quoteItem->expects($this->once())
+            ->method('addErrorInfo')
+            ->with(
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
+                $this->identicalTo($itemErrorMessage)
+            )
+            ->will($this->returnSelf());
+        $dupeSkuQuoteItem->expects($this->once())
+            ->method('addErrorInfo')
+            ->with(
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
+                $this->identicalTo($itemErrorMessage)
+            )
+            ->will($this->returnSelf());
+        $this->_quote->expects($this->atLeastOnce())
+            ->method('addErrorInfo')
+            ->with(
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_TYPE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
+                $this->identicalTo($quoteErrorMessage)
+            )
+            ->will($this->returnSelf());
 
-		$this->assertSame(
-			$this->_quantityService,
-			$this->_quantityService->checkQuoteInventory($this->_quote)
-		);
-	}
+        $this->assertSame(
+            $this->_quantityService,
+            $this->_quantityService->checkQuoteInventory($this->_quote)
+        );
+    }
 
-	/**
-	 * When an item already in the cart is updated and that item is found to be
-	 * out of stock, the out of stock messages should be added to the quote
-	 * and item error info.
-	 */
-	public function testCheckQuoteInventoryOutOfStockUpdate()
-	{
-		$itemSku = 'the-item';
-		$itemName = 'Item Name';
-		$itemQty = 5;
-		$itemId = 39;
-		// Available quantity should be greater than item quantity.
-		$availQty = 0;
-		// Error messages to be added to the quote and item.
-		$quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::QUOTE_OUT_OF_STOCK_MESSAGE;
-		$itemErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::ITEM_OUT_OF_STOCK_MESSAGE;
+    /**
+     * When an item already in the cart is updated and that item is found to be
+     * out of stock, the out of stock messages should be added to the quote
+     * and item error info.
+     */
+    public function testCheckQuoteInventoryOutOfStockUpdate()
+    {
+        $itemSku = 'the-item';
+        $itemName = 'Item Name';
+        $itemQty = 5;
+        $itemId = 39;
+        // Available quantity should be greater than item quantity.
+        $availQty = 0;
+        // Error messages to be added to the quote and item.
+        $quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::QUOTE_OUT_OF_STOCK_MESSAGE;
+        $itemErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::ITEM_OUT_OF_STOCK_MESSAGE;
 
-		$quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
-		$quoteItems = [$quoteItem];
-		$this->_mockQuoteItemSelection($quoteItems);
+        $quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
+        $quoteItems = [$quoteItem];
+        $this->_mockQuoteItemSelection($quoteItems);
 
-		// Mock the mechanism used to determine total quantity of an item,
-		// can return the expected quantity of the item requested.
-		$this->_quantityHelper->expects($this->any())
-			->method('calculateTotalQuantityRequested')
-			->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
-			->will($this->returnValue($itemQty));
+        // Mock the mechanism used to determine total quantity of an item,
+        // can return the expected quantity of the item requested.
+        $this->_quantityHelper->expects($this->any())
+            ->method('calculateTotalQuantityRequested')
+            ->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
+            ->will($this->returnValue($itemQty));
 
-		// item which will be returned from the quantity results
-		// model when getting the quantity result by sku using the
-		// item's sku or id when using the item's id.
-		$itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
-		$this->_mockQuantityResults([
-			['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
-		]);
+        // item which will be returned from the quantity results
+        // model when getting the quantity result by sku using the
+        // item's sku or id when using the item's id.
+        $itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
+        $this->_mockQuantityResults([
+            ['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
+        ]);
 
-		// Side-effect tests: ensure that both the item and
-		// the quote have error info added for the unavailable
-		// item.
-		$quoteItem->expects($this->once())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::OUT_OF_STOCK_ERROR_CODE),
-				$this->identicalTo($itemErrorMessage)
-			)
-			->will($this->returnSelf());
-		$this->_quote->expects($this->once())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_TYPE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::OUT_OF_STOCK_ERROR_CODE),
-				$this->identicalTo($quoteErrorMessage)
-			)
-			->will($this->returnSelf());
+        // Side-effect tests: ensure that both the item and
+        // the quote have error info added for the unavailable
+        // item.
+        $quoteItem->expects($this->once())
+            ->method('addErrorInfo')
+            ->with(
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::OUT_OF_STOCK_ERROR_CODE),
+                $this->identicalTo($itemErrorMessage)
+            )
+            ->will($this->returnSelf());
+        $this->_quote->expects($this->once())
+            ->method('addErrorInfo')
+            ->with(
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_TYPE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::OUT_OF_STOCK_ERROR_CODE),
+                $this->identicalTo($quoteErrorMessage)
+            )
+            ->will($this->returnSelf());
 
-		$this->assertSame(
-			$this->_quantityService,
-			$this->_quantityService->checkQuoteInventory($this->_quote)
-		);
-	}
+        $this->assertSame(
+            $this->_quantityService,
+            $this->_quantityService->checkQuoteInventory($this->_quote)
+        );
+    }
 
-	/**
-	 * When an item is added to the cart and that item is found to be
-	 * out of stock, an exception should be thrown with the out of stock
-	 * exception message.
-	 */
-	public function testCheckQuoteInventoryOutOfStockPreventItemAddToQuote()
-	{
-		$itemSku = 'the-item';
-		$itemName = 'Item Name';
-		$itemQty = 5;
-		$itemId = null;
-		// Available quantity should be greater than item quantity.
-		$availQty = 0;
-		// Error messages to be added to the quote and item.
-		$quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::OUT_OF_STOCK_EXCEPTION_MESSAGE;
+    /**
+     * When an item is added to the cart and that item is found to be
+     * out of stock, an exception should be thrown with the out of stock
+     * exception message.
+     */
+    public function testCheckQuoteInventoryOutOfStockPreventItemAddToQuote()
+    {
+        $itemSku = 'the-item';
+        $itemName = 'Item Name';
+        $itemQty = 5;
+        $itemId = null;
+        // Available quantity should be greater than item quantity.
+        $availQty = 0;
+        // Error messages to be added to the quote and item.
+        $quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::OUT_OF_STOCK_EXCEPTION_MESSAGE;
 
-		$quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
-		$quoteItems = [$quoteItem];
-		$this->_mockQuoteItemSelection($quoteItems);
+        $quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName);
+        $quoteItems = [$quoteItem];
+        $this->_mockQuoteItemSelection($quoteItems);
 
-		// Mock the mechanism used to determine total quantity of an item,
-		// can return the expected quantity of the item requested.
-		$this->_quantityHelper->expects($this->any())
-			->method('calculateTotalQuantityRequested')
-			->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
-			->will($this->returnValue($itemQty));
+        // Mock the mechanism used to determine total quantity of an item,
+        // can return the expected quantity of the item requested.
+        $this->_quantityHelper->expects($this->any())
+            ->method('calculateTotalQuantityRequested')
+            ->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
+            ->will($this->returnValue($itemQty));
 
-		// item which will be returned from the quantity results
-		// model when getting the quantity result by sku using the
-		// item's sku or id when using the item's id.
-		$itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
-		$this->_mockQuantityResults([
-			['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
-		]);
+        // item which will be returned from the quantity results
+        // model when getting the quantity result by sku using the
+        // item's sku or id when using the item's id.
+        $itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
+        $this->_mockQuantityResults([
+            ['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
+        ]);
 
-		// Item is expected to not already be in the order, so when unavailable,
-		// an exception should be thrown.
-		$this->setExpectedException('EbayEnterprise_Inventory_Exception_Quantity_Unavailable_Exception', $quoteErrorMessage);
-		$this->_quantityService->checkQuoteInventory($this->_quote);
-	}
+        // Item is expected to not already be in the order, so when unavailable,
+        // an exception should be thrown.
+        $this->setExpectedException('EbayEnterprise_Inventory_Exception_Quantity_Unavailable_Exception', $quoteErrorMessage);
+        $this->_quantityService->checkQuoteInventory($this->_quote);
+    }
 
- 	/**
- 	 * When inventory errors are encountered for a child item, error info should
- 	 * be added to the parent item, child item and quote.
- 	 */
-	public function testCheckQuoteInventoryParentItemMessages()
-	{
-		$itemSku = 'the-item';
-		$itemName = 'Item Name';
-		$itemQty = 5;
-		$itemId = 39;
-		// Force an error by setting available quantity to be less than requested quantity.
-		$availQty = 1;
-		// Error messages to be added to the quote and item.
-		$quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::QUOTE_INSUFFICIENT_STOCK_MESSAGE;
-		$itemErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::ITEM_INSUFFICIENT_STOCK_MESSAGE;
+    /**
+     * When inventory errors are encountered for a child item, error info should
+     * be added to the parent item, child item and quote.
+     */
+    public function testCheckQuoteInventoryParentItemMessages()
+    {
+        $itemSku = 'the-item';
+        $itemName = 'Item Name';
+        $itemQty = 5;
+        $itemId = 39;
+        // Force an error by setting available quantity to be less than requested quantity.
+        $availQty = 1;
+        // Error messages to be added to the quote and item.
+        $quoteErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::QUOTE_INSUFFICIENT_STOCK_MESSAGE;
+        $itemErrorMessage = EbayEnterprise_Inventory_Model_Quantity_Service::ITEM_INSUFFICIENT_STOCK_MESSAGE;
 
-		// Create a parent item and a child item. Child item will be handled by
-		// the service but when errors are present, they need to also be added
-		// to the parent.
-		$parentQuoteItem = $this->_mockQuoteItem($itemSku, 1, 38, $itemName);
-		$quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName, $parentQuoteItem);
-		$quoteItems = [$quoteItem];
-		$this->_mockQuoteItemSelection($quoteItems);
+        // Create a parent item and a child item. Child item will be handled by
+        // the service but when errors are present, they need to also be added
+        // to the parent.
+        $parentQuoteItem = $this->_mockQuoteItem($itemSku, 1, 38, $itemName);
+        $quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName, $parentQuoteItem);
+        $quoteItems = [$quoteItem];
+        $this->_mockQuoteItemSelection($quoteItems);
 
-		// Mock the mechanism used to determine total quantity of an item,
-		// can return the expected quantity of the item requested.
-		$this->_quantityHelper->expects($this->any())
-			->method('calculateTotalQuantityRequested')
-			->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
-			->will($this->returnValue($itemQty));
+        // Mock the mechanism used to determine total quantity of an item,
+        // can return the expected quantity of the item requested.
+        $this->_quantityHelper->expects($this->any())
+            ->method('calculateTotalQuantityRequested')
+            ->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
+            ->will($this->returnValue($itemQty));
 
-		// item which will be returned from the quantity results
-		// model when getting the quantity result by sku using the
-		// item's sku or id when using the item's id.
-		$itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
-		$this->_mockQuantityResults([
-			['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
-		]);
+        // item which will be returned from the quantity results
+        // model when getting the quantity result by sku using the
+        // item's sku or id when using the item's id.
+        $itemQuantityResult = $this->_createQuantity($availQty, $itemSku, $itemId);
+        $this->_mockQuantityResults([
+            ['sku' => $itemSku, 'item_id' => $itemId, 'quantity' => $itemQuantityResult]
+        ]);
 
-		// Side-effect tests: ensure that the item, parent item and
-		// the quote have error info added for the unavailable
-		// item.
-		$parentQuoteItem->expects($this->once())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
-				$this->identicalTo($itemErrorMessage)
-			)
-			->will($this->returnSelf());
-		$quoteItem->expects($this->once())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
-				$this->identicalTo($itemErrorMessage)
-			)
-			->will($this->returnSelf());
-		$this->_quote->expects($this->once())
-			->method('addErrorInfo')
-			->with(
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_TYPE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
-				$this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
-				$this->identicalTo($quoteErrorMessage)
-			)
-			->will($this->returnSelf());
+        // Side-effect tests: ensure that the item, parent item and
+        // the quote have error info added for the unavailable
+        // item.
+        $parentQuoteItem->expects($this->once())
+            ->method('addErrorInfo')
+            ->with(
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
+                $this->identicalTo($itemErrorMessage)
+            )
+            ->will($this->returnSelf());
+        $quoteItem->expects($this->once())
+            ->method('addErrorInfo')
+            ->with(
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
+                $this->identicalTo($itemErrorMessage)
+            )
+            ->will($this->returnSelf());
+        $this->_quote->expects($this->once())
+            ->method('addErrorInfo')
+            ->with(
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_TYPE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE),
+                $this->identicalTo(EbayEnterprise_Inventory_Model_Quantity_Service::INSUFFICIENT_STOCK_ERROR_CODE),
+                $this->identicalTo($quoteErrorMessage)
+            )
+            ->will($this->returnSelf());
 
-		$this->assertSame(
-			$this->_quantityService,
-			$this->_quantityService->checkQuoteInventory($this->_quote)
-		);
-	}
+        $this->assertSame(
+            $this->_quantityService,
+            $this->_quantityService->checkQuoteInventory($this->_quote)
+        );
+    }
 
-	/**
-	 * When the quote no-longer has any items to check the quantity of, the
-	 * collector should have any existing results cleared to prevent them from
-	 * being re-used when items are added back to the cart.
-	 */
-	public function testCheckQuoteWithNoItemsClearsResults()
-	{
-		// Side-effect test: when no items are left to be checked, make sure
-		// any old results are cleared out to prevent re-using cached results
-		// when items are added back to the quote.
-		$this->_quantityCollector->expects($this->once())
-			->method('clearResults')
-			->will($this->returnSelf());
+    /**
+     * When the quote no-longer has any items to check the quantity of, the
+     * collector should have any existing results cleared to prevent them from
+     * being re-used when items are added back to the cart.
+     */
+    public function testCheckQuoteWithNoItemsClearsResults()
+    {
+        // Side-effect test: when no items are left to be checked, make sure
+        // any old results are cleared out to prevent re-using cached results
+        // when items are added back to the quote.
+        $this->_quantityCollector->expects($this->once())
+            ->method('clearResults')
+            ->will($this->returnSelf());
 
-		// Mock the quote and item selection to return an empty list of items,
-		// indicating there are no longer any items in the quote to check.
-		$quoteItems = [];
-		$this->_mockQuoteItemSelection($quoteItems);
+        // Mock the quote and item selection to return an empty list of items,
+        // indicating there are no longer any items in the quote to check.
+        $quoteItems = [];
+        $this->_mockQuoteItemSelection($quoteItems);
 
-		$this->assertSame(
-			$this->_quantityService,
-			$this->_quantityService->checkQuoteInventory($this->_quote)
-		);
-	}
+        $this->assertSame(
+            $this->_quantityService,
+            $this->_quantityService->checkQuoteInventory($this->_quote)
+        );
+    }
 }

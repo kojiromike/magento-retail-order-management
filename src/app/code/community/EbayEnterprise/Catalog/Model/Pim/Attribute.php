@@ -66,7 +66,7 @@ class EbayEnterprise_Catalog_Model_Pim_Attribute
                 self::ERROR_MISSING_ARGS,
                 __METHOD__,
                 implode(', ', $missingArgs)
-            )            );
+            ));
             // @codeCoverageIgnoreStart
         }
         // @codeCoverageIgnoreEnd

@@ -740,36 +740,36 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
             ->with($this->identicalTo($currentData), $this->identicalTo($newDataWithStamp))
             ->will($this->returnValue($diffData));
 
-		// tax flag
-		$session
-			->expects($this->any())
-			->method('getTaxUpdateRequiredFlag')
-			->will($this->returnValue($currFlag));
-		$session
-			->expects($this->any())
-			->method('_changeRequiresTaxUpdate')
-			->with($this->identicalTo($newDataWithStamp), $this->identicalTo($diffData))
-			->will($this->returnValue($changeFlag));
-		$session
-			->expects($this->once())
-			->method('setTaxUpdateRequiredFlag')
-			->with($this->identicalTo($changeFlag))
-			->will($this->returnSelf());
-		// details flag
-		$session
-			->expects($this->any())
-			->method('getDetailsUpdateRequiredFlag')
-			->will($this->returnValue($currFlag));
-		$session
-			->expects($this->any())
-			->method('_changeRequiresDetailsUpdate')
-			->with($this->identicalTo($newDataWithStamp), $this->identicalTo($diffData))
-			->will($this->returnValue($changeFlag));
-		$session
-			->expects($this->once())
-			->method('setDetailsUpdateRequiredFlag')
-			->with($this->identicalTo($changeFlag))
-			->will($this->returnSelf());
+        // tax flag
+        $session
+            ->expects($this->any())
+            ->method('getTaxUpdateRequiredFlag')
+            ->will($this->returnValue($currFlag));
+        $session
+            ->expects($this->any())
+            ->method('_changeRequiresTaxUpdate')
+            ->with($this->identicalTo($newDataWithStamp), $this->identicalTo($diffData))
+            ->will($this->returnValue($changeFlag));
+        $session
+            ->expects($this->once())
+            ->method('setTaxUpdateRequiredFlag')
+            ->with($this->identicalTo($changeFlag))
+            ->will($this->returnSelf());
+        // details flag
+        $session
+            ->expects($this->any())
+            ->method('getDetailsUpdateRequiredFlag')
+            ->will($this->returnValue($currFlag));
+        $session
+            ->expects($this->any())
+            ->method('_changeRequiresDetailsUpdate')
+            ->with($this->identicalTo($newDataWithStamp), $this->identicalTo($diffData))
+            ->will($this->returnValue($changeFlag));
+        $session
+            ->expects($this->once())
+            ->method('setDetailsUpdateRequiredFlag')
+            ->with($this->identicalTo($changeFlag))
+            ->will($this->returnSelf());
 
         $session
             ->expects($this->once())
@@ -850,15 +850,15 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
         $noManaged = ['skus' => ['45-234' => ['managed' => false, 'virtual' => true, 'qty' => 2]]];
 
         return [
-            //    quoteData   diff        has virtual hasManged tax      deets
-            [$quoteData, $coupon,    false,      true,     true,   false],
-            [$quoteData, $billing,   false,      true,     false,  false],
-            [$quoteData, $billing,   true,       true,     true,   false],
-            [$quoteData, $shipping,  false,      true,     true,    true],
-            [$quoteData, $shipping,  false,      false,    true,   false],
-            [$quoteData, $managed,   false,      true,     true,    true],
-            [$quoteData, $noManaged, true,       false,    true,   false],
-            [$quoteData, $amount,    false,      false,    true,   false],
+            // quoteData diff        has virtual hasManaged tax    deets
+            [$quoteData, $coupon,    false,      true,      true,   false],
+            [$quoteData, $billing,   false,      true,      false,  false],
+            [$quoteData, $billing,   true,       true,      true,   false],
+            [$quoteData, $shipping,  false,      true,      true,    true],
+            [$quoteData, $shipping,  false,      false,     true,   false],
+            [$quoteData, $managed,   false,      true,      true,    true],
+            [$quoteData, $noManaged, true,       false,     true,   false],
+            [$quoteData, $amount,    false,      false,     true,   false],
         ];
     }
     /**

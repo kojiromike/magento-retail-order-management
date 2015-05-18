@@ -15,9 +15,11 @@
 
 class EbayEnterprise_Inventory_Model_Config extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
 {
-	protected $_configPaths = [
-		'api_service' => 'ebayenterprise_inventory/api/service',
-		'quantity_api_operation' => 'ebayenterprise_inventory/quantity/operation',
-		'quantity_cache_lifetime' => 'ebayenterprise_inventory/quantity/inventory_expiration',
-	];
+    protected $_configPaths = [
+        'api_service' => 'ebayenterprise_inventory/api/service',
+        'quantity_api_operation' => 'ebayenterprise_inventory/quantity/operation',
+        'quantity_cache_lifetime' => 'ebayenterprise_inventory/quantity/inventory_expiration',
+        'api_details_operation' => 'ebayenterprise_inventory/details/operation',
+        'estimated_delivery_template' => 'ebayenterprise_inventory/details/estimated_delivery_template',
+    ];
 }

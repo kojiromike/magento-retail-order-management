@@ -15,7 +15,46 @@
 
 class EbayEnterprise_Order_Test_Model_CancelTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	const RESPONSE_CLASS = 'eBayEnterprise\RetailOrderManagement\Payload\Order\OrderCancelResponse';
+	const API_CLASS = '\eBayEnterprise\RetailOrderManagement\Api\HttpApi';
+	const RESPONSE_CLASS = '\eBayEnterprise\RetailOrderManagement\Payload\Order\OrderCancelResponse';
+
+	/** @var Mock_IBidirectionalApi */
+	protected $_api;
+	/** @var string */
+	protected $_apiService;
+	/** @var string */
+	protected $_apiOperation;
+	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+	protected $_orderCfg;
+	/** EbayEnterprise_Eb2cCore_Helper_Data */
+	protected $_coreHelper;
+
+	public function setUp()
+	{
+		parent::setUp();
+		$this->_api = $this->getMockBuilder(static::API_CLASS)
+			// Disabling the constructor because it requires the IHttpConfig parameter to be passed in.
+			->disableOriginalConstructor()
+			->getMock();
+
+		/** @var string */
+		$this->_apiService = 'orders';
+		/** @var string */
+		$this->_apiOperation = 'cancel';
+
+		/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+		$this->_orderCfg = $this->buildCoreConfigRegistry([
+			'apiService' => $this->_apiService,
+			'apiCancelOperation' => $this->_apiOperation,
+		]);
+
+		/** EbayEnterprise_Eb2cCore_Helper_Data */
+		$this->_coreHelper = $this->getHelperMock('eb2ccore/data', ['getSdkApi']);
+		$this->_coreHelper->expects($this->any())
+			->method('getSdkApi')
+			->with($this->identicalTo($this->_apiService), $this->identicalTo($this->_apiOperation))
+			->will($this->returnValue($this->_api));
+	}
 
 	/**
 	 * Test that the method ebayenterprise_order/cancel::process()
@@ -34,6 +73,10 @@ class EbayEnterprise_Order_Test_Model_CancelTest extends EbayEnterprise_Eb2cCore
 		$cancel = $this->getModelMock('ebayenterprise_order/cancel', ['_buildRequest', '_sendRequest', '_processResponse'], false, [[
 			// This key is required
 			'order' => $order,
+			// This key is optional
+			'core_helper' => $this->_coreHelper,
+			// This key is optional
+			'order_cfg' => $this->_orderCfg,
 		]]);
 		$cancel->expects($this->once())
 			->method('_buildRequest')
@@ -72,18 +115,34 @@ class EbayEnterprise_Order_Test_Model_CancelTest extends EbayEnterprise_Eb2cCore
 		/** @var EbayEnterprise_Order_Model_Cancel_Build_Request */
 		$cancelBuildRequest = $this->getModelMock('ebayenterprise_order/cancel_build_request', ['build'], false, [[
 			// This key is required
+			'api' => $this->_api,
+			// This key is required
 			'order' => $order,
 		]]);
 		$cancelBuildRequest->expects($this->once())
 			->method('build')
 			->will($this->returnValue($request));
-		$this->replaceByMock('model', 'ebayenterprise_order/cancel_build_request', $cancelBuildRequest);
 
-		/** @var EbayEnterprise_Order_Model_Cancel */
-		$cancel = Mage::getModel('ebayenterprise_order/cancel', [
+		/** @var EbayEnterprise_Order_Helper_Factory */
+		$factory = $this->getHelperMock('ebayenterprise_order/factory', ['getNewCancelBuildRequest']);
+		$factory->expects($this->once())
+			->method('getNewCancelBuildRequest')
+			->with($this->identicalTo($this->_api), $this->identicalTo($order))
+			->will($this->returnValue($cancelBuildRequest));
+
+		/** @var Mock_EbayEnterprise_Order_Model_Cancel */
+		$cancel = $this->getModelMock('ebayenterprise_order/cancel', ['foo'], false, [[
 			// This key is required
 			'order' => $order,
-		]);
+			// This key is optional
+			'factory' => $factory,
+			// This key is optional
+			'core_helper' => $this->_coreHelper,
+			// This key is optional
+			'order_cfg' => $this->_orderCfg,
+		]]);
+		// Set the class property ebayenterprise_order/cancel::$_api to a known state
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($cancel, '_api', $this->_api);
 		// Proving that initial state of the class property ebayenterprise_order/cancel::$_request is null.
 		$this->assertNull(EcomDev_Utils_Reflection::getRestrictedPropertyValue($cancel, '_request'));
 		$this->assertSame($cancel, EcomDev_Utils_Reflection::invokeRestrictedMethod($cancel, '_buildRequest', []));
@@ -125,18 +184,36 @@ class EbayEnterprise_Order_Test_Model_CancelTest extends EbayEnterprise_Eb2cCore
 		/** @var EbayEnterprise_Order_Model_Cancel_Send_Request */
 		$cancelSendRequest = $this->getModelMock('ebayenterprise_order/cancel_send_request', ['send'], false, [[
 			// This key is required
+			'api' => $this->_api,
+			// This key is required
 			'request' => $request,
 		]]);
 		$cancelSendRequest->expects($this->once())
 			->method('send')
 			->will($this->returnValue($response));
-		$this->replaceByMock('model', 'ebayenterprise_order/cancel_send_request', $cancelSendRequest);
 
-		/** @var EbayEnterprise_Order_Model_Cancel */
-		$cancel = Mage::getModel('ebayenterprise_order/cancel', [
+		/** @var EbayEnterprise_Order_Helper_Factory */
+		$factory = $this->getHelperMock('ebayenterprise_order/factory', ['getNewCancelSendRequest']);
+		$factory->expects($this->once())
+			->method('getNewCancelSendRequest')
+			->with($this->identicalTo($this->_api), $this->identicalTo($request))
+			->will($this->returnValue($cancelSendRequest));
+
+		/** @var Mock_EbayEnterprise_Order_Model_Cancel */
+		$cancel = $this->getModelMock('ebayenterprise_order/cancel', ['foo'], false, [[
 			// This key is required
 			'order' => $order,
-		]);
+			// This key is optional
+			'factory' => $factory,
+			// This key is optional
+			'core_helper' => $this->_coreHelper,
+			// This key is optional
+			'order_cfg' => $this->_orderCfg,
+		]]);
+		// Set the class property ebayenterprise_order/cancel::$_api to a known state
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($cancel, '_api', $this->_api);
+		// Set the class property ebayenterprise_order/cancel::$_request to mock of IOrderCancelRequest.
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($cancel, '_request', $request);
 		// Proving that initial state of the class property ebayenterprise_order/cancel::$_response is null.
 		$this->assertNull(EcomDev_Utils_Reflection::getRestrictedPropertyValue($cancel, '_response'));
 		$this->assertSame($cancel, EcomDev_Utils_Reflection::invokeRestrictedMethod($cancel, '_sendRequest', []));
@@ -176,13 +253,29 @@ class EbayEnterprise_Order_Test_Model_CancelTest extends EbayEnterprise_Eb2cCore
 		$cancelProcessResponse->expects($this->once())
 			->method('process')
 			->will($this->returnSelf());
-		$this->replaceByMock('model', 'ebayenterprise_order/cancel_process_response', $cancelProcessResponse);
 
-		/** @var EbayEnterprise_Order_Model_Cancel */
-		$cancel = Mage::getModel('ebayenterprise_order/cancel', [
+		/** @var EbayEnterprise_Order_Helper_Factory */
+		$factory = $this->getHelperMock('ebayenterprise_order/factory', ['getNewCancelProcessResponse']);
+		$factory->expects($this->once())
+			->method('getNewCancelProcessResponse')
+			->with($this->identicalTo($response), $this->identicalTo($order))
+			->will($this->returnValue($cancelProcessResponse));
+
+		/** @var Mock_EbayEnterprise_Order_Model_Cancel */
+		$cancel = $this->getModelMock('ebayenterprise_order/cancel', ['foo'], false, [[
 			// This key is required
 			'order' => $order,
-		]);
+			// This key is optional
+			'factory' => $factory,
+			// This key is optional
+			'core_helper' => $this->_coreHelper,
+			// This key is optional
+			'order_cfg' => $this->_orderCfg,
+		]]);
+		// Set the class property ebayenterprise_order/cancel::$_api to a known state
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($cancel, '_api', $this->_api);
+		// Set the class property ebayenterprise_order/cancel::$_response to mock of IOrderCancelResponse.
+		EcomDev_Utils_Reflection::setRestrictedPropertyValue($cancel, '_response', $response);
 		$this->assertSame($cancel, EcomDev_Utils_Reflection::invokeRestrictedMethod($cancel, '_processResponse', []));
 	}
 }

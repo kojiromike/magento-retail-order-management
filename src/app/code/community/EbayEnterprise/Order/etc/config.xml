@@ -40,6 +40,15 @@
 			<ebayenterprise_order>
 				<class>EbayEnterprise_Order_Block</class>
 			</ebayenterprise_order>
+			<ebayenterprise_orderoverrides>
+				<class>EbayEnterprise_Order_Overrides_Block</class>
+			</ebayenterprise_orderoverrides>
+			<sales>
+				<rewrite>
+					<order_recent>EbayEnterprise_Order_Overrides_Block_Order_Recent</order_recent>
+					<order_history>EbayEnterprise_Order_Overrides_Block_Order_History</order_history>
+				</rewrite>
+			</sales>
 		</blocks>
 		<models>
 			<ebayenterprise_order>
@@ -152,12 +161,138 @@
 				<service>orders</service>
 				<create_operation>create</create_operation>
 				<cancel_operation>cancel</cancel_operation>
+				<search_service>customers</search_service>
+				<search_operation>orders/get</search_operation>
 			</api>
 			<create>
 				<gender_map/>
 				<order_type>SALES</order_type>
 				<level_of_service>REGULAR</level_of_service>
 			</create>
+			<map>
+				<search_response>
+					<id>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getUniqueValue</method>
+						<getter></getter>
+					</id>
+					<rom_id>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getId</getter>
+					</rom_id>
+					<order_type>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getOrderType</getter>
+					</order_type>
+					<order_purpose>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getOrderPurpose</getter>
+					</order_purpose>
+					<test_type>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getTestType</getter>
+					</test_type>
+					<modified_time>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getDatetimeValue</method>
+						<getter>getModifiedTime</getter>
+					</modified_time>
+					<customer_order_id>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getCustomerOrderId</getter>
+					</customer_order_id>
+					<customer_id>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getCustomerId</getter>
+					</customer_id>
+					<order_date>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getDatetimeValue</method>
+						<getter>getOrderDate</getter>
+					</order_date>
+					<created_at>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getDatetimeValue</method>
+						<getter>getOrderDate</getter>
+					</created_at>
+					<dashboard_rep_id>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getDashboardRepId</getter>
+					</dashboard_rep_id>
+					<status>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getStatus</getter>
+					</status>
+					<grand_total>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getFloatValue</method>
+						<getter>getOrderTotal</getter>
+					</grand_total>
+					<order_total>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getFloatValue</method>
+						<getter>getOrderTotal</getter>
+					</order_total>
+					<source>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getSource</getter>
+					</source>
+					<is_cancellable>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getBooleanValue</method>
+						<getter>getCancellable</getter>
+					</is_cancellable>
+					<chained_order>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getChainedOrder</getter>
+					</chained_order>
+					<type>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getType</getter>
+					</type>
+					<parent_ref>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getParentRef</getter>
+					</parent_ref>
+					<derived_order>
+						<class>ebayenterprise_order/search_map</class>
+						<type>helper</type>
+						<method>getStringValue</method>
+						<getter>getDerivedOrder</getter>
+					</derived_order>
+				</search_response>
+			</map>
 		</ebayenterprise_order>
 	</default>
 	<phpunit>

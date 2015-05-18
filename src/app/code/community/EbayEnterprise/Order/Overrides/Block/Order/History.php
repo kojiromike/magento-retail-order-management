@@ -13,15 +13,14 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-interface EbayEnterprise_Order_Model_Cancel_Send_IRequest extends EbayEnterprise_Order_Model_Abstract_ISend
+class EbayEnterprise_Order_Overrides_Block_Order_History extends EbayEnterprise_Order_Overrides_Block_Order_Recent
 {
 	/**
-	 * Send the order cancel request payload and return a valid
-	 * response payload when the request was successfully sent
-	 * and we get back a valid response. Otherwise, return
-	 * null when any exception is thrown.
-	 *
-	 * @return IOrderCancelResponse | null
+	 * Template for this block doesn't get set by Magento in layout XML. In
+	 * the overridden block, the default template is set in the constructor.
+	 * Setting this property does the same thing but doesn't require the call in
+	 * the constructor.
+	 * @var string template path
 	 */
-	public function send();
+	protected $_template = 'ebayenterprise_order/order/history.phtml';
 }

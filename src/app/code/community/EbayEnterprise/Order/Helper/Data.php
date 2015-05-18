@@ -16,6 +16,17 @@
 class EbayEnterprise_Order_Helper_Data extends Mage_Core_Helper_Abstract
 	implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
+	/** @var EbayEnterprise_Eb2cCore_Helper_Data */
+	protected $_coreHelper;
+	/** @var EbayEnterprise_Order_Helper_Factory */
+	protected $_factory;
+
+	public function __construct()
+	{
+		$this->_coreHelper = Mage::helper('eb2ccore');
+		$this->_factory = Mage::helper('ebayenterprise_order/factory');
+	}
+
 	/**
 	 * Gets a combined configuration model from core and order
 	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
@@ -100,5 +111,42 @@ class EbayEnterprise_Order_Helper_Data extends Mage_Core_Helper_Abstract
 	{
 		$map = (array) $this->_getOrderCancelReason();
 		return isset($map[$reasonCode]) ? $map[$reasonCode] : null;
+	}
+
+	/**
+	 * Prefix a customer id with the configured client customer id prefix
+	 * @param  string
+	 * @return string
+	 */
+	public function prefixCustomerId($customerId)
+	{
+		return $this->_coreHelper->getConfigModel()->clientCustomerIdPrefix . $customerId;
+	}
+
+	/**
+	 * Get the current customer id, prefixed by the client customer prefix
+	 * @return string | null null if no current customer logged in
+	 */
+	protected function _getPrefixedCurrentCustomerId()
+	{
+		$customerId = $this->_factory->getCurrentCustomer()->getId();
+		return $customerId ? $this->prefixCustomerId($customerId) : null;
+	}
+
+	/**
+	 * Make ROM order summary search when we have a valid logged in customer
+	 * id in the customer session otherwise simply return an empty collection.
+	 *
+	 * @return Varien_Data_Collection
+	 */
+	public function getCurCustomerOrders()
+	{
+		$customerId = $this->_getPrefixedCurrentCustomerId();
+		return !is_null($customerId)
+			// Search for orders in the OMS for the customer
+			? $this->_factory->getNewRomOrderSearch($customerId)->process()
+			// when there is no customer, there are no orders
+			// return an empty Varien_Data_Collection
+			: $this->_coreHelper->getNewVarienDataCollection();
 	}
 }

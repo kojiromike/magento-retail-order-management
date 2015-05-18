@@ -19,6 +19,29 @@ use eBayEnterprise\RetailOrderManagement\Payload\PayloadFactory;
 class EbayEnterprise_Order_Test_Model_Cancel_Build_RequestTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	const API_CLASS = '\eBayEnterprise\RetailOrderManagement\Api\HttpApi';
+
+	/** @var Mock_IBidirectionalApi */
+	protected $_api;
+	/** @var Mock_IOrderCancelRequest */
+	protected $_payload;
+
+	public function setUp()
+	{
+		parent::setUp();
+		$this->_payload = $this->getMockBuilder(EbayEnterprise_Order_Model_Cancel_Build_IRequest::PAYLOAD_CLASS)
+			// Disabling the constructor because it requires the following parameters: IValidatorIterator
+			// ISchemaValidator, IPayloadMap, LoggerInterface
+			->disableOriginalConstructor()
+			->getMock();
+
+		$this->_api = $this->getMockBuilder(static::API_CLASS)
+			// Disabling the constructor because it requires the IHttpConfig parameter to be passed in.
+			->disableOriginalConstructor()
+			->setMethods(['getRequestBody'])
+			->getMock();
+	}
+
 	/**
 	 * Test that the method EbayEnterprise_Order_Model_Cancel_Build_Request::build()
 	 * is invoked, and it will call the method EbayEnterprise_Order_Model_Cancel_Build_Request::_buildPayload().
@@ -29,24 +52,22 @@ class EbayEnterprise_Order_Test_Model_Cancel_Build_RequestTest
 	{
 		/** @var Mage_Sales_Model_Order */
 		$order = Mage::getModel('sales/order');
-		/** @var Mock_IOrderCancelRequest */
-		$payload = $this->getMockBuilder(EbayEnterprise_Order_Model_Cancel_Build_IRequest::PAYLOAD_CLASS)
-			// Disabling the constructor because it requires the following parameters: IValidatorIterator
-			// ISchemaValidator, IPayloadMap, LoggerInterface
-			->disableOriginalConstructor()
-			->getMock();
+
+		$this->_api->expects($this->any())
+			->method('getRequestBody')
+			->will($this->returnValue($this->_payload));
 
 		/** @var Mock_EbayEnterprise_Order_Model_Cancel_Build_Request */
 		$buildRequest = $this->getModelMock('ebayenterprise_order/cancel_build_request', ['_buildPayload'], false, [[
-			// This key is optional
-			'payload' => $payload,
+			// This key is required
+			'api' => $this->_api,
 			// This key is required
 			'order' => $order,
 		]]);
 		$buildRequest->expects($this->once())
 			->method('_buildPayload')
 			->will($this->returnSelf());
-		$this->assertSame($payload, $buildRequest->build());
+		$this->assertSame($this->_payload, $buildRequest->build());
 	}
 
 	/**
@@ -99,10 +120,14 @@ class EbayEnterprise_Order_Test_Model_Cancel_Build_RequestTest
 			->with($this->identicalTo($reason))
 			->will($this->returnSelf());
 
+		$this->_api->expects($this->any())
+			->method('getRequestBody')
+			->will($this->returnValue($payload));
+
 		/** @var Mock_EbayEnterprise_Order_Model_Cancel_Build_Request */
 		$buildRequest = $this->getModelMock('ebayenterprise_order/cancel_build_request', ['_getReasonCode', '_getReasonDescription'], false, [[
-			// This key is optional
-			'payload' => $payload,
+			// This key is required
+			'api' => $this->_api,
 			// This key is required
 			'order' => $order,
 		]]);
@@ -139,8 +164,14 @@ class EbayEnterprise_Order_Test_Model_Cancel_Build_RequestTest
 	 */
 	public function testGetReasonCode(Mage_Sales_Model_Order $order, $result)
 	{
+		$this->_api->expects($this->any())
+			->method('getRequestBody')
+			->will($this->returnValue($this->_payload));
+
 		/** @var Mock_EbayEnterprise_Order_Model_Cancel_Build_Request */
 		$buildRequest = $this->getModelMock('ebayenterprise_order/cancel_build_request', ['_generateReasonCode'], false, [[
+			// This key is required
+			'api' => $this->_api,
 			// This key is required
 			'order' => $order,
 		]]);
@@ -182,6 +213,10 @@ class EbayEnterprise_Order_Test_Model_Cancel_Build_RequestTest
 	 */
 	public function testGetReasonDescription(Mage_Sales_Model_Order $order, $result)
 	{
+		$this->_api->expects($this->any())
+			->method('getRequestBody')
+			->will($this->returnValue($this->_payload));
+
 		$code = $order->getCancelReasonCode();
 		$orderHelper = $this->getHelperMock('ebayenterprise_order/data', ['getCancelReasonDescription']);
 		$orderHelper->expects($code? $this->once() : $this->never())
@@ -194,6 +229,8 @@ class EbayEnterprise_Order_Test_Model_Cancel_Build_RequestTest
 
 		/** @var EbayEnterprise_Order_Model_Cancel_Build_Request */
 		$buildRequest = Mage::getModel('ebayenterprise_order/cancel_build_request', [
+			// This key is required
+			'api' => $this->_api,
 			// This key is required
 			'order' => $order,
 			// This key is optional

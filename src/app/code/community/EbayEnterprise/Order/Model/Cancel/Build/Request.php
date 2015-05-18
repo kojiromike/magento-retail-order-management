@@ -13,8 +13,8 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-use \eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCancelRequest;
-use eBayEnterprise\RetailOrderManagement\Payload\PayloadFactory;
+use eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCancelRequest;
+use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
 
 class EbayEnterprise_Order_Model_Cancel_Build_Request
 	implements EbayEnterprise_Order_Model_Cancel_Build_IRequest
@@ -25,63 +25,51 @@ class EbayEnterprise_Order_Model_Cancel_Build_Request
 	protected $_payload;
 	/** @var EbayEnterprise_Order_Helper_Data */
 	protected $_orderHelper;
+	/** @var IBidirectionalApi */
+	protected $_api;
 
 	/**
 	 * @param array $initParams Must have these keys:
+	 *                          - 'api' => IBidirectionalApi
 	 *                          - 'order' => Mage_Sales_Model_Order
 	 */
 	public function __construct(array $initParams)
 	{
-		list($this->_order, $this->_payload, $this->_orderHelper) = $this->_checkTypes(
+		list($this->_api, $this->_order, $this->_orderHelper) = $this->_checkTypes(
+			$initParams['api'],
 			$initParams['order'],
-			$this->_nullCoalesce($initParams, 'payload', $this->_getEmptyPayload()),
 			$this->_nullCoalesce($initParams, 'order_helper', Mage::helper('ebayenterprise_order'))
 		);
+		$this->_payload = $this->_api->getRequestBody();
 	}
 
 	/**
 	 * Type hinting for self::__construct $initParams
 	 *
+	 * @param  IBidirectionalApi
 	 * @param  Mage_Sales_Model_Order
-	 * @param  IOrderCancelRequest
 	 * @param  EbayEnterprise_Order_Helper_Data
 	 * @return array
 	 */
 	protected function _checkTypes(
+		IBidirectionalApi $api,
 		Mage_Sales_Model_Order $order,
-		IOrderCancelRequest $payload,
 		EbayEnterprise_Order_Helper_Data $orderHelper
 	)
 	{
-		return [$order, $payload, $orderHelper];
+		return [$api, $order, $orderHelper];
 	}
 
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the default value.
-	 * @param  array $arr
-	 * @param  string|int $field Valid array key
-	 * @param  mixed $default
+	 * @param  array
+	 * @param  string $field Valid array key
+	 * @param  mixed
 	 * @return mixed
 	 */
 	protected function _nullCoalesce(array $arr, $field, $default)
 	{
 		return isset($arr[$field]) ? $arr[$field] : $default;
-	}
-
-	/**
-	 * Get empty order cancel request payload.
-	 *
-	 * @return IOrderCancelRequest
-	 */
-	protected function _getEmptyPayload()
-	{
-		return $this->_getNewPayloadFactory()
-			->buildPayload(static::PAYLOAD_CLASS);
-	}
-
-	protected function _getNewPayloadFactory()
-	{
-		return new PayloadFactory();
 	}
 
 	/**

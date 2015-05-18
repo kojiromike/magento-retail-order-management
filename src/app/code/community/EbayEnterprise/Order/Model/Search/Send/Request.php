@@ -13,15 +13,14 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-interface EbayEnterprise_Order_Model_Cancel_Send_IRequest extends EbayEnterprise_Order_Model_Abstract_ISend
+use eBayEnterprise\RetailOrderManagement\Payload\Customer\IOrderSummaryRequest;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation;
+
+class EbayEnterprise_Order_Model_Search_Send_Request
+	extends EbayEnterprise_Order_Model_Abstract_Send
+	implements EbayEnterprise_Order_Model_Search_Send_IRequest
 {
-	/**
-	 * Send the order cancel request payload and return a valid
-	 * response payload when the request was successfully sent
-	 * and we get back a valid response. Otherwise, return
-	 * null when any exception is thrown.
-	 *
-	 * @return IOrderCancelResponse | null
-	 */
-	public function send();
+	const REQUEST_PAYLOAD_NAME = 'OrderSummaryRequest';
 }

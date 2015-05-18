@@ -13,14 +13,16 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Order_Model_Cancel implements EbayEnterprise_Order_Model_ICancel
+class EbayEnterprise_Order_Model_Search implements EbayEnterprise_Order_Model_ISearch
 {
-	/** @var IOrderCancelRequest */
+	/** @var IOrderSummaryRequest */
 	protected $_request;
-	/** @var IOrderCancelResponse */
+	/** @var IOrderSummaryResponse */
 	protected $_response;
-	/** @var Mage_Sales_Model_Order */
-	protected $_order;
+	/** @var string */
+	protected $_customerId;
+	/** @var string */
+	protected $_orderId;
 	/** @var EbayEnterprise_Order_Helper_Factory */
 	protected $_factory;
 	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
@@ -32,12 +34,13 @@ class EbayEnterprise_Order_Model_Cancel implements EbayEnterprise_Order_Model_IC
 
 	/**
 	 * @param array $initParams Must have this key:
-	 *                          - 'order' => Mage_Sales_Model_Order
+	 *                          - 'customer_id' => string
 	 */
 	public function __construct(array $initParams)
 	{
-		list($this->_order, $this->_factory, $this->_orderCfg, $this->_coreHelper) = $this->_checkTypes(
-			$initParams['order'],
+		list($this->_customerId, $this->_orderId, $this->_factory, $this->_orderCfg, $this->_coreHelper) = $this->_checkTypes(
+			$initParams['customer_id'],
+			$this->_nullCoalesce($initParams, 'order_id', null),
 			$this->_nullCoalesce($initParams, 'factory', Mage::helper('ebayenterprise_order/factory')),
 			$this->_nullCoalesce($initParams, 'order_cfg', Mage::helper('ebayenterprise_order')->getConfigModel()),
 			$this->_nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore'))
@@ -48,20 +51,22 @@ class EbayEnterprise_Order_Model_Cancel implements EbayEnterprise_Order_Model_IC
 	/**
 	 * Type hinting for self::__construct $initParams
 	 *
-	 * @param  Mage_Sales_Model_Order
+	 * @param  string
+	 * @param  string | null
 	 * @param  EbayEnterprise_Order_Helper_Factory
 	 * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
 	 * @param  EbayEnterprise_Eb2cCore_Helper_Data
 	 * @return array
 	 */
 	protected function _checkTypes(
-		Mage_Sales_Model_Order $order,
+		$customerId,
+		$orderId=null,
 		EbayEnterprise_Order_Helper_Factory $factory,
 		EbayEnterprise_Eb2cCore_Model_Config_Registry $orderCfg,
 		EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
 	)
 	{
-		return [$order, $factory, $orderCfg, $coreHelper];
+		return [$customerId, $orderId, $factory, $orderCfg, $coreHelper];
 	}
 
 	/**
@@ -83,13 +88,13 @@ class EbayEnterprise_Order_Model_Cancel implements EbayEnterprise_Order_Model_IC
 	public function getApi()
 	{
 		return $this->_coreHelper->getSdkApi(
-			$this->_orderCfg->apiService,
-			$this->_orderCfg->apiCancelOperation
+			$this->_orderCfg->apiSearchService,
+			$this->_orderCfg->apiSearchOperation
 		);
 	}
 
 	/**
-	 * @see EbayEnterprise_Order_Model_ICancel::process()
+	 * @see EbayEnterprise_Order_Model_ISearch::process()
 	 */
 	public function process()
 	{
@@ -99,41 +104,42 @@ class EbayEnterprise_Order_Model_Cancel implements EbayEnterprise_Order_Model_IC
 	}
 
 	/**
-	 * Build order cancel payload.
+	 * Build order summary payload request and stash the
+	 * request to the class property self::$_request.
 	 *
 	 * @return self
 	 */
 	protected function _buildRequest()
 	{
 		$this->_request = $this->_factory
-			->getNewCancelBuildRequest($this->_api, $this->_order)
+			->getNewSearchBuildRequest($this->_api, $this->_customerId, $this->_orderId)
 			->build();
 		return $this;
 	}
 
 	/**
-	 * Send order cancel payload.
+	 * Send order summary payload request and stash the
+	 * return response to the class property self::$_response.
 	 *
 	 * @return self
 	 */
 	protected function _sendRequest()
 	{
 		$this->_response = $this->_factory
-			->getNewCancelSendRequest($this->_api, $this->_request)
+			->getNewSearchSendRequest($this->_api, $this->_request)
 			->send();
 		return $this;
 	}
 
 	/**
-	 * Process order cancel response.
+	 * Process order summary payload response.
 	 *
-	 * @return self
+	 * @return EbayEnterprise_Order_Model_Search_Process_Response_ICollection
 	 */
 	protected function _processResponse()
 	{
-		$this->_factory
-			->getNewCancelProcessResponse($this->_response, $this->_order)
+		return $this->_factory
+			->getNewSearchProcessResponse($this->_response)
 			->process();
-		return $this;
 	}
 }

@@ -125,11 +125,13 @@ class EbayEnterprise_Order_Block_Order_Cancel extends Mage_Core_Block_Template
 	}
 
 	/**
+	 * @see Mage_Core_Block_Abstract::getHelper()
 	 * Returns an ebayenterprise_order/data helper instance.
 	 *
-	 * @return EbayEnterprise_Order_Helper_Data | mixed
+	 * @return EbayEnterprise_Order_Helper_Data
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getHelper()
+	public function getHelper($type='ebayenterprise_order')
 	{
 		return $this->_orderHelper;
 	}

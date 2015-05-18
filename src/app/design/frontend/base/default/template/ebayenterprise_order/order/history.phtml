@@ -15,9 +15,12 @@
 ?>
 
 <?php echo $this->getMessagesBlock()->toHtml() ?>
-<?php $_orders = $this->getOrders(); ?>
+<?php
+	$_orders = $this->getOrders();
+	$_helper = $this->getHelper();
+?>
 <div class="page-title">
-	<h1><?php echo $this->getHelper()->__('My Orders') ?></h1>
+	<h1><?php echo $_helper->__('My Orders') ?></h1>
 </div>
 <table class="data-table" id="my-orders-table">
 	<col width="1" />
@@ -28,10 +31,10 @@
 	<col width="1" />
 	<thead>
 		<tr>
-			<th><?php echo $this->getHelper()->__('Order #') ?></th>
-			<th><?php echo $this->getHelper()->__('Date') ?></th>
-			<th><span class="nobr"><?php echo $this->getHelper()->__('Order Total') ?></span></th>
-			<th><span class="nobr"><?php echo $this->getHelper()->__('Order Status') ?></span></th>
+			<th><?php echo $_helper->__('Order #') ?></th>
+			<th><?php echo $_helper->__('Date') ?></th>
+			<th><span class="nobr"><?php echo $_helper->__('Order Total') ?></span></th>
+			<th><span class="nobr"><?php echo $_helper->__('Order Status') ?></span></th>
 			<th>&nbsp;</th>
 		</tr>
 	</thead>
@@ -40,13 +43,13 @@
 		<tr>
 			<td class="number"><?php echo $_order->getCustomerOrderId() ?></td>
 			<td class="date"><span class="nobr"><?php echo $this->formatDate($_order->getOrderDate()) ?></span></td>
-			<td><?php echo $this->getHelper()->formatPrice($_order->getGrandTotal()) ?></td>
-			<td class="status"><em><?php echo $this->getHelper()->__($_order->getStatus()) ?></em></td>
+			<td><?php echo $this->formatPrice($_order->getGrandTotal()) ?></td>
+			<td class="status"><em><?php echo $_helper->__($_order->getStatus()) ?></em></td>
 			<td class="a-center">
 				<span class="nobr">
-					<a href="<?php echo $this->getViewUrl($_order->getCustomerOrderId()) ?>"><?php echo $this->getHelper()->__('View Order') ?></a>
+					<a href="<?php echo $this->getViewUrl($_order->getCustomerOrderId()) ?>"><?php echo $_helper->__('View Order') ?></a>
 					<?php if ($_order->getIsCancellable()) : ?>
-						<span class="separator">|</span><a href="<?php echo $this->getCancelUrl($_order->getCustomerOrderId()); ?>"><?php echo $this->getHelper()->__('Cancel') ?></a>
+						<span class="separator">|</span><a href="<?php echo $this->getCancelUrl($_order->getCustomerOrderId()); ?>"><?php echo $_helper->__('Cancel') ?></a>
 					<?php endif ?>
 				</span>
 			</td>

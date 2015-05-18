@@ -13,6 +13,12 @@
 	@license	 http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <layout>
+	<customer_account_index>
+		<reference name="customer_account_dashboard">
+			<block type="sales/order_recent" name="customer_account_dashboard_top" as="top" template="ebayenterprise_order/order/recent.phtml"/>
+		</reference>
+	</customer_account_index>
+
 	<sales_order_romcancel translate="label">
 		<label>Customer My Account ROM Order Cancel</label>
 		<update handle="customer_account"/>

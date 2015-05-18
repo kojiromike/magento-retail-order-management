@@ -15,6 +15,7 @@
 
 class EbayEnterprise_Order_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	const API_CLASS = '\eBayEnterprise\RetailOrderManagement\Api\HttpApi';
 	/** @var EbayEnterprise_Order_Helper_Data */
 	protected $_helper;
 
@@ -185,5 +186,160 @@ class EbayEnterprise_Order_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_
 			->method('_getOrderCancelReason')
 			->will($this->returnValue($reasons));
 		$this->assertSame($result, $helper->getCancelReasonDescription($code));
+	}
+
+	/**
+	 * Provide a customer id, configured customer id prefix and the fully prefixed id
+	 * @return array
+	 */
+	public function provideCustomerId()
+	{
+		$prefix = '0001';
+		$customerId = '3';
+		return array(
+			array($customerId, $prefix, $prefix . $customerId),
+			array(null, $prefix, null),
+		);
+	}
+
+	/**
+	 * Test getting the current user id, prefixed by the configured client
+	 * customer id prefix.
+	 * @param string|null $customer Customer retrieved from the session
+	 * @param string $prefix Client customer id prefix
+	 * @param string|null $prefixedId prefixed customer id
+	 * @dataProvider provideCustomerId
+	 */
+	public function testGetPrefixedCurrentCustomerId($customerId, $prefix, $prefixedId)
+	{
+		/** @var Mage_Customer_Model_Customer */
+		$customer = Mage::getModel('customer/customer', ['entity_id' => $customerId]);
+		/** @var Mock_EbayEnterprise_Order_Helper_Factory */
+		$factory = $this->getHelperMock('ebayenterprise_order/factory', ['getCurrentCustomer']);
+		$factory->expects($this->once())
+			->method('getCurrentCustomer')
+			->will($this->returnValue($customer));
+
+		/** @var EbayEnterprise_Eb2cCore_Helper_Data */
+		$coreHelper = $this->getHelperMock('eb2ccore/data', ['getConfigModel']);
+		$coreHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValue($this->buildCoreConfigRegistry(['clientCustomerIdPrefix' => $prefix])));
+
+		/** @var Mock_EbayEnterprise_Order_Helper_Data */
+		$helper = Mage::helper('ebayenterprise_order');
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues($helper, [
+			'_coreHelper' => $coreHelper,
+			'_factory' => $factory,
+		]);
+
+		$this->assertSame(
+			$prefixedId,
+			EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, '_getPrefixedCurrentCustomerId')
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function providerGetCurCustomerOrders()
+	{
+		return [
+			['0001832'],
+			[null],
+		];
+	}
+
+	/**
+	 * Test that the helper method ebayenterprise_order/data::getCurCustomerOrders()
+	 * when invoked will call the helper method ebayenterprise_order/data::_getPrefixedCurrentCustomerId()
+	 * which when return a non-empty string value the method ebayenterprise_order/factory::getNewRomOrderSearch()
+	 * will be called and passed in the string literal customer id, in turn it will return an instance of type
+	 * ebayenterprise_order/search. Then, the method ebayenterprise_order/search::process() will be invoked and return
+	 * an instance of type ebayenterprise_order/search_process_response_collection. However, if the
+	 * the helper method ebayenterprise_order/data::_getPrefixedCurrentCustomerId() return an empty string
+	 * or a null value, then the method eb2ccore/data::getNewVarienDataCollection() will be invoked instead,
+	 * which will return an instance of type Varien_Data_Collection. Finally, the helper method
+	 * ebayenterprise_order/data::getCurCustomerOrders() will either return an empty Varien_Data_Collection object
+	 * or a full ebayenterprise_order/search_process_response_collection object.
+	 *
+	 * @param string | null
+	 * @dataProvider providerGetCurCustomerOrders
+	 */
+	public function testGetCurCustomerOrders($customerId)
+	{
+		$api = $this->getMockBuilder(static::API_CLASS)
+			// Disabling the constructor because it requires the IHttpConfig parameter to be passed in.
+			->disableOriginalConstructor()
+			->getMock();
+
+		/** @var string */
+		$apiService = 'customers';
+		/** @var string */
+		$apiOperation = 'orders/get';
+
+		/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+		$orderCfg = $this->buildCoreConfigRegistry([
+			'apiSearchService' => $apiService,
+			'apiSearchOperation' => $apiOperation,
+		]);
+
+		/** @var Varien_Data_Collection */
+		$result = is_null($customerId)
+			? new Varien_Data_Collection()
+			: Mage::getModel('ebayenterprise_order/search_process_response_collection');
+
+		/** @var EbayEnterprise_Eb2cCore_Helper_Data */
+		$coreHelper = $this->getHelperMock('eb2ccore/data', ['getNewVarienDataCollection', 'getSdkApi']);
+		$coreHelper->expects(is_null($customerId) ? $this->once() : $this->never())
+			// Proving that this method will only be invoked once when the method
+			// ebayenterprise_order/data::_getPrefixedCurrentCustomerId() return a null value
+			// or an empty string value, otherwise this method will never be invoked.
+			->method('getNewVarienDataCollection')
+			->will($this->returnValue($result));
+		$coreHelper->expects($this->any())
+			->method('getSdkApi')
+			->with($this->identicalTo($apiService), $this->identicalTo($apiOperation))
+			->will($this->returnValue($api));
+
+		/** @var EbayEnterprise_Order_Model_Search */
+		$search = $this->getModelMock('ebayenterprise_order/search', ['process'], false, [[
+			// This key is required
+			'customer_id' => $customerId,
+			// This key is optional
+			'core_helper' => $coreHelper,
+			// This key is optional
+			'order_cfg' => $orderCfg,
+		]]);
+		$search->expects(is_null($customerId) ? $this->never() : $this->once())
+			// Proving that this method will only be invoked once when the method
+			// ebayenterprise_order/data::_getPrefixedCurrentCustomerId() return a valid
+			// non-empty string value, otherwise this method will never be invoked.
+			->method('process')
+			->will($this->returnValue($result));
+
+		/** @var EbayEnterprise_Order_Helper_Factory */
+		$factory = $this->getHelperMock('ebayenterprise_order/factory', ['getNewRomOrderSearch']);
+		$factory->expects(is_null($customerId) ? $this->never() : $this->once())
+			// Proving that this method will only be invoked once when the method
+			// ebayenterprise_order/data::_getPrefixedCurrentCustomerId() return a valid
+			// non-empty string value, otherwise this method will never be invoked.
+			->method('getNewRomOrderSearch')
+			->with($this->identicalTo($customerId))
+			->will($this->returnValue($search));
+
+		/** @var EbayEnterprise_Order_Helper_Data */
+		$helper = $this->getHelperMock('ebayenterprise_order/data', ['_getPrefixedCurrentCustomerId']);
+		$helper->expects($this->once())
+			->method('_getPrefixedCurrentCustomerId')
+			->will($this->returnValue($customerId));
+
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues($helper, [
+			'_coreHelper' => $coreHelper,
+			'_factory' => $factory,
+		]);
+
+		$this->assertSame($result, $helper->getCurCustomerOrders());
 	}
 }

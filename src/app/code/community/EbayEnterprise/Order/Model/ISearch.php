@@ -13,15 +13,14 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-interface EbayEnterprise_Order_Model_Cancel_Send_IRequest extends EbayEnterprise_Order_Model_Abstract_ISend
+interface EbayEnterprise_Order_Model_ISearch extends EbayEnterprise_Order_Model_IApi
 {
 	/**
-	 * Send the order cancel request payload and return a valid
-	 * response payload when the request was successfully sent
-	 * and we get back a valid response. Otherwise, return
-	 * null when any exception is thrown.
+	 * Build order summary request, send order summary request,
+	 * and process order summary response into a
+	 * EbayEnterprise_Order_Model_Search_Process_Response_ICollection object.
 	 *
-	 * @return IOrderCancelResponse | null
+	 * @return EbayEnterprise_Order_Model_Search_Process_Response_ICollection
 	 */
-	public function send();
+	public function process();
 }

@@ -17,10 +17,11 @@
 <?php
 	$_order = $this->getOrder();
 	$_order_id = $_order->getCustomerOrderId();
+	$_helper = $this->getHelper();
 ?>
 <?php echo $this->getMessagesBlock()->toHtml() ?>
 <div class="page-title title-buttons">
-	<h1><?php echo $this->getHelper()->__('Order #') . ' ' . $_order->getCustomerOrderId() . ' ' . $this->getHelper()->__($_order->getStatus()) ?></h1>
+	<h1><?php echo$_helper->__('Order #') . ' ' . $_order->getCustomerOrderId() . ' ' . $_helper->__($_order->getStatus()) ?></h1>
 </div>
 <form action="<?php echo $this->getPostActionUrl() ?>" method="post" id="order-cancel-form-validate">
 	<input type="hidden" name="cancel_action" value="true"/>

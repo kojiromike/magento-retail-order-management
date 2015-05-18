@@ -65,9 +65,9 @@ class EbayEnterprise_Order_Model_Cancel_Process_Response
 
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the default value.
-	 * @param  array $arr
-	 * @param  string|int $field Valid array key
-	 * @param  mixed $default
+	 * @param  array
+	 * @param  string $field Valid array key
+	 * @param  mixed
 	 * @return mixed
 	 */
 	protected function _nullCoalesce(array $arr, $field, $default)

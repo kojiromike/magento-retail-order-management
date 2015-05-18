@@ -47,10 +47,8 @@
 			<sales>
 				<rewrite>
 					<order_details>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Details</order_details>
-					<order_history>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_History</order_history>
 					<order_info>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Info</order_info>
 					<order_items>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Items</order_items>
-					<order_recent>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Recent</order_recent>
 					<order_shipment>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Shipment</order_shipment>
 					<order_shipment_items>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_Shipment_Items</order_shipment_items>
 					<order_view>EbayEnterprise_Eb2cOrder_Overrides_Block_Order_View</order_view>

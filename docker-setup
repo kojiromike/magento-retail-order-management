@@ -70,7 +70,7 @@ fetch_unpack_magento() (
         done
     fi
     cd ../magento
-    [[ -f app/etc/local.xml ]] || tar --strip-components=1 -xf "../magetars/${file}"
+    [[ -d app/code/core ]] || tar --strip-components=1 -xf "../magetars/${file}"
 )
 
 mysql() {

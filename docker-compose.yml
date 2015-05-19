@@ -115,7 +115,27 @@ phpunit:
     links:
         - db
         - unitdb
-    entrypoint: ["php", "-d", "memory_limit=-1", "/srv/magento/vendor/bin/phpunit"]
+    entrypoint:
+        - "php"
+        - "-d"
+        - "memory_limit=-1"
+        - "vendor/bin/phpunit"
+coverage:
+    image: kojiromike/magento_tools
+    volumes:
+        - ./build/magento:/srv/magento
+        - ./build/phpunit:/srv/phpunit
+    links:
+        - db
+        - unitdb
+    entrypoint:
+        - "php"
+        - "-d"
+        - "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20100525/xdebug.so"
+        - "-d"
+        - "memory_limit=-1"
+        - "vendor/bin/phpunit"
+    command: --coverage-html=/srv/phpunit/coverage
 xmllint:
     image: kojiromike/magento_tools
     volumes:
@@ -143,5 +163,9 @@ composerCommandIntegrator:
     image: kojiromike/magento_tools
     volumes:
         - ./build/magento:/srv/magento
-    entrypoint: /srv/magento/vendor/bin/composerCommandIntegrator.php
+    entrypoint:
+        - "php"
+        - "-d"
+        - "date.timezone=UTC"
+        - "/srv/magento/vendor/bin/composerCommandIntegrator.php"
     command: list

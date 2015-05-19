@@ -20,7 +20,7 @@ Knowledge of Magento installation and configuration, PHP Composer, Magento Admin
 
 ### System Requirements
 
-- Magento Enterprise Edition 1.14.1 ([system requirements](http://magento.com/resources/system-requirements))
+- Magento Enterprise Edition 1.14.2 ([system requirements](http://magento.com/resources/system-requirements))
 - PHP XSL extension
 - PHP OpenSSL extension
 - [Magento Composer Installer](https://github.com/magento-hackathon/magento-composer-installer)

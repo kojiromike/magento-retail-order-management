@@ -1,4 +1,4 @@
-![ebay logo](../../../../../../docs/static/logo-vert.png)
+![ebay logo](/docs/static/logo-vert.png)
 
 **Magento Retail Order Management Extension**
 # Distributed Order Management
@@ -39,47 +39,90 @@ The order service requires both billing and shipping address information when cr
 
 It is possible to modify or pass additional order information to the Retail Order Management order service when submitting an order by observing appropriate events.
 
-Order custom attributes can apply to the order at three different levels. The extension dispatches events appropriate to modifying and injecting custom information at these levels, described below.
+As the Magento Retail Order Management Extension creates an order, it will dispatch events with appropriate data at designated points. To add or change data in the order create request, simply observe one or more of these events and supply the appropriate data to the appropriate [payload from the Retail Order Management SDK](http://ebayenterprise.github.io/RetailOrderManagement-SDK-Docs/namespaces/eBayEnterprise.RetailOrderManagement.Payload.Order.html).
 
-### Supported Order Create Events
+#### Dispatched Order Create Events
 
-|  Level  |                  Event Name                 |
-|:--------|:--------------------------------------------|
-| Item    | `ebayenterprise_order_create_item`          |
-| Context | `ebayenterprise_order_create_context`       |
-| Order   | `ebayenterprise_order_create_before_attach` |
-| Order   | `ebayenterprise_order_create_before_send`   |
+| Level      | Event Name                                  | Data |
+|:-----------|:--------------------------------------------|:-----|
+| Item       | `ebayenterprise_order_create_item`          | `Mage_Sales_Model_Order_Item item`,<br /> `IOrderItem item_payload`,<br /> `Mage_Sales_Model_Order order`,<br /> `Mage_Customer_Model_Address_Abstract address`,<br /> `int line_number`,<br /> `string shipping_charge_type` |
+| Ship Group | `ebayenterprise_order_create_ship_group`    | `Mage_Customer_Model_Address_Abstract address`,<br /> `Mage_Sales_Model_Order order`,<br /> `IShipGroup ship_group_payload`,<br /> `IOrderDestinationIterable order_destinations_payload`
+| Payment<sup>1</sup>   | `ebayenterprise_order_create_payment`       | `Mage_Sales_Model_Order order`,<br /> `IPaymentContainer payment_container`,<br /> `SplObjectStorage processed_payments` |
+| Context    | `ebayenterprise_order_create_context`       | `Mage_Sales_Model_Order order`,<br /> `IOrderContext order_context`
+| Order      | `ebayenterprise_order_create_before_attach` | `Mage_Sales_Model_Order order`,<br /> `IOrderCreateRequest payload` |
+| Order      | `ebayenterprise_order_create_before_send`   | `Mage_Sales_Model_Order order`,<br /> `IOrderCreateRequest payload` |
 
-#### Local XML Configuration
+1. Any handler of the `ebayenterprise_order_create_payment` event should attach payments to the `processed_payments` object to indicate that a payload was created. Handlers should avoid creating a new payload for any payment in the set of processed payments to avoid adding duplicate payment information to the request.
 
-The order custom attribute map requires additional configuration via local XML.
+#### Example
 
-The extension includes a sample order custom attribute configuration file—[`/path/to/magento/root/dir/app/etc/ordercustomattributes.xml.sample`](../../../../etc/ordercustomattributes.xml.sample)—that includes example configuration options. You can use this file as a starting point for your implementation by renaming this file to `ordercustomattributes.xml`. Carefully update the map to ensure it matches your specific implementation.
+To include a payment method that is supported by the Retail Order Management platform, but not yet included in the Magento Retail Order Management Extension such as Cash on Delivery:
 
-```xml
-<custom_attribute_mappings>
-	<order_level>
-		<increment_id> <!-- A known value that can be retrieved via 'get' magic method or an actual public method call on any concrete class instance that extend Varien_Object class-->
-			<class>eb2corder/map</class>
-			<type>helper</type>
-			<method>getAttributeValue</method>
-		</increment_id>
-	</order_level>
-	<order_item_level>
-		<sku> <!-- A known value that can be retrieved via 'get' magic method or an actual public method call on any concrete class instance that extend Varien_Object class-->
-			<class>eb2corder/map</class>
-			<type>helper</type>
-			<method>getAttributeValue</method>
-		</sku>
-	</order_item_level>
-	<order_context_level>
-		<name>
-			<class>eb2corder/map</class>
-			<type>helper</type>
-			<method>getAttributeValue</method>
-		</name>
-	</order_context_level>
-</custom_attribute_mappings>
+##### 1. Observe Order Create Event
+
+In the cash on delivery payment method module, simply observe the `ebayenterprise_order_create_payment` event, 
+
+```XML
+<ebayenterprise_order_create_payment>
+    <observers>
+        <vendor_cod_order_create_payment_observer>
+            <type>model</type>
+            <class>vendor_cod/observer</class>
+            <method>handleOrderCreatePaymentEvent</method>
+        </vendor_cod_order_create_payment_observer>
+    </observers>
+</ebayenterprise_order_create_payment>
+```
+
+```PHP
+    /**
+     * add cash on delivery payment payloads to the order create
+     * request.
+     * @param  Varien_Event_Observer $observer
+     * @return self
+     */
+    public function handleOrderCreatePaymentEvent(Varien_Event_Observer $observer)
+    {
+        $event = $observer->getEvent();
+        $order = $event->getOrder();
+        $processedPayments = $event->getProcessedPayments();
+        $paymentContainer = $event->getPaymentContainer();
+        Mage::getModel('vendor_cod/order_create_payment')
+            ->addPaymentsToPayload($order, $paymentContainer, $processedPayments);
+        return $this;
+    }
+```
+
+##### 2. Add or Update Data to Payloads
+
+Then use the included [`IPaymentContainer payment_container`](http://ebayenterprise.github.io/RetailOrderManagement-SDK-Docs/classes/eBayEnterprise.RetailOrderManagement.Payload.Order.IPaymentContainer.html) payload to populate an empty [`IPrepaidCashOnDeliveryPayment`](http://ebayenterprise.github.io/RetailOrderManagement-SDK-Docs/classes/eBayEnterprise.RetailOrderManagement.Payload.Order.IPrepaidCashOnDeliveryPayment.html) payload with the payment method data from the included `Mage_Sales_Model_Order order`.
+
+```PHP
+    /**
+     * Attach cash on delivery payloads
+     * @param Mage_Sales_Model_Order $order
+     * @param IPaymentContainer      $paymentContainer
+     * @param SplObjectStorage       $processedPayments
+     */
+    public function addPaymentsToPayload(
+        Mage_Sales_Model_Order $order,
+        IPaymentContainer $paymentContainer,
+        SplObjectStorage $processedPayments
+    ) {
+        foreach ($order->getAllPayments() as $payment) {
+            if ($this->_shouldIgnorePayment($payment, $processedPayments)) {
+                continue;
+            }
+            $iterable = $paymentContainer->getPayments();
+            $payload = $iterable->getEmptyPrepaidCashOnDeliveryPayment();
+            $payload
+                ->setAmount($payment->getAmount())
+            // add the new payload
+            $iterable->OffsetSet($payload, $payload);
+            // put the payment in the processed payments set
+            $processedPayments->attach($payment);
+        }
+    }
 ```
 
 ## Order History

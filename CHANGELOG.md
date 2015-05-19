@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file.
 ## Unreleased
 ### Added
 - Support tax, duty and fee calculations when using multishipping checkout
+- Documentation to extend the order create request
+- Magento Enterprise Edition 1.14.2 support
 
 ### Fixed
-- Order create merchandise amount remainder calculation wrong and unnecessary.
+- Order create merchandise amount remainder calculation wrong and unnecessary
 
 ## [1.6.0-alpha-2] -  2015-05-07
 ### Fixed

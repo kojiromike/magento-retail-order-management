@@ -23,12 +23,14 @@ class EbayEnterprise_Inventory_Test_Helper_Item_SelectionTest
 	{
 		$parent = Mage::getModel('sales/quote_item', [
 			'product' => Mage::getModel('catalog/product', [
+				'stock_item' => $this->_getStockItemStub(true),
 				'type_id' => Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE,
 				'id' => 1
 			])
 		]);
 		$single = Mage::getModel('sales/quote_item', [
 			'product' => Mage::getModel('catalog/product', [
+				'stock_item' => $this->_getStockItemStub(true),
 				'type_id' => 'simple',
 				'parent_item_id' => $parent->getId(),
 				'parent_item' => $parent
@@ -48,12 +50,14 @@ class EbayEnterprise_Inventory_Test_Helper_Item_SelectionTest
 	{
 		$parent = Mage::getModel('sales/quote_item', [
 			'product' => Mage::getModel('catalog/product', [
+				'stock_item' => $this->_getStockItemStub(true),
 				'type_id' => Mage_Catalog_Model_Product_Type::TYPE_BUNDLE,
 				'id' => 1
 			])
 		]);
 		$single = Mage::getModel('sales/quote_item', [
 			'product' => Mage::getModel('catalog/product', [
+				'stock_item' => $this->_getStockItemStub(true),
 				'type_id' => 'simple',
 				'parent_item_id' => $parent->getId(),
 				'parent_item' => $parent
@@ -74,12 +78,14 @@ class EbayEnterprise_Inventory_Test_Helper_Item_SelectionTest
 	{
 		$parent = Mage::getModel('sales/quote_item', [
 			'product' => Mage::getModel('catalog/product', [
+				'stock_item' => $this->_getStockItemStub(true),
 				'type_id' => Mage_Catalog_Model_Product_Type::TYPE_GROUPED,
 				'id' => 1
 			])
 		]);
 		$single = Mage::getModel('sales/quote_item', [
 			'product' => Mage::getModel('catalog/product', [
+				'stock_item' => $this->_getStockItemStub(true),
 				'type_id' => 'simple',
 				'parent_item_id' => $parent->getId(),
 				'parent_item' => $parent
@@ -115,6 +121,7 @@ class EbayEnterprise_Inventory_Test_Helper_Item_SelectionTest
 	{
 		$single = Mage::getModel('sales/quote_item', [
 			'product' => Mage::getModel('catalog/product', [
+				'stock_item' => $this->_getStockItemStub(true),
 				'type_id' => $productType,
 			])
 		]);
@@ -136,6 +143,7 @@ class EbayEnterprise_Inventory_Test_Helper_Item_SelectionTest
 		}
 		$single = Mage::getModel('sales/quote_item', [
 			'product' => Mage::getModel('catalog/product', [
+				'stock_item' => $this->_getStockItemStub(true),
 				'type_id' => Enterprise_GiftCard_Model_Catalog_Product_Type_Giftcard::TYPE_GIFTCARD,
 			])
 		]);
@@ -143,5 +151,40 @@ class EbayEnterprise_Inventory_Test_Helper_Item_SelectionTest
 		$chosenItems = $selection->selectFrom([$single]);
 		$this->assertTrue(in_array($single, $chosenItems));
 		$this->assertCount(1, $chosenItems);
+	}
+
+	/**
+	 * verify
+	 * - a non manage stock item will not be selected
+	 */
+	public function testNonManageStockItem()
+	{
+		$single = Mage::getModel('sales/quote_item', [
+			'product' => Mage::getModel('catalog/product', [
+				'stock_item' => $this->_getStockItemStub(false),
+				'type_id' => 'simple',
+			])
+		]);
+
+		$selection = Mage::helper('ebayenterprise_inventory/item_selection');
+		$chosenItems = $selection->selectFrom([$single]);
+		$this->assertNotTrue(in_array($single, $chosenItems));
+		$this->assertCount(0, $chosenItems);
+	}
+
+	/**
+	 * stub a stock item object.
+	 *
+	 * @param  bool
+	 * @return Mage_CatalogInventory_Model_Stock_Item
+	 */
+	protected function _getStockItemStub($manageStockFlag=true)
+	{
+		// create the mock with defaults but with the constructor disabled
+		$stockItem = $this->getModelMock('cataloginventory/stock_item', [], false, [], '', false);
+		$stockItem->expects($this->any())
+			->method('getManageStock')
+			->will($this->returnValue($manageStockFlag));
+		return $stockItem;
 	}
 }

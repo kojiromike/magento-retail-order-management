@@ -28,9 +28,33 @@ class EbayEnterprise_Inventory_Helper_Item_Selection
 		return array_filter($items,
 			function($item)
 			{
-				$itemProductType = $item->getProduct()->getTypeId();
-				return $itemProductType !== Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
-					&& $itemProductType !== Mage_Catalog_Model_Product_Type::TYPE_GROUPED;
+				return !$this->isExcludedParent($item) && $this->isStockManaged($item);
 			});
+	}
+
+	/**
+	 * exclude items that are the parent of configurable/grouped products
+	 *
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract
+	 * @return bool
+	 */
+	public function isExcludedParent(Mage_Sales_Model_Quote_Item_Abstract $item)
+	{
+		$itemProductType = $item->getProduct()->getTypeId();
+		return $itemProductType === Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
+			|| $itemProductType === Mage_Catalog_Model_Product_Type::TYPE_GROUPED;
+	}
+
+	/**
+	 * exclude items with manage stock configured to no
+	 *
+	 * @param  Mage_Sales_Model_Quote_Item_Abstract
+	 * @return bool
+	 */
+	public function isStockManaged(Mage_Sales_Model_Quote_Item_Abstract $item)
+	{
+		$stock = $item->getProduct()->getStockItem();
+		$manageStockFlag = $stock->getManageStock();
+		return is_null($manageStockFlag) ?: $manageStockFlag;
 	}
 }

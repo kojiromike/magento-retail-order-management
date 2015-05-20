@@ -1,11 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [1.6.0-alpha-3] -  2015-05-21
 ### Added
-- Support tax, duty and fee calculations when using multishipping checkout
+- Support for ROM tax, duty and fee service when using multishipping checkout
+- Support for ROM web order cancel and reason
 - Documentation to extend the order create request
 - Magento Enterprise Edition 1.14.2 support
+
+### Changed
+- Order summary has been refactored to use the [RetailOrderManagement-SDK](https://github.com/eBayEnterprise/RetailOrderManagement-SDK) 
+
+### Removed
+- Vestigial event observer from eb2cOrder
 
 ### Fixed
 - Order create merchandise amount remainder calculation wrong and unnecessary
@@ -249,6 +256,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-alpha-3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-2...1.6.0-alpha-3
 [1.6.0-alpha-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-1...1.6.0-alpha-2
 [1.6.0-alpha-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-beta-1...1.6.0-alpha-1
 [1.5.0-beta-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-alpha-6...1.5.0-beta-1

@@ -13,12 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Inventory_Helper_Data
-	extends Mage_Core_Helper_Abstract
+class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract
 {
-	public function getRequestedItemQuantity(Mage_Sales_Model_Quote_Item_Abstract $item)
-	{
-		$parentItem = $item->getParentItem();
-		return $item->getQty() * ($parentItem ? $parentItem->getQty() : 1);
-	}
 }

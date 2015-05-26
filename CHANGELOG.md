@@ -30,6 +30,9 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Order create merchandise amount remainder calculation wrong and unnecessary
 
+### Changed
+- Out of stock and limited stock handling match Magento handling
+
 ## [1.6.0-alpha-2] -  2015-05-07
 ### Fixed
 - Store language codes are not being properly validated in the admin

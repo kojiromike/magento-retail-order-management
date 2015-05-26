@@ -49,7 +49,6 @@ class EbayEnterprise_Eb2cCore_Model_Config extends EbayEnterprise_Eb2cCore_Model
         'feed_outbox_directory'       => 'eb2ccore/feed/filetransfer_exports/eb2c_outbox/local_directory',
         'feed_processing_directory'   => 'eb2ccore/feed/processing_directory',
         'feed_sent_directory'         => 'eb2ccore/feed/filetransfer_exports/eb2c_outbox/sent_directory',
-        'inventory_expiration_time'   => 'eb2ccore/service/inventory/expiration',
         'language_code'               => 'eb2ccore/general/language_code',
         'service_order_timeout'       => 'eb2ccore/service/order/timeout',
         'service_payment_timeout'     => 'eb2ccore/service/payment/timeout',

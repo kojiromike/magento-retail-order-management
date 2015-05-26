@@ -30,6 +30,27 @@
 			</ebayenterprise_inventory>
 		</helpers>
 		<events>
+			<sales_quote_collect_totals_before>
+				<observers>
+					<EbayEnterprise_Eb2cInventory_observer>
+						<type>singleton</type>
+						<class>ebayenterprise_inventory/observer</class>
+						<method>handleBeforeCollectTotals</method>
+					</EbayEnterprise_Eb2cInventory_observer>
+				</observers>
+			</sales_quote_collect_totals_before>
+			<!--
+				Disable the cataloginventory module's inventory quantity checks.
+				If using ROM inventory management, must assume that Magento's
+				inventory records are not always up-to-date and cannot be trusted.
+			-->
+			<sales_quote_item_qty_set_after>
+				<observers>
+					<inventory>
+						<type>disabled</type>
+					</inventory>
+				</observers>
+			</sales_quote_item_qty_set_after>
 		</events>
 	</global>
 	<frontend>
@@ -56,6 +77,13 @@
 	</adminhtml>
 	<default>
 		<ebayenterprise_inventory>
+			<api>
+				<service>inventory</service>
+			</api>
+			<quantity>
+				<operation>quantity/get</operation>
+				<inventory_expiration>10</inventory_expiration>
+			</quantity>
 		</ebayenterprise_inventory>
 	</default>
 	<phpunit>

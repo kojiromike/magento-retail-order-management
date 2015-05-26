@@ -62,34 +62,14 @@ class EbayEnterprise_Eb2cInventory_Model_Observer
     {
         $coreSession = Mage::getSingleton('eb2ccore/session');
         $quote = $observer->getEvent()->getQuote();
-        $qtyRequired = $coreSession->isQuantityUpdateRequired();
         $dtsRequired = $coreSession->isDetailsUpdateRequired();
 
-        if ($qtyRequired || $dtsRequired) {
+        if ($dtsRequired) {
             Mage::helper('eb2cinventory/quote')->rollbackAllocation($quote, null);
-            if ($qtyRequired) {
-                $this->_updateQuantity($quote);
-            }
             if ($dtsRequired && Mage::helper('eb2cinventory')->hasRequiredShippingDetail($quote->getShippingAddress())) {
                 $this->_updateDetails($quote);
             }
             $this->_extractQuoteErrorMessage($quote);
-        }
-        return $this;
-    }
-    /**
-     * Make an inventory quantity request and update the quote as needed.
-     * @param  Mage_Sales_Model_Quote $quote     Quote object to make the request for and updated
-     * @return self
-     */
-    protected function _updateQuantity(Mage_Sales_Model_Quote $quote)
-    {
-        /** @var EbayEnterprise_Eb2cInventory_Model_Quantity $inventoryQuantity */
-        $inventoryQuantity = Mage::getModel('eb2cinventory/quantity');
-        if ($this->_makeRequestAndUpdate($inventoryQuantity, $quote)) {
-            /** @var EbayEnterprise_Eb2cCore_Model_Session $session */
-            $session = Mage::getSingleton('eb2ccore/session');
-            $session->updateQuoteInventory($quote)->resetQuantityUpdateRequired();
         }
         return $this;
     }

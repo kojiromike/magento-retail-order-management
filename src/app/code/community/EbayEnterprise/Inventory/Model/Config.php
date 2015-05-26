@@ -13,17 +13,11 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract implements EbayEnterprise_Eb2cCore_Helper_Interface
+class EbayEnterprise_Inventory_Model_Config extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
 {
-	/**
-	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
-	 * @param mixed
-	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 */
-	public function getConfigModel($store=null)
-	{
-		return Mage::getModel('eb2ccore/config_registry')
-			->setStore($store)
-			->addConfigModel(Mage::getSingleton('ebayenterprise_inventory/config'));
-	}
+	protected $_configPaths = [
+		'api_service' => 'ebayenterprise_inventory/api/service',
+		'quantity_api_operation' => 'ebayenterprise_inventory/quantity/operation',
+		'quantity_cache_lifetime' => 'ebayenterprise_inventory/quantity/inventory_expiration',
+	];
 }

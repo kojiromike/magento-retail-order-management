@@ -619,72 +619,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
         $this->assertSame($new, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_diffQuoteData', [$old, $new]));
     }
     /**
-     * When quote data has expired, the entire new quote should be returned as the
-     * changes to the quote - consider whole quote as having changed.
-     */
-    public function testDiffQuoteDataReturnNewQuoteDataWhenDataExpired()
-    {
-        $session = $this->getModelMockBuilder('eb2ccore/session')
-            ->disableOriginalConstructor()
-            ->setMethods(['_hasInventoryExpired'])
-            ->getMock();
-        $old = ['not', 'empty', 'expired', 'data'];
-        $new = ['all', 'of', 'this', 'is', 'returned', 'when', 'old', 'quote', 'expired'];
-
-        $session
-            ->expects($this->once())
-            ->method('_hasInventoryExpired')
-            ->with($this->identicalTo($old))
-            ->will($this->returnValue(true));
-
-        $this->assertSame($new, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_diffQuoteData', [$old, $new]));
-    }
-    /**
-     * Test getting the oldest possible unexpired timestamp - time X minutes ago, where
-     * X is the config setting for the inventory expiration.
-     */
-    public function testGetInventoryTimeout()
-    {
-        $session = $this->getModelMockBuilder('eb2ccore/session')->disableOriginalConstructor()->setMethods(null)->getMock();
-        $this->replaceCoreConfigRegistry(['inventoryExpirationTime' => 15]);
-        $this->assertInstanceOf('DateTime', EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_getInventoryTimeout'));
-    }
-    /**
-     * Data provider for the testHasQuoteExpired tests. Provide the quote data
-     * and whether or not the quantity has expired.
-     * @return array $quoteData and $isExpired arguments
-     */
-    public function providerHasInventoryExpired()
-    {
-        return [
-            // last_updated far in the past, should fail
-            [['last_updated' => '2000-01-01T12:00:00+00:00'], true],
-            // last_updated within limit should pass
-            [['last_updated' => gmdate('c')], false],
-            // last_updated doesn't exist should auto-fail, considered never updated
-            [[], true],
-        ];
-    }
-    /**
-     * Test checking if quote data in the session has expired
-     * @param  array   $quoteData Array of quote data, possibly containing a 'last_updated' key
-     * @param  bool $isExpired Should the quote data be considered expired
-     * @dataProvider providerHasInventoryExpired
-     */
-    public function testHasInventoryExpired($quoteData, $isExpired)
-    {
-        $session = $this->getModelMockBuilder('eb2ccore/session')
-            ->disableOriginalConstructor()
-            ->setMethods(['_getInventoryTimeout'])
-            ->getMock();
-        $session
-            ->expects($this->any())
-            ->method('_getInventoryTimeout')
-            ->will($this->returnValue(new DateTime('15 minutes ago')));
-
-        $this->assertSame($isExpired, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_hasInventoryExpired', [$quoteData]));
-    }
-    /**
      * Test getting the tax update required flag. Should just return the
      * value of the magic data used to store the flag
      */
@@ -695,18 +629,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
         $this->assertTrue($session->isTaxUpdateRequired());
         $session->setTaxUpdateRequiredFlag(false);
         $this->assertFalse($session->isTaxUpdateRequired());
-    }
-    /**
-     * Test getting the quantity update required flag. Should just return the
-     * value of the magic data used to store the flag
-     */
-    public function testIsQuantityUpdateRequired()
-    {
-        $session = $this->getModelMockBuilder('eb2ccore/session')->disableOriginalConstructor()->setMethods(null)->getMock();
-        $session->setQuantityUpdateRequiredFlag(true);
-        $this->assertTrue($session->isQuantityUpdateRequired());
-        $session->setQuantityUpdateRequiredFlag(false);
-        $this->assertFalse($session->isQuantityUpdateRequired());
     }
     /**
      * Test getting the details update required flag. Should just return the value
@@ -730,20 +652,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
         $session->setTaxUpdateRequiredFlag(true);
         $this->assertSame($session, $session->resetTaxUpdateRequired());
         $this->assertNull($session->getTaxUpdateRequiredFlag());
-    }
-    /**
-     * Test resetting the inventory quantity update required flag. Calling this method should
-     * force the flag go to be unset.
-     */
-    public function testResetQuantityUpdateRequired()
-    {
-        $session = $this->getModelMockBuilder('eb2ccore/session')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
-        $session->setQuantityUpdateRequiredFlag(true);
-        $this->assertSame($session, $session->resetQuantityUpdateRequired());
-        $this->assertNull($session->getQuantityUpdateRequiredFlag());
     }
     /**
      * Test resetting the inventory details update required flag. Calling this method should force the
@@ -806,9 +714,9 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
             ->setMethods([
                 'getCurrentQuoteData', 'setCurrentQuoteData', 'setQuoteChanges',
                 '_extractQuoteData', '_diffQuoteData', 'init',
-                'getTaxUpdateRequiredFlag', 'getQuantityUpdateRequiredFlag', 'getDetailsUpdateRequiredFlag',
-                'setTaxUpdateRequiredFlag', 'setQuantityUpdateRequiredFlag', 'setDetailsUpdateRequiredFlag',
-                '_changeRequiresTaxUpdate', '_changeRequiresQuantityUpdate', '_changeRequiresDetailsUpdate',
+                'getTaxUpdateRequiredFlag', 'getDetailsUpdateRequiredFlag',
+                'setTaxUpdateRequiredFlag', 'setDetailsUpdateRequiredFlag',
+                '_changeRequiresTaxUpdate', '_changeRequiresDetailsUpdate',
             ])
             ->getMock();
 
@@ -832,51 +740,36 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
             ->with($this->identicalTo($currentData), $this->identicalTo($newDataWithStamp))
             ->will($this->returnValue($diffData));
 
-        // tax flag
-        $session
-            ->expects($this->any())
-            ->method('getTaxUpdateRequiredFlag')
-            ->will($this->returnValue($currFlag));
-        $session
-            ->expects($this->any())
-            ->method('_changeRequiresTaxUpdate')
-            ->with($this->identicalTo($newDataWithStamp), $this->identicalTo($diffData))
-            ->will($this->returnValue($changeFlag));
-        $session
-            ->expects($this->once())
-            ->method('setTaxUpdateRequiredFlag')
-            ->with($this->identicalTo($changeFlag))
-            ->will($this->returnSelf());
-        // quantity flag
-        $session
-            ->expects($this->any())
-            ->method('getQuantityUpdateRequiredFlag')
-            ->will($this->returnValue($currFlag));
-        $session
-            ->expects($this->any())
-            ->method('_changeRequiresQuantityUpdate')
-            ->with($this->identicalTo($newDataWithStamp), $this->identicalTo($diffData))
-            ->will($this->returnValue($changeFlag));
-        $session
-            ->expects($this->once())
-            ->method('setQuantityUpdateRequiredFlag')
-            ->with($this->identicalTo($changeFlag))
-            ->will($this->returnSelf());
-        // details flag
-        $session
-            ->expects($this->any())
-            ->method('getDetailsUpdateRequiredFlag')
-            ->will($this->returnValue($currFlag));
-        $session
-            ->expects($this->any())
-            ->method('_changeRequiresDetailsUpdate')
-            ->with($this->identicalTo($newDataWithStamp), $this->identicalTo($diffData))
-            ->will($this->returnValue($changeFlag));
-        $session
-            ->expects($this->once())
-            ->method('setDetailsUpdateRequiredFlag')
-            ->with($this->identicalTo($changeFlag))
-            ->will($this->returnSelf());
+		// tax flag
+		$session
+			->expects($this->any())
+			->method('getTaxUpdateRequiredFlag')
+			->will($this->returnValue($currFlag));
+		$session
+			->expects($this->any())
+			->method('_changeRequiresTaxUpdate')
+			->with($this->identicalTo($newDataWithStamp), $this->identicalTo($diffData))
+			->will($this->returnValue($changeFlag));
+		$session
+			->expects($this->once())
+			->method('setTaxUpdateRequiredFlag')
+			->with($this->identicalTo($changeFlag))
+			->will($this->returnSelf());
+		// details flag
+		$session
+			->expects($this->any())
+			->method('getDetailsUpdateRequiredFlag')
+			->will($this->returnValue($currFlag));
+		$session
+			->expects($this->any())
+			->method('_changeRequiresDetailsUpdate')
+			->with($this->identicalTo($newDataWithStamp), $this->identicalTo($diffData))
+			->will($this->returnValue($changeFlag));
+		$session
+			->expects($this->once())
+			->method('setDetailsUpdateRequiredFlag')
+			->with($this->identicalTo($changeFlag))
+			->will($this->returnSelf());
 
         $session
             ->expects($this->once())
@@ -957,15 +850,15 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
         $noManaged = ['skus' => ['45-234' => ['managed' => false, 'virtual' => true, 'qty' => 2]]];
 
         return [
-            //    quoteData   diff        has virtual hasManged tax    qty    deets
-            [$quoteData, $coupon,    false,      true,     true,  false, false],
-            [$quoteData, $billing,   false,      true,     false, false, false],
-            [$quoteData, $billing,   true,       true,     true,  false, false],
-            [$quoteData, $shipping,  false,      true,     true,  false, true],
-            [$quoteData, $shipping,  false,      false,    true,  false, false],
-            [$quoteData, $managed,   false,      true,     true,  true,  true],
-            [$quoteData, $noManaged, true,       false,    true,  false, false],
-            [$quoteData, $amount,    false,      false,    true,  false, false],
+            //    quoteData   diff        has virtual hasManged tax      deets
+            [$quoteData, $coupon,    false,      true,     true,   false],
+            [$quoteData, $billing,   false,      true,     false,  false],
+            [$quoteData, $billing,   true,       true,     true,   false],
+            [$quoteData, $shipping,  false,      true,     true,    true],
+            [$quoteData, $shipping,  false,      false,    true,   false],
+            [$quoteData, $managed,   false,      true,     true,    true],
+            [$quoteData, $noManaged, true,       false,    true,   false],
+            [$quoteData, $amount,    false,      false,    true,   false],
         ];
     }
     /**
@@ -1001,42 +894,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
      * @param  bool $hasVirtual Does the quote contain virtual items
      * @param  bool $hasManaged Does the quote contain managed stock items
      * @param  bool $flagTax    Should this flag tax
-     * @param  bool $flagQty    Should this flag quantity
-     * @param  bool $flagDeets  Should this flag details
-     * @dataProvider providerQuoteDiffs
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function testChangeRequiresQuantityUpdate(
-        $quoteData,
-        $diffData,
-        $hasVirtual,
-        $hasManaged,
-        $flagTax,
-        $flagQty,
-        $flagDeets
-    ) {
-        $session = $this->getModelMockBuilder('eb2ccore/session')
-            ->disableOriginalConstructor()
-            ->setMethods(['_itemsIncludeVirtualItem', '_itemsIncludeManagedItem'])
-            ->getMock();
-        $session
-            ->expects($this->any())
-            ->method('_itemsIncludeVirtualItem')
-            ->will($this->returnValue($hasVirtual));
-        $session
-            ->expects($this->any())
-            ->method('_itemsIncludeManagedItem')
-            ->will($this->returnValue($hasManaged));
-        $this->assertSame($flagQty, EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_changeRequiresQuantityUpdate', [$quoteData, $diffData]));
-    }
-    /**
-     * Test checking the quote diff data for requiring tax data to be updated.
-     * @param  array   $quoteData  Array of quote data
-     * @param  array   $diffData   Array of quote changes
-     * @param  bool $hasVirtual Does the quote contain virtual items
-     * @param  bool $hasManaged Does the quote contain managed stock items
-     * @param  bool $flagTax    Should this flag tax
-     * @param  bool $flagQty    Should this flag quantity
      * @param  bool $flagDeets  Should this flag details
      * @dataProvider providerQuoteDiffs
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -1047,7 +904,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
         $hasVirtual,
         $hasManaged,
         $flagTax,
-        $flagQty,
         $flagDeets
     ) {
         $session = $this->getModelMockBuilder('eb2ccore/session')
@@ -1143,23 +999,6 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
         $session->setTaxUpdateRequiredFlag($init);
         $session->setTaxUpdateRequired($current);
         $this->assertSame($result, $session->getTaxUpdateRequiredFlag());
-    }
-    /**
-     * make sure that once the value becomes true it remains true not matter what is set
-     * @param  bool $init    initial flag value
-     * @param  bool $current new value
-     * @param  bool $result  expected result
-     * @dataProvider provideTrueFalseSequence()
-     */
-    public function testSetQuantityUpdateRequired($init, $current, $result)
-    {
-        $session = $this->getModelMockBuilder('eb2ccore/session')
-            ->disableOriginalConstructor()
-            ->setMethods(['noMockedMethods'])
-            ->getMock();
-        $session->setQuantityUpdateRequiredFlag($init);
-        $session->setQuantityUpdateRequired($current);
-        $this->assertSame($result, $session->getQuantityUpdateRequiredFlag());
     }
     /**
      * make sure that once the value becomes true it remains true not matter what is set

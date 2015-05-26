@@ -142,17 +142,6 @@
 							<show_in_website>0</show_in_website>
 							<show_in_store>0</show_in_store>
 						</timeout>
-						<inventory_expiration translate="label">
-							<label>Inventory Expiration</label>
-							<comment>Time in minutes to cache inventory quantity during persistent cart.</comment>
-							<frontend_type>text</frontend_type>
-							<sort_order>100</sort_order>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-							<validate>validate-digits</validate>
-							<config_path>eb2ccore/service/inventory/expiration</config_path>
-						</inventory_expiration>
 					</fields>
 				</api>
 				<feed translate="label">

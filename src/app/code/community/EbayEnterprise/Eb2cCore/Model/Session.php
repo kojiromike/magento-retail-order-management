@@ -250,7 +250,7 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
      */
     protected function _diffQuoteData($oldQuote, $newQuote)
     {
-        if (empty($oldQuote) || $this->_hasInventoryExpired($oldQuote)) {
+        if (empty($oldQuote)) {
             return $newQuote;
         }
         return $this->_diffBilling($oldQuote['billing'], $newQuote['billing']) +
@@ -295,29 +295,6 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
     }
 
     /**
-     * @return DateTime inventoryExpirationTime minutes ago
-     */
-    protected function _getInventoryTimeout()
-    {
-        return new DateTime(
-            sprintf(
-                '%d minutes ago',
-                (int) Mage::helper('eb2ccore')->getConfigModel()->inventoryExpirationTime
-            )
-        );
-    }
-    /**
-     * Check the timestamp in the given quote data array and see if it is older
-     * than allowed. If no last_updated key exists, assume it was never updated and considered expired.
-     * @param  array  $quoteData Array containing a 'last_updated' key set to a valid timestamp value
-     * @return bool           True if the session data has expired, false otherwise
-     */
-    protected function _hasInventoryExpired($quoteData)
-    {
-        return !isset($quoteData['last_updated']) ||
-            ((new DateTime($quoteData['last_updated'])) < $this->_getInventoryTimeout());
-    }
-    /**
      * Check if changes to the quote require tax data to be updated. Current conditions
      * which required tax to be updated:
      * - coupon code changes
@@ -338,19 +315,6 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
             (isset($quoteDiff['billing']) && $this->_itemsIncludeVirtualItem($quoteData['skus'])) ||
             (isset($quoteDiff['amounts']))
         );
-    }
-    /**
-     * Check if changes to the quote require inventory quantity data to be checked.
-     * Current conditions which require quantity to be checked:
-     * - items with managed stock change
-     * @param  array $quoteData Array of data extracted from the newest quote object
-     * @param  array $quoteDiff Array of changes made to the quote
-     * @return bool true iff an inventory quantity request should be made
-     */
-    protected function _changeRequiresQuantityUpdate($quoteData, $quoteDiff)
-    {
-        return isset($quoteData['skus']) &&
-            (isset($quoteDiff['skus']) && $this->_itemsIncludeManagedItem($quoteDiff['skus']));
     }
     /**
      * Check if changes to the quote require inventory details to be updated.
@@ -410,14 +374,6 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
         return $this->getTaxUpdateRequiredFlag();
     }
     /**
-     * Get the flag indicating that changes to the quote require inventory quantity to be rechecked.
-     * @return bool Should inventory details be rechecked
-     */
-    public function isQuantityUpdateRequired()
-    {
-        return $this->getQuantityUpdateRequiredFlag();
-    }
-    /**
      * Get the flag indicating that changes to the quote require inventory details to be recollected.
      * @return bool Should inventory details be recollected
      */
@@ -432,14 +388,6 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
     public function resetTaxUpdateRequired()
     {
         return $this->unsTaxUpdateRequiredFlag();
-    }
-    /**
-     * Reset the inventory quantity flag
-     * @return self
-     */
-    public function resetQuantityUpdateRequired()
-    {
-        return $this->unsQuantityUpdateRequiredFlag();
     }
     /**
      * Reset the inventory details flag
@@ -486,7 +434,6 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
                 // set the update required flags - any flags that are already true should remain true
                 // flags should only be unset explicitly by the reset methods
                 ->setTaxUpdateRequiredFlag($this->_changeRequiresTaxUpdate($newData, $quoteDiff))
-                ->setQuantityUpdateRequiredFlag($this->_changeRequiresQuantityUpdate($newData, $quoteDiff))
                 ->setDetailsUpdateRequiredFlag($this->_changeRequiresDetailsUpdate($newData, $quoteDiff))
                 ->setCurrentQuoteData($newData);
         }

@@ -19,6 +19,7 @@ class EbayEnterprise_Order_Model_Config extends EbayEnterprise_Eb2cCore_Model_Co
 		'api_service'                    => 'ebayenterprise_order/api/service',
 		'api_create_operation'           => 'ebayenterprise_order/api/create_operation',
 		'api_cancel_operation'           => 'ebayenterprise_order/api/cancel_operation',
+		'api_detail_operation'           => 'ebayenterprise_order/api/detail_operation',
 		'api_search_operation'           => 'ebayenterprise_order/api/search_operation',
 		'api_search_service'             => 'ebayenterprise_order/api/search_service',
 		'level_of_service'               => 'ebayenterprise_order/create/level_of_service',
@@ -27,5 +28,8 @@ class EbayEnterprise_Order_Model_Config extends EbayEnterprise_Eb2cCore_Model_Co
 		'shipping_tax_class'             => 'ebayenterprise_order/create/shipping/default_tax_class',
 		'cancel_reason_map'              => 'ebayenterprise_order/cancel/reason_map',
 		'map_search_response'            => 'ebayenterprise_order/map/search_response',
+		'map_detail_response'            => 'ebayenterprise_order/map/detail_response',
+		'map_payment_methods'            => 'ebayenterprise_order/map/payment_methods',
+		'transactional_emailer'          => 'eb2ccore/email/transactional_emailer',
 	];
 }

@@ -16,6 +16,7 @@
 class EbayEnterprise_Order_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
 	const API_CLASS = '\eBayEnterprise\RetailOrderManagement\Api\HttpApi';
+
 	/** @var EbayEnterprise_Order_Helper_Data */
 	protected $_helper;
 
@@ -196,10 +197,10 @@ class EbayEnterprise_Order_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_
 	{
 		$prefix = '0001';
 		$customerId = '3';
-		return array(
-			array($customerId, $prefix, $prefix . $customerId),
-			array(null, $prefix, null),
-		);
+		return [
+			[$customerId, $prefix, $prefix . $customerId],
+			[null, $prefix, null],
+		];
 	}
 
 	/**
@@ -341,5 +342,39 @@ class EbayEnterprise_Order_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_
 		]);
 
 		$this->assertSame($result, $helper->getCurCustomerOrders());
+	}
+
+		/**
+	 * Test removing the order increment id prefix.
+	 */
+	public function testRemoveOrderIncrementPrefix()
+	{
+		$admin = Mage::getModel('core/store', ['store_id' => 0]);
+		$default = Mage::getModel('core/store', ['store_id' => 1]);
+
+		$adminConfig = $this->buildCoreConfigRegistry(['clientOrderIdPrefix' => '555']);
+		$storeConfig = $this->buildCoreConfigRegistry(['clientOrderIdPrefix' => '7777']);
+		$coreHelper = $this->getHelperMock('eb2ccore/data', ['getConfigModel']);
+		$coreHelper->expects($this->any())
+			->method('getConfigModel')
+			->will($this->returnValueMap([
+				[0, $adminConfig],
+				[1, $storeConfig],
+			]));
+		$this->replaceByMock('helper', 'eb2ccore', $coreHelper);
+		/** @var EbayEnterprise_Order_Helper_Data */
+		$helper = $this->getHelperMock('ebayenterprise_order/data', ['_getAllStores']);
+		$helper->expects($this->any())
+			->method('_getAllStores')
+			->will($this->returnValue([$admin, $default]));
+
+		// should be able to replace the order id prefix from any config scope
+		$this->assertSame('8888888', $helper->removeOrderIncrementPrefix('77778888888'));
+		$this->assertSame('8888888', $helper->removeOrderIncrementPrefix('5558888888'));
+		// when no matching prefix on the original increment id, should return unmodified value
+		$this->assertSame('1238888888', $helper->removeOrderIncrementPrefix('1238888888'));
+		// must work with null as when the first increment id for a store is
+		// created, the "last id" will be given as null
+		$this->assertSame('', $helper->removeOrderIncrementPrefix(null));
 	}
 }

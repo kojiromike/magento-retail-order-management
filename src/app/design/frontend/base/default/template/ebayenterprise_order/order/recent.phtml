@@ -17,7 +17,7 @@
 <div class="box-account box-recent">
 <?php
 	$_ordersShown = 0;
-	$_helper = $this->getHelper();
+	$_helper = $this->getHelper($this->getHelperClass());
 	$_orders = $this->getOrders();
 ?>
 <div class="box-head">

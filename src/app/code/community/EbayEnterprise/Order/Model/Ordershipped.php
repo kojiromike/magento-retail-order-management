@@ -45,10 +45,10 @@ class EbayEnterprise_Order_Model_Ordershipped
 	}
 	/**
 	 * Type hinting for self::__construct $initParams
-	 * @param  OrderEvents\IOrderShipped $payload
-	 * @param  EbayEnterprise_Eb2cOrder_Helper_Event_Shipment $shipmentEventHelper
-	 * @param  EbayEnterprise_MageLog_Helper_Data $logger
-	 * @param  EbayEnterprise_MageLog_Helper_Context $context
+	 * @param  OrderEvents\IOrderShipped
+	 * @param  EbayEnterprise_Order_Helper_Event_Shipment
+	 * @param  EbayEnterprise_MageLog_Helper_Data
+	 * @param  EbayEnterprise_MageLog_Helper_Context
 	 * @return array
 	 */
 	protected function _checkTypes(
@@ -57,7 +57,7 @@ class EbayEnterprise_Order_Model_Ordershipped
 		EbayEnterprise_MageLog_Helper_Data $logger,
 		EbayEnterprise_MageLog_Helper_Context $context
 	) {
-		return array($payload, $shipmentEventHelper, $logger, $context);
+		return [$payload, $shipmentEventHelper, $logger, $context];
 	}
 	/**
 	 * Return the value at field in array if it exists. Otherwise, use the default value.

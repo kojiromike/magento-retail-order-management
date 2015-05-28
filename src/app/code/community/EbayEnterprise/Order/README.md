@@ -60,7 +60,7 @@ To include a payment method that is supported by the Retail Order Management pla
 
 ##### 1. Observe Order Create Event
 
-In the cash on delivery payment method module, simply observe the `ebayenterprise_order_create_payment` event, 
+In the cash on delivery payment method module, simply observe the `ebayenterprise_order_create_payment` event,
 
 ```XML
 <ebayenterprise_order_create_payment>
@@ -160,10 +160,10 @@ If a specific implementation requires order events to trigger additional functio
 class Observer {
     public function processAmqpMessage{orderStatusEventName}(Varien_Event_Observer $observer)
     {
-        Mage::getModel('eb2corder/{order_status_event_name}', array(
+        Mage::getModel('ebayenterprise_order/{order_status_event_name}', [
             'payload' => $observer->getEvent()->getPayload(),
             'order_event_helper' => $this->_orderEventHelper
-        ))->process();
+        ])->process();
         return $this;
     }
 }

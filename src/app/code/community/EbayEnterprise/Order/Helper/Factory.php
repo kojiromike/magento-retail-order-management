@@ -17,6 +17,8 @@ use eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCancelRequest;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCancelResponse;
 use eBayEnterprise\RetailOrderManagement\Payload\Customer\IOrderSummaryRequest;
 use eBayEnterprise\RetailOrderManagement\Payload\Customer\IOrderSummaryResponse;
+use eBayEnterprise\RetailOrderManagement\Payload\order\Detail\IOrderDetailRequest;
+use eBayEnterprise\RetailOrderManagement\Payload\order\Detail\IOrderDetailResponse;
 use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
 
 class EbayEnterprise_Order_Helper_Factory
@@ -100,13 +102,23 @@ class EbayEnterprise_Order_Helper_Factory
 	}
 
 	/**
+	 * Get a customer session instance.
+	 *
+	 * @return Mage_Customer_Model_Customer
+	 */
+	public function getCustomerSession()
+	{
+		return Mage::getSingleton('customer/session');
+	}
+
+	/**
 	 * Get a customer object for the current customer via the customer session.
 	 *
 	 * @return Mage_Customer_Model_Customer
 	 */
 	public function getCurrentCustomer()
 	{
-		return Mage::getSingleton('customer/session')->getCustomer();
+		return $this->getCustomerSession()->getCustomer();
 	}
 
 	/**
@@ -152,5 +164,136 @@ class EbayEnterprise_Order_Helper_Factory
 			'order' => $order,
 			'response' => $response,
 		]);
+	}
+
+	/**
+	 * Get a new ebayenterprise_order/detail_build_request instance.
+	 *
+	 * @param  IBidirectionalApi
+	 * @param  string
+	 * @return EbayEnterprise_Order_Model_Detail_Build_Request
+	 */
+	public function getNewDetailBuildRequest(IBidirectionalApi $api, $orderId)
+	{
+		return Mage::getModel('ebayenterprise_order/detail_build_request', [
+			'api' => $api,
+			'order_id' => $orderId,
+		]);
+	}
+
+	/**
+	 * Get a new ebayenterprise_order/detail_send_request instance.
+	 *
+	 * @param  IBidirectionalApi
+	 * @param  IOrderDetailRequest
+	 * @return EbayEnterprise_Order_Model_Detail_Send_Request
+	 */
+	public function getNewDetailSendRequest(IBidirectionalApi $api, IOrderDetailRequest $request)
+	{
+		return Mage::getModel('ebayenterprise_order/detail_send_request', [
+			'api' => $api,
+			'request' => $request,
+		]);
+	}
+
+	/**
+	 * Get a new ebayenterprise_order/detail_process_response instance.
+	 *
+	 * @param  IOrderDetailResponse
+	 * @return EbayEnterprise_Order_Model_Detail_Process_Response
+	 */
+	public function getNewDetailProcessResponse(IOrderDetailResponse $response)
+	{
+		return Mage::getModel('ebayenterprise_order/detail_process_response', [
+			'response' => $response,
+		]);
+	}
+
+	/**
+	 * Get a new ebayenterprise_order/detail_process_response_address instance.
+	 *
+	 * @param  array
+	 * @param  EbayEnterprise_Order_Model_Detail_Process_IResponse
+	 * @return EbayEnterprise_Order_Model_Detail_Process_Response_Address
+	 */
+	public function getNewDetailProcessResponseAddress(array $data, EbayEnterprise_Order_Model_Detail_Process_IResponse $order)
+	{
+		return Mage::getModel('ebayenterprise_order/detail_process_response_address', $data)->setOrder($order);
+	}
+
+	/**
+	 * Get a new ebayenterprise_order/detail_process_response_item instance.
+	 *
+	 * @param  array
+	 * @param  EbayEnterprise_Order_Model_Detail_Process_IResponse
+	 * @return EbayEnterprise_Order_Model_Detail_Process_Response_Item
+	 */
+	public function getNewDetailProcessResponseItem(array $data, EbayEnterprise_Order_Model_Detail_Process_IResponse $order)
+	{
+		return Mage::getModel('ebayenterprise_order/detail_process_response_item', $data)->setOrder($order);
+	}
+
+	/**
+	 * Get a new ebayenterprise_order/detail_process_response_payment instance.
+	 *
+	 * @param  array
+	 * @return EbayEnterprise_Order_Model_Detail_Process_Response_Payment
+	 */
+	public function getNewDetailProcessResponsePayment(array $data)
+	{
+		return Mage::getModel('ebayenterprise_order/detail_process_response_payment', $data);
+	}
+
+	/**
+	 * Get a new ebayenterprise_order/detail_process_response_shipment instance.
+	 *
+	 * @param  array
+	 * @return EbayEnterprise_Order_Model_Detail_Process_Response_Shipment
+	 */
+	public function getNewDetailProcessResponseShipment(array $data)
+	{
+		return Mage::getModel('ebayenterprise_order/detail_process_response_shipment', $data);
+	}
+
+	/**
+	 * Get a new ebayenterprise_order/detail_process_response_shipment instance.
+	 *
+	 * @param  array
+	 * @return EbayEnterprise_Order_Model_Detail_Process_Response_Shipgroup
+	 */
+	public function getNewDetailProcessResponseShipGroup(array $data)
+	{
+		return Mage::getModel('ebayenterprise_order/detail_process_response_shipgroup', $data);
+	}
+
+	/**
+	 * Get a new ebayenterprise_order/detail instance.
+	 *
+	 * @param  string
+	 * @return EbayEnterprise_Order_Model_Detail
+	 */
+	public function getNewRomOrderDetailModel($orderId)
+	{
+		return Mage::getModel('ebayenterprise_order/detail', ['order_id' => $orderId]);
+	}
+
+	/**
+	 * Get a singleton core/session object.
+	 *
+	 * @return Mage_Core_Model_Session
+	 */
+	public function getCoreSessionModel()
+	{
+		return Mage::getSingleton('core/session');
+	}
+
+	/**
+	 * Get a singleton adminhtml/session_quote object.
+	 *
+	 * @return Mage_Adminhtml_Model_Session_Quote
+	 */
+	public function getAdminQuoteSessionModel()
+	{
+		return Mage::getSingleton('adminhtml/session_quote');
 	}
 }

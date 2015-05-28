@@ -19,6 +19,7 @@ class EbayEnterprise_Order_Block_Order_Cancel extends Mage_Core_Block_Template
 	const CANCEL_ORDER_BUTTON = 'Cancel Order';
 	const LOGGED_IN_CANCEL_URL_PATH = 'sales/order/romcancel';
 	const GUEST_CANCEL_URL_PATH = 'sales/order/romguestcancel';
+	const HELPER_CLASS = 'ebayenterprise_order';
 
 	/** @var string */
 	protected $_template = 'ebayenterprise_order/order/cancel.phtml';
@@ -110,7 +111,7 @@ class EbayEnterprise_Order_Block_Order_Cancel extends Mage_Core_Block_Template
 	 */
 	public function getPostActionUrl()
 	{
-		return $this->getUrl($this->_getCancelUrlPath(), array('order_id' => $this->getOrder()->getRealOrderId()));
+		return $this->getUrl($this->_getCancelUrlPath(), ['order_id' => $this->getOrder()->getRealOrderId()]);
 	}
 
 	/**
@@ -131,9 +132,19 @@ class EbayEnterprise_Order_Block_Order_Cancel extends Mage_Core_Block_Template
 	 * @return EbayEnterprise_Order_Helper_Data
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
 	 */
-	public function getHelper($type='ebayenterprise_order')
+	public function getHelper($type)
 	{
 		return $this->_orderHelper;
+	}
+
+	/**
+	 * Return the self::HELPER_CLASS class constant.
+	 *
+	 * @return string
+	 */
+	public function getHelperClass()
+	{
+		return static::HELPER_CLASS;
 	}
 
 	/**

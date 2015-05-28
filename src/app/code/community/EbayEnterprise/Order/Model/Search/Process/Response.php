@@ -79,7 +79,9 @@ class EbayEnterprise_Order_Model_Search_Process_Response
 	 */
 	public function process()
 	{
-		return $this->_processResponse();
+		return $this->_response instanceof IOrderSummaryResponse
+			? $this->_processResponse()
+			: $this->_factory->getNewSearchProcessResponseCollection();
 	}
 
 	/**

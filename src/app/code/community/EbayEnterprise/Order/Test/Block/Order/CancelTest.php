@@ -315,6 +315,8 @@ class EbayEnterprise_Order_Test_Block_Order_CancelTest
 	 */
 	public function testGetHelper()
 	{
+		/** @var string */
+		$helperClass = 'ebayenterprise_order';
 		/** @var Mock_EbayEnterprise_Order_Helper_Data */
 		$orderHelper = $this->getHelperMock('ebayenterprise_order/data');
 		$this->replaceByMock('helper', 'ebayenterprise_order', $orderHelper);
@@ -322,7 +324,7 @@ class EbayEnterprise_Order_Test_Block_Order_CancelTest
 		/** @var Mock_EbayEnterprise_Order_Block_Order_Cancel */
 		$orderCancel = $this->_createBlock('ebayenterprise_order/order_cancel');
 
-		$this->assertSame($orderHelper, $orderCancel->getHelper());
+		$this->assertSame($orderHelper, $orderCancel->getHelper($helperClass));
 	}
 
 	/**

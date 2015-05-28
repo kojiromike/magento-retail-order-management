@@ -36,7 +36,7 @@ class EbayEnterprise_Eb2cGiftwrap_Test_Helper_DataTest
 	}
 
 	/**
-	 * Test the helper method 'EbayEnterprise_Eb2cOrder_Helper_Data::calculateGwItemRowTotal' using a data provider
+	 * Test the helper method 'EbayEnterprise_Order_Helper_Data::calculateGwItemRowTotal' using a data provider
 	 * that will test various scenarios and the expects the return value to be the same as known result. The first
 	 * scenario will instantiate a 'sales/order_item' object and initialize it with known gift wrapping price and
 	 * quantity data and then expects it to be the same as the product of quantity time the gift wrapping price.

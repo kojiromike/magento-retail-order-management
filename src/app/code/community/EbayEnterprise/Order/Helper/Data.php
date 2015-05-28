@@ -149,4 +149,36 @@ class EbayEnterprise_Order_Helper_Data extends Mage_Core_Helper_Abstract
 			// return an empty Varien_Data_Collection
 			: $this->_coreHelper->getNewVarienDataCollection();
 	}
+
+	/**
+	 * Remove a client order id prefix from the increment id. As the prefix on the
+	 * increment id may have been any of the configured order id prefixes, need
+	 * to check through all possible prefixes configured to find the one to remove.
+	 * @param  string
+	 * @return string
+	 */
+	public function removeOrderIncrementPrefix($incrementId)
+	{
+		$stores = $this->_getAllStores();
+		foreach ($stores as $store) {
+			$prefix = $this->_coreHelper->getConfigModel($store->getId())->clientOrderIdPrefix;
+			// if the configured prefix matches the start of the increment id, strip
+			// off the prefix from the increment
+			if (strpos($incrementId, $prefix) === 0) {
+				return substr($incrementId, strlen($prefix));
+			}
+		}
+		// must return a string
+		return (string) $incrementId;
+	}
+
+	/**
+	 * Get all stores
+	 *
+	 * @return array
+	 */
+	protected function _getAllStores()
+	{
+		return Mage::app()->getStores(true);
+	}
 }

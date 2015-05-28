@@ -16,6 +16,17 @@
 class EbayEnterprise_Order_Test_Block_Overrides_Order_RecentTest
 	extends EbayEnterprise_Eb2cCore_Test_Base
 {
+	/** @var EbayEnterprise_Order_Overrides_Block_Order_Recent */
+	protected $_recent;
+
+	public function setUp()
+	{
+		$this->_recent = $this->getBlockMockBuilder('ebayenterprise_orderoverrides/order_recent')
+			->disableOriginalConstructor()
+			->setMethods(['getUrl'])
+			->getMock();
+	}
+
 	/**
 	 * Create a block instance
 	 *
@@ -50,14 +61,11 @@ class EbayEnterprise_Order_Test_Block_Overrides_Order_RecentTest
 			->method('getCurCustomerOrders')
 			->will($this->returnValue($collection));
 
-		/** @var Mock_EbayEnterprise_Order_Overrides_Block_Order_Recent */
-		$recent = $this->_createBlock('ebayenterprise_orderoverrides/order_recent');
-
-		EcomDev_Utils_Reflection::setRestrictedPropertyValues($recent, [
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues($this->_recent, [
 			'_orderHelper' => $orderHelper,
 		]);
 
-		$this->assertSame($collection, $recent->getOrders());
+		$this->assertSame($collection, $this->_recent->getOrders());
 	}
 
 	/**
@@ -66,10 +74,7 @@ class EbayEnterprise_Order_Test_Block_Overrides_Order_RecentTest
 	 */
 	public function testGetMaxOrdersToShow()
 	{
-		/** @var Mock_EbayEnterprise_Order_Overrides_Block_Order_Recent */
-		$recent = $this->_createBlock('ebayenterprise_orderoverrides/order_recent');
-
-		$this->assertSame(EbayEnterprise_Order_Overrides_Block_Order_Recent::ORDERS_TO_SHOW, $recent->getMaxOrdersToShow());
+		$this->assertSame(EbayEnterprise_Order_Overrides_Block_Order_Recent::ORDERS_TO_SHOW, $this->_recent->getMaxOrdersToShow());
 	}
 
 	/**
@@ -90,14 +95,12 @@ class EbayEnterprise_Order_Test_Block_Overrides_Order_RecentTest
 		/** @var string */
 		$url = "http://test.example.com/{$path}/order_id/{$orderId}";
 
-		/** @var Mock_EbayEnterprise_Order_Overrides_Block_Order_Recent */
-		$recent = $this->getBlockMock('ebayenterprise_orderoverrides/order_recent', ['getUrl']);
-		$recent->expects($this->once())
+		$this->_recent->expects($this->once())
 			->method('getUrl')
 			->with($this->identicalTo($path), $this->identicalTo(['order_id' => $orderId]))
 			->will($this->returnValue($url));
 
-		$this->assertSame($url, $recent->getViewUrl($orderId));
+		$this->assertSame($url, $this->_recent->getViewUrl($orderId));
 	}
 
 	/**
@@ -107,17 +110,16 @@ class EbayEnterprise_Order_Test_Block_Overrides_Order_RecentTest
 	 */
 	public function testGetHelper()
 	{
+		/** @var string */
+		$helperClass = 'ebayenterprise_order';
 		/** @var EbayEnterprise_Order_Helper_Data */
 		$orderHelper = Mage::helper('ebayenterprise_order');
 
-		/** @var EbayEnterprise_Order_Overrides_Block_Order_Recent */
-		$recent = $this->_createBlock('ebayenterprise_orderoverrides/order_recent');
-
-		EcomDev_Utils_Reflection::setRestrictedPropertyValues($recent, [
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues($this->_recent, [
 			'_orderHelper' => $orderHelper,
 		]);
 
-		$this->assertSame($orderHelper, $recent->getHelper());
+		$this->assertSame($orderHelper, $this->_recent->getHelper($helperClass));
 	}
 
 	/**
@@ -139,13 +141,12 @@ class EbayEnterprise_Order_Test_Block_Overrides_Order_RecentTest
 		$url = "http://test.example.com/{$path}/order_id/{$orderId}";
 
 		/** @var Mock_EbayEnterprise_Order_Overrides_Block_Order_Recent */
-		$recent = $this->getBlockMock('ebayenterprise_orderoverrides/order_recent', ['getUrl']);
-		$recent->expects($this->once())
+		$this->_recent->expects($this->once())
 			->method('getUrl')
 			->with($this->identicalTo($path), $this->identicalTo(['order_id' => $orderId]))
 			->will($this->returnValue($url));
 
-		$this->assertSame($url, $recent->getCancelUrl($orderId));
+		$this->assertSame($url, $this->_recent->getCancelUrl($orderId));
 	}
 
 	/**
@@ -170,6 +171,8 @@ class EbayEnterprise_Order_Test_Block_Overrides_Order_RecentTest
 	 */
 	public function testFormatPrice($amount, $result)
 	{
+		/** @var Mage_Core_Helper_Data */
+		$coreHelper = Mage::helper('core');
 		/** @var Mage_Core_Model_Session */
 		$session = $this->getModelMock('core/session', ['init']);
 		$session->expects($this->any())
@@ -177,9 +180,9 @@ class EbayEnterprise_Order_Test_Block_Overrides_Order_RecentTest
 			->method('init')
 			->will($this->returnSelf());
 		$this->replaceByMock('model', 'core/session', $session);
-
-		/** @var Mock_EbayEnterprise_Order_Overrides_Block_Order_Recent */
-		$recent = $this->_createBlock('ebayenterprise_orderoverrides/order_recent');
-		$this->assertSame($result, $recent->formatPrice($amount));
+		EcomDev_Utils_Reflection::setRestrictedPropertyValues($this->_recent, [
+			'_coreHelper' => $coreHelper,
+		]);
+		$this->assertSame($result, $this->_recent->formatPrice($amount));
 	}
 }

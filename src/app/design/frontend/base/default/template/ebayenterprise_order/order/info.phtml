@@ -1,0 +1,79 @@
+<?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+?>
+<?php /** @var $this EbayEnterprise_Order_Overrides_Block_Order_Info */ ?>
+<?php
+	$_order = $this->getOrder();
+	$_helper = $this->getHelper($this->getHelperClass());
+?>
+<?php echo $this->getMessagesBlock()->toHtml() ?>
+<div class="page-title title-buttons">
+	<h1><?php echo $_helper->__('Order #') . ' ' . $_order->getRealOrderId() . ' ' . $_helper->__($_order->getStatus()) ?></h1>
+	<?php if ($_order->getIsCancellable()) : ?>
+		<a href="<?php echo $this->getCancelUrl($_order->getRealOrderId()); ?>"><?php echo $_helper->__('Cancel') ?></a>
+	<?php endif ?>
+</div>
+<?php echo $this->getStatusHistoryRssUrl($_order) ?>
+<dl class="order-info">
+	<dt><?php echo $_helper->__('About This Order:') ?></dt>
+	<dd>
+		<?php $_links = $this->getLinks(); ?>
+		<ul id="order-info-tabs">
+		<?php foreach ($_links as $_link): ?>
+			<?php if($_link->getUrl()): ?>
+				<li><a href="<?php echo $_link->getUrl() ?>"><?php echo $_link->getLabel() ?></a></li>
+			<?php else: ?>
+				<li class="current"><?php echo $_link->getLabel() ?></li>
+			<?php endif; ?>
+		<?php endforeach; ?>
+		</ul>
+		<script type="text/javascript">decorateGeneric($('order-info-tabs').select('LI'),['first','last']);</script>
+	</dd>
+</dl>
+<p class="order-date"><?php echo $_helper->__('Order Date: ') . $this->formatDate($_order->getOrderDate(), 'long'); ?></p>
+<div class="col2-set order-info-box">
+	<div class="col-1">
+		<div class="box">
+			<div class="box-title">
+				<h2><?php echo $_helper->__('Billing Address') ?></h2>
+			</div>
+			<div class="box-content">
+				<address>
+					<?php $_ba = $_order->getBillingAddress(); ?>
+					<?php echo $_ba->getFirstname() . ' ' . $_ba->getLastname(); ?><br />
+					<?php echo $_ba->getStreet1(); ?><br />
+					<?php echo $_ba->getCity() . ', ' . $_ba->getMainDivision() . ' ' .  $_ba->getPostalCode(); ?><br />
+					<?php echo $_ba->getCountryCode(); ?><br />
+					<?php $_phone = $_ba->getPhone(); if ($_phone): ?>
+						<?php echo $this->__('T'); ?>: <?php echo $_phone; ?><br />
+					<?php endif; ?>
+				</address>
+			</div>
+		</div>
+	</div>
+	<div class="col-2">
+		<div class="box box-payment">
+			<div class="box-title">
+				<h2><?php echo $_helper->__('Payment Method(s)') ?></h2>
+			</div>
+			<div class="box-content">
+				<?php $_payments = $_order->getPaymentsCollection(); ?>
+				<?php foreach ($_payments as $_payment): ?>
+					<?php echo trim($_payment->getPaymentTypeName()); ?> (<?php echo $_payment->getTenderType(); ?>)<br />
+				<?php endforeach; ?>
+			</div>
+		</div>
+	</div>
+</div>

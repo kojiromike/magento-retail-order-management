@@ -13,21 +13,10 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Order_Overrides_Block_Order_Recent extends Mage_Sales_Block_Order_Recent
+class EbayEnterprise_Order_Overrides_Block_Order_Recent extends EbayEnterprise_Order_Overrides_Block_Order_Abstract
 {
 	// carried over from the parent class where it is a hard-coded value
 	const ORDERS_TO_SHOW = 5;
-
-	/** @var EbayEnterprise_Order_Helper_Data */
-	protected $_orderHelper;
-	/** @var Mage_Core_Helper_Data */
-	protected $_coreHelper;
-
-	public function __construct()
-	{
-		$this->_orderHelper = Mage::helper('ebayenterprise_order');
-		$this->_coreHelper = Mage::helper('core');
-	}
 
 	/**
 	 * Returns ROM order summary data in a collection.
@@ -52,7 +41,7 @@ class EbayEnterprise_Order_Overrides_Block_Order_Recent extends Mage_Sales_Block
 	 */
 	public function getMaxOrdersToShow()
 	{
-		return self::ORDERS_TO_SHOW;
+		return static::ORDERS_TO_SHOW;
 	}
 
 	/**
@@ -63,18 +52,6 @@ class EbayEnterprise_Order_Overrides_Block_Order_Recent extends Mage_Sales_Block
 	public function getViewUrl($orderId)
 	{
 		return $this->getUrl('sales/order/romview', ['order_id' => $orderId]);
-	}
-
-	/**
-	 * @see Mage_Core_Block_Abstract::getHelper()
-	 * Returns a helper instance.
-	 *
-	 * @return EbayEnterprise_Order_Helper_Data
-	 * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-	 */
-	public function getHelper($type='ebayenterprise_order')
-	{
-		return $this->_orderHelper;
 	}
 
 	/**
@@ -89,13 +66,35 @@ class EbayEnterprise_Order_Overrides_Block_Order_Recent extends Mage_Sales_Block
 	}
 
 	/**
-	 * Price format the passed in amount parameter.
+	 * Returns URL to view an order tracking.
 	 *
-	 * @param  string
-	 * @return string formatted amount
+	 * @param  Varien_Object
+	 * @return string
 	 */
-	public function formatPrice($amount)
+	public function getTrackUrl(Varien_Object $order)
 	{
-		return $this->_coreHelper->formatPrice($amount);
+		return $this->getUrl('sales/order/track', ['order_id' => $order->getCustomerOrderId()]);
+	}
+
+	/**
+	 * @see Mage_Core_Block_Template::_toHtml()
+	 */
+	protected function _toHtml()
+	{
+		if ($this->getOrders()->getSize() > 0) {
+			return parent::_toHtml();
+		}
+		return '';
+	}
+
+	/**
+	 * Returns URL to reorder all the order items.
+	 *
+	 * @param  Varien_Object
+	 * @return string
+	 */
+	public function getReorderUrl(Varien_Object $order)
+	{
+		return $this->getUrl('sales/order/reorder', ['order_id' => $order->getCustomerOrderId()]);
 	}
 }

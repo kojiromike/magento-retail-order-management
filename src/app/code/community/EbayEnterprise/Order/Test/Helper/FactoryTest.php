@@ -270,4 +270,37 @@ class EbayEnterprise_Order_Test_Helper_FactoryTest extends EbayEnterprise_Eb2cCo
 		$this->replaceByMock('model', 'ebayenterprise_order/cancel_process_response', $cancelProcessResponse);
 		$this->assertSame($cancelProcessResponse, $this->_factory->getNewCancelProcessResponse($response, $order));
 	}
+
+		/**
+	 * Test that the controller method ebayenterprise_order/factory::getCoreSessionModel()
+	 * is invoked and it will instantiate an object of type core/session and return this object.
+	 */
+	public function testGetCoreSessionModel()
+	{
+		/** @var Mock_Mage_Core_Model_Session */
+		$session = $this->getModelMockBuilder('core/session')
+			// Disabling the constructor in order to prevent session_start() function from being
+			// called which causes headers already sent exception from being thrown.
+			->disableOriginalConstructor()
+			->getMock();
+		$this->replaceByMock('singleton', 'core/session', $session);
+
+		$this->assertSame($session, $this->_factory->getCoreSessionModel());
+	}
+
+	/**
+	 * Test that the controller method ebayenterprise_order/factory::getCustomerSession()
+	 * is invoked and it will instantiate an object of type customer/session and return this object.
+	 */
+	public function testGetCustomerSession()
+	{
+		/** @var Mock_Mage_Customer_Model_Session */
+		$session = $this->getModelMockBuilder('customer/session')
+			// Disabling the constructor in order to prevent session_start() function from being
+			// called which causes headers already sent exception from being thrown.
+			->disableOriginalConstructor()
+			->getMock();
+		$this->replaceByMock('singleton', 'customer/session', $session);
+		$this->assertSame($session, $this->_factory->getCustomerSession());
+	}
 }

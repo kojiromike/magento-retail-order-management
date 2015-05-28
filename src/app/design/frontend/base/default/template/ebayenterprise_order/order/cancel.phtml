@@ -16,12 +16,12 @@
 <?php /** @var $this EbayEnterprise_Order_Block_Order_Cancel */ ?>
 <?php
 	$_order = $this->getOrder();
-	$_order_id = $_order->getCustomerOrderId();
-	$_helper = $this->getHelper();
+	$_order_id = $_order->getRealOrderId();
+	$_helper = $this->getHelper($this->getHelperClass());
 ?>
 <?php echo $this->getMessagesBlock()->toHtml() ?>
 <div class="page-title title-buttons">
-	<h1><?php echo$_helper->__('Order #') . ' ' . $_order->getCustomerOrderId() . ' ' . $_helper->__($_order->getStatus()) ?></h1>
+	<h1><?php echo$_helper->__('Order #') . ' ' . $_order->getRealOrderId() . ' ' . $_helper->__($_order->getStatus()) ?></h1>
 </div>
 <form action="<?php echo $this->getPostActionUrl() ?>" method="post" id="order-cancel-form-validate">
 	<input type="hidden" name="cancel_action" value="true"/>

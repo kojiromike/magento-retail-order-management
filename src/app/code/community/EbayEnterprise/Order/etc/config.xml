@@ -47,18 +47,51 @@
 				<rewrite>
 					<order_recent>EbayEnterprise_Order_Overrides_Block_Order_Recent</order_recent>
 					<order_history>EbayEnterprise_Order_Overrides_Block_Order_History</order_history>
+					<order_info>EbayEnterprise_Order_Overrides_Block_Order_Info</order_info>
+					<order_items>EbayEnterprise_Order_Overrides_Block_Order_Items</order_items>
+					<order_view>EbayEnterprise_Order_Overrides_Block_Order_View</order_view>
+					<order_shipment>EbayEnterprise_Order_Overrides_Block_Order_Shipment</order_shipment>
+					<order_shipment_items>EbayEnterprise_Order_Overrides_Block_Order_Shipment_Items</order_shipment_items>
+					<order_print_shipment>EbayEnterprise_Order_Overrides_Block_Order_Print_Shipment</order_print_shipment>
 				</rewrite>
 			</sales>
+			<enterprise_rma>
+				<rewrite>
+					<order_info>EbayEnterprise_Order_Overrides_Block_Order_Rma_Info</order_info>
+				</rewrite>
+			</enterprise_rma>
 		</blocks>
 		<models>
 			<ebayenterprise_order>
 				<class>EbayEnterprise_Order_Model</class>
+				<resourceModel>ebayenterprise_order_resource</resourceModel>
 			</ebayenterprise_order>
+			<ebayenterprise_order_resource>
+				<class>EbayEnterprise_Order_Model_Resource</class>
+			</ebayenterprise_order_resource>
+			<enterprise_rma>
+				<rewrite>
+					<rma>EbayEnterprise_Order_Overrides_Model_Enterprise_Rma</rma>
+				</rewrite>
+			</enterprise_rma>
 		</models>
+		<resources>
+			<ebayenterprise_order_setup>
+				<setup>
+					<module>EbayEnterprise_Order</module>
+					<class>EbayEnterprise_Order_Model_Resource_Setup</class>
+				</setup>
+			</ebayenterprise_order_setup>
+		</resources>
 		<helpers>
 			<ebayenterprise_order>
 				<class>EbayEnterprise_Order_Helper</class>
 			</ebayenterprise_order>
+			<sales>
+				<rewrite>
+					<data>EbayEnterprise_Order_Overrides_Helper_Sales</data>
+				</rewrite>
+			</sales>
 		</helpers>
 		<events>
 			<ebayenterprise_amqp_message_order_credit_issued>
@@ -128,6 +161,15 @@
 		</events>
 	</global>
 	<frontend>
+		<routers>
+			<sales>
+				<args>
+					<modules>
+						<ebayenterprise_order before="Mage_Sales">EbayEnterprise_Order</ebayenterprise_order>
+					</modules>
+				</args>
+			</sales>
+		</routers>
 		<layout>
 			<updates>
 				<ebayenterprise_order module="EbayEnterprise_Order">
@@ -145,6 +187,17 @@
 			</modules>
 		</translate>
 	</frontend>
+	<adminhtml>
+		<translate>
+			<modules>
+				<EbayEnterprise_Order>
+					<files>
+						<default>EbayEnterprise_Order.csv</default>
+					</files>
+				</EbayEnterprise_Order>
+			</modules>
+		</translate>
+	</adminhtml>
 	<crontab>
 		<jobs>
 			<ebayenterprise_order_create_retry>
@@ -163,6 +216,7 @@
 				<cancel_operation>cancel</cancel_operation>
 				<search_service>customers</search_service>
 				<search_operation>orders/get</search_operation>
+				<detail_operation>get</detail_operation>
 			</api>
 			<create>
 				<gender_map/>
@@ -292,6 +346,332 @@
 						<getter>getDerivedOrder</getter>
 					</derived_order>
 				</search_response>
+				<detail_response>
+					<address_data>
+						<id>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getId</getter>
+						</id>
+						<lastname>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getLastName</getter>
+						</lastname>
+						<firstname>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getFirstName</getter>
+						</firstname>
+						<phone>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getPhone</getter>
+						</phone>
+						<street>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getArrayValue</method>
+							<getter>getLines</getter>
+						</street>
+						<city>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getCity</getter>
+						</city>
+						<main_division>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getMainDivision</getter>
+						</main_division>
+						<country_code>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getCountryCode</getter>
+						</country_code>
+						<postal_code>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getPostalCode</getter>
+						</postal_code>
+					</address_data>
+					<item_data>
+						<sku>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getItemId</getter>
+						</sku>
+						<ref_id>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getId</getter>
+						</ref_id>
+						<qty_ordered>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getFloatValue</method>
+							<getter>getQuantity</getter>
+						</qty_ordered>
+						<qty_shipped>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getFloatValue</method>
+							<getter>getShippedQuantity</getter>
+						</qty_shipped>
+						<name>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getDescription</getter>
+						</name>
+						<price>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getFloatValue</method>
+							<getter>getMerchandisePricing/getUnitPrice</getter>
+						</price>
+						<gift_message>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getGiftMessageContent</getter>
+						</gift_message>
+						<gift_message_to>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getGiftMessageTo</getter>
+						</gift_message_to>
+						<gift_message_from>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getGiftMessageFrom</getter>
+						</gift_message_from>
+						<row_total>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getFloatValue</method>
+							<getter>getMerchandisePricing/getAmount</getter>
+						</row_total>
+						<shipping_amount>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getFloatValue</method>
+							<getter>getShippingPricing/getAmount</getter>
+						</shipping_amount>
+						<discount_amount>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getItemDiscountAmount</method>
+							<getter>getAmount</getter>
+						</discount_amount>
+						<tax_amount>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getItemOrderTaxAmount</method>
+							<getter>getCalculatedTax</getter>
+						</tax_amount>
+						<product_options>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getListAsArray</method>
+							<getter>getSize|getColor</getter>
+						</product_options>
+					</item_data>
+					<order_data>
+						<is_cancellable>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getBooleanValue</method>
+							<getter>getCancellable</getter>
+						</is_cancellable>
+						<real_order_id>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getOrder/getCustomerOrderId</getter>
+						</real_order_id>
+						<customer_email>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getOrder/getCustomer/getEmailAddress</getter>
+						</customer_email>
+						<customer_prefix>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getOrder/getCustomer/getHonorificName</getter>
+						</customer_prefix>
+						<customer_lastname>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getOrder/getCustomer/getLastName</getter>
+						</customer_lastname>
+						<customer_middlename>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getOrder/getCustomer/getMiddleName</getter>
+						</customer_middlename>
+						<customer_firstname>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getOrder/getCustomer/getFirstName</getter>
+						</customer_firstname>
+						<created_at>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getDateTimeValue</method>
+							<getter>getOrder/getCreateTime</getter>
+						</created_at>
+						<order_currency_code>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getOrder/getCurrency</getter>
+						</order_currency_code>
+						<locale>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getOrder/getLocale</getter>
+						</locale>
+						<status>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getOrder/getStatus</getter>
+						</status>
+						<tax_amount>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getOrderTotalTax</method>
+							<getter>getCalculatedTax</getter>
+						</tax_amount>
+						<subtotal>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getOrderSubTotal</method>
+							<getter>getAmount</getter>
+						</subtotal>
+						<shipping_amount>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getShippingTotal</method>
+							<getter>getAmount</getter>
+						</shipping_amount>
+						<discount_amount>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getDiscountTotal</method>
+							<getter>getAmount</getter>
+						</discount_amount>
+						<!-- custom attributes go here -->
+					</order_data>
+					<payment_data>
+						<tender_type>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getTenderType</getter>
+						</tender_type>
+						<account_unique_id>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getAccountUniqueId</getter>
+						</account_unique_id>
+						<account_id_is_token>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getBooleanValue</method>
+							<getter>getPanIsToken</getter>
+						</account_id_is_token>
+						<amount>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getFloatValue</method>
+							<getter>getAmount</getter>
+						</amount>
+						<authorized_amount>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getFloatValue</method>
+							<getter>getAmountAuthorized</getter>
+						</authorized_amount>
+					</payment_data>
+					<shipment_data>
+						<increment_id>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getId</getter>
+						</increment_id>
+						<address_id>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getDestinationRef</getter>
+						</address_id>
+						<tracks>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getShipmentTracks</method>
+							<getter>getValue</getter>
+						</tracks>
+						<shipped_item_ids>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getShippedItems</method>
+							<getter>getRef</getter>
+						</shipped_item_ids>
+					</shipment_data>
+					<ship_group_data>
+						<id>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getId</getter>
+						</id>
+						<charge_type>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getChargeType</getter>
+						</charge_type>
+						<ref_id>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getStringValue</method>
+							<getter>getDestinationId</getter>
+						</ref_id>
+						<order_items>
+							<class>ebayenterprise_order/detail_map</class>
+							<type>helper</type>
+							<method>getShipGroupItemsAsArray</method>
+							<getter>getReferencedItemId</getter>
+						</order_items>
+					</ship_group_data>
+				</detail_response>
+				<payment_methods>
+					<CreditCard>ebayenterprise_creditcard</CreditCard>
+					<PayPal>paypal_express</PayPal>
+					<StoredValueCard>free</StoredValueCard>
+				</payment_methods>
 			</map>
 		</ebayenterprise_order>
 	</default>

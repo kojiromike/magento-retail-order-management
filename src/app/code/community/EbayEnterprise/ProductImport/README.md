@@ -32,7 +32,7 @@ The catalog workflows are intended to import product information only. Regardles
 - Product Attributes
 - Product Attribute Sets
 
-This Product Import Guide describes the process and details for importing product information into Magento, via the Retail Order Management Product Hub, from a third party Product Information Management system.  If you would prefer to directly manager product information within Magento, then please consult the [Product Export Guide](/src/app/code/community/EbayEnterprise/ProductExport/README.md).
+This Product Import Guide describes the process and details for importing product information into Magento, via the Retail Order Management Product Hub, from a third party Product Information Management system.  If you would prefer to directly manage product information within Magento, then please consult the [Product Export Guide](/src/app/code/community/EbayEnterprise/ProductExport/README.md).
 
 ## Enabling Product Import
 
@@ -44,22 +44,22 @@ On installation, the Magento Retail Order Management Extension will create the f
 
 | Attribute Name | Attribute Code | Description |
 |:---------------|:---------------|:------------|
-| Size           | `size`         | Product size. |
-| Style ID       | `style_id`     | Associates simple products to configurable products. Child simple products' Style ID will match their parent configurable product's SKU. |
-| Is Clean       | `is_clean`     | Flag indicating if the product has had all of its product links resolved. |
-| Unresolved Product Links | `unresolved_product_links` | Any related, cross-sell or up-sell product links for the product that have not yet been resolved, typically due to the target products not existing in Magento yet. |
-| HTS Codes      | `hts_codes`    | Serialized mapping of tax codes used for calculating international taxes and duties. |
-| Tax Code       | `tax_code`     | Tax code used by the Retail Order Management tax service. |
+| Size           | `size`         | Product size |
+| Style ID       | `style_id`     | Associates simple products to configurable products |
+| Is Clean       | `is_clean`     | Flag indicating if the product has had all of its product links resolved |
+| Unresolved Product Links | `unresolved_product_links` | Any related, cross-sell or up-sell product links for the product that have not yet been resolved, typically due to the target products not existing in Magento yet |
+| HTS Codes      | `hts_codes`    | Serialized mapping of tax codes used for calculating international taxes and duties |
+| Tax Code       | `tax_code`     | Tax code used by the Retail Order Management tax service |
 
 ## Product Hub Feed Processing
 
 The Retail Order Management Product Hub expects product information to be provided in three separate feeds, each with a canonical specification. The Product Hub will relay this product data to various internal systems as well as the Magento webstore.
 
-The Magento Retail Order Management Extension will import relevant data from these feeds out-of-the-box. Product information that is essential to the operation of the extension will be hard mapped and cannot change. Less essential product information is provided in [sample maps](/src/app/etc/productimport.xml.sample) that can be customized for the specific needs of a merchant's implementation.
+When using the Product Import module, the Magento Retail Order Management Extension is preconfigured to import relevant data from these feeds. Product information that is essential to the operation of the extension will be hard mapped and cannot change. Less essential product information is provided in [sample maps](/src/app/etc/productimport.xml.sample) that can be customized for the specific needs of a merchant's implementation.
 
 ### Item Master
 
-The Item Master provides information for the sellable products, e.g. simple, bundle, virtual, downloadable and gift card products. "Parent" products used primarily for grouping child products in the webstore should not be included in the websotre, e.g. configurable and grouped products.
+The Item Master provides information for the sellable products, e.g. simple, bundle, virtual, downloadable and gift card products. "Parent" products used primarily for grouping child products in the webstore should not be included in the webstore, e.g. configurable and grouped products.
 
 The product information provided in the Item Master drives much of the business logic for each product. Some of the information provided in the Item Master is required by internal systems of the Retail Order Management Platform and is irrelevant to Magento and is thus discarded during the import process. The relevant information is processed into Magento as follows:
 
@@ -339,7 +339,7 @@ The resulting product information in Magento:
 | Website1:Storeview2 | "fr-ca"       |               | No data for this language is provided so the default value will be used |
 | Website2            | "de-de"       |               | Product data is never set at the website leve |
 | Website2:Storeview3 | "it-it"       | sottaceto     |               |
-| Website2:Storeview4 | "en-us"       |               | Falls back to the default value as the languages match an no translated data is set in an intermediate scope |
+| Website2:Storeview4 | "en-us"       |               | Falls back to the default value as the languages match and no translated data is set in an intermediate scope |
 | Website2:Storeview5 | "use website" | Dillgurke     | Language config is set at website level but actual product data is saved at the store view |
 | Website2:Storeview6 | "zh-cn"       | 泡菜           |               |
 

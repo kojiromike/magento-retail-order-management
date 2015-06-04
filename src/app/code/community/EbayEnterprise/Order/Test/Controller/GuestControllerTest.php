@@ -290,7 +290,7 @@ class EbayEnterprise_Order_Test_Controller_GuestControllerTest extends EbayEnter
         /** @var string */
         $lastname = 'Doe';
         /** @var string */
-        $zip = '190733';
+        $zip = '19073';
         /** @var string */
         $email = 'test@test.example.com';
         /** @var EbayEnterprise_Order_Model_Detail_Process_Response */
@@ -299,14 +299,14 @@ class EbayEnterprise_Order_Test_Controller_GuestControllerTest extends EbayEnter
         ]]);
         $order->expects($this->any())
             ->method('getBillingAddress')
-            ->will($this->returnValue(new Varien_Object([
+            ->will($this->returnValue(Mage::getModel('ebayenterprise_order/detail_process_response_address', [
                 'lastname' => $lastname,
                 'postal_code' => $zip,
             ])));
         $order->setCustomerEmail($email);
         return [
             // No match found
-            [Mage::getModel('ebayenterprise_order/detail_process_response', ['response' => $this->_payload]), $email, $zip, $lastname, false],
+            [Mage::getModel('ebayenterprise_order/detail_process_response', ['response' => $this->_payload, 'customer_email' => $email]), $email, $zip, $lastname, false],
             // Search order using zip code
             [$order, null, $zip, $lastname, true],
             // Search order using email address

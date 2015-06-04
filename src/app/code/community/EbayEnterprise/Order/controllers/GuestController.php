@@ -83,21 +83,58 @@ class EbayEnterprise_Order_GuestController extends Mage_Sales_GuestController
 
     /**
      * Check whether we have a valid order result.
+     *
      * @param  EbayEnterprise_Order_Model_Detail_Process_IResponse
      * @param  string
      * @param  string
      * @param  string
      * @return bool
      */
-    protected function _hasValidOrderResult(EbayEnterprise_Order_Model_Detail_Process_IResponse $romOrderObject, $orderEmail, $orderZip, $orderLastname)
+    protected function _hasValidOrderResult(EbayEnterprise_Order_Model_Detail_Process_IResponse $romOrder, $email, $zipCode, $lastname)
     {
-        $billingAddress = $romOrderObject->getBillingAddress();
-        return (
-            $billingAddress && $orderLastname === $billingAddress->getLastname()
-            && (
-                ($orderZip && $orderZip === $billingAddress->getPostalCode())
-                || ($orderEmail     && $orderEmail === $romOrderObject->getCustomerEmail())
-            )
-        );
+        /** @var EbayEnterprise_Order_Model_Detail_Process_Response_Address */
+        $address = $romOrder->getBillingAddress();
+        return $address
+            && $this->_isMatchLastname($address, $lastname)
+            && ($this->_isMatchEmail($romOrder, $email) || $this->_isMatchZipCode($address, $zipCode));
+    }
+
+    /**
+     * Check whether a given zip code search key term match a known billing address zip code.
+     *
+     * @param  EbayEnterprise_Order_Model_Detail_Process_Response_Address
+     * @param  string
+     * @return bool
+     */
+    protected function _isMatchZipCode(EbayEnterprise_Order_Model_Detail_Process_Response_Address $address, $searchZipCode)
+    {
+        $romZipCode = strtolower($address->getPostalCode());
+        $searchZipCode = strtolower($searchZipCode);
+        return ($romZipCode === $searchZipCode)
+            || (substr($romZipCode, 0, 5) === $searchZipCode);
+    }
+
+    /**
+     * Check whether a given lastname search key term match a known ROM customer billing lastname.
+     *
+     * @param  EbayEnterprise_Order_Model_Detail_Process_Response_Address
+     * @param  string
+     * @return bool
+     */
+    protected function _isMatchLastname(EbayEnterprise_Order_Model_Detail_Process_Response_Address $address, $lastname)
+    {
+        return $lastname && ($lastname === $address->getLastname());
+    }
+
+    /**
+     * Check whether a given email address search key term match a known ROM customer order email.
+     *
+     * @param  EbayEnterprise_Order_Model_Detail_Process_IResponse
+     * @param  string
+     * @return bool
+     */
+    protected function _isMatchEmail(EbayEnterprise_Order_Model_Detail_Process_IResponse $romOrder, $email)
+    {
+        return $email && ($email === $romOrder->getCustomerEmail());
     }
 }

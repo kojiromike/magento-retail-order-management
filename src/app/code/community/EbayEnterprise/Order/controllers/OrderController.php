@@ -112,7 +112,7 @@ class EbayEnterprise_Order_OrderController extends Mage_Sales_Controller_Abstrac
     {
         $session = $this->_orderFactory->getCustomerSession();
         $session->addError($e->getMessage());
-        $this->_redirect($this->_getOrderDetailReturnPath($session));
+        $this->_redirect($this->_getRomReturnPath($session));
         return $this;
     }
 
@@ -138,7 +138,7 @@ class EbayEnterprise_Order_OrderController extends Mage_Sales_Controller_Abstrac
      * @param  Mage_Customer_Model_Session
      * @return string
      */
-    protected function _getOrderDetailReturnPath(Mage_Customer_Model_Session $session)
+    protected function _getRomReturnPath(Mage_Customer_Model_Session $session)
     {
         return $session->isLoggedIn()
             ? static::LOGGED_IN_ORDER_HISTORY_PATH
@@ -170,6 +170,7 @@ class EbayEnterprise_Order_OrderController extends Mage_Sales_Controller_Abstrac
      */
     public function romCancelAction()
     {
+        $this->_handleInvalidOperation();
         if ($this->_canShowOrderCancelForm()) {
             $this->_setRefererUrlInSession()
                 ->_showOrderCancelPage();
@@ -328,6 +329,21 @@ class EbayEnterprise_Order_OrderController extends Mage_Sales_Controller_Abstrac
     ) {
         $session->addError($this->_orderHelper->__($e->getMessage()));
         $this->_redirectUrl($redirectUrl);
+        return $this;
+    }
+
+    /**
+     * Ensure the proper data exist in before proceeding to show the current page.
+     *
+     * @return self
+     */
+    protected function _handleInvalidOperation()
+    {
+        $orderId = $this->getRequest()->getParam('order_id');
+        if (!$orderId) {
+            $this->loadLayout();
+            $this->_redirect($this->_getRomReturnPath($this->_orderFactory->getCustomerSession()));
+        }
         return $this;
     }
 }

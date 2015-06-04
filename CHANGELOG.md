@@ -1,12 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## [1.6.0-alpha-4] -  2015-06-04
 ### Added
-- Support for multi-address checkout
+- Support for multishipping checkout to generate a single order create request
+- Support for viewing order details and shipments with multiple shipping addresses in one order
+
+### Changed
+- Installation and Configuration Guide
+- Product Import Guide
 
 ### Fixed
 - Order create request sends duplicate skus for configurable products
+- Order create request includes a shipping amount for all items
 
 ## [1.6.0-alpha-3] -  2015-05-21
 ### Added
@@ -263,6 +269,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-alpha-4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-3...1.6.0-alpha-4
 [1.6.0-alpha-3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-2...1.6.0-alpha-3
 [1.6.0-alpha-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-1...1.6.0-alpha-2
 [1.6.0-alpha-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.5.0-beta-1...1.6.0-alpha-1

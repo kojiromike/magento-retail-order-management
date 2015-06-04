@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+### Added
+- Support for multi-address checkout
+
+### Fixed
+- Order create request sends duplicate skus for configurable products
+
 ## [1.6.0-alpha-3] -  2015-05-21
 ### Added
 - Support for ROM tax, duty and fee service when using multishipping checkout

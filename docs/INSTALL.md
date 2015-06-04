@@ -74,7 +74,7 @@ You will need to provide an SFTP public key to eBay Enterprise to access the Pro
 ## Installation
 ### Step 0: Apply Address Validation Patch
 
-Apply the [Address Validation Patch](../deploy/address.validation-1.14.2.0.patch) to your Magento installation. This patch allows the `customer_address_validation_after` event to halt checkout and provide extendable functionality if the customer's address was not validated.
+Apply the [Address Validation Patch](/deploy/address.validation-1.14.2.0.patch) to your Magento installation. This patch allows the `customer_address_validation_after` event to halt checkout and provide extendable functionality if the customer's address was not validated.
 
 ### Step 1: Configure composer.json
 
@@ -110,7 +110,7 @@ This command will install the extension, and symlink the extension files into th
 
 ### Step 4: Install 41st Parameter JavaScript
 
-You will be provided with a set of 41st Parameter JavaScript files required to collect data for Fraud Protection & Risk Management. Please install those files in the [`js/ebayenterprise_eb2cfraud/` directory](../src/js/ebayenterprise_eb2cfraud/).
+You will be provided with a set of 41st Parameter JavaScript files required to collect data for Fraud Protection & Risk Management. Please install those files in the [`js/ebayenterprise_eb2cfraud/` directory](/src/js/ebayenterprise_eb2cfraud/).
 
 You can confirm the files have been installed in the Magento Admin at **System > Configuration > eBay Enterprise > Retail Order Management > Fraud > Fraud Files Installed**.
 
@@ -180,7 +180,7 @@ Add an enabler file to `app/etc/modules` to activate the ProductExport module. F
 
 #### Configure Product Export via XML
 
-The extension includes a sample product export configuration file—[`app/etc/productexport.xml.sample`](../src/app/etc/productexport.xml.sample)—that includes detailed documentation and example configuration options. Use this file as a starting point for your implementation by renaming this file to `productexport.xml`. Carefully review all options to ensure they match your specific implementation.
+The extension includes a sample product export configuration file—[`app/etc/productexport.xml.sample`](/src/app/etc/productexport.xml.sample)—that includes detailed documentation and example configuration options. Use this file as a starting point for your implementation by renaming this file to `productexport.xml`. Carefully review all options to ensure they match your specific implementation.
 
 ### Product Information Management via a 3rd Party System
 
@@ -202,13 +202,13 @@ Add an enabler file to `app/etc/modules` to activate the ProductImport module. F
 
 #### Configure Product Import via XML
 
-The extension includes a sample product import configuration file—[`app/etc/productimport.xml.sample`](../src/app/etc/productimport.xml.sample)—that includes detailed documentation and example configuration options. Use this file as a starting point for your implementation by renaming this file to `productimport.xml`. Carefully review all options to ensure they match your specific implementation.
+The extension includes a sample product import configuration file—[`app/etc/productimport.xml.sample`](/src/app/etc/productimport.xml.sample)—that includes detailed documentation and example configuration options. Use this file as a starting point for your implementation by renaming this file to `productimport.xml`. Carefully review all options to ensure they match your specific implementation.
 
 ## Optional Configuration
 
 ### Custom User Messages
 
-At times, the Magento Retail Order Management Extension will display success or failure messages to the user. All messages are passed through Magento's translation functions before output for display. To change any of these messages, simply use a translation CSV file for the required language. The default message content can be found at [`app/locale/en_US/`](../src/app/locale/en_US/)
+At times, the Magento Retail Order Management Extension will display success or failure messages to the user. All messages are passed through Magento's translation functions before output for display. To change any of these messages, simply use a translation CSV file for the required language. The default message content can be found at [`app/locale/en_US/`](/src/app/locale/en_US/)
 
 ### Combinations of Modules and Capabilities
 

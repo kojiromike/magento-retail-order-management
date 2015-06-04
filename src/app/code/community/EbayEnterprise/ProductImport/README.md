@@ -1,595 +1,277 @@
-# Product Import
+![ebay logo](/docs/static/logo-vert.png)
+
+**Magento Retail Order Management Extension**
+# Product Import Guide
 
 ## Contents
 
+- [Introduction](#introduction)
 - [Enabling Product Import ](#enabling-product-import)
-- [Product Attribute Mappings](#product-attribute-mappings)
-- [Required Custom Attributes](#required-custom-attributes)
-- [Import Products into Different Magento Websites ](#import-products-into-different-magento-websites)
-- [Product Import Mapping](#product-import-mapping)
-- [Dependency and Non-Dependency Attributes](#dependency-and-non-dependency-attributes)
-- [Language](#language)
-- [Importing Configurable Products](#importing-configurable-products)
-- [Importing Gift Cards](#importing-gift-cards)
-- [Images](#images)
+- [Magento Product Attributes](#magento-product-attributes)
+- [Product Hub Feed Processing](#product-hub-feed-processing)
+  - [Item Master](#item-master)
+  - [Content Master](#content-master)
+  - [Price Events](#price-events)
+- [Use Cases](#use-cases)
+  - [Associate Products to Categories](#associate-products-to-categories) 
+  - [Import Configurable Products](#import-configurable-products)
+  - [Import Gift Cards](#import-gift-cards)
+  - [Import Products into Different Magento Websites](#import-products-into-different-magento-websites)
+  - [Import Localized Content](#import-localized-content)
+  - [Images](#images)
+- [Custom Product Import Mapping](#custom-product-import-mapping)
+- [Dependencies](#dependencies)
+
+## Introduction
+
+The Magento Retail Order Management Extension provides two different workflows for managing product information. The extension can support direct management of product information from within Magento or import product information into Magento from a third party Product Information Management system.
+
+The catalog workflows are intended to import product information only. Regardless of which catalog workflow is implemented, the following should be configured in Magento prior to importing or exporting products:
+
+- Categories
+- Product Attributes
+- Product Attribute Sets
+
+This Product Import Guide describes the process and details for importing product information into Magento, via the Retail Order Management Product Hub, from a third party Product Information Management system.  If you would prefer to directly manager product information within Magento, then please consult the [Product Export Guide](/src/app/code/community/EbayEnterprise/ProductExport/README.md).
 
 ## Enabling Product Import
 
-1. Ensure the eBay Enterprise Retail Order Management Extension is configured. See the [Installation and Configuration Guide](INSTALL.md) for more details.
-1. Copy `app/etc/productimport.xml.sample` to `app/etc/productimport.xml` to enable the local XML configuration.
-1. Ensure cron jobs are set to run on the Magento instance.
+Follow the [Installation and Configuration Guide](/docs/INSTALL.md#product-information-management-via-a-3rd-party-system) to enable the Retail Order Management Extension to support importing product information from a third party system. Then return to this guide to learn more about the product import process and configuration.
 
-### Local XML Configuration
+## Magento Product Attributes
 
-The local XML configuration for product import provides settings for:
+On installation, the Magento Retail Order Management Extension will create the following attributes required for the extension to operate. These attributes should be included in every Attribute Set.
 
-- **Cron scheduling**: Set to run every 15 minutes by default
-- **SFTP remote directory paths and file patterns**: These values will be provided by eBay Enterprise
-- **Product attribute mappings**: See [Product Attribute Mappings](#product-attribute-mappings) for details on mapping feed data to product attributes
+| Attribute Name | Attribute Code | Description |
+|:---------------|:---------------|:------------|
+| Size           | `size`         | Product size. |
+| Style ID       | `style_id`     | Associates simple products to configurable products. Child simple products' Style ID will match their parent configurable product's SKU. |
+| Is Clean       | `is_clean`     | Flag indicating if the product has had all of its product links resolved. |
+| Unresolved Product Links | `unresolved_product_links` | Any related, cross-sell or up-sell product links for the product that have not yet been resolved, typically due to the target products not existing in Magento yet. |
+| HTS Codes      | `hts_codes`    | Serialized mapping of tax codes used for calculating international taxes and duties. |
+| Tax Code       | `tax_code`     | Tax code used by the Retail Order Management tax service. |
 
-## Product Attribute Mappings
+## Product Hub Feed Processing
 
-The following table describes how elements in the XML product feeds are imported and used by Magento. The eBay Enterprise Retail Order Management Extension provides these mappings. Any additional elements in the XML that are not included below can be mapped and imported to meet the specific needs of a Magento store. See [Product Import Mapping](#product-import-mapping) for more details on mapping additional elements.
+The Retail Order Management Product Hub expects product information to be provided in three separate feeds, each with a canonical specification. The Product Hub will relay this product data to various internal systems as well as the Magento webstore.
 
-*All XPath expressions are relative to the repeating XML node representing a single product in the feed, e.g. `Item` in ItemMaster or `Content` in ContentMaster.*
+The Magento Retail Order Management Extension will import relevant data from these feeds out-of-the-box. Product information that is essential to the operation of the extension will be hard mapped and cannot change. Less essential product information is provided in [sample maps](/src/app/etc/productimport.xml.sample) that can be customized for the specific needs of a merchant's implementation.
 
-<table>
-	<thead>
-		<tr>
-			<th>XPath</th>
-			<th>Description</th>
-			<th>Lang Support</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<th colspan="3">ItemMaster</th>
-		</tr>
-		<tr>
-			<td>@operation_type</td>
-			<td>One of <code>Add</code> or <code>Change</code>. When importing into Magento, both operation types will either add a new product or update an existing product.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>@gsi_client_id</td>
-			<td>Client ID provided by eBay Enterprise and configured for the website. Products will only be imported to websites with a matching Client ID. See <a href="#import-products-into-different-magento-websites">Import Products into Different Magento Websites</a> for more details on matching products to websites.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>@catalog_id</td>
-			<td>Catalog ID provided by eBay Enterprise and configured for the Magento instance. Only items with a Catalog ID matching the value configured in for the Magento instance will be imported. </td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ItemId/ClientItemId</td>
-			<td>SKU of the product in Magento.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>BaseAttributes/CatalogClass</td>
-			<td>Controls the "Visibility" of the product. Values of <code>regular</code> and <code>always</code> result in products with a visibility of "Catalog, Search". A values of <code>nosale</code> will be given a visibility of "Not Visible Individually."</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>BaseAttributes/IsDropShipped</td>
-			<td>Provides the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Drop Shipped"</a> product attribute.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>BaseAttributes/ItemStatus</td>
-			<td>Sets the "Status" of the item. May be one of: <code>Active</code>, <code>Discontinued</code>, or <code>Inactive</code>. A Value of <code>Active</code> will result in a product that is "Enabled" in Magento. Both <code>Discontinued</code> and <code>Inactive</code> will result in a product that is "Disabled" in Magento.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>BaseAttributes/TaxCode</td>
-			<td>Provides the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Tax Code"</a> product attribute used in the tax duty request. Note that this is separate from the "Tax Class" in Magento.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>DropShipSupplierInformation/SupplierName</td>
-			<td>Provides the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Drop Ship Supplier Name"</a> product attribute. This value is only needed when the item is being fulfilled by a drop ship supplier.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>DropShipSupplierInformation/SupplierNumber</td>
-			<td>Provides the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Drop Ship Supplier Number"</a> product attribute. This value is only needed when the item is being fulfilled by a drop ship supplier.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>DropShipSupplierInformation/SupplierPartNumber</td>
-			<td>Provides the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Drop Ship Supplier Part Number"</a> product attribute. This value is only needed when the item is being fulfilled by a drop ship supplier.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/AllowGiftMessage</td>
-			<td>Sets the "Allow Message" attribute for gift cards.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/ColorAttributes/Color</td>
-			<td>
-Used to specify the "Color" attribute of the product.
-Consists of at least 2 child nodes:
-<ul>
-<li>A color "Code", a unique value used to identify the color. This will be used as the admin label for the color option. When colors are being imported, if a color option with an admin label matching the code already exists, that color option will be reused for the product. When a new "Code" is encountered, a new option will be created for the color.
-</li>
-<li>One or more "Description" nodes, each with an "xml:lang" attribute. The description is used for to all stores that use the language specified.
-</li></td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/ColorAttributes/Color/Description</td>
-			<td>The localized name of the color. This value will be used as the store view specific label for color option and will be applied to any store views that are configured with a eBay Enterprise Retail Order Management Store Language Code matching the <code>xml:lang</code> attribute of this node.</td>
-			<td>Yes</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/CountryOfOrigin</td>
-			<td>Specifies the "Country of Manufacture" product attribute. This value should be the two character ISO 3166 country code.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/GiftCardTenderCode</td>
-			<td>
-				Specifies the type of gift card. Within Magento, this value specifies the gift card's "Card Type" attribute. The following mapping between feed values and Magento types is used:
-				<table>
-					<thead>
-						<tr>
-							<th>Feed Value</th>
-							<th>Magento Type</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr><td>SD</td><td>virtual</td></tr>
-						<tr><td>SP</td><td>physical</td></tr>
-						<tr><td>ST</td><td>combined</td></tr>
-						<tr><td>SV</td><td>virtual</td></tr>
-						<tr><td>SX</td><td>combined</td></tr>
-					</tbody>
-				</table>
-				This mapping can be customized by overriding the <code>default/ebayenterprise_catalog/feed/gift_card_tender_code</code> values in the <code>app/etc/rom.xml</code> file for the Magento store.
-			</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/ItemDimension/Shipping/Mass</td>
-			<td>The "Weight" product attribute uses the value of the <code>Weight</code> child node. The <code>unit_of_measure</code> attribute on the <code>Mass</code> node must be present and set to either <code>lbs</code> or <code>kg</code>. The <code>unit_of_measure</code> attribute value is not used for Magento but is required for other eBay Enterprise Retail Order Management systems.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/SalesClass</td>
-			<td>
-				Specifies the <code>Backorder</code> inventory setting for the product. This affects the behavior of Inventory Service Calls.
-				<ul>
-				<li>The SalesClass value <code>stock</code> is mapped to Magento <code>Backorders = No</code> and cannot be remapped.
-				<li>Mappings for the other possible SalesClass values are included in <code>app/etc/productimport.xml.sample</code> and may be customized as needed.
-				Complete documentation included in <code>app/etc/productimport.xml.sample</code>.</li>
-				</ul>
-			</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/Style/StyleId</td>
-			<td>This value sets the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Style ID"</a> product attribute. This attribute is used to related a simple product to a parent configurable product. The Style ID of the used simple product should match the SKU of the parent configurable product.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>CustomAttributes</td>
-			<td>Additional key/value pairs that may be included in the feed. While there is no mapping provided to import these values into Magento it may be necessary to include these in the feeds to provide additional values that are not already implemented in the feed. If these values are to be imported into Magento, <a href="#product-import-mapping">additional product mappings will need to be added</a>.</td>
-			<td>Yes</td>
-		</tr>
-		<tr>
-			<td>CustomAttributes/Attribute[@name="ProductType"]/Value</td>
-			<td>The Magento product type. Possible values include <code>bundle</code>, <code>configurable</code>, <code>downloadable</code>, <code>giftcard</code>, <code>grouped</code>, <code>simple</code> and <code>virtual</code>, but only <code>configurable</code>, <code>downloadable</code>, <code>simple</code> and <code>virtual</code> are supported.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>CustomAttributes/Attribute[@name="ConfigurableAttributes"]/Value</td>
-			<td>A comma-separated list of attributes on which the product can be configured. Required for any product having a ProductType of <code>Configurable</code>.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>CustomAttributes/Attribute[@name="AttributeSet"]/Value</td>
-			<td>Specifies the product attribute set to apply to to product. Should exactly match the name of the attribute set in Magento.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<th colspan="3">ContentMaster</th>
-		</tr>
-		<tr>
-			<td>@gsi_client_id</td>
-			<td>Client ID provided by eBay Enterprise and configured for the website. Products will only be imported to websites with a matching Client ID. See <a href="#import-products-into-different-magento-websites">Import Products into Different Magento Websites</a> for more details on matching products to websites.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>@catalog_id</td>
-			<td>Catalog ID provided by eBay Enterprise and configured for the Magento instance. Only items with a Catalog ID matching the value configured in for the Magento instance will be imported. </td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>@gsi_store_id</td>
-			<td>Store ID provided by eBay Enterprise and configured for website. Product data will only be imported to websites with a matching Store ID. See <a href="#import-products-into-different-magento-websites">Import Products into Different Magento Websites</a> for more details on matching products to websites.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>UniqueId</td>
-			<td>The product SKU.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>StyleId</td>
-			<td>This value sets the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Style ID"</a> product attribute. This attribute is used to related a simple product to a parent configurable product. The Style ID of the used simple product should match the SKU of the parent configurable product.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ProductLinks</td>
-			<td>Encapsulates related, up-sell and cross-sell product links.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ProductLinks/ProductLink@link_type</td>
-			<td>
-				Specifies the type of link to create. The following link types will be imported by Magento:
-				<table>
-					<thead>
-						<tr><th>Feed Value</th><th>Managed Product Link Type</th></tr>
-					</thead>
-					<tbody>
-						<tr><td>ES_Accessory</td><td>Related</td></tr>
-						<tr><td>ES_CrossSelling</td><td>Cross-Sell</td></tr>
-						<tr><td>ES_UpSelling</td><td>Up-Sell</td></tr>
-					</tbody>
-				</table>
-			</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ProductLinks/ProductLink@operation_type</td>
-			<td>Specify what to do with the product link. May be <code>Add</code> to create new links or <code>Delete</code> to remove an existing link.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ProductLinks/ProductLink/LinkToUniqueId</td>
-			<td>SKU of the product to create the link to.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>CategoryLinks</td>
-			<td>Encapsulates data used to link products to categories in Magento. Any category links present in the feeds will always replace any existing category links for the product. Links will only be created to categories that already exist within the Magento instance.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>CategoryLinks/CategoryLink@catalog_id</td>
-			<td>Should match the Catalog ID configured for the Magento instance.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>CategoryLinks/CategoryLink@import_mode</td>
-			<td>Specifies how the links should be handled. Links with an <code>operation_type</code> of "Delete" will not be imported. All other category links will be imported and replace any existing category links.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>CategoryLinks/CategoryLink/Name</td>
-			<td>
-				<p>Specifies a category hierarchy indicating a category the product should be placed in. The each category should be delimited by a dash (<code>-</code>). The product will only be added to the last category specified by the hierarchy. The first category in each path must be a Root Category.</p>
+### Item Master
 
-				<p>For example, the following category links XML:
+The Item Master provides information for the sellable products, e.g. simple, bundle, virtual, downloadable and gift card products. "Parent" products used primarily for grouping child products in the webstore should not be included in the websotre, e.g. configurable and grouped products.
 
-				<pre>
-&lt;CategoryLinks&gt;
-	&lt;CategoryLink import_mode="Update"&gt;
-		&lt;Name&gt;Store Root-Women&lt;/Name&gt;
-	&lt;/CategoryLink&gt;
-	&lt;CategoryLink import_mode="Update"&gt;
-		&lt;Name&gt;Store Root-Women-Shoes-Boots&lt;/Name&gt;
-	&lt;/CategoryLink&gt;
-&lt;/CategoryLinks&gt;
-				</pre>
+The product information provided in the Item Master drives much of the business logic for each product. Some of the information provided in the Item Master is required by internal systems of the Retail Order Management Platform and is irrelevant to Magento and is thus discarded during the import process. The relevant information is processed into Magento as follows:
 
-				will result in the product being linked to the "Women" and "Boots" categories but not the "Store Root" or "Shoes" category.</p>
-			</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>BaseAttributes/Title</td>
-			<td>The "Name" product attribute.</td>
-			<td>Yes</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/ColorAttributes/Color/Code</td>
-			<td>Used to specify the "Color" attribute of the product. The color "Code" should be a unique value used to identify the color and will be used as the admin label for the color option. When colors are being imported, if a color option with an admin label matching the code already exists, that color option will be reused for the product. When a new "code" is encountered, a new option will be created for the color.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/ColorAttributes/Color/Description</td>
-			<td>The localized name of the color. This value will be used as the store view specific label for color option and will be applied to any store views that are configured with a eBay Enterprise Retail Order Management Store Language Code matching the <code>xml:lang</code> attribute of this node.</td>
-			<td>Yes</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/LongDescription</td>
-			<td>The "Description" product attribute.</td>
-			<td>Yes</td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/ShortDescription</td>
-			<td>The "Short Description" product attribute.</td>
-			<td>Yes</td>
-		</tr>
-		<tr>
-			<td>CustomAttributes</td>
-			<td>Additional key/value pairs that may be included in the feed. While there is no mapping provided to import these values into Magento it may be necessary to include these in the feeds to provide additional values that are not already implemented in the feed. If these values are to be imported into Magento, <a href="#product-import-mapping">additional product mappings will need to be added</a>.</td>
-			<td>Yes</td>
-		</tr>
-		<tr>
-			<td>CustomAttributes/Attribute[@name="ProductType"]/Value</td>
-			<td>The Magento product type. Possible values include <code>bundle</code>, <code>configurable</code>, <code>downloadable</code>, <code>giftcard</code>, <code>grouped</code>, <code>simple</code> and <code>virtual</code>, but only <code>configurable</code>, <code>downloadable</code>, <code>simple</code> and <code>virtual</code> are supported.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>CustomAttributes/Attribute[@name="ConfigurableAttributes"]/Value</td>
-			<td>A comma-separated list of attributes on which the product can be configured. Required for any product having a ProductType of <code>Configurable</code>.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>CustomAttributes/Attribute[@name="AttributeSet"]/Value</td>
-			<td>Specifies the product attribute set to apply to to product. Should exactly match the name of the attribute set in Magento.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<th colspan="3">Prices</th>
-		</tr>
-		<tr>
-			<td>@gsi_store_id</td>
-			<td>Store ID provided by eBay Enterprise and configured for the Magento website. Products will only be imported to websites with a matching Store ID. See <a href="#import-products-into-different-magento-websites">Import Products into Different Magento Websites</a> for more details on matching products to websites.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>@gsi_client_id</td>
-			<td>Client ID provided by eBay Enterprise and configured for the website. Products will only be imported to websites with a matching Client ID. See <a href="#import-products-into-different-magento-websites">Import Products into Different Magento Websites</a> for more details on matching products to websites.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>@catalog_id</td>
-			<td>Catalog ID provided by eBay Enterprise and configured for the Magento instance. Only items with a Catalog ID matching the value configured in for the Magento instance will be imported. </td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ClientItemId</td>
-			<td>The product SKU.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>Event</td>
-			<td>Any new price events for a product in a feed will replace any existing product pricing data for the product "Price," "Special Price," "Special Price From Date," and "Special Price To Date."</td>
-			<td></td>
-		<tr>
-			<td>Event/Price</td>
-			<td>When an `Event/AlternatePrice1` value is not included for the product, this will be used as the "Price" product attribute and will be the price of the product on the site. When an `Event/AlternatePrice1` is included for the product, this will be used as the "Special Price" product attribute and will be the sale price of the product while the special price is available.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>Event/MSRP</td>
-			<td>The "MSPR" of the product.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>Event/AlternatePrice1</td>
-			<td>When present, this will be used as the "Price" product attribute. Due to handling of the `Event/Price` element, this will result in this value being used as the "WAS" price while the special price is available.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>Event/StartDate</td>
-			<td>The "Special Price From Date" of the product. While this value is a full date time in the feed, only the date will be used whithin Magento.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>Event/EndDate</td>
-			<td>The "Special Price To Date" of the product. While this value is a full date time in the feed, only the date will be used within Magento.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<th colspan="3">iShip</th>
-		</tr>
-		<tr>
-			<td>@operation_type</td>
-			<td>One of <code>Add</code> or <code>Change</code>. When importing into Magento, both operation types will either add a new product or update an existing product.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>@gsi_client_id</td>
-			<td>Client ID provided by eBay Enterprise and configured for the website. Products will only be imported to websites with a matching Client ID. See <a href="#import-products-into-different-magento-websites">Import Products into Different Magento Websites</a> for more details on matching products to websites.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>@catalog_id</td>
-			<td>Catalog ID provided by eBay Enterprise and configured for the Magento instance. Only items with a Catalog ID matching the value configured in for the Magento instance will be imported. </td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>ItemId</td>
-			<td>The product SKU.</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>ExtendedAttributes/CountryOfOrigin</td>
-			<td>Specifies the "Country of Manufacture" product attribute. This value should be the two character ISO 3166 country code.</td>
-			<td>No</td>
-		</tr>
-		<tr>
-			<td>HTSCodes</td>
-			<td>List of HTS Codes applicable to the product for international tax and duties. All HTS Codes for a product are stored in the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"HTS Codes"</a> product attribute.</td>
-			<td>No</td>
-		</tr>
-	</tbody>
-</table>
+`/ItemMaster/Item[]`
 
-## Required Custom Attributes
-
-The following custom attributes are not part of any eBay Enterprise Retail Order Management schema, but must be set for Magento to properly handle a feed.
-
-<dl>
-	<dt>ProductType</dt><dd>The Magento product <code>type</code>. Possible values include <code>bundle</code>, <code>configurable</code>, <code>downloadable</code>, <code>giftcard</code>, <code>grouped</code>, <code>simple</code> and <code>virtual</code>, but only <code>configurable</code>, <code>downloadable</code>, <code>simple</code>, <code>giftcard</code> and <code>virtual</code> are supported</dd>
-	<dt>ConfigurableAttributes</dt><dd>A comma-separated list of attributes on which the product can be configured. Required for any product having a <code>ProductType</code> of `configurable`</dd>
-	<dt>AttributeSet</dt><dd>Used along with the <code>operation_type</code> of the <code>AttributeSet</code> custom attribute to update the attribute set for the product.</dd>
-</dl>
-
-These values should be included in the set of `CustomAttributes` for a product as such:
-
-```xml
-<Item>
-	…
-	<CustomAttributes>
-		<Attribute name="ProductType">
-			<Value>configurable</Value>
-		</Attribute>
-		<Attribute name="ConfigurableAttributes">
-			<Value>color,size</Value>
-		</Attribute>
-		<Attribute name="AttributeSet">
-			<Value>Shoes</Value>
-		</Attribute>
-		…
-	</CustomAttributes>
-	…
-</Item>
-```
+| Item Master XPath | Magento Product Attribute | Notes |
+|:------------------|:--------------------------|:------|
+| `@operation_type` | N/A | When importing into Magento, both operation types will either add a new product or update an existing product. |
+| `@gsi_client_id` | N/A | Client Id provided by eBay Enterprise and configured at the Website scope. Products will only be assigned to Magento Websites with a matching Client Id. See [Import Products into Different Magento Websites](#import-products-into-different-magento-websites) for more details on assigning products to Websites. |
+| `@catalog_id` | N/A | Catalog Id provided by eBay Enterprise and configured at the Global scope. Products will only be imported with a matching Catalog Id. |
+| `ItemId/ClientItemId` | SKU | |
+| `BaseAttributes/CatalogClass` | Visibility | Values of `regular` and `always` result in products with a visibility of "Catalog, Search". A values of `nosale` will be given a visibility of "Not Visible Individually." |
+| `BaseAttributes/ItemStatus` | Status | A value of `Active` will result in a product that is "Enabled" in Magento. Both `Discontinued` and `Inactive` will result in a product that is "Disabled" in Magento. |
+| `BaseAttributes/TaxCode` | [Tax Code](#magento-product-attributes) | Used in the tax duty request. Note that this is different than the "Tax Class" in Magento. |
+| `ExtendedAttributes/AllowGiftMessage` | Allow Message | For gift cards. |
+| `ExtendedAttributes/ColorAttributes/Color` | Color |
+| `ExtendedAttributes/ColorAttributes/Color/Code` | Color Admin Label | A unique value used to identify the color. This value will be used as the admin label for the color option. When colors are imported, if a color option with an admin label matching the code already exists, that color option will be reused for the product. When a new `Color/Code` is encountered, a new option will be created for the color. |
+| `ExtendedAttributes/ColorAttributes/Color/Description` | Color Store View Label | The localized name of the color. This value will be used as the Store View specific label for color option and will be applied to any Store Views that are configured with a Store Language Code matching the `xml:lang` attribute of this node. |
+| `ExtendedAttributes/CountryOfOrigin` | Country of Manufacture | This value should be the two character ISO 3166 country code. |
+| `ExtendedAttributes/GiftCardTenderCode` | Gift Card Type | Values mapped as defined by `default/ebayenterprise_catalog/feed/gift_card_tender_code` in [`app/etc/productimport.xml`](/src/app/etc/productimport.xml.sample). |
+| `ExtendedAttributes/MaxGCAmount` | Open Amount Max Value | |
+| `ExtendedAttributes/ItemDimension/Shipping/Mass/Weight` | Weight | |
+| `ExtendedAttributes/SalesClass` | Backorders |  Values mapped as defined by `default/ebayenterprise_catalog/feed/stock_map` in [`app/etc/productimport.xml`](/src/app/etc/productimport.xml.sample). |
+| `ExtendedAttributes/Style/StyleId` | [Style Id](#magento-product-attributes) | The Style Id will associate a child product to a parent configurable product whose SKU matches that Style Id. |
+| `CustomAttributes` | N/A | Additional key/value pairs may be included in the Item Master feed. A few Custom Attributes have been mapped to required Magento Product Attributes. Additional [Custom Product Import Mappings](#custom-product-import-mapping) may be added to local configuration. |
+| `CustomAttributes/Attribute[@name="ProductType"]/Value` | Product Type | Possible values include `bundle`, `configurable`, `downloadable`, `giftcard`, `grouped`, `simple` and `virtual`. Required for product creation, else product will be created as a simple product. |
+| `CustomAttributes/Attribute[@name="AttributeSet"]/Value` | Attribute Set | Should match the name of the Attribute Set in Magento exactly. Required for product creation, else product will be created with the default Attribute Set |
 
 | Important |
 |:----------|
-| Magento does not support changing an Attribute Set of a product once it's been set. We _strongly_ discourage changing a Product's Attribute Sets via Product Import Feeds. Unpredictable results will likely occur. |
+| Magento does not support changing the Attribute Set of a product once it's been set. We **strongly** discourage changing a Product's Attribute Set via Product Hub Feeds. Unpredictable results may occur. |
 
-## Import Products into Different Magento Websites
+### Content Master
 
-The combination of incoming catalog_id, gsi_client_id and gsi_store_id are mapped to Magento Websites.
+The Content Master provides marketing and display information for visible products. The use of the Content Master with Magento is optional. It is possible to update product content manually or via other import process. However, those updates will not be synced with any of the Retail Order Management systems, so please ensure that any product updates that do not use the Content Master is for exclusively webstore content.
 
-Product import first gathers all the websites for the Magento Instance, and then for each Magento Website, extracts relevant information from each of the feed files according to these rules:
+`/ContentMaster/Content[]`
 
-* The ‘catalog_id’, if present, must match the Magento website’s Catalog ID configuration. All Magento websites for an instance use the same Catalog ID, this effectively filters out any items that have a Catalog ID, and that Catalog ID does not match the Magento website.
-* The ‘client_id’, if present, must match the Magento website’s Client ID configuration.
-* The ’store_id’, if present, must match the Magento website’s Store ID configuration.
+| Content Master XPath | Magento Product Attribute | Notes |
+|:---------------------|:--------------------------|:------|
+| `@gsi_client_id` | N/A | Client Id provided by eBay Enterprise and configured at the Website scope. Content changes will only be applied to Magento Websites with a matching Client Id. See [Import Products into Different Magento Websites](#import-products-into-different-magento-websites) for more details on assigning product information to Websites. |
+| `@catalog_id` | N/A | Catalog Id provided by eBay Enterprise and configured at the Global scope. Content changes will only be applied with a matching Catalog Id. |
+| `@gsi_store_id` | N/A | Store Id provided by eBay Enterprise and configured at the Website scope. Content changes will only be applied to Magento Websites with a matching Store Id. See [Import Products into Different Magento Websites](#import-products-into-different-magento-websites) for more details on assigning product information to Websites. |
+| `UniqueId` | SKU | |
+| `StyleId` | [Style Id](#magento-product-attributes) | The Style Id will associate a child product to a parent configurable product whose SKU matches that Style Id. |
+| `ProductLinks/ProductLink` | N/A | Encapsulates related, up-sell and cross-sell product links. |
+| `ProductLinks/ProductLink@link_type` | N/A | <table><thead><tr><th>Link Type</th><th>Magento Link</th></tr></thead><tbody><tr><td>`ES_Accessory`</td><td>Related Products</td></tr><tr><td>`ES_CrossSelling`</td><td>Cross-sells</td></tr><tr><td>`ES_UpSelling`</td><td>Up-sells</td></tr></tbody></table> |
+| `ProductLinks/ProductLink@operation_type` | N/A | `Add` to create a new link or `Delete` to remove an existing link. |
+| `ProductLinks/ProductLink/LinkToUniqueId` | Linked Product SKU | |
+| `CategoryLinks` | Product Categories | Encapsulates data used to link products to categories in Magento. Category links will always replace any and all existing category links for the product. Links will only be created to categories that already exist within the Magento instance. See [Associate Products to Catgories](#associate-products-to-categories) for more information and examples. |
+| `CategoryLinks/CategoryLink@import_mode` | N/A | Specifies how the link should be handled. Links with an `import_mode` of "Delete" will not be imported. All other category links will be imported and replace any existing category links. |
+| `CategoryLinks/CategoryLink/Name` | N/A | Specifies a category hierarchy indicating a category the product should be linked to. Each category in the hierarchy should be delimited by a dash (`-`). The product will only be added to the last category specified by the hierarchy. The first category in each path must be a Root Category. |
+| `BaseAttributes/Title` | Name | |
+| `ExtendedAttributes/ColorAttributes/Color` | Color |
+| `ExtendedAttributes/ColorAttributes/Color/Code` | Color Admin Label | A unique value used to identify the color. This value will be used as the admin label for the color option. When colors are imported, if a color option with an admin label matching the code already exists, that color option will be reused for the product. When a new `Color/Code` is encountered, a new option will be created for the color. |
+| `ExtendedAttributes/ColorAttributes/Color/Description` | Color Store View Label | The localized name of the color. This value will be used as the Store View specific label for color option and will be applied to any Store Views that are configured with a Store Language Code matching the `xml:lang` attribute of this node. |
+| `ExtendedAttributes/LongDescription` | Description | |
+| `ExtendedAttributes/ShortDescription` | Short Description | |
+| `CustomAttributes` | N/A | Additional key/value pairs may be included in the Item Master feed. A few Custom Attributes have been mapped to required Magento Product Attributes. Additional [Custom Product Import Mappings](#custom-product-import-mapping) may be added to local configuration. |
+| `CustomAttributes/Attribute[@name="ProductType"]/Value` | Product Type | Possible values include `bundle`, `configurable`, `downloadable`, `giftcard`, `grouped`, `simple` and `virtual`. Required for product creation, else product will be created as a simple product. |
+| `CustomAttributes/Attribute[@name="ConfigurableAttributes"]/Value` | Configurable Attributes | A comma delimited list of product attributes that Magento should consider configurable when creating a Configurable Product. Required for creation of configurable products. |
+| `CustomAttributes/Attribute[@name="AttributeSet"]/Value` | Attribute Set | Should match the name of the Attribute Set in Magento exactly. Required for product creation, else product will be created with the default Attribute Set |
+
+| Important |
+|:----------|
+| Magento does not support changing an Attribute Set of a product once it's been set. We **strongly** discourage changing a Product's Attribute Sets via Product Import Feeds. Unpredictable results will likely occur. |
+
+### Price Events
+
+The Price Event feed provides product price information to Magento and the Retail Order Management Platform. Since Magento supports only a single Price and single Special price, the Magento Retail Order Management Extension will only be able to import one price event at a time, overwriting any previous price events with the last price event received.
+
+`/Prices/PricePerItem[]`
+
+| Prices XPath | Magento Product Attribute | Notes |
+|:-------------|:--------------------------|:------|
+| `@gsi_store_id` | N/A | Store Id provided by eBay Enterprise and configured at the Website scope. Pricing changes will only be applied to Magento Websites with a matching Store Id. See [Import Products into Different Magento Websites](#import-products-into-different-magento-websites) for more details on assigning product information to Websites. |
+| `@gsi_client_id` | N/A | Client Id provided by eBay Enterprise and configured at the Website scope. Pricing changes will only be applied to Magento Websites with a matching Client Id. See [Import Products into Different Magento Websites](#import-products-into-different-magento-websites) for more details on assigning product information to Websites. |
+| `@catalog_id` | N/A | Catalog Id provided by eBay Enterprise and configured at the Global scope. Pricing changes will only be applied with a matching Catalog Id. | No |
+| `ClientItemId` | SKU |
+| `Event` | N/A | A new price event will replace existing product price information for the product's "Price," "Special Price," "Special Price From Date," and "Special Price To Date." |
+| `Event/Price` | Price or Special Price | The "sellable price." |
+| `Event/MSRP` | Manufacturer's Suggested Retail Price | |
+| `Event/AlternatePrice1` | Price |
+| `Event/StartDate` | Special Price From Date | While this value is a full date time in the feed, only the date will be used within Magento. |
+| `Event/EndDate` | Special Price To Date | While this value is a full date time in the feed, only the date will be used within Magento. |
+
+#### Price vs. Special Price
+
+In the Price Event feed, `Event/Price` is always supposed to represent the "selling price," while `Event/MSRP` and `Event/AlternatePrice1` are never supposed to represent the "selling price" and are instead used or display purposes only.
+
+In Magento, Price may be the "selling price," unless there is an active Special Price that will override Price as the "selling price." Manufacturer's Suggested Retail Price is never used as the "selling price" and is instead used for display purposes only.
+
+Thus the map used to process `Event/Price` and `Event/AlternatePrice1` from the Price Event feed into Magento is not direct. Instead the value of `Event/Price` maps to Price in Magento, if there is no `Event/AlternatePrice1` in the Price Event feed for the item in question. If there is an `Event/AlternatePrice1`, then the value of `Event/AlternatePrice1` will map to Price in Magento, while the value of `Event/Price` will map to Special Price.
+
+#### Price vs. Special Price Use Cases
+
+The Magento Retail Order Management Extension supports two pricing use case scenarios, Regular and Special.
+ 
+A Regular Price scenario is defined as a price event where an `Event/Price` is included, while an `Event/AlternatePrice1` is not. Typically, this is used as the everyday price of an item. In addition, the start date is immediate, regardless of the actual start date sent.
+
+Example:
+
+```xml
+<PricePerItem gsi_client_id="MAGTNA" catalog_id="45" gsi_store_id="MAGT1">
+    <ClientItemId>123456789</ClientItemId>
+    <Event>
+        <Price>62.99</Price>
+        <StartDate>2014-06-13T11:59:59-06:00</StartDate>
+        <EndDate>2500-12-31T23:59:59-05:00</EndDate>
+    </Event>
+</PricePerItem>
+```
+
+A Special Price scenario is defined as a price event where both `Event/Price` and `Event/AlternatePrice1` are included. Typically, this is used for short duration promotional events. The `Event/StartDate` and `Event/EndDate` will apply to the Special Price in Magneto only.
+
+Example:
+ 
+```xml
+<PricePerItem gsi_client_id="MAGTNA" catalog_id="45" gsi_store_id="MAGT1">
+    <ClientItemId>123456789</ClientItemId>
+    <Event>
+        <Price>54.99</Price>
+        <AlternatePrice1>62.99</AlternatePrice1>
+        <StartDate>2014-06-17T11:59:59-06:00</StartDate>
+        <EndDate>2014-06-20T11:59:59-06:00</EndDate>
+    </Event>
+</PricePerItem>
+```
+
+During the time a Regular Price record and a Special Price record intersect, the Special Price record would take precedence.
+ 
+Using the 2 price records above as an example:
+
+| Date                  | Price  | Special Price | "Selling Price" | "Was Price<sup>†</sup>" |
+|:----------------------|:-------|:--------------|:----------------|:------------------------|
+| 6/13/14 to 6/16/2014  | $62.99 | None          | $62.99          | None |
+| 6/17/14 to 6/20/2014  | $62.99 | $54.99        | $54.99          | $62.99 |
+| 6/21/14 to 12/31/2500 | $62.99 | $54.99        | $62.99          | None |
+
+_† Subject to specific pricing template in use for the active theme_
+
+## Use Cases
+
+### Associate Products to Categories
+
+Example: 
+
+```xml
+<CategoryLinks>
+    <CategoryLink import_mode="Update">
+        <Name>Store Root-Women</Name>
+    </CategoryLink>
+    <CategoryLink import_mode="Update">
+        <Name>Store Root-Women-Shoes-Boots</Name>
+    </CategoryLink>
+</CategoryLinks>
+```
+
+Will result in the product linked directly to the "Women" and "Boots" categories but not the "Store Root" or "Shoes" category.
+
+### Import Configurable Products
+
+When importing configurable products, the product should only be included in the Content Master feed. The product must include the "ProductType" custom attribute and the "ConfigurableAttributes" custom attribute. The "ProductType" should be `configurable` and "ConfigurableAttributes" should be a comma delimited list of product attribute codes the product is configured on.
+
+Simple products are linked to configurable products by matching the Style ID of the simple product to the SKU of the configurable product. Any time new products are imported, the products will be checked for fulfilling either end of a configurable/simple product relationship.
+
+### Import Gift Cards
+
+Gift Card products may be imported into Magento via the Item Master. Ensure the following Gift Card-specific information is included for the item:
+
+1. Set the Product Type in Magento to Gift Card via a custom attribute with name of "ProductType" and value of "giftcard".
+1. Set the Gift Card Type in Magento via `ExtendedAttributes/GiftCardTenderCode` and ensure the value is included in the mapped defined by `default/ebayenterprise_catalog/feed/gift_card_tender_code` in [`app/etc/productimport.xml`](/src/app/etc/productimport.xml.sample).
+1. Optionally, set the Open Amount Max Value in Magento via `ExtendedAttributes/MaxGCAmount`.
+1. Optionally, set Allow Message in Magento via `ExtendedAttributes/AllowGiftMessage`
+
+The following Gift Card attributes are not provided as named attributes in the Item Master and will default to using the values specified by the Magento Gift Card configuration:
+
+- **Lifetime**: Gift Card General Settings > Lifetime (days)
+- **Email Template**: Gift Card Email Settings > Gift Card Notification Email Template
+- **Is Redeemable**: Gift Card General Settings > Redeemable
+
+### Import Products into Different Magento Websites
+
+The combination of incoming `catalog_id`, `gsi_client_id` and optionally `gsi_store_id` from the Product Hub feeds are mapped to Magento Websites via the configuration of the Magento Retail Order Management Extension.
+
+The product import process first gathers all the websites for the Magento instance, and then for each Magento Website, extracts relevant information from each of the feed files according to these rules:
+
+- The ‘catalog_id’, if present, must match the Magento Website’s Catalog Id. Catalog Id is set at the Global scope, which effectively filters out any item that has a Catalog Id that does not match the Magento Website.
+- The ‘client_id’, if present, must match the Magento Website’s Client Id.
+* The ’store_id’, if present, must match the Magento Website’s Store Id.
 
 It is important to note that the absence of an an attribute in the incoming feed effectively acts as a wildcard.
 
-Consider a Magento installation with 2 websites, configured with the same Client ID but different Store IDs. An incoming feed that specifies only the client_id will be assigned to **both** websites.
+Examples:
+
+Given a Magento installation with two websites, both configured with the same Client Id, but different Store Ids. An incoming feed that specifies only the `client_id` will be assigned to **both** websites.
 
 An incoming feed node specifying **none** of the these attributes will be assigned to **all** websites.
 
-## Product Import Mapping
+### Import Localized Content
 
-The mappings themselves are all defined in config XML in a manner similar to how Magento config already defines event observers:
+Product Hub feeds allow certain attributes to contain localized content. Magento manages localized content at the Store View scope. The Magento Retail Order Management Extension's product import process provides a framework to extract data from the Product Hub feeds and ensure the proper localized values will import into the correct Magento Store Views.
 
-```xml
-<ebayenterprise_catalog_feed_attribute_mappings>
-	<mage_attribute_code> <!-- The attribute code for this attribute in Magento -->
-		<class>ebayenterprise_catalog/map</class> <!-- Magento object factory string -->
-		<type>(disabled|model|helper|singleton)</type> <!-- Type of object factory to use -->
-		<method>takeAction</method> <!-- Any public method -->
-		<xpath>Relative/Path/To/Node</xpath> <!-- Relative to the current item or content node -->
-	</mage_attribute_code>
-	...
-</ebayenterprise_catalog_feed_attribute_mappings>
-```
+#### Product Hub Feed Localization
 
-The method mapped by the configuration will be invoked with the XML node list matched by the XPath and a loaded product instance of the product being imported. The methods should return the value to be set to the product attribute matching the attribute code the mapping is for. See `EbayEnterprise_Catalog_Helper_Map` for additional details on product mapping methods.
-
-The XPath expressions are evaluated relative the the XML node representing a single product in the feed. For example, the `Item` node in the ItemMaster or `Content` node in the ContentMaster.
-
-Predefined mappings can be found in `app/code/community/EbayEnterprise/Catalog/etc/config.xml` and `app/etc/local/productimport.xml.sample` at `config/default/ebayenterprise_catalog/feed_attribute_mappings`. See [Dependency and Non-Dependency Attributes](#dependency-and-non-dependency-attributes) for more details regarding the separation of mappings in each file.
-
-### Built-in methods
-
-The following methods are provided by EbayEnterprise_Catalog_Helper_Map to cover a majority of import scenarios:
-
-- **extractStringValue**: Returns the string value of the first matched XML node.
-- **extractBoolValue**: Returns the Bool value of the first matched XML node.
-- **extractIntValue**: Returns the Int value of the first matched XML node.
-- **extractFloatValue**: Returns the Float value of the first matched XML node.
-- **passThrough**: Returns whatever value the method is called with.
-- **extractSkuValue**: This method should be used whenever a product SKU is being extracted to ensure the SKU is properly normalized to include the Catalog ID prefix required by eBay Enterprise Retail Order Management.
-
-### Examples
-
-A simple example mapping IsDropShipped from BaseAttributes to the is_drop_shipped Yes/No attribute would look like:
-
-```xml
-<is_drop_shipped>
-	<class>ebayenterprise_catalog/map</class>
-	<type>helper</type>
-	<method>extractBoolValue</method>
-	<xpath>BaseAttributes/IsDropShipped</xpath>
-</is_drop_shipped>
-```
-
-XPath has a lot of power for finding nodes and even transforming them itself, so much of the work can be done in the XPath expression. For example, a standard custom attribute might look like this:
-
-```xml
-<my_custom_attribute>
-	<class>ebayenterprise_catalog/map</class>
-	<type>helper</type>
-	<method>extractStingValue</method>
-	<xpath>CustomAttributes/Attribute/[@name="my_custom_attribute"]/Value</xpath>
-</my_custom_attribute>
-```
-
-## Dependency and Non-Dependency Attributes
-
-Mappings for attributes that Magento and/or eBay Enterprise Retail Order Management depend on are defined in the config.xml for Catalog itself, and should not be overridden. Mappings for other attributes are either unspecified or included in `app/etc/productimport.xml.sample` and may be customized as needed. Any data in the feeds that does not have a mapping will be ignored.
-
-### Attributes Provided by the eBay Enterprise Retail Order Management Extension
-
-The following attributes have are created by the eBay Enterprise Retail Order Management Extension and added to the "Default" attribute set in Magento and should be included in every product attribute set in the Magento instance.
-
-| Attribute Name | Attribute Code | Description |
-|----------------|----------------|-------------|
-| Size | size | Product size. |
-| Style ID | style_id | Relates simple products to configurable products. A simple products Style ID relates to the configurable product's SKU. |
-| Is Clean | is_clean | Flag indicating if the product has had all of its product links resolved. |
-| Unresolved Product Links | unresolved_product_links | Any related, cross-sell or up-sell product links for the product that have not yet been created, typically due to the target products not existing in Magento yet. |
-| HTS Codes | hts_codes | Mapping of tax codes used for calculating international taxes and duties. |
-| Tax Code | tax_code | eBay Enterprise assigned tax group. |
-
-### Attributes Directly Affecting the Behavior of eBay Enterprise Retail Order Management
-
-These product attributes are required by the eBay Enterprise Retail Order Management Extension and are mapped in the module level configuration.
-
-- is_clean
-- item_type
-- sku
-- style_id
-- tax_code
-- unresolved_product_links
-
-### Required by Magento Out-of-the-Box
-
-These product attributes are required for out-of-the-box Magento stores. Mappings for these product attributes are provided in the module level configuration.
-
-- name
-- description
-- short_description
-- sku
-- price
-- weight
-- status
-- visibility
-- tax_class_id
-- price_view
-- allow_open_amount
-- type_id
-
-## Language
-
-In eBay Enterprise Retail Order Management terms, some attribute values can vary on language. In Magento terms this means we distribute the different values for these nodes across different stores, if such stores exist. (For these purposes we do not distinguish between a "store" and a "store view".)
-
-The mapping framework used to extract data from feeds will ensure that values with a specific language code will be properly imported into the correct stores. The mapped callbacks will typically not need to specifically handle translations.
-
-### Where to Find Language in the Feeds
-
-eBay Enterprise Retail Order Management feeds denote language according to one of two possible structures, either:
+Product Hub feeds denote language according to one of two possible structures:
 
 ```xml
 <CustomAttributes>
-	<Attribute name="some_attribute" xml:lang="bcp-47-language-code">
-		<Value>The localized value</Value>
-	</Attribute>
+    <Attribute name="some_attribute" xml:lang="bcp-47-language-code">
+        <Value>The localized value</Value>
+    </Attribute>
 </CustomAttribute>
 ```
 
@@ -597,18 +279,18 @@ or
 
 ```xml
 <BaseOrExtendedAttributes>
-	<SomeAttribute xml:lang="bcp-47-language-code">The localized value</SomeAttribute>
+    <SomeAttribute xml:lang="bcp-47-language-code">The localized value</SomeAttribute>
 </BaseOrExtendedAttributes>
 ```
 
 If an attribute node exists without an `xml:lang` attribute, that value will be set as the default value for the product attribute. (In other words, the value will be set for the product attribute at the default scope level.)
 
-### Language-Specific Attribute Values
+#### Localized Attribute Values
 
-Once you have acquired an attribute node with a language, apply the value to all stores that have that language. For example, assume you have a Magento instance set up the following way:
+Once the product import process acquires an attribute node with a language code, it applies the value to all stores configured with the same language code. Given a Magento instance with the following Stores:
 
 | Scope               | Language      |
-| ------------------- | ------------- |
+|:--------------------|:--------------|
 | Default             | "en-us"       |
 | Website1            | "use default" |
 | Website1:Storeview1 | "use default" |
@@ -619,17 +301,17 @@ Once you have acquired an attribute node with a language, apply the value to all
 | Website2:Storeview5 | "use website" |
 | Website2:Storeview6 | "zh-cn"       |
 
-And assuming this configuration:
+And given this configuration:
 
 ```xml
 <feed_attribute_mappings>
-	<name>
-		<class>ebayenterprise_catalog/map</class>
-		<type>helper</type>
-		<method>extractStringValue</method>
-		<xpath>BaseAttributes/Title</xpath>
-	</name>
-	...
+    <name>
+        <class>ebayenterprise_catalog/map</class>
+        <type>helper</type>
+        <method>extractStringValue</method>
+        <xpath>BaseAttributes/Title</xpath>
+    </name>
+    ...
 </feed_attribute_mappings>
 ```
 
@@ -637,20 +319,20 @@ With the following feed fragment to import (in the context of the "pickle" produ
 
 ```xml
 <BaseAttributes>
-	…
-	<Title xml:lang="en-us">Dill Pickle</Title>
-	<Title xml:lang="it-it">sottaceto</Title>
-	<Title xml:lang="he-il">דיל פיקל</Title>
-	<Title xml:lang="de-de">Dillgurke</Title>
-	<Title xml:lang="zh-cn">泡菜</Title>
-	…
+    …
+    <Title xml:lang="en-us">Dill Pickle</Title>
+    <Title xml:lang="it-it">sottaceto</Title>
+    <Title xml:lang="he-il">דיל פיקל</Title>
+    <Title xml:lang="de-de">Dillgurke</Title>
+    <Title xml:lang="zh-cn">泡菜</Title>
+    …
 </BaseAttributes>
 ```
 
-The data import would have this result.
+The resulting product information in Magento:
 
 | Scope               | Language      | Product name  | Notes         |
-| ------------------- | ------------- | ------------- | ------------- |
+|:--------------------|:--------------|:--------------|:--------------|
 | Default             | "en-us"       | Dill Pickle   | Default value |
 | Website1            | "use default" |               |               |
 | Website1:Storeview1 | "use default" |               |               |
@@ -661,135 +343,92 @@ The data import would have this result.
 | Website2:Storeview5 | "use website" | Dillgurke     | Language config is set at website level but actual product data is saved at the store view |
 | Website2:Storeview6 | "zh-cn"       | 泡菜           |               |
 
-Scopes with values have data set in that scope. Empty "Product name" fields fall back through parent scopes.
+Scopes with values have data set in that scope. Empty "Product Name" fields fall back through parent scopes.
 
-#### Scope notes:
+##### Scope Notes
 
-1. If the language of a store view is the same as the default language, and the value of an attribute is changes at that upper scope, then any attribute value already set at the inner scope should be removed, and it should be set to fall back as well. This is what happened to Storeview1 and Storeview4.
-2. The processor can only apply values at the lowest scope of the attribute itself. Thus, if "name" were a global attribute, only the "en-us" value would be applicable because the language at the default scope is "en-us".
+1. If the language of a store view is the same as the default language, and the value of an attribute changes at that upper scope, then any attribute value already set at the inner scope should be removed, and it should be set to fall back as well. This is what happened to Storeview1 and Storeview4.
+1. The processor can only apply values at the lowest scope of the attribute itself. Thus, if "Name" were a global attribute, only the "en-us" value would be applicable because the language at the default scope is "en-us".
 
-## Importing Configurable Products
+### Images
 
-When importing configurable products, the product only needs to be included in the ContentMaster feed. The product must include the "ProductType" custom attribute and the "ConfigurableAttributes" custom attribute. The "ProductType" should be `configurable` and "ConfigurableAttributes" should be a comma separated list of product attribute codes the product is configured on.
+The Magento Retail Order Management Extension does not currently support importing images.
 
-Simple products are linked to configurable products by matching the Style ID of the simple product to the SKU of the configurable product. Any time new products are imported, the products will be checked for fulfilling either end of a configurable/simple product relationship.
+Please see the [Product Image Export](/src/app/code/community/EbayEnterprise/ProductImageExport/README.md) documentation for details on exporting image metadata to the Retail Order Management Product Hub.
 
-## Importing Gift Cards
+## Custom Product Import Mapping
 
-Gift cards are specified in the product feeds by setting `giftcard` as the "ProductType" custom attribute.
-
-```xml
-…
-<Item>
-	…
-	<CustomAttributes>
-		…
-		<Attribute name="ProductType">
-			<Value>giftcard</Value>
-		</Attribute>
-		…
-	</CustomAttributes>
-	…
-</Item>
-…
-```
-
-### Gift Card Attribute Mappings
-
-The following mappings are used to map feed values to Magento gift card attributes:
+The product import process uses attributes maps defined in configuration XML in a manner similar to how Magento defines event observers:
 
 ```xml
-<config>
-	<default>
-		<ebayenterprise_catalog>
-			<feed_attribute_mappings>
-				<giftcard_type>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractGiftcardTenderValue</method>
-					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
-				</giftcard_type>
-				<is_redeemable>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractIsRedeemable</method>
-					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
-				</is_redeemable>
-				<use_config_is_redeemable>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractIsRedeemable</method>
-					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
-				</use_config_is_redeemable>
-				<lifetime>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractLifetime</method>
-					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
-				</lifetime>
-				<allow_message>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractBoolValue</method>
-					<xpath>ExtendedAttributes/AllowGiftMessage</xpath>
-				</allow_message>
-				<email_template>
-					<class>ebayenterprise_catalog/map_giftcard</class>
-					<type>helper</type>
-					<method>extractEmailTemplate</method>
-					<xpath>ExtendedAttributes/GiftCardTenderCode</xpath>
-				</email_template>
-			</feed_attribute_mappings>
-		</ebayenterprise_catalog>
-	</default>
-</config>
+<ebayenterprise_catalog_feed_attribute_mappings>
+    <mage_attribute_code> <!-- The attribute code for this attribute in Magento -->
+        <class>ebayenterprise_catalog/map</class> <!-- Magento object factory string -->
+        <type>(disabled|model|helper|singleton)</type> <!-- Type of object factory to use -->
+        <method>takeAction</method> <!-- Any public method -->
+        <xpath>Relative/Path/To/Node</xpath> <!-- Relative to the current item or content node -->
+    </mage_attribute_code>
+    ...
+</ebayenterprise_catalog_feed_attribute_mappings>
 ```
 
-### ItemMaster Feed Requirements
+The method mapped by the configuration will be invoked when the XML node list matched by the XPath for an instance of the imported product. The methods should return the value to be set to the product attribute matching the attribute code the mapping is for.
 
-The following date in the product feeds is used to configure gift card products in Magento:
+The XPath expressions are evaluated relative the the XML node representing a single product in the feed. For example, the `/ItemMaster/Item` node or `/ContentMaster/Content` node.
 
-| XPath                                           | Usage |
-| CustomAttributes/Attribute[@name="ProductType"] | Specifies the product as being a gift card. |
-| ExtendedAttributes/AllowGiftMessage             | Sets whether a gift message may be included with the gift card purchase. This value is optional and will default to use the configuration setting. |
-| ExtendedAttributes/GiftCardTenderCode           | Used to match the eBay Enterprise Retail Order Management gift card type to a Magento gift card type. The value provided in the feed *must* be included in the [gift card tender type map](#gift-card-tender-type-map)|
+Predefined maps that were [described above](#product-hub-feed-processing) can be found in [`app/code/community/EbayEnterprise/ProductImport/etc/config.xml`](/src/app/code/community/EbayEnterprise/ProductImport/etc/config.xml). There are some additional example maps in [`app/etc/local/productimport.xml.sample`](/src/app/etc/productimport.xml.sample) at `config/default/ebayenterprise_catalog/feed_attribute_mappings`.
 
-### Gift Card Tender Type Map
+### Predefined Map Methods
 
-eBay Enterprise Retail Order Management gift card tender types are mapped to they types of gift cards available in Magento to create virtual, physical, and combined gift cards. This mapping is located in `app/etc/exchangeplatform.xml`:
+The following methods are provided by `EbayEnterprise_Catalog_Helper_Map` to cover a majority of import scenarios:
+
+| Method               | Returns                                     |
+|:---------------------|:--------------------------------------------|
+| `extractStringValue` | String value of the first matched XML node. |
+| `extractBoolValue`   | Bool value of the first matched XML node.   |
+| `extractIntValue`    | Int value of the first matched XML node.    |
+| `extractFloatValue`  | Float value of the first matched XML node.  |
+| `passThrough`        | Value the method is called with.            |
+| `extractSkuValue`    | String value of the normalized SKU of the first matched XML node. |
+
+### Examples
+
+An example that maps `IsDropShipped` from `BaseAttributes` to the `is_drop_shipped` "Yes/No" attribute in Magento:
 
 ```xml
-<config>
-	<default>
-		<eb2ccore>
-			<feed>
-				<gift_card_tender_code>
-					<SD>virtual</SD>
-					<SP>physical</SP>
-					<ST>combined</ST>
-					<SV>virtual</SV>
-					<SX>combined</SX>
-				</gift_card_tender_code>
-			</feed>
-		</eb2ccore>
-	</default>
-</config>
+<is_drop_shipped>
+    <class>ebayenterprise_catalog/map</class>
+    <type>helper</type>
+    <method>extractBoolValue</method>
+    <xpath>BaseAttributes/IsDropShipped</xpath>
+</is_drop_shipped>
 ```
 
-This mapping may be modified if needed to associate eBay Enterprise Retail Order Management types to different Magento gift card types.
+XPath has a lot of power for finding nodes and even transforming them itself. Much of the logic can be driven in the XPath expression. For example, a standard custom attribute map might look like:
 
-Any gift cards imported into Magento *must* have a tender code included in the mapping to import successfully.
+```xml
+<my_custom_attribute>
+    <class>ebayenterprise_catalog/map</class>
+    <type>helper</type>
+    <method>extractStingValue</method>
+    <xpath>CustomAttributes/Attribute/[@name="my_custom_attribute"]/Value</xpath>
+</my_custom_attribute>
+```
 
-### Default Attribute Values
+## Dependencies
 
-The following gift card attributes are not provided in the product feeds and will default to using the values specified by the Magento Gift Card configuration:
+### Magento Modules
 
-- **Lifetime**: Gift Card General Settings > Lifetime (days)
-- **Email Template**: Gift Card Email Settings > Gift Card Notification Email Template
-- **Is Redeemable**: Gift Card General Settings > Redeemable
 
-## Images
+- EbayEnterprise_Catalog
 
-The eBay Enterprise Retail Order Management Extension does not currently support importing images.
+### Other Dependencies
 
-Please see [Image Feeds](IMAGE_EXPORT.md) documentation for details on exporting images to eBay Enterprise Retail Order Management. Image export is required when importing products to make images available services such as eBay Enterprise Marketing Solutions Email and marketplace integrations.
+- TBD
+
+### Test Dependencies
+
+- EcomDev_PHPUnit
+
+- - -
+Copyright © 2014 eBay Enterprise, Inc.

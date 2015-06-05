@@ -119,6 +119,8 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
         foreach ($inventoryItems as $item) {
             if (!$this->isItemAvailable($item)) {
                 $this->_handleUnavailableItem($item);
+            } else {
+                $this->_notifyCustomerIfItemBackorderable($item);
             }
         }
         return $this;
@@ -263,6 +265,35 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
             $errorCode,
             $quoteMessage
         );
+        return $this;
+    }
+
+    /**
+     * Notify the customer if the quote item is backorderable with setting to notify customer.
+     *
+     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @return self
+     */
+    protected function _notifyCustomerIfItemBackorderable(Mage_Sales_Model_Quote_Item_Abstract $quoteItem)
+    {
+        /** @var Mage_CatalogInventory_Model_Stock_Item $stockItem */
+        $stockItem = $quoteItem->getProduct()->getStockItem();
+        if ((int) $stockItem->getBackorders() === Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY) {
+            /** @var float */
+            $qty = $quoteItem->getQty();
+            /** @var float */
+            $rowQty = $this->_calculateTotalQuantityRequested($quoteItem);
+            /** @var Varien_Object */
+            $result = $stockItem->checkQuoteItemQty($rowQty, $qty);
+
+            if (!is_null($result->getMessage())) {
+                $quoteItem->setMessage($result->getMessage());
+            }
+
+            if (!is_null($result->getItemBackorders())) {
+                $quoteItem->setBackorders($result->getItemBackorders());
+            }
+        }
         return $this;
     }
 }

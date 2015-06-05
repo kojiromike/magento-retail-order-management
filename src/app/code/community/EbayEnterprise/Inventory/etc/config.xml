@@ -109,6 +109,16 @@
 					</ebayenterprise_inventory_allocation_rollback_observer>
 				</observers>
 			</checkout_multishipping_refund_all>
+			<!-- After a previously successful order create let's cleanup the inventory session -->
+			<ebayenterprise_order_create_successful>
+				<observers>
+					<ebayenterprise_inventory_clean_quantity_session_observer>
+						<class>ebayenterprise_inventory/observer</class>
+						<method>handleEbayEnterpriseOrderCreateSuccessful</method>
+						<type>singleton</type>
+					</ebayenterprise_inventory_clean_quantity_session_observer>
+				</observers>
+			</ebayenterprise_order_create_successful>
 		</events>
 	</global>
 	<frontend>

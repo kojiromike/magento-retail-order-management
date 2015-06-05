@@ -318,6 +318,12 @@
 					<method>extractFloatValue</method>
 					<xpath>ExtendedAttributes/MaxGCAmount</xpath>
 				</open_amount_max>
+				<street_date>
+					<class>ebayenterprise_catalog/map</class>
+					<type>helper</type>
+					<method>extractStringValue</method>
+					<xpath>ExtendedAttributes/StreetDate</xpath>
+				</street_date>
 			</feed_attribute_mappings>
 		</ebayenterprise_catalog>
 	</default>

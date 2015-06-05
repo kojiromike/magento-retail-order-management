@@ -84,13 +84,30 @@ class EbayEnterprise_Inventory_Model_Details_Service
      */
     public function getDetailsForItem(Mage_Sales_Model_Quote_Item_Abstract $item)
     {
-        try {
-            $result = $this->factory->createDetailsModel()
-                ->fetch($item->getQuote());
-            return $result->lookupDetailsByItemId($item->getId());
-        } catch (EbayEnterprise_Inventory_Exception_Details_Operation_Exception $e) {
-            return null;
+        if ($this->isItemAllowInventoryDetail($item)) {
+            try {
+                $result = $this->factory->createDetailsModel()
+                    ->fetch($item->getQuote());
+                return !is_null($result)
+                    ? $result->lookupDetailsByItemId($item->getId()) : $result;
+            } catch (EbayEnterprise_Inventory_Exception_Details_Operation_Exception $e) {
+                return null;
+            }
         }
+        return null;
+    }
+
+    /**
+     * Determine if an item is possible to send inventory detail request.
+     *
+     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @return bool
+     */
+    protected function isItemAllowInventoryDetail(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        /** @var Mage_CatalogInventory_Model_Stock_Item $stockItem */
+        $stockItem = $item->getProduct()->getStockItem();
+        return $stockItem->getQty() > 0;
     }
 
     /**
@@ -106,7 +123,8 @@ class EbayEnterprise_Inventory_Model_Details_Service
         try {
             $result = $this->factory->createDetailsModel()
                 ->fetch($item->getOrder()->getQuote());
-            return $result->lookupDetailsByItemId($item->getQuoteItemId());
+            return !is_null($result)
+                ? $result->lookupDetailsByItemId($item->getQuoteItemId()) : $result;
         } catch (EbayEnterprise_Inventory_Exception_Details_Operation_Exception $e) {
             return null;
         }

@@ -26,49 +26,49 @@ class EbayEnterprise_Eb2cCore_Test_Helper_Quote_ItemTest extends EcomDev_PHPUnit
         $inventoriedProduct = Mage::getModel(
             // Should be inventoried:
             'catalog/product',
-            array(
-                'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
+            [
+                'stock_item' => Mage::getModel('cataloginventory/stock_item', [
                     'backorders' => Mage_CatalogInventory_Model_Stock::BACKORDERS_NO,
                     'manage_stock' => 1,
-                )),
-            )
+                ]),
+            ]
         );
         $nonInventoriedProduct = Mage::getModel(
-            // Should not be inventoried; Backorders are OK
+            // Should be inventoried; Backorders are OK
             'catalog/product',
-            array(
-                'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
+            [
+                'stock_item' => Mage::getModel('cataloginventory/stock_item', [
                     'backorders'   => Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY,
                     'manage_stock' => '1',
-                )),
-            )
+                ]),
+            ]
         );
         $overrideInventoriedProduct = Mage::getModel(
             // Should not be inventoried, because manage_stock was set to false.
             'catalog/product',
-            array(
-                'stock_item' => Mage::getModel('cataloginventory/stock_item', array(
+            [
+                'stock_item' => Mage::getModel('cataloginventory/stock_item', [
                     'backorders'   => Mage_CatalogInventory_Model_Stock::BACKORDERS_NO,
                     'manage_stock' => '0',
-                )),
-            )
+                ]),
+            ]
         );
 
-        $inventoriedSku         = Mage::getModel('sales/quote_item', array('product' => $inventoriedProduct));
-        $nonInventoriedSku      = Mage::getModel('sales/quote_item', array('product' => $nonInventoriedProduct));
-        $overrideInventoriedSku = Mage::getModel('sales/quote_item', array('product' => $overrideInventoriedProduct));
-        $inventoriedChildSku    = Mage::getModel('sales/quote_item', array('product' => $inventoriedProduct, 'parent_item_id' => 2,));
+        $inventoriedSku         = Mage::getModel('sales/quote_item', ['product' => $inventoriedProduct]);
+        $nonInventoriedSku      = Mage::getModel('sales/quote_item', ['product' => $nonInventoriedProduct]);
+        $overrideInventoriedSku = Mage::getModel('sales/quote_item', ['product' => $overrideInventoriedProduct]);
+        $inventoriedChildSku    = Mage::getModel('sales/quote_item', ['product' => $inventoriedProduct, 'parent_item_id' => 2,]);
 
-        $childInventoriesParentSku = Mage::getModel('sales/quote_item', array('product' => $nonInventoriedProduct));
+        $childInventoriesParentSku = Mage::getModel('sales/quote_item', ['product' => $nonInventoriedProduct]);
         $childInventoriesParentSku->addChild($inventoriedChildSku);
 
-        return array(
-            array($inventoriedSku, true),            // Set by ROM to be inventoried
-            array($nonInventoriedSku, false),        // Set by ROM to not be inventoried
-            array($overrideInventoriedSku, false),   // Set by ROM to be inventoried, but overridden by manage-stock flag
-            array($inventoriedChildSku, false),      // Set by ROM to be inventoried, but has parent, so no check
-            array($childInventoriesParentSku, true), // Set by ROM to not be inventoried, but child forces it.
-        );
+        return [
+            [$inventoriedSku, true],            // Set by ROM to be inventoried
+            [$nonInventoriedSku, true],         // Set by ROM to not be inventoried
+            [$overrideInventoriedSku, false],   // Set by ROM to be inventoried, but overridden by manage-stock flag
+            [$inventoriedChildSku, false],      // Set by ROM to be inventoried, but has parent, so no check
+            [$childInventoriesParentSku, true], // Set by ROM to not be inventoried, but child forces it.
+        ];
     }
     /**
      * Test the isItemInventoried method.

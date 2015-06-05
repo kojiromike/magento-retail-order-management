@@ -58,6 +58,8 @@ class EbayEnterprise_Order_Model_Create
     protected $_beforeAttachEvent = 'ebayenterprise_order_create_before_attach';
     /** @var string event dispatched before sending the request to ROM */
     protected $_beforeOrderSendEvent = 'ebayenterprise_order_create_before_send';
+    /** @var string event dispatched when ROM  order create was successful */
+    protected $_successfulOrderCreateEvent = 'ebayenterprise_order_create_successful';
     /** @var string event dispatched to add payments to the request */
     protected $_paymentDataEvent = 'ebayenterprise_order_create_payment';
     /** @var string event dispatched to add context information to the request */
@@ -298,6 +300,9 @@ class EbayEnterprise_Order_Model_Create
         }
         if ($reply->isSuccessful()) {
             $this->_order->setStatus(self::STATUS_SENT);
+            Mage::dispatchEvent($this->_successfulOrderCreateEvent, [
+                'order' => $this->_order,
+            ]);
         } else {
             throw $this->_logUnhandledException();
         }

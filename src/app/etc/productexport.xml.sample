@@ -282,6 +282,13 @@ Carefully review all options to ensure they match you specific implementation.
 							<xml_dest>EB2C/ItemURLs/</xml_dest>
 							<translate>0</translate>
 						</item_url>
+						<street_date>
+							<class>ebayenterprise_catalog/pim</class>
+							<type>helper</type>
+							<method>passString</method>
+							<xml_dest>ExtendedAttributes/StreetDate</xml_dest>
+							<translate>0</translate>
+						</street_date>
 					</mappings>
 				</item_map>
 				<content_map>

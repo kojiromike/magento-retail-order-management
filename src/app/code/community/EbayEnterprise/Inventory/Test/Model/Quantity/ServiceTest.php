@@ -25,6 +25,8 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
     protected $_quote;
     /** @var EbayEnterprise_Inventory_Helper_Item_Selection */
     protected $_inventoryItemSelection;
+    /** @var Mage_Catalog_Model_Product */
+    protected $_product;
 
     public function setUp()
     {
@@ -90,6 +92,9 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
                 'quantity_helper' => $this->_quantityHelper,
             ]
         );
+        $this->_product = Mage::getModel('catalog/product', ['stock_item' => Mage::getModel('catalogInventory/stock_item', [
+            'backorders' => Mage_CatalogInventory_Model_Stock::BACKORDERS_NO,
+        ])]);
     }
 
     /**
@@ -123,6 +128,7 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
                 'getId',
                 'getName',
                 'getQuote',
+                'getProduct'
             ]
         );
         $quoteItem->expects($this->any())
@@ -143,6 +149,9 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
         $quoteItem->expects($this->any())
             ->method('getQuote')
             ->will($this->returnValue($this->_quote));
+        $quoteItem->expects($this->any())
+            ->method('getProduct')
+            ->will($this->returnValue($this->_product));
         return $quoteItem;
     }
 
@@ -706,5 +715,63 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
             $this->_quantityService,
             $this->_quantityService->checkQuoteInventory($this->_quote)
         );
+    }
+
+    /**
+     * Test that the method ebayenterprise_inventory/quantity_service::_notifyCustomerIfItemBackorderable()
+     * when invoked, will be passed an instance of type sales/quote_item, in which it will determine
+     * if the item in the passed in quote item is backorders and notify customer if so, then, it
+     * will set the quote item with notification message.
+     */
+    public function testNotifyCustomerIfItemBackorderable()
+    {
+        /** @var string $message */
+        $message = 'Some message about item not being stock';
+        /** @var int $backorder */
+        $backorder = Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY;
+        /** @var Varien_Object $result */
+        $result = new Varien_Object([
+            'message' => $message,
+            'item_backorders' => $backorder,
+        ]);
+        /** @var int $qty */
+        $itemQty = 1;
+        /** @var int $qty */
+        $rowQty = 1;
+        /** @var Mock_Mage_CatalogInventory_Model_Stock_Item $stockItem */
+        $stockItem = $this->getModelMock('catalogInventory/stock_item', ['getBackorders', 'checkQuoteItemQty']);
+        $stockItem->expects($this->once())
+            ->method('getBackorders')
+            ->will($this->returnValue($backorder));
+        $stockItem->expects($this->once())
+            ->method('checkQuoteItemQty')
+            ->with($this->identicalTo($rowQty), $this->identicalTo($itemQty))
+            ->will($this->returnValue($result));
+
+        /** @var Mage_Catalog_Model_Product $product */
+        $product = Mage::getModel('catalog/product', ['stock_item' => $stockItem]);
+        /** @var Mage_Sales_Model_Quote_Item $quoteItem */
+        $quoteItem = $this->getModelMock('sales/quote_item', ['getProduct', 'getQty', 'setMessage', 'setBackorders']);
+        $quoteItem->expects($this->once())
+            ->method('getProduct')
+            ->will($this->returnValue($product));
+        $quoteItem->expects($this->once())
+            ->method('getQty')
+            ->will($this->returnValue($itemQty));
+        $quoteItem->expects($this->once())
+            ->method('setMessage')
+            ->with($this->identicalTo($message))
+            ->will($this->returnSelf());
+        $quoteItem->expects($this->once())
+            ->method('setBackorders')
+            ->with($this->identicalTo($backorder))
+            ->will($this->returnSelf());
+
+        $quantityService = $this->getModelMock('ebayenterprise_inventory/quantity_service', ['_calculateTotalQuantityRequested']);
+        $quantityService->expects($this->once())
+            ->method('_calculateTotalQuantityRequested')
+            ->with($this->identicalTo($quoteItem))
+            ->will($this->returnValue($rowQty));
+        $this->assertSame($quantityService, EcomDev_Utils_Reflection::invokeRestrictedMethod($quantityService, '_notifyCustomerIfItemBackorderable', [$quoteItem]));
     }
 }

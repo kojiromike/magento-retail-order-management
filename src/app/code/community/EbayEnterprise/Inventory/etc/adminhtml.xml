@@ -22,7 +22,7 @@
 							<config>
 								<children>
 									<ebayenterprise_inventory translate="title">
-										<title>EbayEnterprise Inventory</title>
+										<title>Inventory</title>
 										<sort_order>30</sort_order>
 									</ebayenterprise_inventory>
 								</children>

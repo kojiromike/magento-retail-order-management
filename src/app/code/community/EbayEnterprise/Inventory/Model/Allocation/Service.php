@@ -105,17 +105,19 @@ class EbayEnterprise_Inventory_Model_Allocation_Service
      */
     public function allocateInventoryForQuote(Mage_Sales_Model_Quote $quote)
     {
-        try {
-            $this->getInventorySession()->setAllocationResult(
-                $this->createAllocator()->reserveItemsForQuote($quote)
-            );
-        } catch (EbayEnterprise_Inventory_Exception_Allocation_Failure_Exception $e) {
-            // clear any remnant of a result
-            $this->getInventorySession()->unsAllocationResult();
-            $this->logger->warning(
-                'Unable to allocate inventory for the quote',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
-            );
+        if (!$this->isAllItemBackorderableAndOutOfStock($quote)) {
+            try {
+                $this->getInventorySession()->setAllocationResult(
+                    $this->createAllocator()->reserveItemsForQuote($quote)
+                );
+            } catch (EbayEnterprise_Inventory_Exception_Allocation_Failure_Exception $e) {
+                // clear any remnant of a result
+                $this->getInventorySession()->unsAllocationResult();
+                $this->logger->warning(
+                    'Unable to allocate inventory for the quote',
+                    $this->logContext->getMetaData(__CLASS__, [], $e)
+                );
+            }
         }
     }
 
@@ -157,5 +159,37 @@ class EbayEnterprise_Inventory_Model_Allocation_Service
     protected function createDeallocator()
     {
         return Mage::getModel('ebayenterprise_inventory/allocation_deallocator');
+    }
+
+    /**
+     * Return false if we have an item that's not backorderable or not out of stock
+     * otherwise return true that all items are backorderable and out of stock.
+     *
+     * @param  Mage_Sales_Model_Quote
+     * @return bool
+     */
+    protected function isAllItemBackorderableAndOutOfStock(Mage_Sales_Model_Quote $quote)
+    {
+        /** @var Mage_Sales_Model_Quote_Item[] $items */
+        $items = $quote->getAllVisibleItems();
+        foreach ($items as $item) {
+            /** @var Mage_CatalogInventory_Model_Stock_Item $stockItem */
+            $stockItem = $item->getProduct()->getStockItem();
+            if ($this->isAllocatable($stockItem)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Check if the given quote item is allocatable.
+     *
+     * @param  Mage_CatalogInventory_Model_Stock_Item
+     * @return bool
+     */
+    protected function isAllocatable(Mage_CatalogInventory_Model_Stock_Item $stockItem)
+    {
+        return ((int) $stockItem->getBackorders() === Mage_CatalogInventory_Model_Stock::BACKORDERS_NO || (int) $stockItem->getQty());
     }
 }

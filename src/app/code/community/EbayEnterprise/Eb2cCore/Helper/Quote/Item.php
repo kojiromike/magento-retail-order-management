@@ -15,6 +15,14 @@
 
 class EbayEnterprise_Eb2cCore_Helper_Quote_Item
 {
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $_config;
+
+    public function __construct()
+    {
+        $this->_config = Mage::helper('eb2ccore')->getConfigModel();
+    }
+
     /**
      * Test if the item needs to have its quantity checked for available
      * inventory.
@@ -39,19 +47,31 @@ class EbayEnterprise_Eb2cCore_Helper_Quote_Item
         if ($item->getHasChildren()) {
             foreach ($item->getChildren() as $childItem) {
                 $childStock = $childItem->getProduct()->getStockItem();
-                if ($childStock->getBackorders() === Mage_CatalogInventory_Model_Stock::BACKORDERS_NO
-                    && (int) $childStock->getManageStock()) {
-                // This Parent is inventoried. Child's ROM setting is 'No backorders', and Manage Stock check hasn't been manually overridden
+                if ($this->isManagedStock($childStock)) {
+                    // This Parent is inventoried. Child's ROM setting is 'No backorders', and Manage Stock check hasn't been manually overridden
                     return true;
                 }
             }
             // if none of the children were managed stock, the parent is not inventoried
             return false;
         }
-        // Dealing with a standalone product, no parent or children.  If manageStock has been manually set to false
-        // *or* Backorders are OK as per ROM, there's no call.
-        $stock = $item->getProduct()->getStockItem();
-            return ($stock->getBackorders() > Mage_CatalogInventory_Model_Stock::BACKORDERS_NO || !(int) $stock->getManageStock())  ?
-                false : true;
+        return $this->isManagedStock($item->getProduct()->getStockItem());
+    }
+
+    /**
+     * If the inventory configuration allow order item to be backorderable simply check if the
+     * Manage stock for the item is greater than zero. Otherwise, if the inventory configuration
+     * do not allow order items to be backorderable, then ensure the item is not backorder and has
+     * manage stock.
+     *
+     * @param  Mage_CatalogInventory_Model_Stock_Item
+     * @return bool
+     */
+    protected function isManagedStock(Mage_CatalogInventory_Model_Stock_Item $stock)
+    {
+        return (
+            ($this->_config->isBackorderable || (int) $stock->getBackorders() === Mage_CatalogInventory_Model_Stock::BACKORDERS_NO)
+            && $stock->getManageStock() > 0
+        );
     }
 }

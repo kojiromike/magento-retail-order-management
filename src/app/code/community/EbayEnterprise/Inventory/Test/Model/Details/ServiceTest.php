@@ -82,13 +82,20 @@ class EbayEnterprise_Inventory_Test_Model_Details_ServiceTest extends EbayEnterp
             'log_context' => $this->logContext]);
 
         $quote = $this->getModelMock('sales/quote');
-        $item = $this->getModelMock('sales/quote_item', ['getQuote', 'getId']);
+        $item = $this->getModelMock('sales/quote_item', ['getQuote', 'getId', 'getProduct']);
         $item->expects($this->once())
             ->method('getQuote')
             ->will($this->returnValue($quote));
         $item->expects($this->once())
             ->method('getId')
             ->will($this->returnValue(1));
+        $product = Mage::getModel('catalog/product', ['stock_item' => Mage::getModel('catalogInventory/stock_item', [
+            'backorders' => Mage_CatalogInventory_Model_Stock::BACKORDERS_NO,
+            'qty' => 1,
+        ])]);
+        $item->expects($this->once())
+            ->method('getProduct')
+            ->will($this->returnValue($product));
         $detail = $detailService->getDetailsForItem($item);
         $this->assertInstanceOf('EbayEnterprise_Inventory_Model_Details_Item', $detail);
     }

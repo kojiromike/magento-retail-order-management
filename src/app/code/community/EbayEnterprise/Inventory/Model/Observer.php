@@ -166,4 +166,17 @@ class EbayEnterprise_Inventory_Model_Observer
         $this->allocationService->undoAllocation();
         return $this;
     }
+
+    /**
+     * Clean-up quantity session after an order was successfully created.
+     *
+     * @return self
+     */
+    public function handleEbayEnterpriseOrderCreateSuccessful()
+    {
+        /** @var EbayEnterprise_Inventory_Model_Session $inventorySession */
+        $inventorySession = Mage::getSingleton('ebayenterprise_inventory/session');
+        $inventorySession->unsetData('quantity_results');
+        return $this;
+    }
 }

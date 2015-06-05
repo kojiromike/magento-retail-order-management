@@ -90,8 +90,9 @@ class EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer extends Mage_Ch
         $item = $this->getItem();
         /** @var string $singularOrPluralItem */
         $singularOrPluralItem = ((int) $item->getQty() > 1) ? 's' : '';
-        /** @var EbayEnterprise_Inventory_Model_Details_Item | null $eddItem */
-        $eddItem = $this->detailService->getDetailsForItem($item);
+        /** @var EbayEnterprise_Inventory_Model_Details_Item | Varien_Object | null $eddItem */
+        $eddItem = $this->detailService->getDetailsForItem($item)
+            ?: $this->inventoryHelper->getStreetDateForBackorderableItem($item);
         return $eddItem ? $this->inventoryHelper->__(
             $this->inventoryConfig->estimatedDeliveryTemplate,
             $singularOrPluralItem,

@@ -15,6 +15,47 @@
 
 class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $coreConfig;
+    /** @var EbayEnterprise_Inventory_Helper_Details_Factory */
+    protected $detailFactory;
+
+    public function __construct(array $initParams = [])
+    {
+        list($this->coreConfig, $this->detailFactory) = $this->checkTypes(
+            $this->nullCoalesce($initParams, 'core_config', Mage::helper('eb2ccore')->getConfigModel()),
+            $this->nullCoalesce($initParams, 'detail_factory', Mage::helper('ebayenterprise_inventory/details_factory'))
+        );
+    }
+
+    /**
+     * Type hinting for self::__construct $initParams
+     *
+     * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
+     * @param  EbayEnterprise_Inventory_Helper_Details_Factory
+     * @return array
+     */
+    protected function checkTypes(
+        EbayEnterprise_Eb2cCore_Model_Config_Registry $coreConfig,
+        EbayEnterprise_Inventory_Helper_Details_Factory $detailFactory
+    )
+    {
+        return func_get_args();
+    }
+
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the default value.
+     *
+     * @param  array
+     * @param  string $field Valid array key
+     * @param  mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
+    }
+
     /**
      * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
      * @param mixed
@@ -25,5 +66,150 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
         return Mage::getModel('eb2ccore/config_registry')
             ->setStore($store)
             ->addConfigModel(Mage::getSingleton('ebayenterprise_inventory/config'));
+    }
+
+    /**
+     * Returns a Varien_Object containing the from and to date for a backorderable product that
+     * doesn't make inventory detail call to ROM. If the ROM setting is configured to use
+     * street date as estimated delivery date and the backorderable item has a valid date
+     * that's in the future, then the from and to date will be constructed using the street date
+     * in product and to date using the street date plus the configured number of days in the future.
+     * If any of these conditions are not met, then this method will simply return null.
+     *
+     * @param Mage_Core_Model_Abstract
+     * @return Varien_Object | null
+     */
+    public function getStreetDateForBackorderableItem(Mage_Core_Model_Abstract $item)
+    {
+        if ($this->coreConfig->isUseStreetDateAsEddDate) {
+             /** @var Mage_Catalog_Model_Product $product */
+            $product = $item->getProduct();
+            /** @var string $streetDate */
+            $streetDate = $this->getStreetDateFromProduct($product);
+            if ($streetDate && $this->isStreetDateInTheFuture($streetDate)) {
+                return $this->getNewVarienObject([
+                    'delivery_window_from_date' => $this->getNewDateTime($streetDate),
+                    'delivery_window_to_date' => $this->getStreetToDate($streetDate),
+                ]);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Determine if the passed in product is a backorderable product.
+     *
+     * @param  Mage_Catalog_Model_Product
+     * @return bool
+     */
+    protected function isBackorderable(Mage_Catalog_Model_Product $product)
+    {
+        $stockItem = $product->getStockItem();
+        return ((int) $stockItem->getBackorders() > Mage_CatalogInventory_Model_Stock::BACKORDERS_NO);
+    }
+
+    /**
+     * Determine if the passed in street date string is in the future.
+     *
+     * @param  string
+     * @return bool
+     */
+    protected function isStreetDateInTheFuture($streetDate)
+    {
+        $now = $this->getNewDateTime('now');
+        $future = $this->getNewDateTime($streetDate);
+        return $now <= $future;
+    }
+
+    /**
+     * Using configuration setting to determine the to date for street date.
+     *
+     * @param  string
+     * @return DateTime
+     */
+    protected function getStreetToDate($streetDate)
+    {
+        $toDate = $this->getNewDateTime($streetDate);
+        $intervalSpec = "P{$this->coreConfig->toStreetDateRange}D";
+        return $toDate->add($this->getNewDateInterval($intervalSpec));
+    }
+
+    /**
+     * Returns a new DateTime instance.
+     *
+     * @param  string
+     * @return DateTime
+     */
+    protected function getNewDateTime($date)
+    {
+        return new DateTime($date);
+    }
+
+    /**
+     * Returns a new Varien_Object instance.
+     *
+     * @param  string
+     * @return Varien_Object
+     */
+    protected function getNewVarienObject(array $data = [])
+    {
+        return new Varien_Object($data);
+    }
+
+    /**
+     * Returns a new DateInterval instance.
+     *
+     * @param  string
+     * @return DateInterval
+     */
+    protected function getNewDateInterval($intervalSpec)
+    {
+        return new DateInterval($intervalSpec);
+    }
+
+    /**
+     * Determine if the street date EAV Attribute is loaded in the
+     * passed in catalog/product object, if not then reload the
+     * catalog/product object.
+     *
+     * @param  Mage_Catalog_Model_Product
+     * @return string
+     */
+    protected function getStreetDateFromProduct(Mage_Catalog_Model_Product $product)
+    {
+        if (!$product->hasStreetDate()) {
+            $product->load($product->getId());
+        }
+        return $product->getStreetDate();
+    }
+
+    /**
+     * Get estimated delivery data if the item is backorderable.
+     *
+     * @param  Mage_Core_Model_Abstract
+     * @return EbayEnterprise_Inventory_Model_Details_Item | null
+     */
+    public function getOcrBackorderableEddData(Mage_Core_Model_Abstract $item)
+    {
+        $streetData = $this->getStreetDateForBackorderableItem($item);
+        if ($streetData) {
+            return $this->detailFactory->createItemDetails([
+                'item_id' => $item->getId(),
+                'sku' => $item->getSku(),
+                'delivery_window_from_date' => $streetData->getDeliveryWindowFromDate(),
+                'delivery_window_to_date' => $streetData->getDeliveryWindowToDate(),
+                'shipping_window_from_date' => null,
+                'shipping_window_to_date' => null,
+                'delivery_estimate_creation_time' => null,
+                'delivery_estimate_display_flag' => null,
+                'delivery_estimate_message' => null,
+                'ship_from_lines' => null,
+                'ship_from_city' => null,
+                'ship_from_main_division' => null,
+                'ship_from_country_code' => null,
+                'ship_from_postal_code' => null,
+            ]);
+        }
+        return null;
     }
 }

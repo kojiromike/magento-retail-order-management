@@ -319,6 +319,9 @@
 				</payment>
 				<inventory>
 					<expiration>15</expiration>
+					<is_backorderable>1</is_backorderable>
+					<is_use_street_date_as_edd_date>1</is_use_street_date_as_edd_date>
+					<to_street_date_range>3</to_street_date_range>
 				</inventory>
 			</service>
 		</eb2ccore>

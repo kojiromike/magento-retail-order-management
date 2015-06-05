@@ -25,6 +25,8 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item_Details
     protected $config;
     /** @var EbayEnterprise_Inventory_Model_Details_Service */
     protected $detailService;
+    /** @var EbayEnterprise_Inventory_Helper_Data */
+    protected $helper;
 
     /**
      * @param array $args May contain:
@@ -34,13 +36,13 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item_Details
     public function __construct(array $args = [])
     {
         list(
-            $helper,
+            $this->helper,
             $this->detailService
         ) = $this->checkTypes(
             $this->nullCoalesce($args, 'helper', Mage::helper('ebayenterprise_inventory')),
             $this->nullCoalesce($args, 'detail_service', Mage::getModel('ebayenterprise_inventory/details_service'))
         );
-        $this->config = $helper->getConfigModel();
+        list($this->config) = $this->checkConfigTypes($this->nullCoalesce($args, 'config', $this->helper->getConfigModel()));
     }
 
     /**
@@ -71,6 +73,17 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item_Details
     }
 
     /**
+     * Enforce type checks for the config key in the constructors parameter array $args.
+     *
+     * @param EbayEnterprise_Eb2cCore_Model_Config_Registry
+     * @return array
+     */
+    protected function checkConfigTypes(EbayEnterprise_Eb2cCore_Model_Config_Registry $config)
+    {
+        return [$config];
+    }
+
+    /**
      * add data from the inventory service to the order item
      * @param  IOrderItem
      * @param  Mage_Sales_Model_Order_Item
@@ -78,7 +91,8 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item_Details
      */
     public function injectShippingEstimates(IOrderItem $itemPayload, Mage_Sales_Model_Order_Item $item)
     {
-        $detail = $this->detailService->getDetailsForOrderItem($item);
+        $detail = $this->detailService->getDetailsForOrderItem($item)
+            ?: $this->helper->getOcrBackorderableEddData($item);
         if ($detail && $detail->isAvailable()) {
             $itemPayload
                 ->setEstimatedDeliveryMode(IEstimatedDeliveryDate::MODE_ENABLED)

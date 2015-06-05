@@ -70,7 +70,12 @@
 				<?php endif; ?>
 		</h2>
 		<?php $this->getChild('order_items')->setData('ship_group', $_shipGroup); ?>
-		<?php echo $this->getChildHtml('order_items') ?>
+		<?php
+			// The second parameter value false is essential here because the method
+			// Mage_Core_Block_Abstract::getChildHtml() will cache the previous child HTML
+			// which will result in duplicate order items.
+			echo $this->getChildHtml('order_items', false);
+		?>
 	</div>
 	<?php $_shipGroupNumber++; ?>
 	<?php if ($_shipGroupNumber < $_shipGroupTotal): ?>

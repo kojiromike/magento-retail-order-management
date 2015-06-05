@@ -17,27 +17,27 @@
 $installer = $this;
 
 $attributes = array(
-	'isp_eligible' => 'In-store Pickup Eligible',
-	'isp_reserve_eligible' => 'In-store Pickup Reservation Eligible',
-	'inventory_check_eligible' => 'Inventory Lookup Eligible',
-	'sfs_eligible' => 'Ship-from-store Eligible',
-	'sts_eligible' => 'Ship-to-store Eligible',
+    'isp_eligible' => 'In-store Pickup Eligible',
+    'isp_reserve_eligible' => 'In-store Pickup Reservation Eligible',
+    'inventory_check_eligible' => 'Inventory Lookup Eligible',
+    'sfs_eligible' => 'Ship-from-store Eligible',
+    'sts_eligible' => 'Ship-to-store Eligible',
 );
 $attributeConfig = array(
-	'type' => 'int',
-	'group' => 'Retail Order Management',
-	'input' => 'select',
-	'source' => 'eav/entity_attribute_source_boolean',
-	'global' => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_WEBSITE,
-	'visible' => true,
-	'required' => false,
-	'user_defined' => false,
-	'default' => '0',
-	'apply_to' => 'simple,configurable,bundle,giftcard',
-	'visible_on_front' => true,
-	'used_in_product_listing' => true
+    'type' => 'int',
+    'group' => 'Retail Order Management',
+    'input' => 'select',
+    'source' => 'eav/entity_attribute_source_boolean',
+    'global' => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_WEBSITE,
+    'visible' => true,
+    'required' => false,
+    'user_defined' => false,
+    'default' => '0',
+    'apply_to' => 'simple,configurable,bundle,giftcard',
+    'visible_on_front' => true,
+    'used_in_product_listing' => true
 );
 foreach ($attributes as $attribute => $label) {
-	$attributeConfig['label'] = $label;
-	$installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, $attribute, $attributeConfig);
+    $attributeConfig['label'] = $label;
+    $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, $attribute, $attributeConfig);
 }

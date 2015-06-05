@@ -18,8 +18,8 @@
  */
 interface EbayEnterprise_Catalog_Interface_Feed
 {
-	/**
-	 * The point of entry to start process a feed.
-	 */
-	public function processFeeds();
+    /**
+     * The point of entry to start process a feed.
+     */
+    public function processFeeds();
 }

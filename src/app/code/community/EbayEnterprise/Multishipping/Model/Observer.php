@@ -15,16 +15,16 @@
 
 class EbayEnterprise_Multishipping_Model_Observer
 {
-	/**
-	 * Ensure shipment amounts have been collected for the order before it
-	 * is saved.
-	 *
-	 * @param Varien_Event_Observer
-	 * @return self
-	 */
-	public function handleSalesOrderSaveBefore(Varien_Event_Observer $observer)
-	{
-		$observer->getEvent()->getOrder()->collectShipmentAmounts();
-		return $this;
-	}
+    /**
+     * Ensure shipment amounts have been collected for the order before it
+     * is saved.
+     *
+     * @param Varien_Event_Observer
+     * @return self
+     */
+    public function handleSalesOrderSaveBefore(Varien_Event_Observer $observer)
+    {
+        $observer->getEvent()->getOrder()->collectShipmentAmounts();
+        return $this;
+    }
 }

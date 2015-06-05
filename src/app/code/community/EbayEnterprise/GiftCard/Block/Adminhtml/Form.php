@@ -15,32 +15,32 @@
 
 class EbayEnterprise_GiftCard_Block_Adminhtml_Form extends EbayEnterprise_GiftCard_Block_Form
 {
-	/** @var Mage_Core_Helper_Data **/
-	protected $_mageCoreHelper;
-	/** @var EbayEnterprise_GiftCard_Model_Container */
-	protected $_giftCardContainer;
+    /** @var Mage_Core_Helper_Data **/
+    protected $_mageCoreHelper;
+    /** @var EbayEnterprise_GiftCard_Model_Container */
+    protected $_giftCardContainer;
 
-	protected function _construct()
-	{
-		parent::_construct();
-		$this->_mageCoreHelper = Mage::helper('core');
-		$this->_giftCardContainer = Mage::getModel('ebayenterprise_giftcard/container');
-	}
-	/**
-	 * Get the cards for this cart
-	 * @return SplObjectStorage
-	 */
-	protected function getGiftCards()
-	{
-		return $this->_giftCardContainer->getUnredeemedGiftCards();
-	}
-	/**
-	 * Get the amount formatted as currency
-	 * @param  float $amount
-	 * @return string
-	 */
-	protected function _formatPrice($amount)
-	{
-		return $this->_mageCoreHelper->formatPrice($amount);
-	}
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->_mageCoreHelper = Mage::helper('core');
+        $this->_giftCardContainer = Mage::getModel('ebayenterprise_giftcard/container');
+    }
+    /**
+     * Get the cards for this cart
+     * @return SplObjectStorage
+     */
+    protected function getGiftCards()
+    {
+        return $this->_giftCardContainer->getUnredeemedGiftCards();
+    }
+    /**
+     * Get the amount formatted as currency
+     * @param  float $amount
+     * @return string
+     */
+    protected function _formatPrice($amount)
+    {
+        return $this->_mageCoreHelper->formatPrice($amount);
+    }
 }

@@ -15,28 +15,28 @@
 
 class EbayEnterprise_Order_Overrides_Block_Order_Shipment extends Mage_Sales_Block_Order_Shipment
 {
-	/**
-	 * @see parent::getPrintShipmentUrl()
-	 * override the default to ensure the order_id and shipment_id are always included
-	 * in the URL.
-	 *
-	 * @param  EbayEnterprise_Order_Model_Detail_Process_Response_Shipment
-	 * @return string
-	 */
-	public function getPrintShipmentUrl($shipment)
-	{
-		return $this->getUrl('*/*/printOrderShipment', [
-			'order_id' => $this->getOrder()->getRealOrderId(),
-			'shipment_id' => $shipment->getIncrementId()
-		]);
-	}
+    /**
+     * @see parent::getPrintShipmentUrl()
+     * override the default to ensure the order_id and shipment_id are always included
+     * in the URL.
+     *
+     * @param  EbayEnterprise_Order_Model_Detail_Process_Response_Shipment
+     * @return string
+     */
+    public function getPrintShipmentUrl($shipment)
+    {
+        return $this->getUrl('*/*/printOrderShipment', [
+            'order_id' => $this->getOrder()->getRealOrderId(),
+            'shipment_id' => $shipment->getIncrementId()
+        ]);
+    }
 
-	/**
-	 * Retrieve current order model instance
-	 * @return Mage_Sales_Model_Order
-	 */
-	public function getOrder()
-	{
-		return Mage::registry('rom_order');
-	}
+    /**
+     * Retrieve current order model instance
+     * @return Mage_Sales_Model_Order
+     */
+    public function getOrder()
+    {
+        return Mage::registry('rom_order');
+    }
 }

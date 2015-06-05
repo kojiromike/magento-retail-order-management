@@ -19,15 +19,15 @@
  */
 class EbayEnterprise_GiftCard_Block_Template_Abstract extends Mage_Core_Block_Template
 {
-	/**
-	 * If gift cards are not enabled, do not output any block output.
-	 * @return string
-	 */
-	protected function _toHtml()
-	{
-		if (Mage::helper('ebayenterprise_giftcard')->getConfigModel()->isEnabledFlag) {
-			return parent::_toHtml();
-		}
-		return '';
-	}
+    /**
+     * If gift cards are not enabled, do not output any block output.
+     * @return string
+     */
+    protected function _toHtml()
+    {
+        if (Mage::helper('ebayenterprise_giftcard')->getConfigModel()->isEnabledFlag) {
+            return parent::_toHtml();
+        }
+        return '';
+    }
 }

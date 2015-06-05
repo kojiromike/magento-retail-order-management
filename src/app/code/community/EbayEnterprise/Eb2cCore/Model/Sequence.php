@@ -15,41 +15,41 @@
 
 class EbayEnterprise_Eb2cCore_Model_Sequence
 {
-	/**
-	 * Extract the sequence number from xml feed file.
-	 * @param string $file, an xml file
-	 * @return string, the sequence number
-	 */
-	protected function _extractSequence($file)
-	{
-		$sequence = '';
-		$hlpr = Mage::helper('eb2ccore');
-		$domDocument = $hlpr->getNewDomDocument();
-		// load feed files to dom object
-		$domDocument->load($file);
-		$feedXpath = $hlpr->getNewDomXPath($domDocument);
-		$correlationId = $feedXpath->query('//MessageHeader/MessageData/CorrelationId');
-		if ($correlationId->length) {
-			$sequence = (string) $correlationId->item(0)->nodeValue;
-		}
-		return $sequence;
-	}
+    /**
+     * Extract the sequence number from xml feed file.
+     * @param string $file, an xml file
+     * @return string, the sequence number
+     */
+    protected function _extractSequence($file)
+    {
+        $sequence = '';
+        $hlpr = Mage::helper('eb2ccore');
+        $domDocument = $hlpr->getNewDomDocument();
+        // load feed files to dom object
+        $domDocument->load($file);
+        $feedXpath = $hlpr->getNewDomXPath($domDocument);
+        $correlationId = $feedXpath->query('//MessageHeader/MessageData/CorrelationId');
+        if ($correlationId->length) {
+            $sequence = (string) $correlationId->item(0)->nodeValue;
+        }
+        return $sequence;
+    }
 
-	/**
-	 * get feeds sequence.
-	 *
-	 * @param array $feeds, a collection of feed files
-	 * @return array, containing each feed file sequence number.
-	 */
-	public function buildSequence($feeds)
-	{
-		$results = array();
+    /**
+     * get feeds sequence.
+     *
+     * @param array $feeds, a collection of feed files
+     * @return array, containing each feed file sequence number.
+     */
+    public function buildSequence($feeds)
+    {
+        $results = array();
 
-		if(!empty($feeds)){
-			foreach ($feeds as $feed) {
-				$results[] = array('sequence' => $this->_extractSequence($feed), 'feed' => $feed);
-			}
-		}
-		return $results;
-	}
+        if (!empty($feeds)) {
+            foreach ($feeds as $feed) {
+                $results[] = array('sequence' => $this->_extractSequence($feed), 'feed' => $feed);
+            }
+        }
+        return $results;
+    }
 }

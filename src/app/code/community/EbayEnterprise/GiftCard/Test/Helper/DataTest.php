@@ -15,115 +15,115 @@
 
 class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	/**
-	 * Test looking up a card's tender type based on a set of configured card
-	 * number ranges.
-	 * @dataProvider dataProvider
-	 */
-	public function testLookupTenderTypeForCard($cardNumber, $tenderType, $ranges)
-	{
-		$config = $this->buildCoreConfigRegistry(array('binRanges' => $ranges));
+    /**
+     * Test looking up a card's tender type based on a set of configured card
+     * number ranges.
+     * @dataProvider dataProvider
+     */
+    public function testLookupTenderTypeForCard($cardNumber, $tenderType, $ranges)
+    {
+        $config = $this->buildCoreConfigRegistry(array('binRanges' => $ranges));
 
-		$helper = $this->getHelperMock('ebayenterprise_giftcard/data', array('getConfigModel'));
-		$helper->expects($this->any())
-			->method('getConfigModel')
-			->will($this->returnValue($config));
+        $helper = $this->getHelperMock('ebayenterprise_giftcard/data', array('getConfigModel'));
+        $helper->expects($this->any())
+            ->method('getConfigModel')
+            ->will($this->returnValue($config));
 
-		$giftcard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber);
-		$this->assertSame($tenderType, $helper->lookupTenderTypeForCard($giftcard));
-	}
-	/**
-	 * If a card number is not found to be within any bin range, an exception
-	 * should be thrown.
-	 * @dataProvider dataProvider
-	 */
-	public function testLookupTenderTypeForCardNotFound($cardNumber, $ranges)
-	{
-		$config = $this->buildCoreConfigRegistry(array('binRanges' => $ranges));
-		$helper = $this->getHelperMock('ebayenterprise_giftcard/data', array('getConfigModel'));
-		$helper->expects($this->any())
-			->method('getConfigModel')
-			->will($this->returnValue($config));
+        $giftcard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber);
+        $this->assertSame($tenderType, $helper->lookupTenderTypeForCard($giftcard));
+    }
+    /**
+     * If a card number is not found to be within any bin range, an exception
+     * should be thrown.
+     * @dataProvider dataProvider
+     */
+    public function testLookupTenderTypeForCardNotFound($cardNumber, $ranges)
+    {
+        $config = $this->buildCoreConfigRegistry(array('binRanges' => $ranges));
+        $helper = $this->getHelperMock('ebayenterprise_giftcard/data', array('getConfigModel'));
+        $helper->expects($this->any())
+            ->method('getConfigModel')
+            ->will($this->returnValue($config));
 
-		$giftcard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber);
-		$this->setExpectedException('EbayEnterprise_GiftCard_Exception_InvalidCardNumber_Exception');
-		$helper->lookupTenderTypeForCard($giftcard);
-	}
-	/**
-	 * Test adding a gift card to the container. Success path should result in
-	 * the card being in the container after having the card's balance checked.
-	 */
-	public function testAddGiftCardToOrder()
-	{
-		// replace session used by the gift card container - prevents headers already sent error from session
-		$this->_replaceSession('checkout/session');
+        $giftcard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber);
+        $this->setExpectedException('EbayEnterprise_GiftCard_Exception_InvalidCardNumber_Exception');
+        $helper->lookupTenderTypeForCard($giftcard);
+    }
+    /**
+     * Test adding a gift card to the container. Success path should result in
+     * the card being in the container after having the card's balance checked.
+     */
+    public function testAddGiftCardToOrder()
+    {
+        // replace session used by the gift card container - prevents headers already sent error from session
+        $this->_replaceSession('checkout/session');
 
-		$cardNumber = '1111222233334444';
-		$card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('checkBalance'));
-		$card->setBalanceAmount(25.00)->setCardNumber($cardNumber);
-		$card->expects($this->once())
-			->method('checkBalance')
-			->will($this->returnSelf());
+        $cardNumber = '1111222233334444';
+        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('checkBalance'));
+        $card->setBalanceAmount(25.00)->setCardNumber($cardNumber);
+        $card->expects($this->once())
+            ->method('checkBalance')
+            ->will($this->returnSelf());
 
-		// attempt to add the gift card to the order
-		Mage::helper('ebayenterprise_giftcard')->addGiftCardToOrder($card);
+        // attempt to add the gift card to the order
+        Mage::helper('ebayenterprise_giftcard')->addGiftCardToOrder($card);
 
-		// card should be in the container
-		$this->assertSame(
-			$card,
-			Mage::getModel('ebayenterprise_giftcard/container')->getGiftCard($cardNumber)
-		);
-	}
-	/**
-	 * Test that gift cards with zero balance should not be added to the cart/container.
-	 */
-	public function testAddGiftCardToOrderZeroBalance()
-	{
-		// replace session used by the gift card container - prevents headers already sent error from session
-		$session = $this->_replaceSession('checkout/session');
+        // card should be in the container
+        $this->assertSame(
+            $card,
+            Mage::getModel('ebayenterprise_giftcard/container')->getGiftCard($cardNumber)
+        );
+    }
+    /**
+     * Test that gift cards with zero balance should not be added to the cart/container.
+     */
+    public function testAddGiftCardToOrderZeroBalance()
+    {
+        // replace session used by the gift card container - prevents headers already sent error from session
+        $session = $this->_replaceSession('checkout/session');
 
-		$cardNumber = '1111222233334444';
-		$card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('checkBalance'));
-		$card->setBalanceAmount(0.00)->setCardNumber($cardNumber);
-		$card->expects($this->once())
-			->method('checkBalance')
-			->will($this->returnSelf());
+        $cardNumber = '1111222233334444';
+        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('checkBalance'));
+        $card->setBalanceAmount(0.00)->setCardNumber($cardNumber);
+        $card->expects($this->once())
+            ->method('checkBalance')
+            ->will($this->returnSelf());
 
-		// attempt to add the gift card to the order
-		Mage::helper('ebayenterprise_giftcard')->addGiftCardToOrder($card);
+        // attempt to add the gift card to the order
+        Mage::helper('ebayenterprise_giftcard')->addGiftCardToOrder($card);
 
-		// zero balance gift card should result in new error message in the checkout session
-		$this->assertCount(1, $session->getMessages()->getErrors());
-		// card should not have been added to the container - get gift card with same number will return new gift card instance
-		$this->assertNotSame(
-			$card,
-			Mage::getModel('ebayenterprise_giftcard/container')->getGiftCard($cardNumber)
-		);
-	}
-	/**
-	 * Test that when a balance check fails, gift cards are not added to the cart/container.
-	 */
-	public function testAddGiftCardToOrderBalanceCheckFails()
-	{
-		// replace session used by the gift card container - prevents headers already sent error from session
-		$session = $this->_replaceSession('checkout/session');
+        // zero balance gift card should result in new error message in the checkout session
+        $this->assertCount(1, $session->getMessages()->getErrors());
+        // card should not have been added to the container - get gift card with same number will return new gift card instance
+        $this->assertNotSame(
+            $card,
+            Mage::getModel('ebayenterprise_giftcard/container')->getGiftCard($cardNumber)
+        );
+    }
+    /**
+     * Test that when a balance check fails, gift cards are not added to the cart/container.
+     */
+    public function testAddGiftCardToOrderBalanceCheckFails()
+    {
+        // replace session used by the gift card container - prevents headers already sent error from session
+        $session = $this->_replaceSession('checkout/session');
 
-		$cardNumber = '1111222233334444';
-		$card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('checkBalance'));
-		$card->setBalanceAmount(50.00)->setCardNumber($cardNumber);
-		$card->expects($this->once())
-			->method('checkBalance')
-			->will($this->throwException(new EbayEnterprise_GiftCard_Exception));
+        $cardNumber = '1111222233334444';
+        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('checkBalance'));
+        $card->setBalanceAmount(50.00)->setCardNumber($cardNumber);
+        $card->expects($this->once())
+            ->method('checkBalance')
+            ->will($this->throwException(new EbayEnterprise_GiftCard_Exception));
 
-		// attempt to add the gift card to the order
-		Mage::helper('ebayenterprise_giftcard')->addGiftCardToOrder($card);
+        // attempt to add the gift card to the order
+        Mage::helper('ebayenterprise_giftcard')->addGiftCardToOrder($card);
 
-		// gift card balance check failures should result in new error message
-		$this->assertCount(1, $session->getMessages()->getErrors());
-		// card should not have been added to the container - get gift card with same number will return new gift card instance
-		$this->assertNotSame(
-			$card,
-			Mage::getModel('ebayenterprise_giftcard/container')->getGiftCard($cardNumber)
-		);
-	}
+        // gift card balance check failures should result in new error message
+        $this->assertCount(1, $session->getMessages()->getErrors());
+        // card should not have been added to the container - get gift card with same number will return new gift card instance
+        $this->assertNotSame(
+            $card,
+            Mage::getModel('ebayenterprise_giftcard/container')->getGiftCard($cardNumber)
+        );
+    }
 }

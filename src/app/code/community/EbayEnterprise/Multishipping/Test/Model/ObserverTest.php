@@ -15,20 +15,20 @@
 
 class EbayEnterprise_Multishipping_Test_Model_ObserverTest extends EcomDev_PHPUnit_Test_Case
 {
-	/**
-	 * When handling a sales order before save event, ensure that any shipment
-	 * amounts for that order have been collected before the order is saved.
-	 */
-	public function testHandleSalesOrderBeforeSave()
-	{
-		$order = $this->getModelMock('sales/order', ['collectShipmentAmounts']);
-		$order->expects($this->once())
-			->method('collectShipmentAmounts')
-			->will($this->returnSelf());
-		$event = new Varien_Event(['order' => $order]);
-		$eventObserver = new Varien_Event_Observer(['event' => $event]);
+    /**
+     * When handling a sales order before save event, ensure that any shipment
+     * amounts for that order have been collected before the order is saved.
+     */
+    public function testHandleSalesOrderBeforeSave()
+    {
+        $order = $this->getModelMock('sales/order', ['collectShipmentAmounts']);
+        $order->expects($this->once())
+            ->method('collectShipmentAmounts')
+            ->will($this->returnSelf());
+        $event = new Varien_Event(['order' => $order]);
+        $eventObserver = new Varien_Event_Observer(['event' => $event]);
 
-		$observer = Mage::getModel('ebayenterprise_multishipping/observer');
-		$observer->handleSalesOrderSaveBefore($eventObserver);
-	}
+        $observer = Mage::getModel('ebayenterprise_multishipping/observer');
+        $observer->handleSalesOrderSaveBefore($eventObserver);
+    }
 }

@@ -18,42 +18,42 @@
 .suggestion-fields {}
 
 .suggestion-fields .validation-message {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 .suggestion-fields .suggestion-list {
-	display: block;
-	width: 100%;
+    display: block;
+    width: 100%;
 }
 .suggestion-fields .suggestion {
-	display: block;
-	padding: 1%;
-	position: relative;
-	overflow: hidden;
-	float: left;
-	width: 80%;
-	margin-right: 1%;
+    display: block;
+    padding: 1%;
+    position: relative;
+    overflow: hidden;
+    float: left;
+    width: 80%;
+    margin-right: 1%;
 }
 .suggestion-fields .original-message {
-	margin: 0;
+    margin: 0;
 }
 .suggestion-fields .suggestion label {
-	display: block;
-	padding: 1em;
+    display: block;
+    padding: 1em;
 }
 .suggestion-fields .suggestion input {
-	margin-right: 0.67em;
+    margin-right: 0.67em;
 }
 .suggestion-fields .suggestion .address {
-	text-align: left;
-	padding: 1em;
-	display: block;
-	margin-bottom: 0.33em;
-	background: #eee;
+    text-align: left;
+    padding: 1em;
+    display: block;
+    margin-bottom: 0.33em;
+    background: #eee;
 }
 .suggestion-fields .new {
-	clear: left;
+    clear: left;
 }
 .hide-new-address {
-	display: none;
+    display: none;
 }

@@ -15,10 +15,10 @@
 
 class EbayEnterprise_Eb2cGiftwrap_Model_Config extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
 {
-	protected $_configPaths = array(
-		'dummy_tax_class' => 'eb2cgiftwrap/dummy/tax_class',
-		'dummy_base_price' => 'eb2cgiftwrap/dummy/base_price',
-		'dummy_image' => 'eb2cgiftwrap/dummy/image',
-		'dummy_status' => 'eb2cgiftwrap/dummy/status',
-	);
+    protected $_configPaths = array(
+        'dummy_tax_class' => 'eb2cgiftwrap/dummy/tax_class',
+        'dummy_base_price' => 'eb2cgiftwrap/dummy/base_price',
+        'dummy_image' => 'eb2cgiftwrap/dummy/image',
+        'dummy_status' => 'eb2cgiftwrap/dummy/status',
+    );
 }

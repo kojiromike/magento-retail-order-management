@@ -17,36 +17,35 @@
  * A class to help detect if any .js files are installed in the location where
  *  we expect to find 41st Parameter JavaScript Files.
  */
-class EbayEnterprise_Eb2cFraud_Model_Adminhtml_System_Config_Backend_Jsinstalled
-	extends Mage_Core_Model_Config_Data
+class EbayEnterprise_Eb2cFraud_Model_Adminhtml_System_Config_Backend_Jsinstalled extends Mage_Core_Model_Config_Data
 {
-	/**
-	 * Load display variable with 'Yes' or 'No' regarding javascript file presence in eb2cfraud location
-	 * @return self
-	 * @codeCoverageIgnore Magento promises to display the value; glob promises to deliver an array of matching files.
-	 */
-	public function _afterLoad()
-	{
-		$filePattern  = Mage::getBaseDir() . '/js/ebayenterprise_eb2cfraud/*.js';
-		$jsFiles = glob($filePattern);
-		if (!$jsFiles) {
-			$publicDisplay = 'Not installed; fraud information will not be collected';
-		} else {
-			$publicDisplay = 'Yes, ' . count($jsFiles) . ' collection scripts found';
-		}
-		$this->setValue($publicDisplay);
-		return $this;
-	}
+    /**
+     * Load display variable with 'Yes' or 'No' regarding javascript file presence in eb2cfraud location
+     * @return self
+     * @codeCoverageIgnore Magento promises to display the value; glob promises to deliver an array of matching files.
+     */
+    public function _afterLoad()
+    {
+        $filePattern  = Mage::getBaseDir() . '/js/ebayenterprise_eb2cfraud/*.js';
+        $jsFiles = glob($filePattern);
+        if (!$jsFiles) {
+            $publicDisplay = 'Not installed; fraud information will not be collected';
+        } else {
+            $publicDisplay = 'Yes, ' . count($jsFiles) . ' collection scripts found';
+        }
+        $this->setValue($publicDisplay);
+        return $this;
+    }
 
-	/**
-	 * Simply turn of data saving. This is a display-only field in admin dependent upon presence of
-	 *  files in the filesystem, not any configuration data.
-	 * @return self
-	 * @codeCoverageIgnore Magento promises to not save anything if _dataSaveAllowed is false.
-	 */
-	public function _beforeSave()
-	{
-		$this->_dataSaveAllowed = false;
-		return $this;
-	}
+    /**
+     * Simply turn of data saving. This is a display-only field in admin dependent upon presence of
+     *  files in the filesystem, not any configuration data.
+     * @return self
+     * @codeCoverageIgnore Magento promises to not save anything if _dataSaveAllowed is false.
+     */
+    public function _beforeSave()
+    {
+        $this->_dataSaveAllowed = false;
+        return $this;
+    }
 }

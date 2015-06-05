@@ -15,14 +15,14 @@
 
 class EbayEnterprise_GiftCard_Balance_CustomerController extends EbayEnterprise_GiftCard_Controller_Abstract
 {
-	//** @see EbayEnterprise_GiftCard_Controller_Abstract */
-	const REDIRECT_PATH = 'giftcard-balance/customer/';
-	/**
-	 * Gift card balance page in customer account
-	 */
-	public function indexAction()
-	{
-		$this->loadLayout();
-		$this->renderLayout();
-	}
+    //** @see EbayEnterprise_GiftCard_Controller_Abstract */
+    const REDIRECT_PATH = 'giftcard-balance/customer/';
+    /**
+     * Gift card balance page in customer account
+     */
+    public function indexAction()
+    {
+        $this->loadLayout();
+        $this->renderLayout();
+    }
 }

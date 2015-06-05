@@ -14,42 +14,41 @@
  */
 
 
-class EbayEnterprise_ProductImport_Test_Model_Feed_Import_ItemsTest
-	extends EbayEnterprise_Eb2cCore_Test_Base
+class EbayEnterprise_ProductImport_Test_Model_Feed_Import_ItemsTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	/**
-	 * Build a product collection from a list of SKUs. The collection should only
-	 * be expected to inlcude products that already exist in Magento. The
-	 * collection should also load as little product data as possible while still
-	 * allowing all of the necessary updates and saves to be performed.
-	 */
-	public function testBuildProductCollection()
-	{
-		$skus = array('12345', '4321');
+    /**
+     * Build a product collection from a list of SKUs. The collection should only
+     * be expected to inlcude products that already exist in Magento. The
+     * collection should also load as little product data as possible while still
+     * allowing all of the necessary updates and saves to be performed.
+     */
+    public function testBuildProductCollection()
+    {
+        $skus = array('12345', '4321');
 
-		$productCollectionMock = $this->getResourceModelMockBuilder('ebayenterprise_catalog/feed_product_collection')
-			->disableOriginalConstructor()
-			->setMethods(array('addAttributeToSelect', 'addAttributeToFilter', 'load'))
-			->getMock();
+        $productCollectionMock = $this->getResourceModelMockBuilder('ebayenterprise_catalog/feed_product_collection')
+            ->disableOriginalConstructor()
+            ->setMethods(array('addAttributeToSelect', 'addAttributeToFilter', 'load'))
+            ->getMock();
 
-		$productCollectionMock->expects($this->any())
-			->method('addAttributeToSelect')
-			->with($this->equalTo(array('*')))
-			->will($this->returnSelf());
-		$productCollectionMock->expects($this->any())
-			->method('addAttributeToFilter')
-			->with($this->equalTo(array(
-				array(
-					'attribute' => 'sku',
-					'in' => $skus,
-				),
-			)))
-			->will($this->returnSelf());
-		$productCollectionMock->expects($this->any())
-			->method('load')
-			->will($this->returnSelf());
+        $productCollectionMock->expects($this->any())
+            ->method('addAttributeToSelect')
+            ->with($this->equalTo(array('*')))
+            ->will($this->returnSelf());
+        $productCollectionMock->expects($this->any())
+            ->method('addAttributeToFilter')
+            ->with($this->equalTo(array(
+                array(
+                    'attribute' => 'sku',
+                    'in' => $skus,
+                ),
+            )))
+            ->will($this->returnSelf());
+        $productCollectionMock->expects($this->any())
+            ->method('load')
+            ->will($this->returnSelf());
 
-		$this->replaceByMock('resource_model', 'ebayenterprise_catalog/feed_product_collection', $productCollectionMock);
-		$this->assertSame($productCollectionMock, Mage::getModel('ebayenterprise_catalog/feed_import_items')->buildCollection($skus));
-	}
+        $this->replaceByMock('resource_model', 'ebayenterprise_catalog/feed_product_collection', $productCollectionMock);
+        $this->assertSame($productCollectionMock, Mage::getModel('ebayenterprise_catalog/feed_import_items')->buildCollection($skus));
+    }
 }

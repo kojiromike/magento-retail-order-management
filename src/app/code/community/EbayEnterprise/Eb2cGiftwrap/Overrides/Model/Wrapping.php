@@ -16,26 +16,25 @@
 /**
  * @codeCoverageIgnore
  */
-class EbayEnterprise_Eb2cGiftwrap_Overrides_Model_Wrapping
-	extends Enterprise_GiftWrapping_Model_Wrapping
+class EbayEnterprise_Eb2cGiftwrap_Overrides_Model_Wrapping extends Enterprise_GiftWrapping_Model_Wrapping
 {
-	/**
-	 * Overriding the magic method get sku because the import process always call getSku
-	 * and since the wrapping only knows about getEb2cSku we need to make sure the right method get call
-	 * @return string
-	 */
-	public function getSku()
-	{
-		return $this->getData('eb2c_sku');
-	}
-	/**
-	 * Overriding the magic method setSku to reference the setEb2cSku instead
-	 * @param string $value
-	 * @return self
-	 */
-	public function setSku($value)
-	{
-		$this->setData('eb2c_sku', $value);
-		return $this;
-	}
+    /**
+     * Overriding the magic method get sku because the import process always call getSku
+     * and since the wrapping only knows about getEb2cSku we need to make sure the right method get call
+     * @return string
+     */
+    public function getSku()
+    {
+        return $this->getData('eb2c_sku');
+    }
+    /**
+     * Overriding the magic method setSku to reference the setEb2cSku instead
+     * @param string $value
+     * @return self
+     */
+    public function setSku($value)
+    {
+        $this->setData('eb2c_sku', $value);
+        return $this;
+    }
 }

@@ -21,14 +21,13 @@
  * @method bool getTaxRequestSuccess()
  * @method self setTaxRequestSuccess(bool)
  */
-class EbayEnterprise_Tax_Model_Session
-	extends Mage_Core_Model_Session_Abstract
+class EbayEnterprise_Tax_Model_Session extends Mage_Core_Model_Session_Abstract
 {
-	/**
-	 * Initialize the session.
-	 */
-	protected function _construct()
-	{
-		$this->init('ebayenterprise_tax');
-	}
+    /**
+     * Initialize the session.
+     */
+    protected function _construct()
+    {
+        $this->init('ebayenterprise_tax');
+    }
 }

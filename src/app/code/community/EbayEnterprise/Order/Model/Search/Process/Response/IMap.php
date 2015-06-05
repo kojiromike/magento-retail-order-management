@@ -17,11 +17,11 @@ use eBayEnterprise\RetailOrderManagement\Payload\Customer\IOrderSummary;
 
 interface EbayEnterprise_Order_Model_Search_Process_Response_IMap
 {
-	/**
-	 * Use search response configuration mapped to extract order summary data.
-	 *
-	 * @param  IOrderSummary
-	 * @return array
-	 */
-	public function extract(IOrderSummary $summary);
+    /**
+     * Use search response configuration mapped to extract order summary data.
+     *
+     * @param  IOrderSummary
+     * @return array
+     */
+    public function extract(IOrderSummary $summary);
 }

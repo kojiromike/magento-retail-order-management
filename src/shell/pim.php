@@ -20,18 +20,18 @@ require_once 'abstract.php';
  */
 class EbayEnterprise_Eb2c_Shell_Pim extends Mage_Shell_Abstract
 {
-	/**
-	 * The 'main' of a Mage Shell Script
-	 *
-	 * @see usageHelp
-	 * @return int UNIX exit status
-	 */
-	public function run()
-	{
-		/** @var EbayEnterprise_Catalog_Model_Exporter $exporter */
-		Mage::getModel('ebayenterprise_catalog/exporter')->runExport();
-		return 0;
-	}
+    /**
+     * The 'main' of a Mage Shell Script
+     *
+     * @see usageHelp
+     * @return int UNIX exit status
+     */
+    public function run()
+    {
+        /** @var EbayEnterprise_Catalog_Model_Exporter $exporter */
+        Mage::getModel('ebayenterprise_catalog/exporter')->runExport();
+        return 0;
+    }
 }
 
 $feedProcessor = new EbayEnterprise_Eb2c_Shell_Pim();

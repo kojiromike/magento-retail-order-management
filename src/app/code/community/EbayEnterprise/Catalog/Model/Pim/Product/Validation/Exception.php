@@ -13,7 +13,6 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Catalog_Model_Pim_Product_Validation_Exception
-	extends Mage_Core_Exception
+class EbayEnterprise_Catalog_Model_Pim_Product_Validation_Exception extends Mage_Core_Exception
 {
 }

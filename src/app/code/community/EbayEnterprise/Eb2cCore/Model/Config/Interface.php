@@ -13,19 +13,20 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-interface EbayEnterprise_Eb2cCore_Model_Config_Interface {
-	/**
-	 * Indicates this model knows about the given config key
-	 *
-	 * @param $configKey
-	 * @return bool
-	 */
-	public function hasKey($configKey);
+interface EbayEnterprise_Eb2cCore_Model_Config_Interface
+{
+    /**
+     * Indicates this model knows about the given config key
+     *
+     * @param $configKey
+     * @return bool
+     */
+    public function hasKey($configKey);
 
-	/**
-	 * Return the config path for a known key
-	 * @param $configKey
-	 * @return string
-	 */
-	public function getPathForKey($configKey);
+    /**
+     * Return the config path for a known key
+     * @param $configKey
+     * @return string
+     */
+    public function getPathForKey($configKey);
 }

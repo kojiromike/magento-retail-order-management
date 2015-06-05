@@ -15,10 +15,10 @@
 
 interface EbayEnterprise_Order_Model_Search_Process_Response_ICollection
 {
-	/**
-	 * Sort the Varien_Data_Collection by the order date.
-	 *
-	 * @return self
-	 */
-	public function sort();
+    /**
+     * Sort the Varien_Data_Collection by the order date.
+     *
+     * @return self
+     */
+    public function sort();
 }

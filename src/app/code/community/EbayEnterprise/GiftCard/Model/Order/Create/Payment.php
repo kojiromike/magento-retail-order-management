@@ -17,63 +17,63 @@ use \eBayEnterprise\RetailOrderManagement\Payload\Order\IPaymentContainer;
 
 class EbayEnterprise_Giftcard_Model_Order_Create_Payment
 {
-	/** @var EbayEnterprise_GiftCard_Model_IContainer */
-	protected $_giftcardContainer;
-	public function __construct(array $args=[])
-	{
-		list(
-			$this->_giftcardContainer
-		) = $this->_enforceTypes(
-			$this->_nullCoalesce('giftcard_container', $args, Mage::getModel('ebayenterprise_giftcard/container'))
-		);
-	}
+    /** @var EbayEnterprise_GiftCard_Model_IContainer */
+    protected $_giftcardContainer;
+    public function __construct(array $args = [])
+    {
+        list(
+            $this->_giftcardContainer
+        ) = $this->_enforceTypes(
+            $this->_nullCoalesce('giftcard_container', $args, Mage::getModel('ebayenterprise_giftcard/container'))
+        );
+    }
 
-	/**
-	 * ensure correct types
-	 * @param  EbayEnterprise_GiftCard_Model_IContainer $container
-	 * @return array
-	 */
-	protected function _enforceTypes(EbayEnterprise_GiftCard_Model_IContainer $container)
-	{
-		return [$container];
-	}
+    /**
+     * ensure correct types
+     * @param  EbayEnterprise_GiftCard_Model_IContainer $container
+     * @return array
+     */
+    protected function _enforceTypes(EbayEnterprise_GiftCard_Model_IContainer $container)
+    {
+        return [$container];
+    }
 
-	/**
-	 * Make stored value card payloads for any redeemed
-	 * gift cards
-	 *
-	 * @param Mage_Sales_Model_Order $order
-	 * @param IPaymentContainer      $paymentContainer
-	 * @param SplObjectStorage       $processedPayments
-	 */
-	public function addPaymentsToPayload(
-		Mage_Sales_Model_Order $order,
-		IPaymentContainer $paymentContainer,
-		SplObjectStorage $processedPayments
-	) {
-		foreach ($this->_giftcardContainer->getRedeemedGiftcards() as $giftcard) {
-			$iterable = $paymentContainer->getPayments();
-			$payload = $iterable->getEmptyStoredValueCardPayment();
-			$payload
-				// payment context
-				->setOrderId($order->getIncrementId())
-				->setTenderType($giftcard->getTenderType())
-				->setAccountUniqueId($giftcard->getCardNumber())
-				->setPanIsToken((bool) $giftcard->getPanIsToken())
-				// payment data
-				->setCreateTimestamp($giftcard->getRedeemedAt())
-				->setAmount($giftcard->getAmountRedeemed())
-				->setPin($giftcard->getPin())
-				->setPaymentRequestId($giftcard->getRedeemRequestId());
-			// add the new payload
-			$iterable->OffsetSet($payload, $payload);
-			// put the payment in the processed payments set
-			$processedPayments->attach($giftcard);
-		}
-	}
+    /**
+     * Make stored value card payloads for any redeemed
+     * gift cards
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @param IPaymentContainer      $paymentContainer
+     * @param SplObjectStorage       $processedPayments
+     */
+    public function addPaymentsToPayload(
+        Mage_Sales_Model_Order $order,
+        IPaymentContainer $paymentContainer,
+        SplObjectStorage $processedPayments
+    ) {
+        foreach ($this->_giftcardContainer->getRedeemedGiftcards() as $giftcard) {
+            $iterable = $paymentContainer->getPayments();
+            $payload = $iterable->getEmptyStoredValueCardPayment();
+            $payload
+                // payment context
+                ->setOrderId($order->getIncrementId())
+                ->setTenderType($giftcard->getTenderType())
+                ->setAccountUniqueId($giftcard->getCardNumber())
+                ->setPanIsToken((bool) $giftcard->getPanIsToken())
+                // payment data
+                ->setCreateTimestamp($giftcard->getRedeemedAt())
+                ->setAmount($giftcard->getAmountRedeemed())
+                ->setPin($giftcard->getPin())
+                ->setPaymentRequestId($giftcard->getRedeemRequestId());
+            // add the new payload
+            $iterable->OffsetSet($payload, $payload);
+            // put the payment in the processed payments set
+            $processedPayments->attach($giftcard);
+        }
+    }
 
-	protected function _nullCoalesce($key, array $args, $default)
-	{
-		return isset($args[$key]) ? $args[$key] : $default;
-	}
+    protected function _nullCoalesce($key, array $args, $default)
+    {
+        return isset($args[$key]) ? $args[$key] : $default;
+    }
 }

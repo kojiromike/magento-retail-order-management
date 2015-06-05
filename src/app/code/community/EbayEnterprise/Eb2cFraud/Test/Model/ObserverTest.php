@@ -15,13 +15,13 @@
 
 class EbayEnterprise_Eb2cFraud_Test_Model_ObserverTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	/**
-	 * Validate expected event configuration.
-	 *
-	 * @dataProvider dataProvider
-	 */
-	public function testEventSetup($area, $eventName, $observerClassAlias, $observerMethod)
-	{
-		$this->_testEventConfig($area, $eventName, $observerClassAlias, $observerMethod);
-	}
+    /**
+     * Validate expected event configuration.
+     *
+     * @dataProvider dataProvider
+     */
+    public function testEventSetup($area, $eventName, $observerClassAlias, $observerMethod)
+    {
+        $this->_testEventConfig($area, $eventName, $observerClassAlias, $observerMethod);
+    }
 }

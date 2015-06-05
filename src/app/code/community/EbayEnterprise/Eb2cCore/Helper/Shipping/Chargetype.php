@@ -18,22 +18,22 @@ use eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IShipGroup as ITaxSh
 
 class EbayEnterprise_Eb2cCore_Helper_Shipping_Chargetype
 {
-	/**
-	 * The Shipping Charge Type recognized by ROM for flatrate/order level shipping costs
-	 */
-	const SHIPPING_CHARGE_TYPE_FLATRATE = 'FLATRATE';
+    /**
+     * The Shipping Charge Type recognized by ROM for flatrate/order level shipping costs
+     */
+    const SHIPPING_CHARGE_TYPE_FLATRATE = 'FLATRATE';
 
-	/**
-	 * set the shipping chargetype on the supplied shipgroup payload
-	 * @param  IShipGroup $shipGroup
-	 * @return self
-	 */
-	public function setShippingChargeType(IShipGroup $shipGroup)
-	{
-		// Use flatrate because the way shipping costs are calculated
-		// in Magento makes it impossible to determine how much each
-		// item contributes to the shipping cost.
-		$shipGroup->setChargeType(self::SHIPPING_CHARGE_TYPE_FLATRATE);
-		return $this;
-	}
+    /**
+     * set the shipping chargetype on the supplied shipgroup payload
+     * @param  IShipGroup $shipGroup
+     * @return self
+     */
+    public function setShippingChargeType(IShipGroup $shipGroup)
+    {
+        // Use flatrate because the way shipping costs are calculated
+        // in Magento makes it impossible to determine how much each
+        // item contributes to the shipping cost.
+        $shipGroup->setChargeType(self::SHIPPING_CHARGE_TYPE_FLATRATE);
+        return $this;
+    }
 }

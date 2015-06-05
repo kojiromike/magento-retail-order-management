@@ -19,24 +19,24 @@
  */
 class EbayEnterprise_Eb2cCore_Test_Model_ConfigTest extends EcomDev_PHPUnit_Test_Case
 {
-	/**
-	 * A config model knows about a key.
-	 */
-	public function testConfigModelHasKey()
-	{
-		$configModel = new ConfigStub();
-		$this->assertTrue($configModel->hasKey('catalog_id'));
-		$this->assertFalse($configModel->hasKey('foo_bar_baz'));
-	}
+    /**
+     * A config model knows about a key.
+     */
+    public function testConfigModelHasKey()
+    {
+        $configModel = new ConfigStub();
+        $this->assertTrue($configModel->hasKey('catalog_id'));
+        $this->assertFalse($configModel->hasKey('foo_bar_baz'));
+    }
 
-	/**
-	 * A config model can get the correct path for a known key.
-	 */
-	public function testConfigModelGetPath()
-	{
-		$configModel = new ConfigStub();
-		$this->assertSame($configModel->getPathForKey('catalog_id'), 'eb2c/core/catalog_id');
-	}
+    /**
+     * A config model can get the correct path for a known key.
+     */
+    public function testConfigModelGetPath()
+    {
+        $configModel = new ConfigStub();
+        $this->assertSame($configModel->getPathForKey('catalog_id'), 'eb2c/core/catalog_id');
+    }
 }
 
 /**
@@ -47,5 +47,5 @@ class EbayEnterprise_Eb2cCore_Test_Model_ConfigTest extends EcomDev_PHPUnit_Test
  */
 class ConfigStub extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
 {
-	protected $_configPaths = array('catalog_id' => 'eb2c/core/catalog_id');
+    protected $_configPaths = array('catalog_id' => 'eb2c/core/catalog_id');
 }

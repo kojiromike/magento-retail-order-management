@@ -16,18 +16,17 @@
 /**
  * PayPal payment info block
  */
-class EbayEnterprise_PayPal_Block_Express_Payment_Info
-	extends Mage_Payment_Block_Info
+class EbayEnterprise_PayPal_Block_Express_Payment_Info extends Mage_Payment_Block_Info
 {
-	/**
-	 * Prepare PayPal-specific payment information
-	 *
-	 * @param Varien_Object|array $transport
-	 * return Varien_Object
-	 */
-	protected function _prepareSpecificInformation($transport=null)
-	{
-		$transport = parent::_prepareSpecificInformation($transport);
-		return $transport;
-	}
+    /**
+     * Prepare PayPal-specific payment information
+     *
+     * @param Varien_Object|array $transport
+     * return Varien_Object
+     */
+    protected function _prepareSpecificInformation($transport = null)
+    {
+        $transport = parent::_prepareSpecificInformation($transport);
+        return $transport;
+    }
 }

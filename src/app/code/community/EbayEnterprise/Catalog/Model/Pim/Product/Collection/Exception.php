@@ -14,7 +14,6 @@
  */
 
 
-class EbayEnterprise_Catalog_Model_Pim_Product_Collection_Exception
-	extends Mage_Core_Exception
+class EbayEnterprise_Catalog_Model_Pim_Product_Collection_Exception extends Mage_Core_Exception
 {
 }

@@ -15,13 +15,13 @@
 
 interface EbayEnterprise_Order_Model_Detail_Send_IRequest extends EbayEnterprise_Order_Model_Abstract_ISend
 {
-	/**
-	 * Send the order detail request payload and return a valid
-	 * response payload when the request was successfully sent
-	 * and we get back a valid response. Otherwise, return
-	 * null when any exception is thrown.
-	 *
-	 * @return IOrderDetailResponse | null
-	 */
-	public function send();
+    /**
+     * Send the order detail request payload and return a valid
+     * response payload when the request was successfully sent
+     * and we get back a valid response. Otherwise, return
+     * null when any exception is thrown.
+     *
+     * @return IOrderDetailResponse | null
+     */
+    public function send();
 }

@@ -16,63 +16,61 @@
 use eBayEnterprise\RetailOrderManagement\Payload\Order\Detail\IOrderDetailRequest;
 use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
 
-
-class EbayEnterprise_Order_Model_Detail_Build_Request
-	implements EbayEnterprise_Order_Model_Detail_Build_IRequest
+class EbayEnterprise_Order_Model_Detail_Build_Request implements EbayEnterprise_Order_Model_Detail_Build_IRequest
 {
-	/** @var string */
-	protected $_orderId;
-	/** @var IOrderDetailRequest */
-	protected $_payload;
-	/** @var EbayEnterprise_Order_Helper_Factory */
-	protected $_factory;
-	/** @var IBidirectionalApi */
-	protected $_api;
+    /** @var string */
+    protected $_orderId;
+    /** @var IOrderDetailRequest */
+    protected $_payload;
+    /** @var EbayEnterprise_Order_Helper_Factory */
+    protected $_factory;
+    /** @var IBidirectionalApi */
+    protected $_api;
 
-	/**
-	 * @param array $initParams Must have these keys:
-	 *                          - 'api' => IBidirectionalApi
-	 *                          - 'order_id' => string
-	 */
-	public function __construct(array $initParams)
-	{
-		list($this->_api, $this->_orderId) = $this->_checkTypes(
-			$initParams['api'],
-			$initParams['order_id']
-		);
-		$this->_payload = $this->_api->getRequestBody();
-	}
+    /**
+     * @param array $initParams Must have these keys:
+     *                          - 'api' => IBidirectionalApi
+     *                          - 'order_id' => string
+     */
+    public function __construct(array $initParams)
+    {
+        list($this->_api, $this->_orderId) = $this->_checkTypes(
+            $initParams['api'],
+            $initParams['order_id']
+        );
+        $this->_payload = $this->_api->getRequestBody();
+    }
 
-	/**
-	 * Type hinting for self::__construct $initParams
-	 *
-	 * @param  IBidirectionalApi
-	 * @param  string
-	 * @return array
-	 */
-	protected function _checkTypes(IBidirectionalApi $api, $orderId)
-	{
-		return [$api, $orderId];
-	}
+    /**
+     * Type hinting for self::__construct $initParams
+     *
+     * @param  IBidirectionalApi
+     * @param  string
+     * @return array
+     */
+    protected function _checkTypes(IBidirectionalApi $api, $orderId)
+    {
+        return [$api, $orderId];
+    }
 
-	/**
-	 * @see EbayEnterprise_Order_Model_Detail_Build_IRequest::build()
-	 */
-	public function build()
-	{
-		$this->_buildPayload();
-		return $this->_payload;
-	}
+    /**
+     * @see EbayEnterprise_Order_Model_Detail_Build_IRequest::build()
+     */
+    public function build()
+    {
+        $this->_buildPayload();
+        return $this->_payload;
+    }
 
-	/**
-	 * Populate order detail request payload.
-	 *
-	 * @return self
-	 */
-	protected function _buildPayload()
-	{
-		$this->_payload->setOrderType(static::DEFAULT_ORDER_DETAIL_SEARCH_TYPE)
-			->setCustomerOrderId($this->_orderId);
-		return $this;
-	}
+    /**
+     * Populate order detail request payload.
+     *
+     * @return self
+     */
+    protected function _buildPayload()
+    {
+        $this->_payload->setOrderType(static::DEFAULT_ORDER_DETAIL_SEARCH_TYPE)
+            ->setCustomerOrderId($this->_orderId);
+        return $this;
+    }
 }

@@ -15,24 +15,23 @@
 
 use \eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderContext;
 
-class EbayEnterprise_PayPal_Test_Model_Order_Create_ContextTest
-	extends EbayEnterprise_Eb2cCore_Test_Base
+class EbayEnterprise_PayPal_Test_Model_Order_Create_ContextTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	public function testUpdateOrderContext()
-	{
-		$payment = Mage::getModel('sales/order_payment', ['method' => 'ebayenterprise_paypal_express']);
-		$order = $this->getModelMock('sales/order', ['getPayment']);
-		$order->expects($this->any())
-			->method('getPayment')
-			->will($this->returnValue($payment));
-		$payload = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderContext');
-		$methods = ['setPayPalPayerId', 'setPayPalPayerStatus', 'setPayPalAddressStatus'];
-		foreach ($methods as $method) {
-			$payload->expects($this->once())
-				->method($method)
-				->will($this->returnSelf());
-		}
-		$handler = Mage::getModel('ebayenterprise_paypal/order_create_context');
-		$handler->updateOrderContext($order, $payload);
-	}
+    public function testUpdateOrderContext()
+    {
+        $payment = Mage::getModel('sales/order_payment', ['method' => 'ebayenterprise_paypal_express']);
+        $order = $this->getModelMock('sales/order', ['getPayment']);
+        $order->expects($this->any())
+            ->method('getPayment')
+            ->will($this->returnValue($payment));
+        $payload = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderContext');
+        $methods = ['setPayPalPayerId', 'setPayPalPayerStatus', 'setPayPalAddressStatus'];
+        foreach ($methods as $method) {
+            $payload->expects($this->once())
+                ->method($method)
+                ->will($this->returnSelf());
+        }
+        $handler = Mage::getModel('ebayenterprise_paypal/order_create_context');
+        $handler->updateOrderContext($order, $payload);
+    }
 }

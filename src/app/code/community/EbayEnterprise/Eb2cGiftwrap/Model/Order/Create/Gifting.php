@@ -17,150 +17,150 @@ use eBayEnterprise\RetailOrderManagement\Payload\Order\IGifting;
 
 class EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting
 {
-	/** @var EbayEnterprise_MageLog_Helper_Data */
-	protected $_logger;
-	/** @var EbayEnterprise_Eb2cGiftwrap_Helper_Data */
-	protected $_helper;
+    /** @var EbayEnterprise_MageLog_Helper_Data */
+    protected $_logger;
+    /** @var EbayEnterprise_Eb2cGiftwrap_Helper_Data */
+    protected $_helper;
 
-	public function __construct($args = array())
-	{
-		list(
-			$this->_logger,
-			$this->_helper,
-		) = $this->_checkTypes(
-			$this->_nullCoalesce('logger', $args, Mage::helper('ebayenterprise_magelog')),
-			$this->_nullCoalesce('helper', $args, Mage::helper('eb2cgiftwrap'))
-		);
-	}
+    public function __construct($args = array())
+    {
+        list(
+            $this->_logger,
+            $this->_helper,
+        ) = $this->_checkTypes(
+            $this->_nullCoalesce('logger', $args, Mage::helper('ebayenterprise_magelog')),
+            $this->_nullCoalesce('helper', $args, Mage::helper('eb2cgiftwrap'))
+        );
+    }
 
-	/**
-	 * enforce injected types
-	 * @param  EbayEnterprise_MageLog_Helper_Data
-	 * @param  EbayEnterprise_Eb2cGiftwrap_Helper_Data
-	 * @return array
-	 */
-	protected function _checkTypes(
-		EbayEnterprise_MageLog_Helper_Data $logger,
-		EbayEnterprise_Eb2cGiftwrap_Helper_Data $helper
-	) {
-		return array($logger, $helper);
-	}
+    /**
+     * enforce injected types
+     * @param  EbayEnterprise_MageLog_Helper_Data
+     * @param  EbayEnterprise_Eb2cGiftwrap_Helper_Data
+     * @return array
+     */
+    protected function _checkTypes(
+        EbayEnterprise_MageLog_Helper_Data $logger,
+        EbayEnterprise_Eb2cGiftwrap_Helper_Data $helper
+    ) {
+        return array($logger, $helper);
+    }
 
-	protected function _nullCoalesce($key, array $arr, $default=null)
-	{
-		return isset($arr[$key]) ? $arr[$key] : $default;
-	}
+    protected function _nullCoalesce($key, array $arr, $default = null)
+    {
+        return isset($arr[$key]) ? $arr[$key] : $default;
+    }
 
-	public function injectGifting(
-		Varien_Object $giftingItem,
-		IGifting $giftingPayload
-	) {
-		$this->_addEnvelopeInfo($giftingPayload, $giftingItem)
-			->_addGiftWrapItem($giftingPayload, $giftingItem)
-			->_addGiftWrapPricing($giftingPayload, $giftingItem);
-		return $this;
-	}
+    public function injectGifting(
+        Varien_Object $giftingItem,
+        IGifting $giftingPayload
+    ) {
+        $this->_addEnvelopeInfo($giftingPayload, $giftingItem)
+            ->_addGiftWrapItem($giftingPayload, $giftingItem)
+            ->_addGiftWrapPricing($giftingPayload, $giftingItem);
+        return $this;
+    }
 
-	/**
-	 * add giftwrap/giftcard pricing to the payload
-	 * @param  IGifting
-	 * @param  Varien_Object
-	 * @return self
-	 */
-	protected function _addGiftWrapPricing(IGifting $giftingPayload, Varien_Object $giftingItem)
-	{
-		$gwPrice = $giftingItem->getGwPrice();
-		$gwCardPrice = $giftingItem->getGwCardPrice();
-		if ($gwPrice || $gwCardPrice) {
-			$amount = $this->_helper->calculateGwItemRowTotal($giftingItem);
-			$pg = $this->_getPriceGroup($giftingPayload);
-			$pg->setAmount($amount)
-				->setUnitPrice($gwPrice + $gwCardPrice);
-		}
-		return $this;
-	}
-	/**
-	 * get the gifting pricegroup; a new price group is created
-	 * and attached if one doesn't exist.
-	 * @param  IGifting
-	 * @return IPriceGroup
-	 */
-	protected function _getPriceGroup(IGifting $giftingPayload)
-	{
-		$pg = $giftingPayload->getGiftPricing();
-		if (!$pg) {
-			$pg = $giftingPayload->getEmptyGiftingPriceGroup();
-			$giftingPayload->setGiftPricing($pg);
-		}
-		return $pg;
-	}
-	/**
-	 * add the sku for the chosen gift wrapping
-	 * @param  IGifting
-	 * @param  Varien_Object
-	 * @return self
-	 */
-	protected function _addGiftWrapItem(IGifting $giftingPayload, Varien_Object $giftingItem)
-	{
-		$giftWrapId = $giftingItem->getGwId();
-		if ($giftWrapId) {
-			$giftwrap = Mage::getModel('enterprise_giftwrapping/wrapping')->load($giftWrapId);
-			$giftingPayload
-				->setGiftItemId($giftwrap->getEb2cSku())
-				->setIncludeGiftWrapping(true);
-			$this->_getPriceGroup($giftingPayload)
-				->setTaxClass($giftwrap->getEb2cTaxClass());
-		}
-		return $this;
-	}
+    /**
+     * add giftwrap/giftcard pricing to the payload
+     * @param  IGifting
+     * @param  Varien_Object
+     * @return self
+     */
+    protected function _addGiftWrapPricing(IGifting $giftingPayload, Varien_Object $giftingItem)
+    {
+        $gwPrice = $giftingItem->getGwPrice();
+        $gwCardPrice = $giftingItem->getGwCardPrice();
+        if ($gwPrice || $gwCardPrice) {
+            $amount = $this->_helper->calculateGwItemRowTotal($giftingItem);
+            $pg = $this->_getPriceGroup($giftingPayload);
+            $pg->setAmount($amount)
+                ->setUnitPrice($gwPrice + $gwCardPrice);
+        }
+        return $this;
+    }
+    /**
+     * get the gifting pricegroup; a new price group is created
+     * and attached if one doesn't exist.
+     * @param  IGifting
+     * @return IPriceGroup
+     */
+    protected function _getPriceGroup(IGifting $giftingPayload)
+    {
+        $pg = $giftingPayload->getGiftPricing();
+        if (!$pg) {
+            $pg = $giftingPayload->getEmptyGiftingPriceGroup();
+            $giftingPayload->setGiftPricing($pg);
+        }
+        return $pg;
+    }
+    /**
+     * add the sku for the chosen gift wrapping
+     * @param  IGifting
+     * @param  Varien_Object
+     * @return self
+     */
+    protected function _addGiftWrapItem(IGifting $giftingPayload, Varien_Object $giftingItem)
+    {
+        $giftWrapId = $giftingItem->getGwId();
+        if ($giftWrapId) {
+            $giftwrap = Mage::getModel('enterprise_giftwrapping/wrapping')->load($giftWrapId);
+            $giftingPayload
+                ->setGiftItemId($giftwrap->getEb2cSku())
+                ->setIncludeGiftWrapping(true);
+            $this->_getPriceGroup($giftingPayload)
+                ->setTaxClass($giftwrap->getEb2cTaxClass());
+        }
+        return $this;
+    }
 
-	/**
-	 * add the gift sender, recipient and message to payload
-	 * @param  IGifting
-	 * @param  Varien_Object
-	 * @return self
-	 */
-	protected function _addEnvelopeInfo(IGifting $giftingPayload, Varien_Object $giftingItem)
-	{
-		$messageId = $giftingItem->getGiftMessageId();
-		if ($messageId) {
-			$message = Mage::getModel('giftmessage/message')->load($messageId);
-			if ($giftingItem->getGwAddCard()) {
-				$this->_addAsGiftCard($giftingPayload, $message);
-			} else {
-				$this->_addAsPackSlip($giftingPayload, $message);
-			}
-		}
-		return $this;
-	}
+    /**
+     * add the gift sender, recipient and message to payload
+     * @param  IGifting
+     * @param  Varien_Object
+     * @return self
+     */
+    protected function _addEnvelopeInfo(IGifting $giftingPayload, Varien_Object $giftingItem)
+    {
+        $messageId = $giftingItem->getGiftMessageId();
+        if ($messageId) {
+            $message = Mage::getModel('giftmessage/message')->load($messageId);
+            if ($giftingItem->getGwAddCard()) {
+                $this->_addAsGiftCard($giftingPayload, $message);
+            } else {
+                $this->_addAsPackSlip($giftingPayload, $message);
+            }
+        }
+        return $this;
+    }
 
-	/**
-	 * add envelope information as a gift card
-	 * @param IGifting
-	 * @param Mage_GiftMessage_Model_Message
-	 */
-	protected function _addAsGiftCard(IGifting $giftingPayload, Mage_GiftMessage_Model_Message $message)
-	{
-		$giftingPayload
-			->setLocalizedToLabel($this->_helper->__('To'))
-			->setLocalizedFromLabel($this->_helper->__('From'))
-			->setGiftCardTo($message->getRecipient())
-			->setGiftCardFrom($message->getSender())
-			->setGiftCardMessage($message->getMessage());
-	}
+    /**
+     * add envelope information as a gift card
+     * @param IGifting
+     * @param Mage_GiftMessage_Model_Message
+     */
+    protected function _addAsGiftCard(IGifting $giftingPayload, Mage_GiftMessage_Model_Message $message)
+    {
+        $giftingPayload
+            ->setLocalizedToLabel($this->_helper->__('To'))
+            ->setLocalizedFromLabel($this->_helper->__('From'))
+            ->setGiftCardTo($message->getRecipient())
+            ->setGiftCardFrom($message->getSender())
+            ->setGiftCardMessage($message->getMessage());
+    }
 
-	/**
-	 * add envelope information as a pack slip
-	 * @param IGifting
-	 * @param Mage_GiftMessage_Model_Message
-	 */
-	protected function _addAsPackSlip(IGifting $giftingPayload, Mage_GiftMessage_Model_Message $message)
-	{
-		$giftingPayload
-			->setLocalizedToLabel($this->_helper->__('To'))
-			->setLocalizedFromLabel($this->_helper->__('From'))
-			->setPackSlipTo($message->getRecipient())
-			->setPackSlipFrom($message->getSender())
-			->setPackSlipMessage($message->getMessage());
-	}
+    /**
+     * add envelope information as a pack slip
+     * @param IGifting
+     * @param Mage_GiftMessage_Model_Message
+     */
+    protected function _addAsPackSlip(IGifting $giftingPayload, Mage_GiftMessage_Model_Message $message)
+    {
+        $giftingPayload
+            ->setLocalizedToLabel($this->_helper->__('To'))
+            ->setLocalizedFromLabel($this->_helper->__('From'))
+            ->setPackSlipTo($message->getRecipient())
+            ->setPackSlipFrom($message->getSender())
+            ->setPackSlipMessage($message->getMessage());
+    }
 }

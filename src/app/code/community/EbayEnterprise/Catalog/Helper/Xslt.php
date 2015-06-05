@@ -15,20 +15,20 @@
 
 class EbayEnterprise_Catalog_Helper_Xslt
 {
-	/**
-	 * This is a callback to add additional template handling for configurable
-	 * variables that XSLT 1.0 just doesn't do.
-	 * @param DOMDocument $xslDoc        XSLT document
-	 * @param array       $websiteFilter website filter data
-	 */
-	public function xslCallBack(DOMDocument $xslDoc, array $websiteFilter)
-	{
-		$helper = Mage::helper('ebayenterprise_catalog');
-		foreach( array('Item', 'PricePerItem', 'Content') as $nodeToMatch) {
-			$helper->appendXslTemplateMatchNode($xslDoc, "/*/{$nodeToMatch}[(@catalog_id and @catalog_id!='{$websiteFilter['catalog_id']}')]");
-			$helper->appendXslTemplateMatchNode($xslDoc, "/*/{$nodeToMatch}[(@gsi_client_id and @gsi_client_id!='{$websiteFilter['client_id']}')]");
-			$helper->appendXslTemplateMatchNode($xslDoc, "/*/{$nodeToMatch}[(@gsi_store_id and @gsi_store_id!='{$websiteFilter['store_id']}')]");
-		}
-		$xslDoc->loadXML($xslDoc->saveXML());
-	}
+    /**
+     * This is a callback to add additional template handling for configurable
+     * variables that XSLT 1.0 just doesn't do.
+     * @param DOMDocument $xslDoc        XSLT document
+     * @param array       $websiteFilter website filter data
+     */
+    public function xslCallBack(DOMDocument $xslDoc, array $websiteFilter)
+    {
+        $helper = Mage::helper('ebayenterprise_catalog');
+        foreach (array('Item', 'PricePerItem', 'Content') as $nodeToMatch) {
+            $helper->appendXslTemplateMatchNode($xslDoc, "/*/{$nodeToMatch}[(@catalog_id and @catalog_id!='{$websiteFilter['catalog_id']}')]");
+            $helper->appendXslTemplateMatchNode($xslDoc, "/*/{$nodeToMatch}[(@gsi_client_id and @gsi_client_id!='{$websiteFilter['client_id']}')]");
+            $helper->appendXslTemplateMatchNode($xslDoc, "/*/{$nodeToMatch}[(@gsi_store_id and @gsi_store_id!='{$websiteFilter['store_id']}')]");
+        }
+        $xslDoc->loadXML($xslDoc->saveXML());
+    }
 }

@@ -20,96 +20,97 @@ use eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateRequest;
  */
 class EbayEnterprise_Tax_Model_Order_Create_Order
 {
-	/** @var EbayEnterprise_Tax_Model_Collector  */
-	protected $_taxCollector;
-	/** @var IOrderCreateRequest */
-	protected $_orderCreateRequest;
+    /** @var EbayEnterprise_Tax_Model_Collector  */
+    protected $_taxCollector;
+    /** @var IOrderCreateRequest */
+    protected $_orderCreateRequest;
 
-	/**
-	 * @param array $args Must contain key/value for:
-	 *                         - order_create_request => eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateRequest
-	 *                         May contain key/value for:
-	 *                         - tax_collector => EbayEnterprise_Tax_Model_Collector
-	 */
-	public function __construct(array $args=[])
-	{
-		list(
-			$this->_taxCollector,
-			$this->_orderCreateRequest
-		) = $this->_checkTypes(
-			$this->_nullCoalesce($args, 'tax_collector', Mage::getModel('ebayenterprise_tax/collector')),
-			$args['order_create_request']
-		);
-	}
+    /**
+     * @param array $args Must contain key/value for:
+     *                         - order_create_request => eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateRequest
+     *                         May contain key/value for:
+     *                         - tax_collector => EbayEnterprise_Tax_Model_Collector
+     */
+    public function __construct(array $args = [])
+    {
+        list(
+            $this->_taxCollector,
+            $this->_orderCreateRequest
+        ) = $this->_checkTypes(
+            $this->_nullCoalesce($args, 'tax_collector', Mage::getModel('ebayenterprise_tax/collector')),
+            $args['order_create_request']
+        );
+    }
 
-	/**
-	 * Enforce type checks on construct args array.
-	 *
-	 * @param EbayEnterprise_Tax_Model_Collector
-	 * @param Mage_Sales_Model_Order
-	 * @param IOrderCreateRequest
-	 * @return array
-	 */
-	protected function _checkTypes(
-		EbayEnterprise_Tax_Model_Collector $taxCollector,
-		IOrderCreateRequest $orderCreateRequest
-	) {
-		return [$taxCollector, $orderCreateRequest];
-	}
+    /**
+     * Enforce type checks on construct args array.
+     *
+     * @param EbayEnterprise_Tax_Model_Collector
+     * @param Mage_Sales_Model_Order
+     * @param IOrderCreateRequest
+     * @return array
+     */
+    protected function _checkTypes(
+        EbayEnterprise_Tax_Model_Collector $taxCollector,
+        IOrderCreateRequest $orderCreateRequest
+    ) {
+        return [$taxCollector, $orderCreateRequest];
+    }
 
-	/**
-	 * Fill in default values.
-	 *
-	 * @param string
-	 * @param array
-	 * @param mixed
-	 * @return mixed
-	 */
-	protected function _nullCoalesce(array $arr, $key, $default)
-	{
-		return isset($arr[$key]) ? $arr[$key] : $default;
-	}
+    /**
+     * Fill in default values.
+     *
+     * @param string
+     * @param array
+     * @param mixed
+     * @return mixed
+     */
+    protected function _nullCoalesce(array $arr, $key, $default)
+    {
+        return isset($arr[$key]) ? $arr[$key] : $default;
+    }
 
-	/**
-	 * Set the tax has errors flag on the order create request if the tax
-	 * collector or any of the collected tax records contain an error.
-	 *
-	 * @param  IOrderCreateRequest
-	 * @param  Mage_Sales_Model_Order
-	 * @return self
-	 */
-	public function addTaxHeaderErrorFlag() {
-		// This may be made cleaner by just setting the flag to the result
-		// of this condition but it is unclear if not setting the flag is the
-		// same as setting the flag to false.
-		if ($this->_taxCollectorHasErrors() || $this->_itemsHaveErrors()) {
-			$this->_orderCreateRequest->setTaxHasErrors(true);
-		}
-		return $this;
-	}
+    /**
+     * Set the tax has errors flag on the order create request if the tax
+     * collector or any of the collected tax records contain an error.
+     *
+     * @param  IOrderCreateRequest
+     * @param  Mage_Sales_Model_Order
+     * @return self
+     */
+    public function addTaxHeaderErrorFlag()
+    {
+        // This may be made cleaner by just setting the flag to the result
+        // of this condition but it is unclear if not setting the flag is the
+        // same as setting the flag to false.
+        if ($this->_taxCollectorHasErrors() || $this->_itemsHaveErrors()) {
+            $this->_orderCreateRequest->setTaxHasErrors(true);
+        }
+        return $this;
+    }
 
-	/**
-	 * Determine if there were any errors in collecting tax records.
-	 *
-	 * @return bool
-	 */
-	protected function _taxCollectorHasErrors()
-	{
-		return !$this->_taxCollector->getTaxRequestSuccess();
-	}
+    /**
+     * Determine if there were any errors in collecting tax records.
+     *
+     * @return bool
+     */
+    protected function _taxCollectorHasErrors()
+    {
+        return !$this->_taxCollector->getTaxRequestSuccess();
+    }
 
-	/**
-	 * Check if there are any errors in the taxes.
-	 * @param  Mage_Sales_Model_Order_Address
-	 * @return bool
-	 */
-	protected function _itemsHaveErrors()
-	{
-		foreach ($this->_taxCollector->getTaxDuties() as $duty) {
-			if ($duty->getCalculationError()) {
-				return true;
-			}
-		}
-		return false;
-	}
+    /**
+     * Check if there are any errors in the taxes.
+     * @param  Mage_Sales_Model_Order_Address
+     * @return bool
+     */
+    protected function _itemsHaveErrors()
+    {
+        foreach ($this->_taxCollector->getTaxDuties() as $duty) {
+            if ($duty->getCalculationError()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

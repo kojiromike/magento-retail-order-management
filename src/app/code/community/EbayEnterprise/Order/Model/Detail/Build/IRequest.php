@@ -15,12 +15,12 @@
 
 interface EbayEnterprise_Order_Model_Detail_Build_IRequest
 {
-	const DEFAULT_ORDER_DETAIL_SEARCH_TYPE = 'SALES';
+    const DEFAULT_ORDER_DETAIL_SEARCH_TYPE = 'SALES';
 
-	/**
-	 * Build the order summary request payload.
-	 *
-	 * @return IOrderDetailRequest
-	 */
-	public function build();
+    /**
+     * Build the order summary request payload.
+     *
+     * @return IOrderDetailRequest
+     */
+    public function build();
 }

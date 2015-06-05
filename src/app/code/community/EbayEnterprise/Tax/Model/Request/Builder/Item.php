@@ -19,307 +19,309 @@ use eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IDiscountContainer;
 
 class EbayEnterprise_Tax_Model_Request_Builder_Item
 {
-	/** @var IOrderItemRequestIterable */
-	protected $_orderItemIterable;
-	/** @var IOrderItemRequest */
-	protected $_orderItem;
-	/** @var Mage_Sales_Model_Quote_Address */
-	protected $_address;
-	/** @var Mage_Sales_Model_Quote_Item_Abstract */
-	protected $_item;
-	/** @var Mage_Catalog_Model_Product */
-	protected $_itemProduct;
-	/** @var EbayEnterprise_Tax_Helper_Data */
-	protected $_taxHelper;
-	/** @var EbayEnterprise_Tax_Helper_Payload */
-	protected $_payloadHelper;
-	/** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
-	protected $_taxConfig;
-	/** @var EbayEnterprise_Eb2cCore_Helper_Discount */
-	protected $_discountHelper;
-	/** @var EbayEnterprise_MageLog_Helper_Data */
-	protected $_logger;
-	/** @var EbayEnterprise_MageLog_Helper_Context */
-	protected $_logContext;
+    /** @var IOrderItemRequestIterable */
+    protected $_orderItemIterable;
+    /** @var IOrderItemRequest */
+    protected $_orderItem;
+    /** @var Mage_Sales_Model_Quote_Address */
+    protected $_address;
+    /** @var Mage_Sales_Model_Quote_Item_Abstract */
+    protected $_item;
+    /** @var Mage_Catalog_Model_Product */
+    protected $_itemProduct;
+    /** @var EbayEnterprise_Tax_Helper_Data */
+    protected $_taxHelper;
+    /** @var EbayEnterprise_Tax_Helper_Payload */
+    protected $_payloadHelper;
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $_taxConfig;
+    /** @var EbayEnterprise_Eb2cCore_Helper_Discount */
+    protected $_discountHelper;
+    /** @var EbayEnterprise_MageLog_Helper_Data */
+    protected $_logger;
+    /** @var EbayEnterprise_MageLog_Helper_Context */
+    protected $_logContext;
 
-	/**
-	 * @param array $args Must contain key/value for:
-	 *                         - order_item_iterable => eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IOrderItemRequestIterable
-	 *                         - address => Mage_Sales_Model_Quote_Address
-	 *                         - item => Mage_Sales_Model_Quote_Item_Abstract
-	 *                         May contain key/value for:
-	 *                         - tax_helper => EbayEnterprise_Tax_Helper_Data
-	 *                         - payload_helper => EbayEnterprise_Tax_Helper_Payload
-	 *                         - tax_config => EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 *                         - discount_helper => EbayEnterprise_Eb2cCore_Helper_Discount
-	 *                         - logger => EbayEnterprise_MageLog_Helper_Data
-	 *                         - log_context => EbayEnterprise_MageLog_Helper_Context
-	 */
-	public function __construct(array $args)
-	{
-		list(
-			$this->_orderItemIterable,
-			$this->_address,
-			$this->_item,
-			$this->_taxHelper,
-			$this->_payloadHelper,
-			$this->_taxConfig,
-			$this->_discountHelper,
-			$this->_logger,
-			$this->_logContext
-		) = $this->_checkTypes(
-			$args['order_item_iterable'],
-			$args['address'],
-			$args['item'],
-			$this->_nullCoalesce($args, 'tax_helper', Mage::helper('ebayenterprise_tax')),
-			$this->_nullCoalesce($args, 'payload_helper', Mage::helper('ebayenterprise_tax/payload')),
-			$this->_nullCoalesce($args, 'tax_config', Mage::helper('ebayenterprise_tax')->getConfigModel()),
-			$this->_nullCoalesce($args, 'discount_helper', Mage::helper('eb2ccore/discount')),
-			$this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
-			$this->_nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
-		);
-		$this->_itemProduct = $this->_item->getProduct()
-			?: Mage::getModel('catalog/product')->load($this->_item->getProductId());
-		$this->_orderItem = $this->_orderItemIterable->getEmptyOrderItem();
-		$this->_populateRequest();
-	}
+    /**
+     * @param array $args Must contain key/value for:
+     *                         - order_item_iterable => eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IOrderItemRequestIterable
+     *                         - address => Mage_Sales_Model_Quote_Address
+     *                         - item => Mage_Sales_Model_Quote_Item_Abstract
+     *                         May contain key/value for:
+     *                         - tax_helper => EbayEnterprise_Tax_Helper_Data
+     *                         - payload_helper => EbayEnterprise_Tax_Helper_Payload
+     *                         - tax_config => EbayEnterprise_Eb2cCore_Model_Config_Registry
+     *                         - discount_helper => EbayEnterprise_Eb2cCore_Helper_Discount
+     *                         - logger => EbayEnterprise_MageLog_Helper_Data
+     *                         - log_context => EbayEnterprise_MageLog_Helper_Context
+     */
+    public function __construct(array $args)
+    {
+        list(
+            $this->_orderItemIterable,
+            $this->_address,
+            $this->_item,
+            $this->_taxHelper,
+            $this->_payloadHelper,
+            $this->_taxConfig,
+            $this->_discountHelper,
+            $this->_logger,
+            $this->_logContext
+        ) = $this->_checkTypes(
+            $args['order_item_iterable'],
+            $args['address'],
+            $args['item'],
+            $this->_nullCoalesce($args, 'tax_helper', Mage::helper('ebayenterprise_tax')),
+            $this->_nullCoalesce($args, 'payload_helper', Mage::helper('ebayenterprise_tax/payload')),
+            $this->_nullCoalesce($args, 'tax_config', Mage::helper('ebayenterprise_tax')->getConfigModel()),
+            $this->_nullCoalesce($args, 'discount_helper', Mage::helper('eb2ccore/discount')),
+            $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
+            $this->_nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
+        );
+        $this->_itemProduct = $this->_item->getProduct()
+            ?: Mage::getModel('catalog/product')->load($this->_item->getProductId());
+        $this->_orderItem = $this->_orderItemIterable->getEmptyOrderItem();
+        $this->_populateRequest();
+    }
 
-	/**
-	 * Enforce type checks on constructor args array.
-	 *
-	 * @param IOrderItemRequestIterable
-	 * @param Mage_Sales_Model_Quote_Address
-	 * @param Mage_Sales_Model_Quote_Item_Abstract
-	 * @param EbayEnterprise_Tax_Helper_Data
-	 * @param EbayEnterprise_Tax_Helper_Payload
-	 * @param EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 * @param EbayEnterprise_Eb2cCore_Helper_Discount
-	 * @param EbayEnterprise_MageLog_Helper_Data
-	 * @param EbayEnterprise_MageLog_Helper_Context
-	 * @return array
-	 */
-	protected function _checkTypes(
-		IOrderItemRequestIterable $orderItemIterable,
-		Mage_Sales_Model_Quote_Address $address,
-		Mage_Sales_Model_Quote_Item_Abstract $item,
-		EbayEnterprise_Tax_Helper_Data $taxHelper,
-		EbayEnterprise_Tax_Helper_Payload $payloadHelper,
-		EbayEnterprise_Eb2cCore_Model_Config_Registry $taxConfig,
-		EbayEnterprise_Eb2cCore_Helper_Discount $discountHelper,
-		EbayEnterprise_MageLog_Helper_Data $logger,
-		EbayEnterprise_MageLog_Helper_Context $logContext
-	) {
-		return [
-			$orderItemIterable,
-			$address,
-			$item,
-			$taxHelper,
-			$payloadHelper,
-			$taxConfig,
-			$discountHelper,
-			$logger,
-			$logContext,
-		];
-	}
+    /**
+     * Enforce type checks on constructor args array.
+     *
+     * @param IOrderItemRequestIterable
+     * @param Mage_Sales_Model_Quote_Address
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @param EbayEnterprise_Tax_Helper_Data
+     * @param EbayEnterprise_Tax_Helper_Payload
+     * @param EbayEnterprise_Eb2cCore_Model_Config_Registry
+     * @param EbayEnterprise_Eb2cCore_Helper_Discount
+     * @param EbayEnterprise_MageLog_Helper_Data
+     * @param EbayEnterprise_MageLog_Helper_Context
+     * @return array
+     */
+    protected function _checkTypes(
+        IOrderItemRequestIterable $orderItemIterable,
+        Mage_Sales_Model_Quote_Address $address,
+        Mage_Sales_Model_Quote_Item_Abstract $item,
+        EbayEnterprise_Tax_Helper_Data $taxHelper,
+        EbayEnterprise_Tax_Helper_Payload $payloadHelper,
+        EbayEnterprise_Eb2cCore_Model_Config_Registry $taxConfig,
+        EbayEnterprise_Eb2cCore_Helper_Discount $discountHelper,
+        EbayEnterprise_MageLog_Helper_Data $logger,
+        EbayEnterprise_MageLog_Helper_Context $logContext
+    ) {
+        return [
+            $orderItemIterable,
+            $address,
+            $item,
+            $taxHelper,
+            $payloadHelper,
+            $taxConfig,
+            $discountHelper,
+            $logger,
+            $logContext,
+        ];
+    }
 
-	/**
-	 * Fill in default values.
-	 *
-	 * @param string
-	 * @param array
-	 * @param mixed
-	 * @return mixed
-	 */
-	protected function _nullCoalesce(array $arr, $key, $default)
-	{
-		return isset($arr[$key]) ? $arr[$key] : $default;
-	}
+    /**
+     * Fill in default values.
+     *
+     * @param string
+     * @param array
+     * @param mixed
+     * @return mixed
+     */
+    protected function _nullCoalesce(array $arr, $key, $default)
+    {
+        return isset($arr[$key]) ? $arr[$key] : $default;
+    }
 
-	/**
-	 * Get the order item payload for the item.
-	 *
-	 * @return IOrderItemRequest|null
-	 */
-	public function getOrderItemPayload()
-	{
-		return $this->_orderItem;
-	}
+    /**
+     * Get the order item payload for the item.
+     *
+     * @return IOrderItemRequest|null
+     */
+    public function getOrderItemPayload()
+    {
+        return $this->_orderItem;
+    }
 
-	/**
-	 * Create an order item payload and inject it with data from the item.
-	 *
-	 * @return self
-	 */
-	protected function _populateRequest()
-	{
-		return $this->_injectItemData()
-			->_injectOriginData()
-			->_injectPricingData()
-			->_injectGiftingData();
-	}
+    /**
+     * Create an order item payload and inject it with data from the item.
+     *
+     * @return self
+     */
+    protected function _populateRequest()
+    {
+        return $this->_injectItemData()
+            ->_injectOriginData()
+            ->_injectPricingData()
+            ->_injectGiftingData();
+    }
 
-	/**
-	 * Inject general item data into the order item payload.
-	 *
-	 * @return self
-	 */
-	protected function _injectItemData()
-	{
-		$this->_orderItem
-			->setLineNumber($this->_item->getId())
-			->setItemId($this->_item->getSku())
-			->setQuantity((int) $this->_item->getQty())
-			->setDescription($this->_item->getName())
-			->setHtsCode($this->_taxHelper->getProductHtsCodeByCountry($this->_itemProduct, $this->_address->getCountryId()))
-			->setManufacturingCountryCode($this->_itemProduct->getCountryOfManufacture());
-		return $this;
-	}
+    /**
+     * Inject general item data into the order item payload.
+     *
+     * @return self
+     */
+    protected function _injectItemData()
+    {
+        $this->_orderItem
+            ->setLineNumber($this->_item->getId())
+            ->setItemId($this->_item->getSku())
+            ->setQuantity((int) $this->_item->getQty())
+            ->setDescription($this->_item->getName())
+            ->setHtsCode($this->_taxHelper->getProductHtsCodeByCountry($this->_itemProduct, $this->_address->getCountryId()))
+            ->setManufacturingCountryCode($this->_itemProduct->getCountryOfManufacture());
+        return $this;
+    }
 
-	/**
-	 * Add admin and shipping origin data to the item payload.
-	 *
-	 * @return self
-	 */
-	protected function _injectOriginData()
-	{
-		// Admin origin set in configuration.
-		$adminOrigin = Mage::getModel('customer/address', [
-			'street' => rtrim(
-				implode([
-					$this->_taxConfig->adminOriginLine1,
-					$this->_taxConfig->adminOriginLine2,
-					$this->_taxConfig->adminOriginLine3,
-					$this->_taxConfig->adminOriginLine4
-				]),
-				"\n"
-			),
-			'city' => $this->_taxConfig->adminOriginCity,
-			'region_id' => $this->_taxConfig->adminOriginMainDivision,
-			'country_id' => $this->_taxConfig->adminOriginCountryCode,
-			'postcode' => $this->_taxConfig->adminOriginPostalCode,
-		]);
+    /**
+     * Add admin and shipping origin data to the item payload.
+     *
+     * @return self
+     */
+    protected function _injectOriginData()
+    {
+        // Admin origin set in configuration.
+        $adminOrigin = Mage::getModel('customer/address', [
+            'street' => rtrim(
+                implode([
+                    $this->_taxConfig->adminOriginLine1,
+                    $this->_taxConfig->adminOriginLine2,
+                    $this->_taxConfig->adminOriginLine3,
+                    $this->_taxConfig->adminOriginLine4
+                ]),
+                "\n"
+            ),
+            'city' => $this->_taxConfig->adminOriginCity,
+            'region_id' => $this->_taxConfig->adminOriginMainDivision,
+            'country_id' => $this->_taxConfig->adminOriginCountryCode,
+            'postcode' => $this->_taxConfig->adminOriginPostalCode,
+        ]);
 
-		// Shipping origin may be set on order items if this information has been
-		// retrieved from ROM services. When not available, default to the same
-		// address set as the admin origin.
-		$shippingOrigin = $this->_itemHasShippingOrigin()
-			? Mage::getModel('customer/address', [
-				'street' => rtrim(
-					implode([
-						$this->_item->getEb2cShipFromAddressLine1(),
-						$this->_item->getEb2cShipFromAddressLine2(),
-						$this->_item->getEb2cShipFromAddressLine3(),
-						$this->_item->getEb2cShipFromAddressLine4()
-					]),
-					"\n"
-				),
-				'city' => $this->_item->getEb2cShipFromAddressCity(),
-				'region_id' => $this->_item->getEb2cShipFromAddressMainDivision(),
-				'country_id' => $this->_item->getEb2cShipFromAddressCountryCode(),
-				'postcode' => $this->_item->getEb2cShipFromAddressPostalCode(),
-			])
-			: $adminOrigin;
+        // Shipping origin may be set on order items if this information has been
+        // retrieved from ROM services. When not available, default to the same
+        // address set as the admin origin.
+        $shippingOrigin = $this->_itemHasShippingOrigin()
+            ? Mage::getModel('customer/address', [
+                'street' => rtrim(
+                    implode([
+                        $this->_item->getEb2cShipFromAddressLine1(),
+                        $this->_item->getEb2cShipFromAddressLine2(),
+                        $this->_item->getEb2cShipFromAddressLine3(),
+                        $this->_item->getEb2cShipFromAddressLine4()
+                    ]),
+                    "\n"
+                ),
+                'city' => $this->_item->getEb2cShipFromAddressCity(),
+                'region_id' => $this->_item->getEb2cShipFromAddressMainDivision(),
+                'country_id' => $this->_item->getEb2cShipFromAddressCountryCode(),
+                'postcode' => $this->_item->getEb2cShipFromAddressPostalCode(),
+            ])
+            : $adminOrigin;
 
-		$this->_orderItem
-			->setAdminOrigin($this->_payloadHelper->customerAddressToPhysicalAddressPayload(
-					$adminOrigin, $this->_orderItem->getAdminOrigin()
-			))
-			->setShippingOrigin($this->_payloadHelper->customerAddressToPhysicalAddressPayload(
-					$shippingOrigin, $this->_orderItem->getShippingOrigin()
-			));
-		return $this;
-	}
+        $this->_orderItem
+            ->setAdminOrigin($this->_payloadHelper->customerAddressToPhysicalAddressPayload(
+                $adminOrigin,
+                $this->_orderItem->getAdminOrigin()
+            ))
+            ->setShippingOrigin($this->_payloadHelper->customerAddressToPhysicalAddressPayload(
+                $shippingOrigin,
+                $this->_orderItem->getShippingOrigin()
+            ));
+        return $this;
+    }
 
-	/**
-	 * Inject gifting data for the item.
-	 *
-	 * @return self
-	 */
-	protected function _injectGiftingData()
-	{
-		if ($this->_itemHasGifting()) {
-			// Given payload will be updated to include gifting data from the
-			// item, so no need to handle the return value as the side-effects
-			// of the method will accomplish all that is needed to add gifting
-			// data to the payload.
-			$this->_payloadHelper->giftingItemToGiftingPayload($this->_item, $this->_orderItem);
-		}
-		return $this;
-	}
+    /**
+     * Inject gifting data for the item.
+     *
+     * @return self
+     */
+    protected function _injectGiftingData()
+    {
+        if ($this->_itemHasGifting()) {
+            // Given payload will be updated to include gifting data from the
+            // item, so no need to handle the return value as the side-effects
+            // of the method will accomplish all that is needed to add gifting
+            // data to the payload.
+            $this->_payloadHelper->giftingItemToGiftingPayload($this->_item, $this->_orderItem);
+        }
+        return $this;
+    }
 
-	/**
-	 * Add pricing data for the item to the item payload.
-	 *
-	 * @return self
-	 */
-	protected function _injectPricingData()
-	{
-		$merchandisePricing = $this->_orderItem->getEmptyMerchandisePriceGroup()
-			->setUnitPrice($this->_item->getPrice())
-			->setAmount($this->_item->getRowTotal())
-			->setTaxClass($this->_itemProduct->getTaxCode());
-		$this->_discountHelper->transferTaxDiscounts($this->_item, $merchandisePricing);
-		$this->_orderItem->setMerchandisePricing($merchandisePricing);
+    /**
+     * Add pricing data for the item to the item payload.
+     *
+     * @return self
+     */
+    protected function _injectPricingData()
+    {
+        $merchandisePricing = $this->_orderItem->getEmptyMerchandisePriceGroup()
+            ->setUnitPrice($this->_item->getPrice())
+            ->setAmount($this->_item->getRowTotal())
+            ->setTaxClass($this->_itemProduct->getTaxCode());
+        $this->_discountHelper->transferTaxDiscounts($this->_item, $merchandisePricing);
+        $this->_orderItem->setMerchandisePricing($merchandisePricing);
 
-		// This will be set by the parent address when initially creating the
-		// item request builder. Each ship group should include shipping on
-		// only one item in the ship group for address level shipping totals.
-		if ($this->_item->getIncludeShippingTotals()) {
-			$shippingPricing = $this->_orderItem->getEmptyShippingPriceGroup()
-				->setAmount($this->_address->getShippingAmount())
-				->setTaxClass($this->_taxConfig->shippingTaxClass);
-			$this->_addShippingDiscount($shippingPricing);
-			$this->_orderItem->setShippingPricing($shippingPricing);
-		}
-		return $this;
-	}
+        // This will be set by the parent address when initially creating the
+        // item request builder. Each ship group should include shipping on
+        // only one item in the ship group for address level shipping totals.
+        if ($this->_item->getIncludeShippingTotals()) {
+            $shippingPricing = $this->_orderItem->getEmptyShippingPriceGroup()
+                ->setAmount($this->_address->getShippingAmount())
+                ->setTaxClass($this->_taxConfig->shippingTaxClass);
+            $this->_addShippingDiscount($shippingPricing);
+            $this->_orderItem->setShippingPricing($shippingPricing);
+        }
+        return $this;
+    }
 
-	/**
-	 * Add discounts for shipping discount amount.
-	 *
-	 * Does not use the eb2ccore/discount helper as shipping discount
-	 * data may not have been collected to be used by the helper - both
-	 * use the same event so order between the two cannot be guarantted
-	 * without introducing a hard dependency. In this case, however,
-	 * discount data is simple enough to collect independently.
-	 *
-	 * @param ITaxDiscountContainer
-	 * @return ITaxDiscountContainer
-	 */
-	protected function _addShippingDiscount(IDiscountContainer $discountContainer)
-	{
-		$shippingDiscountAmount = $this->_address->getShippingDiscountAmount();
-		if ($shippingDiscountAmount) {
-			$discounts = $discountContainer->getDiscounts();
-			$shippingDiscount = $discounts->getEmptyDiscount()
-				->setAmount($shippingDiscountAmount);
-			$discounts[$shippingDiscount] = $shippingDiscount;
-			$discountContainer->setDiscounts($discounts);
-		}
-		return $discountContainer;
-	}
+    /**
+     * Add discounts for shipping discount amount.
+     *
+     * Does not use the eb2ccore/discount helper as shipping discount
+     * data may not have been collected to be used by the helper - both
+     * use the same event so order between the two cannot be guarantted
+     * without introducing a hard dependency. In this case, however,
+     * discount data is simple enough to collect independently.
+     *
+     * @param ITaxDiscountContainer
+     * @return ITaxDiscountContainer
+     */
+    protected function _addShippingDiscount(IDiscountContainer $discountContainer)
+    {
+        $shippingDiscountAmount = $this->_address->getShippingDiscountAmount();
+        if ($shippingDiscountAmount) {
+            $discounts = $discountContainer->getDiscounts();
+            $shippingDiscount = $discounts->getEmptyDiscount()
+                ->setAmount($shippingDiscountAmount);
+            $discounts[$shippingDiscount] = $shippingDiscount;
+            $discountContainer->setDiscounts($discounts);
+        }
+        return $discountContainer;
+    }
 
-	/**
-	 * Check for the item to have shipping origin data set.
-	 *
-	 * @return bool
-	 */
-	protected function _itemHasShippingOrigin()
-	{
-		return $this->_item->getEb2cShipFromAddressLine1()
-			&& $this->_item->getEb2cShipFromAddressCity()
-			&& $this->_item->getEb2cShipFromAddressMainDivision()
-			&& $this->_item->getEb2cShipFromAddressCountryCode()
-			&& $this->_item->getEb2cShipFromAddressPostalCode();
-	}
+    /**
+     * Check for the item to have shipping origin data set.
+     *
+     * @return bool
+     */
+    protected function _itemHasShippingOrigin()
+    {
+        return $this->_item->getEb2cShipFromAddressLine1()
+            && $this->_item->getEb2cShipFromAddressCity()
+            && $this->_item->getEb2cShipFromAddressMainDivision()
+            && $this->_item->getEb2cShipFromAddressCountryCode()
+            && $this->_item->getEb2cShipFromAddressPostalCode();
+    }
 
-	/**
-	 * Check for the item to have gifting data.
-	 *
-	 * @param bool
-	 */
-	protected function _itemHasGifting()
-	{
-		return $this->_item->getGwId() && $this->_item->getGwPrice();
-	}
+    /**
+     * Check for the item to have gifting data.
+     *
+     * @param bool
+     */
+    protected function _itemHasGifting()
+    {
+        return $this->_item->getGwId() && $this->_item->getGwPrice();
+    }
 }

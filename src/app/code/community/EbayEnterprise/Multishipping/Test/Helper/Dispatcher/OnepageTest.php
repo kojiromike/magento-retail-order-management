@@ -15,66 +15,66 @@
 
 class EbayEnterprise_Multishipping_Test_Helper_Dispatcher_OnepageTest extends EcomDev_PHPUnit_Test_Case
 {
-	/** @var EbayEnterprise_Multishipping_Helper_Dispatcher_Onepage */
-	protected $_dispatcher;
-	/** @var Mage_Sales_Model_Quote */
-	protected $_quote;
-	/** @var Mage_Sales_Model_Order */
-	protected $_order;
+    /** @var EbayEnterprise_Multishipping_Helper_Dispatcher_Onepage */
+    protected $_dispatcher;
+    /** @var Mage_Sales_Model_Quote */
+    protected $_quote;
+    /** @var Mage_Sales_Model_Order */
+    protected $_order;
 
-	protected function setUp()
-	{
-		$this->_dispatcher = Mage::helper('ebayenterprise_multishipping/dispatcher_onepage');
-		$this->_quote = Mage::getModel('sales/quote');
-		$this->_order = Mage::getModel('sales/order');
-		// Disable events to prevent unintended side-effects of the events.
-		Mage::app()->disableEvents();
-	}
+    protected function setUp()
+    {
+        $this->_dispatcher = Mage::helper('ebayenterprise_multishipping/dispatcher_onepage');
+        $this->_quote = Mage::getModel('sales/quote');
+        $this->_order = Mage::getModel('sales/order');
+        // Disable events to prevent unintended side-effects of the events.
+        Mage::app()->disableEvents();
+    }
 
-	protected function tearDown()
-	{
-		// Re-enable events after tests to restore normal Magento behavior.
-		Mage::app()->enableEvents();
-	}
+    protected function tearDown()
+    {
+        // Re-enable events after tests to restore normal Magento behavior.
+        Mage::app()->enableEvents();
+    }
 
-	/**
-	 * When dispatching onepage before order submit events, ensure that the
-	 * expected events are dispatched.
-	 */
-	public function testDispatchBeforeOrderSubmit()
-	{
-		$this->_dispatcher->dispatchBeforeOrderSubmit($this->_quote, $this->_order);
-		$this->assertEventDispatchedExactly('checkout_type_onepage_save_order', 1);
-		$this->assertEventDispatchedExactly('sales_model_service_quote_submit_before', 1);
-	}
+    /**
+     * When dispatching onepage before order submit events, ensure that the
+     * expected events are dispatched.
+     */
+    public function testDispatchBeforeOrderSubmit()
+    {
+        $this->_dispatcher->dispatchBeforeOrderSubmit($this->_quote, $this->_order);
+        $this->assertEventDispatchedExactly('checkout_type_onepage_save_order', 1);
+        $this->assertEventDispatchedExactly('sales_model_service_quote_submit_before', 1);
+    }
 
-	/**
-	 * When dispatching onepage order submit success events, ensure that the
-	 * expected events are dispatched.
-	 */
-	public function testDispatchOrderSubmitSuccess()
-	{
-		$this->_dispatcher->dispatchOrderSubmitSuccess($this->_quote, $this->_order);
-		$this->assertEventDispatchedExactly('sales_model_service_quote_submit_success', 1);
-	}
+    /**
+     * When dispatching onepage order submit success events, ensure that the
+     * expected events are dispatched.
+     */
+    public function testDispatchOrderSubmitSuccess()
+    {
+        $this->_dispatcher->dispatchOrderSubmitSuccess($this->_quote, $this->_order);
+        $this->assertEventDispatchedExactly('sales_model_service_quote_submit_success', 1);
+    }
 
-	/**
-	 * When dispatching onepage order submit failure events, ensure that the
-	 * expected events are dispatched.
-	 */
-	public function testDispatchOrderSubmitFailure()
-	{
-		$this->_dispatcher->dispatchOrderSubmitFailure($this->_quote, $this->_order);
-		$this->assertEventDispatchedExactly('sales_model_service_quote_submit_failure', 1);
-	}
+    /**
+     * When dispatching onepage order submit failure events, ensure that the
+     * expected events are dispatched.
+     */
+    public function testDispatchOrderSubmitFailure()
+    {
+        $this->_dispatcher->dispatchOrderSubmitFailure($this->_quote, $this->_order);
+        $this->assertEventDispatchedExactly('sales_model_service_quote_submit_failure', 1);
+    }
 
-	/**
-	 * When dispatching onepage after order submit events, ensure that the
-	 * expected events are dispatched.
-	 */
-	public function testDispatchAfterOrderSubmit()
-	{
-		$this->_dispatcher->dispatchAfterOrderSubmit($this->_quote, $this->_order);
-		$this->assertEventDispatchedExactly('sales_model_service_quote_submit_after', 1);
-	}
+    /**
+     * When dispatching onepage after order submit events, ensure that the
+     * expected events are dispatched.
+     */
+    public function testDispatchAfterOrderSubmit()
+    {
+        $this->_dispatcher->dispatchAfterOrderSubmit($this->_quote, $this->_order);
+        $this->assertEventDispatchedExactly('sales_model_service_quote_submit_after', 1);
+    }
 }

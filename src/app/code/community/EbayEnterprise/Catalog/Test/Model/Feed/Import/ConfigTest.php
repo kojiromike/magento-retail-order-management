@@ -14,33 +14,32 @@
  */
 
 
-class EbayEnterprise_Catalog_Test_Model_Feed_Import_ConfigTest
-	extends EbayEnterprise_Eb2cCore_Test_Base
+class EbayEnterprise_Catalog_Test_Model_Feed_Import_ConfigTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	/**
-	 * Test that EbayEnterprise_Catalog_Model_Feed_Import_Config::getImportConfigData
-	 * method will be invoke by this test and will return an array of key/value pairs
-	 */
-	public function testGetImportConfigData()
-	{
-		$path = 'ebayenterprise_catalog/feed/import_configuration';
-		$data = array(
-			'xslt_deleted_sku' => 'delete-template.xsl',
-			'deleted_base_xpath' => 'sku',
-		);
+    /**
+     * Test that EbayEnterprise_Catalog_Model_Feed_Import_Config::getImportConfigData
+     * method will be invoke by this test and will return an array of key/value pairs
+     */
+    public function testGetImportConfigData()
+    {
+        $path = 'ebayenterprise_catalog/feed/import_configuration';
+        $data = array(
+            'xslt_deleted_sku' => 'delete-template.xsl',
+            'deleted_base_xpath' => 'sku',
+        );
 
-		$configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
-		$configRegistryMock->expects($this->once())
-			->method('getConfigData')
-			->with($this->identicalTo($path))
-			->will($this->returnValue($data));
+        $configRegistryMock = $this->getModelMock('eb2ccore/config_registry', array('getConfigData'));
+        $configRegistryMock->expects($this->once())
+            ->method('getConfigData')
+            ->with($this->identicalTo($path))
+            ->will($this->returnValue($data));
 
-		$helperMock = $this->getHelperMock('ebayenterprise_catalog/data', array('getConfigModel'));
-		$helperMock->expects($this->once())
-			->method('getConfigModel')
-			->will($this->returnValue($configRegistryMock));
-		$this->replaceByMock('helper', 'ebayenterprise_catalog', $helperMock);
+        $helperMock = $this->getHelperMock('ebayenterprise_catalog/data', array('getConfigModel'));
+        $helperMock->expects($this->once())
+            ->method('getConfigModel')
+            ->will($this->returnValue($configRegistryMock));
+        $this->replaceByMock('helper', 'ebayenterprise_catalog', $helperMock);
 
-		$this->assertSame($data, Mage::getModel('ebayenterprise_catalog/feed_import_config')->getImportConfigData());
-	}
+        $this->assertSame($data, Mage::getModel('ebayenterprise_catalog/feed_import_config')->getImportConfigData());
+    }
 }

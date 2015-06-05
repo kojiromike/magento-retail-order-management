@@ -18,63 +18,64 @@
  *
  * Handle voiding PayPal auth
  */
-class EbayEnterprise_PayPal_Model_Void {
-	/** @var EbayEnterprise_MageLog_Helper_Data */
-	protected $_logger;
-	/** @var EbayEnterprise_MageLog_Helper_Context */
-	protected $_context;
+class EbayEnterprise_PayPal_Model_Void
+{
+    /** @var EbayEnterprise_MageLog_Helper_Data */
+    protected $_logger;
+    /** @var EbayEnterprise_MageLog_Helper_Context */
+    protected $_context;
 
-	/**
-	 * Set up the logger
-	 */
-	public function __construct()
-	{
-		$this->_logger = Mage::helper('ebayenterprise_magelog');
-		$this->_context = Mage::helper('ebayenterprise_magelog/context');
-	}
+    /**
+     * Set up the logger
+     */
+    public function __construct()
+    {
+        $this->_logger = Mage::helper('ebayenterprise_magelog');
+        $this->_context = Mage::helper('ebayenterprise_magelog/context');
+    }
 
-	/**
-	 * @param Mage_Sales_Model_Order
-	 * @return self
-	 */
-	public function void(Mage_Sales_Model_Order $order)
-	{
-		if ($this->_canVoid($order)) {
-			try {
-				$this->_getVoidApi()->doVoid($order);
-			} catch (EbayEnterprise_PayPal_Exception $e) {
-				$logMessage = 'Void request failed. See exception log for details.';
-				$this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
-				$this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
-			}
-		}
-		return $this;
-	}
+    /**
+     * @param Mage_Sales_Model_Order
+     * @return self
+     */
+    public function void(Mage_Sales_Model_Order $order)
+    {
+        if ($this->_canVoid($order)) {
+            try {
+                $this->_getVoidApi()->doVoid($order);
+            } catch (EbayEnterprise_PayPal_Exception $e) {
+                $logMessage = 'Void request failed. See exception log for details.';
+                $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
+                $this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
+            }
+        }
+        return $this;
+    }
 
-	/**
-	 * Check if we can void the PayPal payment method in this order.
-	 *
-	 * @param Mage_Sales_Model_Order $order
-	 * @return bool
-	 */
-	protected function _canVoid(Mage_Sales_Model_Order $order)
-	{
-		$payment = $order->getPayment();
-		if (!$payment instanceof Mage_Sales_Model_Order_Payment) {
-			return false;
-		}
-		$methodInstance = $payment->getMethodInstance();
-		return (
-			$methodInstance instanceof EbayEnterprise_Paypal_Model_Method_Express
-			&& $methodInstance->canVoid($payment)
-		);
-	}
+    /**
+     * Check if we can void the PayPal payment method in this order.
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @return bool
+     */
+    protected function _canVoid(Mage_Sales_Model_Order $order)
+    {
+        $payment = $order->getPayment();
+        if (!$payment instanceof Mage_Sales_Model_Order_Payment) {
+            return false;
+        }
+        $methodInstance = $payment->getMethodInstance();
+        return (
+            $methodInstance instanceof EbayEnterprise_Paypal_Model_Method_Express
+            && $methodInstance->canVoid($payment)
+        );
+    }
 
-	/**
-	 * @return EbayEnterprise_PayPal_Model_Express_Api
-	 */
-	protected function _getVoidApi()
-	{
-		return Mage::getModel('ebayenterprise_paypal/express_api');
-	}
+    /**
+     * @return EbayEnterprise_PayPal_Model_Express_Api
+     */
+    protected function _getVoidApi()
+    {
+        return Mage::getModel('ebayenterprise_paypal/express_api');
+    }
 }

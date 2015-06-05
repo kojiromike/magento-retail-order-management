@@ -22,49 +22,49 @@ require_once 'abstract.php';
  */
 class EbayEnterprise_Eb2c_Shell_Attribute_Remover extends Mage_Shell_Abstract
 {
-	private $_attributesToDelete = array(
-		'drop_ship_supplier_name',
-		'drop_ship_supplier_number',
-		'drop_ship_supplier_part_number',
-		'drop_shipped',
-		'gift_card_tender_code',
-		'hierarchy_class_description',
-		'hierarchy_class_number',
-		'hierarchy_dept_description',
-		'hierarchy_dept_number',
-		'hierarchy_subclass_description',
-		'hierarchy_subclass_number',
-		'hierarchy_subdept_description',
-		'hierarchy_subdept_number',
-		'item_type',
-	);
-	/**
-	 * Delete product attributes named in the attributesToDelete array
-	 */
-	public function run()
-	{
-		if( !count($this->_args) ) {
-			echo $this->usageHelp();
-		} else if( $this->getArg('run') === 'yes' ) {
-			$setup = Mage::getResourceModel('catalog/setup','core_setup');
-			foreach ($this->_attributesToDelete as $attributeToDelete) {
-				try {
-					$setup->startSetup();
-					$setup->removeAttribute('catalog_product', $attributeToDelete);
-					$setup->endSetup();
-				} catch (Exception $e) {
-					echo "Error deleting attribute '{$attributeToDelete}': {$e->getMessage()}\n";
-				}
-			}
-		} else {
-			echo 'Refusing to run, invalid options' . "\n";
-			echo $this->usageHelp();
-		}
-	}
-	/**
-	 * Return some help text
-	 * @return string
-	 */
+    private $_attributesToDelete = array(
+        'drop_ship_supplier_name',
+        'drop_ship_supplier_number',
+        'drop_ship_supplier_part_number',
+        'drop_shipped',
+        'gift_card_tender_code',
+        'hierarchy_class_description',
+        'hierarchy_class_number',
+        'hierarchy_dept_description',
+        'hierarchy_dept_number',
+        'hierarchy_subclass_description',
+        'hierarchy_subclass_number',
+        'hierarchy_subdept_description',
+        'hierarchy_subdept_number',
+        'item_type',
+    );
+    /**
+     * Delete product attributes named in the attributesToDelete array
+     */
+    public function run()
+    {
+        if (!count($this->_args)) {
+            echo $this->usageHelp();
+        } elseif ($this->getArg('run') === 'yes') {
+            $setup = Mage::getResourceModel('catalog/setup', 'core_setup');
+            foreach ($this->_attributesToDelete as $attributeToDelete) {
+                try {
+                    $setup->startSetup();
+                    $setup->removeAttribute('catalog_product', $attributeToDelete);
+                    $setup->endSetup();
+                } catch (Exception $e) {
+                    echo "Error deleting attribute '{$attributeToDelete}': {$e->getMessage()}\n";
+                }
+            }
+        } else {
+            echo 'Refusing to run, invalid options' . "\n";
+            echo $this->usageHelp();
+        }
+    }
+    /**
+     * Return some help text
+     * @return string
+     */
     public function usageHelp()
     {
         $scriptName = basename(__FILE__);

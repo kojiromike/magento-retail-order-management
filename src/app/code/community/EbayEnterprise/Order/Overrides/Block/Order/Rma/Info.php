@@ -13,15 +13,14 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Order_Overrides_Block_Order_Rma_Info
-	extends Enterprise_Rma_Block_Order_Info
+class EbayEnterprise_Order_Overrides_Block_Order_Rma_Info extends Enterprise_Rma_Block_Order_Info
 {
-	/**
-	 * @see Enterprise_Rma_Block_Order_Info::_construct()
-	 * override the default behavior.
-	 *
-	 */
-	public function _construct()
-	{
-	}
+    /**
+     * @see Enterprise_Rma_Block_Order_Info::_construct()
+     * override the default behavior.
+     *
+     */
+    public function _construct()
+    {
+    }
 }

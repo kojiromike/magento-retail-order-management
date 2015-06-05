@@ -17,24 +17,24 @@ use \eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderContext;
 
 class EbayEnterprise_PayPal_Model_Order_Create_Context
 {
-	/**
-	 * Add PayPal context information to the payload
-	 * @param  Mage_Sales_Model_Order $order
-	 * @param  IOrderContext          $context
-	 * @return self
-	 */
-	public function updateOrderContext(
-		Mage_Sales_Model_Order $order,
-		IOrderContext $context
-	) {
-		$payment = $order->getPayment();
-		if ($payment->getMethod() === Mage::getModel('ebayenterprise_paypal/method_express')->getCode()) {
-			$additionalInfo = new Varien_Object($payment->getAdditionalInformation());
-			$context
-				->setPayPalPayerId($additionalInfo->getPaypalExpressCheckoutPayerId())
-				->setPayPalPayerStatus($additionalInfo->getPaypalExpressCheckoutPayerStatus())
-				->setPayPalAddressStatus($additionalInfo->getPaypalExpressCheckoutAddressStatus());
-		}
-		return $this;
-	}
+    /**
+     * Add PayPal context information to the payload
+     * @param  Mage_Sales_Model_Order $order
+     * @param  IOrderContext          $context
+     * @return self
+     */
+    public function updateOrderContext(
+        Mage_Sales_Model_Order $order,
+        IOrderContext $context
+    ) {
+        $payment = $order->getPayment();
+        if ($payment->getMethod() === Mage::getModel('ebayenterprise_paypal/method_express')->getCode()) {
+            $additionalInfo = new Varien_Object($payment->getAdditionalInformation());
+            $context
+                ->setPayPalPayerId($additionalInfo->getPaypalExpressCheckoutPayerId())
+                ->setPayPalPayerStatus($additionalInfo->getPaypalExpressCheckoutPayerStatus())
+                ->setPayPalAddressStatus($additionalInfo->getPaypalExpressCheckoutAddressStatus());
+        }
+        return $this;
+    }
 }

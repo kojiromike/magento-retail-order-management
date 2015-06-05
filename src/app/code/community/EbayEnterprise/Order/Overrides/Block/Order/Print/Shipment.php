@@ -15,12 +15,12 @@
 
 class EbayEnterprise_Order_Overrides_Block_Order_Print_Shipment extends Mage_Sales_Block_Order_Print_Shipment
 {
-	/**
-	 * Retrieve current order model instance
-	 * @return Mage_Sales_Model_Order
-	 */
-	public function getOrder()
-	{
-		return Mage::registry('rom_order');
-	}
+    /**
+     * Retrieve current order model instance
+     * @return Mage_Sales_Model_Order
+     */
+    public function getOrder()
+    {
+        return Mage::registry('rom_order');
+    }
 }

@@ -18,218 +18,217 @@ use eBayEnterprise\RetailOrderManagement\Payload\Address\IValidationReply;
 
 class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
 {
-	/** @var EbayEnterprise_MageLog_Helper_Data */
-	protected $_logger;
-	/** @var EbayEnterprise_Address_Helper_Data */
-	protected $_helper;
-	/** @var EbayEnterprise_MageLog_Helper_Context */
-	protected $_context;
-	/** @var array map of result code to warning message */
-	protected $_resultCodeWarningMap = [
-		// Expected result codes for when things are working normally.
-		// Nothing of interest to log here.
-		IValidationReply::RESULT_VALID => '',
-		IValidationReply::RESULT_CORRECTED_WITH_SUGGESTIONS => '',
-		IValidationReply::RESULT_FAILED => '',
-		IValidationReply::RESULT_NOT_SUPPORTED => '',
-		// Result codes that should emit a warning
-		IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER => 'Unable to contact provider',
-		IValidationReply::RESULT_TIMEOUT => 'Provider timed out',
-		IValidationReply::RESULT_PROVIDER_ERROR => 'Provider returned a system error: {provider_error}',
-		IValidationReply::RESULT_MALFORMED => 'The request message was malformed or contained invalid data',
-	];
+    /** @var EbayEnterprise_MageLog_Helper_Data */
+    protected $_logger;
+    /** @var EbayEnterprise_Address_Helper_Data */
+    protected $_helper;
+    /** @var EbayEnterprise_MageLog_Helper_Context */
+    protected $_context;
+    /** @var array map of result code to warning message */
+    protected $_resultCodeWarningMap = [
+        // Expected result codes for when things are working normally.
+        // Nothing of interest to log here.
+        IValidationReply::RESULT_VALID => '',
+        IValidationReply::RESULT_CORRECTED_WITH_SUGGESTIONS => '',
+        IValidationReply::RESULT_FAILED => '',
+        IValidationReply::RESULT_NOT_SUPPORTED => '',
+        // Result codes that should emit a warning
+        IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER => 'Unable to contact provider',
+        IValidationReply::RESULT_TIMEOUT => 'Provider timed out',
+        IValidationReply::RESULT_PROVIDER_ERROR => 'Provider returned a system error: {provider_error}',
+        IValidationReply::RESULT_MALFORMED => 'The request message was malformed or contained invalid data',
+    ];
 
-	/**
-	 * @param array
-	 */
-	public function __construct(array $args=[])
-	{
-		list($this->_helper, $this->_logger, $api, $this->_context) = $this->_checkTypes(
-			$this->_nullCoalesce($args, 'helper', Mage::helper('ebayenterprise_address')),
-			$this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
-			$args['api'],
-			$this->_nullCoalesce($args, 'context', Mage::helper('ebayenterprise_magelog/context'))
-		);
-		$this->_extractResponseData($api);
-		$this->_logResultCode();
-	}
+    /**
+     * @param array
+     */
+    public function __construct(array $args = [])
+    {
+        list($this->_helper, $this->_logger, $api, $this->_context) = $this->_checkTypes(
+            $this->_nullCoalesce($args, 'helper', Mage::helper('ebayenterprise_address')),
+            $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
+            $args['api'],
+            $this->_nullCoalesce($args, 'context', Mage::helper('ebayenterprise_magelog/context'))
+        );
+        $this->_extractResponseData($api);
+        $this->_logResultCode();
+    }
 
-	/**
-	 * Type checks for constructor args array.
-	 *
-	 * @param EbayEnterprise_Address_Helper_Data
-	 * @param EbayEnterprise_MageLog_Helper_Data
-	 * @param IBidirectionalApi
-	 */
-	protected function _checkTypes(
-		EbayEnterprise_Address_Helper_Data $helper,
-		EbayEnterprise_MageLog_Helper_Data $logger,
-		IBidirectionalApi $api,
-		EbayEnterprise_MageLog_Helper_Context $context
-	) {
-		return [$helper, $logger, $api, $context];
-	}
+    /**
+     * Type checks for constructor args array.
+     *
+     * @param EbayEnterprise_Address_Helper_Data
+     * @param EbayEnterprise_MageLog_Helper_Data
+     * @param IBidirectionalApi
+     */
+    protected function _checkTypes(
+        EbayEnterprise_Address_Helper_Data $helper,
+        EbayEnterprise_MageLog_Helper_Data $logger,
+        IBidirectionalApi $api,
+        EbayEnterprise_MageLog_Helper_Context $context
+    ) {
+        return [$helper, $logger, $api, $context];
+    }
 
-	/**
-	 * Return the value at field in array if it exists. Otherwise, use the
-	 * default value.
-	 * @param array      $arr
-	 * @param string|int $field Valid array key
-	 * @param mixed      $default
-	 * @return mixed
-	 */
-	protected function _nullCoalesce(array $arr, $field, $default)
-	{
-		return isset($arr[$field]) ? $arr[$field] : $default;
-	}
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the
+     * default value.
+     * @param array      $arr
+     * @param string|int $field Valid array key
+     * @param mixed      $default
+     * @return mixed
+     */
+    protected function _nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
+    }
 
-	protected function _extractResponseData(IBidirectionalApi $api)
-	{
-		$response = $api->getResponseBody();
-		return $this->_extractResult($response)->_extractResponseAddresses($response);
-	}
+    protected function _extractResponseData(IBidirectionalApi $api)
+    {
+        $response = $api->getResponseBody();
+        return $this->_extractResult($response)->_extractResponseAddresses($response);
+    }
 
-	/**
-	 * Copy result data from the response payload to data on this object. Needed
-	 * to allow object to be stored in the session for use in later requests.
-	 *
-	 * @return self
-	 */
-	protected function _extractResult(IValidationReply $response)
-	{
-		return $this->addData([
-			'result_code' => $response->getResultCode(),
-			'is_acceptable' => $response->isAcceptable(),
-			'is_valid' => $response->isValid(),
-			'result_suggestion_count' => $response->getResultSuggestionCount(),
-			'has_suggestions' => $response->hasSuggestions(),
-		]);
-	}
+    /**
+     * Copy result data from the response payload to data on this object. Needed
+     * to allow object to be stored in the session for use in later requests.
+     *
+     * @return self
+     */
+    protected function _extractResult(IValidationReply $response)
+    {
+        return $this->addData([
+            'result_code' => $response->getResultCode(),
+            'is_acceptable' => $response->isAcceptable(),
+            'is_valid' => $response->isValid(),
+            'result_suggestion_count' => $response->getResultSuggestionCount(),
+            'has_suggestions' => $response->hasSuggestions(),
+        ]);
+    }
 
-	/**
-	 * Copy address data from the response payload to data on this object. Needed
-	 * to allow object to be stored in the session for use in later requests.
-	 *
-	 * @return self
-	 */
-	protected function _extractResponseAddresses(IValidationReply $response)
-	{
-		return $this
-			->_extractOriginalAddress($response)
-			->_extractAddressSuggestions($response)
-			->_extractValidAddress($response);
-	}
+    /**
+     * Copy address data from the response payload to data on this object. Needed
+     * to allow object to be stored in the session for use in later requests.
+     *
+     * @return self
+     */
+    protected function _extractResponseAddresses(IValidationReply $response)
+    {
+        return $this
+            ->_extractOriginalAddress($response)
+            ->_extractAddressSuggestions($response)
+            ->_extractValidAddress($response);
+    }
 
-	/**
-	 * Use the response to select the address to be used as the valid address.
-	 * If there is not a single, valid address, will set the value to null.
-	 * This method must be used after extracting all other address data from
-	 * the response in order to be able to properly select an address.
-	 *
-	 * @return self
-	 */
-	public function _extractValidAddress(IValidationReply $response)
-	{
-		$validAddress = null;
-		if ($response->isAcceptable()) {
-			$validAddress = ($response->getResultSuggestionCount() === 1)
-				? $this->getAddressSuggestions()[0]
-				: $this->getOriginalAddress();
-		}
-		return $this->setData('valid_address', $validAddress);
-	}
+    /**
+     * Use the response to select the address to be used as the valid address.
+     * If there is not a single, valid address, will set the value to null.
+     * This method must be used after extracting all other address data from
+     * the response in order to be able to properly select an address.
+     *
+     * @return self
+     */
+    public function _extractValidAddress(IValidationReply $response)
+    {
+        $validAddress = null;
+        if ($response->isAcceptable()) {
+            $validAddress = ($response->getResultSuggestionCount() === 1)
+                ? $this->getAddressSuggestions()[0]
+                : $this->getOriginalAddress();
+        }
+        return $this->setData('valid_address', $validAddress);
+    }
 
-	/**
-	 * Use the address validation response to extract the, possibly corrected,
-	 * address sent to the address validation service, storing it as a Magento
-	 * address model.
-	 *
-	 * @return self
-	 */
-	public function _extractOriginalAddress(IValidationReply $response)
-	{
-		$address = Mage::getModel('customer/address', ['has_been_validated' => true]);
-		$this->_helper->transferPhysicalAddressPayloadToAddress(
-			$response,
-			$address
-		);
-		return $this->setData('original_address', $address);
-	}
+    /**
+     * Use the address validation response to extract the, possibly corrected,
+     * address sent to the address validation service, storing it as a Magento
+     * address model.
+     *
+     * @return self
+     */
+    public function _extractOriginalAddress(IValidationReply $response)
+    {
+        $address = Mage::getModel('customer/address', ['has_been_validated' => true]);
+        $this->_helper->transferPhysicalAddressPayloadToAddress(
+            $response,
+            $address
+        );
+        return $this->setData('original_address', $address);
+    }
 
-	/**
-	 * Extract any address suggestions from the address validation response,
-	 * storing them as an array of Magento address models.
-	 *
-	 * @return self
-	 */
-	public function _extractAddressSuggestions(IValidationReply $response)
-	{
-		$suggestionAddresses = [];
-		foreach ($response->getSuggestedAddresses() as $physicalAddress) {
-			$address = Mage::getModel('customer/address', ['has_been_validated' => true]);
-			$this->_helper->transferPhysicalAddressPayloadToAddress(
-				$physicalAddress,
-				$address
-			);
-			$suggestionAddresses[] = $address;
-		}
-		return $this->setData('address_suggestions', $suggestionAddresses);
-	}
+    /**
+     * Extract any address suggestions from the address validation response,
+     * storing them as an array of Magento address models.
+     *
+     * @return self
+     */
+    public function _extractAddressSuggestions(IValidationReply $response)
+    {
+        $suggestionAddresses = [];
+        foreach ($response->getSuggestedAddresses() as $physicalAddress) {
+            $address = Mage::getModel('customer/address', ['has_been_validated' => true]);
+            $this->_helper->transferPhysicalAddressPayloadToAddress(
+                $physicalAddress,
+                $address
+            );
+            $suggestionAddresses[] = $address;
+        }
+        return $this->setData('address_suggestions', $suggestionAddresses);
+    }
 
-	/**
-	 * Indicates if the address should be considered valid. In this case,
-	 * "valid" simply means we should accept the address, address is valid or
-	 * cannot be validated (provider errors/time out, etc).
-	 *
-	 * @return bool
-	 */
-	public function isAddressValid()
-	{
-		return $this->getIsAcceptable();
-	}
+    /**
+     * Indicates if the address should be considered valid. In this case,
+     * "valid" simply means we should accept the address, address is valid or
+     * cannot be validated (provider errors/time out, etc).
+     *
+     * @return bool
+     */
+    public function isAddressValid()
+    {
+        return $this->getIsAcceptable();
+    }
 
-	/**
-	 * Log any unexpected behavior that may indicate issues in the request
-	 * or the address validation provider.
-	 *
-	 * @return self
-	 */
-	protected function _logResultCode()
-	{
-		$resultCode = $this->getResultCode();
-		$message = $this->_nullCoalesce(
-			$this->_resultCodeWarningMap,
-			$resultCode,
-			// message used when the result code is unrecognized
-			'Response message did not contain a known result code. Result Code: {result_code}'
-		);
-		if ($message) {
-			$this->_logger->warning($message, $this->_getMetaData($resultCode));
-		}
-		$logData = ['result_code' => $resultCode, 'validation' => $this->isAddressValid() ? 'valid' : 'invalid'];
-		$logMessage = 'Response with status code "{result_code}" is {validation}.';
-		$this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
-		return $this;
-	}
+    /**
+     * Log any unexpected behavior that may indicate issues in the request
+     * or the address validation provider.
+     *
+     * @return self
+     */
+    protected function _logResultCode()
+    {
+        $resultCode = $this->getResultCode();
+        $message = $this->_nullCoalesce(
+            $this->_resultCodeWarningMap,
+            $resultCode,
+            // message used when the result code is unrecognized
+            'Response message did not contain a known result code. Result Code: {result_code}'
+        );
+        if ($message) {
+            $this->_logger->warning($message, $this->_getMetaData($resultCode));
+        }
+        $logData = ['result_code' => $resultCode, 'validation' => $this->isAddressValid() ? 'valid' : 'invalid'];
+        $logMessage = 'Response with status code "{result_code}" is {validation}.';
+        $this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+        return $this;
+    }
 
-	/**
-	 * get meta data used when emitting a warning for the result code
-	 * @param  string
-	 * @return array
-	 */
-	protected function _getMetaData($resultCode)
-	{
-		if (
-			$resultCode === IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER ||
-			$resultCode === IValidationReply::RESULT_TIMEOUT ||
-			$resultCode === IValidationReply::RESULT_MALFORMED
-		) {
-			$logData = [];
-		} elseif ($resultCode === IValidationReply::RESULT_PROVIDER_ERROR) {
-			$logData = ['provider_error' => $this->_lookupPath('provider_error')];
-		} else {
-			$logData = ['result_code' => $this->getResultCode()];
-		}
-		return $this->_context->getMetaData(__CLASS__, $logData);
-	}
+    /**
+     * get meta data used when emitting a warning for the result code
+     * @param  string
+     * @return array
+     */
+    protected function _getMetaData($resultCode)
+    {
+        if ($resultCode === IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER ||
+            $resultCode === IValidationReply::RESULT_TIMEOUT ||
+            $resultCode === IValidationReply::RESULT_MALFORMED
+        ) {
+            $logData = [];
+        } elseif ($resultCode === IValidationReply::RESULT_PROVIDER_ERROR) {
+            $logData = ['provider_error' => $this->_lookupPath('provider_error')];
+        } else {
+            $logData = ['result_code' => $this->getResultCode()];
+        }
+        return $this->_context->getMetaData(__CLASS__, $logData);
+    }
 }

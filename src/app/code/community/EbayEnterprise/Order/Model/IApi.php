@@ -15,10 +15,10 @@
 
 interface EbayEnterprise_Order_Model_IApi
 {
-	/**
-	 * Get the api object.
-	 *
-	 * @return IBidirectionalApi
-	 */
-	public function getApi();
+    /**
+     * Get the api object.
+     *
+     * @return IBidirectionalApi
+     */
+    public function getApi();
 }

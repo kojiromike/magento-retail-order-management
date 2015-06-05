@@ -15,12 +15,12 @@
 
 interface EbayEnterprise_Order_Model_IDetail extends EbayEnterprise_Order_Model_IApi
 {
-	/**
-	 * Build order detail request, send order detail request,
-	 * and process order detail response into a
-	 * EbayEnterprise_Order_Model_Detail_Process_Response_IObject object.
-	 *
-	 * @return EbayEnterprise_Order_Model_Detail_Process_IResponse
-	 */
-	public function process();
+    /**
+     * Build order detail request, send order detail request,
+     * and process order detail response into a
+     * EbayEnterprise_Order_Model_Detail_Process_Response_IObject object.
+     *
+     * @return EbayEnterprise_Order_Model_Detail_Process_IResponse
+     */
+    public function process();
 }

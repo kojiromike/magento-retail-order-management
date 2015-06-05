@@ -15,5 +15,5 @@
 
 class EbayEnterprise_Catalog_Helper_Struct_Inboundfeedpath extends EbayEnterprise_Catalog_Helper_Struct_Feedpath
 {
-	const VALUE = 'inbound';
+    const VALUE = 'inbound';
 }

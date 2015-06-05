@@ -15,27 +15,27 @@
 
 class EbayEnterprise_Eb2cFraud_Model_Observer
 {
-	/**
-	 * get the request object in a way that can be stubbed in tests.
-	 * @return Mage_Core_Controller_Request_Http
-	 * @codeCoverageIgnore
-	 */
-	protected function _getRequest()
-	{
-		return Mage::app()->getRequest();
-	}
-	/**
-	 * add order context information to the order create
-	 * request.
-	 * @param  Varien_Event_Observer $observer
-	 * @return self
-	 */
-	public function handleOrderCreateContextEvent(Varien_Event_Observer $observer)
-	{
-		$event = $observer->getEvent();
-		$orderContext = $event->getOrderContext();
-		Mage::getModel('eb2cfraud/order_create_context')
-			->addContextInfoToPayload($orderContext);
-		return $this;
-	}
+    /**
+     * get the request object in a way that can be stubbed in tests.
+     * @return Mage_Core_Controller_Request_Http
+     * @codeCoverageIgnore
+     */
+    protected function _getRequest()
+    {
+        return Mage::app()->getRequest();
+    }
+    /**
+     * add order context information to the order create
+     * request.
+     * @param  Varien_Event_Observer $observer
+     * @return self
+     */
+    public function handleOrderCreateContextEvent(Varien_Event_Observer $observer)
+    {
+        $event = $observer->getEvent();
+        $orderContext = $event->getOrderContext();
+        Mage::getModel('eb2cfraud/order_create_context')
+            ->addContextInfoToPayload($orderContext);
+        return $this;
+    }
 }

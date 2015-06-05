@@ -15,11 +15,11 @@
 
 class EbayEnterprise_CreditCard_Model_System_Config_Backend_Encryptionkey extends Mage_Core_Model_Config_Data
 {
-	/**
-	 * Strip whitespace from the encryption key
-	 */
-	protected function _beforeSave()
-	{
-		$this->setValue(preg_replace('#\s+#', '', $this->getValue()));
-	}
+    /**
+     * Strip whitespace from the encryption key
+     */
+    protected function _beforeSave()
+    {
+        $this->setValue(preg_replace('#\s+#', '', $this->getValue()));
+    }
 }

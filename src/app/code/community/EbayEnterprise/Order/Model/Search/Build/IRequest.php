@@ -15,12 +15,12 @@
 
 interface EbayEnterprise_Order_Model_Search_Build_IRequest
 {
-	const PAYLOAD_CLASS = '\eBayEnterprise\RetailOrderManagement\Payload\Customer\OrderSummaryRequest';
+    const PAYLOAD_CLASS = '\eBayEnterprise\RetailOrderManagement\Payload\Customer\OrderSummaryRequest';
 
-	/**
-	 * Build the order summary request payload.
-	 *
-	 * @return IOrderSummaryRequest
-	 */
-	public function build();
+    /**
+     * Build the order summary request payload.
+     *
+     * @return IOrderSummaryRequest
+     */
+    public function build();
 }

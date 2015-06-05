@@ -15,12 +15,12 @@
 
 interface EbayEnterprise_Order_Model_Cancel_Process_IResponse
 {
-	/**
-	 * Cancel the order in Magento if the response payload return
-	 * a response status of `CANCELLED`, otherwise don't cancel the
-	 * order.
-	 *
-	 * @return self
-	 */
-	public function process();
+    /**
+     * Cancel the order in Magento if the response payload return
+     * a response status of `CANCELLED`, otherwise don't cancel the
+     * order.
+     *
+     * @return self
+     */
+    public function process();
 }

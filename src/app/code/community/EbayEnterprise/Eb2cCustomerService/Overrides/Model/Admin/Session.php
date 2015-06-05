@@ -14,192 +14,190 @@
  */
 
 
-class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session
-	extends Mage_Admin_Model_Session
+class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session extends Mage_Admin_Model_Session
 {
-	/** @var EbayEnterprise_MageLog_Helper_Data $_logger */
-	protected $_logger;
-	/** @var EbayEnterprise_MageLog_Helper_Context */
-	protected $_context;
+    /** @var EbayEnterprise_MageLog_Helper_Data $_logger */
+    protected $_logger;
+    /** @var EbayEnterprise_MageLog_Helper_Context */
+    protected $_context;
 
-	public function __construct()
-	{
-		parent::__construct();
-		$this->_logger = Mage::helper('ebayenterprise_magelog');
-		$this->_context = Mage::helper('ebayenterprise_magelog/context');
-	}
+    public function __construct()
+    {
+        parent::__construct();
+        $this->_logger = Mage::helper('ebayenterprise_magelog');
+        $this->_context = Mage::helper('ebayenterprise_magelog/context');
+    }
 
-	/**
-	 * Attempt to authenticate and login the CSR user using the provided token.
-	 * This method mimics the login method except it will only attempt to login
-	 * the configured CSR user and will use the provided token to auth via the
-	 * EB2C service call. If the user is successfully authenticated, the logged
-	 * in user will be returned. If the auth fails, return an empty user object.
-	 * @see Mage_Admin_Model_Session::login
-	 * @param string $token
-	 * @param Mage_Core_Controller_Request_Http
-	 * @return null
-	 * @codeCoverageIgnore All side-effects taken from Magento auth/login process
-	 */
-	public function loginCSRWithToken($token, Mage_Core_Controller_Request_Http $request=null)
-	{
-		// An empty token should never validate so don't bother trying and just
-		// return nothing.
-		/** @var EbayEnterprise_Eb2cCustomerService_Helper_Data $helper */
-		$helper = Mage::helper('eb2ccsr');
-		/** @var Mage_Admin_Model_User $user */
-		$user = Mage::getModel('admin/user');
-		$user->load($helper->getConfigModel()->csrUser);
-		try {
-			$this->_validateUser($user);
-			$helper->validateToken($token);
-			// Event observers within this method may throw exceptions to cause the
-			// login to fail.
-			$this->_passValidation($user, $request);
-		} catch (EbayEnterprise_Eb2cCustomerService_Exception_Authentication $e) {
-			$this->_failValidation($user, $request, $e);
-		}
-	}
+    /**
+     * Attempt to authenticate and login the CSR user using the provided token.
+     * This method mimics the login method except it will only attempt to login
+     * the configured CSR user and will use the provided token to auth via the
+     * EB2C service call. If the user is successfully authenticated, the logged
+     * in user will be returned. If the auth fails, return an empty user object.
+     * @see Mage_Admin_Model_Session::login
+     * @param string $token
+     * @param Mage_Core_Controller_Request_Http
+     * @return null
+     * @codeCoverageIgnore All side-effects taken from Magento auth/login process
+     */
+    public function loginCSRWithToken($token, Mage_Core_Controller_Request_Http $request = null)
+    {
+        // An empty token should never validate so don't bother trying and just
+        // return nothing.
+        /** @var EbayEnterprise_Eb2cCustomerService_Helper_Data $helper */
+        $helper = Mage::helper('eb2ccsr');
+        /** @var Mage_Admin_Model_User $user */
+        $user = Mage::getModel('admin/user');
+        $user->load($helper->getConfigModel()->csrUser);
+        try {
+            $this->_validateUser($user);
+            $helper->validateToken($token);
+            // Event observers within this method may throw exceptions to cause the
+            // login to fail.
+            $this->_passValidation($user, $request);
+        } catch (EbayEnterprise_Eb2cCustomerService_Exception_Authentication $e) {
+            $this->_failValidation($user, $request, $e);
+        }
+    }
 
-	/**
-	 * Validate the CSR user to ensure it is active and has a role assigned.
-	 *
-	 * @param Mage_Admin_Model_User $user
-	 * @throws EbayEnterprise_Eb2cCustomerService_Exception_Authentication
-	 * @return self
-	 */
-	protected function _validateUser(Mage_Admin_Model_User $user)
-	{
-		if (!$user->getIsActive()) {
-			throw new EbayEnterprise_Eb2cCustomerService_Exception_Authentication(
-				'This account is inactive.'
-			);
-		}
-		if (!$user->hasAssigned2Role($user->getId())) {
-			throw new EbayEnterprise_Eb2cCustomerService_Exception_Authentication(
-				'Access denied.'
-			);
-		}
-		return $this;
-	}
-	/**
-	 * Update all the related session pieces after successfully validating the
-	 * user and if the request contains custom request URI logic, redirect to
-	 * the URI (which will set a location header and kill the process) or
-	 * return the updated user object.
-	 * The dispatched even may result in exceptions which will trigger the
-	 * login to fail, triggering self::_failValidation
-	 * @param  Mage_Admin_Model_User $user
-	 * @param  Mage_Core_Controller_Request_Http $request
-	 * @return null
-	 * @codeCoverageIgnore All side-effects taken from Magento auth/login process
-	 */
-	protected function _passValidation(Mage_Admin_Model_User $user, Mage_Core_Controller_Request_Http $request=null)
-	{
-		$logMessage = 'Successfully authenticated using token.';
-		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
-		// This may potentially cause some issues as the user password is not
-		// included since we never receive it when loggin in with the token. So far
-		// it doesn't seem to be causing any issues but may have some impact on the
-		// Mage_Enterprise_Pci_Model_Observer::adminAuthenticate method.
-		Mage::dispatchEvent('admin_user_authenticate_after', array(
-			'username' => $user->getUsername(),
-			'password' => '',
-			'user' => $user,
-			'result' => true,
-		));
-		// add a record of the login to the admin log
-		$user->getResource()->recordLogin($user);
+    /**
+     * Validate the CSR user to ensure it is active and has a role assigned.
+     *
+     * @param Mage_Admin_Model_User $user
+     * @throws EbayEnterprise_Eb2cCustomerService_Exception_Authentication
+     * @return self
+     */
+    protected function _validateUser(Mage_Admin_Model_User $user)
+    {
+        if (!$user->getIsActive()) {
+            throw new EbayEnterprise_Eb2cCustomerService_Exception_Authentication(
+                'This account is inactive.'
+            );
+        }
+        if (!$user->hasAssigned2Role($user->getId())) {
+            throw new EbayEnterprise_Eb2cCustomerService_Exception_Authentication(
+                'Access denied.'
+            );
+        }
+        return $this;
+    }
+    /**
+     * Update all the related session pieces after successfully validating the
+     * user and if the request contains custom request URI logic, redirect to
+     * the URI (which will set a location header and kill the process) or
+     * return the updated user object.
+     * The dispatched even may result in exceptions which will trigger the
+     * login to fail, triggering self::_failValidation
+     * @param  Mage_Admin_Model_User $user
+     * @param  Mage_Core_Controller_Request_Http $request
+     * @return null
+     * @codeCoverageIgnore All side-effects taken from Magento auth/login process
+     */
+    protected function _passValidation(Mage_Admin_Model_User $user, Mage_Core_Controller_Request_Http $request = null)
+    {
+        $logMessage = 'Successfully authenticated using token.';
+        $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
+        // This may potentially cause some issues as the user password is not
+        // included since we never receive it when loggin in with the token. So far
+        // it doesn't seem to be causing any issues but may have some impact on the
+        // Mage_Enterprise_Pci_Model_Observer::adminAuthenticate method.
+        Mage::dispatchEvent('admin_user_authenticate_after', array(
+            'username' => $user->getUsername(),
+            'password' => '',
+            'user' => $user,
+            'result' => true,
+        ));
+        // add a record of the login to the admin log
+        $user->getResource()->recordLogin($user);
 
-		// Renew session and url keys to make sure the session doesn't die right
-		// after the auth.
-		$this->renewSession();
-		$adminhtmlUrl = Mage::getSingleton('adminhtml/url');
-		if ($adminhtmlUrl->useSecretKey()) {
-			$adminhtmlUrl->renewSecretUrls();
-		}
+        // Renew session and url keys to make sure the session doesn't die right
+        // after the auth.
+        $this->renewSession();
+        $adminhtmlUrl = Mage::getSingleton('adminhtml/url');
+        if ($adminhtmlUrl->useSecretKey()) {
+            $adminhtmlUrl->renewSecretUrls();
+        }
 
-		// setIsFirstPageAfterLogin is more than a "magic" setter so needs to be
-		// called separately
-		$this->setIsFirstPageAfterLogin(true)
-			->addData(array(
-				'user' => $user, 'acl' => Mage::getResourceModel('admin/acl')->loadAcl())
-			)
-			// This appears to be necessary based on what Magento does normally
-			// with login/pass authentication although I'm not entirely sure what
-			// is is expected to do as the ACL was just set.
-			->refreshAcl($user);
+        // setIsFirstPageAfterLogin is more than a "magic" setter so needs to be
+        // called separately
+        $this->setIsFirstPageAfterLogin(true)
+            ->addData(array(
+                'user' => $user, 'acl' => Mage::getResourceModel('admin/acl')->loadAcl()))
+            // This appears to be necessary based on what Magento does normally
+            // with login/pass authentication although I'm not entirely sure what
+            // is is expected to do as the ACL was just set.
+            ->refreshAcl($user);
 
-		Mage::dispatchEvent('admin_session_user_login_success', array('user' => $user));
+        Mage::dispatchEvent('admin_session_user_login_success', array('user' => $user));
 
-		// Get the page to redirect the newly logged in user to, in this case the
-		// user's configured start page and redirect the user.
-		$startpageUri = $this->_getStartpageUri($request);
-		// This method will set a Location header and exit, allowing the HTTP
-		// redirect to take over.
-		$this->_postAuthCheckRedirect($startpageUri);
-	}
-	/**
-	 * Clear out user and session data when validation fails. Dispatch an event,
-	 * set session messages and unset user data before returning the empty
-	 * user object.
-	 * @param  Mage_Admin_Model_User $user
-	 * @param  Mage_Core_Controller_Request_Http $request
-	 * @param  Mage_Core_Exception $authException
-	 * @return null
-	 * @codeCoverageIgnore All side-effects taken from Magento auth/login process
-	 */
-	protected function _failValidation(
-		Mage_Admin_Model_User $user,
-		Mage_Core_Controller_Request_Http $request=null,
-		Mage_Core_Exception $authException)
-	{
-		$logMessage = 'Failed to authenticate using token.';
-		$this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
-		// This may be problematic due to the missing user password. It is never
-		// given while doing the token auth so we don't have one to pass. So far
-		// it doesn't seem to be causing any issues but may have some impact on the
-		// Mage_Enterprise_Pci_Model_Observer::adminAuthenticate method.
-		Mage::dispatchEvent('admin_user_authenticate_after', array(
-			'username' => $user->getUsername(),
-			'password' => '',
-			'user' => $user,
-			'result' => false,
-		));
-		Mage::dispatchEvent(
-			'admin_session_user_login_failed',
-			array('user_name' => $user->getUsername(), 'exception' => $authException)
-		);
-		if ($request && !$request->getParam('messageSent')) {
-			Mage::getSingleton('adminhtml/session')->addError($authException->getMessage());
-			$request->setParam('messageSent', true);
-		}
-		$user->unsetData();
-		$this->_postAuthCheckRedirect(Mage::helper('adminhtml')->getUrl('*'));
-	}
-	/**
-	 * After logging the user in, set the location header and exit, allowing
-	 * the HTTP redirect to take over.
-	 * @see Mage_Admin_Model_Session::login
-	 * @param  string $requestUri
-	 * @return null
-	 * @codeCoverageIgnore All side-effects taken from Magento auth/login process
-	 */
-	protected function _postAuthCheckRedirect($requestUri)
-	{
-		header('Location: ' . $requestUri);
-		exit;
-	}
-	/**
-	 * Get the startup page url for the current user set in the session.
-	 * @return string
-	 */
-	protected function _getStartpageUri()
-	{
-		$startpageUri = $this->getUser()->getStartupPageUrl();
-		if (Mage::getSingleton('adminhtml/url')->useSecretKey()) {
-			return Mage::getSingleton('adminhtml/url')->getUrl($startpageUri);
-		}
-		return $startpageUri;
-	}
+        // Get the page to redirect the newly logged in user to, in this case the
+        // user's configured start page and redirect the user.
+        $startpageUri = $this->_getStartpageUri($request);
+        // This method will set a Location header and exit, allowing the HTTP
+        // redirect to take over.
+        $this->_postAuthCheckRedirect($startpageUri);
+    }
+    /**
+     * Clear out user and session data when validation fails. Dispatch an event,
+     * set session messages and unset user data before returning the empty
+     * user object.
+     * @param  Mage_Admin_Model_User $user
+     * @param  Mage_Core_Controller_Request_Http $request
+     * @param  Mage_Core_Exception $authException
+     * @return null
+     * @codeCoverageIgnore All side-effects taken from Magento auth/login process
+     */
+    protected function _failValidation(
+        Mage_Admin_Model_User $user,
+        Mage_Core_Controller_Request_Http $request = null,
+        Mage_Core_Exception $authException
+    ) {
+        $logMessage = 'Failed to authenticate using token.';
+        $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
+        // This may be problematic due to the missing user password. It is never
+        // given while doing the token auth so we don't have one to pass. So far
+        // it doesn't seem to be causing any issues but may have some impact on the
+        // Mage_Enterprise_Pci_Model_Observer::adminAuthenticate method.
+        Mage::dispatchEvent('admin_user_authenticate_after', array(
+            'username' => $user->getUsername(),
+            'password' => '',
+            'user' => $user,
+            'result' => false,
+        ));
+        Mage::dispatchEvent(
+            'admin_session_user_login_failed',
+            array('user_name' => $user->getUsername(), 'exception' => $authException)
+        );
+        if ($request && !$request->getParam('messageSent')) {
+            Mage::getSingleton('adminhtml/session')->addError($authException->getMessage());
+            $request->setParam('messageSent', true);
+        }
+        $user->unsetData();
+        $this->_postAuthCheckRedirect(Mage::helper('adminhtml')->getUrl('*'));
+    }
+    /**
+     * After logging the user in, set the location header and exit, allowing
+     * the HTTP redirect to take over.
+     * @see Mage_Admin_Model_Session::login
+     * @param  string $requestUri
+     * @return null
+     * @codeCoverageIgnore All side-effects taken from Magento auth/login process
+     */
+    protected function _postAuthCheckRedirect($requestUri)
+    {
+        header('Location: ' . $requestUri);
+        exit;
+    }
+    /**
+     * Get the startup page url for the current user set in the session.
+     * @return string
+     */
+    protected function _getStartpageUri()
+    {
+        $startpageUri = $this->getUser()->getStartupPageUrl();
+        if (Mage::getSingleton('adminhtml/url')->useSecretKey()) {
+            return Mage::getSingleton('adminhtml/url')->getUrl($startpageUri);
+        }
+        return $startpageUri;
+    }
 }

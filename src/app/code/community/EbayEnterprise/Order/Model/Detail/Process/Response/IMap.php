@@ -17,11 +17,11 @@ use eBayEnterprise\RetailOrderManagement\Payload\Order\Detail\IOrderDetailRespon
 
 interface EbayEnterprise_Order_Model_Detail_Process_Response_IMap
 {
-	/**
-	 * Use order detail response configuration mapped to extract order service detail response data.
-	 *
-	 * @param  IOrderDetailResponse
-	 * @return array
-	 */
-	public function extract(IOrderDetailResponse $detail);
+    /**
+     * Use order detail response configuration mapped to extract order service detail response data.
+     *
+     * @param  IOrderDetailResponse
+     * @return array
+     */
+    public function extract(IOrderDetailResponse $detail);
 }

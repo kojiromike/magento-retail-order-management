@@ -15,14 +15,14 @@
 
 class EbayEnterprise_Eb2cCore_Model_System_Config_Backend_Sftp_Host extends Mage_Core_Model_Config_Data
 {
-	/**
-	 * strip any trailing white space before attempting to save the SFTP Host.
-	 * @return self
-	 */
-	public function _beforeSave()
-	{
-		parent::_beforeSave();
-		$this->setValue(trim($this->getValue()));
-		return $this;
-	}
+    /**
+     * strip any trailing white space before attempting to save the SFTP Host.
+     * @return self
+     */
+    public function _beforeSave()
+    {
+        parent::_beforeSave();
+        $this->setValue(trim($this->getValue()));
+        return $this;
+    }
 }

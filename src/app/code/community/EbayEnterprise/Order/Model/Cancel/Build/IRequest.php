@@ -15,13 +15,13 @@
 
 interface EbayEnterprise_Order_Model_Cancel_Build_IRequest
 {
-	const PAYLOAD_CLASS = '\eBayEnterprise\RetailOrderManagement\Payload\Order\OrderCancelRequest';
-	const ORDER_TYPE = 'SALES';
+    const PAYLOAD_CLASS = '\eBayEnterprise\RetailOrderManagement\Payload\Order\OrderCancelRequest';
+    const ORDER_TYPE = 'SALES';
 
-	/**
-	 * Build the order cancel request payload.
-	 *
-	 * @return IOrderCancelRequest
-	 */
-	public function build();
+    /**
+     * Build the order cancel request payload.
+     *
+     * @return IOrderCancelRequest
+     */
+    public function build();
 }

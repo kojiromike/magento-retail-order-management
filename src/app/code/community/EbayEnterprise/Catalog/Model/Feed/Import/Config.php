@@ -13,18 +13,17 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Catalog_Model_Feed_Import_Config
-	implements EbayEnterprise_Catalog_Interface_Import_Config
+class EbayEnterprise_Catalog_Model_Feed_Import_Config implements EbayEnterprise_Catalog_Interface_Import_Config
 {
-	const IMPORT_CONFIG_PATH = 'ebayenterprise_catalog/feed/import_configuration';
-	/**
-	 * @see EbayEnterprise_Catalog_Interface_Import_Config::getImportConfigData
-	 * @return array of key/pairs
-	 */
-	public function getImportConfigData()
-	{
-		return Mage::helper('ebayenterprise_catalog')
-			->getConfigModel()
-			->getConfigData(self::IMPORT_CONFIG_PATH);
-	}
+    const IMPORT_CONFIG_PATH = 'ebayenterprise_catalog/feed/import_configuration';
+    /**
+     * @see EbayEnterprise_Catalog_Interface_Import_Config::getImportConfigData
+     * @return array of key/pairs
+     */
+    public function getImportConfigData()
+    {
+        return Mage::helper('ebayenterprise_catalog')
+            ->getConfigModel()
+            ->getConfigData(self::IMPORT_CONFIG_PATH);
+    }
 }

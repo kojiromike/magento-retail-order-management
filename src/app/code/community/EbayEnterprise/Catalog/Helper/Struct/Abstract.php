@@ -18,15 +18,14 @@
  */
 abstract class EbayEnterprise_Catalog_Helper_Struct_Abstract
 {
-	const VALUE = 'undefined';
+    const VALUE = 'undefined';
 
-	/**
-	 * @return string The specific value for this type
-	 */
-	public function getValue()
-	{
-		// Late static binding so subclasses can override VALUE without overriding getValue.
-		return static::VALUE;
-	}
-
+    /**
+     * @return string The specific value for this type
+     */
+    public function getValue()
+    {
+        // Late static binding so subclasses can override VALUE without overriding getValue.
+        return static::VALUE;
+    }
 }

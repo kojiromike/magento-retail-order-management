@@ -18,9 +18,7 @@ use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
 use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
 use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation;
 
-class EbayEnterprise_Order_Model_Search_Send_Request
-	extends EbayEnterprise_Order_Model_Abstract_Send
-	implements EbayEnterprise_Order_Model_Search_Send_IRequest
+class EbayEnterprise_Order_Model_Search_Send_Request extends EbayEnterprise_Order_Model_Abstract_Send implements EbayEnterprise_Order_Model_Search_Send_IRequest
 {
-	const REQUEST_PAYLOAD_NAME = 'OrderSummaryRequest';
+    const REQUEST_PAYLOAD_NAME = 'OrderSummaryRequest';
 }

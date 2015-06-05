@@ -14,7 +14,6 @@
  */
 
 
-class EbayEnterprise_Order_Exception_Order_Detail_Notfound_Exception
-	extends Mage_Core_Exception
+class EbayEnterprise_Order_Exception_Order_Detail_Notfound_Exception extends Mage_Core_Exception
 {
 }

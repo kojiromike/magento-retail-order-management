@@ -19,9 +19,9 @@ $installer->startSetup();
 
 // Field to hold OrderCreateRequest XML for Create Retries:
 $installer->addAttribute('order', 'eb2c_order_create_request', [
-	'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
-	'visible' => true,
-	'required' => false,
+    'type' => Varien_Db_Ddl_Table::TYPE_TEXT,
+    'visible' => true,
+    'required' => false,
 ]);
 
 /**
@@ -44,10 +44,10 @@ $entityStore = Mage::getModel('eav/entity_store')->loadByEntityStore($orderTypeI
 // if the record doesn't exist yet, fill in necessary data for the record to be saved
 // and associated with the admin store and order entity type
 if (!$entityStore->getId()) {
-	$entityStore->setData([
-		'entity_type_id' => $orderTypeId,
-		'store_id' => $adminId,
-	]);
+    $entityStore->setData([
+        'entity_type_id' => $orderTypeId,
+        'store_id' => $adminId,
+    ]);
 }
 $entityStore->setIncrementPrefix(null)->save();
 
@@ -70,22 +70,20 @@ $statusValues = [$status, $label];
 $statusTbl = $installer->getTable('sales/order_status');
 /** @var $conn Magento_Db_Adapter_Pdo_Mysql */
 try {
-	$conn->insertArray($statusTbl, $statusFields, [array_combine($statusFields, $statusValues)]);
-}
-catch (Exception $e) {
-	// If the 'unsubmitted' status already exists, this will throw a PRIMARY KEY violation error.
-	// We don't want to fail completely if that happens.
+    $conn->insertArray($statusTbl, $statusFields, [array_combine($statusFields, $statusValues)]);
+} catch (Exception $e) {
+    // If the 'unsubmitted' status already exists, this will throw a PRIMARY KEY violation error.
+    // We don't want to fail completely if that happens.
 }
 
 $stateFields = ['status', 'state', 'is_default'];
 $stateValues = [$status, Mage_Sales_Model_Order::STATE_NEW, $isDefault];
 $stateTbl = $installer->getTable('sales/order_status_state');
 try {
-	$conn->insertArray($stateTbl, $stateFields, [array_combine($stateFields, $stateValues)]);
-}
-catch (Exception $e) {
-	// If this status/ state combination already exists, this will throw a PRIMARY KEY violation error.
-	// We don't want to fail completely if that happens.
+    $conn->insertArray($stateTbl, $stateFields, [array_combine($stateFields, $stateValues)]);
+} catch (Exception $e) {
+    // If this status/ state combination already exists, this will throw a PRIMARY KEY violation error.
+    // We don't want to fail completely if that happens.
 }
 
 $installer->endSetup();

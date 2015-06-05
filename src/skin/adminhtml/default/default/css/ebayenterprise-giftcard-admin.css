@@ -13,14 +13,14 @@
  */
 
 .ebay-enterprise-giftcard {
-	clear: left;
-	float: left;
+    clear: left;
+    float: left;
 }
 
 #ebay_enterprise_giftcard_balance_lookup .gift-card-info {
-	padding: 10px 10px 0;
+    padding: 10px 10px 0;
 }
 
 #ebay-enterprise-giftcard-please-wait {
-	padding: 10px;
+    padding: 10px;
 }

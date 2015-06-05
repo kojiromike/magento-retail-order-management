@@ -15,11 +15,11 @@
 
 interface EbayEnterprise_Order_Model_Search_Process_IResponse
 {
-	/**
-	 * Convert IOrderSummaryResponse response data into a
-	 * EbayEnterprise_Order_Model_Search_Process_Response_ICollection object.
-	 *
-	 * @return EbayEnterprise_Order_Model_Search_Process_Response_ICollection
-	 */
-	public function process();
+    /**
+     * Convert IOrderSummaryResponse response data into a
+     * EbayEnterprise_Order_Model_Search_Process_Response_ICollection object.
+     *
+     * @return EbayEnterprise_Order_Model_Search_Process_Response_ICollection
+     */
+    public function process();
 }

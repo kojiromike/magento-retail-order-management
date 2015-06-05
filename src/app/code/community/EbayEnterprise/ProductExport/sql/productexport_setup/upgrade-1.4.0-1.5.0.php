@@ -18,35 +18,35 @@ $installer = $this;
 $installer->startSetup();
 
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'drop_ship_supplier_prefix', [
-	'type' => 'varchar',
-	'group' => 'Retail Order Management',
-	'label' => 'Drop Ship Supplier Prefix',
-	'input' => 'text',
-	'global' => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_WEBSITE,
-	'visible' => true,
-	'required' => false,
-	'user_defined' => false,
-	'default' => '',
-	'apply_to' => 'simple,configurable,bundle',
-	'visible_on_front' => false,
-	'used_in_product_listing' => true,
-	'frontend_class' => "validate-length maximum-length-15"
+    'type' => 'varchar',
+    'group' => 'Retail Order Management',
+    'label' => 'Drop Ship Supplier Prefix',
+    'input' => 'text',
+    'global' => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_WEBSITE,
+    'visible' => true,
+    'required' => false,
+    'user_defined' => false,
+    'default' => '',
+    'apply_to' => 'simple,configurable,bundle',
+    'visible_on_front' => false,
+    'used_in_product_listing' => true,
+    'frontend_class' => "validate-length maximum-length-15"
 ]);
 
 $installer->addAttribute(Mage_Catalog_Model_Product::ENTITY, 'supplier_part_number', [
-	'type' => 'varchar',
-	'group' => 'Retail Order Management',
-	'label' => 'Supplier Part Number',
-	'input' => 'text',
-	'global' => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_WEBSITE,
-	'visible' => true,
-	'required' => false,
-	'user_defined' => false,
-	'default' => '',
-	'apply_to' => 'simple,configurable,bundle',
-	'visible_on_front' => false,
-	'used_in_product_listing' => true,
-	'frontend_class' => "validate-length maximum-length-35"
+    'type' => 'varchar',
+    'group' => 'Retail Order Management',
+    'label' => 'Supplier Part Number',
+    'input' => 'text',
+    'global' => Mage_Catalog_Model_Resource_Eav_Attribute::SCOPE_WEBSITE,
+    'visible' => true,
+    'required' => false,
+    'user_defined' => false,
+    'default' => '',
+    'apply_to' => 'simple,configurable,bundle',
+    'visible_on_front' => false,
+    'used_in_product_listing' => true,
+    'frontend_class' => "validate-length maximum-length-35"
 ]);
 
 $installer->endSetup();

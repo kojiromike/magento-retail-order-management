@@ -13,14 +13,13 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_CreditCard_Model_Config
-	extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
+class EbayEnterprise_CreditCard_Model_Config extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
 {
-	protected $_configPaths = array(
-		'api_operation' => 'ebayenterprise_creditcard/api/operation',
-		'api_service' => 'ebayenterprise_creditcard/api/service',
-		'encryption_key' => 'payment/ebayenterprise_creditcard/encryption_key',
-		'tender_types' => 'ebayenterprise_creditcard/tender_types',
-		'use_client_side_encryption' => 'payment/ebayenterprise_creditcard/use_client_side_encryption',
-	);
+    protected $_configPaths = array(
+        'api_operation' => 'ebayenterprise_creditcard/api/operation',
+        'api_service' => 'ebayenterprise_creditcard/api/service',
+        'encryption_key' => 'payment/ebayenterprise_creditcard/encryption_key',
+        'tender_types' => 'ebayenterprise_creditcard/tender_types',
+        'use_client_side_encryption' => 'payment/ebayenterprise_creditcard/use_client_side_encryption',
+    );
 }

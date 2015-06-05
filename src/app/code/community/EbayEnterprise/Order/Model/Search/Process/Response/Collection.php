@@ -13,28 +13,26 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Order_Model_Search_Process_Response_Collection
-	extends Varien_Data_Collection
-	implements EbayEnterprise_Order_Model_Search_Process_Response_ICollection
+class EbayEnterprise_Order_Model_Search_Process_Response_Collection extends Varien_Data_Collection implements EbayEnterprise_Order_Model_Search_Process_Response_ICollection
 {
-	/**
-	 * @see EbayEnterprise_Order_Model_Search_Process_Response_ICollection::sort()
-	 */
-	public function sort()
-	{
-		usort($this->_items, [$this,'_sortOrdersMostRecentFirst']);
-		return $this;
-	}
+    /**
+     * @see EbayEnterprise_Order_Model_Search_Process_Response_ICollection::sort()
+     */
+    public function sort()
+    {
+        usort($this->_items, [$this,'_sortOrdersMostRecentFirst']);
+        return $this;
+    }
 
-	/**
-	 * Sorting by most recent order first.
-	 *
-	 * @param  Varien_Object
-	 * @param  Varien_Object
-	 * @return bool
-	 */
-	protected function _sortOrdersMostRecentFirst(Varien_Object $a, Varien_Object $b)
-	{
-		return $a->getOrderDate() < $b->getOrderDate();
-	}
+    /**
+     * Sorting by most recent order first.
+     *
+     * @param  Varien_Object
+     * @param  Varien_Object
+     * @return bool
+     */
+    protected function _sortOrdersMostRecentFirst(Varien_Object $a, Varien_Object $b)
+    {
+        return $a->getOrderDate() < $b->getOrderDate();
+    }
 }

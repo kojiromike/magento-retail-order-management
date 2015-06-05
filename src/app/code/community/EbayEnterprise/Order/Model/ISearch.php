@@ -15,12 +15,12 @@
 
 interface EbayEnterprise_Order_Model_ISearch extends EbayEnterprise_Order_Model_IApi
 {
-	/**
-	 * Build order summary request, send order summary request,
-	 * and process order summary response into a
-	 * EbayEnterprise_Order_Model_Search_Process_Response_ICollection object.
-	 *
-	 * @return EbayEnterprise_Order_Model_Search_Process_Response_ICollection
-	 */
-	public function process();
+    /**
+     * Build order summary request, send order summary request,
+     * and process order summary response into a
+     * EbayEnterprise_Order_Model_Search_Process_Response_ICollection object.
+     *
+     * @return EbayEnterprise_Order_Model_Search_Process_Response_ICollection
+     */
+    public function process();
 }

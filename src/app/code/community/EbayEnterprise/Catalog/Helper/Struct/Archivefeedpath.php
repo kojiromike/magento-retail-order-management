@@ -15,5 +15,5 @@
 
 class EbayEnterprise_Catalog_Helper_Struct_Archivefeedpath extends EbayEnterprise_Catalog_Helper_Struct_Feedpath
 {
-	const VALUE = 'archive';
+    const VALUE = 'archive';
 }

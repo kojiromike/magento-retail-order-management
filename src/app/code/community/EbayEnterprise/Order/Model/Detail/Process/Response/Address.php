@@ -13,16 +13,15 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Order_Model_Detail_Process_Response_Address
-	extends Mage_Sales_Model_Order_Address
+class EbayEnterprise_Order_Model_Detail_Process_Response_Address extends Mage_Sales_Model_Order_Address
 {
-	protected function _construct()
-	{
-		parent::_construct();
-		$this->setIdFieldName('id');
-		$this->setName(implode(' ', array_filter([
-			$this->getFirstname(),
-			$this->getLastname()
-		])));
-	}
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setIdFieldName('id');
+        $this->setName(implode(' ', array_filter([
+            $this->getFirstname(),
+            $this->getLastname()
+        ])));
+    }
 }

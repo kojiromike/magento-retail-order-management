@@ -18,34 +18,34 @@ use eBayEnterprise\RetailOrderManagement\Payload\OrderEvents;
 
 class EbayEnterprise_Order_Test_Model_ObserverTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	/**
-	 * Validate expected event configuration.
-	 *
-	 * @dataProvider dataProvider
-	 */
-	public function testEventSetup($area, $eventName, $observerClassAlias, $observerMethod)
-	{
-		$this->_testEventConfig($area, $eventName, $observerClassAlias, $observerMethod);
-	}
+    /**
+     * Validate expected event configuration.
+     *
+     * @dataProvider dataProvider
+     */
+    public function testEventSetup($area, $eventName, $observerClassAlias, $observerMethod)
+    {
+        $this->_testEventConfig($area, $eventName, $observerClassAlias, $observerMethod);
+    }
 
-	/**
-	 * Test the 'process' method is called by the observer
-	 */
-	public function testAmqpMessageCreditIssuedObserverCallsProcess()
-	{
-		$factory = new Payload\PayloadFactory();
-		$payload = $factory->buildPayload('\eBayEnterprise\RetailOrderManagement\Payload\OrderEvents\OrderCreditIssued');
+    /**
+     * Test the 'process' method is called by the observer
+     */
+    public function testAmqpMessageCreditIssuedObserverCallsProcess()
+    {
+        $factory = new Payload\PayloadFactory();
+        $payload = $factory->buildPayload('\eBayEnterprise\RetailOrderManagement\Payload\OrderEvents\OrderCreditIssued');
 
-		$credit = $this->getModelMockBuilder('ebayenterprise_order/creditissued')
-			->addMethod('process')
-			->setConstructorArgs([['payload' => $payload]]);
-		$credit->expects($this->once())
-			->method('process')
-			->willReturn($credit);
-		$this->replaceByMock('model', 'ebayenterprise_order/creditissued', $credit);
+        $credit = $this->getModelMockBuilder('ebayenterprise_order/creditissued')
+            ->addMethod('process')
+            ->setConstructorArgs([['payload' => $payload]]);
+        $credit->expects($this->once())
+            ->method('process')
+            ->willReturn($credit);
+        $this->replaceByMock('model', 'ebayenterprise_order/creditissued', $credit);
 
-		$eventObserver = $this->_buildEventObserver(['message' => '<OrderEvents/>']);
-		$observer = Mage::getModel('ebayenterprise_order/observer');
-		$observer->handleEbayEnterpriseAmqpMessageOrderCreditIssued($eventObserver);
-	}
+        $eventObserver = $this->_buildEventObserver(['message' => '<OrderEvents/>']);
+        $observer = Mage::getModel('ebayenterprise_order/observer');
+        $observer->handleEbayEnterpriseAmqpMessageOrderCreditIssued($eventObserver);
+    }
 }

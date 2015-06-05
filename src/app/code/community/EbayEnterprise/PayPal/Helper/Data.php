@@ -17,46 +17,45 @@
  * This class doesn't do anything testworthy
  * @codeCoverageIgnore
  */
-class EbayEnterprise_PayPal_Helper_Data extends Mage_Core_Helper_Abstract
-	implements EbayEnterprise_Eb2cCore_Helper_Interface
+class EbayEnterprise_PayPal_Helper_Data extends Mage_Core_Helper_Abstract implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
-	const STATUS_HANDLER_PATH = 'ebayenterprise_paypal/api_status_handler';
+    const STATUS_HANDLER_PATH = 'ebayenterprise_paypal/api_status_handler';
 
-	/** @var EbayEnterprise_PayPal_Model_Config */
-	protected $_configModel;
+    /** @var EbayEnterprise_PayPal_Model_Config */
+    protected $_configModel;
 
-	/**
-	 * setup the config model
-	 */
-	public function __construct()
-	{
-		$this->_configModel = Mage::getSingleton('ebayenterprise_paypal/config');
-	}
+    /**
+     * setup the config model
+     */
+    public function __construct()
+    {
+        $this->_configModel = Mage::getSingleton('ebayenterprise_paypal/config');
+    }
 
-	/**
-	 * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
-	 * Get payment config instantiated object.
-	 *
-	 * @param mixed $store
-	 *
-	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 */
-	public function getConfigModel($store = null)
-	{
-		return Mage::getModel('eb2ccore/config_registry')
-			->setStore($store)
-			->addConfigModel($this->_configModel);
-	}
+    /**
+     * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
+     * Get payment config instantiated object.
+     *
+     * @param mixed $store
+     *
+     * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
+     */
+    public function getConfigModel($store = null)
+    {
+        return Mage::getModel('eb2ccore/config_registry')
+            ->setStore($store)
+            ->addConfigModel($this->_configModel);
+    }
 
-	/**
-	 * Get the current store currency code.
-	 *
-	 * @see Mage_Core_Model_Store::getCurrentCurrencyCode
-	 * @return string
-	 * @codeCoverageIgnore
-	 */
-	protected function _getCurrencyCode()
-	{
-		return Mage::app()->getStore()->getCurrentCurrencyCode();
-	}
+    /**
+     * Get the current store currency code.
+     *
+     * @see Mage_Core_Model_Store::getCurrentCurrencyCode
+     * @return string
+     * @codeCoverageIgnore
+     */
+    protected function _getCurrencyCode()
+    {
+        return Mage::app()->getStore()->getCurrentCurrencyCode();
+    }
 }

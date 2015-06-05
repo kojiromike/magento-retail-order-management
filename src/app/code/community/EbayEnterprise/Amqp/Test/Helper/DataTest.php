@@ -15,29 +15,29 @@
 
 class EbayEnterprise_Amqp_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	/**
-	 * Provide a sample, possibly templated queue name, a set of core config values,
-	 * and the expected queue name.
-	 * @return array
-	 */
-	public function provideQueueNames()
-	{
-		return array(
-			array('q.Test.{store_id}', array('storeId' => 'STORECODE'), 'q.Test.STORECODE'),
-			array('q.Test', array('storeId' => 'STORECODE'), 'q.Test'),
-		);
-	}
-	/**
-	 * Test replacing placeholder values within the queue names with config values.
-	 * @dataProvider provideQueueNames
-	 */
-	public function testProcessQueueName($queueName, $configValues, $expected)
-	{
-		$config = $this->buildCoreConfigRegistry($configValues);
-		$helper = Mage::helper('ebayenterprise_amqp');
-		$this->assertSame(
-			$expected,
-			EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, '_processQueueName', array($queueName, $config))
-		);
-	}
+    /**
+     * Provide a sample, possibly templated queue name, a set of core config values,
+     * and the expected queue name.
+     * @return array
+     */
+    public function provideQueueNames()
+    {
+        return array(
+            array('q.Test.{store_id}', array('storeId' => 'STORECODE'), 'q.Test.STORECODE'),
+            array('q.Test', array('storeId' => 'STORECODE'), 'q.Test'),
+        );
+    }
+    /**
+     * Test replacing placeholder values within the queue names with config values.
+     * @dataProvider provideQueueNames
+     */
+    public function testProcessQueueName($queueName, $configValues, $expected)
+    {
+        $config = $this->buildCoreConfigRegistry($configValues);
+        $helper = Mage::helper('ebayenterprise_amqp');
+        $this->assertSame(
+            $expected,
+            EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, '_processQueueName', array($queueName, $config))
+        );
+    }
 }

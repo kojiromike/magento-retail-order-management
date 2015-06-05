@@ -15,22 +15,22 @@
 
 class EbayEnterprise_Catalog_Test_Model_Resource_Feed_Product_CollectionTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	public function testGetItemId()
-	{
-		$product = Mage::getModel('catalog/product', array('sku' => 'sku-12345'));
+    public function testGetItemId()
+    {
+        $product = Mage::getModel('catalog/product', array('sku' => 'sku-12345'));
 
-		$collection = $this->getResourceModelMockBuilder('ebayenterprise_catalog/feed_product_collection')
-			->disableOriginalConstructor()
-			->setMethods(null)
-			->getMock();
+        $collection = $this->getResourceModelMockBuilder('ebayenterprise_catalog/feed_product_collection')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
 
-		$this->assertSame(
-			'sku-12345',
-			EcomDev_Utils_Reflection::invokeRestrictedMethod(
-				$collection,
-				'_getItemId',
-				array($product)
-			)
-		);
-	}
+        $this->assertSame(
+            'sku-12345',
+            EcomDev_Utils_Reflection::invokeRestrictedMethod(
+                $collection,
+                '_getItemId',
+                array($product)
+            )
+        );
+    }
 }

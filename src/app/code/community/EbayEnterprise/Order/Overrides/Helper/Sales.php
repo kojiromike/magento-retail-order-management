@@ -22,23 +22,59 @@
  */
 class EbayEnterprise_Order_Overrides_Helper_Sales extends Mage_Sales_Helper_Data
 {
-	protected $_moduleName = 'Mage_Sales';
-	protected $_useLocalMail;
+    protected $_moduleName = 'Mage_Sales';
+    protected $_useLocalMail;
 
-	/**
-	 * Stash the state of which mail handler we should use so we don't look it up multiple times.
-	 */
-	public function __construct()
-	{
-		$this->_useLocalMail = (Mage::helper('ebayenterprise_order')->getConfigModel()->transactionalEmailer !== 'eb2c');
-	}
-	public function canSendNewOrderConfirmationEmail($s=null) { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
-	public function canSendNewOrderEmail($s=null)             { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
-	public function canSendOrderCommentEmail($s=null)         { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
-	public function canSendNewShipmentEmail($s=null)          { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
-	public function canSendShipmentCommentEmail($s=null)      { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
-	public function canSendNewInvoiceEmail($s=null)           { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
-	public function canSendInvoiceCommentEmail($s=null)       { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
-	public function canSendNewCreditmemoEmail($s=null)        { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
-	public function canSendCreditmemoCommentEmail($s=null)    { $f = __FUNCTION__; return $this->_useLocalMail && parent::$f($s); }
+    /**
+     * Stash the state of which mail handler we should use so we don't look it up multiple times.
+     */
+    public function __construct()
+    {
+        $this->_useLocalMail = (Mage::helper('ebayenterprise_order')->getConfigModel()->transactionalEmailer !== 'eb2c');
+    }
+    public function canSendNewOrderConfirmationEmail($s = null)
+    {
+        $f = __FUNCTION__;
+        return $this->_useLocalMail && parent::$f($s);
+    }
+    public function canSendNewOrderEmail($s = null)
+    {
+        $f = __FUNCTION__;
+        return $this->_useLocalMail && parent::$f($s);
+    }
+    public function canSendOrderCommentEmail($s = null)
+    {
+        $f = __FUNCTION__;
+        return $this->_useLocalMail && parent::$f($s);
+    }
+    public function canSendNewShipmentEmail($s = null)
+    {
+        $f = __FUNCTION__;
+        return $this->_useLocalMail && parent::$f($s);
+    }
+    public function canSendShipmentCommentEmail($s = null)
+    {
+        $f = __FUNCTION__;
+        return $this->_useLocalMail && parent::$f($s);
+    }
+    public function canSendNewInvoiceEmail($s = null)
+    {
+        $f = __FUNCTION__;
+        return $this->_useLocalMail && parent::$f($s);
+    }
+    public function canSendInvoiceCommentEmail($s = null)
+    {
+        $f = __FUNCTION__;
+        return $this->_useLocalMail && parent::$f($s);
+    }
+    public function canSendNewCreditmemoEmail($s = null)
+    {
+        $f = __FUNCTION__;
+        return $this->_useLocalMail && parent::$f($s);
+    }
+    public function canSendCreditmemoCommentEmail($s = null)
+    {
+        $f = __FUNCTION__;
+        return $this->_useLocalMail && parent::$f($s);
+    }
 }

@@ -16,19 +16,18 @@
 /**
  * @codeCoverageIgnore
  */
-class EbayEnterprise_Eb2cGiftwrap_Model_Resource_Wrapping_Collection
-	extends Enterprise_GiftWrapping_Model_Resource_Wrapping_Collection
+class EbayEnterprise_Eb2cGiftwrap_Model_Resource_Wrapping_Collection extends Enterprise_GiftWrapping_Model_Resource_Wrapping_Collection
 {
-	/**
-	 * Substitute the giftwrapping sku for entity_id as all giftwrappings processed from the
-	 * feeds will have a sku. This makes looking up a giftwrapping by Eb2c SKU more
-	 * reasonable and allows for newly created items to be looked up after being
-	 * added to the collection but before the collection has been saved.
-	 * @param  Varien_Object $item
-	 * @return string
-	 */
-	protected function _getItemId(Varien_Object $item)
-	{
-		return $item->getEb2cSku();
-	}
+    /**
+     * Substitute the giftwrapping sku for entity_id as all giftwrappings processed from the
+     * feeds will have a sku. This makes looking up a giftwrapping by Eb2c SKU more
+     * reasonable and allows for newly created items to be looked up after being
+     * added to the collection but before the collection has been saved.
+     * @param  Varien_Object $item
+     * @return string
+     */
+    protected function _getItemId(Varien_Object $item)
+    {
+        return $item->getEb2cSku();
+    }
 }

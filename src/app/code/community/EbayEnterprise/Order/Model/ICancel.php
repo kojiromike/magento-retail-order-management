@@ -15,11 +15,11 @@
 
 interface EbayEnterprise_Order_Model_ICancel extends EbayEnterprise_Order_Model_IApi
 {
-	/**
-	 * Build order cancel request, send order cancel request,
-	 * and process order cancel response.
-	 *
-	 * @return self
-	 */
-	public function process();
+    /**
+     * Build order cancel request, send order cancel request,
+     * and process order cancel response.
+     *
+     * @return self
+     */
+    public function process();
 }

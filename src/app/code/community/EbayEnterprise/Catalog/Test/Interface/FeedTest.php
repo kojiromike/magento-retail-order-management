@@ -19,12 +19,12 @@
  */
 class EbayEnterprise_Eb2cCore_Test_Interface_FeedTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	/**
-	 * Really the only test you can do with an interface, I think.
-	 *
-	 */
-	public function testInterfaceExists()
-	{
-		$this->assertTrue(interface_exists('EbayEnterprise_Catalog_Interface_Feed'));
-	}
+    /**
+     * Really the only test you can do with an interface, I think.
+     *
+     */
+    public function testInterfaceExists()
+    {
+        $this->assertTrue(interface_exists('EbayEnterprise_Catalog_Interface_Feed'));
+    }
 }

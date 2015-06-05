@@ -15,75 +15,75 @@
 
 interface EbayEnterprise_Order_Model_Detail_Process_IResponse
 {
-	/**
-	 * Convert IOrderDetailResponse response data into a
-	 * Varien_Oject object.
-	 *
-	 * @return self
-	 */
-	public function process();
+    /**
+     * Convert IOrderDetailResponse response data into a
+     * Varien_Oject object.
+     *
+     * @return self
+     */
+    public function process();
 
-	/**
-	 * Prevent the sales/order object from loading
-	 * sales address data from the database.
-	 *
-	 * @return Varien_Data_Collection
-	 */
-	public function getAddressesCollection();
+    /**
+     * Prevent the sales/order object from loading
+     * sales address data from the database.
+     *
+     * @return Varien_Data_Collection
+     */
+    public function getAddressesCollection();
 
-	/**
-	 * Prevent the sales/order object from loading
-	 * sales items data from the database.
-	 *
-	 * @return Varien_Data_Collection
-	 */
-	public function getItemsCollection();
+    /**
+     * Prevent the sales/order object from loading
+     * sales items data from the database.
+     *
+     * @return Varien_Data_Collection
+     */
+    public function getItemsCollection();
 
-	/**
-	 * Prevent the sales/order object from loading
-	 * sales payment data from the database.
-	 *
-	 * @return Varien_Data_Collection
-	 */
-	public function getPaymentsCollection();
+    /**
+     * Prevent the sales/order object from loading
+     * sales payment data from the database.
+     *
+     * @return Varien_Data_Collection
+     */
+    public function getPaymentsCollection();
 
-	/**
-	 * Prevent the sales/order object from loading
-	 * sales status history data from the database.
-	 *
-	 * @return Varien_Data_Collection
-	 */
-	public function getStatusHistoryCollection();
+    /**
+     * Prevent the sales/order object from loading
+     * sales status history data from the database.
+     *
+     * @return Varien_Data_Collection
+     */
+    public function getStatusHistoryCollection();
 
-	/**
-	 * Prevent the sales/order object from loading
-	 * sales invoice data from the database.
-	 *
-	 * @return Varien_Data_Collection
-	 */
-	public function getInvoiceCollection();
+    /**
+     * Prevent the sales/order object from loading
+     * sales invoice data from the database.
+     *
+     * @return Varien_Data_Collection
+     */
+    public function getInvoiceCollection();
 
-	/**
-	 * Prevent the sales/order object from loading
-	 * sales shipment tracking data from the database.
-	 *
-	 * @return Varien_Data_Collection
-	 */
-	public function getTracksCollection();
+    /**
+     * Prevent the sales/order object from loading
+     * sales shipment tracking data from the database.
+     *
+     * @return Varien_Data_Collection
+     */
+    public function getTracksCollection();
 
-	/**
-	 * Prevent the sales/order object from loading
-	 * sales shipment data from the database.
-	 *
-	 * @return Varien_Data_Collection
-	 */
-	public function getShipmentsCollection();
+    /**
+     * Prevent the sales/order object from loading
+     * sales shipment data from the database.
+     *
+     * @return Varien_Data_Collection
+     */
+    public function getShipmentsCollection();
 
-	/**
-	 * Prevent the sales/order object from loading
-	 * sales credit memo data from the database.
-	 *
-	 * @return Varien_Data_Collection
-	 */
-	public function getCreditmemosCollection();
+    /**
+     * Prevent the sales/order object from loading
+     * sales credit memo data from the database.
+     *
+     * @return Varien_Data_Collection
+     */
+    public function getCreditmemosCollection();
 }

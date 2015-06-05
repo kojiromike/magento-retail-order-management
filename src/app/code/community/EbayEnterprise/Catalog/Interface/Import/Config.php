@@ -13,12 +13,12 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-Interface EbayEnterprise_Catalog_Interface_Import_Config
+interface EbayEnterprise_Catalog_Interface_Import_Config
 {
-	/**
-	 * Will get an array of key/value pairs of configuration data specific for
-	 * importing a particular feed.
-	 * @return array of key/pairs
-	 */
-	public function getImportConfigData();
+    /**
+     * Will get an array of key/value pairs of configuration data specific for
+     * importing a particular feed.
+     * @return array of key/pairs
+     */
+    public function getImportConfigData();
 }

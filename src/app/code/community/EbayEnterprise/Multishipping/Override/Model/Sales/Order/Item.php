@@ -15,57 +15,57 @@
 
 class EbayEnterprise_Multishipping_Override_Model_Sales_Order_Item extends Mage_Sales_Model_Order_Item
 {
-	/** @var EbayEnterprise_Multishipping_Helper_Factory */
-	protected $_multishippingFactory;
+    /** @var EbayEnterprise_Multishipping_Helper_Factory */
+    protected $_multishippingFactory;
 
-	protected function _construct()
-	{
-		parent::_construct();
-		list(
-			$this->_multishippingFactory
-		) = $this->_checkTypes(
-			$this->getData('multishipping_factory') ?: Mage::helper('ebayenterprise_multishipping/factory')
-		);
-	}
+    protected function _construct()
+    {
+        parent::_construct();
+        list(
+            $this->_multishippingFactory
+        ) = $this->_checkTypes(
+            $this->getData('multishipping_factory') ?: Mage::helper('ebayenterprise_multishipping/factory')
+        );
+    }
 
-	/**
-	 * Enforce type checks on construct args array.
-	 *
-	 * @param EbayEnterprise_Multishipping_Helper_Factory
-	 * @return array
-	 */
-	protected function _checkTypes(
-		EbayEnterprise_Multishipping_Helper_Factory $multishippingFactory
-	) {
-		return func_get_args();
-	}
+    /**
+     * Enforce type checks on construct args array.
+     *
+     * @param EbayEnterprise_Multishipping_Helper_Factory
+     * @return array
+     */
+    protected function _checkTypes(
+        EbayEnterprise_Multishipping_Helper_Factory $multishippingFactory
+    ) {
+        return func_get_args();
+    }
 
-	/**
-	 * Ensure id of the order address the item is associated with is saved.
-	 *
-	 * @return self
-	 */
-	protected function _beforeSave()
-	{
-		parent::_beforeSave();
-		$orderAddress = $this->getOrderAddress();
-		if ($orderAddress) {
-			$this->setOrderAddressId($orderAddress->getId());
-		}
-		return $this;
-	}
+    /**
+     * Ensure id of the order address the item is associated with is saved.
+     *
+     * @return self
+     */
+    protected function _beforeSave()
+    {
+        parent::_beforeSave();
+        $orderAddress = $this->getOrderAddress();
+        if ($orderAddress) {
+            $this->setOrderAddressId($orderAddress->getId());
+        }
+        return $this;
+    }
 
-	/**
-	 * Get the order address. If only an order address id is available, will
-	 * attempt to load the order address.
-	 *
-	 * @return Mage_Sales_Model_Order_Address
-	 */
-	public function getOrderAddress()
-	{
-		if (!$this->hasOrderAddress()) {
-			$this->setOrderAddress($this->_multishippingFactory->loadAddressForItem($this));
-		}
-		return $this->getData('order_address');
-	}
+    /**
+     * Get the order address. If only an order address id is available, will
+     * attempt to load the order address.
+     *
+     * @return Mage_Sales_Model_Order_Address
+     */
+    public function getOrderAddress()
+    {
+        if (!$this->hasOrderAddress()) {
+            $this->setOrderAddress($this->_multishippingFactory->loadAddressForItem($this));
+        }
+        return $this->getData('order_address');
+    }
 }

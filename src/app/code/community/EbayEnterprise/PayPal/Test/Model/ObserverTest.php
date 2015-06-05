@@ -13,35 +13,34 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Paypal_Test_Model_ObserverTest
-	extends EbayEnterprise_Eb2cCore_Test_Base
+class EbayEnterprise_Paypal_Test_Model_ObserverTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-	public function testIsConfigured()
-	{
-		EcomDev_PHPUnit_Test_Case_Config::assertEventObserverDefined(
-			'global',
-			'eb2c_order_creation_failure',
-			'ebayenterprise_paypal/observer',
-			'rollbackExpressPayment',
-			'ebayenterprise_paypal_express_rollback'
-		);
-	}
+    public function testIsConfigured()
+    {
+        EcomDev_PHPUnit_Test_Case_Config::assertEventObserverDefined(
+            'global',
+            'eb2c_order_creation_failure',
+            'ebayenterprise_paypal/observer',
+            'rollbackExpressPayment',
+            'ebayenterprise_paypal_express_rollback'
+        );
+    }
 
-	public function testRollbackExpressPayment()
-	{
-		$quote = $this->getModelMock('sales/quote');
-		$order = $this->getModelMock('sales/order');
-		$observerData = new Varien_Event_Observer(
-			array('event' => new Varien_Event(
-				array('quote' => $quote, 'order' => $order)
-			))
-		);
-		$voidModel = $this->getModelMock('ebayenterprise_paypal/void');
-		$voidModel->expects($this->once())
-			->method('void')
-			->will($this->returnSelf());
-		$this->replaceByMock('model', 'ebayenterprise_paypal/void', $voidModel);
-		Mage::getModel('ebayenterprise_paypal/observer')
-			->rollbackExpressPayment($observerData);
-	}
+    public function testRollbackExpressPayment()
+    {
+        $quote = $this->getModelMock('sales/quote');
+        $order = $this->getModelMock('sales/order');
+        $observerData = new Varien_Event_Observer(
+            array('event' => new Varien_Event(
+                array('quote' => $quote, 'order' => $order)
+            ))
+        );
+        $voidModel = $this->getModelMock('ebayenterprise_paypal/void');
+        $voidModel->expects($this->once())
+            ->method('void')
+            ->will($this->returnSelf());
+        $this->replaceByMock('model', 'ebayenterprise_paypal/void', $voidModel);
+        Mage::getModel('ebayenterprise_paypal/observer')
+            ->rollbackExpressPayment($observerData);
+    }
 }

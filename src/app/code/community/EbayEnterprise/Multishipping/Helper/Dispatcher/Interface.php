@@ -15,46 +15,46 @@
 
 interface EbayEnterprise_Multishipping_Helper_Dispatcher_Interface
 {
-	/**
-	 * Dispatch events for before the order has been submitted.
-	 *
-	 * @param Mage_Sales_Model_Quote
-	 * @param Mage_Sales_Model_Order
-	 * @return self
-	 */
-	public function dispatchBeforeOrderSubmit(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order);
+    /**
+     * Dispatch events for before the order has been submitted.
+     *
+     * @param Mage_Sales_Model_Quote
+     * @param Mage_Sales_Model_Order
+     * @return self
+     */
+    public function dispatchBeforeOrderSubmit(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order);
 
-	/**
-	 * Dispatch events for orders that have just been submitted but not yet
-	 * committed. Any exceptions triggered from these events should prevent
-	 * the order from being created and saved.
-	 *
-	 * Events will be dispatched during the transaction that will be saving
-	 * the order. Causing the transaction to fail will prevent any order related
-	 * objects from being saved.
-	 *
-	 * @param Mage_Sales_Model_Quote
-	 * @param Mage_Sales_Model_Order
-	 * @return self
-	 */
-	public function dispatchOrderSubmitSuccess(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order);
+    /**
+     * Dispatch events for orders that have just been submitted but not yet
+     * committed. Any exceptions triggered from these events should prevent
+     * the order from being created and saved.
+     *
+     * Events will be dispatched during the transaction that will be saving
+     * the order. Causing the transaction to fail will prevent any order related
+     * objects from being saved.
+     *
+     * @param Mage_Sales_Model_Quote
+     * @param Mage_Sales_Model_Order
+     * @return self
+     */
+    public function dispatchOrderSubmitSuccess(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order);
 
-	/**
-	 * Dispatch events for when the order fails to be submitted.
-	 *
-	 * @param Mage_Sales_Model_Quote
-	 * @param Mage_Sales_Model_Order
-	 * @return self
-	 */
-	public function dispatchOrderSubmitFailure(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order);
+    /**
+     * Dispatch events for when the order fails to be submitted.
+     *
+     * @param Mage_Sales_Model_Quote
+     * @param Mage_Sales_Model_Order
+     * @return self
+     */
+    public function dispatchOrderSubmitFailure(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order);
 
-	/**
-	 * Dispatch events for when the order has been completely submitted
-	 * successfully.
-	 *
-	 * @param Mage_Sales_Model_Quote
-	 * @param Mage_Sales_Model_Order
-	 * @return self
-	 */
-	public function dispatchAfterOrderSubmit(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order);
+    /**
+     * Dispatch events for when the order has been completely submitted
+     * successfully.
+     *
+     * @param Mage_Sales_Model_Quote
+     * @param Mage_Sales_Model_Order
+     * @return self
+     */
+    public function dispatchAfterOrderSubmit(Mage_Sales_Model_Quote $quote, Mage_Sales_Model_Order $order);
 }

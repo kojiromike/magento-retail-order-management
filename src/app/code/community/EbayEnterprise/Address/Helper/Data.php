@@ -20,74 +20,73 @@ use eBayEnterprise\RetailOrderManagement\Payload\Checkout\IPhysicalAddress;
  *
  * Methods for converting addresses represented in XML to Magento address model objects.
  */
-class EbayEnterprise_Address_Helper_Data extends Mage_Core_Helper_Abstract
-	implements EbayEnterprise_Eb2cCore_Helper_Interface
+class EbayEnterprise_Address_Helper_Data extends Mage_Core_Helper_Abstract implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
-	/**
-	 * Get the address validation config model
-	 *
-	 * @see EbayEnterprise_Eb2cCore_Model_Config_Registry::addConfigModel
-	 * @param bool|int|Mage_Core_Model_Store|null|string $store Set the config model to use this store
-	 * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
-	 */
-	public function getConfigModel($store=null)
-	{
-		return Mage::getModel('eb2ccore/config_registry')
-			->setStore($store)
-			->addConfigModel(Mage::getSingleton('ebayenterprise_address/config'));
-	}
+    /**
+     * Get the address validation config model
+     *
+     * @see EbayEnterprise_Eb2cCore_Model_Config_Registry::addConfigModel
+     * @param bool|int|Mage_Core_Model_Store|null|string $store Set the config model to use this store
+     * @return EbayEnterprise_Eb2cCore_Model_Config_Registry
+     */
+    public function getConfigModel($store = null)
+    {
+        return Mage::getModel('eb2ccore/config_registry')
+            ->setStore($store)
+            ->addConfigModel(Mage::getSingleton('ebayenterprise_address/config'));
+    }
 
-	/**
-	 * Transfer data from a Magento address model to a physical address payload.
-	 *
-	 * @param Mage_Customer_Model_Address_Abstract
-	 * @param IPhysicalAddress
-	 * @return self
-	 */
-	public function transferAddressToPhysicalAddressPayload(
-		Mage_Customer_Model_Address_Abstract $address,
-		IPhysicalAddress $addressPayload
-	) {
-		$addressPayload
-			->setLines($address->getStreetFull())
-			->setCity($address->getCity())
-			->setMainDivision($address->getRegionCode())
-			->setCountryCode($address->getCountry())
-			->setPostalCode($address->getPostcode());
-		return $this;
-	}
+    /**
+     * Transfer data from a Magento address model to a physical address payload.
+     *
+     * @param Mage_Customer_Model_Address_Abstract
+     * @param IPhysicalAddress
+     * @return self
+     */
+    public function transferAddressToPhysicalAddressPayload(
+        Mage_Customer_Model_Address_Abstract $address,
+        IPhysicalAddress $addressPayload
+    ) {
+        $addressPayload
+            ->setLines($address->getStreetFull())
+            ->setCity($address->getCity())
+            ->setMainDivision($address->getRegionCode())
+            ->setCountryCode($address->getCountry())
+            ->setPostalCode($address->getPostcode());
+        return $this;
+    }
 
-	/**
-	 * Transfer data from a physical address payload to a Magento address model.
-	 *
-	 * @param IPhysicalAddress
-	 * @param Mage_Customer_Model_Address_Abstract
-	 * @return self
-	 */
-	public function transferPhysicalAddressPayloadToAddress(
-		IPhysicalAddress $addressPayload,
-		Mage_Customer_Model_Address_Abstract $address
-	) {
-		$address
-			->setStreet($addressPayload->getLines())
-			->setCity($addressPayload->getCity())
-			->setCountryId($addressPayload->getCountryCode())
-			->setRegionId($this->getRegionIdByCode($addressPayload->getMainDivision(), $addressPayload->getCountryCode()))
-			->setPostcode($addressPayload->getPostalCode());
-		return $this;
-	}
+    /**
+     * Transfer data from a physical address payload to a Magento address model.
+     *
+     * @param IPhysicalAddress
+     * @param Mage_Customer_Model_Address_Abstract
+     * @return self
+     */
+    public function transferPhysicalAddressPayloadToAddress(
+        IPhysicalAddress $addressPayload,
+        Mage_Customer_Model_Address_Abstract $address
+    ) {
+        $address
+            ->setStreet($addressPayload->getLines())
+            ->setCity($addressPayload->getCity())
+            ->setCountryId($addressPayload->getCountryCode())
+            ->setRegionId($this->getRegionIdByCode($addressPayload->getMainDivision(), $addressPayload->getCountryCode()))
+            ->setPostcode($addressPayload->getPostalCode());
+        return $this;
+    }
 
-	/**
-	 * Get the region id for a region code.
-	 *
-	 * @param string
-	 * @param string
-	 * @return string
-	 */
-	public function getRegionIdByCode($regionCode, $countryCode)
-	{
-		return (int) Mage::getModel('directory/region')
-			->loadByCode($regionCode, $countryCode)
-			->getId();
-	}
+    /**
+     * Get the region id for a region code.
+     *
+     * @param string
+     * @param string
+     * @return string
+     */
+    public function getRegionIdByCode($regionCode, $countryCode)
+    {
+        return (int) Mage::getModel('directory/region')
+            ->loadByCode($regionCode, $countryCode)
+            ->getId();
+    }
 }

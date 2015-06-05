@@ -16,25 +16,24 @@
 /**
  * @codeCoverageIgnore
  */
-class EbayEnterprise_Eb2cGiftwrap_Overrides_Block_Adminhtml_Giftwrapping_Grid
-	extends Enterprise_GiftWrapping_Block_Adminhtml_Giftwrapping_Grid
+class EbayEnterprise_Eb2cGiftwrap_Overrides_Block_Adminhtml_Giftwrapping_Grid extends Enterprise_GiftWrapping_Block_Adminhtml_Giftwrapping_Grid
 {
-	/**
-	 * Overriding the Giftwrapping grid block in order to add SKU and Tax Class to the grid listing
-	 * page
-	 * Prepare edit form
-	 * @return Enterprise_GiftWrapping_Block_Adminhtml_Giftwrapping_Edit_Form
-	 */
-	protected function _prepareColumns()
-	{
-		$this->addColumnAfter('eb2c_sku', array(
-			'header' => Mage::helper('enterprise_giftwrapping')->__('SKU'),
-			'index' => 'eb2c_sku'
-		), 'design');
-		$this->addColumnAfter('eb2c_tax_class', array(
-			'header' => Mage::helper('enterprise_giftwrapping')->__('Tax Class'),
-			'index'  => 'eb2c_tax_class'
-		), 'eb2c_sku');
-		return parent::_prepareColumns();
-	}
+    /**
+     * Overriding the Giftwrapping grid block in order to add SKU and Tax Class to the grid listing
+     * page
+     * Prepare edit form
+     * @return Enterprise_GiftWrapping_Block_Adminhtml_Giftwrapping_Edit_Form
+     */
+    protected function _prepareColumns()
+    {
+        $this->addColumnAfter('eb2c_sku', array(
+            'header' => Mage::helper('enterprise_giftwrapping')->__('SKU'),
+            'index' => 'eb2c_sku'
+        ), 'design');
+        $this->addColumnAfter('eb2c_tax_class', array(
+            'header' => Mage::helper('enterprise_giftwrapping')->__('Tax Class'),
+            'index'  => 'eb2c_tax_class'
+        ), 'eb2c_sku');
+        return parent::_prepareColumns();
+    }
 }

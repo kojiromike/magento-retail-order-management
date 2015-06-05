@@ -15,63 +15,63 @@
 
 class EbayEnterprise_Order_Model_System_Config_Source_Emailer
 {
-	/** @var EbayEnterprise_Order_Helper_Data */
-	protected $_orderHelper;
+    /** @var EbayEnterprise_Order_Helper_Data */
+    protected $_orderHelper;
 
-	public function __construct(array $initParams)
-	{
-		list($this->_orderHelper) = $this->_checkTypes(
-			$this->_nullCoalesce($initParams, 'order_helper', Mage::helper('ebayenterprise_order'))
-		);
-	}
+    public function __construct(array $initParams)
+    {
+        list($this->_orderHelper) = $this->_checkTypes(
+            $this->_nullCoalesce($initParams, 'order_helper', Mage::helper('ebayenterprise_order'))
+        );
+    }
 
-	/**
-	 * Type hinting for self::__construct $initParams
-	 *
-	 * @param  EbayEnterprise_Order_Helper_Data
-	 * @return array
-	 */
-	protected function _checkTypes(EbayEnterprise_Order_Helper_Data $orderHelper)
-	{
-		return [$orderHelper];
-	}
+    /**
+     * Type hinting for self::__construct $initParams
+     *
+     * @param  EbayEnterprise_Order_Helper_Data
+     * @return array
+     */
+    protected function _checkTypes(EbayEnterprise_Order_Helper_Data $orderHelper)
+    {
+        return [$orderHelper];
+    }
 
-	/**
-	 * Return the value at field in array if it exists. Otherwise, use the default value.
-	 *
-	 * @param  array
-	 * @param  string $field Valid array key
-	 * @param  mixed
-	 * @return mixed
-	 */
-	protected function _nullCoalesce(array $arr, $field, $default)
-	{
-		return isset($arr[$field]) ? $arr[$field] : $default;
-	}
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the default value.
+     *
+     * @param  array
+     * @param  string $field Valid array key
+     * @param  mixed
+     * @return mixed
+     */
+    protected function _nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
+    }
 
-	/**
-	 * Options getter
-	 *
-	 * @return array
-	 */
-	public function toOptionArray()
-	{
-		$arr = $this->toArray();
-		return array_map(function ($k) use ($arr) {
-			return ['value' => $k, 'label' => $arr[$k]];
-		}, array_keys($arr));
-	}
+    /**
+     * Options getter
+     *
+     * @return array
+     */
+    public function toOptionArray()
+    {
+        $arr = $this->toArray();
+        return array_map(function ($k) use ($arr) {
+            return ['value' => $k, 'label' => $arr[$k]];
+        }, array_keys($arr));
+    }
 
-	/**
-	 * Get options in "key-value" format
-	 *
-	 * @return array
-	 */
-	public function toArray()
-	{
-		return [
-			'eb2c' => $this->_orderHelper->__('eBay Enterprise Email'),
-			'mage' => $this->_orderHelper->__('Magento'),
-		];
-	}
+    /**
+     * Get options in "key-value" format
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'eb2c' => $this->_orderHelper->__('eBay Enterprise Email'),
+            'mage' => $this->_orderHelper->__('Magento'),
+        ];
+    }
 }

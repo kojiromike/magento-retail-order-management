@@ -83,11 +83,11 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest extends EbayEnterprise_Eb
         $this->_sdk->expects($this->any())
             ->method('send')->will($this->returnSelf());
         $this->_getSdkApiMap = array(
-            array('payments', 'paypal/setExpress', array(), $this->_sdk),
-            array('payments', 'paypal/getExpress', array(), $this->_sdk),
-            array('payments', 'paypal/doExpress', array(), $this->_sdk),
-            array('payments', 'paypal/doAuth', array(), $this->_sdk),
-            array('payments', 'paypal/void', array(), $this->_sdk),
+            array('payments', 'paypal/setExpress', array(), null, $this->_sdk),
+            array('payments', 'paypal/getExpress', array(), null, $this->_sdk),
+            array('payments', 'paypal/doExpress', array(), null, $this->_sdk),
+            array('payments', 'paypal/doAuth', array(), null, $this->_sdk),
+            array('payments', 'paypal/void', array(), null, $this->_sdk),
         );
         $this->_lineItemStub = $this->getMock(self::LINE_ITEM);
         $this->_stubAcceptStrReturnSelf(
@@ -571,7 +571,7 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest extends EbayEnterprise_Eb
     {
         return $this->callback(
             function ($val) {
-            
+
                 return is_numeric($val);
             }
         );
@@ -722,7 +722,7 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest extends EbayEnterprise_Eb
     {
         return $this->callback(
             function ($val) {
-            
+
                 return is_scalar($val);
             }
         );

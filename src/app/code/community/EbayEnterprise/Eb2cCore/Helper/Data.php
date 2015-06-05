@@ -14,6 +14,7 @@
  */
 
 use eBayEnterprise\RetailOrderManagement\Api;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class EbayEnterprise_Eb2cCore_Helper_Data
@@ -58,7 +59,7 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract impl
      * @param string $format
      * @return string
      */
-    public function getApiUri($service, $operation, $params = array(), $format = 'xml')
+    public function getApiUri($service, $operation, $params = [], $format = 'xml')
     {
         $config = Mage::helper('eb2ccore')->getConfigModel();
 
@@ -529,13 +530,13 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract impl
      */
     public function extractXmlToArray(DOMNode $contextNode, array $mapping, DOMXPath $xpath)
     {
-        $data = array();
+        $data = [];
         $coreHelper = Mage::helper('eb2ccore');
         foreach ($mapping as $key => $callback) {
             if ($callback['type'] !== 'disabled') {
                 $result = $xpath->query($callback['xpath'], $contextNode);
                 if ($result->length) {
-                    $callback['parameters'] = array($result);
+                    $callback['parameters'] = [$result];
                     $data[$key] = $coreHelper->invokeCallback($callback);
                 }
             }
@@ -563,14 +564,20 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract impl
     /**
      * Create a new ROM SDK API object. API will be configured with core configuration
      * and the service and operation provided.
-     * @param  string $service   SDK API service
-     * @param  string $operation SDK API operation
-     * @param  array  $endpointParams Additional params added to end of endpoint URI
+     * @param string $service SDK API service
+     * @param string $operation SDK API operation
+     * @param array $endpointParams Additional params added to end of endpoint URI
+     * @param LoggerInterface|null $logger Provide alternate logger for the SDK. If none give, will provide a default logger.
      * @return Api\IBidirectionalApi
      */
-    public function getSdkApi($service, $operation, array $endpointParams = array())
-    {
+    public function getSdkApi(
+        $service,
+        $operation,
+        array $endpointParams = [],
+        LoggerInterface $logger = null
+    ) {
         $config = $this->getConfigModel();
+        $apiLogger = $logger ?: $this->_logger;
         $apiConfig = new Api\HttpConfig(
             $config->apiKey,
             $config->apiHostname,
@@ -580,28 +587,29 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract impl
             $service,
             $operation,
             $endpointParams,
-            $this->_logger
+            $apiLogger
         );
-        return new Api\HttpApi($apiConfig, $this->_logger);
+        return new Api\HttpApi($apiConfig, $apiLogger);
     }
-    /*
-	 * call a class static method base on the meta data in the given array
-	 * @param array $meta a composite array with class name and method to be executed
-	 * @return string|null
-	 */
+    /**
+     * Call a class static method based on the meta data in the given array.
+     *
+     * @param array $meta a composite array with class name and method to be executed
+     * @return string|null
+     */
     public function invokeCallback(array $meta)
     {
         if (empty($meta)) {
             return null;
         }
-        $parameters = isset($meta['parameters'])? $meta['parameters'] : array();
+        $parameters = isset($meta['parameters'])? $meta['parameters'] : [];
         switch ($meta['type']) {
             case 'model':
-                return call_user_func_array(array(Mage::getModel($meta['class']), $meta['method']), $parameters);
+                return call_user_func_array([Mage::getModel($meta['class']), $meta['method']], $parameters);
             case 'helper':
-                return call_user_func_array(array(Mage::helper($meta['class']), $meta['method']), $parameters);
+                return call_user_func_array([Mage::helper($meta['class']), $meta['method']], $parameters);
             case 'singleton':
-                return call_user_func_array(array(Mage::getSingleton($meta['class']), $meta['method']), $parameters);
+                return call_user_func_array([Mage::getSingleton($meta['class']), $meta['method']], $parameters);
             default:
                 return null;
         }

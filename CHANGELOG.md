@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## Unreleased Changes
 ### Fixed
 - Shipping discounts were missing from tax and order create requests
+- Log messages may contain sensitive data
 
 ### Changed
 - Inventory details and quantity operations now use the ROM SDK

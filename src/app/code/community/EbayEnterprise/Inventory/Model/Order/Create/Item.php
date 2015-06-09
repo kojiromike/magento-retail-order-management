@@ -68,7 +68,7 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item
         $detail = $this->detailService->getDetailsForOrderItem($item);
         if ($detail && $detail->isAvailable()) {
             $itemPayload
-                ->setEstimatedDeliveryMode(IEstimatedDeliveryDate::MODE_LEGACY)
+                ->setEstimatedDeliveryMode(IEstimatedDeliveryDate::MODE_ENABLED)
                 ->setEstimatedDeliveryMessageType(IEstimatedDeliveryDate::MESSAGE_TYPE_DELIVERYDATE)
                 ->setEstimatedDeliveryTemplate($this->config->estimatedDeliveryTemplate)
                 ->setReservationId($item->getEb2cReservationId());

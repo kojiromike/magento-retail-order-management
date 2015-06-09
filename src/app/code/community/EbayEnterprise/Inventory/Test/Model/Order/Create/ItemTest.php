@@ -48,14 +48,13 @@ class EbayEnterprise_Inventory_Test_Model_Order_Create_ItemTest extends EbayEnte
         $this->helperStub->expects($this->any())
             ->method('getConfigModel')
             ->will($this->returnValue($config));
-        $this->item = Mage::getModel('sales/quote_item');
+        $this->item = Mage::getModel('sales/order_item');
         $this->detailService = $this->getModelMockBuilder('ebayenterprise_inventory/details_service')
             ->disableOriginalConstructor()
-            ->setMethods(['getDetailsForItem'])
+            ->setMethods(['getDetailsForOrderItem'])
             ->getMock();
         $this->detailService->expects($this->once())
-            ->method('getDetailsForItem')
-            ->with($this->identicalTo($this->item))
+            ->method('getDetailsForOrderItem')
             ->will($this->returnValue($detail));
         $this->order = Mage::getModel('sales/order');
     }
@@ -66,7 +65,7 @@ class EbayEnterprise_Inventory_Test_Model_Order_Create_ItemTest extends EbayEnte
             ->getMockForAbstractClass();
         $payload->expects($this->once())
             ->method('setEstimatedDeliveryMode')
-            ->with($this->identicalTo(IEstimatedDeliveryDate::MODE_LEGACY))
+            ->with($this->identicalTo(IEstimatedDeliveryDate::MODE_ENABLED))
             ->will($this->returnSelf());
         $payload->expects($this->once())
             ->method('setEstimatedDeliveryMessageType')
@@ -103,15 +102,11 @@ class EbayEnterprise_Inventory_Test_Model_Order_Create_ItemTest extends EbayEnte
     public function testInjectShippingEstimates()
     {
         $handler = $this->getModelMockBuilder('ebayenterprise_inventory/order_create_item')
-            ->setMethods(['getQuoteItem'])
+            ->setMethods(['foo'])
             ->setConstructorArgs(
                 [['helper' => $this->helperStub, 'detail_service' => $this->detailService]]
             )
             ->getMock();
-        $handler->expects($this->once())
-            ->method('getQuoteItem')
-            ->with($this->isInstanceOf('Mage_Sales_Model_Order_Item'))
-            ->will($this->returnValue($this->item));
         $orderItem = Mage::getModel(
             'sales/order_item',
             ['quote_item_id' => 1, 'eb2c_reservation_id' => 'reservationid']

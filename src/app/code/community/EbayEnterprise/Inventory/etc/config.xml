@@ -29,6 +29,17 @@
 				<class>EbayEnterprise_Inventory_Helper</class>
 			</ebayenterprise_inventory>
 		</helpers>
+		<blocks>
+			<ebayenterprise_inventoryoverride>
+				<class>EbayEnterprise_Inventory_Override_Block</class>
+			</ebayenterprise_inventoryoverride>
+			<checkout>
+				<rewrite>
+					<cart_item_renderer>EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer</cart_item_renderer>
+					<multishipping_overview>EbayEnterprise_Inventory_Override_Block_Multishipping_Overview</multishipping_overview>
+				</rewrite>
+			</checkout>
+		</blocks>
 		<events>
 			<sales_quote_collect_totals_before>
 				<observers>
@@ -72,6 +83,13 @@
 		</events>
 	</global>
 	<frontend>
+		<layout>
+			<updates>
+				<ebayenterprise_inventory module="EbayEnterprise_Inventory">
+					<file>ebayenterprise_inventory.xml</file>
+				</ebayenterprise_inventory>
+			</updates>
+		</layout>
 		<translate>
 			<modules>
 				<EbayEnterprise_Inventory>

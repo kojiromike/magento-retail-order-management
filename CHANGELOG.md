@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## Unreleased Changes
+### Fixed
+- Shipping discounts were missing from tax and order create requests
+
 ## [1.6.0-alpha-4] -  2015-06-04
 ### Added
 - Support for multishipping checkout to generate a single order create request

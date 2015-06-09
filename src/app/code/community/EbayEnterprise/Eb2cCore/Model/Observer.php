@@ -16,18 +16,41 @@
 class EbayEnterprise_Eb2cCore_Model_Observer
 {
     /** @var  EbayEnterprise_Eb2cCore_Model_Session */
-    protected $_session;
+    protected $session;
+    /** @var EbayEnterprise_Eb2cCore_Helper_Data */
+    protected $helper;
+
+    public function __construct($init = [])
+    {
+        list($this->helper) = $this->checkTypes(
+            $this->nullCoalesce($init, 'helper', Mage::helper('eb2ccore'))
+        );
+    }
 
     /**
-     * @return EbayEnterprise_Eb2cCore_Model_Session|Mage_Core_Model_Abstract
+     * enforce dependency types
+     *
+     * @param EbayEnterprise_Eb2cCore_Helper_Data
+     * @return array
      */
-    protected function _getCoreSession()
+    protected function checkTypes(EbayEnterprise_Eb2cCore_Helper_Data $helper)
     {
-        if (!$this->_session) {
-            $this->_session = Mage::getSingleton('eb2ccore/session');
-        }
-        return $this->_session;
+        return func_get_args();
     }
+
+    /**
+     * get the value of $arr[$key] if it is set; $default otherwise.
+     *
+     * @param array
+     * @param mixed
+     * @param mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $key, $default)
+    {
+        return isset($arr[$key]) ? $arr[$key] : $default;
+    }
+
     /**
      * Update the eb2ccore session with the new quote.
      * @param  Varien_Event_Observer $observer Event observer object containing a quote object
@@ -35,8 +58,19 @@ class EbayEnterprise_Eb2cCore_Model_Observer
      */
     public function checkQuoteForChanges($observer)
     {
-        $this->_getCoreSession()->updateWithQuote($observer->getEvent()->getQuote());
+        $this->getCoreSession()->updateWithQuote($observer->getEvent()->getQuote());
         return $this;
+    }
+
+    /**
+     * @return EbayEnterprise_Eb2cCore_Model_Session|Mage_Core_Model_Abstract
+     */
+    protected function getCoreSession()
+    {
+        if (!$this->session) {
+            $this->session = Mage::getSingleton('eb2ccore/session');
+        }
+        return $this->session;
     }
 
     /**
@@ -47,7 +81,9 @@ class EbayEnterprise_Eb2cCore_Model_Observer
      * Observers the 'sales_order_place_before' event.
      *
      * @see Mage_Sales_Model_Order::place
-     * @param Varien_Event_Observer $observer Contains the order being placed which will have a reference to the quote the order was created for
+     * @param Varien_Event_Observer $observer contains the order being placed which
+     *                                        will have a reference to the quote the
+     *                                        order was created for
      * @throws EbayEnterprise_Eb2cInventory_Model_Allocation_Exception
      * @throws Exception
      * @return self
@@ -93,7 +129,7 @@ class EbayEnterprise_Eb2cCore_Model_Observer
      */
     public function clearSession(Varien_Event_Observer $observer)
     {
-        $this->_getCoreSession()->clear();
+        $this->getCoreSession()->clear();
         return $this;
     }
 
@@ -109,5 +145,71 @@ class EbayEnterprise_Eb2cCore_Model_Observer
         $shipGroup = $event->getShipGroupPayload();
         Mage::helper('eb2ccore/shipping_chargetype')->setShippingChargeType($shipGroup);
         return $this;
+    }
+
+    /**
+     * Account for shipping discounts not attached to an item.
+     * Combine all shipping discounts into one.
+     *
+     * @see self::handleSalesConvertQuoteAddressToOrderAddress
+     * @see Mage_SalesRule_Model_Validator::processShippingAmount
+     * @param Varien_Event_Observer
+     * @return void
+     */
+    public function handleSalesQuoteCollectTotalsAfter(Varien_Event_Observer $observer)
+    {
+        $event = $observer->getEvent();
+        /** @var Mage_Sales_Model_Quote $quote */
+        $quote = $event->getQuote();
+        /** @var Mage_Sales_Model_Resource_Quote_Address_Collection */
+        $addresses = $quote->getAddressesCollection();
+        foreach ($addresses as $address) {
+            $appliedRuleIds = $address->getAppliedRuleIds();
+            if (is_array($appliedRuleIds)) {
+                $appliedRuleIds = implode(',', $appliedRuleIds);
+            }
+            $data = (array) $address->getEbayEnterpriseOrderDiscountData();
+            $data[$appliedRuleIds] = [
+                'id' => $appliedRuleIds,
+                'amount' => $address->getBaseShippingDiscountAmount(),
+                'description' => $this->helper->__('Shipping Discount'),
+            ];
+            $address->setEbayEnterpriseOrderDiscountData($data);
+        }
+    }
+
+    /**
+     * Account for discounts in order create request.
+     *
+     * @see self::handleSalesConvertQuoteItemToOrderItem
+     * @see Mage_SalesRule_Model_Validator::process
+     * @see Order-Datatypes-Common-1.0.xsd:PromoDiscountSet
+     * @param Varien_Event_Observer
+     * @return void
+     */
+    public function handleSalesRuleValidatorProcess(Varien_Event_Observer $observer)
+    {
+        /** @var Varien_Event $event */
+        $event = $observer->getEvent();
+        /** @var Mage_SalesRule_Model_Rule $rule */
+        $rule = $event->getRule();
+        /** @var Mage_Sales_Model_Quote $quote */
+        $quote = $event->getQuote();
+        /** @var Mage_Core_Model_Store $store */
+        $store = $quote->getStore();
+        /** @var Mage_Sales_Model_Quote_Item $item */
+        $item = $event->getItem();
+        $data = (array) $item->getEbayEnterpriseOrderDiscountData();
+        $ruleId = $rule->getId();
+        // Use the rule id to prevent duplicates.
+        $data[$ruleId] = [
+            'amount' => $event->getResult()->getBaseDiscountAmount(),
+            'applied_count' => $event->getQty(),
+            'code' => $rule->getCouponCode(),
+            'description' => $rule->getStoreLabel($store) ?: $rule->getName(),
+            'effect_type' => $rule->getSimpleAction(),
+            'id' => $ruleId,
+        ];
+        $item->setEbayEnterpriseOrderDiscountData($data);
     }
 }

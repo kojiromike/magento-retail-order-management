@@ -135,7 +135,7 @@ class EbayEnterprise_Tax_Model_Observer
             // just collected should be applied to the quote and any totals
             // dependent upon tax totals - like grand total - should update
             // to include the tax totals.
-            $quote->collectTotals();
+            $quote->setTriggerRecollect(true);
         }
         return $this;
     }

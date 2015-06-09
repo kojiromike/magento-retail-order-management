@@ -21,19 +21,19 @@ use \eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
 class EbayEnterprise_Order_Model_Observer
 {
     /** @var EbayEnterprise_Order_Helper_Event_Shipment */
-    protected $_shipmentEventHelper;
+    protected $shipmentEventHelper;
     /** @var EbayEnterprise_MageLog_Helper_Data */
-    protected $_logger;
+    protected $logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
-    protected $_logContext;
+    protected $logContext;
     /** @var EbayEnterprise_Order_Helper_Event */
-    protected $_orderEventHelper;
+    protected $orderEventHelper;
     /** @var EbayEnterprise_Order_Helper_Data */
-    protected $_orderHelper;
+    protected $orderHelper;
     /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
-    protected $_orderCfg;
+    protected $orderCfg;
     /** @var EbayEnterprise_Eb2cCore_Helper_Data */
-    protected $_coreHelper;
+    protected $coreHelper;
 
     /**
      * Initialize properties
@@ -41,21 +41,21 @@ class EbayEnterprise_Order_Model_Observer
     public function __construct(array $args = [])
     {
         list(
-            $this->_logger,
-            $this->_orderHelper,
-            $this->_orderCfg,
-            $this->_orderEventHelper,
-            $this->_shipmentEventHelper,
-            $this->_coreHelper,
-            $this->_logContext
-        ) = $this->_checkTypes(
-            $this->_nullCoalesce('logger', $args, Mage::helper('ebayenterprise_magelog')),
-            $this->_nullCoalesce('helper', $args, Mage::helper('ebayenterprise_order')),
-            $this->_nullCoalesce('config', $args, Mage::helper('ebayenterprise_order')->getConfigModel()),
-            $this->_nullCoalesce('event_helper', $args, Mage::helper('ebayenterprise_order/event')),
-            $this->_nullCoalesce('shipment_event_helper', $args, Mage::helper('ebayenterprise_order/event_shipment')),
-            $this->_nullCoalesce('core_helper', $args, Mage::helper('eb2ccore')),
-            $this->_nullCoalesce('log_context', $args, Mage::helper('ebayenterprise_magelog/context'))
+            $this->logger,
+            $this->orderHelper,
+            $this->orderCfg,
+            $this->orderEventHelper,
+            $this->shipmentEventHelper,
+            $this->coreHelper,
+            $this->logContext
+        ) = $this->checkTypes(
+            $this->nullCoalesce('logger', $args, Mage::helper('ebayenterprise_magelog')),
+            $this->nullCoalesce('helper', $args, Mage::helper('ebayenterprise_order')),
+            $this->nullCoalesce('config', $args, Mage::helper('ebayenterprise_order')->getConfigModel()),
+            $this->nullCoalesce('event_helper', $args, Mage::helper('ebayenterprise_order/event')),
+            $this->nullCoalesce('shipment_event_helper', $args, Mage::helper('ebayenterprise_order/event_shipment')),
+            $this->nullCoalesce('core_helper', $args, Mage::helper('eb2ccore')),
+            $this->nullCoalesce('log_context', $args, Mage::helper('ebayenterprise_magelog/context'))
         );
     }
 
@@ -70,7 +70,7 @@ class EbayEnterprise_Order_Model_Observer
      * @param EbayEnterprise_MageLog_Helper_Context
      * @return array
      */
-    protected function _checkTypes(
+    protected function checkTypes(
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_Order_Helper_Data $orderHelper,
         EbayEnterprise_Eb2cCore_Model_Config_Registry $orderCfg,
@@ -89,7 +89,7 @@ class EbayEnterprise_Order_Model_Observer
      * @param  mixed
      * @return mixed
      */
-    protected function _nullCoalesce($key, array $ar, $default)
+    protected function nullCoalesce($key, array $ar, $default)
     {
         return isset($ar[$key]) ? $ar[$key] : $default;
     }
@@ -101,74 +101,9 @@ class EbayEnterprise_Order_Model_Observer
      *                    You must at least provide the order object.
      * @return EbayEnterprise_Order_Model_Create
      */
-    protected function _getOrderCreateModel(array $args)
+    protected function getOrderCreateModel(array $args)
     {
         return Mage::getModel('ebayenterprise_order/create', $args);
-    }
-
-    /**
-     * Account for shipping discounts not attached to an item.
-     * Combine all shipping discounts into one.
-     *
-     * @see self::handleSalesConvertQuoteAddressToOrderAddress
-     * @see Mage_SalesRule_Model_Validator::processShippingAmount
-     * @param Varien_Event_Observer
-     * @return void
-     */
-    public function handleSalesQuoteCollectTotalsAfter(Varien_Event_Observer $observer)
-    {
-        $event = $observer->getEvent();
-        /** @var Mage_Sales_Model_Quote $quote */
-        $quote = $event->getQuote();
-        /** @var Mage_Sales_Model_Resource_Quote_Address_Collection */
-        $addresses = $quote->getAddressesCollection();
-        foreach ($addresses as $address) {
-            $appliedRuleIds = $address->getAppliedRuleIds();
-            if (is_array($appliedRuleIds)) {
-                $appliedRuleIds = implode(',', $appliedRuleIds);
-            }
-            $data = (array) $address->getEbayEnterpriseOrderDiscountData();
-            $data[$appliedRuleIds] = [
-                'amount_value' => $address->getBaseShippingDiscountAmount(),
-                'description' => $this->_orderHelper->__('Shipping Discount'),
-            ];
-            $address->setEbayEnterpriseOrderDiscountData($data);
-        }
-    }
-
-    /**
-     * Account for discounts in order create request.
-     *
-     * @see self::handleSalesConvertQuoteItemToOrderItem
-     * @see Mage_SalesRule_Model_Validator::process
-     * @see Order-Datatypes-Common-1.0.xsd:PromoDiscountSet
-     * @param Varien_Event_Observer
-     * @return void
-     */
-    public function handleSalesRuleValidatorProcess(Varien_Event_Observer $observer)
-    {
-        /** @var Varien_Event $event */
-        $event = $observer->getEvent();
-        /** @var Mage_SalesRule_Model_Rule $rule */
-        $rule = $event->getRule();
-        /** @var Mage_Sales_Model_Quote $quote */
-        $quote = $event->getQuote();
-        /** @var Mage_Core_Model_Store $store */
-        $store = $quote->getStore();
-        /** @var Mage_Sales_Model_Quote_Item $item */
-        $item = $event->getItem();
-        $data = (array) $item->getEbayEnterpriseOrderDiscountData();
-        $ruleId = $rule->getId();
-        // Use the rule id to prevent duplicates.
-        $data[$ruleId] = [
-            'amount' => $event->getResult()->getBaseDiscountAmount(),
-            'applied_count' => $event->getQty(),
-            'code' => $rule->getCouponCode(),
-            'description' => $rule->getStoreLabel($store) ?: $rule->getName(),
-            'effect_type' => $rule->getSimpleAction(),
-            'id' => $ruleId,
-        ];
-        $item->setEbayEnterpriseOrderDiscountData($data);
     }
 
     /**
@@ -181,19 +116,22 @@ class EbayEnterprise_Order_Model_Observer
     {
         $order = $observer->getEvent()->getOrder();
         if ($order instanceof Mage_Sales_Model_Order) {
-            $api = $this->_coreHelper->getSdkApi(
-                $this->_orderCfg->apiService,
-                $this->_orderCfg->apiCreateOperation
+            $api = $this->coreHelper->getSdkApi(
+                $this->orderCfg->apiService,
+                $this->orderCfg->apiCreateOperation
             );
             $constructorArgs = [
                 'api' => $api,
-                'config' => $this->_orderCfg,
+                'config' => $this->orderCfg,
                 'order' => $order,
                 'payload' => $api->getRequestBody(),
             ];
-            $this->_getOrderCreateModel($constructorArgs)->send();
+            $this->getOrderCreateModel($constructorArgs)->send();
         } else {
-            $this->_logger->logWarn('[%s] Attempted to submit order create request, but parameter (%s) is not an order.', [__CLASS__, gettype($order)]);
+            $this->logger->logWarn(
+                '[%s] Attempted to submit order create request, but parameter (%s) is not an order.',
+                [__CLASS__, gettype($order)]
+            );
         }
     }
 
@@ -202,7 +140,7 @@ class EbayEnterprise_Order_Model_Observer
      *
      * @return Mage_Sales_Model_Order_Resource_Collection
      */
-    protected function _getUnsubmittedOrders()
+    protected function getUnsubmittedOrders()
     {
         $status = EbayEnterprise_Order_Model_Create::STATUS_NEW;
         return Mage::getResourceModel('sales/order_collection')
@@ -218,25 +156,25 @@ class EbayEnterprise_Order_Model_Observer
      */
     public function handleEbayEnterpriseOrderCreateRetryJob()
     {
-        $orders = $this->_getUnsubmittedOrders();
-        $this->_logger->debug(
+        $orders = $this->getUnsubmittedOrders();
+        $this->logger->debug(
             'Found {order_retry_count} order(s) to be resubmitted.',
-            $this->_logContext->getMetaData(__CLASS__, ['order_retry_count' => $orders->getSize()])
+            $this->logContext->getMetaData(__CLASS__, ['order_retry_count' => $orders->getSize()])
         );
-        $api = $this->_coreHelper->getSdkApi(
-            $this->_orderCfg->apiService,
-            $this->_orderCfg->apiCreateOperation
+        $api = $this->coreHelper->getSdkApi(
+            $this->orderCfg->apiService,
+            $this->orderCfg->apiCreateOperation
         );
         $createArgs = [
             'api' => $api,
-            'config' => $this->_orderCfg,
+            'config' => $this->orderCfg,
             'payload' => $api->getRequestBody(),
             'is_payload_prebuilt' => true
         ];
         foreach ($orders as $order) {
-            $this->_resubmit($order, $createArgs);
+            $this->resubmit($order, $createArgs);
         }
-        $this->_logger->debug('Order retry complete.', $this->_logContext->getMetaData(__CLASS__));
+        $this->logger->debug('Order retry complete.', $this->logContext->getMetaData(__CLASS__));
     }
 
     /**
@@ -244,16 +182,16 @@ class EbayEnterprise_Order_Model_Observer
      * @param  Mage_Sales_Model_Order
      * @param  array
      */
-    protected function _resubmit(Mage_Sales_Model_Order $order, array $createArgs)
+    protected function resubmit(Mage_Sales_Model_Order $order, array $createArgs)
     {
         $raw = $order->getEb2cOrderCreateRequest();
         if ($raw) {
             $createArgs['order'] = $order;
-            $this->_getOrderCreateModel($createArgs)->send();
+            $this->getOrderCreateModel($createArgs)->send();
         } else {
-            $this->_logger->warning(
+            $this->logger->warning(
                 'Unable to resubmit "{order_id}". Please see documentation for possible solutions.',
-                $this->_logContext->getMetaData(['order_id' => $order->getIncrementId()])
+                $this->logContext->getMetaData(['order_id' => $order->getIncrementId()])
             );
         }
     }
@@ -268,7 +206,8 @@ class EbayEnterprise_Order_Model_Observer
      */
     public function handleEbayEnterpriseAmqpMessageOrderCreditIssued(Varien_Event_Observer $observer)
     {
-        Mage::getModel('ebayenterprise_order/creditissued', ['payload' => $observer->getEvent()->getPayload()])->process();
+        Mage::getModel('ebayenterprise_order/creditissued', ['payload' => $observer->getEvent()->getPayload()])
+            ->process();
     }
 
     /**
@@ -282,8 +221,8 @@ class EbayEnterprise_Order_Model_Observer
     {
         Mage::getModel('ebayenterprise_order/orderrejected', [
             'payload' => $observer->getEvent()->getPayload(),
-            'order_event_helper' => $this->_orderEventHelper,
-            'logger' => $this->_logger,
+            'order_event_helper' => $this->orderEventHelper,
+            'logger' => $this->logger,
         ])->process();
     }
     /**
@@ -297,10 +236,10 @@ class EbayEnterprise_Order_Model_Observer
     public function handleEbayEnterpriseOrderEventCancel(Varien_Event_Observer $observer)
     {
         $message = trim($observer->getEvent()->getMessage());
-        $orderCollection = $this->_loadOrdersFromXml($message);
+        $orderCollection = $this->loadOrdersFromXml($message);
         $eventName = $observer->getEvent()->getName();
         foreach ($orderCollection as $order) {
-            $this->_orderEventHelper->attemptCancelOrder($order, $eventName);
+            $this->orderEventHelper->attemptCancelOrder($order, $eventName);
         }
     }
 
@@ -316,8 +255,8 @@ class EbayEnterprise_Order_Model_Observer
     {
         Mage::getModel('ebayenterprise_order/ordershipped', [
             'payload' => $observer->getEvent()->getPayload(),
-            'shipment_event_helper' => $this->_shipmentEventHelper,
-            'logger' => $this->_logger,
+            'shipment_event_helper' => $this->shipmentEventHelper,
+            'logger' => $this->logger,
         ])->process();
     }
 
@@ -329,10 +268,10 @@ class EbayEnterprise_Order_Model_Observer
      * @param  string
      * @return Varien_Data_Collection
      */
-    protected function _loadOrdersFromXml($xml)
+    protected function loadOrdersFromXml($xml)
     {
-        return $this->_orderHelper->getOrderCollectionByIncrementIds(
-            $this->_orderHelper->extractOrderEventIncrementIds($xml)
+        return $this->orderHelper->getOrderCollectionByIncrementIds(
+            $this->orderHelper->extractOrderEventIncrementIds($xml)
         );
     }
 

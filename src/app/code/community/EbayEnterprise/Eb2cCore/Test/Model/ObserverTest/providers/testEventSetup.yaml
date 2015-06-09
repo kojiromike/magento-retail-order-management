@@ -1,0 +1,10 @@
+-
+    - global
+    - sales_quote_collect_totals_after
+    - eb2ccore/observer
+    - handleSalesQuoteCollectTotalsAfter
+-
+    - global
+    - salesrule_validator_process
+    - eb2ccore/observer
+    - handleSalesRuleValidatorProcess

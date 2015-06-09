@@ -33,8 +33,3 @@
     - sales_order_place_after
     - ebayenterprise_order/observer
     - handleSalesOrderPlaceAfter
--
-    - global
-    - salesrule_validator_process
-    - ebayenterprise_order/observer
-    - handleSalesRuleValidatorProcess

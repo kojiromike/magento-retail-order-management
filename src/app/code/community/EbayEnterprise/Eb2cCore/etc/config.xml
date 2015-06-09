@@ -44,6 +44,22 @@
 					</eb2ccore_update_quote_session>
 				</observers>
 			</sales_quote_collect_totals_before>
+			<sales_quote_collect_totals_after>
+				<observers>
+					<eb2ccore_address_discount_observer>
+						<class>eb2ccore/observer</class>
+						<method>handleSalesQuoteCollectTotalsAfter</method>
+					</eb2ccore_address_discount_observer>
+				</observers>
+			</sales_quote_collect_totals_after>
+			<salesrule_validator_process>
+				<observers>
+					<ebayenterprise_salesrule_discount_observer>
+						<class>eb2ccore/observer</class>
+						<method>handleSalesRuleValidatorProcess</method>
+					</ebayenterprise_salesrule_discount_observer>
+				</observers>
+			</salesrule_validator_process>
 			<sales_order_place_before>
 				<observers>
 					<eb2ccore_place_exchange_platform_order>

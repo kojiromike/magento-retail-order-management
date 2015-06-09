@@ -16,17 +16,17 @@
 class EbayEnterprise_Tax_Test_Model_ObserverTest extends EcomDev_PHPUnit_Test_Case
 {
     /** @var EbayEnterprise_Eb2cCre_Model_Session */
-    protected $_coreSession;
+    protected $coreSession;
     /** @var EbayEnterprise_Tax_Model_Collector */
-    protected $_taxCollector;
+    protected $taxCollector;
     /** @var Mage_Sales_Model_Quote */
-    protected $_quote;
+    protected $quote;
     /** @var Varien_Event */
-    protected $_event;
+    protected $event;
     /** @var Varien_Event_Observer */
-    protected $_eventObserver;
+    protected $eventObserver;
     /** @var EbayEnterprise_Tax_Model_Observer */
-    protected $_taxObserver;
+    protected $taxObserver;
 
     public function setUp()
     {
@@ -36,19 +36,19 @@ class EbayEnterprise_Tax_Test_Model_ObserverTest extends EcomDev_PHPUnit_Test_Ca
             ->method('getMetaData')
             ->will($this->returnValue([]));
 
-        $this->_coreSession = $this->getModelMockBuilder('eb2ccore/session')
+        $this->coreSession = $this->getModelMockBuilder('eb2ccore/session')
             ->disableOriginalConstructor()
             ->setMethods(['isTaxUpdateRequired', 'updateWithQuote', 'resetTaxUpdateRequired'])
             ->getMock();
-        $this->_taxCollector = $this->getModelMock('ebayenterprise_tax/collector', ['collectTaxes']);
-        $this->_quote = $this->getModelMock('sales/quote', ['collectTotals']);
+        $this->taxCollector = $this->getModelMock('ebayenterprise_tax/collector', ['collectTaxes']);
+        $this->quote = $this->getModelMock('sales/quote', ['setTriggerRecollect']);
 
-        $this->_event = new Varien_Event(['quote' => $this->_quote]);
-        $this->_eventObserver = new Varien_Event_Observer(['event' => $this->_event]);
+        $this->event = new Varien_Event(['quote' => $this->quote]);
+        $this->eventObserver = new Varien_Event_Observer(['event' => $this->event]);
 
-        $this->_taxObserver = Mage::getModel(
+        $this->taxObserver = Mage::getModel(
             'ebayenterprise_tax/observer',
-            ['core_session' => $this->_coreSession, 'tax_collector' => $this->_taxCollector, 'log_context' => $logContext]
+            ['core_session' => $this->coreSession, 'tax_collector' => $this->taxCollector, 'log_context' => $logContext]
         );
     }
 
@@ -61,36 +61,37 @@ class EbayEnterprise_Tax_Test_Model_ObserverTest extends EcomDev_PHPUnit_Test_Ca
         // Eb2cCore_Session Interactions
         // Tax update required flag should be checked before doing anything.
         // Should only collect new taxes when true.
-        $this->_coreSession->expects($this->any())
+        $this->coreSession->expects($this->any())
             ->method('isTaxUpdateRequired')
             ->will($this->returnValue(true));
         // When the TDF request succeeds, session store of quote data should
         // get updated so quote will reflect state of quote taxes were collected for.
-        $this->_coreSession->expects($this->once())
+        $this->coreSession->expects($this->once())
             ->method('updateWithQuote')
-            ->with($this->identicalTo($this->_quote))
+            ->with($this->identicalTo($this->quote))
             ->will($this->returnSelf());
         // After a successful TDF request, the flag to update tax data should be
         // reset so taxes are not requested again until the quote changes to
         // require a new tax request.
-        $this->_coreSession->expects($this->once())
+        $this->coreSession->expects($this->once())
             ->method('resetTaxUpdateRequired')
             ->will($this->returnSelf());
 
         // So long as the tax collector doesn't throw an exception, should
         // consider taxes to have been successfully collected.
-        $this->_taxCollector->expects($this->once())
+        $this->taxCollector->expects($this->once())
             ->method('collectTaxes')
-            ->with($this->identicalTo($this->_quote))
+            ->with($this->identicalTo($this->quote))
             ->will($this->returnSelf());
 
         // Expect that when tax records have been collected, quote totals should
         // be recollected.
-        $this->_quote->expects($this->once())
-            ->method('collectTotals')
+        $this->quote->expects($this->once())
+            ->method('setTriggerRecollect')
+            ->with($this->identicalTo(true))
             ->will($this->returnSelf());
 
-        $this->_taxObserver->handleSalesQuoteCollectTotalsAfter($this->_eventObserver);
+        $this->taxObserver->handleSalesQuoteCollectTotalsAfter($this->eventObserver);
     }
 
     /**
@@ -101,19 +102,19 @@ class EbayEnterprise_Tax_Test_Model_ObserverTest extends EcomDev_PHPUnit_Test_Ca
     public function testHandleSalesQuoteCollectTotalsNoTaxUpdate()
     {
         // Indicate tax updates are not required in the session flags.
-        $this->_coreSession->expects($this->any())
+        $this->coreSession->expects($this->any())
             ->method('isTaxUpdateRequired')
             ->will($this->returnValue(false));
         // Ensure that taxes are not re-collected, session data is not updated
         // and quote totals are not re-collected.
-        $this->_coreSession->expects($this->never())
+        $this->coreSession->expects($this->never())
             ->method('updateWithQuote');
-        $this->_taxCollector->expects($this->never())
+        $this->taxCollector->expects($this->never())
             ->method('collectTaxes');
-        $this->_quote->expects($this->never())
+        $this->quote->expects($this->never())
             ->method('collectTotals');
 
-        $this->_taxObserver->handleSalesQuoteCollectTotalsAfter($this->_eventObserver);
+        $this->taxObserver->handleSalesQuoteCollectTotalsAfter($this->eventObserver);
     }
 
     /**
@@ -123,25 +124,25 @@ class EbayEnterprise_Tax_Test_Model_ObserverTest extends EcomDev_PHPUnit_Test_Ca
     public function testHandleSalesQuoteCollectTotalsCollectFailure()
     {
         // Indicate new tax collection is required in the session flags.
-        $this->_coreSession->expects($this->any())
+        $this->coreSession->expects($this->any())
             ->method('isTaxUpdateRequired')
             ->will($this->returnValue(true));
 
         // Set the tax collector to fail to make the TDF request and throw
         // an exception.
-        $this->_taxCollector->expects($this->once())
+        $this->taxCollector->expects($this->once())
             ->method('collectTaxes')
             ->will($this->throwException(Mage::exception('EbayEnterprise_Tax_Exception_Collector')));
 
         // Ensure session quote data is not updated, flags are not reset and
         // quote totals are not re-collected.
-        $this->_coreSession->expects($this->never())
+        $this->coreSession->expects($this->never())
             ->method('updateWithQuote');
-        $this->_coreSession->expects($this->never())
+        $this->coreSession->expects($this->never())
             ->method('resetTaxUpdateRequired');
-        $this->_quote->expects($this->never())
+        $this->quote->expects($this->never())
             ->method('collectTotals');
 
-        $this->_taxObserver->handleSalesQuoteCollectTotalsAfter($this->_eventObserver);
+        $this->taxObserver->handleSalesQuoteCollectTotalsAfter($this->eventObserver);
     }
 }

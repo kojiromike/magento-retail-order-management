@@ -142,14 +142,6 @@
 					</ebayenterprise_order_placed_observer>
 				</observers>
 			</sales_order_place_after>
-			<salesrule_validator_process>
-				<observers>
-					<ebayenterprise_salesrule_discount_observer>
-						<class>ebayenterprise_order/observer</class>
-						<method>handleSalesRuleValidatorProcess</method>
-					</ebayenterprise_salesrule_discount_observer>
-				</observers>
-			</salesrule_validator_process>
 			<sales_convert_quote_item_to_order_item>
 				<observers>
 					<sales_convert_quote_item_to_order_item_observer>

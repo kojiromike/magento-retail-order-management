@@ -168,4 +168,14 @@ class EbayEnterprise_Eb2cCore_Test_Model_ObserverTest extends EbayEnterprise_Eb2
         $this->assertSame($observer, $observer->rollbackExchangePlatformOrder($eventObserver));
         $this->assertEventDispatchedExactly('eb2c_order_creation_failure', 1);
     }
+
+    /**
+     * Validate expected event configuration.
+     *
+     * @dataProvider dataProvider
+     */
+    public function testEventSetup($area, $eventName, $observerClassAlias, $observerMethod)
+    {
+        $this->_testEventConfig($area, $eventName, $observerClassAlias, $observerMethod);
+    }
 }

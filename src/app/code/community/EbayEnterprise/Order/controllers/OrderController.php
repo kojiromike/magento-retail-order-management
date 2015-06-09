@@ -170,13 +170,20 @@ class EbayEnterprise_Order_OrderController extends Mage_Sales_Controller_Abstrac
      */
     public function romCancelAction()
     {
-        $this->_handleInvalidOperation();
-        if ($this->_canShowOrderCancelForm()) {
-            $this->_setRefererUrlInSession()
-                ->_showOrderCancelPage();
+        if ($this->_isValidOperation()) {
+            if ($this->_canShowOrderCancelForm()) {
+                $this->_setRefererUrlInSession()
+                    ->_showOrderCancelPage();
+                return;
+            }
+            $this->_processOrderCancelAction();
             return;
         }
-        $this->_processOrderCancelAction();
+        if ($this->_orderFactory->getCustomerSession()->isLoggedIn()) {
+            $this->_redirect('*/*/history');
+        } else {
+            $this->_redirect('sales/guest/form');
+        }
     }
 
     /**
@@ -337,13 +344,9 @@ class EbayEnterprise_Order_OrderController extends Mage_Sales_Controller_Abstrac
      *
      * @return self
      */
-    protected function _handleInvalidOperation()
+    protected function _isValidOperation()
     {
-        $orderId = $this->getRequest()->getParam('order_id');
-        if (!$orderId) {
-            $this->loadLayout();
-            $this->_redirect($this->_getRomReturnPath($this->_orderFactory->getCustomerSession()));
-        }
-        return $this;
+        $orderId = trim($this->getRequest()->getParam('order_id'));
+        return !empty($orderId);
     }
 }

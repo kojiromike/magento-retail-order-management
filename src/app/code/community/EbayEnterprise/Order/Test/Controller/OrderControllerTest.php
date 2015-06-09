@@ -400,8 +400,10 @@ class EbayEnterprise_Order_Test_Controller_OrderControllerTest extends EbayEnter
     public function providerRomCancelAction()
     {
         return [
-            [true],
-            [false],
+            [true, true, true],
+            [false, true, true],
+            [false, false, true],
+            [false, false, false],
         ];
     }
 
@@ -419,10 +421,22 @@ class EbayEnterprise_Order_Test_Controller_OrderControllerTest extends EbayEnter
      * Finally, the method EbayEnterprise_Order_OrderController::romCancelAction() will return null.
      *
      * @param bool
+     * @param bool
+     * @param bool
      * @dataProvider providerRomCancelAction
      */
-    public function testRomCancelAction($canShow)
+    public function testRomCancelAction($canShow, $isValidOperation, $isLoggedIn)
     {
+        $this->_session->expects($isValidOperation ? $this->never() : $this->once())
+            ->method('isLoggedIn')
+            ->will($this->returnValue($isLoggedIn));
+
+        /** @var EbayEnterprise_Order_Helper_Factory */
+        $factory = $this->getHelperMock('ebayenterprise_order/factory', ['getCustomerSession']);
+        $factory->expects($isValidOperation ? $this->never() : $this->once())
+            ->method('getCustomerSession')
+            ->will($this->returnValue($this->_session));
+
         /** @var Mock_Zend_Controller_Request_Abstract */
         $request = $this->getMockForAbstractClass('Zend_Controller_Request_Abstract');
         /** @var Mock_Zend_Controller_Response_Abstract */
@@ -430,10 +444,13 @@ class EbayEnterprise_Order_Test_Controller_OrderControllerTest extends EbayEnter
 
         /** @var Mock_EbayEnterprise_Order_OrderController */
         $controller = $this->getMockBuilder('EbayEnterprise_Order_OrderController')
-            ->setMethods(['_canShowOrderCancelForm', '_setRefererUrlInSession', '_showOrderCancelPage', '_processOrderCancelAction', '_handleInvalidOperation'])
+            ->setMethods(['_canShowOrderCancelForm', '_setRefererUrlInSession', '_showOrderCancelPage', '_processOrderCancelAction', '_isValidOperation', '_redirect'])
             ->setConstructorArgs([$request, $response])
             ->getMock();
-        $controller->expects($this->once())
+        EcomDev_Utils_Reflection::setRestrictedPropertyValues($controller, [
+            '_orderFactory' => $factory,
+        ]);
+        $controller->expects($isValidOperation ? $this->once() : $this->never())
             ->method('_canShowOrderCancelForm')
             ->will($this->returnValue($canShow));
         $controller->expects($canShow ? $this->once() : $this->never())
@@ -446,14 +463,20 @@ class EbayEnterprise_Order_Test_Controller_OrderControllerTest extends EbayEnter
             // this method will be invoked once, otherwise it will never be called.
             ->method('_showOrderCancelPage')
             ->will($this->returnSelf());
-        $controller->expects($canShow ? $this->never() : $this->once())
+        $controller->expects($isValidOperation && !$canShow ? $this->once() : $this->never())
             // when the method EbayEnterprise_Order_OrderController::_canShowOrderCancelForm() return true
             // this method will never be invoked, otherwise it will be called once.
             ->method('_processOrderCancelAction')
             ->will($this->returnSelf());
         $controller->expects($this->once())
-            ->method('_handleInvalidOperation')
-            ->will($this->returnSelf());
+            ->method('_isValidOperation')
+            ->will($this->returnValue($isValidOperation));
+        $controller->expects($isValidOperation ? $this->never() : $this->once())
+            ->method('_redirect')
+            ->will($this->returnValueMap([
+                ['*/*/history', [], $controller],
+                ['sales/guest/form', [], $controller],
+            ]));
 
         $this->assertNull($controller->romCancelAction());
     }
@@ -1127,49 +1150,25 @@ class EbayEnterprise_Order_Test_Controller_OrderControllerTest extends EbayEnter
     /**
      * @return array
      */
-    public function providerHandleInvalidOperation()
+    public function providerIsValidOperation()
     {
         return [
-            [null, EbayEnterprise_Order_OrderController::LOGGED_IN_ORDER_HISTORY_PATH],
-            [null, EbayEnterprise_Order_OrderController::GUEST_ORDER_FORM_PATH],
-            ['10000938382811', EbayEnterprise_Order_OrderController::GUEST_ORDER_FORM_PATH],
+            [null, false],
+            ['10000938382811', true],
         ];
     }
 
     /**
      * @param string | null
-     * @param string
-     * @dataProvider providerHandleInvalidOperation
+     * @param bool
+     * @dataProvider providerIsValidOperation
      */
-    public function testHandleInvalidOperation($orderId, $path)
+    public function testIsValidOperation($orderId, $isValid)
     {
-        /** @var PHPUnit_Framework_MockObject_Matcher_InvokedCount $invocation */
-        $invocation = is_null($orderId) ? $this->any() : $this->never();
-        /** @var EbayEnterprise_Order_Helper_Factory */
-        $factory = $this->getHelperMock('ebayenterprise_order/factory', ['getCustomerSession']);
-        $factory->expects($this->any())
-            ->method('getCustomerSession')
-            ->will($this->returnValue($this->_session));
-        EcomDev_Utils_Reflection::setRestrictedPropertyValues($this->_controller, [
-            '_orderFactory' => $factory,
-        ]);
-
         $this->_request->expects($this->any())
             ->method('getParam')
             ->with($this->identicalTo('order_id'))
             ->will($this->returnValue($orderId));
-        $this->_controller->expects($invocation)
-            ->method('_redirect')
-            ->with($this->identicalTo($path))
-            ->will($this->returnSelf());
-        $this->_controller->expects($invocation)
-            ->method('_getRomReturnPath')
-            ->will($this->returnValue($path));
-        $this->_controller->expects($invocation)
-            ->method('loadLayout')
-            ->with($this->isType('null'))
-            ->will($this->returnValue($this->getModelMock('core/layout')));
-
-        $this->assertSame($this->_controller, EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_controller, '_handleInvalidOperation', []));
+        $this->assertSame($isValid, EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_controller, '_isValidOperation', []));
     }
 }

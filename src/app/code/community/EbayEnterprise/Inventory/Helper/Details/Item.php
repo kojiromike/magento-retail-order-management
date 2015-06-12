@@ -62,7 +62,7 @@ class EbayEnterprise_Inventory_Helper_Details_Item
     public function applyQuoteItemData(IOrderItem $itemPayload, Mage_Sales_Model_Quote_Item_Abstract $item)
     {
         $itemPayload->setItemId($item->getSku())
-            ->setLineId($item->getId())
+            ->setLineId($item->getAddressItemId() ?: $item->getId())
             ->setQuantity($this->_quantityHelper->getRequestedItemQuantity($item))
             // optional
             ->setGiftWrapRequested($this->_isItemGiftWrapped($item));

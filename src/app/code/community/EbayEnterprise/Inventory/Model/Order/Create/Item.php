@@ -65,8 +65,7 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item
      */
     public function injectShippingEstimates(IOrderItem $itemPayload, Mage_Sales_Model_Order_Item $item)
     {
-        $quoteItem = $this->getQuoteItem($item);
-        $detail = $this->detailService->getDetailsForItem($quoteItem);
+        $detail = $this->detailService->getDetailsForOrderItem($item);
         if ($detail && $detail->isAvailable()) {
             $itemPayload
                 ->setEstimatedDeliveryMode(IEstimatedDeliveryDate::MODE_LEGACY)
@@ -76,18 +75,6 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item
             $this->handleDateFields($itemPayload, $detail);
         }
         return $this;
-    }
-
-    /**
-     * get the quote item for the order item
-     *
-     * @param  Mage_Sales_Model_Order_Item
-     * @return Mage_Sales_Model_Quote_Item_Abstract
-     */
-    protected function getQuoteItem(Mage_Sales_Model_Order_Item $item)
-    {
-        $quote = $item->getOrder()->getQuote();
-        return $quote->getItemById($item->getQuoteItemId());
     }
 
     /**

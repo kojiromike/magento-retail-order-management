@@ -94,6 +94,25 @@ class EbayEnterprise_Inventory_Model_Details_Service
     }
 
     /**
+     * Get item details for the given order item.
+     * returns null if the item was excluded from the request or if
+     * there was an error in the sdk
+     *
+     * @param  Mage_Sales_Model_Order_Item
+     * @return EbayEnterprise_Inventory_Model_Details_Item|null
+     */
+    public function getDetailsForOrderItem(Mage_Sales_Model_Order_Item $item)
+    {
+        try {
+            $result = $this->factory->createDetailsModel()
+                ->fetch($item->getOrder()->getQuote());
+            return $result->lookupDetailsByItemId($item->getQuoteItemId());
+        } catch (EbayEnterprise_Inventory_Exception_Details_Operation_Exception $e) {
+            return null;
+        }
+    }
+
+    /**
      * fetch inventory details for the quote
      *
      * @param Mage_Sales_Model_Quote

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Shipping discounts were missing from tax and order create requests
 
+### Changed
+- Inventory details and quantity operations now use the ROM SDK
+
+### Added
+- Support for bundle and group product types for inventory details and quantity operations
+
 ## [1.6.0-alpha-4] -  2015-06-04
 ### Added
 - Support for multishipping checkout to generate a single order create request

@@ -71,7 +71,7 @@ all options to ensure they match you specific implementation.
 		<ebayenterprise_inventory>
 			<details>
 				<!-- Template to use to display the estimated delivery date. -->
-				<estimated_delivery_template'></estimated_delivery_template'>
+				<estimated_delivery_template></estimated_delivery_template>
 			</details>
 		</ebayenterprise_inventory>
 		<ebayenterprise_tax>

@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Support for bundle and group product types for inventory details and quantity operations
+- Support for client-side encryption for multishipping orders eBay enterprise Credit Card payment method is used
 
 ## [1.6.0-alpha-4] -  2015-06-04
 ### Added

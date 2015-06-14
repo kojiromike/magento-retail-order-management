@@ -521,4 +521,47 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
         $response = $api->getResponseBody();
         return $this->_updatePaymentsWithAuthData($payment, $request, $response)->_validateResponse($response);
     }
+
+    /**
+     * get shipping address with the highest subtotal amount.
+     *
+     * @param Mage_Sales_Model_Order
+     * @return Mage_Sales_Model_Order_Address|null
+     */
+    protected function getPrimaryShippingAddress(Mage_Sales_Model_Order $order)
+    {
+        $collection = $order->getAddressesCollection();
+        $address = $collection->getItemByColumnValue(
+            'quote_address_id',
+            $this->getQuotePrimaryShippingAddressId($order->getQuote())
+        );
+        return $address;
+    }
+
+    /**
+     * get the quote address id for the address with the highest subtotal
+     * amount
+     *
+     * @param Mage_Sales_Model_Quote
+     * @return int
+     */
+    protected function getQuotePrimaryShippingAddressId(Mage_Sales_Model_Quote $quote)
+    {
+        $addresses = $quote->getAllShippingAddresses();
+        $selected = array_reduce(
+            $addresses,
+            function(
+                Mage_Sales_Model_Quote_Address $current = null,
+                Mage_Sales_Model_Quote_Address $address
+            ) {
+                if (!$current) {
+                    $current = $address;
+                }
+                return $address->getBaseSubtotal() > $current->getBaseSubtotal()
+                    ? $address
+                    : $current;
+            }
+        );
+        return $selected->getAddressId();
+    }
 }

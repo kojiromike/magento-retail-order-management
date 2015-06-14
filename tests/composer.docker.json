@@ -1,8 +1,7 @@
 {
 	"repositories": [
 		{ "type": "vcs", "url": "/git/magento-retail-order-management" },
-		{ "type": "composer", "url": "http://satis.sandbox.gspt.net:7001/" },
-		{ "type": "composer", "url": "http://packages.magento.com" },
+		{ "type": "composer", "url": "http://lvsciapp22.us.gspt.net" },
 		{ "type": "composer", "url": "http://packages.firegento.com" }
 	],
 	"extra": {

@@ -122,9 +122,9 @@ install_magento() (
         # No base url was specified, so disable redirecting to base url.
         mysql -e 'DELETE FROM core_config_data WHERE path LIKE "web/%secure/base_url"\g'
         magerun cache:disable config
-        magerun dev:log --on --global .
-        magerun dev:symlinks --on --global .
-        magerun index:reindex:all .
+        magerun dev:log --on --global
+        magerun dev:symlinks --on --global
+        magerun index:reindex:all
     fi
     if cd errors && [[ ! -f local.xml.sample ]]; then
         ln -s local.xml.sample local.xml
@@ -142,7 +142,7 @@ copy_testkit() {
 }
 
 validate() (
-    cd build/magento && magerun sys:check .
+    cd build/magento && magerun sys:check
 )
 
 main "$@"

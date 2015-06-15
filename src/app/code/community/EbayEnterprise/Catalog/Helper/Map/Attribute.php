@@ -93,6 +93,32 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
     }
 
     /**
+     * Extract the item status which may be one of several possible options.
+     * If an invalid option is encountered, do not change the existing value.
+     *
+     * @param DOMNodeList
+     * @param Mage_Catalog_Model_Product $product
+     * @return int
+     */
+    public function extractItemStatus(DOMNodeList $nodeList, Mage_Catalog_Model_Product $product)
+    {
+        return $this->_getAttributeOptionId('item_status', Mage::helper('eb2ccore')->extractNodeVal($nodeList)) ?: $product->getItemStatus();
+    }
+
+    /**
+     * Extract the catalog class which may be one of several possible options.
+     * If an invalid option is encountered, do not change the existing value.
+     *
+     * @param DOMNodeList
+     * @param Mage_Catalog_Model_Product $product
+     * @return int
+     */
+    public function extractCatalogClass(DOMNodeList $nodeList, Mage_Catalog_Model_Product $product)
+    {
+        return $this->_getAttributeOptionId('catalog_class', Mage::helper('eb2ccore')->extractNodeVal($nodeList)) ?: $product->getCatalogClass();
+    }
+
+    /**
      * get a list of option from a given attribute code and store id
      * @param string $attributeCode the attribute code (color, size)
      * @param string $optionValue

@@ -69,13 +69,13 @@ Carefully review all options to ensure they match you specific implementation.
 							<xml_dest>ItemId/ClientItemId</xml_dest>
 							<translate>0</translate>
 						</sku>
-						<visibility>
+						<catalog_class>
 							<class>ebayenterprise_catalog/itemmaster</class>
 							<type>helper</type>
 							<method>passCatalogClass</method>
 							<xml_dest>BaseAttributes/CatalogClass</xml_dest>
 							<translate>0</translate>
-						</visibility>
+						</catalog_class>
 						<drop_shipped>
 							<class>ebayenterprise_catalog/pim</class>
 							<type>helper</type>
@@ -97,13 +97,13 @@ Carefully review all options to ensure they match you specific implementation.
 							<xml_dest>BaseAttributes/ItemType</xml_dest>
 							<translate>0</translate>
 						</item_type>
-						<status>
+						<item_status>
 							<class>ebayenterprise_catalog/itemmaster</class>
 							<type>helper</type>
 							<method>passItemStatus</method>
 							<xml_dest>BaseAttributes/ItemStatus</xml_dest>
 							<translate>0</translate>
-						</status>
+						</item_status>
 						<tax_code>
 							<class>ebayenterprise_catalog/itemmaster</class>
 							<type>helper</type>

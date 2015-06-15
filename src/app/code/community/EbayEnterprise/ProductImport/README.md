@@ -42,14 +42,17 @@ Follow the [Installation and Configuration Guide](/docs/INSTALL.md#product-infor
 
 On installation, the Magento Retail Order Management Extension will create the following attributes required for the extension to operate. These attributes should be included in every Attribute Set.
 
-| Attribute Name | Attribute Code | Description |
-|:---------------|:---------------|:------------|
-| Size           | `size`         | Product size |
-| Style ID       | `style_id`     | Associates simple products to configurable products |
-| Is Clean       | `is_clean`     | Flag indicating if the product has had all of its product links resolved |
+| Attribute Name | Attribute Code  | Description |
+|:---------------|:----------------|:------------|
+| Size           | `size`          | Product size |
+| Style ID       | `style_id`      | Associates simple products to configurable products |
+| Is Clean       | `is_clean`      | Flag indicating if the product has had all of its product links resolved |
 | Unresolved Product Links | `unresolved_product_links` | Any related, cross-sell or up-sell product links for the product that have not yet been resolved, typically due to the target products not existing in Magento yet |
-| HTS Codes      | `hts_codes`    | Serialized mapping of tax codes used for calculating international taxes and duties |
-| Tax Code       | `tax_code`     | Tax code used by the Retail Order Management tax service |
+| HTS Codes      | `hts_codes`     | Serialized mapping of tax codes used for calculating international taxes and duties |
+| Tax Code       | `tax_code`      | Tax code used by the Retail Order Management tax service |
+| Catalog Class  | `catalog_class` | Intended to specify how an item displays in a catalog. This value drives no out-of-the-box business logic in Magento. |
+| Item Status    | `item_status`   | Preserves the original Item Status value. This value drives no out-of-the-box business logic in Magento. |
+| Street Date    | `street_date`   | Earliest date the Retail Order Management OMS will allocate the product. |
 
 ## Product Hub Feed Processing
 
@@ -71,8 +74,8 @@ The product information provided in the Item Master drives much of the business 
 | `@gsi_client_id` | N/A | Client Id provided by eBay Enterprise and configured at the Website scope. Products will only be assigned to Magento Websites with a matching Client Id. See [Import Products into Different Magento Websites](#import-products-into-different-magento-websites) for more details on assigning products to Websites. |
 | `@catalog_id` | N/A | Catalog Id provided by eBay Enterprise and configured at the Global scope. Products will only be imported with a matching Catalog Id. |
 | `ItemId/ClientItemId` | SKU | |
-| `BaseAttributes/CatalogClass` | Visibility | Values of `regular` and `always` result in products with a visibility of "Catalog, Search". A values of `nosale` will be given a visibility of "Not Visible Individually." |
-| `BaseAttributes/ItemStatus` | Status | A value of `Active` will result in a product that is "Enabled" in Magento. Both `Discontinued` and `Inactive` will result in a product that is "Disabled" in Magento. |
+| `BaseAttributes/CatalogClass` | [Catalog Class](#magento-product-attributes) | |
+| `BaseAttributes/ItemStatus` | Status and [Item Status](#magento-product-attributes) | A value of `Active` will result in a product that is "Enabled" in Magento. Both `Discontinued` and `Inactive` will result in a product that is "Disabled" in Magento. The original value will also be preserved and saved as Item Status. |
 | `BaseAttributes/TaxCode` | [Tax Code](#magento-product-attributes) | Used in the tax duty request. Note that this is different than the "Tax Class" in Magento. |
 | `ExtendedAttributes/AllowGiftMessage` | Allow Message | For gift cards. |
 | `ExtendedAttributes/ColorAttributes/Color` | Color |
@@ -83,10 +86,12 @@ The product information provided in the Item Master drives much of the business 
 | `ExtendedAttributes/MaxGCAmount` | Open Amount Max Value | |
 | `ExtendedAttributes/ItemDimension/Shipping/Mass/Weight` | Weight | |
 | `ExtendedAttributes/SalesClass` | Backorders |  Values mapped as defined by `default/ebayenterprise_catalog/feed/stock_map` in [`app/etc/productimport.xml`](/src/app/etc/productimport.xml.sample). |
+| `ExtendedAttributes/StreetDate` | [Street Date](#magento-product-attributes) | |
 | `ExtendedAttributes/Style/StyleId` | [Style Id](#magento-product-attributes) | The Style Id will associate a child product to a parent configurable product whose SKU matches that Style Id. |
 | `CustomAttributes` | N/A | Additional key/value pairs may be included in the Item Master feed. A few Custom Attributes have been mapped to required Magento Product Attributes. Additional [Custom Product Import Mappings](#custom-product-import-mapping) may be added to local configuration. |
 | `CustomAttributes/Attribute[@name="ProductType"]/Value` | Product Type | Possible values include `bundle`, `configurable`, `downloadable`, `giftcard`, `grouped`, `simple` and `virtual`. Required for product creation, else product will be created as a simple product. |
 | `CustomAttributes/Attribute[@name="AttributeSet"]/Value` | Attribute Set | Should match the name of the Attribute Set in Magento exactly. Required for product creation, else product will be created with the default Attribute Set |
+| `CustomAttributes/Attribute[@name="Visibility"]/Value` | Visibility | Optional attribute to set the product visibility. Accepted values can include either the following integers or exact strings: <table><thead><tr><th>Integer</th><th>String</th></tr></thead><tbody><tr><td>`1`</td><td>`Not Visible Individually`</td></tr><tr><td>`2`</td><td>`Catalog`</td></tr><tr><td>`3`</td><td>`Search`</td></tr><tr><td>`4`</td><td>`Catalog, Search`</td></tr></tbody></table> |
 
 | Important |
 |:----------|
@@ -122,6 +127,7 @@ The Content Master provides marketing and display information for visible produc
 | `CustomAttributes/Attribute[@name="ProductType"]/Value` | Product Type | Possible values include `bundle`, `configurable`, `downloadable`, `giftcard`, `grouped`, `simple` and `virtual`. Required for product creation, else product will be created as a simple product. |
 | `CustomAttributes/Attribute[@name="ConfigurableAttributes"]/Value` | Configurable Attributes | A comma delimited list of product attributes that Magento should consider configurable when creating a Configurable Product. Required for creation of configurable products. |
 | `CustomAttributes/Attribute[@name="AttributeSet"]/Value` | Attribute Set | Should match the name of the Attribute Set in Magento exactly. Required for product creation, else product will be created with the default Attribute Set |
+| `CustomAttributes/Attribute[@name="Visibility"]/Value` | Visibility | Optional attribute to set the product visibility. Accepted values can include either the following integers or exact strings: <table><thead><tr><th>Integer</th><th>String</th></tr></thead><tbody><tr><td>`1`</td><td>`Not Visible Individually`</td></tr><tr><td>`2`</td><td>`Catalog`</td></tr><tr><td>`3`</td><td>`Search`</td></tr><tr><td>`4`</td><td>`Catalog, Search`</td></tr></tbody></table> |
 
 | Important |
 |:----------|

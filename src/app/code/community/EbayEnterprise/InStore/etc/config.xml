@@ -15,7 +15,7 @@
 <config>
 	<modules>
 		<EbayEnterprise_InStore>
-			<version>1.5.0</version>
+			<version>1.6.0</version>
 		</EbayEnterprise_InStore>
 	</modules>
 	<global>

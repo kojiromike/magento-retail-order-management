@@ -249,43 +249,53 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
         );
     }
     /**
-     * Provide an expected catalog class from the feed and the Magento visibility
-     * it should map to.
+     * Provide a possible node value from the feed and the Magento visibility it should map to.
      */
-    public function provideCatalogClassAndVisibility()
+    public function provideNodeValueAndVisibility()
     {
-        return array(
-            array('regular', Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH),
-            array('always', Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH),
-            array('nosale', Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE),
-        );
+        return [
+            [1, Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH],
+            [2, Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH],
+            [3, Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_SEARCH, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH],
+            [4, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH],
+            ['Not Visible Individually', Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH],
+            ['Catalog', Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH],
+            ['Search', Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_SEARCH, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH],
+            ['Catalog, Search', Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH],
+            ['Bad Data', Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH, Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH],
+        ];
     }
     /**
-     * Test extractVisibilityValue for the following expectation
-     * Expectation 1: the method EbayEnterprise_Catalog_Helper_Map::extractVisibilityValue when invoked
-     *                with a now nodelist object will extract the first nodevalue and will determine
-     *                if the value equal to 'regular' or 'always' in order to return
-     *                Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH contstant otherwise
-     *                return Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE constant
-     * @dataProvider provideCatalogClassAndVisibility
+     * Test extractVisibilityValue
+     * GIVEN an expected int, WHEN passed to extractVisibilityValue THEN extractVisibilityValue returns the int
+     * GIVEN an expected string, WHEN passed to extractVisibilityValue THEN extractVisibilityValue returns the
+     * associated int
+     * GIVEN an unexpected value, WHEN passed to extractVisibilityValue THEN extractVisibilityValue returns the product visibility
+     * @param int|string
+     * @param int
+     * @param int
+     * @dataProvider provideNodeValueAndVisibility
      */
-    public function testExtractVisibilityValueWhenVisibilityBoth($catalogClass, $visibility)
+    public function testExtractVisibilityValueWhenVisibilityBoth($nodeValue, $visibility, $productVisibility)
     {
         $nodes = $this->getMockBuilder('DOMNodeList')
             ->disableOriginalConstructor()
             ->getMock();
-
+        $product = $this->getModelMock('catalog/product', ['getVisibility']);
+        $product->expects($this->any())
+            ->method('getVisibility')
+            ->will($this->returnValue($productVisibility));
         $helper = $this->getHelperMock('eb2ccore/data', array('extractNodeVal'));
         $helper->expects($this->once())
             ->method('extractNodeVal')
             ->with($this->identicalTo($nodes))
-            ->will($this->returnValue($catalogClass));
+            ->will($this->returnValue($nodeValue));
 
         $this->replaceByMock('helper', 'eb2ccore', $helper);
 
         $this->assertSame(
             $visibility,
-            Mage::helper('ebayenterprise_catalog/map')->extractVisibilityValue($nodes)
+            Mage::helper('ebayenterprise_catalog/map')->extractVisibilityValue($nodes, $product)
         );
     }
     /**

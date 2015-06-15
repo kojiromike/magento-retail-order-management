@@ -73,9 +73,9 @@ Some values in the _Magento Attribute Code_ column are not truly product attribu
 			<td>No</td>
 		</tr>
 		<tr>
-			<td>visibility</td>
+			<td>catalog_class</td>
 			<td>BaseAttributes/CatalogClass</td>
-			<td>A product visibility of "Not Visible Individually" will be included in the feed with a catalog class of <code>nosale</code>. Any other visibility setting will be included as <code>regular</code>.</td>
+			<td>Specifies how an item displays in a catalog. Uses the value of the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Catalog Class"</a> product attribute. Defaults to "regular" if no value is provided.</td>
 			<td>No</td>
 		</tr>
 		<tr>
@@ -97,9 +97,9 @@ Some values in the _Magento Attribute Code_ column are not truly product attribu
 			<td>No</td>
 		</tr>
 		<tr>
-			<td>status</td>
+			<td>item_status</td>
 			<td>BaseAttributes/ItemStatus</td>
-			<td>Products that are "Disabled" will have a value of <code>Inactive</code> in the feed. Products that are "Enabled" will have a value of <code>Active</code> in the feed.</td>
+			<td>Indicates an item's availability. Uses the value of the <a href="#attributes-provided-by-the-ebay-enterprise-retail-order-management-extension">"Item Status"</a> product attribute. Defaults to "Active" if no value is provided.</td>
 			<td>No</td>
 		</tr>
 		<tr>
@@ -554,6 +554,9 @@ The following attributes have are created by the eBay Enterprise Retail Order Ma
 | Hierarchy Subclass Number | hierarchy_subclass_number | Hierarchy Level 4 number. |
 | Hierarchy Subclass Description | hierarchy_subclass_description | Hierarchy Level 4 description. |
 | Gift Card Tender Code | gift_card_tender_code | Type of gift card to be used for activiation. Allowable values: "SD" (TRU DIGITAL GIFT CARD), "SP" (SVS Physical Gift Card), "ST" (SmartClixx Gift Card Canada), "SV" (SVS Virtual Gift Card), "SX" (SmartClixx Gift Card). |
+| Catalog Class | catalog_class | Intended to specify how an item displays in a catalog. This value drives no out-of-the-box business logic in Magento. |
+| Item Status | item_status | Preserves the original Item Status value. This value drives no out-of-the-box business logic in Magento. |
+| Street Date | street_date | Earliest date the Retail Order Management OMS will allocate the product. |
 
 ### eBay Enterprise Retail Order Management Item Types
 

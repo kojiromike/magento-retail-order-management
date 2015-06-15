@@ -154,8 +154,7 @@ class EbayEnterprise_Inventory_Model_Details_Service
     protected function hasQuantityError(Mage_Sales_Model_Quote_Item $item)
     {
         foreach ($item->getErrorInfos()->getItems() as $errorInfo) {
-            if (
-                isset($errorInfo['origin'])
+            if (isset($errorInfo['origin'])
                 && $errorInfo['origin'] ===
                     EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE
             ) {

@@ -209,11 +209,23 @@
 					<method>extractStatusValue</method>
 					<xpath>BaseAttributes/ItemStatus</xpath>
 				</status>
+				<item_status>
+					<class>ebayenterprise_catalog/map_attribute</class>
+					<type>helper</type>
+					<method>extractItemStatus</method>
+					<xpath>BaseAttributes/ItemStatus</xpath>
+				</item_status>
+				<catalog_class>
+					<class>ebayenterprise_catalog/map_attribute</class>
+					<type>helper</type>
+					<method>extractCatalogClass</method>
+					<xpath>BaseAttributes/CatalogClass</xpath>
+				</catalog_class>
 				<visibility>
 					<class>ebayenterprise_catalog/map</class>
 					<type>helper</type>
 					<method>extractVisibilityValue</method>
-					<xpath>BaseAttributes/CatalogClass</xpath>
+					<xpath>CustomAttributes/Attribute[@name="Visibility"]/Value</xpath>
 				</visibility>
 				<tax_class_id>
 					<class>ebayenterprise_catalog/map</class>

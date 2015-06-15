@@ -550,7 +550,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
         $addresses = $quote->getAllShippingAddresses();
         $selected = array_reduce(
             $addresses,
-            function(
+            function (
                 Mage_Sales_Model_Quote_Address $current = null,
                 Mage_Sales_Model_Quote_Address $address
             ) {

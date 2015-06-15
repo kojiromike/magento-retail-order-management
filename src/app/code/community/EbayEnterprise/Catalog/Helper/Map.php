@@ -69,17 +69,32 @@ class EbayEnterprise_Catalog_Helper_Map
             Mage_Catalog_Model_Product_Status::STATUS_DISABLED;
     }
     /**
-     * if the node list has node value is not 'always' or 'regular' a magento value
-     * that's not visible oherwise return a magento visibility both
+     * extracts visibility from node list, returning an expected integer or translating an expected string
+     * into an expected integer, returning null for unexpected values
      * @param DOMNodeList $nodes
-     * @return string
+     * @return int|null
      */
-    public function extractVisibilityValue(DOMNodeList $nodes)
+    public function extractVisibilityValue(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
     {
-        $catalogClass = Mage::helper('eb2ccore')->extractNodeVal($nodes);
-        return (strtolower($catalogClass) === 'regular' || strtolower($catalogClass) === 'always') ?
-            Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH:
-            Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE;
+        $visibilityValues = [
+            'Not Visible Individually' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE,
+            'Catalog' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_CATALOG,
+            'Search' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_SEARCH,
+            'Catalog, Search' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH,
+        ];
+
+        $visibility = Mage::helper('eb2ccore')->extractNodeVal($nodes);
+
+        if (in_array($visibility, $visibilityValues)) {
+            // If the value is an expected integer value, return that value
+            return $visibility;
+        } elseif (isset($visibilityValues[$visibility])) {
+            // If the value is an expected string value, return the associated integer
+            return $visibilityValues[$visibility];
+        } else {
+            // If the value is unexpected, return the current value
+            return $product->getVisibility();
+        }
     }
     /**
      * extract the first element of a dom node list make sure it is lower case

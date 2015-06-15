@@ -123,8 +123,7 @@ class EbayEnterprise_Catalog_Helper_Itemmaster extends EbayEnterprise_Catalog_He
         return $this->passString($value, $attribute, $product, $doc);
     }
     /**
-     * Translate a status into ItemStatus
-     * which will return DOMNode object
+     * Pass the Item Status value, ensuring to return 'Active' as the default value if no value is set
      * @param  string                              $attrValue
      * @param  string                              $attribute
      * @param  Mage_Catalog_Model_Product          $product
@@ -134,11 +133,8 @@ class EbayEnterprise_Catalog_Helper_Itemmaster extends EbayEnterprise_Catalog_He
      */
     public function passItemStatus($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
     {
-        $value = 'Active';
-        if ($attrValue == Mage_Catalog_Model_Product_Status::STATUS_DISABLED) {
-            $value = 'Inactive';
-        }
-        return $this->passString($value, $attribute, $product, $doc);
+        $itemStatus = empty($attrValue) ? 'Active' : $product->getAttributeText($attribute);
+        return $this->passString($itemStatus, $attribute, $product, $doc);
     }
     /**
      * Translate an item_type field.
@@ -159,8 +155,7 @@ class EbayEnterprise_Catalog_Helper_Itemmaster extends EbayEnterprise_Catalog_He
         return $this->passString($itemType, $attribute, $product, $doc);
     }
     /**
-     * Translate a visibility into CatalogClass
-     * which will return DOMNode object
+     * Pass the Catalog Class value, ensuring to return 'regular' as the default value if no value is set
      * @param  string                              $attrValue
      * @param  string                              $attribute
      * @param  Mage_Catalog_Model_Product          $product
@@ -170,11 +165,8 @@ class EbayEnterprise_Catalog_Helper_Itemmaster extends EbayEnterprise_Catalog_He
      */
     public function passCatalogClass($attrValue, $attribute, Mage_Catalog_Model_Product $product, DOMDocument $doc)
     {
-        $value = 'regular';
-        if ($attrValue == Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE) {
-            $value = 'nosale';
-        }
-        return $this->passString($value, $attribute, $product, $doc);
+        $catalogClass = empty($attrValue) ? 'regular' : strtolower($product->getAttributeText($attribute));
+        return $this->passString($catalogClass, $attribute, $product, $doc);
     }
     /**
      * Places tax code into the BaseAttributes/TaxCode node

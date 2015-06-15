@@ -38,7 +38,7 @@ class EbayEnterprise_Inventory_Override_Block_Multishipping_Overview extends Mag
      * @param  int | null
      * @return string
      */
-    public function renderTotals($totals, $colspan=null)
+    public function renderTotals($totals, $colspan = null)
     {
         if ($colspan === null) {
             $colspan = $this->helper('tax')->displayCartBothPrices() ? 6 : 4;

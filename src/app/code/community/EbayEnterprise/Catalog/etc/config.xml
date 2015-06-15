@@ -15,7 +15,7 @@
 <config>
 	<modules>
 		<EbayEnterprise_Catalog>
-			<version>1.4.0</version>
+			<version>1.6.0</version>
 		</EbayEnterprise_Catalog>
 	</modules>
 	<global>

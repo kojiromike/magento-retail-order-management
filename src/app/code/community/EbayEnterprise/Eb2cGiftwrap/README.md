@@ -22,13 +22,13 @@ The Retail Order Management Extension enables merchants to offer gift wrapping a
 
 The Magento Retail Order Management Extension includes support for gift messages that closely matches the functionality available in Magento. The availability of gift messages for items and orders is dependent upon specific agreements between the merchant and eBay Enterprise.
 
-When available, gift messages may be added for the entire order as well as for individual items. The "Add Printed Card" option is used to determine if the gift messages are to be included on the pack slip or as separate cards.
+When available, gift messages may be added for individual items or for all items shipping to a single address. The "Add Printed Card" option is used to determine if the gift messages are to be included on the pack slip or as separate cards.
 
 ## Gift Wrapping
 
 The Magento Retail Order Management Extension includes limited support for gift wrapping. The availability of gift wrapping is dependent upon specific agreements between the merchant and eBay Enterprise.
 
-When available, gift wrapping may be included for the entire order as well as for individual items. Gift wrapping may be added with or without a gift message. If the customer selects to include a printed card, however, any items that include a gift message will also be gift wrapped. Additional rules regarding gift wrapping may be determined as part of the merchant agreement with eBay Enterprise.
+When available, gift wrapping may be added for individual items or for all items shipping to a single address. Gift wrapping may be added with or without a gift message. If the customer selects to include a printed card, however, any items that include a gift message will also be gift wrapped. Additional rules regarding gift wrapping may be determined as part of the merchant agreement with eBay Enterprise.
 
 | Important |
 |:----------|
@@ -67,7 +67,7 @@ You can indicate that a product is gift wrapping in the Item Master feed by spec
 ### Gift Wrapping Attribute Mappings
 
 | XPath | Magento Gift Wrapping Attribute | Description | Language Support |
-|:------|:----------------------------|:------------|:-----------------|
+|:------|:--------------------------------|:------------|:-----------------|
 | ItemId/ClientItemId | SKU | New attribute added by the extension | No |
 | BaseAttributes/ItemDescription | Gift Wrapping Design | This is the descriptive name that appears during checkout when Gift Wrapping is selected. | No |
 | BaseAttributes/TaxCode | Tax Class | New attribute added by the extension | No |

@@ -16,13 +16,15 @@
 class EbayEnterprise_Inventory_Model_Observer
 {
     /** @var EbayEnterprise_Inventory_Model_Quantity_Service */
-    protected $_quantityService;
+    protected $quantityService;
     /** @var EbayEnterprise_Inventory_Model_Details_Service */
-    protected $_detailsService;
+    protected $detailsService;
+    /** @var EbayEnterprise_Inventory_Model_Allocation_Service */
+    protected $allocationService;
     /** @var EbayEnterprise_MageLog_Helper_Data */
-    protected $_logger;
+    protected $logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
-    protected $_logContext;
+    protected $logContext;
 
     /**
      * @param array $args May contain:
@@ -34,15 +36,25 @@ class EbayEnterprise_Inventory_Model_Observer
     public function __construct(array $args = [])
     {
         list(
-            $this->_quantityService,
-            $this->_detailsService,
-            $this->_logger,
-            $this->_logContext
-        ) = $this->_checkTypes(
-            $this->_nullCoalesce($args, 'quantity_service', Mage::getModel('ebayenterprise_inventory/quantity_service')),
-            $this->_nullCoalesce($args, 'details_service', Mage::getModel('ebayenterprise_inventory/details_service')),
-            $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
-            $this->_nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
+            $this->quantityService,
+            $this->detailsService,
+            $this->allocationService,
+            $this->logger,
+            $this->logContext
+        ) = $this->checkTypes(
+            $this->nullCoalesce(
+                $args,
+                'quantity_service',
+                Mage::getModel('ebayenterprise_inventory/quantity_service')
+            ),
+            $this->nullCoalesce($args, 'details_service', Mage::getModel('ebayenterprise_inventory/details_service')),
+            $this->nullCoalesce(
+                $args,
+                'allocation_service',
+                Mage::getModel('ebayenterprise_inventory/allocation_service')
+            ),
+            $this->nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
+            $this->nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
         );
     }
 
@@ -51,13 +63,15 @@ class EbayEnterprise_Inventory_Model_Observer
      *
      * @param EbayEnterprise_Inventory_Model_Quantity_Service
      * @param EbayEnterprise_Inventory_Model_Details_Service
+     * @param EbayEnterprise_Inventory_Model_Allocation_Service
      * @param EbayEnterprise_MageLog_Helper_Data
      * @param EbayEnterprise_MageLog_Helper_Context
      * @return array
      */
-    protected function _checkTypes(
+    protected function checkTypes(
         EbayEnterprise_Inventory_Model_Quantity_Service $quantityService,
         EbayEnterprise_Inventory_Model_Details_Service $detailsService,
+        EbayEnterprise_Inventory_Model_Allocation_Service $allocationService,
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_MageLog_Helper_Context $logContext
     ) {
@@ -72,7 +86,7 @@ class EbayEnterprise_Inventory_Model_Observer
      * @param mixed
      * @return mixed
      */
-    protected function _nullCoalesce(array $arr, $key, $default)
+    protected function nullCoalesce(array $arr, $key, $default)
     {
         return isset($arr[$key]) ? $arr[$key] : $default;
     }
@@ -88,10 +102,10 @@ class EbayEnterprise_Inventory_Model_Observer
     {
         try {
             $quote = $observer->getEvent()->getQuote();
-            $this->_quantityService
+            $this->quantityService
                 ->checkQuoteInventory($quote);
         } catch (EbayEnterprise_Inventory_Exception_Quantity_Collector_Exception $e) {
-            $this->_logger->warning($e->getMessage(), $this->_logContext->getMetaData(__CLASS__, [], $e));
+            $this->logger->warning($e->getMessage(), $this->logContext->getMetaData(__CLASS__, [], $e));
         }
         return $this;
     }
@@ -104,8 +118,12 @@ class EbayEnterprise_Inventory_Model_Observer
     public function handleEbayEnterpriseOrderCreateItem(Varien_Event_Observer $observer)
     {
         $event = $observer->getEvent();
-        Mage::getModel('ebayenterprise_inventory/order_create_item')
-            ->injectShippingEstimates($event->getItemPayload(), $event->getItem());
+        $itemPayload = $event->getItemPayload();
+        $item = $event->getItem();
+        Mage::getModel('ebayenterprise_inventory/order_create_item_details')
+            ->injectShippingEstimates($itemPayload, $item);
+        Mage::getModel('ebayenterprise_inventory/order_create_item_allocation')
+            ->injectReservationInfo($itemPayload, $item);
         return $this;
     }
 
@@ -121,6 +139,31 @@ class EbayEnterprise_Inventory_Model_Observer
         $address = $observer->getEvent()->getAddress();
         Mage::getModel('ebayenterprise_inventory/tax_shipping_origin')
             ->injectShippingOriginForItem($item, $address);
+        return $this;
+    }
+
+    /**
+     * trigger inventory allocation for the quote
+     *
+     * @param Varien_Event_Observer
+     * @return self
+     */
+    public function handleSalesOrderPlaceBefore(Varien_Event_Observer $observer)
+    {
+        $order = $observer->getEvent()->getOrder();
+        $quote = $order->getQuote();
+        $this->allocationService->allocateInventoryForQuote($quote);
+        return $this;
+    }
+
+    /**
+     * trigger a rollback if the order fails
+     *
+     * @return self
+     */
+    public function handleSalesModelServiceQuoteSubmitFailure()
+    {
+        $this->allocationService->undoAllocation();
         return $this;
     }
 }

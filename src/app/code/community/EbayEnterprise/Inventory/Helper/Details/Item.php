@@ -23,14 +23,40 @@ class EbayEnterprise_Inventory_Helper_Details_Item
     const ADDRESS_ALL_STREET_LINES = -1;
 
     /** @var EbayEnterprise_Inventory_Helper_Details_Item_Shipping */
-    protected $_shippingHelper;
+    protected $shippingHelper;
     /** @var EbayEnterprise_Inventory_Helper_Quantity */
-    protected $_quantityHelper;
+    protected $quantityHelper;
 
-    public function __construct()
+    public function __construct(array $init = [])
     {
-        $this->_shippingHelper = Mage::helper('ebayenterprise_inventory/details_item_shipping');
-        $this->_quantityHelper = Mage::helper('ebayenterprise_inventory/quantity');
+        list($this->shippingHelper, $this->quantityHelper) = $this->checkTypes(
+            $this->nullCoalesce(
+                $init,
+                'shipping_helper',
+                Mage::helper('ebayenterprise_inventory/details_item_shipping')
+            ),
+            $this->nullCoalesce($init, 'quantity_helper', Mage::helper('ebayenterprise_inventory/quantity'))
+        );
+    }
+
+    protected function checkTypes(
+        EbayEnterprise_Inventory_Helper_Details_Item_Shipping $shippingHelper,
+        EbayEnterprise_Inventory_Helper_Quantity $quantityHelper
+    ) {
+        return func_get_args();
+    }
+
+    /**
+     * Fill in default values.
+     *
+     * @param  array
+     * @param  string
+     * @param  mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $key, $default)
+    {
+        return isset($arr[$key]) ? $arr[$key] : $default;
     }
 
     public function extractItemIdentification(IItem $itemPayload)
@@ -59,25 +85,23 @@ class EbayEnterprise_Inventory_Helper_Details_Item
         ]);
     }
 
-    public function applyQuoteItemData(IOrderItem $itemPayload, Mage_Sales_Model_Quote_Item_Abstract $item)
-    {
+    public function fillOutShippingItem(
+        IOrderItem $itemPayload,
+        Mage_Sales_Model_Quote_Item_Abstract $item,
+        Mage_Customer_Model_Address_Abstract $address
+    ) {
+        $shippingMethod = $this->shippingHelper->getUsableMethod($address);
         $itemPayload->setItemId($item->getSku())
             ->setLineId($item->getAddressItemId() ?: $item->getId())
-            ->setQuantity($this->_quantityHelper->getRequestedItemQuantity($item))
-            // optional
-            ->setGiftWrapRequested($this->_isItemGiftWrapped($item));
-    }
-
-    public function applyMageAddressData(IAddress $itemPayload, Mage_Customer_Model_Address_Abstract $address)
-    {
-        $shippingMethod = $this->_shippingHelper->getUsableMethod($address);
-        $itemPayload->setAddressLines($address->getStreet(static::ADDRESS_ALL_STREET_LINES))
+            ->setQuantity($this->quantityHelper->getRequestedItemQuantity($item))
+            ->setGiftWrapRequested($this->isItemGiftWrapped($item))
+            ->setAddressLines($address->getStreet(static::ADDRESS_ALL_STREET_LINES))
             ->setAddressCity($address->getCity())
             ->setAddressCountryCode($address->getCountryId())
-            ->setShippingMethod($this->_shippingHelper->getMethodSdkId($shippingMethod))
+            ->setShippingMethod($this->shippingHelper->getMethodSdkId($shippingMethod))
             ->setAddressMainDivision($address->getRegionCode())
             ->setAddressPostalCode($address->getPostcode())
-            ->setShippingMethodDisplayText($this->_shippingHelper->getMethodTitle($shippingMethod));
+            ->setShippingMethodDisplayText($this->shippingHelper->getMethodTitle($shippingMethod));
     }
 
     /**
@@ -86,7 +110,7 @@ class EbayEnterprise_Inventory_Helper_Details_Item
      * @param Mage_Sales_Model_Quote_Item_Abstract
      * @return bool
      */
-    protected function _isItemGiftWrapped(Mage_Sales_Model_Quote_Item_Abstract $item)
+    protected function isItemGiftWrapped(Mage_Sales_Model_Quote_Item_Abstract $item)
     {
         return (bool) $item->getGwId()
             || ($item->getAddress() && $item->getAddress()->getGwId());

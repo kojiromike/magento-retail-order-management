@@ -1,8 +1,0 @@
- -
-   - 'global'
-   - 'eb2c_allocate_inventory'
-   - 'processAllocation'
- -
-   - 'global'
-   - 'eb2c_order_creation_failure'
-   - 'rollbackAllocation'

@@ -26,114 +26,13 @@
 			<eb2cinventoryoverride>
 				<class>EbayEnterprise_Eb2cInventory_Overrides_Model</class>
 			</eb2cinventoryoverride>
-			<cataloginventory>
-				<rewrite>
-					<stock_item>EbayEnterprise_Eb2cInventory_Overrides_Model_Stock_Item</stock_item>
-				</rewrite>
-			</cataloginventory>
 		</models>
-		<fieldsets>
-			<sales_convert_quote_item>
-				<eb2c_reservation_id>
-					<to_order_item>*</to_order_item>
-				</eb2c_reservation_id>
-				<eb2c_reservation_expires>
-					<to_order_item>*</to_order_item>
-				</eb2c_reservation_expires>
-				<eb2c_qty_reserved>
-					<to_order_item>*</to_order_item>
-				</eb2c_qty_reserved>
-				<eb2c_creation_time>
-					<to_order_item>*</to_order_item>
-				</eb2c_creation_time>
-				<eb2c_display>
-					<to_order_item>*</to_order_item>
-				</eb2c_display>
-				<eb2c_delivery_window_from>
-					<to_order_item>*</to_order_item>
-				</eb2c_delivery_window_from>
-				<eb2c_delivery_window_to>
-					<to_order_item>*</to_order_item>
-				</eb2c_delivery_window_to>
-				<eb2c_shipping_window_from>
-					<to_order_item>*</to_order_item>
-				</eb2c_shipping_window_from>
-				<eb2c_shipping_window_to>
-					<to_order_item>*</to_order_item>
-				</eb2c_shipping_window_to>
-				<eb2c_ship_from_address_line1>
-					<to_order_item>*</to_order_item>
-				</eb2c_ship_from_address_line1>
-				<eb2c_ship_from_address_line2>
-					<to_order_item>*</to_order_item>
-				</eb2c_ship_from_address_line2>
-				<eb2c_ship_from_address_line3>
-					<to_order_item>*</to_order_item>
-				</eb2c_ship_from_address_line3>
-				<eb2c_ship_from_address_line4>
-					<to_order_item>*</to_order_item>
-				</eb2c_ship_from_address_line4>
-				<eb2c_ship_from_address_city>
-					<to_order_item>*</to_order_item>
-				</eb2c_ship_from_address_city>
-				<eb2c_ship_from_address_main_division>
-					<to_order_item>*</to_order_item>
-				</eb2c_ship_from_address_main_division>
-				<eb2c_ship_from_address_country_code>
-					<to_order_item>*</to_order_item>
-				</eb2c_ship_from_address_country_code>
-				<eb2c_ship_from_address_postal_code>
-					<to_order_item>*</to_order_item>
-				</eb2c_ship_from_address_postal_code>
-			</sales_convert_quote_item>
-		</fieldsets>
-		<resources>
-			<eb2cinventory_setup>
-				<setup>
-					<module>EbayEnterprise_Eb2cInventory</module>
-					<class>Mage_Sales_Model_Resource_Setup</class>
-				</setup>
-			</eb2cinventory_setup>
-		</resources>
 		<helpers>
 			<eb2cinventory>
 				<class>EbayEnterprise_Eb2cInventory_Helper</class>
 			</eb2cinventory>
 		</helpers>
 		<events>
-			<sales_quote_collect_totals_before>
-				<observers>
-					<EbayEnterprise_Eb2cInventory_observer>
-						<type>singleton</type>
-						<class>EbayEnterprise_Eb2cInventory_Model_Observer</class>
-						<method>checkInventory</method>
-					</EbayEnterprise_Eb2cInventory_observer>
-				</observers>
-			</sales_quote_collect_totals_before>
-			<sales_quote_item_qty_set_after>
-				<observers>
-					<inventory>
-						<type>disabled</type>
-					</inventory>
-				</observers>
-			</sales_quote_item_qty_set_after>
-			<!-- Inventory Allocation Events -->
-			<eb2c_allocate_inventory>
-				<observers>
-					<eb2cinventory_allocate_inventory>
-						<class>eb2cinventory/observer</class>
-						<method>processAllocation</method>
-					</eb2cinventory_allocate_inventory>
-				</observers>
-			</eb2c_allocate_inventory>
-			<eb2c_order_creation_failure>
-				<observers>
-					<eb2cinventory_rollback_allocation>
-						<class>eb2cinventory/observer</class>
-						<method>rollbackAllocation</method>
-					</eb2cinventory_rollback_allocation>
-				</observers>
-			</eb2c_order_creation_failure>
 			<filetransfer_import_complete>
 				<observers>
 					<eb2c_inventory_process_feeds>
@@ -194,24 +93,6 @@
 				</filetransfer_imports>
 			</feed>
 		</eb2ccore>
-		<eb2cinventory>
-			<allocation_expired>60</allocation_expired>
-			<estimated_delivery>
-				<template />
-			</estimated_delivery>
-			<api_service>inventory</api_service>
-			<api_opt_inventory_qty>quantity/get</api_opt_inventory_qty>
-			<api_opt_inventory_details>details/get</api_opt_inventory_details>
-			<api_opt_inventory_allocation>allocations/create</api_opt_inventory_allocation>
-			<api_opt_inventory_rollback_allocation>allocations/delete</api_opt_inventory_rollback_allocation>
-			<api_return_format>xml</api_return_format>
-			<xsd>
-				<allocation_file>Inventory-Service-Allocation-1.0.xsd</allocation_file>
-				<details_file>Inventory-Service-InventoryDetails-1.0.xsd</details_file>
-				<quantity_file>Inventory-Service-Quantity-1.0.xsd</quantity_file>
-				<rollback_file>Inventory-Service-RollbackAllocation-1.0.xsd</rollback_file>
-			</xsd>
-		</eb2cinventory>
 	</default>
 	<phpunit>
 		<suite>

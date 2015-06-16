@@ -21,5 +21,7 @@ class EbayEnterprise_Inventory_Model_Config extends EbayEnterprise_Eb2cCore_Mode
         'quantity_cache_lifetime' => 'ebayenterprise_inventory/quantity/inventory_expiration',
         'api_details_operation' => 'ebayenterprise_inventory/details/operation',
         'estimated_delivery_template' => 'ebayenterprise_inventory/details/estimated_delivery_template',
+        'api_allocation_create_operation' => 'ebayenterprise_inventory/allocation/create_operation',
+        'api_allocation_delete_operation' => 'ebayenterprise_inventory/allocation/delete_operation',
     ];
 }

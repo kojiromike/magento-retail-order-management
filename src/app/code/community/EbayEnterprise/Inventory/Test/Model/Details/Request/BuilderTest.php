@@ -20,30 +20,30 @@ use eBayEnterprise\RetailOrderManagement\Payload\Inventory\IInventoryDetailsRequ
 class EbayEnterprise_Inventory_Test_Model_Details_Request_BuilderTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
     /** @var EbayEnterprise_MageLog_Helper_Data */
-    protected $_logger;
+    protected $logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
-    protected $_logContext;
+    protected $logContext;
     /** @var IInventoryDetailsRequest */
-    protected $_request;
+    protected $request;
     /** @var IItemIterable */
-    protected $_itemIterable;
+    protected $itemIterable;
 
     public function setUp()
     {
         parent::setUp();
-        $this->_logger= $this->getHelperMockBuilder('ebayenterprise_magelog/data')
+        $this->logger= $this->getHelperMockBuilder('ebayenterprise_magelog/data')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->_logContext = $this->getHelperMockBuilder('ebayenterprise_magelog/context')
+        $this->logContext = $this->getHelperMockBuilder('ebayenterprise_magelog/context')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->_logContext->expects($this->any())
+        $this->logContext->expects($this->any())
             ->method('getMetaData')
             ->will($this->returnValue([]));
 
         // mock the item iterable to create and store
         // item payloads
-        $this->_itemIterable = $this->getMockBuilder(
+        $this->itemIterable = $this->getMockBuilder(
             '\eBayEnterprise\RetailOrderManagement\Payload\Inventory\IItemIterable'
         )
             ->disableOriginalConstructor()
@@ -51,19 +51,19 @@ class EbayEnterprise_Inventory_Test_Model_Details_Request_BuilderTest extends Eb
             ->getMockForAbstractClass();
 
         // mock the request to return the iterable mock
-        $this->_request = $this->getMockBuilder(
+        $this->request = $this->getMockBuilder(
             '\eBayEnterprise\RetailOrderManagement\Payload\Inventory\IInventoryDetailsRequest'
         )
             ->disableOriginalConstructor()
             ->setMethods(['getItems'])
             ->getMockForAbstractClass();
-        $this->_request->expects($this->any())
+        $this->request->expects($this->any())
             ->method('getItems')
-            ->will($this->returnValue($this->_itemIterable));
+            ->will($this->returnValue($this->itemIterable));
 
         // avoid having to mock the item helper's dependencies
-        $this->_itemHelper = $this->getHelperMock('ebayenterprise_inventory/details_item', [
-            'applyQuoteItemData', 'applyMageAddressData'
+        $this->itemHelper = $this->getHelperMock('ebayenterprise_inventory/details_item', [
+            'fillOutShippingItem'
         ]);
         // prevent magento events from actually triggering
         Mage::app()->disableEvents();
@@ -81,10 +81,10 @@ class EbayEnterprise_Inventory_Test_Model_Details_Request_BuilderTest extends Eb
         $items = [Mage::getModel('sales/quote_item')];
         $address = Mage::getModel('sales/quote_address');
         $builder = Mage::getModel('ebayenterprise_inventory/details_request_builder', [
-            'request' => $this->_request,
-            'item_helper' => $this->_itemHelper,
-            'logger' => $this->_logger,
-            'log_context' => $this->_logContext,
+            'request' => $this->request,
+            'item_helper' => $this->itemHelper,
+            'logger' => $this->logger,
+            'log_context' => $this->logContext,
         ]);
 
         // the shipping item payload will be created if the ispu payload
@@ -94,7 +94,7 @@ class EbayEnterprise_Inventory_Test_Model_Details_Request_BuilderTest extends Eb
         )
             ->disableOriginalConstructor()
             ->getMock();
-        $this->_itemIterable->expects($this->once())
+        $this->itemIterable->expects($this->once())
             ->method('getEmptyShippingItem')
             ->will($this->returnValue($shippingItem));
 
@@ -107,23 +107,18 @@ class EbayEnterprise_Inventory_Test_Model_Details_Request_BuilderTest extends Eb
             ->getMock();
         $ispuItem->expects($this->never())
             ->method('setItemId');
-        $this->_itemIterable->expects($this->once())
+        $this->itemIterable->expects($this->once())
             ->method('getEmptyInStorePickUpItem')
             ->will($this->returnValue($ispuItem));
 
         // the item helper is expected to be used to
         // set item and address data on the shipping item
         // payload
-        $this->_itemHelper->expects($this->once())
-            ->method('applyQuoteItemData')
+        $this->itemHelper->expects($this->once())
+            ->method('fillOutShippingItem')
             ->with(
                 $this->isInstanceOf('\eBayEnterprise\RetailOrderManagement\Payload\Inventory\ShippingItem'),
-                $this->isInstanceOf('Mage_Sales_Model_Quote_Item_Abstract')
-            );
-        $this->_itemHelper->expects($this->once())
-            ->method('applyMageAddressData')
-            ->with(
-                $this->isInstanceOf('\eBayEnterprise\RetailOrderManagement\Payload\Inventory\ShippingItem'),
+                $this->isInstanceOf('Mage_Sales_Model_Quote_Item_Abstract'),
                 $this->isInstanceOf('Mage_Customer_Model_Address_Abstract')
             );
 

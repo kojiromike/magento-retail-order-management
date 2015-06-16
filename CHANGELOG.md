@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## Unreleased Changes
+### Added
+- Support for bundle and group product types for inventory allocation operations
+
+### Changed
+- Inventory Allocation operations now use the ROM SDK
+
 ## [1.6.0-alpha-5] - 2015-06-18
 ### Added
 - Support for bundle and group product types for inventory details and quantity operations

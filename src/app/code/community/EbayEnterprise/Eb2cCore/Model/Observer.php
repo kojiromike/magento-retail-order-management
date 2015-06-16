@@ -92,14 +92,6 @@ class EbayEnterprise_Eb2cCore_Model_Observer
     {
         $order = $observer->getEvent()->getOrder();
         $quote = $order->getQuote();
-        try {
-            Mage::dispatchEvent('eb2c_allocate_inventory', array('quote' => $quote, 'order' => $order));
-        } catch (EbayEnterprise_Eb2cInventory_Model_Allocation_Exception $e) {
-            // When just an allocation fails, keep whatever could be allocated
-            // for if/when the order is resubmitted.
-            Mage::getSingleton('checkout/session')->setRetainAllocation(true);
-            throw $e;
-        }
         Mage::dispatchEvent('ebayenterprise_giftcard_redeem', array('quote' => $quote, 'order' => $order));
         return $this;
     }
@@ -113,6 +105,7 @@ class EbayEnterprise_Eb2cCore_Model_Observer
      */
     public function rollbackExchangePlatformOrder(Varien_Event_Observer $observer)
     {
+        Mage::helper('ebayenterprise_magelog')->debug(__METHOD__);
         Mage::dispatchEvent('eb2c_order_creation_failure', array(
             'quote' => $observer->getEvent()->getQuote(),
             'order' => $observer->getEvent()->getOrder()

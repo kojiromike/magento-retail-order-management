@@ -13,18 +13,34 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Eb2cInventory_Helper_Data extends Mage_Core_Helper_Abstract implements EbayEnterprise_Eb2cCore_Helper_Interface
+/**
+ * Reservation identification
+ */
+class EbayEnterprise_Inventory_Model_Allocation_Reservation
 {
-    /**
-     * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
-     * Get inventory config instantiated object.
-     * @param mixed $store
-     * @return EbayEnterprise_Eb2cInventory_Model_Config
-     */
-    public function getConfigModel($store = null)
+    const REQUEST_PREFIX = 'IA-';
+
+    protected $reservationId;
+    protected $requestId;
+
+    public function __construct()
     {
-        return Mage::getModel('eb2ccore/config_registry')
-            ->setStore($store)
-            ->addConfigModel(Mage::getSingleton('eb2cinventory/config'));
+        $this->reservationId = uniqid();
+        $this->requestId = uniqid(static::REQUEST_PREFIX);
+    }
+
+    /**
+     * get the id for the reservation
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->reservationId;
+    }
+
+    public function getRequestId()
+    {
+        return $this->requestId;
     }
 }

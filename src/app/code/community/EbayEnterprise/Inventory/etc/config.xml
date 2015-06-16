@@ -62,6 +62,7 @@
 					</inventory>
 				</observers>
 			</sales_quote_item_qty_set_after>
+			<!-- Details Events -->
 			<ebayenterprise_order_create_item>
 				<observers>
 					<ebayenterprise_inventory_observer1>
@@ -80,6 +81,34 @@
 					</ebayenterprise_inventory_observer>
 				</observers>
 			</ebayenterprise_tax_item_ship_origin>
+			<!-- Allocation Events -->
+			<sales_order_place_before>
+				<observers>
+					<ebayenterprise_inventory_allocation_trigger_observer>
+						<class>ebayenterprise_inventory/observer</class>
+						<method>handleSalesOrderPlaceBefore</method>
+						<type>singleton</type>
+					</ebayenterprise_inventory_allocation_trigger_observer>
+				</observers>
+			</sales_order_place_before>
+			<sales_model_service_quote_submit_failure>
+				<observers>
+					<ebayenterprise_inventory_allocation_rollback_observer>
+						<class>ebayenterprise_inventory/observer</class>
+						<method>handleSalesModelServiceQuoteSubmitFailure</method>
+						<type>singleton</type>
+					</ebayenterprise_inventory_allocation_rollback_observer>
+				</observers>
+			</sales_model_service_quote_submit_failure>
+			<checkout_multishipping_refund_all>
+				<observers>
+					<ebayenterprise_inventory_allocation_rollback_observer>
+						<class>ebayenterprise_inventory/observer</class>
+						<method>handleSalesModelServiceQuoteSubmitFailure</method>
+						<type>singleton</type>
+					</ebayenterprise_inventory_allocation_rollback_observer>
+				</observers>
+			</checkout_multishipping_refund_all>
 		</events>
 	</global>
 	<frontend>
@@ -123,6 +152,10 @@
 			<details>
 				<operation>details/get</operation>
 			</details>
+			<allocation>
+				<create_operation>allocations/create</create_operation>
+				<delete_operation>allocations/delete</delete_operation>
+			</allocation>
 		</ebayenterprise_inventory>
 	</default>
 	<phpunit>

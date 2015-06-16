@@ -15,33 +15,52 @@
 
 use eBayEnterprise\RetailOrderManagement\Payload\Inventory\IInStorePickUpItem;
 use eBayEnterprise\RetailOrderManagement\Payload\Inventory\IShippingItem;
-use eBayEnterprise\RetailOrderManagement\Payload\Inventory\IInventoryDetailsRequest;
+use eBayEnterprise\RetailOrderManagement\Payload\Inventory\IAllocationRequest;
 
-class EbayEnterprise_Inventory_Model_Details_Request_Builder extends
+class EbayEnterprise_Inventory_Model_Allocation_Creator_Request_Builder extends
  EbayEnterprise_Inventory_Model_Details_Request_Builder_Abstract
 {
+    /** @var IAllocationRequest */
+    protected $request;
     /** @var EbayEnterprise_Inventory_Helper_Details_Item */
     protected $itemHelper;
     /** @var EbayEnterprise_MageLog_Helper_Data */
     protected $logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
     protected $logContext;
-    /** @var IInventoryDetailsRequest */
-    protected $request;
+    /** @var EbayEnterprise_Inventory_Model_Allocation_Item_Selection */
+    protected $selectedItems;
+    /** @var EbayEnterprise_Inventory_Model_Allocation_Reservation */
+    protected $reservation;
 
     public function __construct(array $init = [])
     {
         list(
             $this->request,
+            $this->selectedItems,
+            $this->reservation,
+            $this->itemHelper,
             $this->logger,
-            $this->logContext,
-            $this->itemHelper
+            $this->logContext
         ) = $this->checkTypes(
             $init['request'],
+            $init['selected_items'],
+            $init['reservation'],
+            $this->nullCoalesce('item_helper', $init, Mage::helper('ebayenterprise_inventory/details_item')),
             $this->nullCoalesce('logger', $init, Mage::helper('ebayenterprise_magelog')),
-            $this->nullCoalesce('log_context', $init, Mage::helper('ebayenterprise_magelog/context')),
-            $this->nullCoalesce('item_helper', $init, Mage::helper('ebayenterprise_inventory/details_item'))
+            $this->nullCoalesce('log_context', $init, Mage::helper('ebayenterprise_magelog/context'))
         );
+    }
+
+    protected function checkTypes(
+        IAllocationRequest $request,
+        EbayEnterprise_Inventory_Model_Allocation_Item_Selector $selectedItems,
+        EbayEnterprise_Inventory_Model_Allocation_Reservation $reservation,
+        EbayEnterprise_Inventory_Helper_Details_Item $itemHelper,
+        EbayEnterprise_MageLog_Helper_Data $logger,
+        EbayEnterprise_MageLog_Helper_Context $loggerContext
+    ) {
+        return func_get_args();
     }
 
     /**
@@ -57,20 +76,13 @@ class EbayEnterprise_Inventory_Model_Details_Request_Builder extends
         return isset($arr[$key]) ? $arr[$key] : $default;
     }
 
-    protected function checkTypes(
-        IInventoryDetailsRequest $request,
-        EbayEnterprise_MageLog_Helper_Data $logger,
-        EbayEnterprise_MageLog_Helper_Context $loggerContext,
-        EbayEnterprise_Inventory_Helper_Details_Item $itemHelper
-    ) {
-        return func_get_args();
-    }
+    public function buildOutRequest()
+    {
+        $this->request->setReservationId($this->reservation->getId())
+            ->setRequestId($this->reservation->getRequestId());
 
-    public function addItemPayloads(
-        array $items,
-        Mage_Sales_Model_Quote_Address $address
-    ) {
-        foreach ($items as $item) {
+        foreach ($this->selectedItems->getSelectionIterator() as $data) {
+            list($address, $item) = $data;
             $this->addItemPayload($item, $address);
         }
     }

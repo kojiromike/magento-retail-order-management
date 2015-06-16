@@ -1,5 +1,0 @@
--
-  - global
-  - sales_quote_collect_totals_before
-  - ebayenterprise_inventory/observer
-  - checkInventory

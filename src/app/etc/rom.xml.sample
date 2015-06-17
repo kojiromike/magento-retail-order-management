@@ -185,7 +185,7 @@ all options to ensure they match you specific implementation.
 					-->
 					<CWS>Wrong size or color</CWS>
 					<EP>Buyer's remorse</EP>
-					<YD>Duplicate order</EP>
+					<YD>Duplicate order</YD>
 					<OTH>Other</OTH>
 				</reason_map>
 			</cancel>

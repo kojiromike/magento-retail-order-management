@@ -89,13 +89,13 @@ phpcbf:
     volumes:
         - .:/srv/magento
     entrypoint: /srv/magento/build/magento/vendor/bin/phpcbf
-    command: -p --standard=PSR2 src
+    command: --no-patch --extensions='php/php,phtml/php,js/js,css/css' -p -s --colors --standard=tests/phpcs.xml src
 phpcs:
     image: kojiromike/magento_tools
     volumes:
         - .:/srv/magento
     entrypoint: /srv/magento/build/magento/vendor/bin/phpcs
-    command: -p --standard=PSR2 src
+    command: --extensions='php/php,phtml/php,js/js,css/css' -p -s --colors --standard=tests/phpcs.xml src
 phplint:
     image: kojiromike/magento_tools
     volumes:

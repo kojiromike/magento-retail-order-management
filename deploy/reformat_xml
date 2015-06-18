@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+##
+# Reset license header and clean xml indentation.
+
+shopt -s globstar
+tmpfile=x # Later use mktemp
+printf -v license '<!--\n%s\n-->' "$(<deploy/license_template.txt)"
+for xml in src/**/*.xml*; do
+    {
+        printf '%s\n' "$license"
+        xmllint --xpath '/*' "$xml" |
+            xmllint --format - |
+            tail -n +2 |
+            unexpand -t2 |
+            expand -t4
+    } | xmllint --encode utf-8 - > "$tmpfile"
+    cat "$tmpfile" > "$xml"
+done
+rm "$tmpfile"

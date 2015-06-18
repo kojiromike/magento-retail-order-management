@@ -146,7 +146,7 @@ xmllint:
     image: kojiromike/magento_tools
     volumes:
         - .:/srv/magento
-    command: sh -c 'find src \( -name "*.xml" -o -name "*.xsd" -o -name "*.xsl" \) -print0 |
+    command: sh -c 'find src \( -name "*.xml*" -o -name "*.xsd" -o -name "*.xsl" \) -print0 |
                     xargs -0 -n1 -P6 -- xmllint --noout'
 tools:
     image: kojiromike/magento_tools

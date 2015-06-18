@@ -19,11 +19,14 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      * @var EbayEnterprise_Dom_Document
      */
     protected $_doc;
+    /** @var EbayEnterprise_Eb2cCore_Helper_Data */
+    protected $_coreHelper;
 
     public function setUp()
     {
         parent::setUp();
-        $this->_doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $this->_coreHelper = Mage::helper('eb2ccore');
+        $this->_doc = $this->_coreHelper->getNewDomDocument();
 
         // suppressing the real session from starting
         $session = $this->getModelMockBuilder('core/session')
@@ -624,5 +627,51 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
             $knownAttributeSetId,
             Mage::helper('ebayenterprise_catalog/map')->extractAttributeSetValue($nodes, $product)
         );
+    }
+
+    /**
+     * Prepare a DOMNodeList object using the XML fixture file, and XPath querying
+     * all custom attributes. Finally, return a nested array with element 1 as the DOMNodelist
+     * and element 2 as a new empty catalog/product instance.
+     *
+     * @return array
+     */
+    public function providerExtractCustomAttributes()
+    {
+        return [
+            [
+                __DIR__ . DS . 'MapTest' . DS . 'fixtures' . DS . 'CustomAttributes-ItemMaster.xml',
+                Mage::getModel('catalog/product'),
+            ],
+        ];
+    }
+
+    /**
+     * Test that the helper callback method ebayenterprise_catalog/map::extractCustomAttributes()
+     * when invoked will be given as its first parameter an object of type DOMNodeList, and as its second parameter
+     * an object of type catalog/product. Then, we expect the proper custom attribute to be extracted
+     * and added to the passed-in product object.
+     *
+     * @param string
+     * @param Mage_Catalog_Model_Product
+     * @dataProvider providerExtractCustomAttributes
+     */
+    public function testExtractCustomAttributes($feedFile, Mage_Catalog_Model_Product $product)
+    {
+        $this->_doc->loadXML(file_get_contents($feedFile));
+        /** @var DOMXPath $xpath */
+        $xpath = $this->_coreHelper->getNewDomXPath($this->_doc);
+        /** @var DOMNodeList $nodes */
+        $nodes = $xpath->query('//CustomAttributes/Attribute');
+        /** @var EbayEnterprise_Catalog_Helper_Map $map */
+        $map = Mage::helper('ebayenterprise_catalog/map');
+        // Proving that product object has no value
+        $this->assertEmpty($product->getData());
+        // Proving that when the method ebayenterprise_catalog/map::extractCustomAttributes()
+        // invoked it will always return null
+        $this->assertNull($map->extractCustomAttributes($nodes, $product));
+        // Proving that after calling the method ebayenterprise_catalog/map::extractCustomAttributes()
+        // the empty passed in product object will now contains data
+        $this->assertNotEmpty($product->getData());
     }
 }

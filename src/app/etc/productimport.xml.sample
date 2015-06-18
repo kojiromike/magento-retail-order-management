@@ -383,6 +383,16 @@ Carefully review all options to ensure they match you specific implementation.
 					<method></method>
 					<xpath></xpath>
 				</msrp>
+				<!---
+					This map allow you to import all custom attributes from ItemMaster and ContentMaster
+					into Magento Products, given that the product attributes are already created.
+				-->
+				<custom_attributes>
+					<class>ebayenterprise_catalog/map</class>
+					<type>helper</type>
+					<method>extractCustomAttributes</method>
+					<xpath>CustomAttributes/Attribute</xpath>
+				</custom_attributes>
 			</feed_attribute_mappings>
 		</ebayenterprise_catalog>
 	</default>

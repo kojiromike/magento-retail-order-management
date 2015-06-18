@@ -13,7 +13,7 @@
   - [Content Master](#content-master)
   - [Price Events](#price-events)
 - [Use Cases](#use-cases)
-  - [Associate Products to Categories](#associate-products-to-categories) 
+  - [Associate Products to Categories](#associate-products-to-categories)
   - [Import Configurable Products](#import-configurable-products)
   - [Import Gift Cards](#import-gift-cards)
   - [Import Products into Different Magento Websites](#import-products-into-different-magento-websites)
@@ -163,7 +163,7 @@ Thus the map used to process `Event/Price` and `Event/AlternatePrice1` from the 
 #### Price vs. Special Price Use Cases
 
 The Magento Retail Order Management Extension supports two pricing use case scenarios, Regular and Special.
- 
+
 A Regular Price scenario is defined as a price event where an `Event/Price` is included, while an `Event/AlternatePrice1` is not. Typically, this is used as the everyday price of an item. In addition, the start date is immediate, regardless of the actual start date sent.
 
 Example:
@@ -182,7 +182,7 @@ Example:
 A Special Price scenario is defined as a price event where both `Event/Price` and `Event/AlternatePrice1` are included. Typically, this is used for short duration promotional events. The `Event/StartDate` and `Event/EndDate` will apply to the Special Price in Magneto only.
 
 Example:
- 
+
 ```xml
 <PricePerItem gsi_client_id="MAGTNA" catalog_id="45" gsi_store_id="MAGT1">
     <ClientItemId>123456789</ClientItemId>
@@ -196,7 +196,7 @@ Example:
 ```
 
 During the time a Regular Price record and a Special Price record intersect, the Special Price record would take precedence.
- 
+
 Using the 2 price records above as an example:
 
 | Date                  | Price  | Special Price | "Selling Price" | "Was Price<sup>†</sup>" |
@@ -211,7 +211,7 @@ _† Subject to specific pricing template in use for the active theme_
 
 ### Associate Products to Categories
 
-Example: 
+Example:
 
 ```xml
 <CategoryLinks>
@@ -396,6 +396,7 @@ The following methods are provided by `EbayEnterprise_Catalog_Helper_Map` to cov
 | `extractFloatValue`  | Float value of the first matched XML node.  |
 | `passThrough`        | Value the method is called with.            |
 | `extractSkuValue`    | String value of the normalized SKU of the first matched XML node. |
+| `extractCustomAttributes` | Loop through all custom attributes and set the product with the custom attribute name and value. |
 
 ### Examples
 
@@ -420,6 +421,10 @@ XPath has a lot of power for finding nodes and even transforming them itself. Mu
     <xpath>CustomAttributes/Attribute/[@name="my_custom_attribute"]/Value</xpath>
 </my_custom_attribute>
 ```
+
+## Importing all custom attributes
+
+In order to import all custom attributes for all Magento products, ensure that all custom attributes are created as Magento's product EAV Attributes, and then verify that the `custom_attributes` map is enabled in the `app/etc/local/productimport.xml` file. The custom attribute `name` will be mapped to a known Magento's product EAV Attribute and the custom attribute value will be imported as the value for this Magento's product EAV Attribute.
 
 ## Dependencies
 

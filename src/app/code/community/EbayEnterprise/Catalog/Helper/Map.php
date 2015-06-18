@@ -351,4 +351,25 @@ class EbayEnterprise_Catalog_Helper_Map
     {
         return -$this->extractFloatSum($nodes);
     }
+
+    /**
+     * extract all custom attributes and set it to the passed in product object.
+     *
+     * @param  DOMNodeList
+     * @param  Mage_Catalog_Model_Product
+     * @return null
+     */
+    public function extractCustomAttributes(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
+    {
+        /** @var DOMElement $node */
+        foreach ($nodes as $node) {
+            /** @var string $attribute */
+            $attribute = trim($node->getAttribute('name'));
+            /** @var string $value */
+            $value = trim($node->nodeValue);
+            if ($attribute && $value) {
+                $product->setData($attribute, $value);
+            }
+        }
+    }
 }

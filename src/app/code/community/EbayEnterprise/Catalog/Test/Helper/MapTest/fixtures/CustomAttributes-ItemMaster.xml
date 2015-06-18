@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ItemMaster>
+    <Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
+        <CustomAttributes>
+            <Attribute name="FooBar" operation_type="Add">
+                <Value>Some Value</Value>
+            </Attribute>
+            <Attribute name="BarFoo">
+                <Value>Some other value</Value>
+            </Attribute>
+        </CustomAttributes>
+    </Item>
+</ItemMaster>

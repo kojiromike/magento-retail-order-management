@@ -77,15 +77,8 @@ class EbayEnterprise_Order_Test_Model_Cancel_Process_ResponseTest extends EbayEn
      */
     public function testProcessResponseForOrderCancelResponsePayload($responseStatus, $isCancelable)
     {
-        /** @var Mock_Mage_Sales_Model_Order */
-        $order = $this->getModelMock('sales/order', ['cancel', 'save']);
-        $order->expects($isCancelable ? $this->once() : $this->never())
-            ->method('cancel')
-            ->will($this->returnSelf());
-        $order->expects($isCancelable ? $this->once() : $this->never())
-            ->method('save')
-            ->will($this->returnSelf());
-
+        /** @var Mage_Sales_Model_Order */
+        $order = Mage::getModel('sales/order');
         /** @var Mock_IOrderCancelResponse */
         $response = $this->getMockBuilder(static::RESPONSE_CLASS)
             // Disabling the constructor because it requires the following parameters: IValidatorIterator
@@ -98,7 +91,7 @@ class EbayEnterprise_Order_Test_Model_Cancel_Process_ResponseTest extends EbayEn
             ->will($this->returnValue($responseStatus));
 
         /** @var EbayEnterprise_Order_Model_Cancel_Process_Response */
-        $cancelProcessResponse = $this->getModelMock('ebayenterprise_order/cancel_process_response', ['_logResponse'], false, [[
+        $cancelProcessResponse = $this->getModelMock('ebayenterprise_order/cancel_process_response', ['_logResponse', '_cancelOrder'], false, [[
             // This key is required
             'response' => $response,
             // This key is required
@@ -106,6 +99,9 @@ class EbayEnterprise_Order_Test_Model_Cancel_Process_ResponseTest extends EbayEn
         ]]);
         $cancelProcessResponse->expects($isCancelable ? $this->never() : $this->once())
             ->method('_logResponse')
+            ->will($this->returnSelf());
+        $cancelProcessResponse->expects($isCancelable ? $this->once() : $this->never())
+            ->method('_cancelOrder')
             ->will($this->returnSelf());
         $this->assertSame($cancelProcessResponse, EcomDev_Utils_Reflection::invokeRestrictedMethod($cancelProcessResponse, '_processResponse', []));
     }
@@ -165,5 +161,63 @@ class EbayEnterprise_Order_Test_Model_Cancel_Process_ResponseTest extends EbayEn
             'log_context' => $logContext,
         ]);
         $this->assertSame($cancelProcessResponse, EcomDev_Utils_Reflection::invokeRestrictedMethod($cancelProcessResponse, '_logResponse', []));
+    }
+
+    /**
+     * @return array
+     */
+    public function providerCancelOrder()
+    {
+        return [
+            [7],
+            [null]
+        ];
+    }
+
+    /**
+     * Test that the method ebayenterprise_order/cancel_process_response::_cancelOrder()
+     * is invoked, and it will call the method sales/order::getId(), if it returns non-zero
+     * integer value, then the methods sales/order::cancel() and sales/order::save() will be
+     * called in the sales/order object. Otherwise, only the sales/order::setState() will
+     * be invoked and passed in class constant Mage_Sales_Model_Order::STATE_CANCELED.
+     * Finally, the method ebayenterprise_order/cancel_process_response::_cancelOrder() will
+     * return itself.
+     *
+     * @param int | null
+     * @dataProvider providerCancelOrder
+     */
+    public function testCancelOrder($id)
+    {
+        /** @var Mock_Mage_Sales_Model_Order */
+        $order = $this->getModelMock('sales/order', ['cancel', 'save', 'getId', 'setState']);
+        $order->expects($this->once())
+            ->method('getId')
+            ->will($this->returnValue($id));
+        $order->expects($id ? $this->once() : $this->never())
+            ->method('cancel')
+            ->will($this->returnSelf());
+        $order->expects($id ? $this->once() : $this->never())
+            ->method('save')
+            ->will($this->returnSelf());
+        $order->expects($id ? $this->never() : $this->once())
+            ->method('setState')
+            ->with($this->identicalTo(Mage_Sales_Model_Order::STATE_CANCELED))
+            ->will($this->returnSelf());
+
+        /** @var Mock_IOrderCancelResponse */
+        $response = $this->getMockBuilder(static::RESPONSE_CLASS)
+            // Disabling the constructor because it requires the following parameters: IValidatorIterator
+            // ISchemaValidator, IPayloadMap, LoggerInterface
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        /** @var EbayEnterprise_Order_Model_Cancel_Process_Response */
+        $cancelProcessResponse = $this->getModelMock('ebayenterprise_order/cancel_process_response', ['foo'], false, [[
+            // This key is required
+            'response' => $response,
+            // This key is required
+            'order' => $order,
+        ]]);
+        $this->assertSame($cancelProcessResponse, EcomDev_Utils_Reflection::invokeRestrictedMethod($cancelProcessResponse, '_cancelOrder', []));
     }
 }

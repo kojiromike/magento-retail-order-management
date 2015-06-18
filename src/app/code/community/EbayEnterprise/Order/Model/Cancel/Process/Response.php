@@ -91,11 +91,29 @@ class EbayEnterprise_Order_Model_Cancel_Process_Response implements EbayEnterpri
     {
         switch ($this->_response->getResponseStatus()) {
             case static::CANCELLED_RESPONSE:
-                $this->_order->cancel()->save();
+                $this->_cancelOrder();
                 break;
             default:
                 $this->_logResponse();
                 break;
+        }
+        return $this;
+    }
+
+    /**
+     * Cancel the order if is in the current Magento store, otherwise, simply
+     * set the state of the order to a state of canceled.
+     *
+     * @return self
+     */
+    protected function _cancelOrder()
+    {
+         if ($this->_order->getId()) {
+            // Only save order that's in this magento store
+            $this->_order->cancel()->save();
+        } else {
+            // The order is not in this magento store, simply set state of this empty order to cancel
+            $this->_order->setState(Mage_Sales_Model_Order::STATE_CANCELED);
         }
         return $this;
     }

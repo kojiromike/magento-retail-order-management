@@ -271,9 +271,11 @@ class EbayEnterprise_Order_OrderController extends Mage_Sales_Controller_Abstrac
     protected function _getRomOrderToBeCanceled()
     {
         $request = $this->getRequest();
+        $orderId = $request->getParam('order_id');
         return Mage::getModel('sales/order')
-            ->loadByIncrementId($request->getParam('order_id'))
-            ->setCancelReasonCode($request->getParam('cancel_reason'));
+            ->loadByIncrementId($orderId)
+            ->setCancelReasonCode($request->getParam('cancel_reason'))
+            ->setIncrementId($orderId);
     }
 
     /**

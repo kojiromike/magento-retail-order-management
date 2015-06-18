@@ -1,40 +1,40 @@
 {
-	"name": "ebayenterprise/magento-retail-order-management",
-	"description": "eBay Enterprise Retail Order Management Magento Extension",
-	"license": "OSL-3.0",
-	"authors": [
-		{ "name": "Chris Kemmerer", "email": "ckemmerer@ebay.com" },
-		{ "name": "Michael A. Smith", "email": "msmith3@ebay.com" },
-		{ "name": "Michael Phang", "email": "mphang@ebay.com" },
-		{ "name": "Mike West", "email": "micwest@ebay.com" },
-		{ "name": "Reginald Gabriel", "email": "rgabriel@ebay.com" },
-		{ "name": "Scott van Brug", "email": "svanbrug@ebay.com" }
-	],
-	"type": "magento-module",
-	"require": {
-		"ebayenterprise/magento-file-transfer": "~1.0",
-		"ebayenterprise/magento-log": ">=2.0.2,<3.0",
-		"ebayenterprise/php-dom": "~1.0",
-		"ebayenterprise/retail-order-management": ">1.2.0-alpha-3,<2.0",
-		"firegento/psr0autoloader": "*",
-		"psr/log" : "~1.0"
-	},
-	"require-dev": {
-		"ecomdev/ecomdev_phpunit": ">=0.3",
-		"pdepend/pdepend": ">=1.1",
-		"phpdocumentor/phpdocumentor": ">=2.4",
-		"phploc/phploc": ">=2.0",
-		"phpmd/phpmd": ">=1.5",
-		"phpunit/dbunit": ">=1",
-		"phpunit/php-invoker": ">=1.1",
-		"phpunit/phpunit-selenium": ">=1",
-		"phpunit/phpunit-story": ">=1",
-		"sebastian/phpcpd": ">=2.0",
-		"squizlabs/php_codesniffer": ">=1.5"
-	},
-	"extra": {
-		"branch-alias": {
-			"dev-master": "1.6.x-dev"
-		}
-	}
+    "name": "ebayenterprise/magento-retail-order-management",
+    "description": "eBay Enterprise Retail Order Management Magento Extension",
+    "license": "OSL-3.0",
+    "authors": [
+        { "name": "Chris Kemmerer", "email": "ckemmerer@ebay.com" },
+        { "name": "Michael A. Smith", "email": "msmith3@ebay.com" },
+        { "name": "Michael Phang", "email": "mphang@ebay.com" },
+        { "name": "Mike West", "email": "micwest@ebay.com" },
+        { "name": "Reginald Gabriel", "email": "rgabriel@ebay.com" },
+        { "name": "Scott van Brug", "email": "svanbrug@ebay.com" }
+    ],
+    "type": "magento-module",
+    "require": {
+        "ebayenterprise/magento-file-transfer": "~1.0",
+        "ebayenterprise/magento-log": ">=2.0.2,<3.0",
+        "ebayenterprise/php-dom": "~1.0",
+        "ebayenterprise/retail-order-management": "~1.2",
+        "firegento/psr0autoloader": "*",
+        "psr/log" : "~1.0"
+    },
+    "require-dev": {
+        "ecomdev/ecomdev_phpunit": ">=0.3",
+        "pdepend/pdepend": ">=1.1",
+        "phpdocumentor/phpdocumentor": ">=2.4",
+        "phploc/phploc": ">=2.0",
+        "phpmd/phpmd": ">=1.5",
+        "phpunit/dbunit": ">=1",
+        "phpunit/php-invoker": ">=1.1",
+        "phpunit/phpunit-selenium": ">=1",
+        "phpunit/phpunit-story": ">=1",
+        "sebastian/phpcpd": ">=2.0",
+        "squizlabs/php_codesniffer": ">=1.5"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.6.x-dev"
+        }
+    }
 }

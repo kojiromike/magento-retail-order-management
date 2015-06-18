@@ -1,5 +1,4 @@
 # Core
-connect/ebay_retail_order_management.xml var/connect/ebay_retail_order_management.xml
 src/app/code/community/EbayEnterprise/* app/code/community/EbayEnterprise/
 src/app/etc/*.xml.sample app/etc/
 src/app/etc/modules/*.xml app/etc/modules/

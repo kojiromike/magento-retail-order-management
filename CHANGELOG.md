@@ -1,19 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Unreleased Changes
-### Fixed
-- Shipping discounts were missing from tax and order create requests
-- Log messages may contain sensitive data
+## [1.6.0-alpha-5] - 2015-06-18
+### Added
+- Support for bundle and group product types for inventory details and quantity operations
+- Support for client-side encryption for multishipping orders when eBay Enterprise Credit Card payment method is used
+- Product attributes, import maps and export maps for Catalog Class and Item Status
+- Display of Estimated Delivery Date in onepage and multishipping checkout
 
 ### Changed
 - Inventory details and quantity operations now use the ROM SDK
+- Visibility import map uses a custom attribute instead of CatalogClass
 
-### Added
-- Support for bundle and group product types for inventory details and quantity operations
-- Support for client-side encryption for multishipping orders eBay enterprise Credit Card payment method is used
+### Fixed
+- Shipping discounts are missing from tax and order create requests
+- Log messages may contain sensitive data
+- Unable to search by Zip in guest order lookup
+- Visiting order cancel URL directly results in unhandled error
 
-## [1.6.0-alpha-4] -  2015-06-04
+## [1.6.0-alpha-4] - 2015-06-04
 ### Added
 - Support for multishipping checkout to generate a single order create request
 - Support for viewing order details and shipments with multiple shipping addresses in one order
@@ -26,7 +31,7 @@ All notable changes to this project will be documented in this file.
 - Order create request sends duplicate skus for configurable products
 - Order create request includes a shipping amount for all items
 
-## [1.6.0-alpha-3] -  2015-05-21
+## [1.6.0-alpha-3] - 2015-05-21
 ### Added
 - Support for ROM tax, duty and fee service when using multishipping checkout
 - Support for ROM web order cancel and reason
@@ -34,6 +39,7 @@ All notable changes to this project will be documented in this file.
 - Magento Enterprise Edition 1.14.2 support
 
 ### Changed
+- Out of stock and limited stock handling match Magento handling
 - Order summary has been refactored to use the [RetailOrderManagement-SDK](https://github.com/eBayEnterprise/RetailOrderManagement-SDK) 
 
 ### Removed
@@ -42,28 +48,25 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Order create merchandise amount remainder calculation wrong and unnecessary
 
-### Changed
-- Out of stock and limited stock handling match Magento handling
-
-## [1.6.0-alpha-2] -  2015-05-07
+## [1.6.0-alpha-2] - 2015-05-07
 ### Fixed
 - Store language codes are not being properly validated in the admin
 
-## [1.6.0-alpha-1] -  2015-04-24
+## [1.6.0-alpha-1] - 2015-04-24
 ### Fixed
 - Invalid tax response does not cause Order Create Request tax header to be set properly
 - Error when `ItemDesc` value includes quotation marks
 
-## [1.5.0-beta-1] -  2015-04-09
+## [1.5.0-beta-1] - 2015-04-09
+### Changed
+- Handle unacknowledged feeds with a CRIT log instead of resending the feed file
+
 ### Fixed
 - PayPal module is not receiving the address status from the api
 - ProductImageExport generates new files even when no images/products have changed
 - Logger Context Helper Undefined Index Error
 
-### Changed
-- Handle unacknowledged feeds with a CRIT log instead of resending the feed file
-
-## [1.5.0-alpha-6] -  2015-03-26
+## [1.5.0-alpha-6] - 2015-03-26
 ### Added
 - Configuration mapping for customer gender
 - Exposed events to allow modification or addition of information to the Order Create request
@@ -75,14 +78,18 @@ All notable changes to this project will be documented in this file.
 ### Removed
 - Order custom attribute mappings
 
-
-## [1.5.0-alpha-5] -  2015-03-12
+## [1.5.0-alpha-5] - 2015-03-12
 ### Changed
 - Log statements now utilize [eBay Enterprise Magento Logger](https://github.com/eBayEnterprise/magento-log) 2.0
 - Log statements now contain meta information
 
+## [1.5.0-alpha-4] - 2015-02-26
+### Changed
+- Use the Retail Order Management SDK for address validation service requests
 
-## [1.5.0-alpha-4] -  2015-02-26
+### Removed
+- Last vestiges of admin suppression
+
 ### Fixed
 - Guest order lookup gives "Order not found" error even when an order is found
 - PayPal Express Checkout fails when using a gift card that covers the order subtotal, but not the eventual order grand total
@@ -90,31 +97,25 @@ All notable changes to this project will be documented in this file.
 - Order details page is not displaying promotional discounts
 - Blank page upon submitting an order using PayPal payment method
 
-### Changed
-- Use the Retail Order Management SDK for address validation service requests
-
-### Removed
-- Last vestiges of admin suppression
-
 ## [1.5.0-alpha-3] - 2015-02-12
+### Changed
+ - Change "Invalid" to "Incomplete" for products not yet fully imported
+
 ### Fixed
 - Sprintf-format specifiers not replaced in log messages
 - Order details page was not displaying country, state or postal code
 - No error message when a product with no inventory is removed from cart
 
-### Changed
- - Change "Invalid" to "Incomplete" for products not yet fully imported
-
 ## [1.5.0-alpha-2] - 2015-01-29
+### Changed
+- Undo prepending catalog id to the custom product attribute `style_id` when importing products
+
 ### Fixed
 - Unnecessary TDF requests when PayPal Express Checkout used from cart or product page
 - No inventory check when adding an item to the cart that was just ordered
 - Magento admin can place $0 orders regardless of configured payment types
 - Unable to start PayPal Express Checkout
 - Test API (Web Services) fails if Address Validation->Maximum Suggestions is not configured
-
-### Changed
-- Undo prepending catalog id to the custom product attribute `style_id` when importing products
 
 ## [1.5.0-alpha-1] - 2015-01-15
 ### Added
@@ -284,6 +285,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-alpha-5]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-4...1.6.0-alpha-5
 [1.6.0-alpha-4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-3...1.6.0-alpha-4
 [1.6.0-alpha-3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-2...1.6.0-alpha-3
 [1.6.0-alpha-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-1...1.6.0-alpha-2

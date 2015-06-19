@@ -123,7 +123,7 @@ class EbayEnterprise_Order_GuestController extends Mage_Sales_GuestController
      */
     protected function _isMatchLastname(EbayEnterprise_Order_Model_Detail_Process_Response_Address $address, $lastname)
     {
-        return $lastname && ($lastname === $address->getLastname());
+        return $lastname && (strcasecmp($lastname, $address->getLastname()) === 0);
     }
 
     /**
@@ -135,6 +135,6 @@ class EbayEnterprise_Order_GuestController extends Mage_Sales_GuestController
      */
     protected function _isMatchEmail(EbayEnterprise_Order_Model_Detail_Process_IResponse $romOrder, $email)
     {
-        return $email && ($email === $romOrder->getCustomerEmail());
+        return $email && (strcasecmp($email, $romOrder->getCustomerEmail()) === 0);
     }
 }

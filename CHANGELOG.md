@@ -4,9 +4,16 @@ All notable changes to this project will be documented in this file.
 ## Unreleased Changes
 ### Added
 - Support for bundle and group product types for inventory allocation operations
+- Support for estimated delivery date for backorderable products that is in stock
+- Import custom product attributes without explicit import map
+- Send zero-padding Customer Id in OCR and registered customer Account Pages in order to import customers from other web-stores
 
 ### Changed
 - Inventory Allocation operations now use the ROM SDK
+
+### Fixed
+- Estimated Delivery Date does not display for both configurable and gift-card physical products in checkout review page
+- Fatal Error found when cancelling an order that was not originally created within the current webstore
 
 ## [1.6.0-alpha-5] - 2015-06-18
 ### Added
@@ -47,7 +54,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Out of stock and limited stock handling match Magento handling
-- Order summary has been refactored to use the [RetailOrderManagement-SDK](https://github.com/eBayEnterprise/RetailOrderManagement-SDK) 
+- Order summary has been refactored to use the [RetailOrderManagement-SDK](https://github.com/eBayEnterprise/RetailOrderManagement-SDK)
 
 ### Removed
 - Vestigial event observer from eb2cOrder

@@ -76,7 +76,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
         $this->_requestStub = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateRequest');
         $this->_replyStub = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateReply');
         $this->_coreHelperStub = $this->getHelperMock('eb2ccore/data', ['generateRequestId', 'getConfigModel']);
-        $coreConfig = $this->buildCoreConfigRegistry(['clientCustomerIdPrefix' => '12345', 'language_code' => 'en-us']);
+        $coreConfig = $this->buildCoreConfigRegistry(['clientCustomerIdPrefix' => '12345', 'language_code' => 'en-us', 'clientCustomerIdLength' => 0,]);
         $this->_coreHelperStub->expects($this->any())
             ->method('getConfigModel')
             ->will($this->returnValue($coreConfig));

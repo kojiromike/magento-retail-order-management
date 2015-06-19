@@ -25,6 +25,7 @@ class EbayEnterprise_Eb2cCore_Model_Config extends EbayEnterprise_Eb2cCore_Model
         'api_timeout'                    => 'eb2ccore/api/timeout',
         'api_xsd_path'                   => 'eb2ccore/api/xsd_path',
         'catalog_id'                     => 'eb2ccore/general/catalog_id',
+        'client_customer_id_length'      => 'eb2ccore/general/client_customer_id_length',
         'client_customer_id_prefix'      => 'eb2ccore/general/client_customer_id_prefix',
         'client_id'                      => 'eb2ccore/general/client_id',
         'client_order_id_prefix'         => 'eb2ccore/general/client_order_id_prefix',

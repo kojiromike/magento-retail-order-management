@@ -199,9 +199,10 @@ class EbayEnterprise_Order_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_
     {
         $prefix = '0001';
         $customerId = '3';
+        $length = 7;
         return [
-            [$customerId, $prefix, $prefix . $customerId],
-            [null, $prefix, null],
+            [$customerId, $prefix, $prefix . str_pad($customerId, $length, '0', STR_PAD_LEFT), $length],
+            [null, $prefix, null, 0],
         ];
     }
 
@@ -211,9 +212,10 @@ class EbayEnterprise_Order_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_
      * @param string|null $customer Customer retrieved from the session
      * @param string $prefix Client customer id prefix
      * @param string|null $prefixedId prefixed customer id
+     * @param int $length customer id padding length using zeros
      * @dataProvider provideCustomerId
      */
-    public function testGetPrefixedCurrentCustomerId($customerId, $prefix, $prefixedId)
+    public function testGetPrefixedCurrentCustomerId($customerId, $prefix, $prefixedId, $length)
     {
         /** @var Mage_Customer_Model_Customer */
         $customer = Mage::getModel('customer/customer', ['entity_id' => $customerId]);
@@ -227,7 +229,10 @@ class EbayEnterprise_Order_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_
         $coreHelper = $this->getHelperMock('eb2ccore/data', ['getConfigModel']);
         $coreHelper->expects($this->any())
             ->method('getConfigModel')
-            ->will($this->returnValue($this->buildCoreConfigRegistry(['clientCustomerIdPrefix' => $prefix])));
+            ->will($this->returnValue($this->buildCoreConfigRegistry([
+                'clientCustomerIdPrefix' => $prefix,
+                'clientCustomerIdLength' => $length,
+            ])));
 
         /** @var Mock_EbayEnterprise_Order_Helper_Data */
         $helper = Mage::helper('ebayenterprise_order');

@@ -113,13 +113,26 @@ class EbayEnterprise_Order_Helper_Data extends Mage_Core_Helper_Abstract impleme
     }
 
     /**
-     * Prefix a customer id with the configured client customer id prefix
+     * Prefix a customer id with the configured client customer id prefix and pad
+     * the customer id with the configured length using zeros.
      * @param  string
+     * @param  mixed
+     * @param  bool
      * @return string
      */
-    public function prefixCustomerId($customerId)
+    public function prefixCustomerId($customerId, $store = null, $isGuest = false)
     {
-        return $this->_coreHelper->getConfigModel()->clientCustomerIdPrefix . $customerId;
+        /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry $coreConfig */
+        $coreConfig = $this->_coreHelper->getConfigModel()->setStore($store);
+        /** @var string $prefix */
+        $prefix = $coreConfig->clientCustomerIdPrefix;
+        /** @var int $length */
+        $length = (int) $coreConfig->clientCustomerIdLength;
+        return sprintf(
+            '%s%s',
+            $prefix,
+            !$isGuest ? str_pad($customerId, $length, '0', STR_PAD_LEFT) : $customerId
+        );
     }
 
     /**

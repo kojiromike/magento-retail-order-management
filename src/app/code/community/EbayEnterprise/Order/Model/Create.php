@@ -431,10 +431,13 @@ class EbayEnterprise_Order_Model_Create
      */
     protected function _getCustomerId()
     {
-        $prefix = $this->_coreHelper->getConfigModel()
-            ->setStore($this->_order->getStore())
-            ->clientCustomerIdPrefix;
-        return $prefix . ($this->_order->getCustomerId() ?: $this->_getGuestCustomerId());
+        /** bool $isGuest */
+        $isGuest = !$this->_order->getCustomerId();
+        /** @var int $customerId */
+        $customerId = $this->_order->getCustomerId() ?: $this->_getGuestCustomerId();
+        /** @var mixed $store */
+        $store = $this->_order->getStore();
+        return $this->_helper->prefixCustomerId($customerId, $store, $isGuest);
     }
 
     /**

@@ -78,7 +78,7 @@
 							<show_in_store>1</show_in_store>
 						</language_code>
 						<client_order_id_prefix translate="label">
-							<label>Client Order Id</label>
+							<label>Order Id Prefix</label>
 							<sort_order>50</sort_order>
 							<frontend_type>text</frontend_type>
 							<validate>validate-number</validate>
@@ -87,7 +87,7 @@
 							<show_in_store>0</show_in_store>
 						</client_order_id_prefix>
 						<client_customer_id_prefix translate="label">
-							<label>Client Customer Id</label>
+							<label>Customer Id Prefix</label>
 							<sort_order>60</sort_order>
 							<frontend_type>text</frontend_type>
 							<validate>validate-number</validate>
@@ -95,6 +95,16 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
 						</client_customer_id_prefix>
+						<client_customer_id_length translate="label">
+							<label>Customer Id Length</label>
+							<comment>The length of the Customer Id to generate, excluding the prefix</comment>
+							<sort_order>70</sort_order>
+							<frontend_type>text</frontend_type>
+							<validate>validate-number</validate>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</client_customer_id_length>
 					</fields>
 				</general>
 				<api translate="label">

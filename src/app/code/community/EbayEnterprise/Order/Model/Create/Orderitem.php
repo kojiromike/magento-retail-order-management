@@ -22,9 +22,9 @@ use eBayEnterprise\RetailOrderManagement\Payload\Order\IPriceGroup;
 class EbayEnterprise_Order_Model_Create_Orderitem
 {
     /** @var EbayEnterprise_Eb2cCore_Helper_Discount */
-    protected $_discountHelper;
+    protected $discountHelper;
     /** @var EbayEnterprise_Eb2cCore_Helper_Data */
-    protected $_coreHelper;
+    protected $coreHelper;
 
     /**
      * inject dependencies on construction
@@ -32,10 +32,10 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      */
     public function __construct(array $args = [])
     {
-        list($this->_discountHelper, $this->_coreHelper) =
-            $this->_checkTypes(
-                $this->_nullCoalesce('discount_helper', $args, Mage::helper('eb2ccore/discount')),
-                $this->_nullCoalesce('core_helper', $args, Mage::helper('eb2ccore'))
+        list($this->discountHelper, $this->coreHelper) =
+            $this->checkTypes(
+                $this->nullCoalesce('discount_helper', $args, Mage::helper('eb2ccore/discount')),
+                $this->nullCoalesce('core_helper', $args, Mage::helper('eb2ccore'))
             );
     }
 
@@ -45,7 +45,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      * @param  EbayEnterprise_Eb2cCore_Helper_Data
      * @return array
      */
-    protected function _checkTypes(
+    protected function checkTypes(
         EbayEnterprise_Eb2cCore_Helper_Discount $discountHelper,
         EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
     ) {
@@ -59,7 +59,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      * @param  mixed
      * @return mixed
      */
-    protected function _nullCoalesce($key, array $ar, $default)
+    protected function nullCoalesce($key, array $ar, $default)
     {
         return isset($ar[$key]) ? $ar[$key] : $default;
     }
@@ -84,13 +84,13 @@ class EbayEnterprise_Order_Model_Create_Orderitem
         $includeShipping = false
     ) {
         $merch = $payload->getMerchandisePricing();
-        $this->_prepareMerchandisePricing($item, $merch);
-        $romShippingMethod = $this->_coreHelper->lookupShipMethod($address->getShippingMethod());
+        $this->prepareMerchandisePricing($item, $merch);
+        $romShippingMethod = $this->coreHelper->lookupShipMethod($address->getShippingMethod());
         if ($includeShipping) {
-            $this->_prepareShippingPriceGroup($address, $payload);
+            $this->prepareShippingPriceGroup($address, $payload);
         }
-        list($itemSize, $itemSizeId) = $this->_getItemSizeInfo($item);
-        list($itemColor, $itemColorId) = $this->_getItemColorInfo($item);
+        list($itemSize, $itemSizeId) = $this->getItemSizeInfo($item);
+        list($itemColor, $itemColorId) = $this->getItemColorInfo($item);
         $payload
             ->setLineNumber($lineNumber)
             ->setItemId($item->getSku())
@@ -118,12 +118,12 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      * @param  IPriceGroup
      * @return self
      */
-    protected function _prepareMerchandisePricing(Mage_Sales_Model_Order_Item $item, IPriceGroup $merch)
+    protected function prepareMerchandisePricing(Mage_Sales_Model_Order_Item $item, IPriceGroup $merch)
     {
         $merch
             ->setAmount($item->getRowTotal())
             ->setUnitPrice($item->getPrice());
-        $this->_discountHelper->transferDiscounts($item, $merch);
+        $this->discountHelper->transferDiscounts($item, $merch);
         return $this;
     }
 
@@ -133,11 +133,11 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      * @param  IOrderItem
      * @return self
      */
-    protected function _prepareShippingPriceGroup(Mage_Sales_Model_Order_Address $address, IOrderItem $payload)
+    protected function prepareShippingPriceGroup(Mage_Sales_Model_Order_Address $address, IOrderItem $payload)
     {
         $shippingPriceGroup = $payload->getEmptyPriceGroup();
         $shippingPriceGroup->setAmount((float) $address->getShippingAmount());
-        $this->_discountHelper->transferDiscounts($address, $shippingPriceGroup);
+        $this->discountHelper->transferDiscounts($address, $shippingPriceGroup);
         $payload->setShippingPricing($shippingPriceGroup);
         return $this;
     }
@@ -148,7 +148,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      * @param  Mage_Sales_Model_Order_Item
      * @return Mage_Eav_Model_Resource_Entity_Attribute_Option_Collection
      */
-    protected function _loadOrderItemOptions(Mage_Sales_Model_Order_Item $item)
+    protected function loadOrderItemOptions(Mage_Sales_Model_Order_Item $item)
     {
         $buyRequest = $item->getProductOptionByCode('info_BuyRequest');
         $attrs = isset($buyRequest['super_attributes']) ? $buyRequest['super_attributes'] : [];
@@ -173,9 +173,9 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      * @param  Mage_Sales_Model_Order_Item
      * @return array
      */
-    protected function _getOptionInfo($attributeCode, Mage_Sales_Model_Order_Item $item)
+    protected function getOptionInfo($attributeCode, Mage_Sales_Model_Order_Item $item)
     {
-        $options = $this->_loadOrderItemOptions($item);
+        $options = $this->loadOrderItemOptions($item);
         $option = $options->getItemByColumnValue('attribute_code', $attributeCode);
         if (!$option || ($option->getValue() && !$option->getDefaultValue())) {
             return [null, null];
@@ -188,10 +188,10 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      * @param  Mage_Sales_Model_Order_Item
      * @return array
      */
-    protected function _getItemColorInfo(Mage_Sales_Model_Order_Item $item)
+    protected function getItemColorInfo(Mage_Sales_Model_Order_Item $item)
     {
         // use the code to get the right data.
-        return $this->_getOptionInfo('color', $item);
+        return $this->getOptionInfo('color', $item);
     }
 
     /**
@@ -199,8 +199,8 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      * @param  Mage_Sales_Model_Order_Item
      * @return array
      */
-    protected function _getItemSizeInfo(Mage_Sales_Model_Order_Item $item)
+    protected function getItemSizeInfo(Mage_Sales_Model_Order_Item $item)
     {
-        return $this->_getOptionInfo('size', $item);
+        return $this->getOptionInfo('size', $item);
     }
 }

@@ -601,7 +601,6 @@ class EbayEnterprise_Order_Model_Create
                 $order,
                 $address,
                 $this->_nextLineNumber += 1,
-                $shippingChargeType,
                 $includeShipping
             );
             Mage::dispatchEvent($this->_orderItemEvent, [

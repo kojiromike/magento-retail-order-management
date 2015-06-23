@@ -144,7 +144,7 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
         $handler->expects($this->any())
             ->method('_isShippingPriceGroupRequired')
             ->will($this->returnValue(false));
-        $handler->buildOrderItem($this->_payload, $this->_itemStub, $this->_orderStub, $this->_addressStub, 1, $this->_chargeType, true);
+        $handler->buildOrderItem($this->_payload, $this->_itemStub, $this->_orderStub, $this->_addressStub, 1, true);
 
         $this->assertSame('thesku', $this->_payload->getItemId());
         $this->assertSame(null, $this->_payload->getMerchandisePricing()->getRemainder());
@@ -175,7 +175,7 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
             'default_value' => null,
             ])
         );
-        $handler->buildOrderItem($this->_payload, $this->_itemStub, $this->_orderStub, $this->_addressStub, 2, 'FLATRATE');
+        $handler->buildOrderItem($this->_payload, $this->_itemStub, $this->_orderStub, $this->_addressStub, 2);
         $this->assertNull($this->_payload->getColor());
         $this->assertNull($this->_payload->getColorId());
     }
@@ -214,7 +214,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
             $this->_orderStub,
             $this->_addressStub,
             3,
-            'ANYTHING',
             true
         );
     }
@@ -253,7 +252,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
             $this->_orderStub,
             $this->_addressStub,
             1,
-            'ANYTHING',
             false
         );
     }
@@ -264,7 +262,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
      */
     public function testBuildOrderItemsWithShippingDiscounts()
     {
-        $chargeType = 'whatever';
         $lineNumber = 1;
         $this->_addressStub->setEbayEnterpriseOrderDiscountData(['1,2,3,4' => ['id' => '1,2,3,4']]);
         $handler = $this->getModelMock(
@@ -283,7 +280,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
             $this->_orderStub,
             $this->_addressStub,
             $lineNumber,
-            $chargeType,
             true
         );
         $pg = $this->_payload->getShippingPricing();
@@ -296,7 +292,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
      */
     public function testBuildOrderItemsWithItemDiscounts()
     {
-        $chargeType = 'whatever';
         $lineNumber = 1;
         $this->_itemStub->setEbayEnterpriseOrderDiscountData(['1' => ['id' => '1']]);
         $handler = $this->getModelMock(
@@ -315,7 +310,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
             $this->_orderStub,
             $this->_addressStub,
             $lineNumber,
-            $chargeType,
             true
         );
         // merchandise price group should always exist

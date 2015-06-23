@@ -81,12 +81,11 @@ class EbayEnterprise_Order_Model_Create_Orderitem
         Mage_Sales_Model_Order $order,
         Mage_Sales_Model_Order_Address $address,
         $lineNumber,
-        $shippingChargeType,
         $includeShipping = false
     ) {
         $merch = $payload->getMerchandisePricing();
         $this->_prepareMerchandisePricing($item, $merch);
-        $romShippingMethod = $this->_coreHelper->lookupShipMethod($order->getShippingMethod());
+        $romShippingMethod = $this->_coreHelper->lookupShipMethod($address->getShippingMethod());
         if ($includeShipping) {
             $this->_prepareShippingPriceGroup($address, $payload);
         }

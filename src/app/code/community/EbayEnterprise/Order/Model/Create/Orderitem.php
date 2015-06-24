@@ -21,10 +21,10 @@ use eBayEnterprise\RetailOrderManagement\Payload\Order\IPriceGroup;
  */
 class EbayEnterprise_Order_Model_Create_Orderitem
 {
+    /** @var EbayEnterprise_Eb2cCore_Helper_Shipping */
+    protected $shippingHelper;
     /** @var EbayEnterprise_Eb2cCore_Helper_Discount */
     protected $discountHelper;
-    /** @var EbayEnterprise_Eb2cCore_Helper_Data */
-    protected $coreHelper;
 
     /**
      * inject dependencies on construction
@@ -32,24 +32,24 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      */
     public function __construct(array $args = [])
     {
-        list($this->discountHelper, $this->coreHelper) =
+        list($this->shippingHelper, $this->discountHelper) =
             $this->checkTypes(
-                $this->nullCoalesce('discount_helper', $args, Mage::helper('eb2ccore/discount')),
-                $this->nullCoalesce('core_helper', $args, Mage::helper('eb2ccore'))
+                $this->nullCoalesce('shipping_helper', $args, Mage::helper('eb2ccore/shipping')),
+                $this->nullCoalesce('discount_helper', $args, Mage::helper('eb2ccore/discount'))
             );
     }
 
     /**
      * ensure correct types are being injected
+     * @param  EbayEnterprise_Eb2cCore_Helper_Shipping
      * @param  EbayEnterprise_Eb2cCore_Helper_Discount
-     * @param  EbayEnterprise_Eb2cCore_Helper_Data
      * @return array
      */
     protected function checkTypes(
-        EbayEnterprise_Eb2cCore_Helper_Discount $discountHelper,
-        EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
+        EbayEnterprise_Eb2cCore_Helper_Shipping $shippingHelper,
+        EbayEnterprise_Eb2cCore_Helper_Discount $discountHelper
     ) {
-        return [$discountHelper, $coreHelper];
+        return func_get_args();
     }
 
     /**
@@ -85,7 +85,8 @@ class EbayEnterprise_Order_Model_Create_Orderitem
     ) {
         $merch = $payload->getMerchandisePricing();
         $this->prepareMerchandisePricing($item, $merch);
-        $romShippingMethod = $this->coreHelper->lookupShipMethod($address->getShippingMethod());
+        $mageShippingMethod = $address->getShippingMethod();
+        $romShippingMethod = $this->shippingHelper->getMethodSdkId($mageShippingMethod);
         if ($includeShipping) {
             $this->prepareShippingPriceGroup($address, $payload);
         }
@@ -103,7 +104,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
             ->setSizeId($itemSizeId)
             ->setDepartment($item->getProduct()->getDepartment())
             ->setShippingMethod($romShippingMethod)
-            ->setShippingMethodDisplayText($order->getShippingDescription())
+            ->setShippingMethodDisplayText($this->shippingHelper->getMethodTitle($address->getShippingMethod()))
             ->setVendorId($item->getProduct()->getDropShipSupplierNumber())
             ->setVendorId($item->getProduct()->getDropShipSupplierName())
             // this is set here as a default; it is expected that the ISPU/STS module

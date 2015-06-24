@@ -33,6 +33,7 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
     protected $priceGroupStub;
     /** @var Mage_Eav_Model_Resource_Entity_Attribute_Option_Collection */
     protected $optionValueCollectionStub;
+    protected $shippingHelper;
 
     public function setUp()
     {
@@ -43,6 +44,7 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
         $this->orderStub = $this->getModelMock('sales/order', ['load', 'save']);
         $this->addressStub = $this->getModelMock('sales/order_address', ['getId']);
         $this->addressStub->setData(['shipping_method' => 'someshipping method']);
+        $this->shippingHelper = $this->getHelperMock('eb2ccore/shipping');
 
         $this->itemStub->expects($this->any())
             ->method('getOrder')
@@ -134,10 +136,10 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
             'price' => 7,
             'discount_amount' => 4,
         ]);
-        $handler = $this->getModelMock(
-            'ebayenterprise_order/create_orderitem',
-            ['loadOrderItemOptions', 'isShippingPriceGroupRequired']
-        );
+        $handler = $this->getModelMockBuilder('ebayenterprise_order/create_orderitem')
+            ->setMethods(['loadOrderItemOptions', 'isShippingPriceGroupRequired'])
+            ->setConstructorArgs([['shipping_helper' => $this->shippingHelper]])
+            ->getMock();
         $handler->expects($this->any())
             ->method('loadOrderItemOptions')
             ->will($this->returnValue($this->optionValueCollectionStub));
@@ -163,10 +165,10 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
      */
     public function testBuildOrderItemsMissingOptionDefault()
     {
-        $handler = $this->getModelMock(
-            'ebayenterprise_order/create_orderitem',
-            ['loadOrderItemOptions', 'prepareMerchandisePricing']
-        );
+        $handler = $this->getModelMockBuilder('ebayenterprise_order/create_orderitem')
+            ->setMethods(['loadOrderItemOptions', 'prepareMerchandisePricing'])
+            ->setConstructorArgs([['shipping_helper' => $this->shippingHelper]])
+            ->getMock();
         $handler->expects($this->any())
             ->method('loadOrderItemOptions')
             ->will($this->returnValue($this->optionValueCollectionStub));
@@ -193,10 +195,10 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
      */
     public function testBuildOrderItemsWithShippingPriceGroup()
     {
-        $handler = $this->getModelMock(
-            'ebayenterprise_order/create_orderitem',
-            ['loadOrderItemOptions', 'prepareMerchandisePricing', 'prepareShippingPriceGroup']
-        );
+        $handler = $this->getModelMockBuilder('ebayenterprise_order/create_orderitem')
+            ->setMethods(['loadOrderItemOptions', 'prepareMerchandisePricing', 'prepareShippingPriceGroup'])
+            ->setConstructorArgs([['shipping_helper' => $this->shippingHelper]])
+            ->getMock();
         $handler->expects($this->any())
             ->method('loadOrderItemOptions')
             ->will($this->returnValue($this->optionValueCollectionStub));
@@ -231,10 +233,10 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
      */
     public function testBuildOrderItemsWithNoShippingPriceGroup()
     {
-        $handler = $this->getModelMock(
-            'ebayenterprise_order/create_orderitem',
-            ['loadOrderItemOptions', 'prepareMerchandisePricing', 'prepareShippingPriceGroup']
-        );
+        $handler = $this->getModelMockBuilder('ebayenterprise_order/create_orderitem')
+            ->setMethods(['loadOrderItemOptions', 'prepareMerchandisePricing', 'prepareShippingPriceGroup'])
+            ->setConstructorArgs([['shipping_helper' => $this->shippingHelper]])
+            ->getMock();
         $handler->expects($this->any())
             ->method('loadOrderItemOptions')
             ->will($this->returnValue($this->optionValueCollectionStub));
@@ -271,10 +273,10 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
     {
         $lineNumber = 1;
         $this->addressStub->setEbayEnterpriseOrderDiscountData(['1,2,3,4' => ['id' => '1,2,3,4']]);
-        $handler = $this->getModelMock(
-            'ebayenterprise_order/create_orderitem',
-            ['loadOrderItemOptions', 'prepareMerchandisePricing']
-        );
+        $handler = $this->getModelMockBuilder('ebayenterprise_order/create_orderitem')
+            ->setMethods(['loadOrderItemOptions', 'prepareMerchandisePricing'])
+            ->setConstructorArgs([['shipping_helper' => $this->shippingHelper]])
+            ->getMock();
         $handler->expects($this->any())
             ->method('loadOrderItemOptions')
             ->will($this->returnValue($this->optionValueCollectionStub));
@@ -301,10 +303,10 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
     {
         $lineNumber = 1;
         $this->itemStub->setEbayEnterpriseOrderDiscountData(['1' => ['id' => '1']]);
-        $handler = $this->getModelMock(
-            'ebayenterprise_order/create_orderitem',
-            ['loadOrderItemOptions', 'prepareShippingPriceGroup']
-        );
+        $handler = $this->getModelMockBuilder('ebayenterprise_order/create_orderitem')
+            ->setMethods(['loadOrderItemOptions', 'prepareShippingPriceGroup'])
+            ->setConstructorArgs([['shipping_helper' => $this->shippingHelper]])
+            ->getMock();
         $handler->expects($this->any())
             ->method('loadOrderItemOptions')
             ->will($this->returnValue($this->optionValueCollectionStub));

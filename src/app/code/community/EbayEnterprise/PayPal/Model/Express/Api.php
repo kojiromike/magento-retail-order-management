@@ -429,7 +429,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
                 ->_processNegativeLineItems($quote, $container->getLineItems());
             $container->calculateLineItemsTotal();
             $container->setShippingTotal($this->_getTotal('shipping', $quote));
-            $container->setTaxTotal($this->_getTotal('tax', $quote));
+            $container->setTaxTotal($this->_getTotal('ebayenterprise_tax', $quote));
             $container->setCurrencyCode($quote->getQuoteCurrencyCode());
         }
     }

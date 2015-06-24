@@ -155,8 +155,7 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest extends EbayEnterprise_Eb
             ->will($this->returnValue(1));
         $this->_quote = $this->getModelMock(
             'sales/quote',
-            array('reserveOrderId', 'getReservedOrderId',
-                                 'getAllItems', 'getTotals', 'getShippingAddress')
+            ['reserveOrderId', 'getReservedOrderId', 'getAllItems', 'getTotals', 'getShippingAddress']
         );
         $this->_quote->expects($this->any())
             ->method('reserveOrderId')->will($this->returnSelf());
@@ -167,10 +166,10 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest extends EbayEnterprise_Eb
                         'grand_total' => new Varien_Object(
                             array('value' => 100)
                         ),
-                        'shipping'    => new Varien_Object(
+                        'shipping' => new Varien_Object(
                             array('value' => 5.95)
                         ),
-                        'tax'         => new Varien_Object(
+                        'ebayenterprise_tax' => new Varien_Object(
                             array('value' => 2.50)
                         ),
                         'discount' => new Varien_Object(
@@ -744,5 +743,47 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest extends EbayEnterprise_Eb
                 ->will($this->returnSelf());
         }
         return $stub;
+    }
+
+    /**
+     * ensure the tax amount gets added
+     *
+     */
+    public function testAddLineItems()
+    {
+        $iterable = $this->getMockBuilder('\eBayEnterprise\RetailOrderManagement\Payload\Payment\ILineItemIterable')
+            ->getMockForAbstractClass();
+        $request = $this->getMockBuilder(self::SETEXPRESS_REQUEST_PAYLOAD)
+            ->getMockForAbstractClass();
+        $api = $this->getModelMockBuilder('ebayenterprise_paypal/express_api')
+            ->setConstructorArgs([['core_helper' => $this->coreHelper]])
+            ->setMethods(['_processLineItems', '_processNegativeLineItems', '_canIncludeLineItems'])
+            ->getMock();
+
+        $api->expects($this->once())
+            ->method('_processLineItems')
+            ->will($this->returnSelf());
+        $api->expects($this->once())
+            ->method('_processNegativeLineItems')
+            ->will($this->returnSelf());
+        $api->expects($this->once())
+            ->method('_canIncludeLineItems')
+            ->will($this->returnValue(true));
+
+        $request->expects($this->atLeastOnce())
+            ->method('getLineItems')
+            ->will($this->returnValue($iterable));
+
+        $request->expects($this->once())
+            ->method('setTaxTotal')
+            ->with($this->identicalTo(2.50))
+            ->will($this->returnSelf());
+        $request->expects($this->once())
+            ->method('setShippingTotal')
+            ->will($this->returnSelf());
+        $request->expects($this->once())
+            ->method('setCurrencyCode')
+            ->will($this->returnSelf());
+        EcomDev_Utils_Reflection::invokeRestrictedMethod($api, '_addLineItems', [$this->_quote, $request]);
     }
 }

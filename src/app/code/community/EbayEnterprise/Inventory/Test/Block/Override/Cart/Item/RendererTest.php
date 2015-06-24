@@ -22,68 +22,64 @@ class EbayEnterprise_Inventory_Test_Block_Override_Cart_Item_RendererTest extend
     public function testGetEddMessage()
     {
         /** @var string */
-        $eddTemplate = 'You can expect to receive your item%s between %s and %s.';
-        /** @var string */
-        $stringDateFrom = '06/11/15';
-        /** @var string */
-        $stringDateTo = '06/15/15';
-        /** @var string */
-        $singularOrPlural = 's';
-        /** @var string */
-        $eddMessage = "You can expect to receive your item{$singularOrPlural} between $stringDateFrom and $stringDateTo.";
-        /** @var DateTime */
-        $from = new DateTime('2015-06-11 17:15:43');
-        /** @var DateTime */
-        $to = new DateTime('2015-06-15 10:15:43');
+        $eddMessage = 'You can expect to receive your items between 06/11/15 and 06/15/15.';
         /** @var int */
         $qty = 2;
         /** @var Mage_Sales_Model_Quote_Item */
         $item = Mage::getModel('sales/quote_item', ['qty' => $qty]);
 
-        /** @var EbayEnterprise_Inventory_Model_Details_Item */
-        $detailItem = $this->getModelMockBuilder('ebayenterprise_inventory/details_item')
+        /** @var EbayEnterprise_Inventory_Model_Edd */
+        $edd = $this->getModelMockBuilder('ebayenterprise_inventory/edd')
             ->disableOriginalConstructor()
-            ->setMethods(['getDeliveryWindowFromDate', 'getDeliveryWindowToDate'])
+            ->setMethods(['getEddMessage'])
             ->getMock();
-        $detailItem->expects($this->once())
-            ->method('getDeliveryWindowFromDate')
-            ->will($this->returnValue($from));
-         $detailItem->expects($this->once())
-            ->method('getDeliveryWindowToDate')
-            ->will($this->returnValue($to));
-
-        /** @var EbayEnterprise_Inventory_Model_Details_Service */
-        $detailService = $this->getModelMockBuilder('ebayenterprise_inventory/details_service')
-            ->disableOriginalConstructor()
-            ->setMethods(['getDetailsForItem'])
-            ->getMock();
-        $detailService->expects($this->once())
-            ->method('getDetailsForItem')
+        $edd->expects($this->once())
+            ->method('getEddMessage')
             ->with($this->identicalTo($item))
-            ->will($this->returnValue($detailItem));
-
-        /** @var EbayEnterprise_Inventory_Helper_Data */
-        $inventoryHelper = $this->getHelperMock('ebayenterprise_inventory/data', ['__']);
-        $inventoryHelper->expects($this->once())
-            ->method('__')
-            ->with(
-                $this->identicalTo($eddTemplate),
-                $this->identicalTo($singularOrPlural),
-                $this->identicalTo($stringDateFrom),
-                $this->identicalTo($stringDateTo)
-            )
             ->will($this->returnValue($eddMessage));
 
         /** @var EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer */
         $renderer = $this->getBlockMock('ebayenterprise_inventoryoverride/cart_item_renderer', ['getItem'], false, [[
-            'detail_service' => $detailService,
-            'inventory_helper' => $inventoryHelper,
-            'inventory_config' => $this->buildCoreConfigRegistry(['estimatedDeliveryTemplate' => $eddTemplate]),
+            'edd' => $edd,
         ]]);
         $renderer->expects($this->once())
             ->method('getItem')
             ->will($this->returnValue($item));
 
         $this->assertSame($eddMessage, $renderer->getEddMessage());
+    }
+
+    /**
+     * @return array
+     */
+    public function providerRemoveKnownKeys()
+    {
+        $edd = Mage::getModel('ebayenterprise_inventory/edd');
+        return [
+            [
+                ['foo' => 'bar', 'bar' => 'foo', 'edd' => $edd],
+                ['foo' => 'bar', 'bar' => 'foo'],
+            ],
+            [
+                ['edd' => $edd],
+                [],
+            ],
+        ];
+    }
+
+    /**
+     * Test that the block method ebayenterprise_inventoryoverride/cart_item_renderer::removeKnownKeys()
+     * when invoked, will be given an array with key value pairs and we expect it to return an array
+     * without the key 'edd'.
+     *
+     * @param array
+     * @param array
+     * @dataProvider providerRemoveKnownKeys
+     */
+    public function testRemoveKnownKeys(array $args, array $result)
+    {
+        /** @var EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer */
+        $renderer = $this->getBlockMock('ebayenterprise_inventoryoverride/cart_item_renderer');
+        $this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($renderer, 'removeKnownKeys', [$args]));
     }
 }

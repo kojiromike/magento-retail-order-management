@@ -249,4 +249,100 @@ class EbayEnterprise_Inventory_Test_Model_Details_ServiceTest extends EbayEnterp
             [$quote]
         );
     }
+
+    /**
+     * @return array
+     */
+    public function providerIsItemAllowInventoryDetail()
+    {
+        /** @var Mage_CatalogInventory_Model_Stock_Item $stockItem */
+        $stockItem = Mage::getModel('cataloginventory/stock_item');
+        /** @var Mage_Catalog_Model_Product $product */
+        $product = Mage::getModel('catalog/product', ['stock_item' => $stockItem]);
+        /** @var int $parentItemId */
+        $parentItemId = 550;
+        /** @var int $childItemId */
+        $childItemId = 551;
+        /** @var Mage_Sales_Model_Quote_Item $childItem */
+        $childItem = Mage::getModel('sales/quote_item', ['item_id' => $childItemId, 'product' => $product]);
+        /** @var Mage_Sales_Model_Quote_Item $parentItem */
+        $parentItem = Mage::getModel('sales/quote_item', ['item_id' => $parentItemId,'product' => $product]);
+        $parentItem->addChild($childItem);
+
+        return [
+            [$parentItem, true, true],
+            [$parentItem, false, false],
+            [$childItem, true, true],
+        ];
+    }
+
+    /**
+     * Test that the method ebayenterprise_inventory/details_service::isItemAllowInventoryDetail()
+     * when invoked will be given an instance of type Mage_Sales_Model_Quote_Item. It will
+     * return true if either the child item or the parent in quote item is allowed inventory detail call,
+     * otherwise it will return false.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @param bool
+     * @param bool
+     * @dataProvider providerIsItemAllowInventoryDetail
+     */
+    public function testIsItemAllowInventoryDetail(Mage_Sales_Model_Quote_Item_Abstract $item, $isAllowedInventoryDetail, $result)
+    {
+        $detailService = $this->getModelMock('ebayenterprise_inventory/details_service', ['isAllowedInventoryDetail'], false, [[
+            'factory' => $this->factory,
+            'logger' => $this->logger,
+            'log_context' => $this->logContext
+        ]]);
+        $detailService->expects($this->once())
+            ->method('isAllowedInventoryDetail')
+            ->with($this->isInstanceOf('Mage_CatalogInventory_Model_Stock_Item'))
+            ->will($this->returnValue($isAllowedInventoryDetail));
+
+        $this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($detailService, 'isItemAllowInventoryDetail', [$item]));
+    }
+
+    /**
+     * @return array
+     */
+    public function providerGetQuoteItemId()
+    {
+        /** @var int $parentItemId */
+        $parentItemId = 370;
+        /** @var int $childItemId */
+        $childItemId = 371;
+        /** @var Mage_Sales_Model_Quote_Item $childItem */
+        $childItem = Mage::getModel('sales/quote_item', ['item_id' => $childItemId]);
+        /** @var Mage_Sales_Model_Quote_Item $parentItem */
+        $parentItem = Mage::getModel('sales/quote_item', ['item_id' => $parentItemId]);
+        $parentItem->addChild($childItem);
+
+        return [
+            [$parentItem, $childItemId],
+            [$childItem, $childItemId],
+        ];
+    }
+
+    /**
+     * Test that the method ebayenterprise_inventory/details_service::getQuoteItemId()
+     * when invoked will be given an instance of type Mage_Sales_Model_Quote_Item. It will
+     * return child quote item id if the passed in quote item instance has a child, otherwise
+     * if the passed in quote item instance don't have a child it will simply return the
+     * quote item id of the passed in quote item instance.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @param int
+     * @dataProvider providerGetQuoteItemId
+     */
+    public function testGetQuoteItemId(Mage_Sales_Model_Quote_Item_Abstract $item, $itemId)
+    {
+
+        $detailService = $this->getModelMock('ebayenterprise_inventory/details_service', ['foo'], false, [[
+            'factory' => $this->factory,
+            'logger' => $this->logger,
+            'log_context' => $this->logContext
+        ]]);
+
+        $this->assertSame($itemId, EcomDev_Utils_Reflection::invokeRestrictedMethod($detailService, 'getQuoteItemId', [$item]));
+    }
 }

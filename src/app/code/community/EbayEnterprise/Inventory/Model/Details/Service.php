@@ -89,7 +89,7 @@ class EbayEnterprise_Inventory_Model_Details_Service
                 $result = $this->factory->createDetailsModel()
                     ->fetch($item->getQuote());
                 return !is_null($result)
-                    ? $result->lookupDetailsByItemId($item->getId()) : $result;
+                    ? $result->lookupDetailsByItemId($this->getQuoteItemId($item)) : $result;
             } catch (EbayEnterprise_Inventory_Exception_Details_Operation_Exception $e) {
                 return null;
             }
@@ -105,9 +105,45 @@ class EbayEnterprise_Inventory_Model_Details_Service
      */
     protected function isItemAllowInventoryDetail(Mage_Sales_Model_Quote_Item_Abstract $item)
     {
-        /** @var Mage_CatalogInventory_Model_Stock_Item $stockItem */
-        $stockItem = $item->getProduct()->getStockItem();
-        return $stockItem->getQty() > 0;
+        if ($item->getHasChildren()) {
+            foreach ($item->getChildren() as $childItem) {
+                $childStock = $childItem->getProduct()->getStockItem();
+                if ($this->isAllowedInventoryDetail($childStock)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return $this->isAllowedInventoryDetail($item->getProduct()->getStockItem());
+    }
+
+    /**
+     * Get quote item id from a passed in sales/quote_item instance. Ensure
+     * that if the passed in quote item has child product that it's the child quote
+     * item id that get returned.
+     *
+     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @return int
+     */
+    protected function getQuoteItemId(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        $children = $item->getChildren() ?:  [];
+        foreach ($children as $childItem) {
+            return $childItem->getId();
+        }
+        return $item->getId();
+    }
+
+    /**
+     * Return true when the quantity of inventory stock item is greater than zero
+     * otherwise return false.
+     *
+     * @param  Mage_CatalogInventory_Model_Stock_Item
+     * @return bool
+     */
+    protected function isAllowedInventoryDetail(Mage_CatalogInventory_Model_Stock_Item $stock)
+    {
+        return $stock->getQty() > 0;
     }
 
     /**

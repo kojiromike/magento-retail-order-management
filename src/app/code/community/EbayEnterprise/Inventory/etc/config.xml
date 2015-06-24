@@ -36,6 +36,8 @@
 			<checkout>
 				<rewrite>
 					<cart_item_renderer>EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer</cart_item_renderer>
+					<cart_item_renderer_configurable>EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer_Configurable</cart_item_renderer_configurable>
+					<cart_item_renderer_grouped>EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer_Grouped</cart_item_renderer_grouped>
 					<multishipping_overview>EbayEnterprise_Inventory_Override_Block_Multishipping_Overview</multishipping_overview>
 				</rewrite>
 			</checkout>

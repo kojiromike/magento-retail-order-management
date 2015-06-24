@@ -15,21 +15,15 @@
 
 class EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer extends Mage_Checkout_Block_Cart_Item_Renderer
 {
-    /** @var EbayEnterprise_Inventory_Helper_Data */
-    protected $inventoryHelper;
-    /** @var EbayEnterprise_Inventory_Model_Details_Service */
-    protected $detailService;
-    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
-    protected $inventoryConfig;
+    /** @var EbayEnterprise_Inventory_Model_Edd */
+    protected $edd;
 
     public function __construct(array $initParams = [])
     {
-        list($this->inventoryHelper, $this->detailService, $this->inventoryConfig) = $this->_checkTypes(
-            $this->_nullCoalesce($initParams, 'inventory_helper', Mage::helper('ebayenterprise_inventory')),
-            $this->_nullCoalesce($initParams, 'detail_service', Mage::getSingleton('ebayenterprise_inventory/details_service')),
-            $this->_nullCoalesce($initParams, 'inventory_config', Mage::helper('ebayenterprise_inventory')->getConfigModel())
+        list($this->edd) = $this->checkTypes(
+            $this->nullCoalesce($initParams, 'edd', Mage::getModel('ebayenterprise_inventory/edd'))
         );
-        parent::__construct($this->_removeKnownKeys($initParams));
+        parent::__construct($this->removeKnownKeys($initParams));
     }
 
     /**
@@ -38,10 +32,10 @@ class EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer extends Mage_Ch
      * @param  array
      * @return array
      */
-    protected function _removeKnownKeys(array $initParams)
+    protected function removeKnownKeys(array $initParams)
     {
         $newParams = [];
-        $knownKeys = ['inventory_helper', 'detail_service', 'inventory_config'];
+        $knownKeys = ['edd'];
         foreach ($initParams as $key => $value) {
             if (!in_array($key, $knownKeys)) {
                 $newParams[$key] = $value;
@@ -53,17 +47,12 @@ class EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer extends Mage_Ch
     /**
      * Type hinting for self::__construct $initParams
      *
-     * @param  EbayEnterprise_Inventory_Helper_Data
-     * @param  EbayEnterprise_Inventory_Model_Details_Service
-     * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
+     * @param  EbayEnterprise_Inventory_Model_Edd
      * @return array
      */
-    protected function _checkTypes(
-        EbayEnterprise_Inventory_Helper_Data $inventoryHelper,
-        EbayEnterprise_Inventory_Model_Details_Service $detailService,
-        EbayEnterprise_Eb2cCore_Model_Config_Registry $inventoryConfig
-    ) {
-        return [$inventoryHelper, $detailService, $inventoryConfig];
+    protected function checkTypes(EbayEnterprise_Inventory_Model_Edd $edd)
+    {
+        return func_get_args();
     }
 
     /**
@@ -74,7 +63,7 @@ class EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer extends Mage_Ch
      * @param  mixed
      * @return mixed
      */
-    protected function _nullCoalesce(array $arr, $field, $default)
+    protected function nullCoalesce(array $arr, $field, $default)
     {
         return isset($arr[$field]) ? $arr[$field] : $default;
     }
@@ -86,18 +75,6 @@ class EbayEnterprise_Inventory_Override_Block_Cart_Item_Renderer extends Mage_Ch
      */
     public function getEddMessage()
     {
-        /** @var Mage_Sales_Model_Quote_Item $item */
-        $item = $this->getItem();
-        /** @var string $singularOrPluralItem */
-        $singularOrPluralItem = ((int) $item->getQty() > 1) ? 's' : '';
-        /** @var EbayEnterprise_Inventory_Model_Details_Item | Varien_Object | null $eddItem */
-        $eddItem = $this->detailService->getDetailsForItem($item)
-            ?: $this->inventoryHelper->getStreetDateForBackorderableItem($item);
-        return $eddItem ? $this->inventoryHelper->__(
-            $this->inventoryConfig->estimatedDeliveryTemplate,
-            $singularOrPluralItem,
-            $eddItem->getDeliveryWindowFromDate()->format('m/d/y'),
-            $eddItem->getDeliveryWindowToDate()->format('m/d/y')
-        ) : '';
+        return $this->edd->getEddMessage($this->getItem());
     }
 }

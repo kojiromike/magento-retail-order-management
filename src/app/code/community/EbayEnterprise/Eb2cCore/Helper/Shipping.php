@@ -13,30 +13,71 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Inventory_Helper_Details_Item_Shipping
+class EbayEnterprise_Eb2cCore_Helper_Shipping
 {
     /** @var EbayEnterprise_MageLog_Helper_Data */
     protected $logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
     protected $logContext;
-    /** @var EbayEnterprise_Eb2cCore_Helper_Data */
-    protected $coreHelper;
-    // @var array */
+    /** @var array */
     protected $methods = [];
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $config;
 
-    public function __construct()
+    public function __construct(array $init = [])
     {
-        $this->logger = Mage::helper('ebayenterprise_magelog');
-        $this->logContext = Mage::helper('ebayenterprise_magelog/context');
-        $this->coreHelper = Mage::helper('eb2ccore');
+        list(
+            $this->config,
+            $this->logger,
+            $this->logContext
+        ) = $this->checkTypes(
+            $this->nullCoalesce($init, 'config', Mage::helper('eb2ccore')->getConfigModel()),
+            $this->nullCoalesce($init, 'logger', Mage::helper('ebayenterprise_magelog')),
+            $this->nullCoalesce($init, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
+        );
     }
 
+    protected function checkTypes(
+        EbayEnterprise_Eb2cCore_Model_Config_Registry $config,
+        EbayEnterprise_MageLog_Helper_Data $logger,
+        EbayEnterprise_MageLog_Helper_Context $logContext
+    ) {
+        return func_get_args();
+    }
+
+    /**
+     * Fill in default values.
+     *
+     * @param  array
+     * @param  string
+     * @param  mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $key, $default)
+    {
+        return isset($arr[$key]) ? $arr[$key] : $default;
+    }
+
+    /**
+     * get a magento shipping method identifer for either:
+     * - the shipping method used by $address
+     * - the first of all valid shipping methods
+     *
+     * @param Mage_Customer_Model_Address_Abstract
+     * @return string
+     */
     public function getUsableMethod(Mage_Customer_Model_Address_Abstract $address)
     {
         $this->fetchAvailableShippingMethods();
         return $address->getShippingMethod() ?: $this->getFirstAvailable();
     }
 
+    /**
+     * get the ROM identifier for the given magento shipping method code
+     *
+     * @param string
+     * @return string
+     */
     public function getMethodSdkId($shippingMethod)
     {
         $this->fetchAvailableShippingMethods();
@@ -52,6 +93,7 @@ class EbayEnterprise_Inventory_Helper_Details_Item_Shipping
 
     /**
      * get a display string of the given shipping method
+     *
      * @param  string
      * @return string
      */
@@ -88,9 +130,8 @@ class EbayEnterprise_Inventory_Helper_Details_Item_Shipping
      */
     protected function addShippingMethodsFromCarrier($carrierCode, Mage_Shipping_Model_Carrier_Abstract $model)
     {
-        $carrierMethods = $model->getAllowedMethods();
-        $carrierTitle = $this->getCarrierTitle($carrierCode);
-        foreach ((array) $carrierMethods as $methodCode => $method) {
+        $carrierTitle = $this->getCarrierTitle($model);
+        foreach ((array) $model->getAllowedMethods() as $methodCode => $method) {
             $this->storeShippingMethodInfo(
                 $carrierCode . '_' . $methodCode,
                 $this->buildNameString($carrierTitle, $method)
@@ -98,6 +139,17 @@ class EbayEnterprise_Inventory_Helper_Details_Item_Shipping
         }
     }
 
+    /**
+     * get the title from the carrier
+     *
+     * @param Mage_Shipping_Model_Carrier_Abstract
+     * @return string
+     */
+    protected function getCarrierTitle(Mage_Shipping_Model_Carrier_Abstract $model)
+    {
+        // ensure consistent scope when we're querying config data
+        return $model->setStore($this->config->getStore())->getConfigData('title');
+    }
     /**
      * add the shipping method to the the list if it is a
      * valid ROM shipping method
@@ -107,7 +159,7 @@ class EbayEnterprise_Inventory_Helper_Details_Item_Shipping
      */
     protected function storeShippingMethodInfo($shippingMethod, $displayString)
     {
-        $sdkId = $this->coreHelper->lookupShipMethod($shippingMethod);
+        $sdkId = $this->lookupShipMethod($shippingMethod);
         if (!$sdkId) {
             return;
         }
@@ -115,6 +167,17 @@ class EbayEnterprise_Inventory_Helper_Details_Item_Shipping
             'sdk_id' => $sdkId,
             'display_text' => $displayString,
         ];
+    }
+
+    /**
+     * Return the eb2c ship method configured to correspond to a known Magento ship method.
+     *
+     * @param string Magento shipping method code
+     * @return string ROM shipping method identifier
+     */
+    protected function lookupShipMethod($mageShipMethod)
+    {
+        return $this->nullCoalesce((array) $this->config->shippingMethodMap, $mageShipMethod, '');
     }
 
     /**
@@ -126,18 +189,6 @@ class EbayEnterprise_Inventory_Helper_Details_Item_Shipping
     }
 
     /**
-     * get the title for the carrier code as configured in
-     * magento
-     *
-     * @param string
-     * @return string
-     */
-    protected function getCarrierTitle($carrierCode)
-    {
-        return Mage::getStoreConfig("carriers/$carrierCode/title");
-    }
-
-    /**
      * build a string to display for the shipping method
      *
      * @param string
@@ -146,11 +197,17 @@ class EbayEnterprise_Inventory_Helper_Details_Item_Shipping
      */
     protected function buildNameString($carrierTitle, $methodName)
     {
-        return trim("$carrierTitle $methodName");
+        // add a hyphen to make it look the way it does on the order
+        // review page.
+        return trim(
+            $carrierTitle
+            . ($carrierTitle && $methodName ? ' - ' : '')
+            .  $methodName
+        );
     }
 
     /**
-     * get the first available shipping method
+     * get the first available magento shipping method code
      *
      * @param  array
      * @return string

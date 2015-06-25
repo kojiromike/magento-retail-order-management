@@ -13,19 +13,23 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class EbayEnterprise_Inventory_Test_Helper_Details_Item_ShippingTest extends EbayEnterprise_Eb2cCore_Test_Base
+class EbayEnterprise_Eb2cCore_Test_Helper_ShippingTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
+    /** @var EbayEnterprise_Inventory_Helper_Details_Item_Shipping */
+    protected $shippingHelper;
+
     public function setUp()
     {
-        $coreHelper = $this->getHelperMock('eb2ccore/data', ['lookupShipMethod']);
-        $coreHelper->expects($this->any())
-            ->method('lookupShipMethod')
-            ->with($this->isType('string'))
-            ->will($this->returnValueMap([
-                ['carrier1_methodA', 'SDK_METHODA'],
-                ['carrier2_methodB', 'SDK_METHODB']
-            ]));
-        $carriers = ['carrier1' => $this->mockCarrier(), 'carrier2' => $this->mockCarrier()];
+        $config = $this->buildCoreConfigRegistry([
+            'shippingMethodMap' => [
+                'carrier1_methodA' => 'SDK_METHODA',
+                'carrier2_methodB' => 'SDK_METHODB'
+            ],
+        ]);
+        $carriers = [
+            'carrier1' => $this->mockCarrier('StarMail'),
+            'carrier2' => $this->mockCarrier('SpaceFallOne')
+        ];
         $this->shippingConfig = $this->getModelMockBuilder('shipping/config')
             ->disableOriginalConstructor()
             ->setMethods(['getActiveCarriers'])
@@ -33,17 +37,13 @@ class EbayEnterprise_Inventory_Test_Helper_Details_Item_ShippingTest extends Eba
         $this->shippingConfig->expects($this->any())
             ->method('getActiveCarriers')
             ->will($this->returnValue($carriers));
-        $this->shippingHelper = $this->getHelperMock('ebayenterprise_inventory/details_item_shipping', ['getShippingConfig', 'getCarrierTitle']);
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->shippingHelper, 'coreHelper', $coreHelper);
+        $this->shippingHelper = $this->getHelperMockBuilder('eb2ccore/shipping')
+            ->setMethods(['getShippingConfig'])
+            ->setConstructorArgs([['config' => $config]])
+            ->getMock();
         $this->shippingHelper->expects($this->once())
             ->method('getShippingConfig')
             ->will($this->returnValue($this->shippingConfig));
-        $this->shippingHelper->expects($this->any())
-            ->method('getCarrierTitle')
-            ->will($this->returnValueMap([
-                ['carrier1', 'StarMail'],
-                ['carrier2', 'SpaceFallOne'],
-            ]));
     }
 
     /**
@@ -52,7 +52,10 @@ class EbayEnterprise_Inventory_Test_Helper_Details_Item_ShippingTest extends Eba
      */
     public function testGetUsableMethod()
     {
-        $this->assertSame('carrier1_methodA', $this->shippingHelper->getUsableMethod(Mage::getModel('sales/quote_address')));
+        $this->assertSame(
+            'carrier1_methodA',
+            $this->shippingHelper->getUsableMethod(Mage::getModel('sales/quote_address'))
+        );
     }
 
     /**
@@ -61,7 +64,12 @@ class EbayEnterprise_Inventory_Test_Helper_Details_Item_ShippingTest extends Eba
      */
     public function testGetUsableMethodFromAddress()
     {
-        $this->assertSame('carrier2_methodB', $this->shippingHelper->getUsableMethod(Mage::getModel('sales/quote_address', ['shipping_method' => 'carrier2_methodB'])));
+        $this->assertSame(
+            'carrier2_methodB',
+            $this->shippingHelper->getUsableMethod(
+                Mage::getModel('sales/quote_address', ['shipping_method' => 'carrier2_methodB'])
+            )
+        );
     }
 
     /**
@@ -70,25 +78,37 @@ class EbayEnterprise_Inventory_Test_Helper_Details_Item_ShippingTest extends Eba
      */
     public function testGetMethodTitle()
     {
-        $this->assertSame('SpaceFallOne ludicrous speed', $this->shippingHelper->getMethodTitle('carrier2_methodB'));
+        $this->assertSame(
+            'SpaceFallOne - ludicrously speedy',
+            $this->shippingHelper->getMethodTitle('carrier2_methodB')
+        );
     }
 
     /**
      * mock up a carrier mdoel
      *
+     * @param string
      * @param array $methods shipping method array
      * @return Mage_Shipping_Model_Carrier_Abstract
      */
-    protected function mockCarrier($methods = null)
+    protected function mockCarrier($title, $methods = null)
     {
-        $methods = $methods ?: ['methodA' => 'warp speed', 'methodB' => 'ludicrous speed'];
+        $methods = $methods ?: ['methodA' => 'warp speed', 'methodB' => 'ludicrously speedy'];
         $carrierStub = $this->getMockBuilder('Mage_Shipping_Model_Carrier_Abstract')
             ->disableOriginalConstructor()
-            ->setMethods(['getAllowedMethods'])
+            ->setMethods(['getAllowedMethods', 'getConfigData', 'setStore'])
             ->getMockForAbstractClass();
         $carrierStub->expects($this->once())
             ->method('getAllowedMethods')
             ->will($this->returnValue($methods));
+        $carrierStub->expects($this->once())
+            ->method('getConfigData')
+            ->with($this->identicalTo('title'))
+            ->will($this->returnValue($title));
+        $carrierStub->expects($this->once())
+            ->method('setStore')
+            ->with($this->anything())
+            ->will($this->returnSelf());
         return $carrierStub;
     }
 }

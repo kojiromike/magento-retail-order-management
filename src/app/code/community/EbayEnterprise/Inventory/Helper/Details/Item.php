@@ -22,7 +22,7 @@ class EbayEnterprise_Inventory_Helper_Details_Item
 {
     const ADDRESS_ALL_STREET_LINES = -1;
 
-    /** @var EbayEnterprise_Inventory_Helper_Details_Item_Shipping */
+    /** @var EbayEnterprise_Eb2cCore_Helper_Shipping */
     protected $shippingHelper;
     /** @var EbayEnterprise_Inventory_Helper_Quantity */
     protected $quantityHelper;
@@ -30,17 +30,13 @@ class EbayEnterprise_Inventory_Helper_Details_Item
     public function __construct(array $init = [])
     {
         list($this->shippingHelper, $this->quantityHelper) = $this->checkTypes(
-            $this->nullCoalesce(
-                $init,
-                'shipping_helper',
-                Mage::helper('ebayenterprise_inventory/details_item_shipping')
-            ),
+            $this->nullCoalesce($init, 'shipping_helper', Mage::helper('eb2ccore/shipping')),
             $this->nullCoalesce($init, 'quantity_helper', Mage::helper('ebayenterprise_inventory/quantity'))
         );
     }
 
     protected function checkTypes(
-        EbayEnterprise_Inventory_Helper_Details_Item_Shipping $shippingHelper,
+        EbayEnterprise_Eb2cCore_Helper_Shipping $shippingHelper,
         EbayEnterprise_Inventory_Helper_Quantity $quantityHelper
     ) {
         return func_get_args();

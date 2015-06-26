@@ -74,34 +74,39 @@ class EbayEnterprise_Eb2cCore_Helper_Shipping
 
     /**
      * get the ROM identifier for the given magento shipping method code
+     * return null if $shippingMethod evaluates to false
      *
      * @param string
-     * @return string
+     * @return string|null
      */
     public function getMethodSdkId($shippingMethod)
     {
         $this->fetchAvailableShippingMethods();
+        if (!$shippingMethod) {
+            return '';
+        }
         if (!isset($this->methods[$shippingMethod]['sdk_id'])) {
             $this->logger->error(
-                'Unable to get the SDK identifier for shipping method "{shippingMethod}"',
-                $this->logContext->getMetaData(__CLASS__, ['shippingMethod' => $shippingMethod])
+                'Unable to get the SDK identifier for shipping method {shipping_method}',
+                $this->logContext->getMetaData(__CLASS__, ['shipping_method' => $shippingMethod])
             );
-            throw Mage::exception('EbayEnterprise_Inventory', 'Unable to find a valid shipping method');
+            throw Mage::exception('EbayEnterprise_Eb2cCore', 'Unable to find a valid shipping method');
         }
         return $this->methods[$shippingMethod]['sdk_id'];
     }
 
     /**
      * get a display string of the given shipping method
+     * return null if $shippingMethod evaluates to false
      *
      * @param  string
-     * @return string
+     * @return string|null
      */
     public function getMethodTitle($shippingMethod)
     {
         $this->fetchAvailableShippingMethods();
         return isset($this->methods[$shippingMethod]['display_text']) ?
-            $this->methods[$shippingMethod]['display_text'] : '';
+            $this->methods[$shippingMethod]['display_text'] : null;
     }
 
     /**

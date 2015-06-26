@@ -15,7 +15,7 @@
 
 class EbayEnterprise_Eb2cCore_Test_Helper_ShippingTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-    /** @var EbayEnterprise_Inventory_Helper_Details_Item_Shipping */
+    /** @var EbayEnterprise_Eb2cCore_Helper_Shipping */
     protected $shippingHelper;
 
     public function setUp()

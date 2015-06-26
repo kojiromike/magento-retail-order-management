@@ -19,13 +19,13 @@ use eBayEnterprise\RetailOrderManagement\Payload\Address\IValidationReply;
 class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
 {
     /** @var EbayEnterprise_MageLog_Helper_Data */
-    protected $_logger;
+    protected $logger;
     /** @var EbayEnterprise_Address_Helper_Data */
-    protected $_helper;
+    protected $helper;
     /** @var EbayEnterprise_MageLog_Helper_Context */
-    protected $_context;
+    protected $context;
     /** @var array map of result code to warning message */
-    protected $_resultCodeWarningMap = [
+    protected $resultCodeWarningMap = [
         // Expected result codes for when things are working normally.
         // Nothing of interest to log here.
         IValidationReply::RESULT_VALID => '',
@@ -44,14 +44,14 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      */
     public function __construct(array $args = [])
     {
-        list($this->_helper, $this->_logger, $api, $this->_context) = $this->_checkTypes(
-            $this->_nullCoalesce($args, 'helper', Mage::helper('ebayenterprise_address')),
-            $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
+        list($this->helper, $this->logger, $api, $this->context) = $this->checkTypes(
+            $this->nullCoalesce($args, 'helper', Mage::helper('ebayenterprise_address')),
+            $this->nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
             $args['api'],
-            $this->_nullCoalesce($args, 'context', Mage::helper('ebayenterprise_magelog/context'))
+            $this->nullCoalesce($args, 'context', Mage::helper('ebayenterprise_magelog/context'))
         );
-        $this->_extractResponseData($api);
-        $this->_logResultCode();
+        $this->extractResponseData($api);
+        $this->logResultCode();
     }
 
     /**
@@ -60,8 +60,9 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      * @param EbayEnterprise_Address_Helper_Data
      * @param EbayEnterprise_MageLog_Helper_Data
      * @param IBidirectionalApi
+     * @param EbayEnterprise_MageLog_Helper_Context
      */
-    protected function _checkTypes(
+    protected function checkTypes(
         EbayEnterprise_Address_Helper_Data $helper,
         EbayEnterprise_MageLog_Helper_Data $logger,
         IBidirectionalApi $api,
@@ -73,20 +74,20 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
     /**
      * Return the value at field in array if it exists. Otherwise, use the
      * default value.
-     * @param array      $arr
+     * @param array
      * @param string|int $field Valid array key
-     * @param mixed      $default
+     * @param mixed
      * @return mixed
      */
-    protected function _nullCoalesce(array $arr, $field, $default)
+    protected function nullCoalesce(array $arr, $field, $default)
     {
         return isset($arr[$field]) ? $arr[$field] : $default;
     }
 
-    protected function _extractResponseData(IBidirectionalApi $api)
+    protected function extractResponseData(IBidirectionalApi $api)
     {
         $response = $api->getResponseBody();
-        return $this->_extractResult($response)->_extractResponseAddresses($response);
+        return $this->extractResult($response)->extractResponseAddresses($response);
     }
 
     /**
@@ -95,7 +96,7 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      *
      * @return self
      */
-    protected function _extractResult(IValidationReply $response)
+    protected function extractResult(IValidationReply $response)
     {
         return $this->addData([
             'result_code' => $response->getResultCode(),
@@ -112,12 +113,12 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      *
      * @return self
      */
-    protected function _extractResponseAddresses(IValidationReply $response)
+    protected function extractResponseAddresses(IValidationReply $response)
     {
         return $this
-            ->_extractOriginalAddress($response)
-            ->_extractAddressSuggestions($response)
-            ->_extractValidAddress($response);
+            ->extractOriginalAddress($response)
+            ->extractAddressSuggestions($response)
+            ->extractValidAddress($response);
     }
 
     /**
@@ -128,7 +129,7 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      *
      * @return self
      */
-    public function _extractValidAddress(IValidationReply $response)
+    public function extractValidAddress(IValidationReply $response)
     {
         $validAddress = null;
         if ($response->isAcceptable()) {
@@ -146,10 +147,10 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      *
      * @return self
      */
-    public function _extractOriginalAddress(IValidationReply $response)
+    public function extractOriginalAddress(IValidationReply $response)
     {
         $address = Mage::getModel('customer/address', ['has_been_validated' => true]);
-        $this->_helper->transferPhysicalAddressPayloadToAddress(
+        $this->helper->transferPhysicalAddressPayloadToAddress(
             $response,
             $address
         );
@@ -162,12 +163,12 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      *
      * @return self
      */
-    public function _extractAddressSuggestions(IValidationReply $response)
+    public function extractAddressSuggestions(IValidationReply $response)
     {
         $suggestionAddresses = [];
         foreach ($response->getSuggestedAddresses() as $physicalAddress) {
             $address = Mage::getModel('customer/address', ['has_been_validated' => true]);
-            $this->_helper->transferPhysicalAddressPayloadToAddress(
+            $this->helper->transferPhysicalAddressPayloadToAddress(
                 $physicalAddress,
                 $address
             );
@@ -194,21 +195,21 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      *
      * @return self
      */
-    protected function _logResultCode()
+    protected function logResultCode()
     {
         $resultCode = $this->getResultCode();
-        $message = $this->_nullCoalesce(
-            $this->_resultCodeWarningMap,
+        $message = $this->nullCoalesce(
+            $this->resultCodeWarningMap,
             $resultCode,
             // message used when the result code is unrecognized
             'Response message did not contain a known result code. Result Code: {result_code}'
         );
         if ($message) {
-            $this->_logger->warning($message, $this->_getMetaData($resultCode));
+            $this->logger->warning($message, $this->getMetaData($resultCode));
         }
         $logData = ['result_code' => $resultCode, 'validation' => $this->isAddressValid() ? 'valid' : 'invalid'];
         $logMessage = 'Response with status code "{result_code}" is {validation}.';
-        $this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+        $this->logger->debug($logMessage, $this->context->getMetaData(__CLASS__, $logData));
         return $this;
     }
 
@@ -217,7 +218,7 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      * @param  string
      * @return array
      */
-    protected function _getMetaData($resultCode)
+    protected function getMetaData($resultCode)
     {
         if ($resultCode === IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER ||
             $resultCode === IValidationReply::RESULT_TIMEOUT ||
@@ -228,6 +229,6 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
         } else {
             $logData = ['result_code' => $this->getResultCode()];
         }
-        return $this->_context->getMetaData(__CLASS__, $logData);
+        return $this->context->getMetaData(__CLASS__, $logData);
     }
 }

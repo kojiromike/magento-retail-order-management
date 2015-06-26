@@ -18,17 +18,17 @@ use eBayEnterprise\RetailOrderManagement\Payload\Address\IValidationReply;
 class EbayEnterprise_Address_Test_Model_Validation_ResponseTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
     /** @var EbayEnterprise_MageLog_Helper_Data */
-    protected $_logger;
+    protected $logger;
     /** @var EbayEnterprise_Address_Helper_Data */
-    protected $_helper;
+    protected $helper;
     /** @var EbayEnterprise_MageLog_Helper_Context */
-    protected $_context;
+    protected $context;
 
     public function setUp()
     {
-        $this->_logger = $this->getHelperMock('ebayenterprise_magelog/data', ['warning']);
-        $this->_context = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
-        $this->_context->expects($this->any())
+        $this->logger = $this->getHelperMock('ebayenterprise_magelog/data', ['warning']);
+        $this->context = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $this->context->expects($this->any())
             ->method('getMetaData')
             ->will($this->returnValue([]));
     }
@@ -57,15 +57,15 @@ class EbayEnterprise_Address_Test_Model_Validation_ResponseTest extends EbayEnte
         $response = $this->getModelMockBuilder('ebayenterprise_address/validation_response')
             ->setConstructorArgs([[
                 'api' => $this->getMock('\eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi'),
-                'logger' => $this->_logger,
-                'context' => $this->_context,
+                'logger' => $this->logger,
+                'context' => $this->context,
             ]])
-            ->setMethods(['_extractResponseData'])
+            ->setMethods(['extractResponseData'])
             ->getMock();
         $response->setResultCode($code);
-        $this->_logger->expects($this->never())
+        $this->logger->expects($this->never())
             ->method('warning');
-        EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_logResultCode');
+        EcomDev_Utils_Reflection::invokeRestrictedMethod($response, 'logResultCode');
     }
 
     /**
@@ -93,14 +93,14 @@ class EbayEnterprise_Address_Test_Model_Validation_ResponseTest extends EbayEnte
         $response = $this->getModelMockBuilder('ebayenterprise_address/validation_response')
             ->setConstructorArgs([[
                 'api' => $this->getMock('\eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi'),
-                'logger' => $this->_logger,
-                'context' => $this->_context,
+                'logger' => $this->logger,
+                'context' => $this->context,
             ]])
-            ->setMethods(['_extractResponseData'])
+            ->setMethods(['extractResponseData'])
             ->getMock();
         $response->setResultCode($code);
-        $this->_logger->expects($this->once())
+        $this->logger->expects($this->once())
             ->method('warning');
-        EcomDev_Utils_Reflection::invokeRestrictedMethod($response, '_logResultCode');
+        EcomDev_Utils_Reflection::invokeRestrictedMethod($response, 'logResultCode');
     }
 }

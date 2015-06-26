@@ -35,7 +35,7 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
         // Result codes that should emit a warning
         IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER => 'Unable to contact provider',
         IValidationReply::RESULT_TIMEOUT => 'Provider timed out',
-        IValidationReply::RESULT_PROVIDER_ERROR => 'Provider returned a system error: {provider_error}',
+        IValidationReply::RESULT_PROVIDER_ERROR => 'Provider had a sytem error',
         IValidationReply::RESULT_MALFORMED => 'The request message was malformed or contained invalid data',
     ];
 
@@ -67,7 +67,7 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
         IBidirectionalApi $api,
         EbayEnterprise_MageLog_Helper_Context $context
     ) {
-        return [$helper, $logger, $api, $context];
+        return func_get_args();
     }
 
     /**
@@ -221,11 +221,10 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
     {
         if ($resultCode === IValidationReply::RESULT_UNABLE_TO_CONTACT_PROVIDER ||
             $resultCode === IValidationReply::RESULT_TIMEOUT ||
-            $resultCode === IValidationReply::RESULT_MALFORMED
+            $resultCode === IValidationReply::RESULT_MALFORMED ||
+            $resultCode === IValidationReply::RESULT_PROVIDER_ERROR
         ) {
             $logData = [];
-        } elseif ($resultCode === IValidationReply::RESULT_PROVIDER_ERROR) {
-            $logData = ['provider_error' => $this->_lookupPath('provider_error')];
         } else {
             $logData = ['result_code' => $this->getResultCode()];
         }

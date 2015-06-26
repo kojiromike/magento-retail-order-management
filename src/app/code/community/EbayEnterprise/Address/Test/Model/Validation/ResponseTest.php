@@ -96,7 +96,7 @@ class EbayEnterprise_Address_Test_Model_Validation_ResponseTest extends EbayEnte
                 'logger' => $this->_logger,
                 'context' => $this->_context,
             ]])
-            ->setMethods(['_extractResponseData', '_lookupPath'])
+            ->setMethods(['_extractResponseData'])
             ->getMock();
         $response->setResultCode($code);
         $this->_logger->expects($this->once())

@@ -129,7 +129,7 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      *
      * @return self
      */
-    public function extractValidAddress(IValidationReply $response)
+    protected function extractValidAddress(IValidationReply $response)
     {
         $validAddress = null;
         if ($response->isAcceptable()) {
@@ -147,7 +147,7 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      *
      * @return self
      */
-    public function extractOriginalAddress(IValidationReply $response)
+    protected function extractOriginalAddress(IValidationReply $response)
     {
         $address = Mage::getModel('customer/address', ['has_been_validated' => true]);
         $this->helper->transferPhysicalAddressPayloadToAddress(
@@ -163,7 +163,7 @@ class EbayEnterprise_Address_Model_Validation_Response extends Varien_Object
      *
      * @return self
      */
-    public function extractAddressSuggestions(IValidationReply $response)
+    protected function extractAddressSuggestions(IValidationReply $response)
     {
         $suggestionAddresses = [];
         foreach ($response->getSuggestedAddresses() as $physicalAddress) {

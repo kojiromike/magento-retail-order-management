@@ -212,4 +212,18 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
         }
         return null;
     }
+
+    /**
+     * Ensure that the SKU actually the right ROM SKU, especially for bundle products
+     * that tend to concatenate the parent SKU with the child SKUs.
+     *
+     * @param  string
+     * @return string
+     */
+    public function getRomSku($sku)
+    {
+        $prefix = $this->coreConfig->catalogId . '-';
+        $splitSkus = array_filter(explode($prefix, $sku));
+        return count($splitSkus) > 1 ? $prefix . substr(reset($splitSkus), 0, -1) : $sku;
+    }
 }

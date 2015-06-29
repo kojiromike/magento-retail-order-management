@@ -41,6 +41,11 @@
 					<multishipping_overview>EbayEnterprise_Inventory_Override_Block_Multishipping_Overview</multishipping_overview>
 				</rewrite>
 			</checkout>
+			<enterprise_giftcard>
+				<rewrite>
+					<checkout_cart_item_renderer>EbayEnterprise_Inventory_Override_Block_Checkout_Cart_Item_Renderer</checkout_cart_item_renderer>
+				</rewrite>
+			</enterprise_giftcard>
 		</blocks>
 		<events>
 			<sales_quote_collect_totals_before>

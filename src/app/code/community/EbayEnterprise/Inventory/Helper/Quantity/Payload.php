@@ -18,6 +18,43 @@ use eBayEnterprise\RetailOrderManagement\Payload\Inventory\IRequestQuantityItem;
 
 class EbayEnterprise_Inventory_Helper_Quantity_Payload
 {
+    /** @var EbayEnterprise_Inventory_Helper_Data */
+    protected $inventoryHelper;
+    /**
+     * $param array $args May contain:
+     *                    - inventory_helper => EbayEnterprise_Inventory_Helper_Data
+     */
+    public function __construct(array $args = [])
+    {
+        list($this->inventoryHelper) = $this->checkTypes(
+            $this->nullCoalesce($args, 'inventory_helper', Mage::helper('ebayenterprise_inventory'))
+        );
+    }
+
+    /**
+     * Enforce type checks on constructor init params.
+     *
+     * @param EbayEnterprise_Inventory_Helper_Data
+     * @return array
+     */
+    protected function checkTypes(EbayEnterprise_Inventory_Helper_Data $inventoryHelper)
+    {
+        return func_get_args();
+    }
+
+    /**
+     * Fill in default values.
+     *
+     * @param string
+     * @param array
+     * @param mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $key, $default)
+    {
+        return isset($arr[$key]) ? $arr[$key] : $default;
+    }
+
     /**
      * Transfer data from a quote item to a quantity
      * request item payload.
@@ -47,7 +84,7 @@ class EbayEnterprise_Inventory_Helper_Quantity_Payload
         Mage_Sales_Model_Quote_Item_Abstract $item,
         IQuantityItem $itemPayload
     ) {
-        return $itemPayload->setItemId($item->getSku())
+        return $itemPayload->setItemId($this->inventoryHelper->getRomSku($item->getSku()))
             ->setLineId($item->getId());
     }
 }

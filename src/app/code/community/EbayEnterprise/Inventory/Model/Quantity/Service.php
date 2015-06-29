@@ -136,7 +136,7 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
     {
         return $this->_quantityCollector
             ->getQuantityResultsForQuote($item->getQuote())
-            ->getQuantityBySku($item->getSku());
+            ->getQuantityBySku($this->_inventoryHelper->getRomSku($item->getSku()));
     }
 
     /**

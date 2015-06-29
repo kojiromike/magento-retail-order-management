@@ -32,11 +32,12 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
      * @param  string  $sku       Quote item sku
      * @param  int     $qty       Qty of the item in the cart
      * @param  bool $isVirtual Is the item virtual
+     * @param  int
      * @return Mage_Sales_Model_Quote_Item The stub quote item
      */
-    protected function _stubQuoteItem($sku, $qty, $isVirtual)
+    protected function _stubQuoteItem($sku, $qty, $isVirtual, $itemId)
     {
-        $item = $this->getModelMock('sales/quote_item', ['getSku', 'getQty', 'getIsVirtual']);
+        $item = $this->getModelMock('sales/quote_item', ['getSku', 'getQty', 'getIsVirtual', 'getId']);
         $item
             ->expects($this->any())
             ->method('getSku')
@@ -49,6 +50,10 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
             ->expects($this->any())
             ->method('getIsVirtual')
             ->will($this->returnValue($isVirtual));
+         $item
+            ->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue($itemId));
         return $item;
     }
     /**
@@ -62,9 +67,9 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
 
         // first item is managed, second is not
         $items = [
-            $this->_stubQuoteItem('45-123', 3, false),
-            $this->_stubQuoteItem('45-234', 1, false),
-            $this->_stubQuoteItem('45-345', 1, true),
+            $this->_stubQuoteItem('45-123', 3, false, 1),
+            $this->_stubQuoteItem('45-234', 1, false, 2),
+            $this->_stubQuoteItem('45-345', 1, true, 3),
         ];
 
         $helper
@@ -87,9 +92,9 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
             ->getMock();
         $this->assertSame(
             [
-                '45-123' => ['managed' => true, 'virtual' => false, 'qty' => 3],
-                '45-234' => ['managed' => false, 'virtual' => false, 'qty' => 1],
-                '45-345' => ['managed' => false, 'virtual' => true, 'qty' => 1],
+                '45-123' => ['item_id' => 1, 'managed' => true, 'virtual' => false, 'qty' => 3],
+                '45-234' => ['item_id' => 2, 'managed' => false, 'virtual' => false, 'qty' => 1],
+                '45-345' => ['item_id' => 3, 'managed' => false, 'virtual' => true, 'qty' => 1],
             ],
             EcomDev_Utils_Reflection::invokeRestrictedMethod($session, '_extractQuoteSkuData', [$quote])
         );
@@ -442,20 +447,20 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
     public function providerDiffSkus()
     {
         $old = [
-            '45-123' => ['managed' => true, 'virtual' => false, 'qty' => 3],
-            '45-234' => ['managed' => true, 'virtual' => false, 'qty' => 2],
+            '45-123' => ['managed' => true, 'virtual' => false, 'qty' => 3, 'item_id' => 1],
+            '45-234' => ['managed' => true, 'virtual' => false, 'qty' => 2, 'item_id' => 2],
         ];
         $update = [
-            '45-123' => ['managed' => true, 'virtual' => false, 'qty' => 5],
-            '45-234' => ['managed' => true, 'virtual' => false, 'qty' => 2],
+            '45-123' => ['managed' => true, 'virtual' => false, 'qty' => 5, 'item_id' => 1],
+            '45-234' => ['managed' => true, 'virtual' => false, 'qty' => 2, 'item_id' => 2],
         ];
         $add = [
-            '45-123' => ['managed' => true, 'virtual' => false, 'qty' => 3],
-            '45-234' => ['managed' => true, 'virtual' => false, 'qty' => 2],
-            '45-345' => ['managed' => false, 'virtual' => true, 'qty' => 1],
+            '45-123' => ['managed' => true, 'virtual' => false, 'qty' => 3, 'item_id' => 1],
+            '45-234' => ['managed' => true, 'virtual' => false, 'qty' => 2, 'item_id' => 2],
+            '45-345' => ['managed' => false, 'virtual' => true, 'qty' => 1, 'item_id' => 3],
         ];
         $delete = [
-            '45-234' => ['managed' => true, 'virtual' => false, 'qty' => 2],
+            '45-234' => ['managed' => true, 'virtual' => false, 'qty' => 2, 'item_id' => 2],
         ];
         return [
             // when no old quote data, diff should be all new data
@@ -480,7 +485,7 @@ class EbayEnterprise_Eb2cCore_Test_Model_SessionTest extends EbayEnterprise_Eb2c
             [
                 $old,
                 $delete,
-                ['skus' => ['45-123' => ['managed' => true, 'virtual' => false, 'qty' => 0]]],
+                ['skus' => ['45-123' => ['managed' => true, 'virtual' => false, 'qty' => 0, 'item_id' => 1]]],
             ],
         ];
     }

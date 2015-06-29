@@ -24,7 +24,6 @@ class EbayEnterprise_Eb2cCore_Test_Helper_LanguagesTest extends EbayEnterprise_E
         $expectedList = array('default_lang', 'store3_lang', 'store4_lang');
         sort($expectedList);
         sort($actualList);
-
         $this->assertEquals(
             $expectedList,
             $actualList,

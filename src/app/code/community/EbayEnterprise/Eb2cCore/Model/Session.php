@@ -56,7 +56,7 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
      */
     protected function _extractQuoteSkuData(Mage_Sales_Model_Quote $quote)
     {
-        $skuData = array();
+        $skuData = [];
         // use getAllVisibleItems to prevent dupes due to parent config + child used both being included
         foreach ($quote->getAllVisibleItems() as $item) {
             // before item's have been saved, getAllVisible items won't properly
@@ -64,11 +64,12 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
             if ($item->getParentItem()) {
                 continue;
             }
-            $skuData[$item->getSku()] = array(
+            $skuData[$item->getSku()] = [
+                'item_id' => $item->getId(),
                 'managed' => Mage::helper('eb2ccore/quote_item')->isItemInventoried($item),
                 'virtual' => $item->getIsVirtual(),
                 'qty' => $item->getQty(),
-            );
+            ];
         }
         return $skuData;
     }
@@ -215,20 +216,20 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
      */
     protected function _diffSkus($oldItems, $newItems)
     {
-        $skuDiff = array();
+        $skuDiff = [];
         foreach ($newItems as $sku => $details) {
-            // only care if item qty changes - none of the other item details,
-            // managed & virtual, should change between requests
-            if (!isset($oldItems[$sku]) || $oldItems[$sku]['qty'] !== $details['qty']) {
+            // only care if item qty changes or the item was previously removed from the quote and was added back, hence making its item id change.
+            // None of the other item details, managed & virtual, should change between requests.
+            if (!isset($oldItems[$sku]) || $oldItems[$sku]['qty'] !== $details['qty'] || $oldItems[$sku]['item_id'] !== $details['item_id']) {
                 $skuDiff[$sku] = $details;
             }
         }
         foreach ($oldItems as $sku => $details) {
             if (!isset($newItems[$sku])) {
-                $skuDiff[$sku] = array('managed' => $details['managed'], 'virtual' => $details['virtual'], 'qty' => 0);
+                $skuDiff[$sku] = ['managed' => $details['managed'], 'virtual' => $details['virtual'], 'qty' => 0, 'item_id' => $details['item_id']];
             }
         }
-        return $skuDiff ? array('skus' => $skuDiff) : $skuDiff;
+        return $skuDiff ? ['skus' => $skuDiff] : $skuDiff;
     }
     /**
      * Diff the quote amounts between the old items and new items.

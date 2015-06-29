@@ -114,11 +114,21 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
     public function testApiUriCreationNonDefaultStore()
     {
         $this->setCurrentStore('canada');
-        $helper = Mage::helper('eb2ccore');
+        $helper = $this->getHelperMock('eb2ccore/data', ['getConfigModel']);
+        $helper->expects($this->once())
+            ->method('getConfigModel')
+            ->will($this->returnValue($this->buildCoreConfigRegistry([
+                'apiHostname' => 'api.example.com',
+                'apiMajorVersion' => 'M',
+                'apiMinorVersion' => 'm',
+                'storeId' => 'store_id2',
+            ])));
+        $this->replaceByMock('helper', 'eb2ccore', $helper);
+
         // service, operation, params and type
         $this->assertSame(
             'https://api.example.com/vM.m/stores/store_id2/inventory/allocations/delete.json',
-            $helper->getApiUri('inventory', 'allocations', array('delete'), 'json')
+            $helper->getApiUri('inventory', 'allocations', ['delete'], 'json')
         );
     }
 

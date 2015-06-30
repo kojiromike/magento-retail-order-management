@@ -601,7 +601,6 @@ class EbayEnterprise_Order_Model_Create
             $this->_defaultItemHandler->buildOrderItem(
                 $itemPayload,
                 $item,
-                $order,
                 $address,
                 $this->_nextLineNumber += 1,
                 $includeShipping

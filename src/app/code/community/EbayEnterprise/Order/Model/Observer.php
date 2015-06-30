@@ -20,6 +20,8 @@ use \eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
  */
 class EbayEnterprise_Order_Model_Observer
 {
+    /** @var EbayEnterprise_Order_Helper_Factory */
+    protected $factory;
     /** @var EbayEnterprise_Order_Helper_Event_Shipment */
     protected $shipmentEventHelper;
     /** @var EbayEnterprise_MageLog_Helper_Data */
@@ -41,6 +43,7 @@ class EbayEnterprise_Order_Model_Observer
     public function __construct(array $args = [])
     {
         list(
+            $this->factory,
             $this->logger,
             $this->orderHelper,
             $this->orderCfg,
@@ -49,6 +52,7 @@ class EbayEnterprise_Order_Model_Observer
             $this->coreHelper,
             $this->logContext
         ) = $this->checkTypes(
+            $this->nullCoalesce('factory', $args, Mage::helper('ebayenterprise_order/factory')),
             $this->nullCoalesce('logger', $args, Mage::helper('ebayenterprise_magelog')),
             $this->nullCoalesce('helper', $args, Mage::helper('ebayenterprise_order')),
             $this->nullCoalesce('config', $args, Mage::helper('ebayenterprise_order')->getConfigModel()),
@@ -61,6 +65,7 @@ class EbayEnterprise_Order_Model_Observer
 
     /**
      * ensure correct types are being injected
+     * @param EbayEnterprise_Order_Helper_Factory
      * @param EbayEnterprise_MageLog_Helper_Data
      * @param EbayEnterprise_Order_Helper_Data
      * @param EbayEnterprise_Eb2cCore_Model_Config_Registry
@@ -71,6 +76,7 @@ class EbayEnterprise_Order_Model_Observer
      * @return array
      */
     protected function checkTypes(
+        EbayEnterprise_Order_Helper_Factory $factory,
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_Order_Helper_Data $orderHelper,
         EbayEnterprise_Eb2cCore_Model_Config_Registry $orderCfg,
@@ -79,7 +85,7 @@ class EbayEnterprise_Order_Model_Observer
         EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
         EbayEnterprise_MageLog_Helper_Context $logContext
     ) {
-        return [$logger, $orderHelper, $orderCfg, $orderEventHelper, $shipmentEventHelper, $coreHelper, $logContext];
+        return func_get_args();
     }
 
     /**
@@ -309,5 +315,12 @@ class EbayEnterprise_Order_Model_Observer
         $orderAddress = $event->getOrderAddress();
         $data = $address->getEbayEnterpriseOrderDiscountData();
         $orderAddress->setEbayEnterpriseOrderDiscountData($data);
+    }
+
+    public function handleEbayEnterpriseOrderCreateItemEvent(Varien_Event_Observer $observer)
+    {
+        $event = $observer->getEvent();
+        $this->factory->getNewRelationshipsModel($event->getItem(), $event->getItemPayload())
+            ->injectItemRelationship();
     }
 }

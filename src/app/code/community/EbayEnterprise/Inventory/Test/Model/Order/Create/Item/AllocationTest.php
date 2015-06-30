@@ -55,7 +55,12 @@ class EbayEnterprise_Inventory_Test_Model_Order_Create_Item_AllocationTest exten
         $reservation = Mage::getModel('ebayenterprise_inventory/allocation_reservation');
         $allocation = Mage::getModel(
             'ebayenterprise_inventory/allocation',
-            ['item_id' => 1, 'quantity_allocated' => 1, 'reservation' => $reservation]
+            [
+                'sku' => 'thesku',
+                'item_id' => 1,
+                'quantity_allocated' => 1,
+                'reservation' => $reservation
+            ]
         );
         $allocationService = $this->getModelMock(
             'ebayenterprise_inventory/allocation_service',
@@ -106,7 +111,12 @@ class EbayEnterprise_Inventory_Test_Model_Order_Create_Item_AllocationTest exten
         $reservation = Mage::getModel('ebayenterprise_inventory/allocation_reservation');
         $allocation = Mage::getModel(
             'ebayenterprise_inventory/allocation',
-            ['item_id' => 1, 'quantity_allocated' => $amountAllocated, 'reservation' => $reservation]
+            [
+                'sku' => 'thesku',
+                'item_id' => 1,
+                'quantity_allocated' => $amountAllocated,
+                'reservation' => $reservation
+            ]
         );
         $allocationService = $this->getModelMock(
             'ebayenterprise_inventory/allocation_service',

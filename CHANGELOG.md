@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## Unreleased Changes
+### Added
+- Support for bundle and group products in PayPal, tax and order-create requests
+
 ## [1.6.0-alpha-6] - 2015-07-02
 ### Added
 - Support for bundle and group product types for inventory allocation operations

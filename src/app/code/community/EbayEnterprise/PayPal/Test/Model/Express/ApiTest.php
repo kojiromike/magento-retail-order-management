@@ -757,4 +757,55 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest extends EbayEnterprise_Eb
             ->will($this->returnSelf());
         EcomDev_Utils_Reflection::invokeRestrictedMethod($api, 'addLineItems', [$this->quote, $request]);
     }
+
+    /**
+     * verify line items are created from
+     *
+     */
+    public function testProcessLineItems()
+    {
+        $item = $this->getModelMockBuilder('sales/quote_item_abstract')
+            ->getMockForAbstractClass();
+        $quote = $this->getModelMockBuilder('sales/quote')
+            ->disableOriginalConstructor()
+            ->setMethods(['getAllItems', 'getQuoteCurrencyCode'])
+            ->getMock();
+        $lineItems = $this->getMockBuilder(
+            '\eBayEnterprise\RetailOrderManagement\Payload\Payment\ILineItemIterable'
+        )
+            ->getMockForAbstractClass();
+        $selectionHelper = $this->getHelperMock(
+            'ebayenterprise_paypal/item_selection',
+            ['selectFrom']
+        );
+        $currencyCode = 'USD';
+
+        $quote->expects($this->once())
+            ->method('getAllItems')
+            ->will($this->returnValue([$item]));
+        $quote->expects($this->once())
+            ->method('getQuoteCurrencyCode')
+            ->will($this->returnValue($currencyCode));
+        $selectionHelper->expects($this->once())
+            ->method('selectFrom')
+            ->with($this->equalTo([$item]))
+            ->will($this->returnArgument(0));
+
+        $api = $this->getModelMockBuilder('ebayenterprise_paypal/express_api')
+            ->setConstructorArgs([['selection_helper' => $selectionHelper]])
+            ->setMethods(['createLineItem'])
+            ->getMock();
+        $api->expects($this->once())
+            ->method('createLineItem')
+            ->with(
+                $this->identicalTo($item),
+                $this->identicalTo($lineItems),
+                $this->identicalTo($currencyCode)
+            );
+        EcomDev_Utils_Reflection::invokeRestrictedMethod(
+            $api,
+            'processLineItems',
+            [$quote, $lineItems]
+        );
+    }
 }

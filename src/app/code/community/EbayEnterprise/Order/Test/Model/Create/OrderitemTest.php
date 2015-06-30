@@ -149,7 +149,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
         $handler->buildOrderItem(
             $this->payload,
             $this->itemStub,
-            $this->orderStub,
             $this->addressStub,
             1,
             true
@@ -184,7 +183,7 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
             'default_value' => null,
             ])
         );
-        $handler->buildOrderItem($this->payload, $this->itemStub, $this->orderStub, $this->addressStub, 2);
+        $handler->buildOrderItem($this->payload, $this->itemStub, $this->addressStub, 2);
         $this->assertNull($this->payload->getColor());
         $this->assertNull($this->payload->getColorId());
     }
@@ -220,7 +219,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
         $handler->buildOrderItem(
             $this->payload,
             $this->itemStub,
-            $this->orderStub,
             $this->addressStub,
             3,
             true
@@ -258,7 +256,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
         $handler->buildOrderItem(
             $this->payload,
             $this->itemStub,
-            $this->orderStub,
             $this->addressStub,
             1,
             false
@@ -286,7 +283,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
         $handler->buildOrderItem(
             $this->payload,
             $this->itemStub,
-            $this->orderStub,
             $this->addressStub,
             $lineNumber,
             true
@@ -316,7 +312,6 @@ class EbayEnterprise_Order_Test_Model_Create_OrderitemTest extends EbayEnterpris
         $handler->buildOrderItem(
             $this->payload,
             $this->itemStub,
-            $this->orderStub,
             $this->addressStub,
             $lineNumber,
             true

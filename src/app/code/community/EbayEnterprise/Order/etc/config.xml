@@ -156,6 +156,15 @@ http://opensource.org/licenses/osl-3.0.php
                     </sales_convert_quote_item_to_order_item_observer>
                 </observers>
             </sales_convert_quote_item_to_order_item>
+            <ebayenterprise_order_create_item>
+                <observers>
+                    <ebayenterprise_order_create_item_observer>
+                        <type>model</type>
+                        <class>ebayenterprise_order/observer</class>
+                        <method>handleEbayEnterpriseOrderCreateItemEvent</method>
+                    </ebayenterprise_order_create_item_observer>
+                </observers>
+            </ebayenterprise_order_create_item>
         </events>
     </global>
     <frontend>

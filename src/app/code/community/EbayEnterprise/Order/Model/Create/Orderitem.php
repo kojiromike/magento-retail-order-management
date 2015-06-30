@@ -68,7 +68,6 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      * build out the order item payload
      * @param  IOrderItem
      * @param  Mage_Sales_Model_Order_Item
-     * @param  Mage_Sales_Model_Order
      * @param  Mage_Sales_Model_Order_Address
      * @param  int
      * @param  string
@@ -78,7 +77,6 @@ class EbayEnterprise_Order_Model_Create_Orderitem
     public function buildOrderItem(
         IOrderItem $payload,
         Mage_Sales_Model_Order_Item $item,
-        Mage_Sales_Model_Order $order,
         Mage_Sales_Model_Order_Address $address,
         $lineNumber,
         $includeShipping = false

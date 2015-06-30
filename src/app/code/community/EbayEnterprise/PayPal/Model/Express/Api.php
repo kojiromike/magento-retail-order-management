@@ -34,6 +34,8 @@ class EbayEnterprise_Paypal_Model_Express_Api
     const PAYPAL_DOAUTHORIZATION_REQUEST_ID_PREFIX = 'PSA-';
     const PAYPAL_DOVOID_REQUEST_ID_PREFIX = 'PSV-';
 
+    /** @var EbayEnterprise_PayPal_Helper_Item_Selection */
+    protected $selectionHelper;
     /** @var EbayEnterprise_PayPal_Helper_Data */
     protected $helper;
     /** @var EbayEnterprise_Eb2cCore_Helper_Data */
@@ -50,14 +52,22 @@ class EbayEnterprise_Paypal_Model_Express_Api
      * Override __construct here as the usual protected `_construct` is not called.
      *
      * @param array $initParams May contain:
-     *                          -  'helper' => EbayEnterprise_PayPal_Helper_Data
-     *                          -  'core_helper' => EbayEnterprise_Eb2cCore_Helper_Data
-     *                          -  'logger' => EbayEnterprise_MageLog_Helper_Data
-     *                          -  'context' => EbayEnterprise_MageLog_Helper_Context
+     *     -  'selection_helper' => EbayEnterprise_PayPal_Helper_Item_Selection
+     *     -  'helper' => EbayEnterprise_PayPal_Helper_Data
+     *     -  'core_helper' => EbayEnterprise_Eb2cCore_Helper_Data
+     *     -  'logger' => EbayEnterprise_MageLog_Helper_Data
+     *     -  'context' => EbayEnterprise_MageLog_Helper_Context
      */
     public function __construct(array $initParams = array())
     {
-        list($this->helper, $this->coreHelper, $this->logger, $this->logContext) = $this->checkTypes(
+        list(
+            $this->selectionHelper,
+            $this->helper,
+            $this->coreHelper,
+            $this->logger,
+            $this->logContext
+        ) = $this->checkTypes(
+            $this->nullCoalesce($initParams, 'selection_helper', Mage::helper('ebayenterprise_paypal/item_selection')),
             $this->nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_paypal')),
             $this->nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore')),
             $this->nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
@@ -76,6 +86,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
      * @return array
      */
     protected function checkTypes(
+        EbayEnterprise_PayPal_Helper_Item_Selection $selectionHelper,
         EbayEnterprise_PayPal_Helper_Data $helper,
         EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
         EbayEnterprise_MageLog_Helper_Data $logger,
@@ -440,16 +451,17 @@ class EbayEnterprise_Paypal_Model_Express_Api
 
     /**
      * recursively process line items into payloads
+     *
      * @param  Mage_Sales_Model_Quote
      * @param  ILineItemIterable
+     * @param  string
      * @return self
      */
     protected function processLineItems(Mage_Sales_Model_Quote $quote, ILineItemIterable $lineItems)
     {
-        $items = $quote->getAllItems();
-        $currencyCode = $quote->getQuoteCurrencyCode();
+        $items = $this->selectionHelper->selectFrom($quote->getAllItems());
         foreach ($items as $item) {
-            $this->processItem($item, $lineItems, $currencyCode);
+            $this->createLineItem($item, $lineItems, $quote->getQuoteCurrencyCode());
         }
         return $this;
     }
@@ -457,8 +469,9 @@ class EbayEnterprise_Paypal_Model_Express_Api
     /**
      * process specific amount types into negative-value line item
      * payloads
-     * @param  Mage_Sales_Model_Quote
-     * @param  ILineItemIterable
+     *
+     * @param Mage_Sales_Model_Quote
+     * @param ILineItemIterable
      * @return self
      */
     protected function processNegativeLineItems(Mage_Sales_Model_Quote $quote, ILineItemIterable $lineItems)
@@ -501,37 +514,22 @@ class EbayEnterprise_Paypal_Model_Express_Api
     }
 
     /**
-     * Process an item or, if the item has children that are calculated,
-     * the item's children. Processing an item consists of building an ILineItem
-     * payload to be added to the ILineItemIterable. The total for each line is
-     * recursively summed and returned.
+     * build out an ILineItem payload and add it to the ILineItemIterable.
      *
      * @param  Mage_Sales_Model_Quote_Item_Abstract
      * @param  ILineItemIterable
      * @param  string
      * @return self
      */
-    protected function processItem(
-        Mage_Sales_Model_Quote_Item_Abstract $item,
-        ILineItemIterable $lineItems,
-        $currencyCode
-    ) {
-        // handle the possibility of getting a Mage_Sales_Model_Quote_Address_Item
-        $item = $item->getQuoteItem() ?: $item;
-        if ($item->getHasChildren() && $item->isChildrenCalculated()) {
-            foreach ($item->getChildren() as $child) {
-                $this->processItem($child, $lineItems, $currencyCode);
-            }
-        } else {
-            $lineItem = $lineItems->getEmptyLineItem();
-            $lineItem->setName($this->helper->__($item->getProduct()->getName()))
-                ->setSequenceNumber($item->getId())
-                ->setQuantity($item->getQty())
-                ->setUnitAmount($item->getPrice())
-                ->setCurrencyCode($currencyCode);
-            $lineItems->offsetSet($lineItem, null);
-        }
-        return $this;
+    public function createLineItem($item, $lineItems, $currencyCode)
+    {
+        $lineItem = $lineItems->getEmptyLineItem();
+        $lineItem->setName($this->helper->__($item->getProduct()->getName()))
+            ->setSequenceNumber($item->getId())
+            ->setQuantity($item->getQty())
+            ->setUnitAmount($item->getPrice())
+            ->setCurrencyCode($currencyCode);
+        $lineItems->offsetSet($lineItem, null);
     }
 
     /**

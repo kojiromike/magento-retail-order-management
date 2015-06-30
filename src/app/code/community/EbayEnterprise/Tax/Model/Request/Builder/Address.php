@@ -30,6 +30,8 @@ class EbayEnterprise_Tax_Model_Request_Builder_Address
     protected $_destination;
     /** @var Mage_Sales_Model_Quote_Address */
     protected $_address;
+    /** @var EbayEnterprise_Tax_Helper_Item_Selection */
+    protected $_selectionHelper;
     /** @var EbayEnterprise_Tax_Helper_Payload */
     protected $_payloadHelper;
     /** @var EbayEnterprise_Tax_Helper_Factory */
@@ -41,14 +43,15 @@ class EbayEnterprise_Tax_Model_Request_Builder_Address
 
     /**
      * @param array $args Must contain key/value for:
-     *                         - ship_group_iterable => eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IShipGroupIterable
-     *                         - destination_iterable => eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IDestinationIterable
-     *                         - address => Mage_Sales_Model_Quote_Address
-     *                         May contain key/value for:
-     *                         - payload_helper => EbayEnterprise_Tax_Helper_Payload
-     *                         - tax_factory => EbayEnterprise_Tax_Helper_Factory
-     *                         - logger => EbayEnterprise_MageLog_Helper_Data
-     *                         - log_context => EbayEnterprise_MageLog_Helper_Context
+     *    - ship_group_iterable => eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IShipGroupIterable
+     *    - destination_iterable => eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\IDestinationIterable
+     *    - address => Mage_Sales_Model_Quote_Address
+     *    May contain key/value for:
+     *    - selection_helper => EbayEnterprise_Tax_Helper_Item_Selection
+     *    - payload_helper => EbayEnterprise_Tax_Helper_Payload
+     *    - tax_factory => EbayEnterprise_Tax_Helper_Factory
+     *    - logger => EbayEnterprise_MageLog_Helper_Data
+     *    - log_context => EbayEnterprise_MageLog_Helper_Context
      */
     public function __construct(array $args)
     {
@@ -56,6 +59,7 @@ class EbayEnterprise_Tax_Model_Request_Builder_Address
             $this->_shipGroupIterable,
             $this->_destinationIterable,
             $this->_address,
+            $this->_selectionHelper,
             $this->_payloadHelper,
             $this->_taxFactory,
             $this->_logger,
@@ -64,6 +68,7 @@ class EbayEnterprise_Tax_Model_Request_Builder_Address
             $args['ship_group_iterable'],
             $args['destination_iterable'],
             $args['address'],
+            $this->_nullCoalesce($args, 'selection_helper', Mage::helper('ebayenterprise_tax/item_selection')),
             $this->_nullCoalesce($args, 'payload_helper', Mage::helper('ebayenterprise_tax/payload')),
             $this->_nullCoalesce($args, 'tax_factory', Mage::helper('ebayenterprise_tax/factory')),
             $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
@@ -78,6 +83,7 @@ class EbayEnterprise_Tax_Model_Request_Builder_Address
      * @param IShipGroupIterable
      * @param IDestinationIterable
      * @param Mage_Sales_Model_Quote_Address
+     * @param EbayEnterprise_Tax_Helper_Item_Selection
      * @param EbayEnterprise_Tax_Helper_Payload
      * @param EbayEnterprise_Tax_Helper_Factory
      * @param EbayEnterprise_MageLog_Helper_Data
@@ -88,20 +94,13 @@ class EbayEnterprise_Tax_Model_Request_Builder_Address
         IShipGroupIterable $shipGroupIterable,
         IDestinationIterable $destinationIterable,
         Mage_Sales_Model_Quote_Address $address,
+        EbayEnterprise_Tax_Helper_Item_Selection $selectionHelper,
         EbayEnterprise_Tax_Helper_Payload $payloadHelper,
         EbayEnterprise_Tax_Helper_Factory $taxFactory,
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_MageLog_Helper_Context $logContext
     ) {
-        return [
-            $shipGroupIterable,
-            $destinationIterable,
-            $address,
-            $payloadHelper,
-            $taxFactory,
-            $logger,
-            $logContext,
-        ];
+        return func_get_args();
     }
 
     /**
@@ -183,7 +182,7 @@ class EbayEnterprise_Tax_Model_Request_Builder_Address
         // The first item needs to include shipping totals, use this flag to
         // track when item is the first item.
         $first = true;
-        foreach ($this->_address->getAllVisibleItems() as $item) {
+        foreach ($this->_selectionHelper->selectFrom($this->_address->getAllVisibleItems()) as $item) {
             // Add shipping amounts to the first item - necessary way of sending
             // address level shipping totals which is the only way Magento can
             // report shipping totals.

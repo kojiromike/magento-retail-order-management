@@ -15,6 +15,7 @@
 
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCancelRequest;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCancelResponse;
+use eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderItem;
 use eBayEnterprise\RetailOrderManagement\Payload\Customer\IOrderSummaryRequest;
 use eBayEnterprise\RetailOrderManagement\Payload\Customer\IOrderSummaryResponse;
 use eBayEnterprise\RetailOrderManagement\Payload\order\Detail\IOrderDetailRequest;
@@ -295,5 +296,22 @@ class EbayEnterprise_Order_Helper_Factory
     public function getAdminQuoteSessionModel()
     {
         return Mage::getSingleton('adminhtml/session_quote');
+    }
+
+    /**
+     * Create a model for injecting relationship payloads into the OCR
+     *
+     * @param Mage_Sales_Model_Order_Item
+     * @param IOrderItem
+     * @return EbayEnterprise_Order_Model_Create_Relationships
+     */
+    public function getNewRelationshipsModel(
+        Mage_Sales_Model_Order_Item $item,
+        IOrderItem $itemPayload
+    ) {
+        return Mage::getModel(
+            'ebayenterprise_order/create_relationships',
+            ['item' => $item, 'item_payload' => $itemPayload]
+        );
     }
 }

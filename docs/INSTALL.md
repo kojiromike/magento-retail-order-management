@@ -104,6 +104,8 @@ composer require 'ebayenterprise/magento-retail-order-management=~{major}.{minor
 
 This command will install the extension, and symlink the extension files into the appropriate locations of the Magento directory tree.
 
+One of the extension's dependencies is the [PSR-0 Autoloader](https://github.com/magento-hackathon/Magento-PSR-0-Autoloader). That extension allows Magento to find PHP classes where Composer puts them. Please copy the `composer.xml` file from the `tests` directory into **app/etc/composer.xml**. See the [Magento Composer Autoloader instructions](https://github.com/magento-hackathon/Magento-PSR-0-Autoloader#magento-composer-autoloader) for more details.
+
 | Important |
 |:----------|
 | The Magento Composer Installer deploys files as symlinks by default. Therefore you must enable symlinks in the Magento Admin at **System > Configuration > ADVANCED > Developer > Template Settings > Allow Symlinks > Yes** for the extension to be deployed effectively. |

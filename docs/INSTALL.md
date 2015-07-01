@@ -108,6 +108,24 @@ This command will install the extension, and symlink the extension files into th
 |:----------|
 | The Magento Composer Installer deploys files as symlinks by default. Therefore you must enable symlinks in the Magento Admin at **System > Configuration > ADVANCED > Developer > Template Settings > Allow Symlinks > Yes** for the extension to be deployed effectively. |
 
+#### (Optional) Install a Pre-Release
+
+Composer takes precautions to prevent accidentally installing unstable versions of software. To install a dev or beta version of the Retail Order Management extension, add the "@beta" or "@dev" symbol to the specified version in the above composer command. For example, to install 1.5.0 whether it is stable _or_ beta:
+
+```sh
+composer require 'ebayenterprise/magento-retail-order-management=~1.5@beta
+```
+
+If Composer complains that it is unable to resolve dependencies, it is because unstable versions of the extension may have unstable dependencies. You may need to specify the "@beta" or "@dev" flags for dependencies in this case. For example, the following will allow Composer to install the Retail Order Management SDK as a dependency at the beta stability, since the extension (also at the beta stability) will not work with the latest stable release of the SDK:
+
+```sh
+composer require 'ebayenterprise/retail-order-management=@beta'
+```
+
+| Important |
+|:----------|
+| Unstable software allows you to preview new features and prepare for upcoming changes, but has not been through our rigorous testing processes yet. You are more likely to encounter bugs in pre-release software. (Even so, if you do, please let us know!) |
+
 ### Step 4: Install 41st Parameter JavaScript
 
 You will be provided with a set of 41st Parameter JavaScript files required to collect data for Fraud Protection & Risk Management. Please install those files in the [`js/ebayenterprise_eb2cfraud/` directory](/src/js/ebayenterprise_eb2cfraud/).

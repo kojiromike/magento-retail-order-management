@@ -5,8 +5,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Support for bundle and group product types for inventory allocation operations
 - Support for estimated delivery date for backorderable products that is in stock
-- Import custom product attributes without explicit import map
-- Send zero-padding Customer Id in OCR and registered customer Account Pages in order to import customers from other web-stores
+- Support importing custom product attributes without explicit import map
+- Support sending zero-padding Customer Id in OCR and registered customer Account Pages in order to import customers from other web-stores
 
 ### Changed
 - Inventory Allocation operations now use the ROM SDK

@@ -12,6 +12,7 @@
   - [Item Master](#item-master)
   - [Content Master](#content-master)
   - [Price Events](#price-events)
+  - [New Product Information](#new-product-information)
 - [Use Cases](#use-cases)
   - [Associate Products to Categories](#associate-products-to-categories)
   - [Import Configurable Products](#import-configurable-products)
@@ -207,6 +208,20 @@ Using the 2 price records above as an example:
 
 _† Subject to specific pricing template in use for the active theme_
 
+### New Product Information
+
+Since all feeds may not process at the same time, when the Magento Retail Order Management Extension processes a feed to create a new product there will be missing required product attributes in Magento. The extension's feed processor handles this missing information by populating these required product attributes with default or "dummy" data. This data will be later populated with real data when the appropriate feeds are processed.
+
+| Required Product Attribute | "Dummy" Value |
+|:---------------------------|:--------------|
+| Name                       | Incomplete Product: {SKU} |
+| Description                | This product is incomplete. If you are seeing this product, please do not attempt to purchase and contact customer service. |
+| Short Description          | Incomplete product. Please do not attempt to purchase. |
+| Manage Stock               | `True` |
+| Stock Quantity             | `0` |
+| Type                       | Simple |
+| Weight                     | `0` |
+
 ## Use Cases
 
 ### Associate Products to Categories
@@ -243,9 +258,11 @@ Gift Card products may be imported into Magento via the Item Master. Ensure the 
 
 The following Gift Card attributes are not provided as named attributes in the Item Master and will default to using the values specified by the Magento Gift Card configuration:
 
-- **Lifetime**: Gift Card General Settings > Lifetime (days)
-- **Email Template**: Gift Card Email Settings > Gift Card Notification Email Template
-- **Is Redeemable**: Gift Card General Settings > Redeemable
+| Gift Card Product Attribute | Configuration Tab | Configuration Option |
+|:----------------------------|:------------------|:---------------------|
+| Lifetime | Gift Card General Settings | Lifetime (days) |
+| Email Template | Gift Card Email Settings | Gift Card Notification Email Template |
+| Is Redeemable | Gift Card General Settings | Redeemable |
 
 ### Import Products into Different Magento Websites
 
@@ -384,6 +401,10 @@ The XPath expressions are evaluated relative the the XML node representing a sin
 
 Predefined maps that were [described above](#product-hub-feed-processing) can be found in [`app/code/community/EbayEnterprise/ProductImport/etc/config.xml`](/src/app/code/community/EbayEnterprise/ProductImport/etc/config.xml). There are some additional example maps in [`app/etc/local/productimport.xml.sample`](/src/app/etc/productimport.xml.sample) at `config/default/ebayenterprise_catalog/feed_attribute_mappings`.
 
+| Important |
+|:----------|
+| The product import process will not generate new Magento product attributes. Any mapped product attribute must already exist in Magento as part of the attribute set for the imported product. |
+
 ### Predefined Map Methods
 
 The following methods are provided by `EbayEnterprise_Catalog_Helper_Map` to cover a majority of import scenarios:
@@ -397,6 +418,14 @@ The following methods are provided by `EbayEnterprise_Catalog_Helper_Map` to cov
 | `passThrough`        | Value the method is called with.            |
 | `extractSkuValue`    | String value of the normalized SKU of the first matched XML node. |
 | `extractCustomAttributes` | Loop through all custom attributes and set the product with the custom attribute name and value. |
+
+### Wild Card Custom Attribute Map
+
+A "wild card" map is included in [`app/etc/productimport.xml.sample`](/src/app/etc/productimport.xml.sample) as `custom_attributes`. This map will attempt to import all custom attributes in either the Item Master or Content Master feed to a Magento Product Attribute with an Attribute Code that matches the Custom Attribute `name` exactly. This map will attempt to pass the value as a string.
+
+| Important |
+|:----------|
+| Please note that Magento saves the index value of the Drop Down or MultiSelect option of the Product Attribute in the EAV table. Thus any imported value must either match that index value or use a custom map that explicitly maps to the string values of the Product Attribute Options. |
 
 ### Examples
 
@@ -421,10 +450,6 @@ XPath has a lot of power for finding nodes and even transforming them itself. Mu
     <xpath>CustomAttributes/Attribute/[@name="my_custom_attribute"]/Value</xpath>
 </my_custom_attribute>
 ```
-
-## Importing all custom attributes
-
-In order to import all custom attributes for all Magento products, ensure that all custom attributes are created as Magento's product EAV Attributes, and then verify that the `custom_attributes` map is enabled in the `app/etc/local/productimport.xml` file. The custom attribute `name` will be mapped to a known Magento's product EAV Attribute and the custom attribute value will be imported as the value for this Magento's product EAV Attribute.
 
 ## Dependencies
 

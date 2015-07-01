@@ -99,12 +99,12 @@ composer require magento-hackathon/magento-composer-installer=~2.1
 Run the following command:
 
 ```sh
-composer require 'ebayenterprise/magento-retail-order-management=~{major}.{minor}'
+composer require 'ebayenterprise/magento-retail-order-management=~1.6'
 ```
 
-This command will install the extension, and symlink the extension files into the appropriate locations of the Magento directory tree.
+This command will install the extension and symlink the extension files into the appropriate locations of the Magento directory tree.
 
-One of the extension's dependencies is the [PSR-0 Autoloader](https://github.com/magento-hackathon/Magento-PSR-0-Autoloader). That extension allows Magento to find PHP classes where Composer puts them. Please copy the `composer.xml` file from the `tests` directory into **app/etc/composer.xml**. See the [Magento Composer Autoloader instructions](https://github.com/magento-hackathon/Magento-PSR-0-Autoloader#magento-composer-autoloader) for more details.
+One of the extension's dependencies is the [PSR-0 Autoloader](https://github.com/magento-hackathon/Magento-PSR-0-Autoloader). Please copy [`tests/composer.xml`](/tests/composer.xml) to `app/etc/composer.xml`. See the [Magento Composer Autoloader instructions](https://github.com/magento-hackathon/Magento-PSR-0-Autoloader#magento-composer-autoloader) for more details.
 
 | Important |
 |:----------|
@@ -112,13 +112,13 @@ One of the extension's dependencies is the [PSR-0 Autoloader](https://github.com
 
 #### (Optional) Install a Pre-Release
 
-Composer takes precautions to prevent accidentally installing unstable versions of software. To install a dev or beta version of the Retail Order Management extension, add the "@beta" or "@dev" symbol to the specified version in the above composer command. For example, to install 1.5.0 whether it is stable _or_ beta:
+Composer takes precautions to prevent unintentionally installing unstable versions of software. To install a dev or beta version of the Retail Order Management extension, add the `@beta` or `@dev` symbol to the specified version in the above composer command. For example, to install 1.6 whether it is stable _or_ beta:
 
 ```sh
-composer require 'ebayenterprise/magento-retail-order-management=~1.5@beta
+composer require 'ebayenterprise/magento-retail-order-management=~1.6@beta
 ```
 
-If Composer complains that it is unable to resolve dependencies, it is because unstable versions of the extension may have unstable dependencies. You may need to specify the "@beta" or "@dev" flags for dependencies in this case. For example, the following will allow Composer to install the Retail Order Management SDK as a dependency at the beta stability, since the extension (also at the beta stability) will not work with the latest stable release of the SDK:
+If Composer complains that it is unable to resolve dependencies, it is because unstable versions of the extension may have unstable dependencies. You may need to specify the `@beta` or `@dev` flags for dependencies in this case. For example, the following will allow Composer to install the Retail Order Management SDK as a dependency at the beta stability, since the extension (also at the beta stability) will not work with the latest stable release of the SDK:
 
 ```sh
 composer require 'ebayenterprise/retail-order-management=@beta'
@@ -126,7 +126,7 @@ composer require 'ebayenterprise/retail-order-management=@beta'
 
 | Important |
 |:----------|
-| Unstable software allows you to preview new features and prepare for upcoming changes, but has not been through our rigorous testing processes yet. You are more likely to encounter bugs in pre-release software. (Even so, if you do, please let us know!) |
+| Unstable software allows you to preview new features and prepare for upcoming changes, but has not passed a rigorous testing processes yet. You are more likely to encounter bugs in pre-release software. |
 
 ### Step 4: Install 41st Parameter JavaScript
 
@@ -134,7 +134,7 @@ You will be provided with a set of 41st Parameter JavaScript files required to c
 
 You can confirm the files have been installed in the Magento Admin at **System > Configuration > eBay Enterprise > Retail Order Management > Fraud > Fraud Files Installed**.
 
-### Updating
+### Future: Updating
 
 You can update the extension and its dependencies by running:
 
@@ -142,23 +142,7 @@ You can update the extension and its dependencies by running:
 composer update
 ```
 
-This command will perform the update according to the version restrictions given in the composer file. For example, if in the previous example we used `"~1.4"`, then `compose update` will fetch the most recent version of the extension in the 1.4.x line. You can change the version restrictions using the `composer require` command.
-
-## Admin Configuration
-
-Credentials and extension options should be configured in the Magento Admin at **System > Configuration > eBay Enterprise > Retail Order Management**.
-
-### Payment Methods
-
-The Magento Retail Order Management Extension provides eBay Enterprise payment methods that should be configured at **System > Configuration > Sales > Payment Methods**. These payment methods include:
-
-- **eBay Enterprise Credit Card**
-- **eBay Enterprise PayPal**
-
-### Logging
-
-
-The Magento Retail Order Management Extension depends on the [Magento Logging Extension by eBay Enterprise](https://github.com/eBayEnterprise/magento-log) to provide important additional logging features. Please refer to the [documentation for that extension](https://github.com/eBayEnterprise/magento-log#ebay-enterprise-mage-logger).
+This command will perform the update according to the version restrictions given in the composer file. For example, if in the previous example we used `"~1.6"`, then `compose update` will fetch the most recent version of the extension in the 1.6.x line. You can change the version restrictions using the `composer require` command.
 
 ## Local XML Configuration
 
@@ -223,6 +207,22 @@ Add an enabler file to `app/etc/modules` to activate the ProductImport module. F
 #### Configure Product Import via XML
 
 The extension includes a sample product import configuration file—[`app/etc/productimport.xml.sample`](/src/app/etc/productimport.xml.sample)—that includes detailed documentation and example configuration options. Use this file as a starting point for your implementation by renaming this file to `productimport.xml`. Carefully review all options to ensure they match your specific implementation.
+
+## Admin Configuration
+
+Credentials and extension options should be configured in the Magento Admin at **System > Configuration > eBay Enterprise > Retail Order Management**.
+
+### Payment Methods
+
+The Magento Retail Order Management Extension provides eBay Enterprise payment methods that should be configured at **System > Configuration > Sales > Payment Methods**. These payment methods include:
+
+- **eBay Enterprise Credit Card**
+- **eBay Enterprise PayPal**
+
+### Logging
+
+
+The Magento Retail Order Management Extension depends on the [Magento Logging Extension by eBay Enterprise](https://github.com/eBayEnterprise/magento-log) to provide important additional logging features. Please refer to the [documentation for that extension](https://github.com/eBayEnterprise/magento-log#ebay-enterprise-mage-logger).
 
 ## Optional Configuration
 

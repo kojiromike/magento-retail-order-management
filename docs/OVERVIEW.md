@@ -69,10 +69,6 @@ The extension will create product attributes in Magento as needed for either imp
 
 ## Cart and Checkout
 
-| Important |
-|:----------|
-| The Magento Retail Order Management Extension currently supports Magento's Onepage Checkout as well as checkout via the Magento Admin. Checkout with multiple shipping addresses is not supported. |
-
 The following is the data flow of a typical shopping experience using Magento with the ROM Extension installed:
 
 1. Product information, including in-stock/out-of-stock availability will be managed on the category, search and product as described in the previous [Catalog Management](#catalog-management) section.

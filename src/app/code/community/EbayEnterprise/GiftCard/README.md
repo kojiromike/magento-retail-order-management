@@ -1,4 +1,4 @@
-![ebay logo](../../../../../../docs/static/logo-vert.png)
+![ebay logo](/docs/static/logo-vert.png)
 
 **Magento Retail Order Management Extension**
 # Gift Card Payments
@@ -23,7 +23,9 @@ Gift cards will only ever be redeemed for the amount displayed in the totals whi
 
 While creating orders in the admin, gift card amounts listed in the form are based upon order totals when the gift card is applied and may not necessarily reflect the amount to be applied to the order. The totals line for gift cards should display the appropriate amount to be applied to gift cards.
 
-Note: This module is incompatible with any payment method that calculates totals and is unaware of this modules' implementaion.
+| Important |
+|:----------|
+| The Gift Card module is incompatible with any payment method that calculates totals and is unaware of this modules' implementation. |
 
 ## Local XML Configuration
 

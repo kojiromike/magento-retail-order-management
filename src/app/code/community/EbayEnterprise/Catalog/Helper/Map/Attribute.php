@@ -84,12 +84,24 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
      *
      * @param DOMNodeList $nodeList DOM nodes extracted from the feed
      * @param $product
-     * @return int - the OptionId added or updated | null - the attribute does not exsit
+     * @return int - the OptionId added or updated | null - the attribute does not exist
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function extractColorValue(DOMNodeList $nodeList, $product)
     {
         return $this->_addAdminMappedOption('color', 'Code', 'Description', $nodeList);
+    }
+
+    /**
+     * Size is a set of nodes - a Code (as the size is known to ROM) and one or more
+     * Description nodes, each node's value a different language.
+     *
+     * @param DOMNodeList $nodeList DOM nodes extracted from the feed
+     * @return int - the OptionId added or updated | null - the attribute does not exist
+     */
+    public function extractSizeValue(DOMNodeList $nodeList)
+    {
+        return $this->_addAdminMappedOption('size', 'Code', 'Description', $nodeList);
     }
 
     /**

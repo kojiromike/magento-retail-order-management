@@ -359,12 +359,6 @@ http://opensource.org/licenses/osl-3.0.php
                     <method/>
                     <xpath/>
                 </supplier_supplier_id>
-                <size>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </size>
                 <mass>
                     <class>ebayenterprise_catalog/map</class>
                     <type>disabled</type>

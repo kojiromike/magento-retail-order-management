@@ -15,6 +15,15 @@
 
 class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
+    /** @var EbayEnterprise_Eb2cCore_Helper_Data $coreHelper */
+    protected $coreHelper;
+
+    public function setUp()
+    {
+        parent::setUp();
+        $this->coreHelper = Mage::helper('eb2ccore');
+    }
+
     /**
      * Test _getEntityTypeId method with the following expectations
      * Expectation 1: when this test invoked this method EbayEnterprise_Catalog_Helper_Attribute::_getEntityTypeId
@@ -151,7 +160,7 @@ class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest extends EbayEnterpris
      */
     public function testExtractColorValue()
     {
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML(
             '<root>
 				<Color>
@@ -278,7 +287,7 @@ class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest extends EbayEnterpris
             'frontend_label' => 'size',
         ));
 
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML(
             '<root>
 				<CustomAttributes>
@@ -651,7 +660,7 @@ class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest extends EbayEnterpris
     {
         $result = true;
         $value = 'color';
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML(
             '<root>
 				<foo>
@@ -788,5 +797,39 @@ class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest extends EbayEnterpris
             '_turnOffManageStock',
             array($product)
         ));
+    }
+
+    /**
+     * Scenario: Extract size option
+     * Given an XML NodeList object containing size data.
+     * When the callback extracts the size option.
+     * Then The size option id is returned.
+     */
+    public function extractSizeValue()
+    {
+        /** @var int $optionId */
+        $optionId = 89;
+        /** @var DOMDocument $doc */
+        $doc = $this->coreHelper->getNewDomDocument();
+        $doc->loadXML(
+            '<root>
+                <Size>
+                    <Code>77</Code>
+                    <Description xml:lang="en-us">Small</Description>
+                </Size>
+            </root>'
+        );
+        /** @var DOMXPath $xpath */
+        $xpath = $this->coreHelper->getNewDomXPath($doc);
+        /** @var DOMNodeList $nodeList */
+        $nodeList = $xpath->query('Size', $doc->documentElement);
+
+        /** @var Mock_EbayEnterprise_Catalog_Helper_Map_Attribute $mapAttribute */
+        $mapAttribute = $this->getHelperMock('ebayenterprise_catalog/map_attribute', ['_setOptionValues']);
+        $mapAttribute->expects($this->once())
+            ->method('_setOptionValues')
+            ->with($this->identicalTo('Size'), $this->identicalTo('77'), $this->identicalTo(['en-us' => 'Small']))
+            ->will($this->returnValue($optionId));
+        $this->assertSame($optionId, $mapAttribute->extractSizeValue($nodeList));
     }
 }

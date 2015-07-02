@@ -45,7 +45,7 @@ On installation, the Magento Retail Order Management Extension will create the f
 
 | Attribute Name | Attribute Code  | Description |
 |:---------------|:----------------|:------------|
-| Size           | `size`          | Product size |
+| Size           | `size`          | Product size, if the attribute `size` had already existed in Magento Prior to installing the ROM extension it will be removed and re-installed as a select input type |
 | Style ID       | `style_id`      | Associates simple products to configurable products |
 | Is Clean       | `is_clean`      | Flag indicating if the product has had all of its product links resolved |
 | Unresolved Product Links | `unresolved_product_links` | Any related, cross-sell or up-sell product links for the product that have not yet been resolved, typically due to the target products not existing in Magento yet |

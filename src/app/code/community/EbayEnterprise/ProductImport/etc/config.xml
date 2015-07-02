@@ -263,6 +263,12 @@ http://opensource.org/licenses/osl-3.0.php
                     <method>extractColorValue</method>
                     <xpath>ExtendedAttributes/ColorAttributes/Color</xpath>
                 </color>
+                <size>
+                    <class>ebayenterprise_catalog/map_attribute</class>
+                    <type>helper</type>
+                    <method>extractSizeValue</method>
+                    <xpath>ExtendedAttributes/SizeAttributes/Size</xpath>
+                </size>
                 <configurable_attributes_data>
                     <class>ebayenterprise_catalog/map_attribute</class>
                     <type>helper</type>

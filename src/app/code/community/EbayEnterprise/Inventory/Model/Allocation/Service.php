@@ -23,14 +23,17 @@ class EbayEnterprise_Inventory_Model_Allocation_Service
     protected $inventorySession;
     /** @var EbayEnterprise_Inventory_Helper_Data */
     protected $invHelper;
+    /** @var EbayEnterprise_Inventory_Model_Quantity_Service */
+    protected $quantityService;
 
     public function __construct($init = [])
     {
-        list($this->invHelper, $this->logger, $this->logContext) =
+        list($this->invHelper, $this->logger, $this->logContext, $this->quantityService) =
             $this->checkTypes(
                 $this->nullCoalesce($init, 'inv_helper', Mage::helper('ebayenterprise_inventory')),
                 $this->nullCoalesce($init, 'logger', Mage::helper('ebayenterprise_magelog')),
-                $this->nullCoalesce($init, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
+                $this->nullCoalesce($init, 'log_context', Mage::helper('ebayenterprise_magelog/context')),
+                $this->nullCoalesce($init, 'quantity_service', Mage::getModel('ebayenterprise_inventory/quantity_service'))
             );
     }
 
@@ -41,11 +44,14 @@ class EbayEnterprise_Inventory_Model_Allocation_Service
      * @param  EbayEnterprise_MageLog_Helper_Data
      * @param  EbayEnterprise_MageLog_Helper_Context
      * @param  EbayEnterprise_Inventory_Helper_Details_Factory
+     * @param  EbayEnterprise_Inventory_Model_Quantity_Service
+     * @return array
      */
     protected function checkTypes(
         EbayEnterprise_Inventory_Helper_Data $invHelper,
         EbayEnterprise_MageLog_Helper_Data $logger,
-        EbayEnterprise_MageLog_Helper_Context $logContext
+        EbayEnterprise_MageLog_Helper_Context $logContext,
+        EbayEnterprise_Inventory_Model_Quantity_Service $quantityService
     ) {
         return func_get_args();
     }
@@ -173,23 +179,10 @@ class EbayEnterprise_Inventory_Model_Allocation_Service
         /** @var Mage_Sales_Model_Quote_Item[] $items */
         $items = $quote->getAllVisibleItems();
         foreach ($items as $item) {
-            /** @var Mage_CatalogInventory_Model_Stock_Item $stockItem */
-            $stockItem = $item->getProduct()->getStockItem();
-            if ($this->isAllocatable($stockItem)) {
+            if ($this->quantityService->canSendInventoryAllocation($item)) {
                 return false;
             }
         }
         return true;
-    }
-
-    /**
-     * Check if the given quote item is allocatable.
-     *
-     * @param  Mage_CatalogInventory_Model_Stock_Item
-     * @return bool
-     */
-    protected function isAllocatable(Mage_CatalogInventory_Model_Stock_Item $stockItem)
-    {
-        return ((int) $stockItem->getBackorders() === Mage_CatalogInventory_Model_Stock::BACKORDERS_NO || (int) $stockItem->getQty());
     }
 }

@@ -32,15 +32,18 @@ class EbayEnterprise_Inventory_Model_Details_Service
     protected $invHelper;
     /** @var array */
     protected $quoteItemDetails = [];
+    /** @var EbayEnterprise_Inventory_Model_Quantity_Service */
+    protected $quantityService;
 
     public function __construct($init = [])
     {
-        list($this->invHelper, $this->logger, $this->logContext, $this->factory) =
+        list($this->invHelper, $this->logger, $this->logContext, $this->factory, $this->quantityService) =
             $this->checkTypes(
                 $this->nullCoalesce($init, 'inv_helper', Mage::helper('ebayenterprise_inventory')),
                 $this->nullCoalesce($init, 'logger', Mage::helper('ebayenterprise_magelog')),
                 $this->nullCoalesce($init, 'log_context', Mage::helper('ebayenterprise_magelog/context')),
-                $this->nullCoalesce($init, 'factory', Mage::helper('ebayenterprise_inventory/details_factory'))
+                $this->nullCoalesce($init, 'factory', Mage::helper('ebayenterprise_inventory/details_factory')),
+                $this->nullCoalesce($init, 'quantity_service', Mage::getModel('ebayenterprise_inventory/quantity_service'))
             );
     }
 
@@ -51,12 +54,15 @@ class EbayEnterprise_Inventory_Model_Details_Service
      * @param  EbayEnterprise_MageLog_Helper_Data
      * @param  EbayEnterprise_MageLog_Helper_Context
      * @param  EbayEnterprise_Inventory_Helper_Details_Factory
+     * @param  EbayEnterprise_Inventory_Model_Quantity_Service
+     * @return array
      */
     protected function checkTypes(
         EbayEnterprise_Inventory_Helper_Data $invHelper,
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_MageLog_Helper_Context $logContext,
-        EbayEnterprise_Inventory_Helper_Details_Factory $factory
+        EbayEnterprise_Inventory_Helper_Details_Factory $factory,
+        EbayEnterprise_Inventory_Model_Quantity_Service $quantityService
     ) {
         return func_get_args();
     }
@@ -107,14 +113,13 @@ class EbayEnterprise_Inventory_Model_Details_Service
     {
         if ($item->getHasChildren()) {
             foreach ($item->getChildren() as $childItem) {
-                $childStock = $childItem->getProduct()->getStockItem();
-                if ($this->isAllowedInventoryDetail($childStock)) {
+                if ($this->quantityService->canSendInventoryDetail($childItem)) {
                     return true;
                 }
             }
             return false;
         }
-        return $this->isAllowedInventoryDetail($item->getProduct()->getStockItem());
+        return $this->quantityService->canSendInventoryDetail($item);
     }
 
     /**
@@ -132,18 +137,6 @@ class EbayEnterprise_Inventory_Model_Details_Service
             return $childItem->getId();
         }
         return $item->getId();
-    }
-
-    /**
-     * Return true when the quantity of inventory stock item is greater than zero
-     * otherwise return false.
-     *
-     * @param  Mage_CatalogInventory_Model_Stock_Item
-     * @return bool
-     */
-    protected function isAllowedInventoryDetail(Mage_CatalogInventory_Model_Stock_Item $stock)
-    {
-        return $stock->getQty() > 0;
     }
 
     /**

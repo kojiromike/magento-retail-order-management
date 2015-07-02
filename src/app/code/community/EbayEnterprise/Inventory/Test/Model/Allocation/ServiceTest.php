@@ -132,6 +132,11 @@ class EbayEnterprise_Inventory_Test_Model_Allocation_ServiceTest extends EbayEnt
      */
     public function testIsAllItemBackorderableAndOutOfStock($isAllocatable, $result)
     {
+        /** @var EbayEnterprise_Inventory_Model_Quantity_Service $quantityService */
+        $quantityService = $this->getModelMock('ebayenterprise_inventory/quantity_service', ['canSendInventoryAllocation']);
+        $quantityService->expects($this->once())
+            ->method('canSendInventoryAllocation')
+            ->will($this->returnValue($isAllocatable));
         /** @var Mage_CatalogInventory_Model_Stock_Item $stockItem */
         $stockItem = Mage::getModel('cataloginventory/stock_item');
         /** @var Mage_Catalog_Model_Product $product */
@@ -141,43 +146,9 @@ class EbayEnterprise_Inventory_Test_Model_Allocation_ServiceTest extends EbayEnt
         /** @var Mage_Sales_Model_Quote $quote */
         $quote = Mage::getModel('sales/quote')->addItem($item);
         /** Mock_EbayEnterprise_Inventory_Model_Allocation_Service $allocationService */
-        $allocationService = $this->getModelMock('ebayenterprise_inventory/allocation_service', ['isAllocatable']);
-        $allocationService->expects($this->once())
-            ->method('isAllocatable')
-            ->with($this->identicalTo($stockItem))
-            ->will($this->returnValue($isAllocatable));
+        $allocationService = Mage::getModel('ebayenterprise_inventory/allocation_service', [
+            'quantity_service' => $quantityService,
+        ]);
         $this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($allocationService, 'isAllItemBackorderableAndOutOfStock', [$quote]));
-    }
-
-    /**
-     * @return array
-     */
-    public function providerIsAllocatable()
-    {
-        return [
-            [Mage_CatalogInventory_Model_Stock::BACKORDERS_NO, 0, true],
-            [Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NONOTIFY, 0, false],
-            [Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY, 1, true],
-        ];
-    }
-
-    /**
-     * Test that the method ebayenterprise_inventory/allocation_service::isAllocatable()
-     * when invoked, will return true when either the method cataloginventory/stock_item::getBackorders()
-     * is equal to the class constant Mage_CatalogInventory_Model_Stock::BACKORDERS_NO or when
-     * the method cataloginventory/stock_item::getQty() return a value greater than zero. Otherwise,
-     * the method ebayenterprise_inventory/allocation_service::isAllocatable() will return false.
-     *
-     * @param int
-     * @param int
-     * @param bool
-     * @dataProvider providerIsAllocatable
-     */
-    public function testIsAllocatable($backorders, $qty, $result)
-    {
-        /** @var Mage_CatalogInventory_Model_Stock_Item $stockItem */
-        $stockItem = Mage::getModel('cataloginventory/stock_item', ['backorders' => $backorders, 'qty' => $qty]);
-        $allocationService = Mage::getModel('ebayenterprise_inventory/allocation_service');
-        $this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($allocationService, 'isAllocatable', [$stockItem]));
     }
 }

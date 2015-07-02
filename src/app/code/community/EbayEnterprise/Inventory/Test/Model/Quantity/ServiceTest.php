@@ -738,6 +738,8 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
         $itemQty = 1;
         /** @var int $qty */
         $rowQty = 1;
+        /** @var int $availableQty */
+        $availableQty = 0;
         /** @var Mock_Mage_CatalogInventory_Model_Stock_Item $stockItem */
         $stockItem = $this->getModelMock('catalogInventory/stock_item', ['getBackorders', 'checkQuoteItemQty']);
         $stockItem->expects($this->once())
@@ -767,11 +769,15 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
             ->with($this->identicalTo($backorder))
             ->will($this->returnSelf());
 
-        $quantityService = $this->getModelMock('ebayenterprise_inventory/quantity_service', ['_calculateTotalQuantityRequested']);
+        $quantityService = $this->getModelMock('ebayenterprise_inventory/quantity_service', ['_calculateTotalQuantityRequested', '_getAvailableQuantityForItem']);
         $quantityService->expects($this->once())
             ->method('_calculateTotalQuantityRequested')
             ->with($this->identicalTo($quoteItem))
             ->will($this->returnValue($rowQty));
+        $quantityService->expects($this->once())
+            ->method('_getAvailableQuantityForItem')
+            ->with($this->identicalTo($quoteItem))
+            ->will($this->returnValue($availableQty));
         $this->assertSame($quantityService, EcomDev_Utils_Reflection::invokeRestrictedMethod($quantityService, '_notifyCustomerIfItemBackorderable', [$quoteItem]));
     }
 }

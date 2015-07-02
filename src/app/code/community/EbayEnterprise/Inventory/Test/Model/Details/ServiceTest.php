@@ -75,27 +75,27 @@ class EbayEnterprise_Inventory_Test_Model_Details_ServiceTest extends EbayEnterp
             ->with($this->isInstanceOf('Mage_Sales_Model_Quote'))
             ->will($this->returnValue($result));
 
+        $quantityService = $this->getModelMock('ebayenterprise_inventory/quantity_service', ['canSendInventoryDetail']);
+        $quantityService->expects($this->once())
+            ->method('canSendInventoryDetail')
+            ->will($this->returnValue(true));
+
         // start the test
         $detailService = Mage::getModel('ebayenterprise_inventory/details_service', [
             'factory' => $this->factory,
             'logger' => $this->logger,
-            'log_context' => $this->logContext]);
+            'log_context' => $this->logContext,
+            'quantity_service' => $quantityService,
+        ]);
 
         $quote = $this->getModelMock('sales/quote');
-        $item = $this->getModelMock('sales/quote_item', ['getQuote', 'getId', 'getProduct']);
+        $item = $this->getModelMock('sales/quote_item', ['getQuote', 'getId']);
         $item->expects($this->once())
             ->method('getQuote')
             ->will($this->returnValue($quote));
         $item->expects($this->once())
             ->method('getId')
             ->will($this->returnValue(1));
-        $product = Mage::getModel('catalog/product', ['stock_item' => Mage::getModel('catalogInventory/stock_item', [
-            'backorders' => Mage_CatalogInventory_Model_Stock::BACKORDERS_NO,
-            'qty' => 1,
-        ])]);
-        $item->expects($this->once())
-            ->method('getProduct')
-            ->will($this->returnValue($product));
         $detail = $detailService->getDetailsForItem($item);
         $this->assertInstanceOf('EbayEnterprise_Inventory_Model_Details_Item', $detail);
     }
@@ -289,15 +289,17 @@ class EbayEnterprise_Inventory_Test_Model_Details_ServiceTest extends EbayEnterp
      */
     public function testIsItemAllowInventoryDetail(Mage_Sales_Model_Quote_Item_Abstract $item, $isAllowedInventoryDetail, $result)
     {
-        $detailService = $this->getModelMock('ebayenterprise_inventory/details_service', ['isAllowedInventoryDetail'], false, [[
+        $quantityService = $this->getModelMock('ebayenterprise_inventory/quantity_service', ['canSendInventoryDetail']);
+        $quantityService->expects($this->any())
+            ->method('canSendInventoryDetail')
+            ->will($this->returnValue($isAllowedInventoryDetail));
+
+        $detailService = Mage::getModel('ebayenterprise_inventory/details_service', [
             'factory' => $this->factory,
             'logger' => $this->logger,
-            'log_context' => $this->logContext
-        ]]);
-        $detailService->expects($this->once())
-            ->method('isAllowedInventoryDetail')
-            ->with($this->isInstanceOf('Mage_CatalogInventory_Model_Stock_Item'))
-            ->will($this->returnValue($isAllowedInventoryDetail));
+            'log_context' => $this->logContext,
+            'quantity_service' => $quantityService,
+        ]);
 
         $this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($detailService, 'isItemAllowInventoryDetail', [$item]));
     }

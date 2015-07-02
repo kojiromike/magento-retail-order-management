@@ -97,7 +97,40 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
     public function isItemAvailable(Mage_Sales_Model_Quote_Item_Abstract $item)
     {
         $availableQuantity = $this->_getAvailableQuantityForItem($item);
-        return $this->_calculateTotalQuantityRequested($item) <= $availableQuantity;
+        return $this->isItemBackorderable($item, $availableQuantity) || $this->_calculateTotalQuantityRequested($item) <= $availableQuantity;
+    }
+
+    /**
+     * Check if inventory detail can be sent.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @return bool
+     */
+    public function canSendInventoryDetail(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        return $this->isRequestedItemAvailable($item);
+    }
+
+    /**
+     * Check if inventory allocation can be sent.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @return bool
+     */
+    public function canSendInventoryAllocation(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        return $this->isRequestedItemAvailable($item);
+    }
+
+    /**
+     * Check whether an item quantity requested in ROM is within the range of the available quantity ROM has in stock.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @return bool
+     */
+    protected function isRequestedItemAvailable(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        return $this->_calculateTotalQuantityRequested($item) <= $this->_getAvailableQuantityForItem($item);
     }
 
     /**
@@ -277,14 +310,19 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
     protected function _notifyCustomerIfItemBackorderable(Mage_Sales_Model_Quote_Item_Abstract $quoteItem)
     {
         /** @var Mage_CatalogInventory_Model_Stock_Item $stockItem */
-        $stockItem = $quoteItem->getProduct()->getStockItem();
-        if ((int) $stockItem->getBackorders() === Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY) {
-            /** @var float */
-            $qty = $quoteItem->getQty();
+        $stockItem = $this->getItemProductStockItem($quoteItem);
+        /** @var float $quoteItemQty */
+        $quoteItemQty = $quoteItem->getQty();
+        /** @var float $romQtyAvailable */
+        $romQtyAvailable = $this->_getAvailableQuantityForItem($quoteItem);
+        if ($romQtyAvailable < $quoteItemQty && (int) $stockItem->getBackorders() === Mage_CatalogInventory_Model_Stock::BACKORDERS_YES_NOTIFY) {
+            // Setting the stock item quantity to the quantity available in ROM in order to get Vanilla Magento
+            // backorderable message about item out of stock but backorderable to display for this item in the cart.
+            $stockItem->setQty($romQtyAvailable);
             /** @var float */
             $rowQty = $this->_calculateTotalQuantityRequested($quoteItem);
             /** @var Varien_Object */
-            $result = $stockItem->checkQuoteItemQty($rowQty, $qty);
+            $result = $stockItem->checkQuoteItemQty($rowQty, $quoteItemQty);
 
             if (!is_null($result->getMessage())) {
                 $quoteItem->setMessage($result->getMessage());
@@ -295,5 +333,30 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
             }
         }
         return $this;
+    }
+
+    /**
+     * When an item has no stock in ROM and is set to backorderable in Magento, then return true,
+     * otherwise return false as this item is not backorderable it is simply out of stock in ROM.
+     *
+     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @param  int
+     * @return bool
+     */
+    protected function isItemBackorderable(Mage_Sales_Model_Quote_Item_Abstract $quoteItem, $romAvailableQuantity)
+    {
+        return ($romAvailableQuantity <= $quoteItem->getQty())
+            && ($this->getItemProductStockItem($quoteItem)->getBackorders() > Mage_CatalogInventory_Model_Stock::BACKORDERS_NO);
+    }
+
+    /**
+     * Get a passed in item product stock item.
+     *
+     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @return Mage_CatalogInventory_Model_Stock_Item
+     */
+    protected function getItemProductStockItem(Mage_Sales_Model_Quote_Item_Abstract $quoteItem)
+    {
+        return $quoteItem->getProduct()->getStockItem();
     }
 }

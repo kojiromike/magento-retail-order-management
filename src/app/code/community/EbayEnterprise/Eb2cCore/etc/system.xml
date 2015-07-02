@@ -1,216 +1,216 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2013-2014 eBay Enterprise, Inc.
+Copyright (c) 2013-2014 eBay Enterprise, Inc.
 
-  NOTICE OF LICENSE
+NOTICE OF LICENSE
 
-  This source file is subject to the Open Software License (OSL 3.0)
-  that is bundled with this package in the file LICENSE.md.
-  It is also available through the world-wide-web at this URL:
-  http://opensource.org/licenses/osl-3.0.php
+This source file is subject to the Open Software License (OSL 3.0)
+that is bundled with this package in the file LICENSE.md.
+It is also available through the world-wide-web at this URL:
+http://opensource.org/licenses/osl-3.0.php
 
-  @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
-  @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+@copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+@license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <config>
-	<tabs>
-		<ebayenterprise translate="label" module="eb2ccore">
-			<label>eBay Enterprise</label>
-			<sort_order>550</sort_order>
-		</ebayenterprise>
-	</tabs>
-	<sections>
-		<eb2ccore translate="label" module="eb2ccore">
-			<class>separator-top</class>
-			<label>Retail Order Management</label>
-			<tab>ebayenterprise</tab>
-			<frontend_type>text</frontend_type>
-			<sort_order>550</sort_order>
-			<show_in_default>1</show_in_default>
-			<show_in_website>1</show_in_website>
-			<show_in_store>1</show_in_store>
-			<groups>
-				<general translate="label">
-					<label>General</label>
-					<comment>eBay Enterprise will provide these values</comment>
-					<frontend_type>text</frontend_type>
-					<sort_order>5</sort_order>
-					<show_in_default>1</show_in_default>
-					<show_in_website>1</show_in_website>
-					<show_in_store>1</show_in_store>
-					<fields>
-						<catalog_id translate="label comment">
-							<label>Catalog Id</label>
-							<sort_order>10</sort_order>
-							<frontend_type>text</frontend_type>
-							<validate>validate-alphanum</validate>
-							<show_in_default>1</show_in_default>
-							<show_in_website>0</show_in_website>
-							<show_in_store>0</show_in_store>
-						</catalog_id>
-						<client_id translate="label">
-							<label>Client Id</label>
-							<sort_order>20</sort_order>
-							<frontend_type>text</frontend_type>
-							<validate>validate-alphanum</validate>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</client_id>
-						<store_id translate="label">
-							<label>Store Id</label>
-							<sort_order>30</sort_order>
-							<frontend_type>text</frontend_type>
-							<validate>validate-alphanum</validate>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</store_id>
-						<language_code translate="label">
-							<label>Store Language Code</label>
-							<comment><![CDATA[Must be a <a href="http://tools.ietf.org/html/bcp47">BCP47</a> valid language code, e.g. "en-us".]]></comment>
-							<sort_order>40</sort_order>
-							<frontend_type>text</frontend_type>
-							<backend_model>eb2ccore/system_config_backend_language_code</backend_model>
-							<validate>validate-language-code</validate>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>1</show_in_store>
-						</language_code>
-						<client_order_id_prefix translate="label">
-							<label>Order Id Prefix</label>
-							<sort_order>50</sort_order>
-							<frontend_type>text</frontend_type>
-							<validate>validate-number</validate>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</client_order_id_prefix>
-						<client_customer_id_prefix translate="label">
-							<label>Customer Id Prefix</label>
-							<sort_order>60</sort_order>
-							<frontend_type>text</frontend_type>
-							<validate>validate-number</validate>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</client_customer_id_prefix>
-						<client_customer_id_length translate="label">
-							<label>Customer Id Length</label>
-							<comment>The length of the Customer Id to generate, excluding the prefix</comment>
-							<sort_order>70</sort_order>
-							<frontend_type>text</frontend_type>
-							<validate>validate-number</validate>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</client_customer_id_length>
-					</fields>
-				</general>
-				<api translate="label">
-					<label>Web Services</label>
-					<frontend_type>text</frontend_type>
-					<sort_order>6</sort_order>
-					<show_in_default>1</show_in_default>
-					<show_in_website>1</show_in_website>
-					<show_in_store>0</show_in_store>
-					<fields>
-						<hostname translate="label">
-							<label>API Hostname</label>
-							<sort_order>10</sort_order>
-							<frontend_type>text</frontend_type>
-							<show_in_default>1</show_in_default>
-							<show_in_website>0</show_in_website>
-							<show_in_store>0</show_in_store>
-						</hostname>
-						<key translate="label">
-							<label>API Key</label>
-							<sort_order>70</sort_order>
-							<frontend_type>obscure</frontend_type>
-							<validate>required-entry</validate>
-							<backend_model>adminhtml/system_config_backend_encrypted</backend_model>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</key>
-						<validate_api_connection translate="button_label">
-							<label/>
-							<sort_order>75</sort_order>
-							<button_label>Test API Connection</button_label>
-							<frontend_model>eb2ccore/system_config_testapiconnection</frontend_model>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</validate_api_connection>
-						<timeout translate="label">
-							<label>API Timeout</label>
-							<comment>Time in milliseconds</comment>
-							<sort_order>80</sort_order>
-							<frontend_type>text</frontend_type>
-							<validate>validate-digits</validate>
-							<show_in_default>1</show_in_default>
-							<show_in_website>0</show_in_website>
-							<show_in_store>0</show_in_store>
-						</timeout>
-					</fields>
-				</api>
-				<feed translate="label">
-					<label>Batch Feeds</label>
-					<frontend_type>text</frontend_type>
-					<sort_order>7</sort_order>
-					<show_in_default>1</show_in_default>
-					<show_in_website>1</show_in_website>
-					<show_in_store>0</show_in_store>
-					<fields>
-						<activeconfig_import>
-							<filetransfer>
-								<sort_order>40</sort_order>
-								<show_in_store>0</show_in_store>
-							</filetransfer>
-						</activeconfig_import>
-						<!-- HACK TO MANUALLY MODIFY THE FIELDS -->
-						<filetransfer_protocol>
-							<show_in_default>0</show_in_default>
-							<show_in_website>0</show_in_website>
-						</filetransfer_protocol>
-						<filetransfer_sftp_auth_type>
-							<show_in_default>0</show_in_default>
-							<show_in_website>0</show_in_website>
-						</filetransfer_sftp_auth_type>
-						<filetransfer_sftp_remote_path>
-							<show_in_default>0</show_in_default>
-							<show_in_website>0</show_in_website>
-						</filetransfer_sftp_remote_path>
-						<filetransfer_sftp_username translate="label">
-							<label>SFTP User Name</label>
-							<validate>validate-required</validate>
-						</filetransfer_sftp_username>
-						<filetransfer_sftp_password translate="label">
-							<label>SFTP Key</label>
-							<comment>The private key for authenticating to the feeds service. (The feeds service must be provided a corresponding public key.)</comment>
-							<validate>required-entry</validate>
-						</filetransfer_sftp_password>
-						<filetransfer_sftp_host translate="label">
-							<backend_model>eb2ccore/system_config_backend_sftp_host</backend_model>
-						</filetransfer_sftp_host>
-						<!-- END HACK -->
-						<sftp_location translate="label">
-							<label>SFTP Location</label>
-							<comment>The sftp url to the feeds service. (sftp://host.gsipartners.com/path)</comment>
-							<validate>validate-required</validate>
-						</sftp_location>
-						<validate_sftp_connection translate="button_label">
-							<label/>
-							<sort_order>75</sort_order>
-							<button_label>Test SFTP Connection</button_label>
-							<frontend_model>eb2ccore/system_config_testsftpconnection</frontend_model>
-							<show_in_default>1</show_in_default>
-							<show_in_website>1</show_in_website>
-							<show_in_store>0</show_in_store>
-						</validate_sftp_connection>
-					</fields>
-				</feed>
-			</groups>
-		</eb2ccore>
-	</sections>
+    <tabs>
+        <ebayenterprise translate="label" module="eb2ccore">
+            <label>eBay Enterprise</label>
+            <sort_order>550</sort_order>
+        </ebayenterprise>
+    </tabs>
+    <sections>
+        <eb2ccore translate="label" module="eb2ccore">
+            <class>separator-top</class>
+            <label>Retail Order Management</label>
+            <tab>ebayenterprise</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>550</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <general translate="label">
+                    <label>General</label>
+                    <comment>eBay Enterprise will provide these values</comment>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>5</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <catalog_id translate="label comment">
+                            <label>Catalog Id</label>
+                            <sort_order>10</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-alphanum</validate>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </catalog_id>
+                        <client_id translate="label">
+                            <label>Client Id</label>
+                            <sort_order>20</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-alphanum</validate>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </client_id>
+                        <store_id translate="label">
+                            <label>Store Id</label>
+                            <sort_order>30</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-alphanum</validate>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </store_id>
+                        <language_code translate="label">
+                            <label>Store Language Code</label>
+                            <comment><![CDATA[Must be a <a href="http://tools.ietf.org/html/bcp47">BCP47</a> valid language code, e.g. "en-us".]]></comment>
+                            <sort_order>40</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <backend_model>eb2ccore/system_config_backend_language_code</backend_model>
+                            <validate>validate-language-code</validate>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </language_code>
+                        <client_order_id_prefix translate="label">
+                            <label>Order Id Prefix</label>
+                            <sort_order>50</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-number</validate>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </client_order_id_prefix>
+                        <client_customer_id_prefix translate="label">
+                            <label>Customer Id Prefix</label>
+                            <sort_order>60</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-number</validate>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </client_customer_id_prefix>
+                        <client_customer_id_length translate="label">
+                            <label>Customer Id Length</label>
+                            <comment>The length of the Customer Id to generate, excluding the prefix</comment>
+                            <sort_order>70</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-number</validate>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </client_customer_id_length>
+                    </fields>
+                </general>
+                <api translate="label">
+                    <label>Web Services</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>6</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <hostname translate="label">
+                            <label>API Hostname</label>
+                            <sort_order>10</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </hostname>
+                        <key translate="label">
+                            <label>API Key</label>
+                            <sort_order>70</sort_order>
+                            <frontend_type>obscure</frontend_type>
+                            <validate>required-entry</validate>
+                            <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </key>
+                        <validate_api_connection translate="button_label">
+                            <label/>
+                            <sort_order>75</sort_order>
+                            <button_label>Test API Connection</button_label>
+                            <frontend_model>eb2ccore/system_config_testapiconnection</frontend_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </validate_api_connection>
+                        <timeout translate="label">
+                            <label>API Timeout</label>
+                            <comment>Time in milliseconds</comment>
+                            <sort_order>80</sort_order>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits</validate>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </timeout>
+                    </fields>
+                </api>
+                <feed translate="label">
+                    <label>Batch Feeds</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>7</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <activeconfig_import>
+                            <filetransfer>
+                                <sort_order>40</sort_order>
+                                <show_in_store>0</show_in_store>
+                            </filetransfer>
+                        </activeconfig_import>
+                        <!-- HACK TO MANUALLY MODIFY THE FIELDS -->
+                        <filetransfer_protocol>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                        </filetransfer_protocol>
+                        <filetransfer_sftp_auth_type>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                        </filetransfer_sftp_auth_type>
+                        <filetransfer_sftp_remote_path>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                        </filetransfer_sftp_remote_path>
+                        <filetransfer_sftp_username translate="label">
+                            <label>SFTP User Name</label>
+                            <validate>validate-required</validate>
+                        </filetransfer_sftp_username>
+                        <filetransfer_sftp_password translate="label">
+                            <label>SFTP Key</label>
+                            <comment>The private key for authenticating to the feeds service. (The feeds service must be provided a corresponding public key.)</comment>
+                            <validate>required-entry</validate>
+                        </filetransfer_sftp_password>
+                        <filetransfer_sftp_host translate="label">
+                            <backend_model>eb2ccore/system_config_backend_sftp_host</backend_model>
+                        </filetransfer_sftp_host>
+                        <!-- END HACK -->
+                        <sftp_location translate="label">
+                            <label>SFTP Location</label>
+                            <comment>The sftp url to the feeds service. (sftp://host.gsipartners.com/path)</comment>
+                            <validate>validate-required</validate>
+                        </sftp_location>
+                        <validate_sftp_connection translate="button_label">
+                            <label/>
+                            <sort_order>75</sort_order>
+                            <button_label>Test SFTP Connection</button_label>
+                            <frontend_model>eb2ccore/system_config_testsftpconnection</frontend_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </validate_sftp_connection>
+                    </fields>
+                </feed>
+            </groups>
+        </eb2ccore>
+    </sections>
 </config>

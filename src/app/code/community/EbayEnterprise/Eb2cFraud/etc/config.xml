@@ -1,108 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright (c) 2013-2014 eBay Enterprise, Inc.
+Copyright (c) 2013-2014 eBay Enterprise, Inc.
 
-  NOTICE OF LICENSE
+NOTICE OF LICENSE
 
-  This source file is subject to the Open Software License (OSL 3.0)
-  that is bundled with this package in the file LICENSE.md.
-  It is also available through the world-wide-web at this URL:
-  http://opensource.org/licenses/osl-3.0.php
+This source file is subject to the Open Software License (OSL 3.0)
+that is bundled with this package in the file LICENSE.md.
+It is also available through the world-wide-web at this URL:
+http://opensource.org/licenses/osl-3.0.php
 
-  @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
-  @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+@copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+@license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <config>
-	<modules>
-		<EbayEnterprise_Eb2cFraud>
-			<version>0.9.0</version>
-		</EbayEnterprise_Eb2cFraud>
-	</modules>
-	<global>
-		<models>
-			<eb2cfraud>
-				<class>EbayEnterprise_Eb2cFraud_Model</class>
-			</eb2cfraud>
-		</models>
-		<fieldsets>
-			<sales_convert_quote>
-				<eb2c_fraud_javascript_data>
-					<to_order>*</to_order>
-				</eb2c_fraud_javascript_data>
-				<eb2c_fraud_host_name>
-					<to_order>*</to_order>
-				</eb2c_fraud_host_name>
-				<eb2c_fraud_ip_address>
-					<to_order>*</to_order>
-				</eb2c_fraud_ip_address>
-				<eb2c_fraud_session_id>
-					<to_order>*</to_order>
-				</eb2c_fraud_session_id>
-				<eb2c_fraud_user_agent>
-					<to_order>*</to_order>
-				</eb2c_fraud_user_agent>
-				<eb2c_fraud_referrer>
-					<to_order>*</to_order>
-				</eb2c_fraud_referrer>
-				<eb2c_fraud_content_types>
-					<to_order>*</to_order>
-				</eb2c_fraud_content_types>
-				<eb2c_fraud_encoding>
-					<to_order>*</to_order>
-				</eb2c_fraud_encoding>
-				<eb2c_fraud_language>
-					<to_order>*</to_order>
-				</eb2c_fraud_language>
-				<eb2c_fraud_char_set>
-					<to_order>*</to_order>
-				</eb2c_fraud_char_set>
-			</sales_convert_quote>
-		</fieldsets>
-		<resources>
-			<eb2cfraud_setup>
-				<setup>
-					<module>EbayEnterprise_Eb2cFraud</module>
-					<class>Mage_Sales_Model_Resource_Setup</class>
-				</setup>
-			</eb2cfraud_setup>
-		</resources>
-		<helpers>
-			<eb2cfraud>
-				<class>EbayEnterprise_Eb2cFraud_Helper</class>
-			</eb2cfraud>
-		</helpers>
-		<blocks>
-			<eb2cfraud>
-				<class>EbayEnterprise_Eb2cFraud_Block</class>
-			</eb2cfraud>
-		</blocks>
-		<events>
-			<!-- Update the order create request with collected context data -->
-			<ebayenterprise_order_create_context>
-				<observers>
-					<ebayenterprise_eb2cfraud_order_create_context_observer>
-						<type>model</type>
-						<class>eb2cfraud/observer</class>
-						<method>handleOrderCreateContextEvent</method>
-					</ebayenterprise_eb2cfraud_order_create_context_observer>
-				</observers>
-			</ebayenterprise_order_create_context>
-		</events>
-	</global>
-	<frontend>
-		<layout>
-			<updates>
-				<eb2cfraud>
-					<file>eb2cfraud.xml</file>
-				</eb2cfraud>
-			</updates>
-		</layout>
-	</frontend>
-	<phpunit>
-		<suite>
-			<modules>
-				<EbayEnterprise_Eb2cFraud/>
-			</modules>
-		</suite>
-	</phpunit>
+    <modules>
+        <EbayEnterprise_Eb2cFraud>
+            <version>0.9.0</version>
+        </EbayEnterprise_Eb2cFraud>
+    </modules>
+    <global>
+        <models>
+            <eb2cfraud>
+                <class>EbayEnterprise_Eb2cFraud_Model</class>
+            </eb2cfraud>
+        </models>
+        <fieldsets>
+            <sales_convert_quote>
+                <eb2c_fraud_javascript_data>
+                    <to_order>*</to_order>
+                </eb2c_fraud_javascript_data>
+                <eb2c_fraud_host_name>
+                    <to_order>*</to_order>
+                </eb2c_fraud_host_name>
+                <eb2c_fraud_ip_address>
+                    <to_order>*</to_order>
+                </eb2c_fraud_ip_address>
+                <eb2c_fraud_session_id>
+                    <to_order>*</to_order>
+                </eb2c_fraud_session_id>
+                <eb2c_fraud_user_agent>
+                    <to_order>*</to_order>
+                </eb2c_fraud_user_agent>
+                <eb2c_fraud_referrer>
+                    <to_order>*</to_order>
+                </eb2c_fraud_referrer>
+                <eb2c_fraud_content_types>
+                    <to_order>*</to_order>
+                </eb2c_fraud_content_types>
+                <eb2c_fraud_encoding>
+                    <to_order>*</to_order>
+                </eb2c_fraud_encoding>
+                <eb2c_fraud_language>
+                    <to_order>*</to_order>
+                </eb2c_fraud_language>
+                <eb2c_fraud_char_set>
+                    <to_order>*</to_order>
+                </eb2c_fraud_char_set>
+            </sales_convert_quote>
+        </fieldsets>
+        <resources>
+            <eb2cfraud_setup>
+                <setup>
+                    <module>EbayEnterprise_Eb2cFraud</module>
+                    <class>Mage_Sales_Model_Resource_Setup</class>
+                </setup>
+            </eb2cfraud_setup>
+        </resources>
+        <helpers>
+            <eb2cfraud>
+                <class>EbayEnterprise_Eb2cFraud_Helper</class>
+            </eb2cfraud>
+        </helpers>
+        <blocks>
+            <eb2cfraud>
+                <class>EbayEnterprise_Eb2cFraud_Block</class>
+            </eb2cfraud>
+        </blocks>
+        <events>
+            <!-- Update the order create request with collected context data -->
+            <ebayenterprise_order_create_context>
+                <observers>
+                    <ebayenterprise_eb2cfraud_order_create_context_observer>
+                        <type>model</type>
+                        <class>eb2cfraud/observer</class>
+                        <method>handleOrderCreateContextEvent</method>
+                    </ebayenterprise_eb2cfraud_order_create_context_observer>
+                </observers>
+            </ebayenterprise_order_create_context>
+        </events>
+    </global>
+    <frontend>
+        <layout>
+            <updates>
+                <eb2cfraud>
+                    <file>eb2cfraud.xml</file>
+                </eb2cfraud>
+            </updates>
+        </layout>
+    </frontend>
+    <phpunit>
+        <suite>
+            <modules>
+                <EbayEnterprise_Eb2cFraud/>
+            </modules>
+        </suite>
+    </phpunit>
 </config>

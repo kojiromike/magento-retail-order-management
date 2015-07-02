@@ -1,16 +1,16 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (c) 2013-2014 eBay Enterprise, Inc.
+Copyright (c) 2013-2014 eBay Enterprise, Inc.
 
-    NOTICE OF LICENSE
+NOTICE OF LICENSE
 
-    This source file is subject to the Open Software License (OSL 3.0)
-    that is bundled with this package in the file LICENSE.md.
-    It is also available through the world-wide-web at this URL:
-    http://opensource.org/licenses/osl-3.0.php
+This source file is subject to the Open Software License (OSL 3.0)
+that is bundled with this package in the file LICENSE.md.
+It is also available through the world-wide-web at this URL:
+http://opensource.org/licenses/osl-3.0.php
 
-    @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
-    @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+@copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+@license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <layout>
     <checkout_onepage_review translate="label">
@@ -18,11 +18,22 @@
         <!-- Mage_Checkout -->
         <remove name="right"/>
         <remove name="left"/>
-
         <block type="checkout/onepage_review_info" name="root" output="toHtml" template="ebayenterprise_inventory/checkout/onepage/review/info.phtml">
-            <action method="addItemRender"><type>default</type><block>checkout/cart_item_renderer</block><template>ebayenterprise_inventory/checkout/onepage/review/item.phtml</template></action>
-            <action method="addItemRender"><type>grouped</type><block>checkout/cart_item_renderer_grouped</block><template>ebayenterprise_inventory/checkout/onepage/review/item.phtml</template></action>
-            <action method="addItemRender"><type>configurable</type><block>checkout/cart_item_renderer_configurable</block><template>ebayenterprise_inventory/checkout/onepage/review/item.phtml</template></action>
+            <action method="addItemRender">
+                <type>default</type>
+                <block>checkout/cart_item_renderer</block>
+                <template>ebayenterprise_inventory/checkout/onepage/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>checkout/cart_item_renderer_grouped</block>
+                <template>ebayenterprise_inventory/checkout/onepage/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>checkout/cart_item_renderer_configurable</block>
+                <template>ebayenterprise_inventory/checkout/onepage/review/item.phtml</template>
+            </action>
             <block type="checkout/cart_totals" name="checkout.onepage.review.info.totals" as="totals" template="ebayenterprise_inventory/checkout/onepage/review/totals.phtml"/>
             <block type="core/text_list" name="checkout.onepage.review.info.items.before" as="items_before" translate="label">
                 <label>Items Before</label>

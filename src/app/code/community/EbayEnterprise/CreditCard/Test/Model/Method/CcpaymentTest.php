@@ -403,4 +403,95 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest extends EbayEnte
         );
         $this->assertSame(10, $result);
     }
+
+    /**
+     * Scenario: Prepare API Request for virtual order
+     * Given A virtual order. And A billing address.
+     * When An API request is prepared for the order.
+     * Then The API request body is set.
+     * And The API request body uses the billing address for the shipping address.
+     */
+    public function testPrepareApiRequest()
+    {
+        /** @var array $billingData */
+        $billingData = [
+            'firstname' => 'Someone',
+            'lastname' => 'Somebody',
+            'telephone' => '555-555-5555',
+            'street' => '630 Allendale Rd',
+            'city' => 'King of Prussia',
+            'region_code' => 'PA',
+            'country' => 'US',
+            'postcode' => '19604',
+        ];
+        /** @var Mage_Sales_Model_Order_Address $shippingAddress */
+        $shippingAddress = Mage::getModel('sales/order_address', ['id' => 1]);
+        /** @var Mage_Sales_Model_Order_Address $billingAddress */
+        $billingAddress = Mage::getModel('sales/order_address', array_merge($billingData, ['id' => 2]));
+        /** @var Mage_Sales_Model_Order $order */
+        $order = Mage::getModel('sales/order', [
+            'is_virtual' => true
+        ]);
+        $order->setShippingAddress($shippingAddress)
+            ->setBillingAddress($billingAddress);
+        /** @var Mage_Sales_Model_Order_Payment $orderPayment */
+        $orderPayment = Mage::getModel('sales/order_payment', ['cc_exp_year' => 2023, 'cc_exp_month' => 8])->setOrder($order);
+
+        $mockMethods = [
+            'setIsEncrypted' => null,
+            'setRequestId' => null,
+            'setOrderId' => null,
+            'setPanIsToken' => null,
+            'setCardNumber' => null,
+            'setExpirationDate' => null,
+            'setCardSecurityCode' => null,
+            'setAmount' => null,
+            'setCurrencyCode' => null,
+            'setEmail' => null,
+            'setIp' => null,
+            'setBillingFirstName' => $billingData['firstname'],
+            'setBillingLastName' => $billingData['lastname'],
+            'setBillingPhone' => $billingData['telephone'],
+            'setBillingLines' => $billingData['street'],
+            'setBillingCity' => $billingData['city'],
+            'setBillingMainDivision' => $billingData['region_code'],
+            'setBillingCountryCode' => $billingData['country'],
+            'setBillingPostalCode' => $billingData['postcode'],
+            // Expecting shipping setter methods for the request payload to be
+            // fill-out with billing data.
+            'setShipToFirstName' => $billingData['firstname'],
+            'setShipToLastName' => $billingData['lastname'],
+            'setShipToPhone' => $billingData['telephone'],
+            'setShipToLines' => $billingData['street'],
+            'setShipToCity' => $billingData['city'],
+            'setShipToMainDivision' => $billingData['region_code'],
+            'setShipToCountryCode' => $billingData['country'],
+            'setShipToPostalCode' => $billingData['postcode'],
+        ];
+        /** @var ICreditCardAuthRequest $request **/
+        $request = $this->getMockForAbstractClass('\eBayEnterprise\RetailOrderManagement\Payload\Payment\ICreditCardAuthRequest', [], '', true, true, true, array_keys($mockMethods));
+        foreach ($mockMethods as $method => $with) {
+            if (is_null($with)) {
+                $request->expects($this->once())
+                    ->method($method)
+                    ->will($this->returnSelf());
+            } else {
+                // Using "with" only when there's an actual value
+                $request->expects($this->once())
+                    ->method($method)
+                    ->with($this->identicalTo($with))
+                    ->will($this->returnSelf());
+            }
+        }
+        /** @var IBidirectionalApi $api */
+        $api = $this->getMockForAbstractClass('\eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi', [], '', true, true, true, ['getRequestBody']);
+        $api->expects($this->once())
+            ->method('getRequestBody')
+            ->will($this->returnValue($request));
+
+        /** @var EbayEnterprise_CreditCard_Model_Method_Ccpayment $payment */
+        $payment = Mage::getModel('ebayenterprise_creditcard/method_ccpayment');
+
+        $this->assertSame($payment, EcomDev_Utils_Reflection::invokeRestrictedMethod($payment, '_prepareApiRequest', [$api, $orderPayment]));
+    }
 }

@@ -274,6 +274,7 @@ class EbayEnterprise_Inventory_Model_Details
     /**
      * determine if the quote has a usable shipping address
      *
+     * @param  Mage_Sales_Model_Quote
      * @return bool
      */
     protected function hasUsableAddress(Mage_Sales_Model_Quote $quote)
@@ -282,7 +283,7 @@ class EbayEnterprise_Inventory_Model_Details
             $quote->getShippingAddress(),
             $this->getAlternateAddress($quote)
         );
-        return $this->isValidPhysicalAddress($usableAddress);
+        return $usableAddress && $this->isValidPhysicalAddress($usableAddress);
     }
 
     /**

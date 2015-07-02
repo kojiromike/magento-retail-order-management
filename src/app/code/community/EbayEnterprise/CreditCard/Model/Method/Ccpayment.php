@@ -315,7 +315,7 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
         $request = $api->getRequestBody();
         $order = $payment->getOrder();
         $billingAddress = $order->getBillingAddress();
-        $shippingAddress = $order->getShippingAddress() ?: $billingAddress;
+        $shippingAddress = $order->getIsVirtual() ? $billingAddress : $order->getShippingAddress();
         $request
             ->setIsEncrypted($this->_isUsingClientSideEncryption)
             ->setRequestId($this->_coreHelper->generateRequestId('CCA-'))

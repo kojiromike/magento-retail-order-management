@@ -1,0 +1,11 @@
+#!/bin/sh
+
+##
+# Find all files without a trailing new line and add it.
+
+export LC_ALL=C
+find . \( -name build -o -name .git -o -empty -o -name '*.png' \) -prune \
+    -o -type f \( \
+        -exec bash -c 'x=$(tail -c1 "$1" | tr -d $"\n"); exit "${#x}"' _ {} \; \
+        -o -exec bash -c 'ed "$1" <<< wq' _ {} \; \
+    \)

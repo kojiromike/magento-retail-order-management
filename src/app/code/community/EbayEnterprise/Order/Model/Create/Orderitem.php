@@ -151,8 +151,8 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      */
     protected function loadOrderItemOptions(Mage_Sales_Model_Order_Item $item)
     {
-        $buyRequest = $item->getProductOptionByCode('info_BuyRequest');
-        $attrs = isset($buyRequest['super_attributes']) ? $buyRequest['super_attributes'] : [];
+        $buyRequest = $item->getProductOptionByCode('info_buyRequest');
+        $attrs = isset($buyRequest['super_attribute']) ? $buyRequest['super_attribute'] : [];
         $attrTable = ['attribute_table' => Mage::getSingleton('core/resource')->getTableName('eav/attribute')];
         $options = Mage::getResourceModel('eav/entity_attribute_option_collection');
         // join with the attribute table to get the attribute code.

@@ -1,10 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Unreleased Changes
+## [1.6.0-alpha-6] - 2015-07-02
 ### Added
 - Support for bundle and group product types for inventory allocation operations
-- Support for estimated delivery date for backorderable products that is in stock
+- Support for estimated delivery date for backorderable products that are in stock
 - Support importing custom product attributes without explicit import map
 - Support sending zero-padding Customer Id in OCR and registered customer Account Pages in order to import customers from other web-stores
 
@@ -14,6 +14,11 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Estimated Delivery Date does not display for both configurable and gift-card physical products in checkout review page
 - Fatal Error found when cancelling an order that was not originally created within the current webstore
+- Fatal error during checkout with discount
+- Order Create Request order items are missing ShippingMethod
+- Email and Last Name Fields are case sensitive on Orders and Returns Screen
+- PayPal SetExpress totals do not add up
+- Address validation fatal error when receiving response code "P"
 
 ## [1.6.0-alpha-5] - 2015-06-18
 ### Added
@@ -299,6 +304,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-alpha-6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-5...1.6.0-alpha-6
 [1.6.0-alpha-5]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-4...1.6.0-alpha-5
 [1.6.0-alpha-4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-3...1.6.0-alpha-4
 [1.6.0-alpha-3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-2...1.6.0-alpha-3

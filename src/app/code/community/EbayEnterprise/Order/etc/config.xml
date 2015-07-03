@@ -60,6 +60,12 @@ http://opensource.org/licenses/osl-3.0.php
                     <order_info>EbayEnterprise_Order_Overrides_Block_Order_Rma_Info</order_info>
                 </rewrite>
             </enterprise_rma>
+            <checkout>
+                <rewrite>
+                    <onepage_success>EbayEnterprise_Order_Overrides_Block_Checkout_Onepage_Success</onepage_success>
+                    <multishipping_success>EbayEnterprise_Order_Overrides_Block_Checkout_Multishipping_Success</multishipping_success>
+                </rewrite>
+            </checkout>
         </blocks>
         <models>
             <ebayenterprise_order>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StoredValueBalanceReply xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
+    <PaymentAccountUniqueId isToken="true">81112211299000111191</PaymentAccountUniqueId>
+    <ResponseCode>Success</ResponseCode>
+    <BalanceAmount currencyCode="USD">1000.00</BalanceAmount>
+</StoredValueBalanceReply>

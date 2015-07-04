@@ -15,6 +15,18 @@
 
 class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
+    /** @var EbayEnterprise_Eb2cCore_Helper_Data $coreHelper */
+    protected $coreHelper;
+    /** @var EbayEnterprise_GiftCard_Helper_Data $giftCardHelper */
+    protected $giftCardHelper;
+
+    public function setUp()
+    {
+        parent::setUp();
+        $this->coreHelper = Mage::helper('eb2ccore');
+        $this->giftCardHelper = Mage::helper('ebayenterprise_giftcard');
+    }
+
     /**
      * Test looking up a card's tender type based on a set of configured card
      * number ranges.
@@ -66,7 +78,7 @@ class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
             ->will($this->returnSelf());
 
         // attempt to add the gift card to the order
-        Mage::helper('ebayenterprise_giftcard')->addGiftCardToOrder($card);
+        $this->giftCardHelper->addGiftCardToOrder($card);
 
         // card should be in the container
         $this->assertSame(
@@ -90,7 +102,7 @@ class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
             ->will($this->returnSelf());
 
         // attempt to add the gift card to the order
-        Mage::helper('ebayenterprise_giftcard')->addGiftCardToOrder($card);
+        $this->giftCardHelper->addGiftCardToOrder($card);
 
         // zero balance gift card should result in new error message in the checkout session
         $this->assertCount(1, $session->getMessages()->getErrors());
@@ -116,7 +128,7 @@ class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
             ->will($this->throwException(new EbayEnterprise_GiftCard_Exception));
 
         // attempt to add the gift card to the order
-        Mage::helper('ebayenterprise_giftcard')->addGiftCardToOrder($card);
+        $this->giftCardHelper->addGiftCardToOrder($card);
 
         // gift card balance check failures should result in new error message
         $this->assertCount(1, $session->getMessages()->getErrors());

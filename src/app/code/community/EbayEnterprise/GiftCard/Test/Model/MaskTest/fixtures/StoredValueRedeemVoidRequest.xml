@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StoredValueRedeemVoidRequest requestId="GCV-559eb39403240" xmlns="http://api.gsicommerce.com/schema/checkout/1.0">
+    <PaymentContext>
+        <OrderId>000545400500861</OrderId>
+        <PaymentAccountUniqueId isToken="true">81112211299000111191</PaymentAccountUniqueId>
+    </PaymentContext>
+    <Pin>7854</Pin>
+    <Amount currencyCode="USD">26.91</Amount>
+</StoredValueRedeemVoidRequest>

@@ -15,6 +15,9 @@
 
 class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
+    /** @var EbayEnterprise_GiftCard_Model_Giftcard $giftCard */
+    protected $giftCard;
+
     public function setUp()
     {
         parent::setUp();
@@ -25,6 +28,7 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
             ->setMethods(null)
             ->getMock();
         $this->replaceByMock('singleton', 'core/session', $session);
+        $this->giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard');
     }
 
     /**
@@ -36,7 +40,7 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
      */
     public function testSetPayloadAccountUniqueId($giftCardData, $cardNumber, $isToken)
     {
-        $giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard');
+        $giftCard = $this->giftCard;
         foreach ($giftCardData as $accessorMethod => $value) {
             $giftCard->$accessorMethod($value);
         }
@@ -84,7 +88,7 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
 
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
-            Mage::getModel('ebayenterprise_giftcard/giftcard'),
+            $this->giftCard,
             '_sendRequest',
             array($api)
         );
@@ -97,7 +101,7 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
         $origNumber = '123412341234';
         $origTokenized = '1234abcd1234';
         $newNumber = '555555555555';
-        $gc = Mage::getModel('ebayenterprise_giftcard/giftcard');
+        $gc = $this->giftCard;
         $gc->setCardNumber($origNumber)->setTokenizedCardNumber($origTokenized);
         // check some pre-conditions - card number and tokenized number are set
         $this->assertSame($origNumber, $gc->getCardNumber());
@@ -124,7 +128,7 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
 
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
-            Mage::getModel('ebayenterprise_giftcard/giftcard'),
+            $this->giftCard,
             '_handleBalanceResponse',
             array($api)
         );
@@ -145,7 +149,7 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
 
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
-            Mage::getModel('ebayenterprise_giftcard/giftcard'),
+            $this->giftCard,
             '_handleRedeemResponse',
             array($api)
         );
@@ -166,9 +170,97 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
 
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
-            Mage::getModel('ebayenterprise_giftcard/giftcard'),
+            $this->giftCard,
             '_handleVoidResponse',
             array($api)
         );
+    }
+
+    /**
+     * @return array
+     */
+    public function providerLogStoredValuePayload()
+    {
+        return [
+            [
+                '\eBayEnterprise\RetailOrderManagement\Payload\Payment\IStoredValueBalanceRequest',
+                true,
+                '<StoredValueBalanceRequest/>',
+                '<StoredValueBalanceRequest/>',
+                'Sending StoredValueBalanceRequest.'
+            ],
+            [
+                '\eBayEnterprise\RetailOrderManagement\Payload\Payment\IStoredValueBalanceReply',
+                false,
+                '<StoredValueBalanceReply/>',
+                '<StoredValueBalanceReply/>',
+                'Receive StoredValueBalanceReply.'
+            ],
+        ];
+    }
+
+    /**
+     * Scenario: Mask API Request/Response XML Payload sensitive data and log
+     * Given an API Request/Response, a flag indicating log request or log response, and the message to log.
+     * When Log payload for API request/response.
+     * Then the sensitive data in the request/response are masked and logged.
+     *
+     * @param string
+     * @param bool
+     * @param string
+     * @param string
+     * @param string
+     * @dataProvider providerLogStoredValuePayload
+     */
+    public function testLogStoredValuePayload($payloadClass, $isRequest, $xml, $maskXml, $message)
+    {
+        /** @var EbayEnterprise_Giftcard_Helper_Data */
+        $mask = $this->getModelMock('ebayenterprise_giftcard/mask', ['maskXmlNodes']);
+        $mask->expects($this->once())
+            ->method('maskXmlNodes')
+            ->with($this->identicalTo($xml))
+            ->will($this->returnValue($maskXml));
+
+        /** @var array */
+        $metaData = $isRequest ? ['rom_request_body' => $maskXml] : ['rom_response_body' => $maskXml];
+        /** @var Mock_EbayEnterprise_MageLog_Helper_Data */
+        $logger = $this->getHelperMock('ebayenterprise_magelog/data', ['debug']);
+        $logger->expects($this->once())
+            ->method('debug')
+            ->with($this->identicalTo($message), $this->identicalTo($metaData))
+            ->will($this->returnValue(null));
+
+        /** @var EbayEnterprise_MageLog_Helper_Context */
+        $context = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $context->expects($this->once())
+            ->method('getMetaData')
+            ->with($this->identicalTo('EbayEnterprise_GiftCard_Model_Giftcard'), $this->identicalTo($metaData))
+            ->will($this->returnValue($metaData));
+
+        /** Mock_IPayload $payload */
+        $payload = $this->getMockForAbstractClass($payloadClass, [], '', true, true, true, ['serialize']);
+        $payload->expects($this->once())
+            ->method('serialize')
+            ->will($this->returnValue($xml));
+
+        /** Mock_IBidirectionalApi */
+        $api = $this->getMockForAbstractClass('\eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi', [], '', true, true, true, ['getRequestBody', 'getResponseBody']);
+        $api->expects($isRequest ? $this->once() : $this->never())
+            ->method('getRequestBody')
+            ->will($this->returnValue($payload));
+        $api->expects($isRequest ? $this->never() : $this->once())
+            ->method('getResponseBody')
+            ->will($this->returnValue($payload));
+
+        /** @var EbayEnterprise_GiftCard_Model_Giftcard */
+        $giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard', [
+            'mask' => $mask,
+            'logger' => $logger,
+            'context' => $context,
+        ]);
+
+        $this->assertSame($giftCard, EcomDev_Utils_Reflection::invokeRestrictedMethod(
+            $giftCard, '_logStoredValuePayload', [$api, $isRequest, $message]
+        ));
     }
 }

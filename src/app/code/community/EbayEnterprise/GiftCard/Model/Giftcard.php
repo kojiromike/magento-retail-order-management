@@ -67,6 +67,8 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
     protected $_apiLogger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
     protected $_context;
+    /** @var EbayEnterprise_GiftCard_Model_Mask */
+    protected $_mask;
     /**
      * @param array $initParams May contain:
      *                          - 'helper' => EbayEnterprise_GiftCard_Helper_Data
@@ -74,6 +76,7 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
      *                          - 'logger' => EbayEnterprise_MageLog_Helper_Data
      *                          - 'context' => EbayEnterprise_MageLog_Helper_Context
      *                          - 'api_logger' => LoggerInterface
+     *                          - 'mask' => EbayEnterprise_GiftCard_Model_Mask
      */
     public function __construct(array $initParams = [])
     {
@@ -82,22 +85,25 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
             $this->_coreHelper,
             $this->_logger,
             $this->_context,
-            $this->_apiLogger
+            $this->_apiLogger,
+            $this->_mask
         ) = $this->_checkTypes(
             $this->_nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_giftcard')),
             $this->_nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore')),
             $this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
             $this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context')),
-            $this->_nullCoalesce($initParams, 'api_logger', new NullLogger)
+            $this->_nullCoalesce($initParams, 'api_logger', new NullLogger),
+            $this->_nullCoalesce($initParams, 'mask', Mage::getModel('ebayenterprise_giftcard/mask'))
         );
     }
     /**
      * Type checks for self::__construct $initParams.
-     * @param  EbayEnterprise_Giftcard_Helper_Data $helper
-     * @param  EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
-     * @param  EbayEnterprise_MageLog_Helper_Data $logger
-     * @param  EbayEnterprise_MageLog_Helper_Context $context
+     * @param  EbayEnterprise_Giftcard_Helper_Data
+     * @param  EbayEnterprise_Eb2cCore_Helper_Data
+     * @param  EbayEnterprise_MageLog_Helper_Data
+     * @param  EbayEnterprise_MageLog_Helper_Context
      * @param  LoggerInterface
+     * @param  EbayEnterprise_GiftCard_Model_Mask
      * @return mixed[]
      */
     protected function _checkTypes(
@@ -105,7 +111,8 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
         EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_MageLog_Helper_Context $context,
-        LoggerInterface $apiLogger
+        LoggerInterface $apiLogger,
+        EbayEnterprise_GiftCard_Model_Mask $mask
     ) {
         return func_get_args();
     }
@@ -299,8 +306,10 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
         $api = $this->_getApi($this->_helper->getConfigModel()->apiOperationBalance);
         $this->_prepareApiForBalanceCheck($api);
         $this->_logApiCall('balance', 'request');
+        $this->_logStoredValuePayload($api, true, 'Sending StoredValueBalanceRequest.');
         $this->_sendRequest($api);
         $this->_logApiCall('balance', 'response');
+        $this->_logStoredValuePayload($api, false, 'Received StoredValueBalanceReply response.');
         $this->_handleBalanceResponse($api);
         return $this;
     }
@@ -309,8 +318,10 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
         $api = $this->_getApi($this->_helper->getConfigModel()->apiOperationRedeem);
         $this->_prepareApiForRedeem($api);
         $this->_logApiCall('redeem', 'request');
+        $this->_logStoredValuePayload($api, true, 'Sending StoredValueRedeemRequest.');
         $this->_sendRequest($api);
         $this->_logApiCall('redeem', 'response');
+        $this->_logStoredValuePayload($api, false, 'Received StoredValueRedeemReply response.');
         $this->_handleRedeemResponse($api);
         return $this;
     }
@@ -319,8 +330,10 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
         $api = $this->_getApi($this->_helper->getConfigModel()->apiOperationVoid);
         $this->_prepareApiForVoid($api);
         $this->_logApiCall('void', 'request');
+        $this->_logStoredValuePayload($api, true, 'Sending StoredValueRedeemVoidRequest.');
         $this->_sendRequest($api);
         $this->_logApiCall('void', 'response');
+        $this->_logStoredValuePayload($api, false, 'Received StoredValueRedeemVoidReply response.');
         $this->_handleVoidResponse($api);
         return $this;
     }
@@ -532,6 +545,29 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
         } else {
             $this->setCardNumber($payload->getCardNumber());
         }
+        return $this;
+    }
+
+    /**
+     * Log request and response of stored value various service API calls.
+     *
+     * @param Api\IBidirectionalApi
+     * @param bool
+     * @param string
+     */
+    protected function _logStoredValuePayload(Api\IBidirectionalApi $api, $isRequest, $logMessage)
+    {
+        /** @var string */
+        $method = 'getRequestBody';
+        /** @var string */
+        $metaDataKey = 'rom_request_body';
+        if (!$isRequest) {
+            $method = 'getResponseBody';
+            $metaDataKey = 'rom_response_body';
+        }
+        /** @var string */
+        $cleanedXml = $this->_mask->maskXmlNodes($api->$method()->serialize());
+        $this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, [$metaDataKey => $cleanedXml]));
         return $this;
     }
 }

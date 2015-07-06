@@ -27,20 +27,25 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item_Details
     protected $detailService;
     /** @var EbayEnterprise_Inventory_Helper_Data */
     protected $helper;
+    /** @var EbayEnterprise_Inventory_Model_Edd */
+    protected $edd;
 
     /**
      * @param array $args May contain:
      *                    - config => EbayEnterprise_Eb2cCore_Model_Config_Registry
      *                    - details_service => EbayEnterprise_Inventory_Model_Details_Service
+     *                    - edd => EbayEnterprise_Inventory_Model_Edd
      */
     public function __construct(array $args = [])
     {
         list(
             $this->helper,
-            $this->detailService
+            $this->detailService,
+            $this->edd
         ) = $this->checkTypes(
             $this->nullCoalesce($args, 'helper', Mage::helper('ebayenterprise_inventory')),
-            $this->nullCoalesce($args, 'detail_service', Mage::getModel('ebayenterprise_inventory/details_service'))
+            $this->nullCoalesce($args, 'detail_service', Mage::getModel('ebayenterprise_inventory/details_service')),
+            $this->nullCoalesce($args, 'edd', Mage::getModel('ebayenterprise_inventory/edd'))
         );
         list($this->config) = $this->checkConfigTypes($this->nullCoalesce($args, 'config', $this->helper->getConfigModel()));
     }
@@ -50,11 +55,13 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item_Details
      *
      * @param EbayEnterprise_Inventory_Helper_Data
      * @param EbayEnterprise_Inventory_Model_Details_Service
+     * @param EbayEnterprise_Inventory_Model_Edd
      * @return array
      */
     protected function checkTypes(
         EbayEnterprise_Inventory_Helper_Data $helper,
-        EbayEnterprise_Inventory_Model_Details_Service $detailService
+        EbayEnterprise_Inventory_Model_Details_Service $detailService,
+        EbayEnterprise_Inventory_Model_Edd $edd
     ) {
         return func_get_args();
     }
@@ -97,7 +104,7 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item_Details
             $itemPayload
                 ->setEstimatedDeliveryMode(IEstimatedDeliveryDate::MODE_ENABLED)
                 ->setEstimatedDeliveryMessageType(IEstimatedDeliveryDate::MESSAGE_TYPE_DELIVERYDATE)
-                ->setEstimatedDeliveryTemplate($this->config->estimatedDeliveryTemplate);
+                ->setEstimatedDeliveryTemplate($this->edd->getEddTemplate());
             $this->handleDateFields($itemPayload, $detail);
         }
         return $this;

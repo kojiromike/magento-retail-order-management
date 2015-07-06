@@ -13,8 +13,13 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+/**
+ * EDD stands for Estimated Delivery Date
+ */
 class EbayEnterprise_Inventory_Model_Edd
 {
+    const EDD_TEMPLATE = 'You can expect to receive your item%s between %s and %s.';
+
     /** @var EbayEnterprise_Inventory_Helper_Data */
     protected $inventoryHelper;
     /** @var EbayEnterprise_Inventory_Model_Details_Service */
@@ -74,10 +79,21 @@ class EbayEnterprise_Inventory_Model_Edd
         $eddItem = $this->detailService->getDetailsForItem($item)
             ?: $this->inventoryHelper->getStreetDateForBackorderableItem($item);
         return $eddItem ? $this->inventoryHelper->__(
-            $this->inventoryConfig->estimatedDeliveryTemplate,
+            $this->getEddTemplate(),
             $singularOrPluralItem,
             $eddItem->getDeliveryWindowFromDate()->format('m/d/y'),
             $eddItem->getDeliveryWindowToDate()->format('m/d/y')
         ) : '';
+    }
+
+    /**
+     * Get the estimated delivery date template from configuration, if it is
+     * not configured return the default template.
+     *
+     * @return string
+     */
+    public function getEddTemplate()
+    {
+        return $this->inventoryConfig->estimatedDeliveryTemplate ?: static::EDD_TEMPLATE;
     }
 }

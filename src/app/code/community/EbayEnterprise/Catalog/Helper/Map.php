@@ -34,10 +34,11 @@ class EbayEnterprise_Catalog_Helper_Map
     const TYPE_GIFTCARD = 'giftcard';
 
     /** @var EbayEnterprise_MageLog_Helper_Data */
-    protected $_logger;
+    protected $logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
-    protected $_context;
-
+    protected $context;
+    /** @var EbayEnterprise_Eb2cCore_Helper_Data */
+    protected $coreHelper;
     /**
      * Map ownerDocuments to DomXPath objects to avoid recreating them.
      *
@@ -51,11 +52,45 @@ class EbayEnterprise_Catalog_Helper_Map
      */
     protected $_categoryCollection = null;
 
-    public function __construct()
+    public function __construct(array $initParams = [])
     {
-        $this->_logger = Mage::helper('ebayenterprise_magelog');
-        $this->_context = Mage::helper('ebayenterprise_magelog/context');
+        list($this->coreHelper, $this->logger, $this->context) = $this->checkTypes(
+            $this->nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore')),
+            $this->nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+            $this->nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
+        );
     }
+
+    /**
+     * Type hinting for self::__construct $initParams
+     *
+     * @param  EbayEnterprise_Eb2cCore_Helper_Data
+     * @param  EbayEnterprise_MageLog_Helper_Data
+     * @param  EbayEnterprise_MageLog_Helper_Context
+     * @return array
+     */
+    protected function checkTypes(
+        EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
+        EbayEnterprise_MageLog_Helper_Data $logger,
+        EbayEnterprise_MageLog_Helper_Context $context
+    )
+    {
+        return func_get_args();
+    }
+
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the default value.
+     *
+     * @param  array
+     * @param  string $field Valid array key
+     * @param  mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
+    }
+
     /**
      * check if the node list has item and if the first item node value equal to 'active' to return
      * the status for enable otherwise status for disable
@@ -83,7 +118,7 @@ class EbayEnterprise_Catalog_Helper_Map
             'Catalog, Search' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH,
         ];
 
-        $visibility = Mage::helper('eb2ccore')->extractNodeVal($nodes);
+        $visibility = $this->coreHelper->extractNodeVal($nodes);
 
         if (in_array($visibility, $visibilityValues)) {
             // If the value is an expected integer value, return that value
@@ -106,7 +141,7 @@ class EbayEnterprise_Catalog_Helper_Map
      */
     public function extractProductTypeValue(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
     {
-        $value = strtolower(Mage::helper('eb2ccore')->extractNodeVal($nodes));
+        $value = strtolower($this->coreHelper->extractNodeVal($nodes));
         $type = ($this->_isValidProductType($value))? $value : Mage_Catalog_Model_Product_Type::TYPE_SIMPLE;
         $product->setTypeId($type)
             ->setTypeInstance(Mage_Catalog_Model_Product_Type::factory($product, true), true);
@@ -154,7 +189,7 @@ class EbayEnterprise_Catalog_Helper_Map
                 'operation_type' => $attrs->getNamedItem('operation_type')->nodeValue,
                 'link_to_unique_id' => Mage::helper('ebayenterprise_catalog')->normalizeSku(
                     trim($linkNode->nodeValue),
-                    Mage::helper('eb2ccore')->getConfigModel()->catalogId
+                    $this->coreHelper->getConfigModel()->catalogId
                 )
             );
         }
@@ -180,7 +215,7 @@ class EbayEnterprise_Catalog_Helper_Map
      */
     public function extractSkuValue(DOMNodeList $nodes)
     {
-        $coreHelper = Mage::helper('eb2ccore');
+        $coreHelper = $this->coreHelper;
         return Mage::helper('ebayenterprise_catalog')->normalizeSku(
             $coreHelper->extractNodeVal($nodes),
             $coreHelper->getConfigModel()->catalogId
@@ -196,7 +231,7 @@ class EbayEnterprise_Catalog_Helper_Map
      */
     public function extractUrlKeyValue(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
     {
-        $urlKey = Mage::helper('eb2ccore')->extractNodeVal($nodes);
+        $urlKey = $this->coreHelper->extractNodeVal($nodes);
         return ($urlKey !== '')?
             $urlKey . '-' . $product->getStoreId() :
             'Incomplete Product: ' . $product->getSku() . '-' . $product->getStoreId();
@@ -226,7 +261,7 @@ class EbayEnterprise_Catalog_Helper_Map
      */
     public function extractGiftcardTenderValue(DOMNodeList $nodes)
     {
-        $value = Mage::helper('eb2ccore')->extractNodeVal($nodes);
+        $value = $this->coreHelper->extractNodeVal($nodes);
         $cfg = Mage::helper('ebayenterprise_catalog')->getConfigModel();
         $mapData = $cfg->getConfigData(EbayEnterprise_Catalog_Helper_Feed::GIFTCARD_TENDER_CONFIG_PATH);
         return isset($mapData[$value])? $this->_getGiftCardType($mapData[$value]) : null;
@@ -261,13 +296,13 @@ class EbayEnterprise_Catalog_Helper_Map
      */
     public function extractAttributeSetValue(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
     {
-        $attributeSetName = Mage::helper('eb2ccore')->extractNodeVal($nodes);
+        $attributeSetName = $this->coreHelper->extractNodeVal($nodes);
         $attributeSetId = Mage::helper('ebayenterprise_catalog')->getAttributeSetIdByName($attributeSetName);
         if (is_null($attributeSetId)) {
             // @todo: move to error confirmation feed
             $logData = ['attribute_set_name' => $attributeSetName];
             $logMessage = 'Attribute Set "{attribute_set_name}" has not yet been setup for this Magento instance.';
-            $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+            $this->logger->warning($logMessage, $this->context->getMetaData(__CLASS__, $logData));
         }
         return $attributeSetId ?: $product->getAttributeSetId();
     }
@@ -288,7 +323,7 @@ class EbayEnterprise_Catalog_Helper_Map
      */
     public function extractBoolValue(DOMNodeList $nodes)
     {
-        return Mage::helper('eb2ccore')->parseBool(($nodes->length)? $nodes->item(0)->nodeValue : null);
+        return $this->coreHelper->parseBool(($nodes->length)? $nodes->item(0)->nodeValue : null);
     }
     /**
      * extract the first element of a dom node list and return the string value cast as integer value
@@ -371,5 +406,27 @@ class EbayEnterprise_Catalog_Helper_Map
                 $product->setData($attribute, $value);
             }
         }
+    }
+
+    /**
+     * If the "ExtendedAttributes/AllowGiftMessage" node exist then we proceed
+     * to set the product attribute "use_config_gift_message_available" to false
+     * and return the boolean value of the "ExtendedAttributes/AllowGiftMessage" node.
+     * Otherwise, if the "ExtendedAttributes/AllowGiftMessage" node doesn't exists
+     * we simply return null in order to let the default value be set on the attribute.
+     *
+     * @param  DOMNodeList
+     * @param  Mage_Catalog_Model_Product
+     * @return int | null
+     */
+    public function extractAllowGiftMessage(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
+    {
+        if ($nodes->length) {
+            $product->setUseConfigGiftMessageAvailable(0);
+            // Explicitly casting the extracted boolean value as an integer value because
+            // Magento only work with integer value 0 or 1 representing boolean value in the database.
+            return (int) $this->coreHelper->parseBool(($nodes->length)? $nodes->item(0)->nodeValue : null);
+        }
+        return null;
     }
 }

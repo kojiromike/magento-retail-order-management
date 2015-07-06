@@ -15,18 +15,21 @@
 
 class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-    /**
-     * @var EbayEnterprise_Dom_Document
-     */
-    protected $_doc;
+    /** @var EbayEnterprise_Dom_Document */
+    protected $doc;
     /** @var EbayEnterprise_Eb2cCore_Helper_Data */
-    protected $_coreHelper;
+    protected $coreHelper;
+    /** @var EbayEnterprise_Catalog_Helper_Map */
+    protected $mapHelper;
+    /** @var Mage_Catalog_Model_Product */
+    protected $product;
 
     public function setUp()
     {
         parent::setUp();
-        $this->_coreHelper = Mage::helper('eb2ccore');
-        $this->_doc = $this->_coreHelper->getNewDomDocument();
+        $this->coreHelper = Mage::helper('eb2ccore');
+        $this->product = Mage::getModel('catalog/product');
+        $this->doc = $this->coreHelper->getNewDomDocument();
 
         // suppressing the real session from starting
         $session = $this->getModelMockBuilder('core/session')
@@ -34,11 +37,12 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
             ->setMethods(null)
             ->getMock();
         $this->replaceByMock('singleton', 'core/session', $session);
+        $this->mapHelper = Mage::helper('ebayenterprise_catalog/map');
     }
     public function tearDown()
     {
         parent::tearDown();
-        $this->_doc = null;
+        $this->doc = null;
     }
     /**
      * Test extractStringValue method for the following expectations
@@ -48,21 +52,21 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testExtractStringValue()
     {
-        $this->_doc->loadXML(
+        $this->doc->loadXML(
             '<ItemMaster>
-				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
-					<ItemId>
-						<ClientItemId>45-2BCEC162</ClientItemId>
-					</ItemId>
-				</Item>
-			</ItemMaster>'
+                <Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
+                    <ItemId>
+                        <ClientItemId>45-2BCEC162</ClientItemId>
+                    </ItemId>
+                </Item>
+            </ItemMaster>'
         );
-        $xpath = Mage::helper('eb2ccore')->getNewDomXPath($this->_doc);
+        $xpath = $this->coreHelper->getNewDomXPath($this->doc);
         $this->assertSame(
             '45-2BCEC162',
-            Mage::helper('ebayenterprise_catalog/map')->extractStringValue(
-                $xpath->query('Item/ItemId/ClientItemId', $this->_doc->documentElement),
-                Mage::getModel('catalog/product')
+            $this->mapHelper->extractStringValue(
+                $xpath->query('Item/ItemId/ClientItemId', $this->doc->documentElement),
+                $this->product
             )
         );
     }
@@ -77,33 +81,36 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testExtractBoolValue()
     {
-        $this->_doc->loadXML(
+        $this->doc->loadXML(
             '<ItemMaster>
-				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
-					<BaseAttributes>
-						<IsDropShipped>true</IsDropShipped>
-					</BaseAttributes>
-				</Item>
-			</ItemMaster>'
+                <Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
+                    <BaseAttributes>
+                        <IsDropShipped>true</IsDropShipped>
+                    </BaseAttributes>
+                </Item>
+            </ItemMaster>'
         );
-        $xpath = Mage::helper('eb2ccore')->getNewDomXPath($this->_doc);
+        $xpath = $this->coreHelper->getNewDomXPath($this->doc);
 
-        $productHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
+        $coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
             ->disableOriginalConstructor()
-            ->setMethods(array('parseBool'))
+            ->setMethods(['parseBool'])
             ->getMock();
-        $productHelperMock->expects($this->once())
+        $coreHelperMock->expects($this->once())
             ->method('parseBool')
-            ->will($this->returnValueMap(array(
-                array('true', true)
-            )));
-        $this->replaceByMock('helper', 'eb2ccore', $productHelperMock);
+            ->will($this->returnValueMap([
+                ['true', true]
+            ]));
 
+        /** @var EbayEnterprise_Catalog_Helper_Map $map */
+        $map = $this->getHelperMock('ebayenterprise_catalog/map', ['foo'], false, [[
+            'core_helper' => $coreHelperMock,
+        ]]);
         $this->assertSame(
             true,
-            Mage::helper('ebayenterprise_catalog/map')->extractBoolValue(
-                $xpath->query('Item/BaseAttributes/IsDropShipped', $this->_doc->documentElement),
-                Mage::getModel('catalog/product')
+            $map->extractBoolValue(
+                $xpath->query('Item/BaseAttributes/IsDropShipped', $this->doc->documentElement),
+                $this->product
             )
         );
     }
@@ -115,23 +122,23 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testExtractIntValue()
     {
-        $this->_doc->loadXML(
+        $this->doc->loadXML(
             '<ItemMaster>
-				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
-					<ExtendedAttributes>
-						<Buyer>
-							<BuyerId>999</BuyerId>
-						</Buyer>
-					</ExtendedAttributes>
-				</Item>
-			</ItemMaster>'
+                <Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
+                    <ExtendedAttributes>
+                        <Buyer>
+                            <BuyerId>999</BuyerId>
+                        </Buyer>
+                    </ExtendedAttributes>
+                </Item>
+            </ItemMaster>'
         );
-        $xpath = Mage::helper('eb2ccore')->getNewDomXPath($this->_doc);
+        $xpath = $this->coreHelper->getNewDomXPath($this->doc);
         $this->assertSame(
             999,
-            Mage::helper('ebayenterprise_catalog/map')->extractIntValue(
-                $xpath->query('Item/ExtendedAttributes/Buyer/BuyerId', $this->_doc->documentElement),
-                Mage::getModel('catalog/product')
+            $this->mapHelper->extractIntValue(
+                $xpath->query('Item/ExtendedAttributes/Buyer/BuyerId', $this->doc->documentElement),
+                $this->product
             )
         );
     }
@@ -143,21 +150,21 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testExtractFloatValue()
     {
-        $this->_doc->loadXML(
+        $this->doc->loadXML(
             '<ItemMaster>
-				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
-					<ExtendedAttributes>
-						<Price>3.98</Price>
-					</ExtendedAttributes>
-				</Item>
-			</ItemMaster>'
+                <Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
+                    <ExtendedAttributes>
+                        <Price>3.98</Price>
+                    </ExtendedAttributes>
+                </Item>
+            </ItemMaster>'
         );
-        $xpath = Mage::helper('eb2ccore')->getNewDomXPath($this->_doc);
+        $xpath = $this->coreHelper->getNewDomXPath($this->doc);
         $this->assertSame(
             3.98,
-            Mage::helper('ebayenterprise_catalog/map')->extractFloatValue(
-                $xpath->query('Item/ExtendedAttributes/Price', $this->_doc->documentElement),
-                Mage::getModel('catalog/product')
+            $this->mapHelper->extractFloatValue(
+                $xpath->query('Item/ExtendedAttributes/Price', $this->doc->documentElement),
+                $this->product
             )
         );
     }
@@ -169,9 +176,9 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
         $x = 'anything';
         $this->assertSame(
             $x,
-            Mage::helper('ebayenterprise_catalog/map')->passThrough(
+            $this->mapHelper->passThrough(
                 $x,
-                Mage::getModel('catalog/product')
+                $this->product
             )
         );
     }
@@ -180,11 +187,11 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testExtractFloatSum()
     {
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML('<_><a>1.1</a><b>5.5</b><c>3.0</c></_>');
         $this->assertSame(
             9.6,
-            Mage::helper('ebayenterprise_catalog/map')->extractFloatSum($doc->documentElement->childNodes)
+            $this->mapHelper->extractFloatSum($doc->documentElement->childNodes)
         );
     }
     /**
@@ -192,11 +199,11 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testDiscountSum()
     {
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML('<_><a>1.1</a><b>5.5</b><c>3.0</c></_>');
         $this->assertSame(
             -9.6,
-            Mage::helper('ebayenterprise_catalog/map')->extractDiscountSum($doc->documentElement->childNodes)
+            $this->mapHelper->extractDiscountSum($doc->documentElement->childNodes)
         );
     }
     /**
@@ -208,22 +215,22 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testExtractStatusValueWhenActive()
     {
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML(
             '<Items>
-				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
-					<BaseAttributes>
-						<ItemStatus>Active</ItemStatus>
-					</BaseAttributes>
-				</Item>
-			</Items>'
+                <Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
+                    <BaseAttributes>
+                        <ItemStatus>Active</ItemStatus>
+                    </BaseAttributes>
+                </Item>
+            </Items>'
         );
         $xpath = new DOMXPath($doc);
         $this->assertSame(
             Mage_Catalog_Model_Product_Status::STATUS_ENABLED,
-            Mage::helper('ebayenterprise_catalog/map')->extractStatusValue(
+            $this->mapHelper->extractStatusValue(
                 $xpath->query('Item/BaseAttributes/ItemStatus', $doc->documentElement),
-                Mage::getModel('catalog/product')
+                $this->product
             )
         );
     }
@@ -232,22 +239,22 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testExtractStatusValueWhenNotActive()
     {
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML(
             '<Items>
-				<Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
-					<BaseAttributes>
-						<ItemStatus>Disabled</ItemStatus>
-					</BaseAttributes>
-				</Item>
-			</Items>'
+                <Item operation_type="Add" gsi_client_id="MAGTNA" catalog_id="45">
+                    <BaseAttributes>
+                        <ItemStatus>Disabled</ItemStatus>
+                    </BaseAttributes>
+                </Item>
+            </Items>'
         );
         $xpath = new DOMXPath($doc);
         $this->assertSame(
             Mage_Catalog_Model_Product_Status::STATUS_DISABLED,
-            Mage::helper('ebayenterprise_catalog/map')->extractStatusValue(
+            $this->mapHelper->extractStatusValue(
                 $xpath->query('Item/BaseAttributes/ItemStatus', $doc->documentElement),
-                Mage::getModel('catalog/product')
+                $this->product
             )
         );
     }
@@ -288,18 +295,18 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
         $product->expects($this->any())
             ->method('getVisibility')
             ->will($this->returnValue($productVisibility));
-        $helper = $this->getHelperMock('eb2ccore/data', array('extractNodeVal'));
+        $helper = $this->getHelperMock('eb2ccore/data', ['extractNodeVal']);
         $helper->expects($this->once())
             ->method('extractNodeVal')
             ->with($this->identicalTo($nodes))
             ->will($this->returnValue($nodeValue));
 
-        $this->replaceByMock('helper', 'eb2ccore', $helper);
+        /** @var EbayEnterprise_Catalog_Helper_Map $map */
+        $map = $this->getHelperMock('ebayenterprise_catalog/map', ['foo'], false, [[
+            'core_helper' => $helper,
+        ]]);
 
-        $this->assertSame(
-            $visibility,
-            Mage::helper('ebayenterprise_catalog/map')->extractVisibilityValue($nodes, $product)
-        );
+        $this->assertSame($visibility, $map->extractVisibilityValue($nodes, $product));
     }
     /**
      * Test extracting product links. Should return a serialized array of
@@ -308,45 +315,45 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
     public function testExtractProductLinks()
     {
         $catalogId = 45;
-        $helperMock = $this->getHelperMock('eb2ccore/data', array('getConfigModel'));
+        $helperMock = $this->getHelperMock('eb2ccore/data', ['getConfigModel']);
         $helperMock->expects($this->any())
             ->method('getConfigModel')
-            ->will($this->returnValue($this->buildCoreConfigRegistry(array(
+            ->will($this->returnValue($this->buildCoreConfigRegistry([
                 'catalogId' => $catalogId
-            ))));
+            ])));
         $this->replaceByMock('helper', 'eb2ccore', $helperMock);
 
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML(
             '<root>
-				<ProductLink link_type="ES_Accessory" operation_type="Add">
-					<LinkToUniqueId>45-12345</LinkToUniqueId>
-				</ProductLink>
-				<ProductLink link_type="ES_CrossSelling" operation_type="Delete">
-					<LinkToUniqueId>23456</LinkToUniqueId>
-				</ProductLink>
-			</root>'
+                <ProductLink link_type="ES_Accessory" operation_type="Add">
+                    <LinkToUniqueId>45-12345</LinkToUniqueId>
+                </ProductLink>
+                <ProductLink link_type="ES_CrossSelling" operation_type="Delete">
+                    <LinkToUniqueId>23456</LinkToUniqueId>
+                </ProductLink>
+            </root>'
         );
         $nodes = $doc->getElementsByTagName('ProductLink');
 
-        $links = array(
-            array('link_type' => 'related', 'operation_type' => 'Add', 'link_to_unique_id' => '45-12345'),
-            array('link_type' => 'crosssell', 'operation_type' => 'Delete', 'link_to_unique_id' => '45-23456'),
-        );
+        $links = [
+            ['link_type' => 'related', 'operation_type' => 'Add', 'link_to_unique_id' => '45-12345'],
+            ['link_type' => 'crosssell', 'operation_type' => 'Delete', 'link_to_unique_id' => '45-23456'],
+        ];
 
-        $map = $this->getHelperMock('ebayenterprise_catalog/map', array('_convertToMagentoLinkType'));
+        $map = $this->getHelperMock('ebayenterprise_catalog/map', ['_convertToMagentoLinkType']);
         $map->expects($this->exactly(2))
             ->method('_convertToMagentoLinkType')
-            ->will($this->returnValueMap(array(
-                array('ES_Accessory', 'related'),
-                array('ES_CrossSelling', 'crosssell')
-            )));
+            ->will($this->returnValueMap([
+                ['ES_Accessory', 'related'],
+                ['ES_CrossSelling', 'crosssell']
+            ]));
 
         $this->assertSame(
             serialize($links),
             $map->extractProductLinks(
                 $nodes,
-                Mage::getModel('catalog/product')
+                $this->product
             )
         );
     }
@@ -354,13 +361,13 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testExtractProductLinksUnknownLink()
     {
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML('<root><ProductLink link_type="NO_CLUE_WHAT_THIS_IS" operation_type="Add"><LinkToUniqueId>45-23456</LinkToUniqueId></ProductLink></root>');
         $nodes = $doc->getElementsByTagName('ProductLink');
 
-        $links = array();
+        $links = [];
 
-        $map = $this->getHelperMock('ebayenterprise_catalog/map', array('_convertToMagentoLinkType'));
+        $map = $this->getHelperMock('ebayenterprise_catalog/map', ['_convertToMagentoLinkType']);
         $map->expects($this->once())
             ->method('_convertToMagentoLinkType')
             ->with($this->identicalTo('NO_CLUE_WHAT_THIS_IS'))
@@ -370,7 +377,7 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
             serialize($links),
             $map->extractProductLinks(
                 $nodes,
-                Mage::getModel('catalog/product')
+                $this->product
             )
         );
     }
@@ -379,31 +386,31 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testConvertToMagentoLinkType()
     {
-        $linkTypes = array('ES_Accessory' => 'related', 'ES_CrossSelling' => 'crosssell', 'ES_UpSelling' => 'upsell');
+        $linkTypes = ['ES_Accessory' => 'related', 'ES_CrossSelling' => 'crosssell', 'ES_UpSelling' => 'upsell'];
 
         $configRegistry = $this->getModelMockBuilder('eb2ccore/config_registry')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfig'))
+            ->setMethods(['getConfig'])
             ->getMock();
         $configRegistry->expects($this->any())
             ->method('getConfig')
-            ->will($this->returnValueMap(array(
-                array('link_types_es_accessory', null, 'related'),
-                array('link_types_es_crossselling', null, 'crosssell'),
-                array('link_types_es_upselling', null, 'upsell'),
-            )));
+            ->will($this->returnValueMap([
+                ['link_types_es_accessory', null, 'related'],
+                ['link_types_es_crossselling', null, 'crosssell'],
+                ['link_types_es_upselling', null, 'upsell'],
+            ]));
 
-        $prodHelper = $this->getHelperMock('ebayenterprise_catalog/data', array('getConfigModel'));
+        $prodHelper = $this->getHelperMock('ebayenterprise_catalog/data', ['getConfigModel']);
         $prodHelper->expects($this->any())
             ->method('getConfigModel')
             ->will($this->returnValue($configRegistry));
         $this->replaceByMock('helper', 'ebayenterprise_catalog', $prodHelper);
 
-        $helper = Mage::helper('ebayenterprise_catalog/map');
+        $helper = $this->mapHelper;
         foreach ($linkTypes as $ebcLink => $magentoLink) {
             $this->assertSame(
                 $magentoLink,
-                EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, '_convertToMagentoLinkType', array($ebcLink))
+                EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, '_convertToMagentoLinkType', [$ebcLink])
             );
         }
     }
@@ -423,7 +430,7 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
 
         $coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
             ->disableOriginalConstructor()
-            ->setMethods(array('extractNodeVal', 'getConfigModel'))
+            ->setMethods(['extractNodeVal', 'getConfigModel'])
             ->getMock();
         $coreHelperMock->expects($this->once())
             ->method('extractNodeVal')
@@ -431,12 +438,16 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
             ->will($this->returnValue($sku));
         $coreHelperMock->expects($this->once())
             ->method('getConfigModel')
-            ->will($this->returnValue($this->buildCoreConfigRegistry(array(
+            ->will($this->returnValue($this->buildCoreConfigRegistry([
                 'catalogId' => $catalogId
-            ))));
-        $this->replaceByMock('helper', 'eb2ccore', $coreHelperMock);
+            ])));
 
-        $this->assertSame($result, Mage::helper('ebayenterprise_catalog/map')->extractSkuValue($nodes));
+        /** @var EbayEnterprise_Catalog_Helper_Map $map */
+        $map = $this->getHelperMock('ebayenterprise_catalog/map', ['foo'], false, [[
+            'core_helper' => $coreHelperMock,
+        ]]);
+
+        $this->assertSame($result, $map->extractSkuValue($nodes));
     }
     /**
      * Test extractProductTypeValue method for the following expectations
@@ -455,7 +466,7 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
 
         $coreHelperMock = $this->getHelperMockBuilder('eb2ccore/data')
             ->disableOriginalConstructor()
-            ->setMethods(array('extractNodeVal'))
+            ->setMethods(['extractNodeVal'])
             ->getMock();
         $coreHelperMock->expects($this->once())
             ->method('extractNodeVal')
@@ -465,7 +476,7 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
 
         $product = $this->getModelMockBuilder('catalog/product')
             ->disableOriginalConstructor()
-            ->setMethods(array('setTypeId', 'setTypeInstance'))
+            ->setMethods(['setTypeId', 'setTypeInstance'])
             ->getMock();
         $product->expects($this->once())
             ->method('setTypeId')
@@ -477,8 +488,8 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
             ->will($this->returnSelf());
 
         $mapMock = $this->getHelperMockBuilder('ebayenterprise_catalog/map')
-            ->disableOriginalConstructor()
-            ->setMethods(array('_isValidProductType'))
+            ->setMethods(['_isValidProductType'])
+            ->setConstructorArgs([['core_helper' => $coreHelperMock]])
             ->getMock();
         $mapMock->expects($this->once())
             ->method('_isValidProductType')
@@ -487,28 +498,29 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
 
         $this->assertSame($value, $mapMock->extractProductTypeValue($nodes, $product));
     }
+
+    /**
+     * @return array
+     */
+    public function providerIsValidProductType()
+    {
+        return [
+            [true, 'simple'],
+            [false, 'wrong'],
+        ];
+    }
     /**
      * Test _isValidProductType method for the following expectations
      * Expectation 1: when this test invoked the method EbayEnterprise_Catalog_Helper_Map::_isValidProductType
      *                with a given value it will check if the value in the six possible Magento product type
      *                it will return true if value match otherwise false
+     * @param bool
+     * @param string
+     * @dataProvider providerIsValidProductType
      */
-    public function testIsValidProductType()
+    public function testIsValidProductType($expect, $value)
     {
-        $testData = array(
-            array('expect' => true, 'value' => 'simple'),
-            array('expect' => false, 'value' => 'wrong'),
-        );
-
-        $map = Mage::helper('ebayenterprise_catalog/map');
-
-        foreach ($testData as $data) {
-            $this->assertSame($data['expect'], EcomDev_Utils_Reflection::invokeRestrictedMethod(
-                $map,
-                '_isValidProductType',
-                array($data['value'])
-            ));
-        }
+        $this->assertSame($expect, EcomDev_Utils_Reflection::invokeRestrictedMethod($this->mapHelper, '_isValidProductType', [$value]));
     }
     /**
      * Test extractHtsCodesValue method for the following expectations
@@ -519,25 +531,25 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testExtractHtsCodesValue()
     {
-        $data = serialize(array(
-            array('mfn_duty_rate' => '10', 'destination_country' => 'AU', 'restricted' => 'N', 'hts_code' => '6114.2'),
-            array('mfn_duty_rate' => '12', 'destination_country' => 'AT', 'restricted' => 'N', 'hts_code' => '6114.20')
-        ));
+        $data = serialize([
+            ['mfn_duty_rate' => '10', 'destination_country' => 'AU', 'restricted' => 'N', 'hts_code' => '6114.2'],
+            ['mfn_duty_rate' => '12', 'destination_country' => 'AT', 'restricted' => 'N', 'hts_code' => '6114.20']
+        ]);
 
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
 
         $doc->loadXML(
             '<root>
-				<htscodes>
-					<HTSCode mfn_duty_rate="10" destination_country="AU" restricted="N">6114.2</HTSCode>
-					<HTSCode mfn_duty_rate="12" destination_country="AT" restricted="N">6114.20</HTSCode>
-				</htscodes>
-			</root>'
+                <htscodes>
+                    <HTSCode mfn_duty_rate="10" destination_country="AU" restricted="N">6114.2</HTSCode>
+                    <HTSCode mfn_duty_rate="12" destination_country="AT" restricted="N">6114.20</HTSCode>
+                </htscodes>
+            </root>'
         );
 
         $xpath = new DOMXPath($doc);
 
-        $this->assertSame($data, Mage::helper('ebayenterprise_catalog/map')->extractHtsCodesValue($xpath->query(
+        $this->assertSame($data, $this->mapHelper->extractHtsCodesValue($xpath->query(
             'htscodes/HTSCode',
             $doc->documentElement
         )));
@@ -553,36 +565,36 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
         $nonExistsAttribute = null;
         $attributeSetName = 'ROM';
 
-        $helper = $this->getHelperMock('ebayenterprise_catalog/data', array('getAttributeSetIdByName'));
+        $helper = $this->getHelperMock('ebayenterprise_catalog/data', ['getAttributeSetIdByName']);
         $helper->expects($this->once())
             ->method('getAttributeSetIdByName')
             ->with($this->identicalTo($attributeSetName))
             ->will($this->returnValue($nonExistsAttribute));
         $this->replaceByMock('helper', 'ebayenterprise_catalog', $helper);
 
-        $product = Mage::getModel('catalog/product', array('attribute_set_id' => $attributeSetId));
+        $product = Mage::getModel('catalog/product', ['attribute_set_id' => $attributeSetId]);
 
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML(
             "<root>
-				<Item>
-					<CustomAttributes>
-						<Attribute name='AttributeSet'>
-							<Value>$attributeSetName</Value>
-						</Attribute>
-					</CustomAttributes>
-				</Item>
-			</root>"
+                <Item>
+                    <CustomAttributes>
+                        <Attribute name='AttributeSet'>
+                            <Value>$attributeSetName</Value>
+                        </Attribute>
+                    </CustomAttributes>
+                </Item>
+            </root>"
         );
 
-        $xpath = Mage::helper('eb2ccore')->getNewDomXPath($doc);
+        $xpath = $this->coreHelper->getNewDomXPath($doc);
         $nodes = $xpath->query(
             'Item/CustomAttributes/Attribute[@name="AttributeSet"]/Value',
             $doc->documentElement
         );
         $this->assertSame(
             $attributeSetId,
-            Mage::helper('ebayenterprise_catalog/map')->extractAttributeSetValue($nodes, $product)
+            $this->mapHelper->extractAttributeSetValue($nodes, $product)
         );
     }
     /**
@@ -596,36 +608,36 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
         $knownAttributeSetId = 5;
         $attributeSetName = 'Luma';
 
-        $helper = $this->getHelperMock('ebayenterprise_catalog/data', array('getAttributeSetIdByName'));
+        $helper = $this->getHelperMock('ebayenterprise_catalog/data', ['getAttributeSetIdByName']);
         $helper->expects($this->once())
             ->method('getAttributeSetIdByName')
             ->with($this->identicalTo($attributeSetName))
             ->will($this->returnValue($knownAttributeSetId));
         $this->replaceByMock('helper', 'ebayenterprise_catalog', $helper);
 
-        $product = Mage::getModel('catalog/product', array('attribute_set_id' => $attributeSetId));
+        $product = Mage::getModel('catalog/product', ['attribute_set_id' => $attributeSetId]);
 
-        $doc = Mage::helper('eb2ccore')->getNewDomDocument();
+        $doc = $this->coreHelper->getNewDomDocument();
         $doc->loadXML(
             "<root>
-				<Item>
-					<CustomAttributes>
-						<Attribute name='AttributeSet'>
-							<Value>$attributeSetName</Value>
-						</Attribute>
-					</CustomAttributes>
-				</Item>
-			</root>"
+                <Item>
+                    <CustomAttributes>
+                        <Attribute name='AttributeSet'>
+                            <Value>$attributeSetName</Value>
+                        </Attribute>
+                    </CustomAttributes>
+                </Item>
+            </root>"
         );
 
-        $xpath = Mage::helper('eb2ccore')->getNewDomXPath($doc);
+        $xpath = $this->coreHelper->getNewDomXPath($doc);
         $nodes = $xpath->query(
             'Item/CustomAttributes/Attribute[@name="AttributeSet"]/Value',
             $doc->documentElement
         );
         $this->assertSame(
             $knownAttributeSetId,
-            Mage::helper('ebayenterprise_catalog/map')->extractAttributeSetValue($nodes, $product)
+            $this->mapHelper->extractAttributeSetValue($nodes, $product)
         );
     }
 
@@ -658,13 +670,13 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
      */
     public function testExtractCustomAttributes($feedFile, Mage_Catalog_Model_Product $product)
     {
-        $this->_doc->loadXML(file_get_contents($feedFile));
+        $this->doc->loadXML(file_get_contents($feedFile));
         /** @var DOMXPath $xpath */
-        $xpath = $this->_coreHelper->getNewDomXPath($this->_doc);
+        $xpath = $this->coreHelper->getNewDomXPath($this->doc);
         /** @var DOMNodeList $nodes */
         $nodes = $xpath->query('//CustomAttributes/Attribute');
         /** @var EbayEnterprise_Catalog_Helper_Map $map */
-        $map = Mage::helper('ebayenterprise_catalog/map');
+        $map = $this->mapHelper;
         // Proving that product object has no value
         $this->assertEmpty($product->getData());
         // Proving that when the method ebayenterprise_catalog/map::extractCustomAttributes()
@@ -673,5 +685,61 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
         // Proving that after calling the method ebayenterprise_catalog/map::extractCustomAttributes()
         // the empty passed in product object will now contains data
         $this->assertNotEmpty($product->getData());
+    }
+
+    /**
+     * @return array
+     */
+    public function providerExtractAllowGiftMessage()
+    {
+        /** @var EbayEnterprise_Eb2cCore_Helper_Data */
+        $coreHelper = Mage::helper('eb2ccore');
+        /** @var DOMDocument */
+        $doc = $coreHelper->getNewDomDocument();
+        $doc->loadXML(
+            '<root>
+                <ExtendedAttributes>
+                    <AllowGiftMessage>true</AllowGiftMessage>
+                </ExtendedAttributes>
+            </root>'
+        );
+        /** @var DOMXPath */
+        $xpath = $coreHelper->getNewDomXPath($doc);
+        /** @var DOMNodeList */
+        $nodeListA = $xpath->query('ExtendedAttributes/AllowGiftMessage', $doc->documentElement);
+        /** @var DOMNodeList */
+        $nodeListB = new DOMNodeList();
+        return [
+            [$nodeListA, 1],
+            [$nodeListB, null],
+        ];
+    }
+
+    /**
+     * Scenario: Extract Allow Gift Message
+     * Given an XML NodeList object containing Allow Gift Message data.
+     * When the callback extracts the allow gift message data.
+     * Then the catalog/product setter method 'setUseConfigGiftMessageAvailable' will be set to zero.
+     * And the boolean value cast to an integer value will be returned.
+     *
+     * Given an XML NodeList object that doesn't contain any Allow Gift Message data.
+     * When the callback extracts the allow gift message data.
+     * Then the catalog/product setter method 'setUseConfigGiftMessageAvailable' never be invoked.
+     * And null value will be returned.
+     *
+     * @param DOMNodeList
+     * @param int | null
+     * @dataProvider providerExtractAllowGiftMessage
+     */
+    public function testExtractAllowGiftMessage(DOMNodeList $nodeList, $result)
+    {
+        /** @var Mock_Mage_Catalog_Model_Product */
+        $product = $this->getModelMock('catalog/product', ['setUseConfigGiftMessageAvailable']);
+        $product->expects($nodeList->length ? $this->once() : $this->never())
+            ->method('setUseConfigGiftMessageAvailable')
+            ->with($this->identicalTo(0))
+            ->will($this->returnSelf());
+
+        $this->assertSame($result, $this->mapHelper->extractAllowGiftMessage($nodeList, $product));
     }
 }

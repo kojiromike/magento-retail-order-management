@@ -311,6 +311,12 @@ http://opensource.org/licenses/osl-3.0.php
                     <method>extractBoolValue</method>
                     <xpath>ExtendedAttributes/AllowGiftMessage</xpath>
                 </allow_message>
+                <gift_message_available>
+                    <class>ebayenterprise_catalog/map</class>
+                    <type>helper</type>
+                    <method>extractAllowGiftMessage</method>
+                    <xpath>ExtendedAttributes/AllowGiftMessage</xpath>
+                </gift_message_available>
                 <email_template>
                     <class>ebayenterprise_catalog/map_giftcard</class>
                     <type>helper</type>

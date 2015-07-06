@@ -805,7 +805,7 @@ class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest extends EbayEnterpris
      * When the callback extracts the size option.
      * Then The size option id is returned.
      */
-    public function extractSizeValue()
+    public function testExtractSizeValue()
     {
         /** @var int $optionId */
         $optionId = 89;
@@ -828,7 +828,7 @@ class EbayEnterprise_Catalog_Test_Helper_Map_AttributeTest extends EbayEnterpris
         $mapAttribute = $this->getHelperMock('ebayenterprise_catalog/map_attribute', ['_setOptionValues']);
         $mapAttribute->expects($this->once())
             ->method('_setOptionValues')
-            ->with($this->identicalTo('Size'), $this->identicalTo('77'), $this->identicalTo(['en-us' => 'Small']))
+            ->with($this->identicalTo('size'), $this->identicalTo('77'), $this->identicalTo(['en-us' => 'Small']))
             ->will($this->returnValue($optionId));
         $this->assertSame($optionId, $mapAttribute->extractSizeValue($nodeList));
     }

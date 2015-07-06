@@ -59,18 +59,6 @@ http://opensource.org/licenses/osl-3.0.php
             located at: ../app/code/community/EbayEnterprise/ProductImport/README.md#product-import-mapping
             -->
             <feed_attribute_mappings>
-                <gift_message_available>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method>extractBoolValue</method>
-                    <xpath/>
-                </gift_message_available>
-                <use_config_gift_message_available>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method>extractBoolValue</method>
-                    <xpath/>
-                </use_config_gift_message_available>
                 <gift_card_tender_code>
                     <class>ebayenterprise_catalog/map</class>
                     <type>disabled</type>

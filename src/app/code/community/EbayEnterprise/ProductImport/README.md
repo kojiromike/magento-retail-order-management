@@ -78,7 +78,7 @@ The product information provided in the Item Master drives much of the business 
 | `BaseAttributes/CatalogClass` | [Catalog Class](#magento-product-attributes) | |
 | `BaseAttributes/ItemStatus` | Status and [Item Status](#magento-product-attributes) | A value of `Active` will result in a product that is "Enabled" in Magento. Both `Discontinued` and `Inactive` will result in a product that is "Disabled" in Magento. The original value will also be preserved and saved as Item Status. |
 | `BaseAttributes/TaxCode` | [Tax Code](#magento-product-attributes) | Used in the tax duty request. Note that this is different than the "Tax Class" in Magento. |
-| `ExtendedAttributes/AllowGiftMessage` | Allow Message | For gift cards. |
+| `ExtendedAttributes/AllowGiftMessage` | Allow Gift Message to all products or not | For gift cards and all other products |
 | `ExtendedAttributes/ColorAttributes/Color` | Color |
 | `ExtendedAttributes/ColorAttributes/Color/Code` | Color Admin Label | A unique value used to identify the color. This value will be used as the admin label for the color option. When colors are imported, if a color option with an admin label matching the code already exists, that color option will be reused for the product. When a new `Color/Code` is encountered, a new option will be created for the color. |
 | `ExtendedAttributes/ColorAttributes/Color/Description` | Color Store View Label | The localized name of the color. This value will be used as the Store View specific label for color option and will be applied to any Store Views that are configured with a Store Language Code matching the `xml:lang` attribute of this node. |

@@ -280,6 +280,9 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
         $billingAddress->setRegion($paypalBillingAddress['region_code']);
         $billingAddress->setPostcode($paypalBillingAddress['postcode']);
         $billingAddress->setCountryId($paypalBillingAddress['country_id']);
+        if ($quote->getIsVirtual() && !$billingAddress->getEmail()) {
+            $billingAddress->setEmail($getExpressCheckoutReply['email']);
+        }
         $quote->setBillingAddress($billingAddress);
 
         // import payment info

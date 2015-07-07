@@ -255,7 +255,9 @@ class EbayEnterprise_Paypal_Model_Express_Api
             ->setPayerId($payerId)
             ->setCurrencyCode($quote->getQuoteCurrencyCode())
             ->setAmount($this->getTotal('grand_total', $quote));
-        $this->addShippingAddress($quote->getShippingAddress(), $payload);
+        /** @var Mage_Sales_Model_Quote_Address $shippingAddress */
+        $shippingAddress = $quote->getIsVirtual() ? $quote->getBillingAddress() : $quote->getShippingAddress();
+        $this->addShippingAddress($shippingAddress, $payload);
         if ($pickUpStoreId) {
             $payload->setPickUpStoreId($pickUpStoreId);
         }

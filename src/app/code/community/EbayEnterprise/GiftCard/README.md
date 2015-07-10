@@ -27,27 +27,6 @@ While creating orders in the admin, gift card amounts listed in the form are bas
 |:----------|
 | The Gift Card module is incompatible with any payment method that calculates totals and is unaware of this modules' implementation. |
 
-## Local XML Configuration
-
-Gift cards are mapped to a tender type by the card number. Ranges of card numbers belonging to a specific tender type are configured via local XML configuration. The extension includes a sample configuration file—[`/path/to/magento/root/dir/app/etc/rom.xml.sample`](../../../../etc/rom.xml.sample)—that includes detailed documentation and example configuration options.
-
-```xml
-<ebayenterprise_giftcard>
-	<!--
-	Gift Card Number Ranges: Map the ROM gift card tender types to the gift card number ranges for that tender
-	type. Node names must match gift card tender types support by the ROM payment service. Values must be
-	numerical ranges in the form of {start number}-{end number}. Ranges must not overlap, and will be provided
-	by eBay Enterprise.
-	-->
-	<card_number_bin_ranges>
-		<GS>800199900000000-800199910000000</GS>
-		<SP>6006592800000000000-6006592800100000000</SP>
-		<SV>6969280000000000-6969280010000000</SV>
-		<VL>9900000000000000-9900000010000000</VL>
-	</card_number_bin_ranges>
-</ebayenterprise_giftcard>
-```
-
 ## Dependencies
 
 ### Magento Modules

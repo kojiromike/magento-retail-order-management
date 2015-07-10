@@ -26,41 +26,6 @@ class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
         $this->coreHelper = Mage::helper('eb2ccore');
         $this->giftCardHelper = Mage::helper('ebayenterprise_giftcard');
     }
-
-    /**
-     * Test looking up a card's tender type based on a set of configured card
-     * number ranges.
-     * @dataProvider dataProvider
-     */
-    public function testLookupTenderTypeForCard($cardNumber, $tenderType, $ranges)
-    {
-        $config = $this->buildCoreConfigRegistry(array('binRanges' => $ranges));
-
-        $helper = $this->getHelperMock('ebayenterprise_giftcard/data', array('getConfigModel'));
-        $helper->expects($this->any())
-            ->method('getConfigModel')
-            ->will($this->returnValue($config));
-
-        $giftcard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber);
-        $this->assertSame($tenderType, $helper->lookupTenderTypeForCard($giftcard));
-    }
-    /**
-     * If a card number is not found to be within any bin range, an exception
-     * should be thrown.
-     * @dataProvider dataProvider
-     */
-    public function testLookupTenderTypeForCardNotFound($cardNumber, $ranges)
-    {
-        $config = $this->buildCoreConfigRegistry(array('binRanges' => $ranges));
-        $helper = $this->getHelperMock('ebayenterprise_giftcard/data', array('getConfigModel'));
-        $helper->expects($this->any())
-            ->method('getConfigModel')
-            ->will($this->returnValue($config));
-
-        $giftcard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber);
-        $this->setExpectedException('EbayEnterprise_GiftCard_Exception_InvalidCardNumber_Exception');
-        $helper->lookupTenderTypeForCard($giftcard);
-    }
     /**
      * Test adding a gift card to the container. Success path should result in
      * the card being in the container after having the card's balance checked.

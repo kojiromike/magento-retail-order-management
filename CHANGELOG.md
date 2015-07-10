@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Estimated Delivery Date Template not sending in order create request when not configured.
 
+### Changed
+- The gift card module no longer needs manual configuration of bin ranges. Any existent bin range configurations will be ignored.
+
 ## [1.6.0-alpha-6] - 2015-07-02
 ### Added
 - Support for bundle and group product types for inventory allocation operations

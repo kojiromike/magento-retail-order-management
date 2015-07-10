@@ -69,6 +69,13 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
     protected $_context;
     /** @var EbayEnterprise_GiftCard_Model_Mask */
     protected $_mask;
+    /** @var string */
+    protected $_tenderType;
+    /** @var EbayEnterprise_GiftCard_Helper_Tendertype */
+    protected $_tenderTypeHelper;
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $_config;
+
     /**
      * @param array $initParams May contain:
      *                          - 'helper' => EbayEnterprise_GiftCard_Helper_Data
@@ -81,6 +88,7 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
     public function __construct(array $initParams = [])
     {
         list(
+            $this->_tenderTypeHelper,
             $this->_helper,
             $this->_coreHelper,
             $this->_logger,
@@ -88,6 +96,7 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
             $this->_apiLogger,
             $this->_mask
         ) = $this->_checkTypes(
+            $this->_nullCoalesce($initParams, 'tender_type_helper', Mage::helper('ebayenterprise_giftcard/tendertype')),
             $this->_nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_giftcard')),
             $this->_nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore')),
             $this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
@@ -95,9 +104,11 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
             $this->_nullCoalesce($initParams, 'api_logger', new NullLogger),
             $this->_nullCoalesce($initParams, 'mask', Mage::getModel('ebayenterprise_giftcard/mask'))
         );
+        $this->_config = $this->_helper->getConfigModel();
     }
     /**
      * Type checks for self::__construct $initParams.
+     * @param  EbayEnterprise_Giftcard_Helper_Tendertype
      * @param  EbayEnterprise_Giftcard_Helper_Data
      * @param  EbayEnterprise_Eb2cCore_Helper_Data
      * @param  EbayEnterprise_MageLog_Helper_Data
@@ -107,6 +118,7 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
      * @return mixed[]
      */
     protected function _checkTypes(
+        EbayEnterprise_Giftcard_Helper_Tendertype $tenderTypeHelper,
         EbayEnterprise_Giftcard_Helper_Data $helper,
         EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
         EbayEnterprise_MageLog_Helper_Data $logger,
@@ -157,9 +169,23 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
     {
         return $this->_cardNumber;
     }
+    /**
+     * get the tender type for the giftcard. perform a lookup
+     * using the tendertype service if not yet set.
+     *
+     * @see EbayEnterprise_GiftCard_Helper_Tendertype::lookupTenderType
+     * @return string
+     */
     public function getTenderType()
     {
-        return $this->_helper->lookupTenderTypeForCard($this);
+        if (!$this->_tenderType) {
+            $this->_tenderType = $this->_tenderTypeHelper->lookupTenderType(
+                $this->getCardNumber(),
+                $this->getBalanceCurrencyCode(),
+                $this->getPanIsToken()
+            );
+        }
+        return $this->_tenderType;
     }
     public function setTokenizedCardNumber($tokenizedCardNumber)
     {
@@ -286,7 +312,6 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
     {
         return $this->_redeemedAt ?: new DateTime();
     }
-
     /**
      * Log the different requests consistently.
      *

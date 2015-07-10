@@ -15,7 +15,6 @@
 
 class EbayEnterprise_GiftCard_Helper_Data extends Mage_Core_Helper_Abstract implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
-    const INVLIAD_CARD_NUMBER_MESSAGE = 'EbayEnterprise_GiftCard_Invalid_Card_Number';
     const ZERO_BALANCE_CARD_MESSAGE = 'EbayEnterprise_GiftCard_Zero_Balance_Card';
     /** @var EbayEnterprise_GiftCard_Model_IContainer */
     protected $_giftCardContainer;
@@ -59,39 +58,6 @@ class EbayEnterprise_GiftCard_Helper_Data extends Mage_Core_Helper_Abstract impl
         return Mage::getModel('eb2ccore/config_registry')
             ->setStore($store)
             ->addConfigModel(Mage::getSingleton('ebayenterprise_giftcard/config'));
-    }
-    /**
-     * Lookup the tender type for given gift card.
-     * @param  EbayEnterprise_GiftCard_Model_IGiftcard $giftcard
-     * @return string
-     * @throws EbayEnterprise_GiftCard_Exception_InvalidCardNumber_Exception If card number not found in any known range.
-     */
-    public function lookupTenderTypeForCard(EbayEnterprise_GiftCard_Model_IGiftcard $giftcard)
-    {
-        $cardNumber = $giftcard->getCardNumber();
-        foreach ($this->getConfigModel()->binRanges as $tenderType => $range) {
-            if ($this->_isCardNumberWithinRange($cardNumber, $range)) {
-                return $tenderType;
-            }
-        }
-        throw Mage::exception(
-            'EbayEnterprise_GiftCard_Exception_InvalidCardNumber',
-            $this->__(self::INVLIAD_CARD_NUMBER_MESSAGE, $cardNumber)
-        );
-    }
-    /**
-     * Determine if the card number is within the range of numbers.
-     * @param  string  $cardNumber
-     * @param  string  $range      Hyphen separated range, min-max
-     * @return bool
-     */
-    protected function _isCardNumberWithinRange($cardNumber, $range)
-    {
-        list($min, $max) = explode('-', $range, 2);
-        $cardNumberLength = strlen($cardNumber);
-        return max($min, $cardNumber) === min($max, $cardNumber)
-            && strlen($min) <= $cardNumberLength
-            && strlen($max) >= $cardNumberLength;
     }
     /**
      * Add a gift card to the container. Will make the gift card balance check

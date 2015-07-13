@@ -119,11 +119,29 @@ class EbayEnterprise_Order_Model_Create_Orderitem
      */
     protected function prepareMerchandisePricing(Mage_Sales_Model_Order_Item $item, IPriceGroup $merch)
     {
+        if (!$this->canIncludeAmounts($item)) {
+            return $this;
+        }
         $merch
             ->setAmount($item->getRowTotal())
             ->setUnitPrice($item->getPrice());
         $this->discountHelper->transferDiscounts($item, $merch);
         return $this;
+    }
+
+    /**
+     * determine if the item's amounts should be put into the request.
+     *
+     * @param Mage_Sales_Model_Order_Item
+     * @return bool
+     */
+    protected function canIncludeAmounts(Mage_Sales_Model_Order_Item $item)
+    {
+        return !(
+            // only the parent item will have the bundle product type
+            $item->getProductType() === Mage_Catalog_Model_Product_Type::TYPE_BUNDLE
+            && $item->isChildrenCalculated()
+        );
     }
 
     /**

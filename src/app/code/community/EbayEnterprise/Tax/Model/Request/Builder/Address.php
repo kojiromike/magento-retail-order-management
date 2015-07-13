@@ -182,7 +182,7 @@ class EbayEnterprise_Tax_Model_Request_Builder_Address
         // The first item needs to include shipping totals, use this flag to
         // track when item is the first item.
         $first = true;
-        foreach ($this->_selectionHelper->selectFrom($this->_address->getAllVisibleItems()) as $item) {
+        foreach ($this->_selectionHelper->selectFrom($this->_address->getAllItems()) as $item) {
             // Add shipping amounts to the first item - necessary way of sending
             // address level shipping totals which is the only way Magento can
             // report shipping totals.

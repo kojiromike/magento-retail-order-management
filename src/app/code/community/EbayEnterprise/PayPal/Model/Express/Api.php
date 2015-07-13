@@ -140,6 +140,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
         $sdk->setRequestBody($payload);
         $this->logApiCall('set express', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
+        $this->logApiCall('set express', $reply->serialize(), 'response');
         if (!$reply->isSuccess() || is_null($reply->getToken())) {
             // Only set and do express have the error message in the reply.
             $logMessage =
@@ -152,7 +153,6 @@ class EbayEnterprise_Paypal_Model_Express_Api
             $this->logger->logException($e, $this->logContext->getMetaData(__CLASS__, [], $e));
             throw $e;
         }
-        $this->logApiCall('set express', $reply->serialize(), 'response');
         return [
             'method' => EbayEnterprise_PayPal_Model_Method_Express::CODE,
             'token'  => $reply->getToken()
@@ -199,6 +199,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
         $sdk->setRequestBody($payload);
         $this->logApiCall('get express', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
+        $this->logApiCall('get express', $reply->serialize(), 'response');
         if (!$reply->isSuccess()) {
             $logMessage = 'PayPal request failed. See exception log for details.';
             $this->logger->warning($logMessage, $this->logContext->getMetaData(__CLASS__));
@@ -206,7 +207,6 @@ class EbayEnterprise_Paypal_Model_Express_Api
             $this->logger->logException($e, $this->logContext->getMetaData(__CLASS__, [], $e));
             throw $e;
         }
-        $this->logApiCall('get express', $reply->serialize(), 'response');
         return [
             'method'           => EbayEnterprise_PayPal_Model_Method_Express::CODE,
             'order_id'         => $reply->getOrderId(),
@@ -276,6 +276,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
         $sdk->setRequestBody($payload);
         $this->logApiCall('do express', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
+        $this->logApiCall('do express', $reply->serialize(), 'response');
         if (!$reply->isSuccess()) {
             $logData = ['error_message' => $reply->getErrorMessage()];
             $logMessage = 'PayPal request failed with message "{error_message}". See exception log for details.';
@@ -284,7 +285,6 @@ class EbayEnterprise_Paypal_Model_Express_Api
             $this->logger->logException($e, $this->logContext->getMetaData(__CLASS__, [], $e));
             throw $e;
         }
-        $this->logApiCall('do express', $reply->serialize(), 'response');
         return [
             'method'          => EbayEnterprise_PayPal_Model_Method_Express::CODE,
             'order_id'        => $reply->getOrderId(),
@@ -320,6 +320,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
         $this->logApiCall('do authorization', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
         $isSuccess = $reply->isSuccess();
+        $this->logApiCall('do authorization', $reply->serialize(), 'response');
         if (!$isSuccess) {
             $logMessage = 'PayPal request failed.';
             $this->logger->warning($logMessage, $this->logContext->getMetaData(__CLASS__));
@@ -327,7 +328,6 @@ class EbayEnterprise_Paypal_Model_Express_Api
             $this->logger->logException($e, $this->logContext->getMetaData(__CLASS__, [], $e));
             throw $e;
         }
-        $this->logApiCall('do authorization', $reply->serialize(), 'response');
         return [
             'method'         => EbayEnterprise_PayPal_Model_Method_Express::CODE,
             'order_id'       => $reply->getOrderId(),
@@ -359,6 +359,7 @@ class EbayEnterprise_Paypal_Model_Express_Api
         $this->logApiCall('do void', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
         $isVoided = $reply->isSuccess();
+        $this->logApiCall('do void', $reply->serialize(), 'response');
         if (!$reply->isSuccess()) {
             $logMessage = 'PayPal DoVoid failed. See exception log for details.';
             $this->logger->warning($logMessage, $this->logContext->getMetaData(__CLASS__));
@@ -366,7 +367,6 @@ class EbayEnterprise_Paypal_Model_Express_Api
             $this->logger->logException($e, $this->logContext->getMetaData(__CLASS__, [], $e));
             throw $e;
         }
-        $this->logApiCall('do void', $reply->serialize(), 'response');
         return [
             'method'    => EbayEnterprise_PayPal_Model_Method_Express::CODE,
             'order_id'  => $reply->getOrderId(),
@@ -521,15 +521,35 @@ class EbayEnterprise_Paypal_Model_Express_Api
      * @param  string
      * @return self
      */
-    public function createLineItem($item, $lineItems, $currencyCode)
-    {
+    public function createLineItem(
+        Mage_Sales_Model_Quote_Item_Abstract $item,
+        ILineItemIterable $lineItems,
+        $currencyCode
+    ) {
         $lineItem = $lineItems->getEmptyLineItem();
         $lineItem->setName($this->helper->__($item->getProduct()->getName()))
             ->setSequenceNumber($item->getId())
-            ->setQuantity($item->getQty())
-            ->setUnitAmount($item->getPrice())
+            ->setQuantity($item->getTotalQty())
             ->setCurrencyCode($currencyCode);
+        if ($this->canIncludeAmounts($item)) {
+            $lineItem->setUnitAmount($item->getPrice());
+        }
         $lineItems->offsetSet($lineItem, null);
+    }
+
+    /**
+     * determine if the item's amounts should be put into the request.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @return bool
+     */
+    protected function canIncludeAmounts(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        return !(
+            // only the parent item will have the bundle product type
+            $item->getProduct()->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_BUNDLE
+            && $item->isChildrenCalculated()
+        );
     }
 
     /**

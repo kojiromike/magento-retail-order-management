@@ -168,7 +168,7 @@ class EbayEnterprise_Tax_Model_Request_Builder_Item
         $this->_orderItem
             ->setLineNumber($this->_item->getId())
             ->setItemId($this->_item->getSku())
-            ->setQuantity((int) $this->_item->getQty())
+            ->setQuantity((int) $this->_item->getTotalQty())
             ->setDescription($this->_item->getName())
             ->setHtsCode($this->_taxHelper->getProductHtsCodeByCountry($this->_itemProduct, $this->_address->getCountryId()))
             ->setManufacturingCountryCode($this->_itemProduct->getCountryOfManufacture());
@@ -240,11 +240,14 @@ class EbayEnterprise_Tax_Model_Request_Builder_Item
      */
     protected function _injectPricingData()
     {
+        $canIncludeAmounts = $this->_canIncludeAmounts($this->_item);
         $merchandisePricing = $this->_orderItem->getEmptyMerchandisePriceGroup()
-            ->setUnitPrice($this->_item->getPrice())
-            ->setAmount($this->_item->getRowTotal())
+            ->setUnitPrice($canIncludeAmounts ? $this->_item->getPrice() : 0)
+            ->setAmount($canIncludeAmounts ? $this->_item->getRowTotal() : 0)
             ->setTaxClass($this->_itemProduct->getTaxCode());
-        $this->_discountHelper->transferTaxDiscounts($this->_item, $merchandisePricing);
+        if ($canIncludeAmounts) {
+            $this->_discountHelper->transferTaxDiscounts($this->_item, $merchandisePricing);
+        }
         $this->_orderItem->setMerchandisePricing($merchandisePricing);
 
         // This will be set by the parent address when initially creating the
@@ -258,6 +261,21 @@ class EbayEnterprise_Tax_Model_Request_Builder_Item
             $this->_orderItem->setShippingPricing($shippingPricing);
         }
         return $this;
+    }
+
+    /**
+     * determine if the item's amounts should be put into the request.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @return bool
+     */
+    protected function _canIncludeAmounts(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        return !(
+            // only the parent item will have the bundle product type
+            $item->getProductType() === Mage_Catalog_Model_Product_Type::TYPE_BUNDLE
+            && $item->isChildrenCalculated()
+        );
     }
 
     /**

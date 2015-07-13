@@ -75,7 +75,6 @@ class EbayEnterprise_Eb2cCore_Helper_Discount
         $data = $this->getDiscountsData($salesObject);
         foreach ($data as $loneDiscountData) {
             $discount = $this->_fillOutDiscount($discounts->getEmptyDiscount(), $loneDiscountData);
-            ;
             $discounts[$discount] = $discount;
         }
         return $discountContainer->setDiscounts($discounts);

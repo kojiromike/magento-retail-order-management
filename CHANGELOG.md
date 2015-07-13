@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Support for bundle and group products in PayPal, tax and order-create requests
 
+### Fixed
+- Estimated Delivery Date Template not sending in order create request when not configured.
+
 ## [1.6.0-alpha-6] - 2015-07-02
 ### Added
 - Support for bundle and group product types for inventory allocation operations

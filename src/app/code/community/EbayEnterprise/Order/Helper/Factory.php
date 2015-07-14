@@ -314,4 +314,26 @@ class EbayEnterprise_Order_Helper_Factory
             ['item' => $item, 'item_payload' => $itemPayload]
         );
     }
+
+    /**
+     * Get a new sales/order_shipment_item instance.
+     *
+     * @param  array
+     * @return Mage_Sales_Model_Order_Shipment_Item
+     */
+    public function getNewSalesOrderShipmentItem(array $data)
+    {
+        return Mage::getModel('sales/order_shipment_item', $data);
+    }
+
+    /**
+     * Get a new sales/order_shipment_track instance.
+     *
+     * @param  array
+     * @return Mage_Sales_Model_Order_Shipment_Track
+     */
+    public function getNewSalesOrderShipmentTrack(array $data)
+    {
+        return Mage::getModel('sales/order_shipment_track', $data);
+    }
 }

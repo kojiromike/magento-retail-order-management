@@ -68,11 +68,7 @@
 <?php  if ($tracks->count()): ?>
 	<table class="data-table tracking-table" id="my-tracking-table-<?php echo $_shipment->getId(); ?>">
 		<tbody>
-			<tr>
-				<td colspan="2">
-					<a href="#" onclick="popWin('<?php echo $_helper->getTrackingPopupUrlBySalesModel($_shipment) ?>','trackshipment','width=800,height=600,top=0,left=0,resizable=yes,scrollbars=yes'); return false;" title="<?php echo $this->__('Track this shipment') ?>"><?php echo $this->__('Track this shipment') ?></a>
-				</td>
-			</tr>
+			<tr><td colspan="2">&nbsp;</td></tr>
 			<tr>
 				<th class="label"><?php echo $this->__('Tracking Number(s):') ?></th>
 				<td>&nbsp;
@@ -80,11 +76,7 @@
 				$i = 1;
 				$_size = $tracks->count();
 				foreach($tracks as $track): ?>
-				<?php if($track->isCustom()): ?>
 					<?php echo $this->escapeHtml($track->getNumber()) ?>
-				<?php else: ?>
-					<a href="#" onclick="popWin('<?php echo $_helper->getTrackingPopupUrlBySalesModel($track) ?>','trackorder','width=800,height=600,left=0,top=0,resizable=yes,scrollbars=yes')" ><?php echo $this->escapeHtml($track->getNumber()) ?></a>
-				<?php endif; ?>
 				<?php if($i!=$_size): ?>, <?php endif; ?>
 				<?php $i++;
 				endforeach; ?>

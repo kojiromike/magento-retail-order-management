@@ -39,7 +39,17 @@ $_shipGroup = $this->getShipGroup();
 	<tbody>
 		<?php foreach ($_items as $_item): ?>
 		<tr>
-			<td><?php echo $_item->getName(); ?></td>
+			<td>
+				<?php echo $_item->getName(); ?>
+				<?php if($_options = $_item->getProductOptions()): ?>
+					<dl class="item-options">
+						<?php foreach ($_options['options'] as $_option) : ?>
+							<dt><?php echo $this->escapeHtml($_option['label']); ?></dt>
+							<dd><?php echo nl2br($this->escapeHtml($_option['value'])); ?></dd>
+						<?php endforeach; ?>
+					</dl>
+				<?php endif; ?>
+			</td>
 			<td><?php echo $_item->getSku(); ?></td>
 			<td class="a-right"><?php echo $this->formatPrice($_item->getPrice()); ?></td>
 			<td class="a-right">

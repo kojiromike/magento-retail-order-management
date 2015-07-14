@@ -26,7 +26,7 @@ class EbayEnterprise_Order_Helper_Detail_Map extends EbayEnterprise_Order_Helper
      */
     public function getBooleanValue(IPayload $payload, $getter)
     {
-        return $this->_coreHelper->parseBool($this->_getValue($payload, $getter));
+        return $this->coreHelper->parseBool($this->_getValue($payload, $getter));
     }
 
     /**
@@ -111,10 +111,49 @@ class EbayEnterprise_Order_Helper_Detail_Map extends EbayEnterprise_Order_Helper
         foreach ($getters as $methods) {
             $value = $this->_getValue($payload, $methods);
             if ($value) {
-                $values[] = $value;
+                $values[] = [
+                    'label' => $this->getOptionLabel($methods),
+                    'value' => $value,
+                ];
             }
         }
-        return $values;
+        usort($values, [$this, 'sortOptions']);
+        return ['options' => $values];
+    }
+
+    /**
+     * Serialize the returning data array.
+     *
+     * @param  IPayload
+     * @param  string
+     * @return array
+     */
+    public function getListAsSerialize(IPayload $payload, $getter)
+    {
+        return serialize($this->getListAsArray($payload, $getter));
+    }
+
+    /**
+     * Get option label
+     *
+     * @param  string
+     * @return string
+     */
+    protected function getOptionLabel($name)
+    {
+        return preg_replace('/([A-Z])/', ' $1', substr($name, 3));
+    }
+
+    /**
+     * Determine if option one label is less then option two label.
+     *
+     * @param  array
+     * @param  array
+     * @return bool
+     */
+    protected function sortOptions(array $optionA, array $optionB)
+    {
+        return strcmp($optionA['label'], $optionB['label']) >= 0;
     }
 
     /**
@@ -278,7 +317,7 @@ class EbayEnterprise_Order_Helper_Detail_Map extends EbayEnterprise_Order_Helper
         foreach ($shippedItems as $shippedItem) {
             /** @var IOrderDetailTrackingNumberIterable $trackingNumbers */
             $trackingNumbers = $shippedItem->getOrderDetailTrackingNumbers();
-            array_merge($data, $this->_getIterableValuesAsArray($trackingNumbers, $getter));
+            $data = array_merge($data, $this->_getIterableValuesAsArray($trackingNumbers, $getter));
         }
         return $data;
     }
@@ -289,7 +328,7 @@ class EbayEnterprise_Order_Helper_Detail_Map extends EbayEnterprise_Order_Helper
      *
      * @param  IPayload
      * @param  string
-     * @return float
+     * @return array
      */
     protected function _getIterableValuesAsArray(IPayload $payload, $getter)
     {
@@ -328,5 +367,23 @@ class EbayEnterprise_Order_Helper_Detail_Map extends EbayEnterprise_Order_Helper
         /** @var IOrderItemReferenceIterable $orderItems */
         $orderItems = $payload->getItemReferences();
         return $this->_getIterableValuesAsArray($orderItems, $getter);
+    }
+
+    /**
+     * Get the payment tender type.
+     *
+     * @param  IPayload
+     * @param  string
+     * @return string
+     */
+    public function getTenderTypeValue(IPayload $payload, $getter)
+    {
+        /** @var array */
+        $romToMageTenderTypeMap = is_array($this->creditCardConfig->tenderTypes)
+            ? array_flip($this->creditCardConfig->tenderTypes) : [];
+        /** @var string */
+        $tenderType = $this->getStringValue($payload, $getter);
+        return isset($romToMageTenderTypeMap[$tenderType])
+            ? $romToMageTenderTypeMap[$tenderType] : $tenderType;
     }
 }

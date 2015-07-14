@@ -36,11 +36,15 @@
 						<address>
 							<?php $_sa = $_shipGroup->getShippingAddress(); ?>
 							<?php echo $_sa->getFirstname() . ' ' . $_sa->getLastname(); ?><br />
-							<?php echo $_sa->getStreet1(); ?><br />
-							<?php echo $_sa->getCity() . ', ' . $_sa->getMainDivision() . ' ' .  $_sa->getPostalCode(); ?><br />
-							<?php echo $_sa->getCountryCode(); ?><br />
-							<?php $_phone = $_sa->getPhone(); if ($_phone): ?>
-								<?php echo $this->__('T'); ?>: <?php echo $_phone; ?><br />
+							<?php if ($_sa->getIsVirtualAddress()): ?>
+								<?php echo $_sa->getEmail(); ?><br />
+							<?php else: ?>
+								<?php echo $_sa->getStreet1(); ?><br />
+								<?php echo $_sa->getCity() . ', ' . $_sa->getMainDivision() . ' ' .  $_sa->getPostalCode(); ?><br />
+								<?php echo $_sa->getCountryCode(); ?><br />
+								<?php $_phone = $_sa->getPhone(); if ($_phone): ?>
+									<?php echo $this->__('T'); ?>: <?php echo $_phone; ?><br />
+								<?php endif; ?>
 							<?php endif; ?>
 						</address>
 					</div>

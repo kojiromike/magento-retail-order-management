@@ -18,11 +18,43 @@ use eBayEnterprise\RetailOrderManagement\Payload\IPayload;
 abstract class EbayEnterprise_Order_Helper_Map_Abstract
 {
     /** @var EbayEnterprise_Eb2cCore_Helper_Data */
-    protected $_coreHelper;
+    protected $coreHelper;
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $creditcardConfig;
 
-    public function __construct()
+    public function __construct(array $initParams=[])
     {
-        $this->_coreHelper = Mage::helper('eb2ccore');
+        list($this->coreHelper, $this->creditCardConfig) = $this->checkTypes(
+            $this->nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore')),
+            $this->nullCoalesce($initParams, 'creditcard_config', Mage::helper('ebayenterprise_creditcard')->getConfigModel())
+        );
+    }
+
+    /**
+     * Type hinting for self::__construct $initParams
+     *
+     * @param  EbayEnterprise_Eb2cCore_Helper_Data
+     * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
+     * @return array
+     */
+    protected function checkTypes(
+        EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
+        EbayEnterprise_Eb2cCore_Model_Config_Registry $creditcardConfig
+    ) {
+        return func_get_args();
+    }
+
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the default value.
+     *
+     * @param  array
+     * @param  string $field Valid array key
+     * @param  mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
     }
 
     /**
@@ -81,6 +113,6 @@ abstract class EbayEnterprise_Order_Helper_Map_Abstract
      */
     protected function _getBooleanValue(IPayload $payload, $getter)
     {
-        return $this->_coreHelper->parseBool($this->_getStringValue($payload, $getter));
+        return $this->coreHelper->parseBool($this->_getStringValue($payload, $getter));
     }
 }

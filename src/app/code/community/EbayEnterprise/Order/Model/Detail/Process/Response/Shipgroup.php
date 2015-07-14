@@ -104,7 +104,14 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipgroup extends Varie
      */
     public function getShippingDescription()
     {
-        return $this->getChargeType();
+        foreach ($this->getItemsCollection() as $item) {
+            /** @var string */
+            $description = $item->getShippingDescription();
+            if ($description) {
+                return $description;
+            }
+        }
+        return null;
     }
 
     /**

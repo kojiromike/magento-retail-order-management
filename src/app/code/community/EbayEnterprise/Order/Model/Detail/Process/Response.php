@@ -16,6 +16,7 @@
 use eBayEnterprise\RetailOrderManagement\Payload\IPayload;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\Detail\IOrderDetailResponse;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IMailingAddress;
+use eBayEnterprise\RetailOrderManagement\Payload\Order\IEmailAddressDestination;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\Detail\IOrderDetailItem;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\Detail\IShipment;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IPayment;
@@ -29,6 +30,7 @@ class EbayEnterprise_Order_Model_Detail_Process_Response extends Mage_Sales_Mode
     const PAYMENT_DATA_KEY = 'payment_data';
     const SHIPMENT_DATA_KEY = 'shipment_data';
     const SHIPGROUP_DATA_KEY = 'ship_group_data';
+    const EMAIL_ADDRESS_DATA_KEY = 'email_address_data';
 
     /** @var IOrderDetailResponse */
     protected $_response;
@@ -184,20 +186,41 @@ class EbayEnterprise_Order_Model_Detail_Process_Response extends Mage_Sales_Mode
         /** @var IDestinationIterable $destinations */
         $destinations = $shipping->getDestinations();
 
-        /** @var IMailingAddress $mailingAddress */
+        /** @var IMailingAddress | IEmailAddressDestination $mailingAddress */
         foreach ($destinations as $mailingAddress) {
-            $this->_extractMailingAddresInfo($mailingAddress);
+            if ($mailingAddress instanceof IMailingAddress) {
+                $this->_extractMailingAddresInfo($mailingAddress);
+            } elseif ($mailingAddress instanceof IEmailAddressDestination) {
+                $this->_extractEmailAddresInfo($mailingAddress);
+            }
         }
         return $this;
     }
 
     /**
+     * Extracts all address information from payload.
+     *
      * @param  IMailingAddress
      * @return self
      */
     protected function _extractMailingAddresInfo(IMailingAddress $address)
     {
         $addressData = $this->_extractData($address, $this->_detailConfigMap[static::ADDRESS_DATA_KEY]);
+        $this->getAddressesCollection()
+            ->addItem($this->_factory->getNewDetailProcessResponseAddress($addressData, $this));
+        return $this;
+    }
+
+    /**
+     * Extract email address information from payload.
+     *
+     * @param  IEmailAddressDestination
+     * @return self
+     */
+    protected function _extractEmailAddresInfo(IEmailAddressDestination $address)
+    {
+        $addressData = $this->_extractData($address, $this->_detailConfigMap[static::EMAIL_ADDRESS_DATA_KEY]);
+        $addressData['is_virtual_address'] = true;
         $this->getAddressesCollection()
             ->addItem($this->_factory->getNewDetailProcessResponseAddress($addressData, $this));
         return $this;

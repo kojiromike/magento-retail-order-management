@@ -17,6 +17,78 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
 {
     /** @var EbayEnterprise_Order_Model_Detail_Process_Response_Address */
     protected $_shippingAddress;
+    /** @var EbayEnterprise_Order_Helper_Data */
+    protected $orderHelper;
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $coreConfig;
+    /** @var Mage_Shipping_Model_Shipping */
+    protected $shipping;
+    /** @var EbayEnterprise_Order_Helper_Factory */
+    protected $factory;
+
+    /**
+     * @param array $initParams Must have this key:
+     *                          - 'response' => IOrderDetailResponse
+     */
+    public function __construct(array $initParams=[])
+    {
+        list($this->orderHelper, $this->coreConfig, $this->shipping, $this->factory) = $this->checkTypes(
+            $this->nullCoalesce($initParams, 'order_helper', Mage::helper('ebayenterprise_order')),
+            $this->nullCoalesce($initParams, 'core_config', Mage::helper('eb2ccore')->getConfigModel()),
+            $this->nullCoalesce($initParams, 'shipping', Mage::getModel('shipping/shipping')),
+            $this->nullCoalesce($initParams, 'factory', Mage::helper('ebayenterprise_order/factory'))
+        );
+        parent::__construct($this->removeKnownKeys($initParams));
+    }
+
+    /**
+     * Populate a new array with keys that not in the array of known keys.
+     *
+     * @param  array
+     * @return array
+     */
+    protected function removeKnownKeys(array $initParams)
+    {
+        $newParams = [];
+        $knownKeys = ['order_helper', 'core_config', 'shipping', 'factory'];
+        foreach ($initParams as $key => $value) {
+            if (!in_array($key, $knownKeys)) {
+                $newParams[$key] = $value;
+            }
+        }
+        return $newParams;
+    }
+
+    /**
+     * Type hinting for self::__construct $initParams
+     *
+     * @param  EbayEnterprise_Order_Helper_Data
+     * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
+     * @param  Mage_Shipping_Model_Shipping
+     * @param  EbayEnterprise_Order_Helper_Factory
+     * @return array
+     */
+    protected function checkTypes(
+        EbayEnterprise_Order_Helper_Data $orderHelper,
+        EbayEnterprise_Eb2cCore_Model_Config_Registry $coreConfig,
+        Mage_Shipping_Model_Shipping $shipping,
+        EbayEnterprise_Order_Helper_Factory $factory
+    ) {
+        return func_get_args();
+    }
+
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the default value.
+     *
+     * @param  array
+     * @param  string $field Valid array key
+     * @param  mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
+    }
 
     /**
      * @see Varien_Object::_construct()
@@ -33,14 +105,13 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
         // templates and blocks expect something from the getId method, so set the id to
         // the increment id to ensure output is generated.
         $this->setId($this->getIncrementId());
-        // remove the order key, we no long need it.
-        $this->unsetData('order');
         if (trim($this->getIncrementId())) {
             $items = $this->getOrder()->getItemsCollection();
             foreach ($this->getShippedItemIds() as $itemRefId) {
                 $item = $items->getItemByColumnValue('ref_id', $itemRefId);
                 if ($item && $item->getSku()) {
-                    $this->_injectShipmentItems(array_merge($item->getData(), ['qty' => $item->getQtyShipped()]));
+                    $data = array_merge($item->getData(), ['qty' => $item->getQtyShipped(), 'order_item_id' => $item->getId()]);
+                    $this->_injectShipmentItems($data, $item);
                 }
             }
             $tracks = $this->getTracks();
@@ -55,15 +126,19 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
 
     /**
      * injecting shipment data into order shipment item collection
-     * @param array $data
+     * @param  array
+     * @param  Mage_Sales_Model_Order_Item
      * @return self
      */
-    protected function _injectShipmentItems(array $data)
+    protected function _injectShipmentItems(array $data, Mage_Sales_Model_Order_Item $item)
     {
         if (!$this->_items) {
             $this->_items = new Varien_Data_Collection();
         }
-        $this->_items->addItem(Mage::getModel('sales/order_shipment_item', $data));
+        $shipmentItem = $this->factory->getNewSalesOrderShipmentItem($data);
+        $shipmentItem->setOrderItem($item)
+            ->setShipment($this);
+        $this->_items->addItem($shipmentItem);
 
         return $this;
     }
@@ -78,7 +153,7 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
         if (!$this->_tracks) {
             $this->_tracks = new Varien_Data_Collection();
         }
-        $this->_tracks->addItem(Mage::getModel('sales/order_shipment_track', $data));
+        $this->_tracks->addItem($this->factory->getNewSalesOrderShipmentTrack($data));
 
         return $this;
     }
@@ -104,6 +179,55 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
      */
     public function getShippingDescription()
     {
-        return $this->getShippingAddress()->getChargeType();
+        /** @var string */
+        $carrier = $this->getCarrier();
+        /** @var string */
+        $mode = $this->getCarrierMode();
+        /** @var array */
+        $shipmap = is_array($this->coreConfig->shippingMethodMap)
+            ? array_flip($this->coreConfig->shippingMethodMap): [];
+        /** @var string */
+        $romKey = sprintf('%s_%s', $carrier, $mode);
+
+        return isset($shipmap[$romKey])
+            ? $this->getShippingMethod($shipmap[$romKey])
+            : $this->orderHelper->__('%s %s', $carrier, $mode);
+    }
+
+    /**
+     * Get the shipping method using the shipping code.
+     *
+     * @param  string
+     * @return string | null
+     */
+    protected function getShippingMethod($shipping)
+    {
+        $data = array_filter(explode('_', $shipping));
+        if (count($data) > 1) {
+            /** @var string */
+            $shippingCode = $data[0];
+            /** @var string */
+            $shippingMethodCode = $data[1];
+            /** @var Mage_Shipping_Model_Carrier_Abstract | false */
+            $carrier = $this->shipping->getCarrierByCode($shippingCode);
+            return $carrier
+                ? sprintf('%s - %s', $carrier->getConfigData('title'), $this->getShippingMethodName($carrier, $shippingMethodCode)) : null;
+        }
+        return null;
+    }
+
+    /**
+     * Get the shipping method name using the passed in shipping method code
+     *
+     * @param  Mage_Shipping_Model_Carrier_Abstract
+     * @param  string
+     * @return string | null
+     */
+    protected function getShippingMethodName(Mage_Shipping_Model_Carrier_Abstract $carrier, $shippingMethodCode)
+    {
+        /** @var array */
+        $shippingMethods = $carrier->getAllowedMethods();
+        return isset($shippingMethods[$shippingMethodCode])
+            ? $shippingMethods[$shippingMethodCode] : null;
     }
 }

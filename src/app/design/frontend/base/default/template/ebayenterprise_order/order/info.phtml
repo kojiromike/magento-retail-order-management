@@ -69,10 +69,7 @@
 				<h2><?php echo $_helper->__('Payment Method(s)') ?></h2>
 			</div>
 			<div class="box-content">
-				<?php $_payments = $_order->getPaymentsCollection(); ?>
-				<?php foreach ($_payments as $_payment): ?>
-					<?php echo trim($_payment->getPaymentTypeName()); ?> (<?php echo $_payment->getTenderType(); ?>)<br />
-				<?php endforeach; ?>
+				<?php echo $this->getPaymentInfoHtml() ?>
 			</div>
 		</div>
 	</div>

@@ -410,6 +410,33 @@ http://opensource.org/licenses/osl-3.0.php
                             <getter>getPostalCode</getter>
                         </postal_code>
                     </address_data>
+                    <!--When the order contains only virtual items, build the shipping address using this map-->
+                    <email_address_data>
+                        <id>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getStringValue</method>
+                            <getter>getId</getter>
+                        </id>
+                        <lastname>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getStringValue</method>
+                            <getter>getLastName</getter>
+                        </lastname>
+                        <firstname>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getStringValue</method>
+                            <getter>getFirstName</getter>
+                        </firstname>
+                        <email>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getStringValue</method>
+                            <getter>getEmailAddress</getter>
+                        </email>
+                    </email_address_data>
                     <item_data>
                         <sku>
                             <class>ebayenterprise_order/detail_map</class>
@@ -492,9 +519,15 @@ http://opensource.org/licenses/osl-3.0.php
                         <product_options>
                             <class>ebayenterprise_order/detail_map</class>
                             <type>helper</type>
-                            <method>getListAsArray</method>
+                            <method>getListAsSerialize</method>
                             <getter>getSize|getColor</getter>
                         </product_options>
+                        <shipping_description>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getStringValue</method>
+                            <getter>getCarrierDisplayText</getter>
+                        </shipping_description>
                     </item_data>
                     <order_data>
                         <is_cancellable>
@@ -593,7 +626,7 @@ http://opensource.org/licenses/osl-3.0.php
                         <tender_type>
                             <class>ebayenterprise_order/detail_map</class>
                             <type>helper</type>
-                            <method>getStringValue</method>
+                            <method>getTenderTypeValue</method>
                             <getter>getTenderType</getter>
                         </tender_type>
                         <account_unique_id>
@@ -646,6 +679,18 @@ http://opensource.org/licenses/osl-3.0.php
                             <method>getShippedItems</method>
                             <getter>getRef</getter>
                         </shipped_item_ids>
+                        <carrier>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getStringValue</method>
+                            <getter>getCarrier</getter>
+                        </carrier>
+                        <carrier_mode>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getStringValue</method>
+                            <getter>getMode</getter>
+                        </carrier_mode>
                     </shipment_data>
                     <ship_group_data>
                         <id>

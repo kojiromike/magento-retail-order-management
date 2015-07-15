@@ -44,6 +44,7 @@ class EbayEnterprise_PayPal_Model_Config extends EbayEnterprise_Eb2cCore_Model_C
             'logo_image_src'                     => 'ebayenterprise_paypal/url/logo_image_src',
             'logo_about_page_uri'                => 'ebayenterprise_paypal/url/logo_about_page_uri',
             'mark_image_src'                     => 'ebayenterprise_paypal/url/mark_image_src',
+            'what_is_page_url'                   => 'ebayenterprise_paypal/url/what_is_page_url',
             'shortcut_express_checkout_button'   => 'ebayenterprise_paypal/url/shortcut_express_checkout_button',
             'redirect_uri'                       => 'ebayenterprise_paypal/url/redirect_uri',
         );

@@ -20,11 +20,11 @@
  */
 ?>
 <!-- PayPal Logo -->
-<img src="<?php echo $this->escapeHtml($this->getPaymentAcceptanceMarkSrc()) ?>"
-	alt="<?php echo $this->getAcceptanceMarkMessage() ?>"
+<img src="<?php echo $this->escapeHtml($this->getPaymentMarkImageUrl()) ?>"
+	alt="<?php echo $this->getPaymentMarkAltText() ?>"
 	class="v-middle"/>&nbsp;
-<a href="<?php echo $this->getPaymentAcceptanceMarkHref() ?>"
-	onclick="javascript:window.open('<?php echo $this->getPaymentAcceptanceMarkHref() ?>','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, ,left=0, top=0, width=400, height=350'); return false;">
+<a href="<?php echo $this->getWhatIsPaypalUrl() ?>"
+	onclick="javascript:window.open('<?php echo $this->getWhatIsPaypalUrl() ?>','olcwhatispaypal','toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, left=0, top=0, width=400, height=350'); return false;">
 	<?php echo Mage::helper('ebayenterprise_paypal')->__('What is PayPal?'); ?>
 </a>
 <!-- PayPal Logo -->

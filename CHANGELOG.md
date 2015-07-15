@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Estimated Delivery Date Template not sending in order create request when not configured.
+- PayPal "What's PayPal" popup opened to a blank page.
 
 ### Changed
 - The gift card module no longer needs manual configuration of bin ranges. Any existent bin range configurations will be ignored.

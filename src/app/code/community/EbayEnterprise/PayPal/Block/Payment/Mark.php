@@ -18,38 +18,64 @@
  */
 class EbayEnterprise_PayPal_Block_Payment_Mark extends Mage_Core_Block_Template
 {
-    const DEFAULT_MARK_IMAGE_SRC = 'https://www.paypal.com/%s/i/logo/PayPal_mark_{static_size}.gif';
-    const PAYMENT_MARK_37x23 = '37x23';
-    const PAYMENT_MARK_50x34 = '50x34';
-    const PAYMENT_MARK_60x38 = '60x38';
-    const PAYMENT_MARK_180x113 = '180x113';
+    const ALT_TEXT_MESSAGE = 'EBAYENTERPRISE_PAYPAL_PAYMENT_MARK_ALT_TEXT';
+    const DEFAULT_MARK_IMAGE_SRC =
+        'https://www.paypal.com/{locale_code}/i/logo/PayPal_mark_{static_size}.gif';
+    const DEFAULT_WHAT_IS_PAYPAL_URL =
+        'https://www.paypal.com/%s/cgi-bin/webscr?cmd=xpt/Marketing/popup/OLCWhatIsPayPal-outside';
+    const PAYMENT_MARK_37X23 = '37x23';
+    const PAYMENT_MARK_50X34 = '50x34';
+    const PAYMENT_MARK_60X38 = '60x38';
+    const PAYMENT_MARK_180X113 = '180x113';
     /**
      * Config model instance
      *
      * @var EbayEnterprise_Eb2cCore_Model_Config_Registry
      */
-    protected $_config;
-
+    protected $config;
     /** @var EbayEnterprise_PayPal_Helper_Data */
-    protected $_helper;
+    protected $helper;
+    /** @var Mage_Core_Model_Locale */
+    protected $locale;
+    /** @var string */
+    protected $paymentMarkImageUrl;
+    /** @var string */
+    protected $whatIsPayPalUrl;
 
     /**
      * Set template and redirect message
      */
     protected function _construct()
     {
-        $this->_helper = Mage::helper('ebayenterprise_paypal');
-        $this->_config = $this->_helper->getConfigModel(
-        );
-        $locale = Mage::app()->getLocale();
-        $this->setTemplate('ebayenterprise_paypal/payment/mark.phtml')
-            ->setPaymentAcceptanceMarkHref(
-                $this->getPaymentMarkWhatIsPaypalUrl($locale)
-            )
-            ->setPaymentAcceptanceMarkSrc(
-                $this->getPaymentMarkImageUrl($locale->getLocaleCode())
-            );
-        return parent::_construct();
+        $this->helper = Mage::helper('ebayenterprise_paypal');
+        $this->config = $this->helper->getConfigModel();
+        $this->setTemplate('ebayenterprise_paypal/payment/mark.phtml');
+    }
+
+    /**
+     * get the url to an "about paypal" page
+     *
+     * @return string
+     */
+    public function getWhatIsPayPalUrl()
+    {
+        if (!$this->whatIsPayPalUrl) {
+            $this->whatIsPayPalUrl = $this->generateWhatIsPaypalUrl();
+        }
+        return $this->whatIsPayPalUrl;
+    }
+
+    /**
+     * get the url for the image displayed for the payment
+     *
+     * @return string
+     */
+    public function getPaymentMarkImageUrl()
+    {
+        if (!$this->paymentMarkImageUrl) {
+            $this->paymentMarkImageUrl = $this->generatePaymentMarkImageUrl();
+        }
+        return $this->paymentMarkImageUrl;
     }
 
     /**
@@ -57,37 +83,94 @@ class EbayEnterprise_PayPal_Block_Payment_Mark extends Mage_Core_Block_Template
      * Supposed to be used on payment methods selection
      * $staticSize is applicable for static images only
      *
-     * @param string $localeCode
-     * @param float  $orderTotal
-     * @param string $pal
      * @param string $staticSize
      */
-    public function getPaymentMarkImageUrl(
-        $localeCode,
-        $staticSize = null
-    ) {
-        if (null === $staticSize) {
-            $staticSize = $this->_config->paymentMarkSize;
-        }
+    protected function generatePaymentMarkImageUrl()
+    {
+        // get the static size set on the block or
+        $staticSize = $this->getStaticSize() ?: $this->config->paymentMarkSize;
         switch ($staticSize) {
-            case self::PAYMENT_MARK_37x23:
-            case self::PAYMENT_MARK_50x34:
-            case self::PAYMENT_MARK_60x38:
-            case self::PAYMENT_MARK_180x113:
+            case self::PAYMENT_MARK_37X23:
+            case self::PAYMENT_MARK_50X34:
+            case self::PAYMENT_MARK_60X38:
+            case self::PAYMENT_MARK_180X113:
                 break;
             default:
-                $staticSize = self::PAYMENT_MARK_50x34;
+                $staticSize = self::PAYMENT_MARK_50X34;
         }
-        $markImageSrc = $this->_config->markImageSrc ?: self::DEFAULT_MARK_IMAGE_SRC;
+        $markImageSrc = $this->config->markImageSrc ?: self::DEFAULT_MARK_IMAGE_SRC;
         return str_replace(
             array('{locale_code}', '{static_size}'),
-            array($localeCode, $staticSize),
+            array($this->getLocale()->getLocaleCode(), $staticSize),
             $markImageSrc
         );
     }
 
-    public function getAcceptanceMarkMessage()
+    /**
+     * Get "What Is PayPal" localized URL
+     *
+     * @return string
+     */
+    protected function generateWhatIsPayPalUrl()
     {
-        $this->_helper->__('Acceptance Mark');
+        return $this->config->whatIsPageUrl
+            ?: sprintf(self::DEFAULT_WHAT_IS_PAYPAL_URL, strtolower($this->getCountryCode()));
+    }
+
+    /**
+     * get the country code for use in generating the what is paypal url
+     *
+     * @return string
+     */
+    protected function getCountryCode()
+    {
+        $locale = $this->getLocale();
+        // get the region code from the locale's underlying
+        // Zend_Locale object
+        $countryCode = $locale->getLocale()->getRegion();
+        return $countryCode;
+    }
+
+    /**
+     * get the locale
+     *
+     * @return Mage_Core_Model_Locale
+     */
+    public function getLocale()
+    {
+        if (!$this->locale) {
+            $this->locale = $this->getGlobalLocale();
+        }
+        return $this->locale;
+    }
+
+    /**
+     * set the locale
+     *
+     * @param Mage_Core_Model_Locale
+     */
+    public function setLocale(Mage_Core_Model_Locale $locale)
+    {
+        $this->locale = $locale;
+    }
+
+    /**
+     * get the current global locale
+     *
+     * @return Mage_Core_Model_Locale
+     */
+    protected function getGlobalLocale()
+    {
+        return Mage::app()->getLocale();
+    }
+
+    /**
+     * get the translated alt text for the image
+     *
+     * @return string
+     */
+    public function getPaymentMarkAltText()
+    {
+        return $this->helper->__(self::ALT_TEXT_MESSAGE);
     }
 }

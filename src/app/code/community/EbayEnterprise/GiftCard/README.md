@@ -8,7 +8,6 @@ The intended audience for this guide is Magento merchants, business users and sy
 ## Contents
 
 - [Introduction](#introduction)
-- [Local XML Configuration](#local-xml-configuration)
 - [Dependencies](#dependencies)
 
 ## Introduction

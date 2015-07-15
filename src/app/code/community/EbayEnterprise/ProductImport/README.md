@@ -45,7 +45,7 @@ On installation, the Magento Retail Order Management Extension will create the f
 
 | Attribute Name | Attribute Code  | Description |
 |:---------------|:----------------|:------------|
-| Size           | `size`          | Product size, if the attribute `size` had already existed in Magento Prior to installing the ROM extension it will be removed and re-installed as a select input type |
+| Size           | `size`          | Product size |
 | Style ID       | `style_id`      | Associates simple products to configurable products |
 | Is Clean       | `is_clean`      | Flag indicating if the product has had all of its product links resolved |
 | Unresolved Product Links | `unresolved_product_links` | Any related, cross-sell or up-sell product links for the product that have not yet been resolved, typically due to the target products not existing in Magento yet |
@@ -53,7 +53,7 @@ On installation, the Magento Retail Order Management Extension will create the f
 | Tax Code       | `tax_code`      | Tax code used by the Retail Order Management tax service |
 | Catalog Class  | `catalog_class` | Intended to specify how an item displays in a catalog. This value drives no out-of-the-box business logic in Magento. |
 | Item Status    | `item_status`   | Preserves the original Item Status value. This value drives no out-of-the-box business logic in Magento. |
-| Street Date    | `street_date`   | Earliest date the Retail Order Management OMS will allocate the product. |
+| Street Date    | `street_date`   | Earliest date the Retail Order Management OMS will allocate the product |
 
 ## Product Hub Feed Processing
 
@@ -78,8 +78,8 @@ The product information provided in the Item Master drives much of the business 
 | `BaseAttributes/CatalogClass` | [Catalog Class](#magento-product-attributes) | |
 | `BaseAttributes/ItemStatus` | Status and [Item Status](#magento-product-attributes) | A value of `Active` will result in a product that is "Enabled" in Magento. Both `Discontinued` and `Inactive` will result in a product that is "Disabled" in Magento. The original value will also be preserved and saved as Item Status. |
 | `BaseAttributes/TaxCode` | [Tax Code](#magento-product-attributes) | Used in the tax duty request. Note that this is different than the "Tax Class" in Magento. |
-| `ExtendedAttributes/AllowGiftMessage` | Allow Gift Message to all products or not | For gift cards and all other products |
-| `ExtendedAttributes/ColorAttributes/Color` | Color |
+| `ExtendedAttributes/AllowGiftMessage` | Allow Gift Message | |
+| `ExtendedAttributes/ColorAttributes/Color` | Color | |
 | `ExtendedAttributes/ColorAttributes/Color/Code` | Color Admin Label | A unique value used to identify the color. This value will be used as the admin label for the color option. When colors are imported, if a color option with an admin label matching the code already exists, that color option will be reused for the product. When a new `Color/Code` is encountered, a new option will be created for the color. |
 | `ExtendedAttributes/ColorAttributes/Color/Description` | Color Store View Label | The localized name of the color. This value will be used as the Store View specific label for color option and will be applied to any Store Views that are configured with a Store Language Code matching the `xml:lang` attribute of this node. |
 | `ExtendedAttributes/CountryOfOrigin` | Country of Manufacture | This value should be the two character ISO 3166 country code. |
@@ -87,6 +87,9 @@ The product information provided in the Item Master drives much of the business 
 | `ExtendedAttributes/MaxGCAmount` | Open Amount Max Value | |
 | `ExtendedAttributes/ItemDimension/Shipping/Mass/Weight` | Weight | |
 | `ExtendedAttributes/SalesClass` | Backorders |  Values mapped as defined by `default/ebayenterprise_catalog/feed/stock_map` in [`app/etc/productimport.xml`](/src/app/etc/productimport.xml.sample). |
+| `ExtendedAttributes/SizeAttributes/Size` | [Size](#magento-product-attributes) | |
+| `ExtendedAttributes/SizeAttributes/Size/Code` | Size Admin Label | A unique value used to identify the size. This value will be used as the admin label for the size option. When sizes are imported, if a size option with an admin label matching the code already exists, that size option will be reused for the product. When a new `Size/Code` is encountered, a new option will be created for the size. |
+| `ExtendedAttributes/SizeAttributes/Size/Description` | Size Store View Label | The localized name of the size. This value will be used as the Store View specific label for size option and will be applied to any Store Views that are configured with a Store Language Code matching the `xml:lang` attribute of this node. |
 | `ExtendedAttributes/StreetDate` | [Street Date](#magento-product-attributes) | |
 | `ExtendedAttributes/Style/StyleId` | [Style Id](#magento-product-attributes) | The Style Id will associate a child product to a parent configurable product whose SKU matches that Style Id. |
 | `CustomAttributes` | N/A | Additional key/value pairs may be included in the Item Master feed. A few Custom Attributes have been mapped to required Magento Product Attributes. Additional [Custom Product Import Mappings](#custom-product-import-mapping) may be added to local configuration. |

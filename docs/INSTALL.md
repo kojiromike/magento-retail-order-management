@@ -148,7 +148,7 @@ This command will perform the update according to the version restrictions given
 
 The Magento Retail Order Management Extension requires additional configuration via local XML.
 
-The extension includes a sample configuration file—[`app/etc/rom.xml.sample`](../src/app/etc/rom.xml.sample)—that includes detailed documentation and example configuration options. You can use this file as a starting point for your implementation by renaming this file to `rom.xml`. Carefully review all options to ensure they match your specific implementation.
+The extension includes a sample configuration file—[`app/etc/rom.xml.sample`](/src/app/etc/rom.xml.sample)—that includes detailed documentation and example configuration options. You can use this file as a starting point for your implementation by renaming this file to `rom.xml`. Carefully review all options to ensure they match your specific implementation.
 
 ## Catalog Workflow Configuration
 

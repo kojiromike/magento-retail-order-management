@@ -1,16 +1,26 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## Unreleased Changes
+## [1.6.0-beta-1] - 2015-07-16
 ### Added
-- Support for bundle and group products in PayPal, tax and order-create requests
-
-### Fixed
-- Estimated Delivery Date Template not sending in order create request when not configured.
-- PayPal "What's PayPal" popup opened to a blank page.
+- Support for ordering bundle products
+- Product import for size attributes
 
 ### Changed
 - The gift card module no longer needs manual configuration of bin ranges. Any existent bin range configurations will be ignored.
+- `ExtendedAttributes/AllowGiftMessage` mapped to Allow Gift Message (Gift Options) instead of Allow Message (Gift Card Information)
+
+### Fixed
+- Error handling shipping information for virtual products with credit card payments
+- BIN is not found in range when multiple ranges exist for the same tender type
+- Local inventory is checked instead of the ROM inventory service
+- Missing order information on order detail
+- Order Create Request does not include a product's color or size
+- Registered user checkout success page does not link to the rom order detail correctly
+- Log masked gift card requests/responses
+- "What's PayPal" popup is not populated
+- Estimated Delivery Date is not sent in the OCR if there's no template configured
+- Credit Card Auth Response Log Message in `/Request/` Log Key
 
 ## [1.6.0-alpha-6] - 2015-07-02
 ### Added
@@ -315,6 +325,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-6...1.6.0-beta-1
 [1.6.0-alpha-6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-5...1.6.0-alpha-6
 [1.6.0-alpha-5]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-4...1.6.0-alpha-5
 [1.6.0-alpha-4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-3...1.6.0-alpha-4

@@ -130,7 +130,14 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
      */
     protected function isRequestedItemAvailable(Mage_Sales_Model_Quote_Item_Abstract $item)
     {
-        return $this->_calculateTotalQuantityRequested($item) <= $this->_getAvailableQuantityForItem($item);
+        try {
+            $availableQuantity = $this->_getAvailableQuantityForItem($item);
+        } catch (EbayEnterprise_Inventory_Exception_Quantity_Collector_Exception $e) {
+            // If inventory service sends an unusable response for quantity,
+            // try again with details
+            return true;
+        }
+        return $this->_calculateTotalQuantityRequested($item) <= $availableQuantity;
     }
 
     /**

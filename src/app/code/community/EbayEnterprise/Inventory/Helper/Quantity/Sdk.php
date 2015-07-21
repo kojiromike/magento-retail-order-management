@@ -124,12 +124,6 @@ class EbayEnterprise_Inventory_Helper_Quantity_Sdk
                 $this->_logContext->getMetaData(__CLASS__, [], $e)
             );
             throw $this->_failQuantityCollection();
-        } catch (InvalidPayload $e) {
-            $this->_logger->warning(
-                'Inventory quantity request payload is invalid.',
-                $this->_logContext->getMetaData(__CLASS__, [], $e)
-            );
-            throw $this->_failQuantityCollection();
         } catch (UnsupportedOperation $e) {
             $this->_logger->critical(
                 'Inventory quantity service response unsupported by SDK.',
@@ -144,7 +138,7 @@ class EbayEnterprise_Inventory_Helper_Quantity_Sdk
             throw $this->_failQuantityCollection();
         } catch (Exception $e) {
             $this->_logger->warning(
-                'Encountered unexepcted error attempting to request inventory quantities. See the exception log.',
+                'Encountered unexpected error attempting to request inventory quantities. See the exception log.',
                 $this->_logContext->getMetaData(__CLASS__, [], $e)
             );
             throw $this->_failQuantityCollection();

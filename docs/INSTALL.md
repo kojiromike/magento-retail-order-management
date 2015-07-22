@@ -130,7 +130,7 @@ composer require 'ebayenterprise/retail-order-management=@beta'
 
 ### Step 4: Install 41st Parameter JavaScript
 
-You will be provided with a set of 41st Parameter JavaScript files required to collect data for Fraud Protection & Risk Management. Please install those files in the [`js/ebayenterprise_eb2cfraud/` directory](/src/js/ebayenterprise_eb2cfraud/).
+You will be provided with a set of 41st Parameter JavaScript files required to collect data for Fraud Protection & Risk Management. Please install those files in `js/ebayenterprise_eb2cfraud/`.
 
 You can confirm the files have been installed in the Magento Admin at **System > Configuration > eBay Enterprise > Retail Order Management > Fraud > Fraud Files Installed**.
 

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-2] - 2015-07-30
+### Fixed
+- Inventory Service Failure Blocks Checkout
+
 ## [1.6.0-beta-1] - 2015-07-16
 ### Added
 - Support for ordering bundle products
@@ -325,6 +329,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-1...1.6.0-beta-2
 [1.6.0-beta-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-6...1.6.0-beta-1
 [1.6.0-alpha-6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-5...1.6.0-alpha-6
 [1.6.0-alpha-5]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-4...1.6.0-alpha-5

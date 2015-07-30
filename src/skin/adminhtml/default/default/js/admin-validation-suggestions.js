@@ -39,14 +39,14 @@
     var fillFormWithSuggestion = function (input) {
 /*
 data-address-data = {
-	"street1":"1 S Rosedale St",
-	"street2":null,
-	"street3":null,
-	"street4":null,
-	"city":"Baltimore",
-	"region_id":31,"
-	"country_id":"US",
-	"postcode":"21229-3739"
+    "street1":"1 S Rosedale St",
+    "street2":null,
+    "street3":null,
+    "street4":null,
+    "city":"Baltimore",
+    "region_id":31,"
+    "country_id":"US",
+    "postcode":"21229-3739"
 }"
  */
         var addressData = input.readAttribute('data-address-data').evalJSON();

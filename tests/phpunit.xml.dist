@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-	Copyright (c) 2013-2014 eBay Enterprise, Inc.
+Copyright (c) 2013-2014 eBay Enterprise, Inc.
 
-	NOTICE OF LICENSE
+NOTICE OF LICENSE
 
-	This source file is subject to the Open Software License (OSL 3.0)
-	that is bundled with this package in the file LICENSE.md.
-	It is also available through the world-wide-web at this URL:
-	http://opensource.org/licenses/osl-3.0.php
+This source file is subject to the Open Software License (OSL 3.0)
+that is bundled with this package in the file LICENSE.md.
+It is also available through the world-wide-web at this URL:
+http://opensource.org/licenses/osl-3.0.php
 
-	@copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
-	@license     http://opensource.org/licenses/osl-3.0.php     Open Software License (OSL 3.0)
+@copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+@license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 -->
 <phpunit
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	stopOnError="false"
-	stopOnFailure="false"
-	stopOnIncomplete="false"
-	stopOnSkipped="false"
-	strict="true"
-	verbose="true"
-	timeoutForSmallTests="10"
-	bootstrap="app/code/community/EcomDev/PHPUnit/bootstrap.php">
-	<listeners>
-		<listener file="app/code/community/EcomDev/PHPUnit/Test/Listener.php" class="EcomDev_PHPUnit_Test_Listener"/>
-	</listeners>
-	<testsuite name="Magento Test Suite">
-		<file>app/code/community/EcomDev/PHPUnit/Test/Suite.php</file>
-	</testsuite>
-	<groups>
-		<include>
-			<group>EbayEnterprise_Address</group>
-			<group>EbayEnterprise_Amqp</group>
-			<group>EbayEnterprise_Catalog</group>
-			<group>EbayEnterprise_CreditCard</group>
-			<group>EbayEnterprise_Eb2cCore</group>
-			<group>EbayEnterprise_Eb2cCustomerService</group>
-			<group>EbayEnterprise_Eb2cFraud</group>
-			<group>EbayEnterprise_Eb2cGiftwrap</group>
-			<group>EbayEnterprise_Eb2cInventory</group>
-			<group>EbayEnterprise_Eb2cOrder</group>
-			<group>EbayEnterprise_GiftCard</group>
-			<group>EbayEnterprise_Inventory</group>
-			<group>EbayEnterprise_Multishipping</group>
-			<group>EbayEnterprise_Order</group>
-			<group>EbayEnterprise_PayPal</group>
-			<group>EbayEnterprise_ProductExport</group>
-			<group>EbayEnterprise_ProductImageExport</group>
-			<group>EbayEnterprise_ProductImport</group>
-			<group>EbayEnterprise_Tax</group>
-		</include>
-	</groups>
-	<filter>
-		<whitelist>
-			<!-- Report coverage only for this extension. -->
-			<directory suffix=".php">app/code/community/EbayEnterprise/Address</directory>
-			<directory suffix=".php">app/code/community/EbayEnterprise/Amqp</directory>
-			<directory suffix=".php">app/code/community/EbayEnterprise/CreditCard</directory>
-			<directory suffix=".php">app/code/community/EbayEnterprise/Eb2c*</directory>
-			<directory suffix=".php">app/code/community/EbayEnterprise/GiftCard</directory>
-			<directory suffix=".php">app/code/community/EbayEnterprise/Multishipping</directory>
-			<directory suffix=".php">app/code/community/EbayEnterprise/Order</directory>
-			<directory suffix=".php">app/code/community/EbayEnterprise/Tax</directory>
-			<exclude>
-				<directory suffix=".php">app/code/community/EbayEnterprise/*/Test</directory>
-			</exclude>
-		</whitelist>
-	</filter>
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    stopOnError="false"
+    stopOnFailure="false"
+    stopOnIncomplete="false"
+    stopOnSkipped="false"
+    strict="true"
+    verbose="true"
+    timeoutForSmallTests="10"
+    bootstrap="app/code/community/EcomDev/PHPUnit/bootstrap.php">
+    <listeners>
+        <listener file="app/code/community/EcomDev/PHPUnit/Test/Listener.php" class="EcomDev_PHPUnit_Test_Listener"/>
+    </listeners>
+    <testsuite name="Magento Test Suite">
+        <file>app/code/community/EcomDev/PHPUnit/Test/Suite.php</file>
+    </testsuite>
+    <groups>
+        <include>
+            <group>EbayEnterprise_Address</group>
+            <group>EbayEnterprise_Amqp</group>
+            <group>EbayEnterprise_Catalog</group>
+            <group>EbayEnterprise_CreditCard</group>
+            <group>EbayEnterprise_Eb2cCore</group>
+            <group>EbayEnterprise_Eb2cCustomerService</group>
+            <group>EbayEnterprise_Eb2cFraud</group>
+            <group>EbayEnterprise_Eb2cGiftwrap</group>
+            <group>EbayEnterprise_Eb2cInventory</group>
+            <group>EbayEnterprise_Eb2cOrder</group>
+            <group>EbayEnterprise_GiftCard</group>
+            <group>EbayEnterprise_Inventory</group>
+            <group>EbayEnterprise_Multishipping</group>
+            <group>EbayEnterprise_Order</group>
+            <group>EbayEnterprise_PayPal</group>
+            <group>EbayEnterprise_ProductExport</group>
+            <group>EbayEnterprise_ProductImageExport</group>
+            <group>EbayEnterprise_ProductImport</group>
+            <group>EbayEnterprise_Tax</group>
+        </include>
+    </groups>
+    <filter>
+        <whitelist>
+            <!-- Report coverage only for this extension. -->
+            <directory suffix=".php">app/code/community/EbayEnterprise/Address</directory>
+            <directory suffix=".php">app/code/community/EbayEnterprise/Amqp</directory>
+            <directory suffix=".php">app/code/community/EbayEnterprise/CreditCard</directory>
+            <directory suffix=".php">app/code/community/EbayEnterprise/Eb2c*</directory>
+            <directory suffix=".php">app/code/community/EbayEnterprise/GiftCard</directory>
+            <directory suffix=".php">app/code/community/EbayEnterprise/Multishipping</directory>
+            <directory suffix=".php">app/code/community/EbayEnterprise/Order</directory>
+            <directory suffix=".php">app/code/community/EbayEnterprise/Tax</directory>
+            <exclude>
+                <directory suffix=".php">app/code/community/EbayEnterprise/*/Test</directory>
+            </exclude>
+        </whitelist>
+    </filter>
 </phpunit>

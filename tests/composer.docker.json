@@ -11,12 +11,13 @@
         "magento-root-dir": "."
     },
     "require": {
-        "composer/composer": "~1.0@dev",
-        "magento-hackathon/composer-command-integrator": "~1.2",
-        "magento-hackathon/magento-composer-installer": "~2.1",
-        "n98/magerun": "~1.95",
+        "colinmollenhour/modman": "^1.12",
+        "composer/composer": "^1.0@alpha",
         "ebayenterprise/magento-retail-order-management": "~1.6@dev",
-        "ebayenterprise/retail-order-management": "@dev"
+        "ebayenterprise/retail-order-management": "@dev",
+        "magento-hackathon/composer-command-integrator": "~1.2",
+        "magento-hackathon/magento-composer-installer": "^3.0",
+        "n98/magerun": "~1.95"
     },
     "require-dev": {
         "ecomdev/ecomdev_phpunit": "dev-dev#9742b6a as 0.3.x-dev",

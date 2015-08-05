@@ -15,12 +15,63 @@
 
 class EbayEnterprise_Address_Model_Observer
 {
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $config;
+    /** @var EbayEnterprise_Address_Model_Validator */
+    protected $validator;
+    /** @var EbayEnterprise_Address_Model_Order_Address_Validation */
+    protected $orderAddressValidation;
+
+    /**
+     * @param array $args may contains these keys:
+     *                          - 'config' => EbayEnterprise_Eb2cCore_Model_Config_Registry
+     *                          - 'validator' => EbayEnterprise_Address_Model_Validator
+     *                          - 'order_address_validation' => EbayEnterprise_Address_Model_Order_Address_Validation
+     */
+    public function __construct(array $args = [])
+    {
+        list($this->config, $this->validator, $this->orderAddressValidation) = $this->checkTypes(
+            $this->nullCoalesce($args, 'config', Mage::helper('ebayenterprise_address')->getConfigModel()),
+            $this->nullCoalesce($args, 'validator', Mage::getModel('ebayenterprise_address/validator')),
+            $this->nullCoalesce($args, 'order_address_validation', Mage::getModel('ebayenterprise_address/order_address_validation'))
+        );
+    }
+
+    /**
+     * Type checks for constructor args array.
+     *
+     * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
+     * @param  EbayEnterprise_Address_Model_Validator
+     * @param  EbayEnterprise_Address_Model_Order_Address_Validation
+     * @return array
+     */
+    protected function checkTypes(
+        EbayEnterprise_Eb2cCore_Model_Config_Registry $config,
+        EbayEnterprise_Address_Model_Validator $validator,
+        EbayEnterprise_Address_Model_Order_Address_Validation $orderAddressValidation
+    ) {
+        return func_get_args();
+    }
+
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the
+     * default value.
+     * @param array      $arr
+     * @param string|int $field Valid array key
+     * @param mixed      $default
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
+    }
+
     /**
      * @return bool Whether or not address validation is enabled
      */
     protected function _isEnabled()
     {
-        return Mage::helper('ebayenterprise_address')->getConfigModel()->isValidationEnabled;
+        return $this->config->isValidationEnabled;
     }
 
     /**
@@ -54,7 +105,7 @@ class EbayEnterprise_Address_Model_Observer
             return;
         }
         $address = $observer->getEvent()->getAddress();
-        $validationError = Mage::getModel('ebayenterprise_address/validator')->validateAddress($address, $area);
+        $validationError = $this->validator->validateAddress($address, $area);
         if ($validationError) {
             $address->addError($validationError);
         }
@@ -86,7 +137,7 @@ class EbayEnterprise_Address_Model_Observer
         if (!$this->_isEnabled()) {
             return;
         }
-        $validator = Mage::getModel('ebayenterprise_address/validator');
+        $validator = $this->validator;
         $controller = $observer->getEvent()->getControllerAction();
         $body = Mage::helper('core')->jsonDecode($controller->getResponse()->getBody());
         if (isset($body['error']) && !$validator->isValid()) {
@@ -94,5 +145,23 @@ class EbayEnterprise_Address_Model_Observer
             $controller->getResponse()->setBody(Mage::helper('core')->jsonEncode($body));
         }
         $validator->getAddressCollection()->setHasFreshSuggestions(false);
+    }
+
+    /**
+     * Observe the 'customer_address_validation_after' event, get the address from the event, and
+     * then pass it down to the ebayenterprise_address/order_address_validation::allowAddressValidation()
+     * method.
+     *
+     * @param  Varien_Event_Observer
+     * @return self
+     */
+    public function handleCustomerAddressValidationAfter(Varien_Event_Observer $observer)
+    {
+        /** @var Mage_Customer_Model_Address_Abstract */
+        $address = $observer->getEvent()->getAddress();
+        if ($address instanceof Mage_Customer_Model_Address_Abstract) {
+            $this->orderAddressValidation->allowAddressValidation($address);
+        }
+        return $this;
     }
 }

@@ -37,7 +37,7 @@
      * @return Element input - the supplied input element for chainability
      */
     var fillFormWithSuggestion = function (input) {
-        var addressData = input.readAttribute('data-address-data').evalJSON();
+        var addressData = getAddressObject(input);
         var form = input.up('form');
         if (addressData && form) {
             var arrElements = form.getElements();
@@ -89,5 +89,29 @@
     }
 
     $(document).on('change', 'input[name="validation_option"]', addressSelectionMade);
+
+    /**
+     * Get the address data and ensure that the required region id is set
+     * correctly, if it is not set it will cause validation errors and preventing
+     * customer from checking out.
+     * @param Element input - the suggestion input element
+     * @return Object
+     */
+    var getAddressObject = function getAddressObject(input)
+    {
+        var addressData = input.readAttribute('data-address-data').evalJSON();
+        if (addressData.region_id == 0) {
+            billingElement = $('billing:region_id');
+            shippingElement = $('shipping:region_id');
+            var regionId = 0;
+            if (billingElement) {
+                regionId = billingElement.getValue();
+            } else if (shippingElement) {
+                regionId = shippingElement.getValue();
+            }
+            addressData.region_id = regionId;
+        }
+        return addressData;
+    }
 
 })();

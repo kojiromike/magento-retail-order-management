@@ -26,7 +26,7 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
     {
         $config = $this->getModelMockBuilder('eb2ccore/config_registry')
             ->disableOriginalConstructor()
-            ->setMethods(array('__get', 'addConfigModel'))
+            ->setMethods(['__get', 'addConfigModel'])
             ->getMock();
         $config->expects($this->any())
             ->method('addConfigModel')
@@ -45,10 +45,10 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
     {
         $this->_mockConfig(0);
 
-        $observer = $this->getMock('Varien_Event_Observer', array('getEvent'));
+        $observer = $this->getMock('Varien_Event_Observer', ['getEvent']);
         $observer->expects($this->never())
             ->method('getEvent');
-        $validator = $this->getModelMock('ebayenterprise_address/validator', array('validateAddress'));
+        $validator = $this->getModelMock('ebayenterprise_address/validator', ['validateAddress']);
         $validator->expects($this->never())
             ->method('validateAddress');
 
@@ -62,13 +62,13 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
     {
         $this->_mockConfig(0);
 
-        $observer = $this->getMock('Varien_Event_Observer', array('getEvent'));
+        $observer = $this->getMock('Varien_Event_Observer', ['getEvent']);
         $observer->expects($this->never())
             ->method('getEvent');
-        $validator = $this->getModelMock('ebayenterprise_address/validator', array('hasSuggestions'));
+        $validator = $this->getModelMock('ebayenterprise_address/validator', ['hasSuggestions']);
         $validator->expects($this->never())
             ->method('hasSuggestions');
-        $addressObserver = $this->getModelMock('ebayenterprise_address/observer', array('_getAddressBlockHtml'));
+        $addressObserver = $this->getModelMock('ebayenterprise_address/observer', ['_getAddressBlockHtml']);
         $addressObserver->expects($this->never())
             ->method('_getAddressBlockHtml');
 
@@ -84,7 +84,7 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
         $this->_mockConfig(1);
 
         $expectedError = 'Error from validation';
-        $address = $this->getModelMock('customer/address', array('addError'));
+        $address = $this->getModelMock('customer/address', ['addError']);
         $address->expects($this->once())
             ->method('addError')
             ->with($this->identicalTo($expectedError))
@@ -93,19 +93,20 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
         $event = new Varien_Object();
         $event->setAddress($address);
 
-        $observer = $this->getMock('Varien_Event_Observer', array('getEvent'));
+        $observer = $this->getMock('Varien_Event_Observer', ['getEvent']);
         $observer->expects($this->any())
             ->method('getEvent')
             ->will($this->returnValue($event));
 
-        $validator = $this->getModelMock('ebayenterprise_address/validator', array('validateAddress'));
+        $validator = $this->getModelMock('ebayenterprise_address/validator', ['validateAddress']);
         $validator->expects($this->once())
             ->method('validateAddress')
             ->with($this->equalTo($address))
             ->will($this->returnValue($expectedError));
-        $this->replaceByMock('model', 'ebayenterprise_address/validator', $validator);
 
-        Mage::getSingleton('ebayenterprise_address/observer')->validateAddress($observer);
+        /** @var EbayEnterprise_Address_Model_Observer */
+        $addressObserver = Mage::getModel('ebayenterprise_address/observer', ['validator' => $validator]);
+        $this->assertNull($addressObserver->validateAddress($observer));
     }
 
     /**
@@ -115,27 +116,27 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
     {
         $this->_mockConfig(1);
 
-        $address = $this->getModelMock('customer/address', array('addError'));
+        $address = $this->getModelMock('customer/address', ['addError']);
         $address->expects($this->never())
             ->method('addError');
 
         $event = new Varien_Object();
         $event->setAddress($address);
 
-        $observer = $this->getMock('Varien_Event_Observer', array('getEvent'));
+        $observer = $this->getMock('Varien_Event_Observer', ['getEvent']);
         $observer->expects($this->any())
             ->method('getEvent')
             ->will($this->returnValue($event));
 
-        $validator = $this->getModelMock('ebayenterprise_address/validator', array('validateAddress'));
+        $validator = $this->getModelMock('ebayenterprise_address/validator', ['validateAddress']);
         $validator->expects($this->once())
             ->method('validateAddress')
             ->with($this->equalTo($address))
             ->will($this->returnValue(null));
-        $this->replaceByMock('model', 'ebayenterprise_address/validator', $validator);
 
-        $addressObserver = Mage::getSingleton('ebayenterprise_address/observer');
-        $addressObserver->validateAddress($observer);
+        /** @var EbayEnterprise_Address_Model_Observer */
+        $addressObserver = Mage::getModel('ebayenterprise_address/observer', ['validator' => $validator]);
+        $this->assertNull($addressObserver->validateAddress($observer));
     }
 
     /**
@@ -146,21 +147,20 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
     {
         $this->_mockConfig(1);
 
-        $suggestionGroup = $this->getModelMock('ebayenterprise_address/suggestion_group', array('setHasFreshSuggestions'));
+        $suggestionGroup = $this->getModelMock('ebayenterprise_address/suggestion_group', ['setHasFreshSuggestions']);
         $suggestionGroup->expects($this->once())
             ->method('setHasFreshSuggestions')
             ->with($this->isFalse())
             ->will($this->returnSelf());
-        $validator = $this->getModelMock('ebayenterprise_address/validator', array('isValid', 'getAddressCollection'));
+        $validator = $this->getModelMock('ebayenterprise_address/validator', ['isValid', 'getAddressCollection']);
         // when there aren't errors in the response, this shouldn't get called
         $validator->expects($this->never())
             ->method('isValid');
         $validator->expects($this->once())
             ->method('getAddressCollection')
             ->will($this->returnValue($suggestionGroup));
-        $this->replaceByMock('model', 'ebayenterprise_address/validator', $validator);
 
-        $response = $this->getMock('Mage_Core_Controller_Response_Http', array('getBody', 'setBody'));
+        $response = $this->getMock('Mage_Core_Controller_Response_Http', ['getBody', 'setBody']);
         // response body must be JSON and in this case not inlcude an "error" property
         $response->expects($this->once())
             ->method('getBody')
@@ -170,14 +170,14 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
             ->method('setBody');
 
         // core/layout_update should not be touched in this scenario
-        $update = $this->getModelMock('core/layout_update', array('load'));
+        $update = $this->getModelMock('core/layout_update', ['load']);
         $update->expects($this->never())
             ->method('load');
 
         // core/layout should not be touched in this scenario
         $layout = $this->getModelMock(
             'core/layout',
-            array('getUpdate', 'generateXml', 'generateBlocks', 'getOutput')
+            ['getUpdate', 'generateXml', 'generateBlocks', 'getOutput']
         );
         $layout->expects($this->never())
             ->method('getUpdate');
@@ -191,7 +191,7 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
         // controller should be asked for the response but shouldn't generage a layout
         $controller = $this->getMockBuilder('Mage_Checkout_Controller_Action')
             ->disableOriginalConstructor()
-            ->setMethods(array('getResponse', 'getLayout'))
+            ->setMethods(['getResponse', 'getLayout'])
             ->getMock();
         $controller->expects($this->once())
             ->method('getResponse')
@@ -199,17 +199,19 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
         $controller->expects($this->never())
             ->method('getLayout');
 
-        $event = $this->getMock('Varien_Event', array('getControllerAction'));
+        $event = $this->getMock('Varien_Event', ['getControllerAction']);
         $event->expects($this->once())
             ->method('getControllerAction')
             ->will($this->returnValue($controller));
 
-        $observer = $this->getMock('Varien_Event_Observer', array('getEvent'));
+        $observer = $this->getMock('Varien_Event_Observer', ['getEvent']);
         $observer->expects($this->once())
             ->method('getEvent')
             ->will($this->returnValue($event));
 
-        Mage::getSingleton('ebayenterprise_address/observer')->addSuggestionsToResponse($observer);
+        /** @var EbayEnterprise_Address_Model_Observer */
+        $addressObserver = Mage::getModel('ebayenterprise_address/observer', ['validator' => $validator]);
+        $this->assertNull($addressObserver->addSuggestionsToResponse($observer));
     }
 
     /**
@@ -218,16 +220,15 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
      */
     public function testResponseWithErrors()
     {
-        $validator = $this->getModelMock('ebayenterprise_address/validator', array('isValid'));
+        $validator = $this->getModelMock('ebayenterprise_address/validator', ['isValid']);
         // when there aren't errors in the response, this shouldn't get called
         $validator->expects($this->once())
             ->method('isValid')
             ->will($this->returnValue(false));
-        $this->replaceByMock('model', 'ebayenterprise_address/validator', $validator);
 
         $this->_mockConfig(1);
 
-        $response = $this->getMock('Mage_Core_Controller_Response_Http', array('getBody', 'setBody'));
+        $response = $this->getMock('Mage_Core_Controller_Response_Http', ['getBody', 'setBody']);
         // response body must be JSON and in this case not inlcude an "error" property
         $response->expects($this->once())
             ->method('getBody')
@@ -237,14 +238,14 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
             ->method('setBody');
 
         // core/layout_update should not be touched in this scenario
-        $update = $this->getModelMock('core/layout_update', array('load'));
+        $update = $this->getModelMock('core/layout_update', ['load']);
         $update->expects($this->once())
             ->method('load');
 
         // core/layout should not be touched in this scenario
         $layout = $this->getModelMock(
             'core/layout',
-            array('getUpdate', 'generateXml', 'generateBlocks', 'getOutput')
+            ['getUpdate', 'generateXml', 'generateBlocks', 'getOutput']
         );
         $layout->expects($this->once())
             ->method('getUpdate')
@@ -259,7 +260,7 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
         // controller should be asked for the response and the layout
         $controller = $this->getMockBuilder('Mage_Checkout_Controller_Action')
             ->disableOriginalConstructor()
-            ->setMethods(array('getResponse', 'getLayout'))
+            ->setMethods(['getResponse', 'getLayout'])
             ->getMock();
         $controller->expects($this->exactly(2))
             ->method('getResponse')
@@ -268,17 +269,19 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
             ->method('getLayout')
             ->will($this->returnValue($layout));
 
-        $event = $this->getMock('Varien_Event', array('getControllerAction'));
+        $event = $this->getMock('Varien_Event', ['getControllerAction']);
         $event->expects($this->once())
             ->method('getControllerAction')
             ->will($this->returnValue($controller));
 
-        $observer = $this->getMock('Varien_Event_Observer', array('getEvent'));
+        $observer = $this->getMock('Varien_Event_Observer', ['getEvent']);
         $observer->expects($this->once())
             ->method('getEvent')
             ->will($this->returnValue($event));
 
-        Mage::getSingleton('ebayenterprise_address/observer')->addSuggestionsToResponse($observer);
+        /** @var EbayEnterprise_Address_Model_Observer */
+        $addressObserver = Mage::getModel('ebayenterprise_address/observer', ['validator' => $validator]);
+        $this->assertNull($addressObserver->addSuggestionsToResponse($observer));
     }
 
     /**
@@ -289,14 +292,13 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
     {
         $this->_mockConfig(1);
 
-        $validator = $this->getModelMock('ebayenterprise_address/validator', array('isValid'));
+        $validator = $this->getModelMock('ebayenterprise_address/validator', ['isValid']);
         // when there aren't errors in the response, this shouldn't get called
         $validator->expects($this->once())
             ->method('isValid')
             ->will($this->returnValue(true));
-        $this->replaceByMock('model', 'ebayenterprise_address/validator', $validator);
 
-        $response = $this->getMock('Mage_Core_Controller_Response_Http', array('getBody', 'setBody'));
+        $response = $this->getMock('Mage_Core_Controller_Response_Http', ['getBody', 'setBody']);
         // response body must be JSON and in this case not inlcude an "error" property
         $response->expects($this->once())
             ->method('getBody')
@@ -306,14 +308,14 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
             ->method('setBody');
 
         // core/layout_update should not be touched in this scenario
-        $update = $this->getModelMock('core/layout_update', array('load'));
+        $update = $this->getModelMock('core/layout_update', ['load']);
         $update->expects($this->never())
             ->method('load');
 
         // core/layout should not be touched in this scenario
         $layout = $this->getModelMock(
             'core/layout',
-            array('getUpdate', 'generateXml', 'generateBlocks', 'getOutput')
+            ['getUpdate', 'generateXml', 'generateBlocks', 'getOutput']
         );
         $layout->expects($this->never())
             ->method('getUpdate');
@@ -327,7 +329,7 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
         // controller should be asked for the response but shouldn't generage a layout
         $controller = $this->getMockBuilder('Mage_Checkout_Controller_Action')
             ->disableOriginalConstructor()
-            ->setMethods(array('getResponse', 'getLayout'))
+            ->setMethods(['getResponse', 'getLayout'])
             ->getMock();
         $controller->expects($this->once())
             ->method('getResponse')
@@ -335,16 +337,51 @@ class EbayEnterprise_Address_Test_Model_ObserverTest extends EbayEnterprise_Eb2c
         $controller->expects($this->never())
             ->method('getLayout');
 
-        $event = $this->getMock('Varien_Event', array('getControllerAction'));
+        $event = $this->getMock('Varien_Event', ['getControllerAction']);
         $event->expects($this->once())
             ->method('getControllerAction')
             ->will($this->returnValue($controller));
 
-        $observer = $this->getMock('Varien_Event_Observer', array('getEvent'));
+        $observer = $this->getMock('Varien_Event_Observer', ['getEvent']);
         $observer->expects($this->once())
             ->method('getEvent')
             ->will($this->returnValue($event));
 
-        Mage::getSingleton('ebayenterprise_address/observer')->addSuggestionsToResponse($observer);
+        /** @var EbayEnterprise_Address_Model_Observer */
+        $addressObserver = Mage::getModel('ebayenterprise_address/observer', ['validator' => $validator]);
+        $this->assertNull($addressObserver->addSuggestionsToResponse($observer));
+    }
+
+    /**
+     * Scenario: Observe customer address validation after event
+     * Given a Varien Event Observer object
+     * When observing customer address validation after event
+     * Then get the customer address from the passed in observer object
+     * And if the customer address is a valid object, then pass it down to the
+     * ebayenterprise_address/order_address_validation::allowAddressValidation()
+     * method.
+     */
+    public function testHandleCustomerAddressValidationAfter()
+    {
+        /** @var Mage_Sales_Model_Quote_Address */
+        $address = Mage::getModel('sales/quote_address');
+
+        /** @var EbayEnterprise_Address_Model_Order_Address_Validation */
+        $orderAddressValidation = $this->getModelMock('ebayenterprise_address/order_address_validation', ['allowAddressValidation']);
+        $orderAddressValidation->expects($this->once())
+            ->method('allowAddressValidation')
+            ->with($this->identicalTo($address))
+            ->will($this->returnSelf());
+
+        /** @var Varien_Event_Observer */
+        $observer = new Varien_Event_Observer(['event' => new Varien_Event([
+            'address' => $address,
+        ])]);
+
+        /** @var EbayEnterprise_Address_Model_Observer */
+        $addressObserver = Mage::getModel('ebayenterprise_address/observer', [
+            'order_address_validation' => $orderAddressValidation,
+        ]);
+        $this->assertSame($addressObserver, $addressObserver->handleCustomerAddressValidationAfter($observer));
     }
 }

@@ -230,4 +230,16 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
         return isset($shippingMethods[$shippingMethodCode])
             ? $shippingMethods[$shippingMethodCode] : null;
     }
+
+    /**
+     * Get the shipping carrier.
+     *
+     * @return string | null
+     */
+    public function getShippingCarrierTitle()
+    {
+        /** @var string */
+        $description = trim($this->getShippingDescription());
+        return strstr($description, ' - ', true) ?: strstr($description, ' ', true);
+    }
 }

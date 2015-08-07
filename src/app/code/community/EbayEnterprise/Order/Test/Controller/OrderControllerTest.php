@@ -1171,4 +1171,58 @@ class EbayEnterprise_Order_Test_Controller_OrderControllerTest extends EbayEnter
             ->will($this->returnValue($orderId));
         $this->assertSame($isValid, EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_controller, '_isValidOperation', []));
     }
+
+    /**
+     * Scenario: Display shipment tracking information
+     * Given ROM order id
+     * And shipment id
+     * And tracking number
+     * When displaying shipment tracking information
+     * Then get ROM order detail in the registry
+     * And store a ebayenterprise_order/tracking instance in the registry
+     * And load and render the layout.
+     */
+    public function testRomtrackingpopupAction()
+    {
+        /** @var string */
+        $shipmentId = 's0-000399399991111';
+        /** @var string */
+        $trackingNumber = '993999222';
+        /** @var Mage_Sales_Model_Order */
+        $order = Mage::getModel('sales/order');
+        Mage::unregister('rom_order');
+        Mage::register('rom_order', $order);
+        /** @var EbayEnterprise_Order_Model_Tracking */
+        $trackingModel = $this->getModelMockBuilder('ebayenterprise_order/tracking')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        /** @var EbayEnterprise_Order_Helper_Factory */
+        $factory = $this->getHelperMock('ebayenterprise_order/factory', ['getNewTrackingModel']);
+        $factory->expects($this->once())
+            ->method('getNewTrackingModel')
+            ->with($this->identicalTo($order), $this->identicalTo($shipmentId), $this->identicalTo($trackingNumber))
+            ->will($this->returnValue($trackingModel));
+
+        $this->_request->expects($this->exactly(2))
+            ->method('getParam')
+            ->will($this->returnValueMap([
+                ['shipment_id', null, $shipmentId],
+                ['tracking_number', null, $trackingNumber],
+            ]));
+        $this->_controller->expects($this->once())
+            ->method('_loadValidOrder')
+            ->will($this->returnValue(true));
+        $this->_controller->expects($this->once())
+            ->method('loadLayout')
+            ->will($this->returnValue($this->getModelMock('core/layout')));
+        $this->_controller->expects($this->once())
+            ->method('renderLayout')
+            ->will($this->returnSelf());
+        EcomDev_Utils_Reflection::setRestrictedPropertyValues($this->_controller, [
+            '_orderFactory' => $factory,
+        ]);
+
+        $this->assertNull($this->_controller->romtrackingpopupAction());
+    }
 }

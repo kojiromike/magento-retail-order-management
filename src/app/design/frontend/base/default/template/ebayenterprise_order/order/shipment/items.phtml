@@ -76,7 +76,7 @@
 				$i = 1;
 				$_size = $tracks->count();
 				foreach($tracks as $track): ?>
-					<?php echo $this->escapeHtml($track->getNumber()) ?>
+					<a href="#" onclick="popWin('<?php echo $this->getTrackingPopupUrl($_shipment, $track) ?>','trackorder','width=800,height=600,left=0,top=0,resizable=yes,scrollbars=yes')"><?php echo $this->escapeHtml($track->getNumber()) ?></a>
 				<?php if($i!=$_size): ?>, <?php endif; ?>
 				<?php $i++;
 				endforeach; ?>

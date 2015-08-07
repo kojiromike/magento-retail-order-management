@@ -336,4 +336,21 @@ class EbayEnterprise_Order_Helper_Factory
     {
         return Mage::getModel('sales/order_shipment_track', $data);
     }
+
+    /**
+     * Get a new ebayenterprise_order/tracking instance.
+     *
+     * @param  Mage_Sales_Model_Order
+     * @param  string
+     * @param  string | null - optional
+     * @return EbayEnterprise_Order_Model_Tracking
+     */
+    public function getNewTrackingModel(Mage_Sales_Model_Order $order, $shipmentId, $trackingNumber=null)
+    {
+        return Mage::getModel('ebayenterprise_order/tracking', [
+            'order' => $order,
+            'shipment_id' => $shipmentId,
+            'tracking_number' => $trackingNumber,
+        ]);
+    }
 }

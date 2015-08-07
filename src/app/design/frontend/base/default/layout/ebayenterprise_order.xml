@@ -208,4 +208,13 @@ http://opensource.org/licenses/osl-3.0.php
             </action>
         </reference>
     </sales_order_romguestshipment>
+    <sales_order_romtrackingpopup translate="label">
+        <label>ROM Shipment Tracking Popup</label>
+        <reference name="root">
+            <action method="setTemplate"><template>page/popup.phtml</template></action>
+        </reference>
+        <reference name="content">
+            <block type="ebayenterprise_order/order_shipment_tracking" name="sales.order.romtrackingpopup" template="ebayenterprise_order/order/shipment/tracking/popup.phtml" />
+        </reference>
+    </sales_order_romtrackingpopup>
 </layout>

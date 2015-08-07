@@ -351,4 +351,24 @@ class EbayEnterprise_Order_OrderController extends Mage_Sales_Controller_Abstrac
         $orderId = trim($this->getRequest()->getParam('order_id'));
         return !empty($orderId);
     }
+
+    /**
+     * controller action for displaying shipment tracking information.
+     */
+    public function romtrackingpopupAction()
+    {
+        $this->_loadValidOrder();
+        Mage::unregister('rom_order_shipment_tracking');
+        /** @var Mage_Core_Controller_Request_Http */
+        $request = $this->getRequest();
+        /** @var EbayEnterprise_Order_Model_Tracking */
+        $tracking = $this->_orderFactory->getNewTrackingModel(
+            Mage::registry('rom_order'),
+            $request->getParam('shipment_id'),
+            $request->getParam('tracking_number')
+        );
+        Mage::register('rom_order_shipment_tracking', $tracking);
+        $this->loadLayout();
+        $this->renderLayout();
+    }
 }

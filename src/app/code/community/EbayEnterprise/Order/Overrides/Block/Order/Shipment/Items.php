@@ -53,4 +53,20 @@ class EbayEnterprise_Order_Overrides_Block_Order_Shipment_Items extends Mage_Sal
     {
         return Mage::registry('rom_order');
     }
+
+    /**
+     * Get the shipment tracking pop-up URL
+     *
+     * @param  EbayEnterprise_Order_Model_Detail_Process_Response_Shipment
+     * @param  Mage_Sales_Model_Order_Shipment_Track
+     * @return string
+     */
+    public function getTrackingPopupUrl(EbayEnterprise_Order_Model_Detail_Process_Response_Shipment $shipment, Mage_Sales_Model_Order_Shipment_Track $track)
+    {
+        return $this->getUrl('*/*/romtrackingpopup', [
+            'order_id' => $this->getOrder()->getRealOrderId(),
+            'shipment_id' => $shipment->getIncrementId(),
+            'tracking_number' => $track->getNumber(),
+        ]);
+    }
 }

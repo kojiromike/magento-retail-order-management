@@ -17,15 +17,68 @@
 class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session extends Mage_Admin_Model_Session
 {
     /** @var EbayEnterprise_MageLog_Helper_Data $_logger */
-    protected $_logger;
+    protected $logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
-    protected $_context;
+    protected $context;
+    /** @var Mage_Adminhtml_Model_Url */
+    protected $url;
 
-    public function __construct()
+    public function __construct(array $initParams = [])
     {
-        parent::__construct();
-        $this->_logger = Mage::helper('ebayenterprise_magelog');
-        $this->_context = Mage::helper('ebayenterprise_magelog/context');
+        list($this->logger, $this->context, $this->url) = $this->checkTypes(
+            $this->nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
+            $this->nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context')),
+            $this->nullCoalesce($initParams, 'url', Mage::getSingleton('adminhtml/url'))
+        );
+        parent::__construct($this->removeKnownKeys($initParams));
+    }
+
+    /**
+     * Populate a new array with keys that not in the array of known keys.
+     *
+     * @param  array
+     * @return array
+     */
+    protected function removeKnownKeys(array $initParams)
+    {
+        $newParams = [];
+        $knownKeys = ['logger', 'context', 'url'];
+        foreach ($initParams as $key => $value) {
+            if (!in_array($key, $knownKeys)) {
+                $newParams[$key] = $value;
+            }
+        }
+        return $newParams;
+    }
+
+    /**
+     * Type hinting for self::__construct $initParams
+     *
+     * @param  EbayEnterprise_MageLog_Helper_Data
+     * @param  EbayEnterprise_MageLog_Helper_Context
+     * @param  Mage_Adminhtml_Model_Url
+     * @return array
+     */
+    protected function checkTypes(
+        EbayEnterprise_MageLog_Helper_Data $logger,
+        EbayEnterprise_MageLog_Helper_Context $context,
+        Mage_Adminhtml_Model_Url $url
+    )
+    {
+        return func_get_args();
+    }
+
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the default value.
+     *
+     * @param  array
+     * @param  string $field Valid array key
+     * @param  mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
     }
 
     /**
@@ -96,7 +149,7 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session extends M
     protected function _passValidation(Mage_Admin_Model_User $user, Mage_Core_Controller_Request_Http $request = null)
     {
         $logMessage = 'Successfully authenticated using token.';
-        $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
+        $this->logger->info($logMessage, $this->context->getMetaData(__CLASS__));
         // This may potentially cause some issues as the user password is not
         // included since we never receive it when loggin in with the token. So far
         // it doesn't seem to be causing any issues but may have some impact on the
@@ -153,7 +206,7 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session extends M
         Mage_Core_Exception $authException
     ) {
         $logMessage = 'Failed to authenticate using token.';
-        $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__));
+        $this->logger->info($logMessage, $this->context->getMetaData(__CLASS__));
         // This may be problematic due to the missing user password. It is never
         // given while doing the token auth so we don't have one to pass. So far
         // it doesn't seem to be causing any issues but may have some impact on the
@@ -189,15 +242,13 @@ class EbayEnterprise_Eb2cCustomerService_Overrides_Model_Admin_Session extends M
         exit;
     }
     /**
-     * Get the startup page url for the current user set in the session.
+     * Get the startup page URL for the current user set in the session.
      * @return string
      */
     protected function _getStartpageUri()
     {
+        /** @var string */
         $startpageUri = $this->getUser()->getStartupPageUrl();
-        if (Mage::getSingleton('adminhtml/url')->useSecretKey()) {
-            return Mage::getSingleton('adminhtml/url')->getUrl($startpageUri);
-        }
-        return $startpageUri;
+        return $this->url->getUrl($startpageUri);
     }
 }

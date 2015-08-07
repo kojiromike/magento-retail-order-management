@@ -27,50 +27,42 @@ class EbayEnterprise_Eb2cCustomerService_Test_Model_Overrides_Admin_SessionTest 
         $this->replaceByMock('singleton', 'core/session', $session);
     }
     /**
-     * Test getting the current user in session's start page url, running it
-     * through the adminhtml/url method is necessary to account for url secret
-     * key validation
-     * @param  bool $useSecretKey
-     * @dataProvider provideTrueFalse
+     * Scenario: Get CSR Administrative user startup page URL
+     * When getting CSR Administrative user startup page URL
+     * Then get the user's configured startup URL path
+     * And get the full URL using the startup URL path
      */
-    public function testGetStartpageUri($useSecretKey)
+    public function testGetStartpageUri()
     {
         $adminUrl = 'admin/some/where';
-        $adminWithKey = 'admin/some/where/key/123';
-        $expectedUrl = $useSecretKey ? $adminWithKey : $adminUrl;
+        $expectedUrl = "https://example-test.com/index.php/$adminUrl";
 
-        $session = $this->getModelMockBuilder('admin/session')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getUser'))
-            ->getMock();
-        $user = $this->getModelMockBuilder('admin/user')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getStartupPageUrl'))
-            ->getMock();
         $url = $this->getModelMockBuilder('adminhtml/url')
             ->disableOriginalConstructor()
-            ->setMethods(array('useSecretKey', 'getUrl'))
+            ->setMethods(['getUrl'])
             ->getMock();
-        $this->replaceByMock('model', 'adminhtml/url', $url);
+        $url->expects($this->once())
+            ->method('getUrl')
+            ->with($this->identicalTo($adminUrl))
+            ->will($this->returnValue($expectedUrl));
 
-        $session->expects($this->once())
-            ->method('getUser')
-            ->will($this->returnValue($user));
+        $user = $this->getModelMockBuilder('admin/user')
+            ->disableOriginalConstructor()
+            ->setMethods(['getStartupPageUrl'])
+            ->getMock();
         $user->expects($this->once())
             ->method('getStartupPageUrl')
             ->will($this->returnValue($adminUrl));
-        $url->expects($this->once())
-            ->method('useSecretKey')
-            ->will($this->returnValue($useSecretKey));
-        if ($useSecretKey) {
-            $url->expects($this->once())
-                ->method('getUrl')
-                ->with($this->identicalTo($adminUrl))
-                ->will($this->returnValue($adminWithKey));
-        } else {
-            $url->expects($this->never())
-                ->method('getUrl');
-        }
+
+        $session = $this->getModelMockBuilder('admin/session')
+            ->disableOriginalConstructor()
+            ->setMethods(['getUser'])
+            ->getMock();
+        $session->expects($this->once())
+            ->method('getUser')
+            ->will($this->returnValue($user));
+
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($session, 'url', $url);
 
         $this->assertSame(
             $expectedUrl,

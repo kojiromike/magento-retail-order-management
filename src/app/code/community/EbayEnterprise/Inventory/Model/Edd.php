@@ -68,10 +68,10 @@ class EbayEnterprise_Inventory_Model_Edd
     /**
      * Get an estimated delivery message for a quote item.
      *
-     * @param  Mage_Sales_Model_Quote_Item
+     * @param  Mage_Sales_Model_Quote_Item_Abstract
      * @return string
      */
-    public function getEddMessage(Mage_Sales_Model_Quote_Item $item)
+    public function getEddMessage(Mage_Sales_Model_Quote_Item_Abstract $item)
     {
         /** @var string $singularOrPluralItem */
         $singularOrPluralItem = ((int) $item->getQty() > 1) ? 's' : '';

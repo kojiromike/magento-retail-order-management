@@ -89,10 +89,10 @@ composer config repositories.firegento composer http://packages.firegento.com
 The [Magento Composer Installer](https://github.com/Cotya/magento-composer-installer) empowers composer to deploy packages into a Magento installation. When the package asks for your Magento root directory, you can enter a simple dot (`.`) to mean the current directory.
 
 ```sh
-composer require magento-hackathon/magento-composer-installer=~2.1
+composer require magento-hackathon/magento-composer-installer
 ```
 
-(You may safely ignore any suggestion to add http://packages.magento.com as another repository.)
+(You may safely ignore any suggestions to add other repositories.)
 
 ### Step 3: Install the Extension and Its Dependencies
 

@@ -416,4 +416,80 @@ class EbayEnterprise_Eb2cCore_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
         $helper = Mage::helper('eb2ccore');
         $this->assertSame($expect, EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'invokeCallback', array($meta)));
     }
+
+    /**
+     * @return array
+     */
+    public function providerGetQuoteCouponCode()
+    {
+        return [
+            ['ABC989382', 'ABC989382', 'ABC989382'],
+            ['ABC989382', '000993929', null],
+        ];
+    }
+
+    /**
+     * Scenario: Get coupon code from quote
+     * Given a quote object
+     * And a rule object
+     * When getting coupon code from quote
+     * Then if the coupon code on quote object match the coupon code on the rule object return the coupon code on the quote
+     * otherwise return the return value from call the eb2ccore/data::getCodeFromCouponPool().
+     *
+     * @param string
+     * @param string
+     * @param string | null
+     * @dataProvider providerGetQuoteCouponCode
+     */
+    public function testGetQuoteCouponCode($quoteCouponCode, $ruleCouponCode, $result)
+    {
+        /** @var Mage_Sales_Model_Quote */
+        $quote = Mage::getModel('sales/quote', ['coupon_code' => $quoteCouponCode]);
+        /** @var Mage_SalesRule_Model_Rule */
+        $rule = Mage::getModel('salesrule/rule', ['coupon_code' => $ruleCouponCode]);
+        /** @var EbayEnterprise_Eb2cCore_Helper_Data */
+        $helper = $this->getHelperMock('eb2ccore/data', ['getCodeFromCouponPool']);
+        $helper->expects($quoteCouponCode !== $ruleCouponCode ? $this->once() : $this->never())
+            ->method('getCodeFromCouponPool')
+            ->with($this->identicalTo($rule), $this->identicalTo($quoteCouponCode))
+            ->will($this->returnValue($result));
+        $this->assertSame($result, $helper->getQuoteCouponCode($quote, $rule));
+    }
+
+    /**
+     * @return array
+     */
+    public function providerGetCodeFromCouponPool()
+    {
+        /** @var Mage_SalesRule_Model_Coupon */
+        $coupon = Mage::getModel('salesrule/coupon', ['code' => 'ABC989382']);
+        /** @var Varien_Data_Collection */
+        $collection = new Varien_Data_Collection();
+        $collection->addItem($coupon);
+        /** @var Mage_SalesRule_Model_Rule */
+        $rule = Mage::getModel('salesrule/rule');
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($rule, '_coupons', $collection);
+        return [
+            [$rule, 'ABC989382', 'ABC989382'],
+            [$rule, '000993929', null],
+        ];
+    }
+
+    /**
+     * Scenario: Get coupon code from sales rule coupon pool
+     * Given a rule object
+     * And a coupon code string
+     * When getting coupon code from sales rule coupon pool
+     * Then return an sales rule in the coupon pool that match the passed in coupon code
+     * otherwise return null.
+     *
+     * @param Mage_SalesRule_Model_Rule
+     * @param string
+     * @param string | null
+     * @dataProvider providerGetCodeFromCouponPool
+     */
+    public function testGetCodeFromCouponPool(Mage_SalesRule_Model_Rule $rule, $quoteCouponCode, $result)
+    {
+        $this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_helper, 'getCodeFromCouponPool', [$rule, $quoteCouponCode]));
+    }
 }

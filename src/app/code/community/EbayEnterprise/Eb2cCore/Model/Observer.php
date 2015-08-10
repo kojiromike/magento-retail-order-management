@@ -198,7 +198,7 @@ class EbayEnterprise_Eb2cCore_Model_Observer
         $data[$ruleId] = [
             'amount' => $event->getResult()->getBaseDiscountAmount(),
             'applied_count' => $event->getQty(),
-            'code' => $rule->getCouponCode(),
+            'code' => $this->helper->getQuoteCouponCode($quote, $rule),
             'description' => $rule->getStoreLabel($store) ?: $rule->getName(),
             'effect_type' => $rule->getSimpleAction(),
             'id' => $ruleId,

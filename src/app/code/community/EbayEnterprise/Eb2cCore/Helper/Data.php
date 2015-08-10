@@ -602,4 +602,43 @@ class EbayEnterprise_Eb2cCore_Helper_Data extends Mage_Core_Helper_Abstract impl
                 return null;
         }
     }
+
+    /**
+     * Get the applied coupon code on the quote for the passed in rule.
+     *
+     * @param  Mage_Sales_Model_Quote
+     * @param  Mage_SalesRule_Model_Rule
+     * @return string | null
+     */
+    public function getQuoteCouponCode(Mage_Sales_Model_Quote $quote, Mage_SalesRule_Model_Rule $rule)
+    {
+        /** @var string */
+        $codeAppliedToQuote = $quote->getCouponCode();
+        /** @var string */
+        $codeInRule = $rule->getCouponCode();
+        return $codeAppliedToQuote === $codeInRule
+            ? $codeAppliedToQuote
+            : $this->getCodeFromCouponPool($rule, $codeAppliedToQuote);
+    }
+
+    /**
+     * Determine if the coupon on quote is one of the generated coupon code
+     * for this passed salesrule/rule object. Returns null when no coupon is found
+     * matching the coupon on the quote.
+     *
+     * @param  Mage_SalesRule_Model_Rule
+     * @param  string
+     * @return string | null
+     */
+    protected function getCodeFromCouponPool(Mage_SalesRule_Model_Rule $rule, $codeAppliedToQuote)
+    {
+        /** @var Mage_SalesRule_Model_Coupon[] */
+        $coupons = $rule->getCoupons();
+        foreach ($coupons as $coupon) {
+            if ($coupon->getCode() === $codeAppliedToQuote) {
+                return $codeAppliedToQuote;
+            }
+        }
+        return null;
+    }
 }

@@ -82,10 +82,10 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
     public function getStreetDateForBackorderableItem(Mage_Core_Model_Abstract $item)
     {
         if ($this->coreConfig->isUseStreetDateAsEddDate) {
-             /** @var Mage_Catalog_Model_Product $product */
-            $product = $item->getProduct();
+            /** @var Mage_Catalog_Model_Product[] */
+            $products = $this->getAllProductsFromItem($item);
             /** @var string $streetDate */
-            $streetDate = $this->getStreetDateFromProduct($product);
+            $streetDate = $this->getStreetDateFromProduct($products);
             if ($streetDate && $this->isStreetDateInTheFuture($streetDate)) {
                 return $this->getNewVarienObject([
                     'delivery_window_from_date' => $this->getNewDateTime($streetDate),
@@ -168,19 +168,24 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
     }
 
     /**
-     * Determine if the street date EAV Attribute is loaded in the
-     * passed in catalog/product object, if not then reload the
-     * catalog/product object.
+     * Return the first street date found in the passed in array of products.
      *
-     * @param  Mage_Catalog_Model_Product
-     * @return string
+     * @param  Mage_Catalog_Model_Product[]
+     * @return string | null
      */
-    protected function getStreetDateFromProduct(Mage_Catalog_Model_Product $product)
+    protected function getStreetDateFromProduct(array $products)
     {
-        if (!$product->hasStreetDate()) {
-            $product->load($product->getId());
+        foreach ($products as $product) {
+            if (!$product->hasStreetDate()) {
+                $product->load($product->getId());
+            }
+            /** @var string | null*/
+            $streetDate = $product->getStreetDate();
+            if ($streetDate) {
+                return $streetDate;
+            }
         }
-        return $product->getStreetDate();
+        return null;
     }
 
     /**
@@ -225,5 +230,65 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
         $prefix = $this->coreConfig->catalogId . '-';
         $splitSkus = array_filter(explode($prefix, $sku));
         return count($splitSkus) > 1 ? $prefix . substr(reset($splitSkus), 0, -1) : $sku;
+    }
+
+    /**
+     * Get all child products and parent product from the quote item.
+     *
+     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @return Mage_Catalog_Model_Product[]
+     */
+    protected function getAllProductsFromItem(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        return array_merge(
+            $this->getAllChildProductsFromItem($item),
+            $this->getAllParentProductFromItem($item)
+        );
+    }
+
+    /**
+     * Get all child products from the quote item.
+     *
+     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @return Mage_Catalog_Model_Product[]
+     */
+    protected function getAllChildProductsFromItem(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        /** @var array */
+        $products = [];
+        if ($item->getHasChildren()) {
+            foreach ($item->getChildren() as $childItem) {
+                /** @var Mage_Catalog_Model_Product */
+                $product = $childItem->getProduct();
+                if ($product instanceof Mage_Catalog_Model_Product) {
+                    $products[] = $product;
+                }
+            }
+        }
+        return $products;
+    }
+
+    /**
+     * Get current and parent product from the quote item.
+     *
+     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @return Mage_Catalog_Model_Product[]
+     */
+    protected function getAllParentProductFromItem(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        /** @var Mage_Catalog_Model_Product */
+        $currentProduct = $item->getProduct();
+        /** @var Mage_Catalog_Model_Product[] */
+        $products = [$currentProduct];
+        /** @var Mage_Sales_Model_Quote_Item */
+        $parentItem = $item->getParentItem();
+        if ($parentItem) {
+            /** @var Mage_Catalog_Model_Product */
+            $parentProduct = $parentItem->getProduct();
+            if ($currentProduct->getId() !== $parentProduct->getId()) {
+                $products[] = $parentProduct;
+            }
+        }
+        return $products;
     }
 }

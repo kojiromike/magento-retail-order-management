@@ -17,8 +17,6 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Payment extends Mage_Sa
 {
     /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
     protected $_config;
-    /** @var Enterprise_GiftCardAccount_Helper_Data */
-    protected $_giftcardAccount;
 
     /**
      * @param array $initParams Must have this key:
@@ -26,9 +24,8 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Payment extends Mage_Sa
      */
     public function __construct(array $initParams = [])
     {
-        list($this->_config, $this->_giftcardAccount) = $this->_checkTypes(
-            $this->_nullCoalesce($initParams, 'config', Mage::helper('ebayenterprise_order')->getConfigModel()),
-            $this->_nullCoalesce($initParams, 'giftcard_account', Mage::helper('enterprise_giftcardaccount'))
+        list($this->_config) = $this->_checkTypes(
+            $this->_nullCoalesce($initParams, 'config', Mage::helper('ebayenterprise_order')->getConfigModel())
         );
         parent::__construct($this->_removeKnownKeys($initParams));
     }
@@ -37,14 +34,12 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Payment extends Mage_Sa
      * Type hinting for self::__construct $initParams
      *
      * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
-     * @param  Enterprise_GiftCardAccount_Helper_Data
      * @return array
      */
     protected function _checkTypes(
-        EbayEnterprise_Eb2cCore_Model_Config_Registry $config,
-        Enterprise_GiftCardAccount_Helper_Data $giftcardAccount
+        EbayEnterprise_Eb2cCore_Model_Config_Registry $config
     ) {
-        return [$config, $giftcardAccount];
+        return [$config];
     }
 
     /**
@@ -69,7 +64,7 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Payment extends Mage_Sa
      */
     protected function _removeKnownKeys(array $initParams)
     {
-        foreach (['config', 'giftcard_account'] as $key) {
+        foreach (['config'] as $key) {
             if (isset($initParams[$key])) {
                 unset($initParams[$key]);
             }
@@ -136,7 +131,14 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Payment extends Mage_Sa
                 ];
                 break;
         }
-        $this->_giftcardAccount->setCards($this->getOrder(), $cards);
+        $this->_setCards($this->getOrder(), $cards);
         return $this;
     }
+
+    protected function _setCards(Varien_Object $to, $value)
+    {
+        $serializedValue = serialize($value);
+        $to->setGiftCards($serializedValue);
+    }
+
 }

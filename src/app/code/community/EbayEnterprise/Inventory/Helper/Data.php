@@ -235,10 +235,10 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
     /**
      * Get all child products and parent product from the quote item.
      *
-     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @param  Mage_Core_Model_Abstract
      * @return Mage_Catalog_Model_Product[]
      */
-    protected function getAllProductsFromItem(Mage_Sales_Model_Quote_Item_Abstract $item)
+    protected function getAllProductsFromItem(Mage_Core_Model_Abstract $item)
     {
         return array_merge(
             $this->getAllChildProductsFromItem($item),
@@ -249,10 +249,10 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
     /**
      * Get all child products from the quote item.
      *
-     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @param  Mage_Core_Model_Abstract
      * @return Mage_Catalog_Model_Product[]
      */
-    protected function getAllChildProductsFromItem(Mage_Sales_Model_Quote_Item_Abstract $item)
+    protected function getAllChildProductsFromItem(Mage_Core_Model_Abstract $item)
     {
         /** @var array */
         $products = [];
@@ -271,10 +271,10 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
     /**
      * Get current and parent product from the quote item.
      *
-     * @param  Mage_Sales_Model_Quote_Item_Abstract
+     * @param  Mage_Core_Model_Abstract
      * @return Mage_Catalog_Model_Product[]
      */
-    protected function getAllParentProductFromItem(Mage_Sales_Model_Quote_Item_Abstract $item)
+    protected function getAllParentProductFromItem(Mage_Core_Model_Abstract $item)
     {
         /** @var Mage_Catalog_Model_Product */
         $currentProduct = $item->getProduct();

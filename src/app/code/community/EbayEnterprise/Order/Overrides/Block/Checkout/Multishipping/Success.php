@@ -99,6 +99,7 @@ class EbayEnterprise_Order_Overrides_Block_Checkout_Multishipping_Success extend
     {
         $orderIds = $this->getOrderIds();
         $incrementId = isset($orderIds[$orderId]) ? $orderIds[$orderId] : null;
+        Mage::register('rom_order_id', $incrementId);
         // clearing out the multi-shipping ids from core session, see the
         // Mage_Checkout_Block_Multishipping_Success::getOrderIds() method.
         $this->orderFactory->getCoreSessionModel()->getOrderIds(true);

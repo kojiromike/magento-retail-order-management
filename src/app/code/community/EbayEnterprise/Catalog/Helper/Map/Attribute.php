@@ -89,7 +89,7 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
      */
     public function extractColorValue(DOMNodeList $nodeList, $product)
     {
-        return $this->_addAdminMappedOption('color', 'Code', 'Description', $nodeList);
+        return $this->addAdminMappedOption('color', 'Code', 'Description', $nodeList);
     }
 
     /**
@@ -101,7 +101,7 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
      */
     public function extractSizeValue(DOMNodeList $nodeList)
     {
-        return $this->_addAdminMappedOption('size', 'Code', 'Description', $nodeList);
+        return $this->addAdminMappedOption('size', 'Code', 'Description', $nodeList);
     }
 
     /**
@@ -297,7 +297,7 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
      * @param DOMNodeList $nodeList as pulled from a feed
      * @return int The newly updated or added attributeOptionId
      */
-    protected function _addAdminMappedOption($attributeCode, $mapCodeNodeName, $descriptionNodeName, DOMNodeList $nodeList)
+    public function addAdminMappedOption($attributeCode, $mapCodeNodeName, $descriptionNodeName, DOMNodeList $nodeList)
     {
         $xpath            = new DOMXPath($nodeList->item(0)->ownerDocument);
         $valueCode        = $xpath->query("./$mapCodeNodeName", $nodeList->item(0))->item(0)->nodeValue;

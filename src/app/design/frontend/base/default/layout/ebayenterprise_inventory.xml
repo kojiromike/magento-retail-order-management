@@ -49,7 +49,6 @@ http://opensource.org/licenses/osl-3.0.php
         </block>
     </checkout_onepage_review>
     <checkout_multishipping_overview translate="label">
-        <update handle="checkout_multishipping"/>
         <reference name="checkout_overview">
             <action method="setTemplate">
                 <template>ebayenterprise_inventory/checkout/multishipping/overview.phtml</template>

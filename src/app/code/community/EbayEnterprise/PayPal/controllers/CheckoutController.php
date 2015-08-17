@@ -79,13 +79,6 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
     {
         try {
             $this->_initCheckout();
-
-            if ($this->_getQuote()->getIsMultiShipping()
-            ) { // Multi-shipping is not supported
-                $this->_getQuote()->setIsMultiShipping(false);
-                $this->_getQuote()->removeAllAddresses();
-            }
-
             $customer = Mage::getSingleton('customer/session')->getCustomer();
             $quoteCheckoutMethod = $this->_getQuote()->getCheckoutMethod();
             if ($customer && $customer->getId()) {
@@ -231,6 +224,15 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
      */
     public function reviewAction()
     {
+        /** @var Mage_Checkout_Model_Session */
+        $checkoutSession = $this->_getCheckoutSession();
+        if ($checkoutSession->getIsUseMultiShippingCheckout()) {
+            /** @var array */
+            $paymentData = (array) $checkoutSession->getMultiShippingPaymentData();
+            $paymentData['is_return_from_paypal'] = true;
+            $checkoutSession->setMultiShippingPaymentData($paymentData);
+            $this->_redirect('checkout/multishipping/overview');
+        }
         try {
             $this->_initCheckout();
             $this->_checkout->prepareOrderReview($this->_initToken());
@@ -249,9 +251,9 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
             $this->renderLayout();
             return;
         } catch (Mage_Core_Exception $e) {
-            Mage::getSingleton('checkout/session')->addError($e->getMessage());
+            $checkoutSession->addError($e->getMessage());
         } catch (Exception $e) {
-            Mage::getSingleton('checkout/session')->addError(
+            $checkoutSession->addError(
                 $this->__('Unable to initialize Express Checkout review.')
             );
             $this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));

@@ -18,15 +18,42 @@
  */
 class EbayEnterprise_Paypal_Model_Observer
 {
-    /** @var EbayEnterprise_MageLog_Helper_Data */
-    protected $_logger;
+    /** @var EbayEnterprise_PayPal_Model_Multishipping */
+    protected $multiShipping;
 
     /**
-     * Set up the logger
+     * @param array $initParams May have this key:
+     *                          - 'multi_shipping' => EbayEnterprise_PayPal_Model_Multishipping
      */
-    public function __construct()
+    public function __construct(array $initParams=[])
     {
-        $this->_logger = Mage::helper('ebayenterprise_magelog');
+        list($this->multiShipping) = $this->checkTypes(
+            $this->nullCoalesce($initParams, 'multi_shipping', Mage::getModel('ebayenterprise_paypal/multishipping'))
+        );
+    }
+
+    /**
+     * Type hinting for self::__construct $initParams
+     *
+     * @param  EbayEnterprise_PayPal_Model_Multishipping
+     * @return array
+     */
+    protected function checkTypes(EbayEnterprise_PayPal_Model_Multishipping $multiShipping)
+    {
+        return func_get_args();
+    }
+
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the default value.
+     *
+     * @param  array
+     * @param  string $field Valid array key
+     * @param  mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
     }
 
     /**
@@ -82,5 +109,45 @@ class EbayEnterprise_Paypal_Model_Observer
     protected function _getVoidModel()
     {
         return Mage::getModel('ebayenterprise_paypal/void');
+    }
+
+    /**
+     * Listen to the 'controller_action_predispatch_checkout_multishipping_overview' event
+     * in order to get the controller action and pass it down to the 'ebayenterprise_paypal/multishipping::initializePaypalExpressCheckout()'
+     * method.
+     *
+     * @param  Varien_Event_Observer
+     * @return self
+     */
+    public function handleControllerActionPredispatch(Varien_Event_Observer $observer)
+    {
+        /** @var Varien_Event */
+        $event = $observer->getEvent();
+        /** @var Mage_Checkout_MultishippingController */
+        $controllerAction = $event->getControllerAction();
+        if ($controllerAction) {
+            $this->multiShipping->initializePaypalExpressCheckout($controllerAction);
+        }
+        return $this;
+    }
+
+    /**
+     * Listen to the 'ebayenterprise_multishipping_before_submit_order_create' event
+     * in order to get the sales/quote and pass it down to the 'ebayenterprise_paypal/multishipping::processPaypalExpressPayment()'
+     * method.
+     *
+     * @param  Varien_Event_Observer
+     * @return self
+     */
+    public function handleEbayEnterpriseMultishippingBeforeSubmitOrderCreate(Varien_Event_Observer $observer)
+    {
+        /** @var Varien_Event */
+        $event = $observer->getEvent();
+        /** @var Mage_Sales_Model_Quote */
+        $quote = $event->getQuote();
+        if ($quote) {
+            $this->multiShipping->processPaypalExpressPayment($quote);
+        }
+        return $this;
     }
 }

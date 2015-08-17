@@ -15,6 +15,8 @@
 
 class EbayEnterprise_Multishipping_Override_Model_Checkout_Type_Multishipping extends Mage_Checkout_Model_Type_Multishipping
 {
+    const MULTI_SHIPPING_ORDER_CREATE_EVENT = 'ebayenterprise_multishipping_before_submit_order_create';
+
     /** @var EbayEnterprise_Multishipping_Helper_Factory */
     protected $_multishippingFactory;
     /** @var EbayEnterprise_MageLog_Helper_Data */
@@ -109,8 +111,11 @@ class EbayEnterprise_Multishipping_Override_Model_Checkout_Type_Multishipping ex
      */
     protected function _submitOrder()
     {
+        /** @var Mage_Sales_Model_Quote */
+        $quote = $this->getQuote();
+        Mage::dispatchEvent(static::MULTI_SHIPPING_ORDER_CREATE_EVENT, ['quote' => $quote]);
         $service = $this->_multishippingFactory
-            ->createQuoteService($this->getQuote(), true);
+            ->createQuoteService($quote, true);
         // Using submitOrder instead of submitAll. submitAll is only necessary
         // when creating an order that may contain recurring profiles/nominal
         // items. As such orders can only be ordered separately, they should

@@ -42,7 +42,7 @@ class EbayEnterprise_PayPal_Model_Method_Express extends Mage_Payment_Model_Meth
     protected $_canVoid = true;
     protected $_canUseInternal = false;
     protected $_canUseCheckout = true;
-    protected $_canUseForMultishipping = false;
+    protected $_canUseForMultishipping = true;
     protected $_canFetchTransactionInfo = false;
     protected $_canCreateBillingAgreement = false;
     protected $_canReviewPayment = false;

@@ -89,6 +89,24 @@ http://opensource.org/licenses/osl-3.0.php
                 </EbayEnterprise_PayPal>
             </modules>
         </translate>
+        <events>
+            <controller_action_predispatch_checkout_multishipping_overview>
+                <observers>
+                    <ebayenterprise_paypal_handle_payment_redirect>
+                        <class>ebayenterprise_paypal/observer</class>
+                        <method>handleControllerActionPredispatch</method>
+                    </ebayenterprise_paypal_handle_payment_redirect>
+                </observers>
+            </controller_action_predispatch_checkout_multishipping_overview>
+            <ebayenterprise_multishipping_before_submit_order_create>
+                <observers>
+                    <ebayenterprise_paypal_handle_do_auth>
+                        <class>ebayenterprise_paypal/observer</class>
+                        <method>handleEbayEnterpriseMultishippingBeforeSubmitOrderCreate</method>
+                    </ebayenterprise_paypal_handle_do_auth>
+                </observers>
+            </ebayenterprise_multishipping_before_submit_order_create>
+        </events>
     </frontend>
     <default>
         <payment>

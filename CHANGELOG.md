@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-4] - 2015-08-19
+### Changed
+- Make the color/size attribute mapping public, so custom mappings can be written for attribute options.
+
 ## [1.6.0-beta-3] - 2015-08-13
 ### Fixed
 - Supply the correct estimated delivery date for configurable products
@@ -338,6 +342,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-3...1.6.0-beta-4
 [1.6.0-beta-3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-2...1.6.0-beta-3
 [1.6.0-beta-2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-1...1.6.0-beta-2
 [1.6.0-beta-1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-alpha-6...1.6.0-beta-1

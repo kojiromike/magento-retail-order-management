@@ -50,10 +50,24 @@ class EbayEnterprise_Address_Helper_Data extends Mage_Core_Helper_Abstract imple
         $addressPayload
             ->setLines($address->getStreetFull())
             ->setCity($address->getCity())
-            ->setMainDivision($address->getRegionCode())
+            ->setMainDivision($this->getRegion($address))
             ->setCountryCode($address->getCountry())
             ->setPostalCode($address->getPostcode());
         return $this;
+    }
+
+    /**
+     * If the country for the Address is US then get the 2 character ISO region code;
+     * otherwise, for any other country get the fully qualified region name.
+     *
+     * @param  Mage_Customer_Model_Address_Abstract
+     * @return string
+     */
+    protected function getRegion(Mage_Customer_Model_Address_Abstract $address)
+    {
+        return $address->getCountry() === 'US'
+            ? $address->getRegionCode()
+            : $address->getRegion();
     }
 
     /**
@@ -67,11 +81,14 @@ class EbayEnterprise_Address_Helper_Data extends Mage_Core_Helper_Abstract imple
         IPhysicalAddress $addressPayload,
         Mage_Customer_Model_Address_Abstract $address
     ) {
+        /** @var string */
+        $region = $addressPayload->getMainDivision();
         $address
             ->setStreet($addressPayload->getLines())
             ->setCity($addressPayload->getCity())
             ->setCountryId($addressPayload->getCountryCode())
-            ->setRegionId($this->getRegionIdByCode($addressPayload->getMainDivision(), $addressPayload->getCountryCode()))
+            ->setRegionId($this->getRegionIdByCode($region, $addressPayload->getCountryCode()))
+            ->setRegion($region)
             ->setPostcode($addressPayload->getPostalCode());
         return $this;
     }

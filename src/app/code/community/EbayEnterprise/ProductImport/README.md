@@ -449,8 +449,8 @@ XPath has a lot of power for finding nodes and even transforming them itself. Mu
 <my_custom_attribute>
     <class>ebayenterprise_catalog/map</class>
     <type>helper</type>
-    <method>extractStingValue</method>
-    <xpath>CustomAttributes/Attribute/[@name="my_custom_attribute"]/Value</xpath>
+    <method>extractStringValue</method>
+    <xpath>CustomAttributes/Attribute[@name="my_custom_attribute"]/Value</xpath>
 </my_custom_attribute>
 ```
 

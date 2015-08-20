@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-5] - 2015-08-20
+### Added
+- Multi-address shipping now supports PayPal payments.
+
 ## [1.6.0-beta-4] - 2015-08-19
 ### Changed
 - Make the color/size attribute mapping public, so custom mappings can be written for attribute options.

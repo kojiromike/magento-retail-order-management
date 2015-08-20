@@ -166,6 +166,7 @@ class EbayEnterprise_Order_Model_Detail_Process_Response extends Mage_Sales_Mode
             ->_populateOrderItem()
             ->_populateOrderPayment()
             ->_populateOrderShipment()
+            ->_groupBundleItems()
             ->_populateOrderShipGroup()
             : $this;
     }
@@ -510,5 +511,26 @@ class EbayEnterprise_Order_Model_Detail_Process_Response extends Mage_Sales_Mode
     public function getShipGroupsCollection()
     {
         return $this->_shipGroups;
+    }
+
+    /**
+     * @return IOrderDetailResponse
+     */
+    public function getResponse()
+    {
+        return $this->_response;
+    }
+
+    /**
+     * Group each bundle items and their children as a single item with options.
+     *
+     * @return self
+     */
+    protected function _groupBundleItems()
+    {
+        $this->_factory
+            ->getNewDetailProcessResponseRelationship($this)
+            ->process();
+        return $this;
     }
 }

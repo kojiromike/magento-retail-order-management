@@ -24,4 +24,14 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Item extends Mage_Sales
             $this->setProductId(Mage::getModel('catalog/product')->getIdBySku($this->getSku()));
         }
     }
+
+    /**
+     * A concrete way of getting the ROM order item id.
+     *
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->getData('ref_id');
+    }
 }

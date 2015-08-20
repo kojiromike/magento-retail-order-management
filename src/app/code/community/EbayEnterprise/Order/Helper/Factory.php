@@ -353,4 +353,15 @@ class EbayEnterprise_Order_Helper_Factory
             'tracking_number' => $trackingNumber,
         ]);
     }
+
+    /**
+     * Get a new ebayenterprise_order/detail_process_response_relationship instance.
+     *
+     * @param  EbayEnterprise_Order_Model_Detail_Process_IResponse
+     * @return EbayEnterprise_Order_Model_Detail_Process_Response_Relationship
+     */
+    public function getNewDetailProcessResponseRelationship(EbayEnterprise_Order_Model_Detail_Process_IResponse $order)
+    {
+        return Mage::getModel('ebayenterprise_order/detail_process_response_relationship', ['order' => $order]);
+    }
 }

@@ -73,7 +73,7 @@ class EbayEnterprise_Paypal_Test_Model_MultishippingTest extends EbayEnterprise_
         /** @var Mage_Checkout_Model_Session */
         $checkoutSession = $this->getModelMockBuilder('checkout/session')
             ->disableOriginalConstructor()
-            ->setMethods(['getQuote', 'getMultiShippingPaymentData', 'setIsUseMultiShippingCheckout', 'setMultiShippingPaymentData', 'unsetMultiShippingPaymentData'])
+            ->setMethods(['getQuote', 'getMultiShippingPaymentData', 'setIsUseMultiShippingCheckout', 'setMultiShippingPaymentData'])
             ->getMock();
         $checkoutSession->expects($isNotWhen)
             ->method('getQuote')
@@ -85,12 +85,9 @@ class EbayEnterprise_Paypal_Test_Model_MultishippingTest extends EbayEnterprise_
             ->method('setIsUseMultiShippingCheckout')
             ->with($this->identicalTo(true))
             ->will($this->returnSelf());
-        $checkoutSession->expects($isWhen)
+        $checkoutSession->expects($this->atLeastOnce())
             ->method('setMultiShippingPaymentData')
-            ->with($this->identicalTo($paymentData))
-            ->will($this->returnSelf());
-        $checkoutSession->expects($isNotWhen)
-            ->method('unsetMultiShippingPaymentData')
+            ->with($this->identicalTo($isRedirectToPayPal ? $paymentData : null))
             ->will($this->returnSelf());
 
         /** @var EbayEnterprise_PayPal_Model_Multishipping */

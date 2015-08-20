@@ -116,7 +116,7 @@ class EbayEnterprise_PayPal_Model_Multishipping
         $quote->setIsMultiShipping(true);
         // Remove Payment Data from session once we are passed returning
         // from PayPal Express page.
-        $checkoutSession->unsetMultiShippingPaymentData();
+        $checkoutSession->setMultiShippingPaymentData(null);
         $request->setPost('payment', $paymentData);
         return $this;
     }

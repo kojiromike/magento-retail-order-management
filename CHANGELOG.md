@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-7] - 2015-08-25
+### Fix
+- "Invalid argument" warning on order submit
+
 ## [1.6.0-beta-6] - 2015-08-24
 ### Fix
 - display bundle item in customer order detail page in a single line instead of many lines.

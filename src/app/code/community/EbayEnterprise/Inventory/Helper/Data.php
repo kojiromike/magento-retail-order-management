@@ -256,8 +256,9 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
     {
         /** @var array */
         $products = [];
-        if ($item->getHasChildren()) {
-            foreach ($item->getChildren() as $childItem) {
+        $children = $item->getChildren();
+        if ($children) {
+            foreach ($children as $childItem) {
                 /** @var Mage_Catalog_Model_Product */
                 $product = $childItem->getProduct();
                 if ($product instanceof Mage_Catalog_Model_Product) {

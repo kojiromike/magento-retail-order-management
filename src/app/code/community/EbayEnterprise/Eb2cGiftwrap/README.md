@@ -9,7 +9,7 @@ The intended audience for this guide is Magento merchants, business users and sy
 
 - [Introduction](#introduction)
 - [Gift Messaging](#gift-messaging)
-- [Gitt Wrapping](#gift-wrapping)
+- [Gift Wrapping](#gift-wrapping)
 - [Exporting Gift Wrapping](#exporting-gift-wrapping)
 - [Importing Gift Wrapping](#importing-gift-wrapping)
 - [Dependencies](#dependencies)

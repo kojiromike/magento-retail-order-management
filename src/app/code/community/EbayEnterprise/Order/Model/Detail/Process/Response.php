@@ -21,6 +21,7 @@ use eBayEnterprise\RetailOrderManagement\Payload\Order\Detail\IOrderDetailItem;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\Detail\IShipment;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IPayment;
 use eBayEnterprise\RetailOrderManagement\Payload\Order\IShipGroup;
+use eBayEnterprise\RetailOrderManagement\Payload\Order\Detail\IOrderDetailStoredValueCardPayment;
 
 class EbayEnterprise_Order_Model_Detail_Process_Response extends Mage_Sales_Model_Order implements EbayEnterprise_Order_Model_Detail_Process_IResponse
 {
@@ -28,6 +29,7 @@ class EbayEnterprise_Order_Model_Detail_Process_Response extends Mage_Sales_Mode
     const ITEM_DATA_KEY = 'item_data';
     const ORDER_DATA_KEY = 'order_data';
     const PAYMENT_DATA_KEY = 'payment_data';
+    const STOREDVALUE_DATA_KEY = 'rom_storevalue_data';
     const SHIPMENT_DATA_KEY = 'shipment_data';
     const SHIPGROUP_DATA_KEY = 'ship_group_data';
     const EMAIL_ADDRESS_DATA_KEY = 'email_address_data';
@@ -387,7 +389,9 @@ class EbayEnterprise_Order_Model_Detail_Process_Response extends Mage_Sales_Mode
      */
     protected function _extractOrderDetailPaymentInfo(IPayment $payment)
     {
-        $paymentData = $this->_extractData($payment, $this->_detailConfigMap[static::PAYMENT_DATA_KEY]);
+        $key = $payment instanceof IOrderDetailStoredValueCardPayment
+            ? static::STOREDVALUE_DATA_KEY : static::PAYMENT_DATA_KEY;
+        $paymentData = $this->_extractData($payment, $this->_detailConfigMap[$key]);
         $paymentData['order'] = $this;
         $paymentData['payment_type_name'] = $payment::ROOT_NODE;
         $this->getPaymentsCollection()

@@ -654,6 +654,32 @@ http://opensource.org/licenses/osl-3.0.php
                             <getter>getAmountAuthorized</getter>
                         </authorized_amount>
                     </payment_data>
+                    <rom_storevalue_data>
+                        <tender_type>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getTenderTypeValue</method>
+                            <getter>getTenderType</getter>
+                        </tender_type>
+                        <account_unique_id>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getStringValue</method>
+                            <getter>getAccountUniqueId</getter>
+                        </account_unique_id>
+                        <account_id_is_token>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getBooleanValue</method>
+                            <getter>getPanIsToken</getter>
+                        </account_id_is_token>
+                        <amount>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getFloatValue</method>
+                            <getter>getAmount</getter>
+                        </amount>
+                    </rom_storevalue_data>
                     <shipment_data>
                         <increment_id>
                             <class>ebayenterprise_order/detail_map</class>

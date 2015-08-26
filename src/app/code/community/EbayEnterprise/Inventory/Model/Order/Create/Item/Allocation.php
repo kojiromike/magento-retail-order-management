@@ -110,7 +110,7 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item_Allocation
     }
 
     /**
-     * get the alloction for the item and verify
+     * get the allocation for the item and verify
      * that the amount ordered was allocated
      *
      * @param Mage_Sales_Model_Order_Item
@@ -123,7 +123,7 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item_Allocation
         if ($allocation) {
             if ($allocation->getQuantityAllocated() === 0) {
                 $this->handleOutOfStock($item);
-            } elseif ($allocation->getQuantityAllocated() < $item->getQtyOrdered()) {
+            } elseif ($this->hasInsufficientStock($allocation, $item)) {
                 $this->handleInsufficientStock($item);
             }
         }
@@ -167,5 +167,43 @@ class EbayEnterprise_Inventory_Model_Order_Create_Item_Allocation
             'EbayEnterprise_Inventory_Exception_Allocation_Availability',
             $this->invHelper->__(static::INSUFFICIENT_STOCK_MESSAGE)
         );
+    }
+
+    /**
+     * Determine if an item has insufficient stock for allocation.
+     *
+     * @param  EbayEnterprise_Inventory_Model_Allocation
+     * @param  Mage_Core_Model_Abstract
+     * @return bool
+     */
+    protected function hasInsufficientStock(EbayEnterprise_Inventory_Model_Allocation $allocation, Mage_Core_Model_Abstract $item)
+    {
+        return !$this->isBackorderable($item)
+            && $allocation->getQuantityAllocated() < $item->getQtyOrdered();
+    }
+
+     /**
+     * Determine if the passed in item is backorderable.
+     *
+     * @param  Mage_Core_Model_Abstract
+     * @param  int
+     * @return bool
+     */
+    protected function isBackorderable(Mage_Core_Model_Abstract $item)
+    {
+        return $this->getStockItem($item)->getBackorders() > Mage_CatalogInventory_Model_Stock::BACKORDERS_NO;
+    }
+
+    /**
+     * Get a passed in item product stock item.
+     *
+     * @param  Mage_Core_Model_Abstract
+     * @return Mage_CatalogInventory_Model_Stock_Item
+     */
+    protected function getStockItem(Mage_Core_Model_Abstract $item)
+    {
+        return $item
+            ->getProduct()
+            ->getStockItem();
     }
 }

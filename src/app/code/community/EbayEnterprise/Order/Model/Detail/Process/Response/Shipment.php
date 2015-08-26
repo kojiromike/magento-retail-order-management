@@ -25,6 +25,8 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
     protected $shipping;
     /** @var EbayEnterprise_Order_Helper_Factory */
     protected $factory;
+    /** @var EbayEnterprise_Order_Helper_Detail_Item */
+    protected $itemHelper;
 
     /**
      * @param array $initParams Must have this key:
@@ -32,11 +34,12 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
      */
     public function __construct(array $initParams=[])
     {
-        list($this->orderHelper, $this->coreConfig, $this->shipping, $this->factory) = $this->checkTypes(
+        list($this->orderHelper, $this->coreConfig, $this->shipping, $this->factory, $this->itemHelper) = $this->checkTypes(
             $this->nullCoalesce($initParams, 'order_helper', Mage::helper('ebayenterprise_order')),
             $this->nullCoalesce($initParams, 'core_config', Mage::helper('eb2ccore')->getConfigModel()),
             $this->nullCoalesce($initParams, 'shipping', Mage::getModel('shipping/shipping')),
-            $this->nullCoalesce($initParams, 'factory', Mage::helper('ebayenterprise_order/factory'))
+            $this->nullCoalesce($initParams, 'factory', Mage::helper('ebayenterprise_order/factory')),
+            $this->nullCoalesce($initParams, 'item_helper', Mage::helper('ebayenterprise_order/detail_item'))
         );
         parent::__construct($this->removeKnownKeys($initParams));
     }
@@ -50,7 +53,7 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
     protected function removeKnownKeys(array $initParams)
     {
         $newParams = [];
-        $knownKeys = ['order_helper', 'core_config', 'shipping', 'factory'];
+        $knownKeys = ['order_helper', 'core_config', 'shipping', 'factory', 'item_helper'];
         foreach ($initParams as $key => $value) {
             if (!in_array($key, $knownKeys)) {
                 $newParams[$key] = $value;
@@ -66,13 +69,15 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
      * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
      * @param  Mage_Shipping_Model_Shipping
      * @param  EbayEnterprise_Order_Helper_Factory
+     * @param  EbayEnterprise_Order_Helper_Detail_Item
      * @return array
      */
     protected function checkTypes(
         EbayEnterprise_Order_Helper_Data $orderHelper,
         EbayEnterprise_Eb2cCore_Model_Config_Registry $coreConfig,
         Mage_Shipping_Model_Shipping $shipping,
-        EbayEnterprise_Order_Helper_Factory $factory
+        EbayEnterprise_Order_Helper_Factory $factory,
+        EbayEnterprise_Order_Helper_Detail_Item $itemHelper
     ) {
         return func_get_args();
     }
@@ -120,7 +125,6 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
                     $this->_injectShipmentTracks(['number' => $track]);
                 }
             }
-            $this->setAllItems($this->getItems());
         }
     }
 
@@ -241,5 +245,22 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipment extends Mage_S
         /** @var string */
         $description = trim($this->getShippingDescription());
         return strstr($description, ' - ', true) ?: strstr($description, ' ', true);
+    }
+
+    /**
+     * Get all items in the shipment. Hidden items will be excluded by default
+     * but can be included using the `$includeHidden` argument.
+     *
+     * @param bool
+     * @return Mage_Sales_Model_Order_Item[]
+     */
+    public function getAllItems($includeHidden = false)
+    {
+        // parent::getAllItems will include hidden and non-hidden items by default.
+        // When hidden items are to be included, the whole array can simply be
+        // returned. When hidden items should not be included, they need to
+        // be filtered out of the list.
+        $items = parent::getAllItems();
+        return $includeHidden ? $items : $this->itemHelper->filterHiddenGiftItems($items);
     }
 }

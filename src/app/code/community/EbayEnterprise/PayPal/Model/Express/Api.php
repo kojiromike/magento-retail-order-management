@@ -137,9 +137,11 @@ class EbayEnterprise_Paypal_Model_Express_Api
             $this->addShippingAddress($quote->getShippingAddress(), $payload);
         }
         $this->addLineItems($quote, $payload);
+        Mage::dispatchEvent('ebayenterprise_paypal_set_express_checkout_before_send', ['payload' => $payload, 'quote' => $quote]);
         $sdk->setRequestBody($payload);
         $this->logApiCall('set express', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
+        Mage::dispatchEvent('ebayenterprise_paypal_set_express_checkout_after_send', ['payload' => $reply, 'quote' => $quote]);
         $this->logApiCall('set express', $reply->serialize(), 'response');
         if (!$reply->isSuccess() || is_null($reply->getToken())) {
             // Only set and do express have the error message in the reply.
@@ -196,9 +198,11 @@ class EbayEnterprise_Paypal_Model_Express_Api
         $payload->setOrderId($orderId)
             ->setToken($token)
             ->setCurrencyCode($currencyCode);
+        Mage::dispatchEvent('ebayenterprise_paypal_get_express_checkout_before_send', ['payload' => $payload, 'quote' => $quote]);
         $sdk->setRequestBody($payload);
         $this->logApiCall('get express', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
+        Mage::dispatchEvent('ebayenterprise_paypal_get_express_checkout_after_send', ['payload' => $reply, 'quote' => $quote]);
         $this->logApiCall('get express', $reply->serialize(), 'response');
         if (!$reply->isSuccess()) {
             $logMessage = 'PayPal request failed. See exception log for details.';
@@ -273,9 +277,11 @@ class EbayEnterprise_Paypal_Model_Express_Api
             $payload->setPickUpStoreId($pickUpStoreId);
         }
         $this->addLineItems($quote, $payload);
+        Mage::dispatchEvent('ebayenterprise_paypal_do_express_checkout_before_send', ['payload' => $payload, 'quote' => $quote]);
         $sdk->setRequestBody($payload);
         $this->logApiCall('do express', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
+        Mage::dispatchEvent('ebayenterprise_paypal_do_express_checkout_after_send', ['payload' => $reply, 'quote' => $quote]);
         $this->logApiCall('do express', $reply->serialize(), 'response');
         if (!$reply->isSuccess()) {
             $logData = ['error_message' => $reply->getErrorMessage()];
@@ -316,9 +322,11 @@ class EbayEnterprise_Paypal_Model_Express_Api
             ->setOrderId($quote->reserveOrderId()->getReservedOrderId())
             ->setCurrencyCode($quote->getQuoteCurrencyCode())
             ->setAmount($this->getTotal('grand_total', $quote));
+        Mage::dispatchEvent('ebayenterprise_paypal_do_authorization_before_send', ['payload' => $payload, 'quote' => $quote]);
         $sdk->setRequestBody($payload);
         $this->logApiCall('do authorization', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
+        Mage::dispatchEvent('ebayenterprise_paypal_do_authorization_after_send', ['payload' => $reply, 'quote' => $quote]);
         $isSuccess = $reply->isSuccess();
         $this->logApiCall('do authorization', $reply->serialize(), 'response');
         if (!$isSuccess) {
@@ -355,9 +363,11 @@ class EbayEnterprise_Paypal_Model_Express_Api
         $payload->setOrderId($order->getIncrementId())
             ->setRequestId($this->coreHelper->generateRequestId(self::PAYPAL_DOVOID_REQUEST_ID_PREFIX))
             ->setCurrencyCode($order->getOrderCurrencyCode());
+        Mage::dispatchEvent('ebayenterprise_paypal_do_void_before_send', ['payload' => $payload, 'order' => $order]);
         $sdk->setRequestBody($payload);
         $this->logApiCall('do void', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
+        Mage::dispatchEvent('ebayenterprise_paypal_do_void_after_send', ['payload' => $reply, 'order' => $order]);
         $isVoided = $reply->isSuccess();
         $this->logApiCall('do void', $reply->serialize(), 'response');
         if (!$reply->isSuccess()) {

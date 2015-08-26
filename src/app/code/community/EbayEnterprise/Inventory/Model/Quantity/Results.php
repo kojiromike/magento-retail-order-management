@@ -18,18 +18,18 @@
  * service. Model will be stored in the session to persist inventory quantity
  * data across requests.
  */
-class EbayEnterprise_Inventory_Model_Quantity_Results
+class EbayEnterprise_Inventory_Model_Quantity_Results implements EbayEnterprise_Inventory_Model_Quantity_IResults
 {
     /** @var EbayEnterprise_Inventory_Model_Quantity[] */
-    protected $_results;
+    protected $results;
     /** @var EbayEnterprise_Inventory_Model_Quantity[] */
-    protected $_resultIndexBySku;
+    protected $resultIndexBySku;
     /** @var EbayEnterprise_Inventory_Model_Quantity[] */
-    protected $_resultIndexByItemId;
+    protected $resultIndexByItemId;
     /** @var DateTime */
-    protected $_expirationTime;
+    protected $expirationTime;
     /** @var array Key value pairs of sku => quantity reflecting quote data when the quantity result was requested. */
-    protected $_skuQuantityData;
+    protected $skuQuantityData;
 
     /**
      * @param array $args Must contain:
@@ -40,15 +40,15 @@ class EbayEnterprise_Inventory_Model_Quantity_Results
     public function __construct(array $args = [])
     {
         list(
-            $this->_results,
-            $this->_expirationTime,
-            $this->_skuQuantityData
-        ) = $this->_checkTypes(
+            $this->results,
+            $this->expirationTime,
+            $this->skuQuantityData
+        ) = $this->checkTypes(
             (array) $args['quantities'],
             $args['expiration_time'],
             $args['sku_quantity_data']
         );
-        $this->_createIndexes();
+        $this->createIndexes();
     }
 
     /**
@@ -59,7 +59,7 @@ class EbayEnterprise_Inventory_Model_Quantity_Results
      * @param array
      * @return array
      */
-    public function _checkTypes(array $results, DateTime $expirationTime, array $skuQuantityData)
+    protected function checkTypes(array $results, DateTime $expirationTime, array $skuQuantityData)
     {
         return func_get_args();
     }
@@ -72,7 +72,7 @@ class EbayEnterprise_Inventory_Model_Quantity_Results
      * @param mixed
      * @return mixed
      */
-    protected function _nullCoalesce(array $arr, $key, $default)
+    protected function nullCoalesce(array $arr, $key, $default)
     {
         return isset($arr[$key]) ? $arr[$key] : $default;
     }
@@ -85,7 +85,7 @@ class EbayEnterprise_Inventory_Model_Quantity_Results
      */
     public function getQuantityBySku($sku)
     {
-        return $this->_nullCoalesce($this->_resultIndexBySku, $sku, null);
+        return $this->nullCoalesce($this->resultIndexBySku, $sku, null);
     }
 
     /**
@@ -96,7 +96,7 @@ class EbayEnterprise_Inventory_Model_Quantity_Results
      */
     public function getQuantityByItemId($itemId)
     {
-        return $this->_nullCoalesce($this->_resultIndexByItemId, $itemId, null);
+        return $this->nullCoalesce($this->resultIndexByItemId, $itemId, null);
     }
 
     /**
@@ -107,7 +107,7 @@ class EbayEnterprise_Inventory_Model_Quantity_Results
      */
     public function isExpired()
     {
-        return $this->_expirationTime < date_create();
+        return $this->expirationTime < date_create();
     }
 
     /**
@@ -129,7 +129,7 @@ class EbayEnterprise_Inventory_Model_Quantity_Results
     {
         // Using equality operator instead of identical operator so array order
         // won't matter as long as keys and values are the same.
-        return $this->_skuQuantityData == $skuQuantityData;
+        return $this->skuQuantityData == $skuQuantityData;
     }
 
     /**
@@ -137,11 +137,11 @@ class EbayEnterprise_Inventory_Model_Quantity_Results
      *
      * @return self
      */
-    protected function _createIndexes()
+    protected function createIndexes()
     {
-        foreach ($this->_results as $quantityResult) {
-            $this->_resultIndexBySku[$quantityResult->getSku()] = $quantityResult;
-            $this->_resultIndexByItemId[$quantityResult->getItemId()] = $quantityResult;
+        foreach ($this->results as $quantityResult) {
+            $this->resultIndexBySku[$quantityResult->getSku()] = $quantityResult;
+            $this->resultIndexByItemId[$quantityResult->getItemId()] = $quantityResult;
         }
         return $this;
     }

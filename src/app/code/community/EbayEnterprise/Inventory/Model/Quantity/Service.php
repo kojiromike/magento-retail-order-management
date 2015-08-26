@@ -34,6 +34,8 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
     protected $_inventoryHelper;
     /** @var EbayEnterprise_Inventory_Helper_Quantity */
     protected $_quantityHelper;
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $_config;
 
     /**
      * $param array $args May contain:
@@ -48,13 +50,17 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
             $this->_quantityCollector,
             $this->_inventoryItemSelection,
             $this->_inventoryHelper,
-            $this->_quantityHelper
+            $this->_quantityHelper,
+            $this->_config
         ) = $this->_checkTypes(
             $this->_nullCoalesce($args, 'quantity_collector', Mage::getModel('ebayenterprise_inventory/quantity_collector')),
             $this->_nullCoalesce($args, 'inventory_item_selection', Mage::helper('ebayenterprise_inventory/item_selection')),
             $this->_nullCoalesce($args, 'inventory_helper', Mage::helper('ebayenterprise_inventory')),
-            $this->_nullCoalesce($args, 'quantity_helper', Mage::helper('ebayenterprise_inventory/quantity'))
+            $this->_nullCoalesce($args, 'quantity_helper', Mage::helper('ebayenterprise_inventory/quantity')),
+            $this->_nullCoalesce($args, 'config', Mage::helper('ebayenterprise_inventory')->getConfigModel())
         );
+        $this->_logger = Mage::helper('ebayenterprise_magelog');
+        $this->_logContext = Mage::helper('ebayenterprise_magelog/context');
     }
 
     /**
@@ -64,13 +70,15 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
      * @param EbayEnterprise_Inventory_Helper_Item_Selection
      * @param EbayEnterprise_Inventory_Helper_Data
      * @param EbayEnterprise_Inventory_Helper_Quantity
+     * @param EbayEnterprise_Eb2cCore_Model_Config_Registry
      * @return array
      */
     protected function _checkTypes(
         EbayEnterprise_Inventory_Model_Quantity_Collector $quantityCollector,
         EbayEnterprise_Inventory_Helper_Item_Selection $inventoryItemSelection,
         EbayEnterprise_Inventory_Helper_Data $inventoryHelper,
-        EbayEnterprise_Inventory_Helper_Quantity $quantityHelper
+        EbayEnterprise_Inventory_Helper_Quantity $quantityHelper,
+        EbayEnterprise_Eb2cCore_Model_Config_Registry $config
     ) {
         return func_get_args();
     }
@@ -158,6 +166,7 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
     {
         $inventoryItems = $this->_inventoryItemSelection->selectFrom($quote->getAllItems());
         if (empty($inventoryItems)) {
+            $this->_logger->debug('no items to check, clearing collected quantities', $this->_logContext->getMetaData(__CLASS__));
             $this->_quantityCollector->clearResults();
         }
         foreach ($inventoryItems as $item) {
@@ -222,94 +231,49 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
     protected function _handleUnavailableItem(Mage_Sales_Model_Quote_Item $item)
     {
         $availableQuantity = $this->_getAvailableQuantityForItem($item);
-        $itemIsOutOfStock = $availableQuantity === 0;
-        // Items not already in the cart should not be added if unavailable.
-        // Items without an id have not yet been saved and can not have been
-        // added to the quote previously. Any item with an id, would have been
-        // saved when initially added to the cart previously.
-        if (!$item->getId()) {
-            $message = $itemIsOutOfStock
-                ? self::OUT_OF_STOCK_EXCEPTION_MESSAGE
-                : self::INSUFFICIENT_STOCK_EXCEPTION_MESSAGE;
-            throw Mage::exception(
-                'EbayEnterprise_Inventory_Exception_Quantity_Unavailable',
-                $this->_inventoryHelper->__($message, $item->getName(), $availableQuantity)
-            );
-        }
-        return $itemIsOutOfStock
-            ? $this->_addOutOutOfStockErrorInfo($item)
-            : $this->_addInsufficientStockErrorInfoForItem($item, $availableQuantity);
-    }
-
-    /**
-     * Add error info to an item when it is not available for purchase.
-     *
-     * @param Mage_Sales_Model_Quote_Item
-     * @return self
-     */
-    protected function _addOutOutOfStockErrorInfo(Mage_Sales_Model_Quote_Item $item)
-    {
-        return $this->_addErrorInfoForItem(
-            $item,
-            self::OUT_OF_STOCK_ERROR_CODE,
-            $this->_inventoryHelper->__(self::ITEM_OUT_OF_STOCK_MESSAGE, $item->getName()),
-            $this->_inventoryHelper->__(self::QUOTE_OUT_OF_STOCK_MESSAGE)
-        );
-    }
-
-    /**
-     * Add error info to an item when it is not available for purchase.
-     *
-     * @param Mage_Sales_Model_Quote_Item
-     * @param int
-     * @return self
-     */
-    protected function _addInsufficientStockErrorInfoForItem(Mage_Sales_Model_Quote_Item $item, $availableQuantity)
-    {
-        return $this->_addErrorInfoForItem(
-            $item,
-            self::INSUFFICIENT_STOCK_ERROR_CODE,
-            $this->_inventoryHelper->__(self::ITEM_INSUFFICIENT_STOCK_MESSAGE, $item->getName(), $availableQuantity),
-            $this->_inventoryHelper->__(self::QUOTE_INSUFFICIENT_STOCK_MESSAGE)
-        );
-    }
-
-    /**
-     * Add error info to the item and quote the item belongs to with the
-     * provided error code and messages.
-     *
-     * @param Mage_Sales_Model_Quote_Item
-     * @param int
-     * @param string
-     * @param string
-     * @return self
-     */
-    protected function _addErrorInfoForItem(
-        Mage_Sales_Model_Quote_Item $item,
-        $errorCode,
-        $itemMessage,
-        $quoteMessage
-    ) {
-        $item->addErrorInfo(
-            self::ERROR_INFO_SOURCE,
-            $errorCode,
-            $itemMessage
-        );
-        $parentItem = $item->getParentItem();
-        if ($parentItem) {
-            $parentItem->addErrorInfo(
-                self::ERROR_INFO_SOURCE,
-                $errorCode,
-                $itemMessage
-            );
-        }
-        $item->getQuote()->addErrorInfo(
-            self::ERROR_INFO_TYPE,
-            self::ERROR_INFO_SOURCE,
-            $errorCode,
-            $quoteMessage
-        );
+        $this->_getUnavailableHandlerForItem($item)
+            ->handleUnavailableItem($item, $availableQuantity);
         return $this;
+    }
+
+    /**
+     * Get the unavailable item handler for the item. Handler based
+     * on item product type.
+     *
+     * @param Mage_Sales_Model_Quote_Item
+     * @return EbayEnterprise_Inventory_Model_Quantity_Unavailable_Item_IHandler
+     */
+    protected function _getUnavailableHandlerForItem(Mage_Sales_Model_Quote_Item $item)
+    {
+        $configuredHandlers = $this->_config->unavailableItemHandlers;
+        $productType = $item->getProductType();
+
+        $configuredHandler = $this->_loadConfiguredHandler($configuredHandlers, $productType)
+            ?: $this->_loadConfiguredHandler($configuredHandlers, EbayEnterprise_Inventory_Model_Config::DEFAULT_UNAVAILABLE_ITEM_HANDLER_KEY);
+
+        // If no useful specific or default instance is configured, go with this,
+        // which should (as much as possible) be useful as a default implementation.
+        return $configuredHandler ?: Mage::getModel('ebayenterprise_inventory/quantity_unavailable_item_default');
+    }
+
+    /**
+     * Load an unavailable item handler for the given type based on a set of
+     * handler configuration. Will return null if no viable handler is found
+     * for that type.
+     *
+     * @param array
+     * @param string|int
+     * @return EbayEnterprise_Inventory_Model_Quantity_Unavailable_Item_IHandler|null
+     */
+    protected function _loadConfiguredHandler(array $configuredHandlers, $handlerType)
+    {
+        if (isset($configuredHandlers[$handlerType])) {
+            $handlerModel = Mage::getModel($configuredHandlers[$handlerType]);
+            if ($handlerModel && $handlerModel instanceof EbayEnterprise_Inventory_Model_Quantity_Unavailable_Item_IHandler) {
+                return $handlerModel;
+            }
+        }
+        return null;
     }
 
     /**

@@ -474,6 +474,12 @@ http://opensource.org/licenses/osl-3.0.php
                             <method>getFloatValue</method>
                             <getter>getMerchandisePricing/getUnitPrice</getter>
                         </price>
+                        <is_hidden_gift>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getBooleanValue</method>
+                            <getter>getIsHiddenGift</getter>
+                        </is_hidden_gift>
                         <gift_message>
                             <class>ebayenterprise_order/detail_map</class>
                             <type>helper</type>

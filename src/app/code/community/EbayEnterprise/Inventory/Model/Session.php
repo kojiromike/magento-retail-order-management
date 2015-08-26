@@ -16,7 +16,7 @@
 /**
  * Session storage for inventory related data.
  */
-class EbayEnterprise_Inventory_Model_Session extends Mage_Core_Model_Session_Abstract
+class EbayEnterprise_Inventory_Model_Session extends Mage_Core_Model_Session_Abstract implements EbayEnterprise_Inventory_Model_Quantity_Results_IStorage
 {
     /**
      * Initialize the session.
@@ -30,7 +30,7 @@ class EbayEnterprise_Inventory_Model_Session extends Mage_Core_Model_Session_Abs
      * Get quantity response results stored from the last
      * quantity request. Will not return any results that have expired.
      *
-     * @return EbayEnterprise_Inventory_Model_Quantity_Results
+     * @return EbayEnterprise_Inventory_Model_Quantity_IResults|null
      */
     public function getQuantityResults()
     {
@@ -39,10 +39,10 @@ class EbayEnterprise_Inventory_Model_Session extends Mage_Core_Model_Session_Abs
     }
 
     /**
-     * @param EbayEnterprise_Inventory_Model_Quantity_Results
+     * @param EbayEnterprise_Inventory_Model_Quantity_IResults|null
      * @return self
      */
-    public function setQuantityResults($quantityResults)
+    public function setQuantityResults(EbayEnterprise_Inventory_Model_Quantity_IResults $quantityResults = null)
     {
         return $this->setData('quantity_results', $quantityResults);
     }

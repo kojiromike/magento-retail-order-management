@@ -115,27 +115,29 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipgroup extends Varie
     }
 
     /**
+     * @param bool
      * @return Varien_Data_Collection
      */
-    public function getItemsCollection()
+    public function getItemsCollection($includeHidden = false)
     {
-        if (!$this->_items) {
-            $this->_items = $this->_buildItemsCollection();
+        if (!$this->_items || !isset($this->_items[$includeHidden])) {
+            $this->_items[$includeHidden] = $this->_buildItemsCollection($includeHidden);
         }
-        return $this->_items;
+        return $this->_items[$includeHidden];
     }
 
     /**
      * Build a collection of order item from this particular ship group
      *
+     * @param bool
      * @return Varien_Data_Collection
      */
-    protected function _buildItemsCollection()
+    protected function _buildItemsCollection($includeHidden)
     {
         $items = $this->_coreHelper->getNewVarienDataCollection();
         foreach ($this->getOrderItems() as $itemId) {
             $item = $this->_order->getItemsCollection()->getItemByColumnValue('ref_id', $itemId);
-            if ($item) {
+            if ($item && ($includeHidden || !$item->getIsHiddenGift())) {
                 $items->addItem($item);
             }
         }

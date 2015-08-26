@@ -15,6 +15,8 @@
 
 class EbayEnterprise_Inventory_Model_Config extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
 {
+    const DEFAULT_UNAVAILABLE_ITEM_HANDLER_KEY = 'default';
+
     protected $_configPaths = [
         'api_service' => 'ebayenterprise_inventory/api/service',
         'quantity_api_operation' => 'ebayenterprise_inventory/quantity/operation',
@@ -23,5 +25,6 @@ class EbayEnterprise_Inventory_Model_Config extends EbayEnterprise_Eb2cCore_Mode
         'estimated_delivery_template' => 'ebayenterprise_inventory/details/estimated_delivery_template',
         'api_allocation_create_operation' => 'ebayenterprise_inventory/allocation/create_operation',
         'api_allocation_delete_operation' => 'ebayenterprise_inventory/allocation/delete_operation',
+        'unavailable_item_handlers' => 'ebayenterprise_inventory/quantity/unavailable_item_handlers',
     ];
 }

@@ -157,6 +157,13 @@ http://opensource.org/licenses/osl-3.0.php
             <quantity>
                 <operation>quantity/get</operation>
                 <inventory_expiration>10</inventory_expiration>
+                <unavailable_item_handlers>
+                    <!--
+                        Configure unavailable item handling by product type, if
+                        no handler found for a given type, will use default
+                    -->
+                    <default>ebayenterprise_inventory/quantity_unavailable_item_default</default>
+                </unavailable_item_handlers>
             </quantity>
             <details>
                 <operation>details/get</operation>

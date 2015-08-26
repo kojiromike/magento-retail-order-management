@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-8] - 2015-08-26
+### Fix
+- Giftcard order crash customer order detail and allocation error for out of stock backorderable item.
+- MainDivision not showing for address validation suggested address in checkout.
+
 ## [1.6.0-beta-7] - 2015-08-25
 ### Fix
 - "Invalid argument" warning on order submit

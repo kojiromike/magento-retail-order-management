@@ -44,7 +44,7 @@
             /**
              * Overriding this template in order to add the Estimated Delivery Date Message for this Item.
              */
-            echo $this->getEddMessage();
+            echo Mage::getModel('ebayenterprise_inventory/edd')->getEddMessage($_item);
         ?>
     </td>
     <?php if ($this->helper('tax')->displayCartPriceExclTax() || $this->helper('tax')->displayCartBothPrices()): ?>

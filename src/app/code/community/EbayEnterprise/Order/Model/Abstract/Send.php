@@ -138,7 +138,7 @@ abstract class EbayEnterprise_Order_Model_Abstract_Send implements EbayEnterpris
     protected function _processException(Exception $e)
     {
         if ($e instanceof NetworkError) {
-            $logMessage = "Caught a network error sending {$this->_getPayloadName()}. Will retry later.";
+            $logMessage = "Caught a network error sending {$this->_getPayloadName()}. Please check the ROM API Configuration.";
             $this->_logger->warning($logMessage, $this->_getLogContext($e));
         } elseif ($e instanceof UnsupportedOperation || $e instanceof UnsupportedHttpAction) {
             $logMessage = "{$this->_getPayloadName()} request could not be sent. Please check your configuration.";

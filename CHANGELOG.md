@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 2015-08-28
+### Fixed
+- Tax Code for merchandise prices missing from tax request
+
 ## [1.6.0-beta-9] - 2015-08-28
 ### Fix
 - EDD not showing during order review step in checkout when used with custom theme

@@ -89,6 +89,7 @@ http://opensource.org/licenses/osl-3.0.php
                     <product_attributes>
                         <hts_codes/>
                         <country_of_manufacture/>
+                        <tax_code/>
                     </product_attributes>
                 </item>
             </quote>

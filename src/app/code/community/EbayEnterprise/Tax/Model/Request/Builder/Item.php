@@ -78,8 +78,7 @@ class EbayEnterprise_Tax_Model_Request_Builder_Item
             $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
             $this->_nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
         );
-        $this->_itemProduct = $this->_item->getProduct()
-            ?: Mage::getModel('catalog/product')->load($this->_item->getProductId());
+        $this->_itemProduct = $this->getItemProduct($this->_item);
         $this->_orderItem = $this->_orderItemIterable->getEmptyOrderItem();
         $this->_populateRequest();
     }
@@ -323,6 +322,34 @@ class EbayEnterprise_Tax_Model_Request_Builder_Item
         return $address->getStreet1()
             && $address->getCity()
             && $address->getCountryId();
+    }
+
+    /**
+     * Get the product the item represents.
+     *
+     * @param Mage_Sales_Model_Quote_Item_Abstract
+     * @return Mage_Catalog_Model_Product
+     */
+    protected function getItemProduct(Mage_Sales_Model_Quote_Item_Abstract $item)
+    {
+        // When dealing with configurable items, need to get tax data from
+        // the child product and not the parent.
+        if ($item->getProductType() === Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+            $sku = $item->getSku();
+            $children = $item->getChildren();
+            if ($children) {
+                foreach ($children as $childItem) {
+                    $childProduct = $childItem->getProduct();
+                    // If the SKU of the child product matches the SKU of the
+                    // item, the simple product being ordered was found and should
+                    // be used.
+                    if ($childProduct->getSku() === $sku) {
+                        return $childProduct;
+                    }
+                }
+            }
+        }
+        return $item->getProduct() ?: Mage::getModel('catalog/product')->load($item->getProductId());
     }
 
     /**

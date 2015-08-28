@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-9] - 2015-08-28
+### Fix
+- EDD not showing during order review step in checkout when used with custom theme
+
 ## [1.6.0-beta-8] - 2015-08-26
 ### Fix
 - Giftcard order crash customer order detail and allocation error for out of stock backorderable item.
@@ -359,6 +363,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-9]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-8...1.6.0-beta-9
 [1.6.0-beta-8]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-7...1.6.0-beta-8
 [1.6.0-beta-7]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-6...1.6.0-beta-7
 [1.6.0-beta-6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-5...1.6.0-beta-6

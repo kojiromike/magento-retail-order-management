@@ -11,7 +11,7 @@ use Psr\Log\NullLogger;
  */
 class EbayEnterprise_GiftCard_Helper_Tendertype
 {
-    const INVLIAD_CARD_NUMBER_MESSAGE = 'EbayEnterprise_GiftCard_Invalid_Card_Number';
+    const INVALID_CARD_NUMBER_MESSAGE = 'EbayEnterprise_GiftCard_Invalid_Card_Number';
 
     /** @var EbayEnterprise_GiftCard_Helper_Data */
     protected $helper;
@@ -87,7 +87,7 @@ class EbayEnterprise_GiftCard_Helper_Tendertype
             );
             throw Mage::exception(
                 'EbayEnterprise_GiftCard_Exception_InvalidCardNumber',
-                $this->helper->__(self::INVLIAD_CARD_NUMBER_MESSAGE, $cardNumber)
+                $this->helper->__(self::INVALID_CARD_NUMBER_MESSAGE, $cardNumber)
             );
         }
     }

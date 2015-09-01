@@ -7,7 +7,7 @@
 "EbayEnterprise_GiftCard_Request_Failed_Void", "Wrong or invalid gift card number or PIN."
 "EbayEnterprise_GiftCard_Cart_Add_Success", "Gift card (%s) has been added."
 "EbayEnterprise_GiftCard_Cart_Remove_Success", "Gift card (%s) has been removed."
-"EbayEnterprise_GiftCard_Invalid_Card_Number", "Gift card (%s) not in any configured bin range."
+"EbayEnterprise_GiftCard_Invalid_Card_Number", "Gift card (%s) number is invalid."
 "EbayEnterprise_GiftCard_PaymentMethod_Additional_Add_Remove", "To add or remove a gift card, please <a href=""%s"">return to the shopping cart</a>."
 "EbayEnterprise_GiftCard_PaymentMethod_Additional_Applied_Total", "Gift cards amount applied to order: <span class=""gift-card-additional-amount-applied"">%s</span>"
 "EbayEnterprise_GiftCard_Form_Title", "Gift Cards"

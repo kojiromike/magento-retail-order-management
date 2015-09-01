@@ -138,14 +138,27 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
      */
     protected function _getAttributeOptionId($attributeCode, $optionValue)
     {
-        $option = Mage::getResourceModel('eav/entity_attribute_option_collection')
+        /** @var Mage_Eav_Model_Entity_Attribute_Option */
+        $option = $this->_getAttributeOptionModel($attributeCode, $optionValue);
+        return (!is_null($option))? (int) $option->getOptionId() : 0;
+    }
+
+    /**
+     * Search and get the first eav entity attribute option model from a collection
+     * by attribute code and option value.
+     *
+     * @param  string
+     * @param  string
+     * @return Mage_Eav_Model_Entity_Attribute_Option | null
+     */
+    protected function _getAttributeOptionModel($attributeCode, $optionValue)
+    {
+        return Mage::getResourceModel('eav/entity_attribute_option_collection')
             ->setAttributeFilter($this->_getAttributeIdByName($attributeCode))
             ->addFieldToFilter('tdv.value', $optionValue)
             ->setStoreFilter(Mage_Core_Model_App::ADMIN_STORE_ID)
             ->load()
             ->getFirstItem();
-
-        return (!is_null($option))? (int) $option->getOptionId() : 0;
     }
 
     /**
@@ -324,8 +337,10 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
         if (!$attributeId) {
             return 0; // _getAttributeIdByName guarantees us non-zero value for valid attributes.
         }
-        $attributeOptions  = array(); // An array holding the format Magento wants for options
-        $attributeOptionId = $this->_getAttributeOptionId($attributeCodeText, $adminValueText);
+        $attributeOptions = []; // An array holding the format Magento wants for options
+        /** @var Mage_Eav_Model_Entity_Attribute_Option */
+        $option = $this->_getAttributeOptionModel($attributeCodeText, $adminValueText);
+        $attributeOptionId = $option ? (int) $option->getOptionId() : 0;
         $attribute         = Mage::getModel('catalog/resource_eav_attribute')->load($attributeId);
 
         $attributeOptions['attribute_id'] = $attributeId;
@@ -352,10 +367,10 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
 			attributeOptions['order'] = the sort order for the option
 
 		Most of this was gleaned from Mage_Eav_Model_Resource_Entity_Attribute::_saveOption
-		 */
-
+		*/
         // Get existing values, if any, because update will overwrite everything.
         $attributeOptions['value'][$attributeOptionId] = $this->_getAllOptionValues($attribute, $attributeOptionId);
+        $attributeOptions['order'][$attributeOptionId] = $option ? $option->getSortOrder() : 0;
         // The Default (always stored at Admin) Value
         $attributeOptions['value'][$attributeOptionId][Mage_Core_Model_App::ADMIN_STORE_ID] = $adminValueText;
         foreach ($translations as $lang => $desc) {
@@ -366,7 +381,7 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
         }
         if ($attributeOptionId) {
             // Previously existing attributeOption is being updated:
-            $attribute->addData(array('option'=>$attributeOptions))->save();
+            $attribute->addData(['option' => $attributeOptions])->save();
         } else {
             // New attributeOption is being added:
             Mage::getModel('eav/entity_setup', 'core_setup')->addAttributeOption($attributeOptions);

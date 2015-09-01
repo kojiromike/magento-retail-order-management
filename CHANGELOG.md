@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-11] - 2015-09-01
+### Fixed
+- Feed Import Can Delete Option Information
+
 ## [1.6.0-beta-10] - 2015-08-31
 ### Fixed
 - Tax Code for merchandise prices missing from tax request
@@ -367,6 +371,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-11]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-10...1.6.0-beta-11
 [1.6.0-beta-10]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-9...1.6.0-beta-10
 [1.6.0-beta-9]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-8...1.6.0-beta-9
 [1.6.0-beta-8]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-7...1.6.0-beta-8

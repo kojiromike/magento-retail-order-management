@@ -80,6 +80,27 @@ http://opensource.org/licenses/osl-3.0.php
                     </ebayenterprise_address_add_suggestions_to_shipping_response>
                 </observers>
             </controller_action_postdispatch_checkout_onepage_saveShipping>
+
+            <!-- MPERF-7650 on some Magento sites lowercases all action names -->
+            <controller_action_postdispatch_checkout_onepage_savebilling>
+                <observers>
+                    <ebayenterprise_address_add_suggestions_to_billing_response>
+                        <type>singleton</type>
+                        <class>ebayenterprise_address/observer</class>
+                        <method>addSuggestionsToResponse</method>
+                    </ebayenterprise_address_add_suggestions_to_billing_response>
+                </observers>
+            </controller_action_postdispatch_checkout_onepage_savebilling>
+            <controller_action_postdispatch_checkout_onepage_saveshipping>
+                <observers>
+                    <ebayenterprise_address_add_suggestions_to_shipping_response>
+                        <type>singleton</type>
+                        <class>ebayenterprise_address/observer</class>
+                        <method>addSuggestionsToResponse</method>
+                    </ebayenterprise_address_add_suggestions_to_shipping_response>
+                </observers>
+            </controller_action_postdispatch_checkout_onepage_saveshipping>
+
             <customer_address_validation_after>
                 <observers>
                     <ebayenterprise_address_validation_after>

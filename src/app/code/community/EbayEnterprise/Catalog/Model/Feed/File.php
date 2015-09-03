@@ -30,6 +30,8 @@ class EbayEnterprise_Catalog_Model_Feed_File
     protected $_helper;
     /** @var EbayEnterprise_Catalog_Model_Indexer_Stub */
     protected $_indexerStub;
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $_config;
 
     /**
      * Array of information about the feed file to be processed. Expected to be
@@ -64,6 +66,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
         $this->_xsltHelper = Mage::helper('ebayenterprise_catalog/xslt');
         $this->_helper = Mage::helper('ebayenterprise_catalog');
         $this->_indexerStub = Mage::getModel('ebayenterprise_catalog/indexer_stub');
+        $this->_config = $this->_helper->getConfigModel();
 
         $missingKeys = array_diff(array('doc', 'error_file'), array_keys($feedDetails));
         if ($missingKeys) {
@@ -328,11 +331,26 @@ class EbayEnterprise_Catalog_Model_Feed_File
             $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
             // keep track of skus we've processed for the website
             $this->_importedSkus = array_unique(array_merge($this->_importedSkus, $skusToUpdate));
-
+            $this->saveCollection($collection);
+        }
+        return $this;
+    }
+    /**
+     * Save the collection of products, disabling the indexer as configured.
+     *
+     * @param Mage_Core_Model_Resource_Collection_Db_Abstract $collection
+     * @return self
+     */
+    protected function saveCollection($collection)
+    {
+        $stubIndexer = $this->_config->maxPartialReindexSkus < $collection->getSize();
+        if ($stubIndexer) {
             // Stub the indexer so no indexing can take place during massive saves.
             $indexerKey = '_singleton/index/indexer';
             $oldIndexer = $this->reregister($indexerKey, $this->_indexerStub);
-            $collection->save();
+        }
+        $collection->save();
+        if ($stubIndexer) {
             $this->reregister($indexerKey, $oldIndexer);
         }
         return $this;

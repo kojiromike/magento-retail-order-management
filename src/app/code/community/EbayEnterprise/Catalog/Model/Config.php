@@ -15,7 +15,7 @@
 
 class EbayEnterprise_Catalog_Model_Config extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
 {
-    protected $_configPaths = array(
+    protected $_configPaths = [
         'api_return_format'                  => 'ebayenterprise_catalog/api_return_format',
         'api_service'                        => 'ebayenterprise_catalog/api_service',
         'api_xml_ns'                         => 'eb2ccore/api/xml_namespace',
@@ -63,5 +63,7 @@ class EbayEnterprise_Catalog_Model_Config extends EbayEnterprise_Eb2cCore_Model_
         'link_types_es_accessory'             => 'ebayenterprise_catalog/feed/related_link_types/es_accessory',
         'link_types_es_crossselling'          => 'ebayenterprise_catalog/feed/related_link_types/es_crossselling',
         'link_types_es_upselling'             => 'ebayenterprise_catalog/feed/related_link_types/es_upselling',
-    );
+
+        'max_partial_reindex_skus'            => 'ebayenterprise_catalog/feed/max_partial_reindex_skus',
+    ];
 }

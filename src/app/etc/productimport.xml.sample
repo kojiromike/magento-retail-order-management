@@ -40,6 +40,8 @@ http://opensource.org/licenses/osl-3.0.php
         </eb2ccore>
         <ebayenterprise_catalog>
             <feed>
+                <!-- When importing feed files with more than this many skus, prevent even partial reindexing until the products are saved. -->
+                <max_partial_reindex_skus>250</max_partial_reindex_skus>
                 <!--
                 'stock_map' maps SalesClass possible values to a known Magento value for product stock item backorder attribute.
                 This determines whether or not a ROM Inventory Call is made for an item.

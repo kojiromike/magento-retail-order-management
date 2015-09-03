@@ -21,6 +21,7 @@
   - [Import Localized Content](#import-localized-content)
   - [Images](#images)
 - [Custom Product Import Mapping](#custom-product-import-mapping)
+- [Performance Considerations](#performance-considerations)
 - [Dependencies](#dependencies)
 
 ## Introduction
@@ -454,16 +455,22 @@ XPath has a lot of power for finding nodes and even transforming them itself. Mu
 </my_custom_attribute>
 ```
 
+## Performance Considerations
+
+Magento always partially reindexes when you save a product, even if the indexer itself is set to index on a schedule. This can create a problem when importing a large feed with many skus. The extension provides a configuration option to suppress reindexing when the feed contains more than a certain number of products. Please see `productimport.xml.sample` in `app/etc` and set the value of
+
+```
+<max_partial_reindex_skus>250</max_partial_reindex_skus>
+```
+
+to a different number, if you wish.
+
 ## Dependencies
 
 ### Magento Modules
 
 
 - EbayEnterprise_Catalog
-
-### Other Dependencies
-
-- TBD
 
 ### Test Dependencies
 

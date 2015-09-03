@@ -21,7 +21,7 @@ $_isRenderingArea = $this->_isRenderingArea();
 $_openStrong = $_isRenderingArea ? '<strong>' : '';
 $_closeStrong = $_isRenderingArea ? '</strong>' : '';
 $_removeText = $this->__('Remove');
-$_removeImageUrl = $this->_getRemoveImageUrl();
+$_removeImageUrl = $this->getSkinUrl('images/btn_remove.gif');
 ?>
 <?php foreach ($_cards as $_card): ?>
 	<?php list($_code, $amount, $_removeUrl) = $_card; ?>

@@ -69,16 +69,6 @@ class EbayEnterprise_GiftCard_Block_Checkout_Cart_Total extends Mage_Checkout_Bl
     }
 
     /**
-     * Get the url for the remove action
-     *
-     * @return string
-     */
-    protected function _getRemoveImageUrl()
-    {
-        return $this->getSkinUrl('images/btn_remove.gif');
-    }
-
-    /**
      * If the current area is the rendering area.
      *
      * @return bool

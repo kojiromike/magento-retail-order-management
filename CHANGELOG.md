@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-13] - 2015-09-03
+### Fixed
+- Use setTaxes on tax container
+
 ## [1.6.0-beta-12] - 2015-09-02
 ### Changed
 - Support MPERF-7650 Patched Magento and Unpatched Magento
@@ -375,6 +379,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-13]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-12...1.6.0-beta-13
 [1.6.0-beta-12]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-11...1.6.0-beta-12
 [1.6.0-beta-11]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-10...1.6.0-beta-11
 [1.6.0-beta-10]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-9...1.6.0-beta-10

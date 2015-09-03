@@ -82,7 +82,7 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
     public function getStreetDateForBackorderableItem(Mage_Core_Model_Abstract $item)
     {
         if ($this->coreConfig->isUseStreetDateAsEddDate) {
-            /** @var Mage_Catalog_Model_Product[] */
+            /** @var Mage_Catalog_Model_Resource_Product_Collection */
             $products = $this->getAllProductsFromItem($item);
             /** @var string $streetDate */
             $streetDate = $this->getStreetDateFromProduct($products);
@@ -168,18 +168,15 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
     }
 
     /**
-     * Return the first street date found in the passed in array of products.
+     * Return the first street date found in the passed in collection of products.
      *
-     * @param  Mage_Catalog_Model_Product[]
+     * @param  Mage_Catalog_Model_Resource_Product_Collection
      * @return string | null
      */
-    protected function getStreetDateFromProduct(array $products)
+    protected function getStreetDateFromProduct(Mage_Catalog_Model_Resource_Product_Collection $products)
     {
         foreach ($products as $product) {
-            if (!$product->hasStreetDate()) {
-                $product->load($product->getId());
-            }
-            /** @var string | null*/
+            /** @var string | null */
             $streetDate = $product->getStreetDate();
             if ($streetDate) {
                 return $streetDate;
@@ -236,60 +233,76 @@ class EbayEnterprise_Inventory_Helper_Data extends Mage_Core_Helper_Abstract imp
      * Get all child products and parent product from the quote item.
      *
      * @param  Mage_Core_Model_Abstract
-     * @return Mage_Catalog_Model_Product[]
+     * @return Mage_Catalog_Model_Resource_Product_Collection
      */
     protected function getAllProductsFromItem(Mage_Core_Model_Abstract $item)
     {
+        /** @var array */
+        $skus = $this->getAllItemSkus($item);
+        return Mage::getResourceModel('catalog/product_collection')
+            ->addAttributeToSelect(['street_date'])
+            ->addAttributeToFilter([['attribute' => 'sku', 'in' => $skus]])
+            ->load();
+    }
+
+    /**
+     * Get all child product SKUs and parent product SKUs from the quote item.
+     *
+     * @param  Mage_Core_Model_Abstract
+     * @return array
+     */
+    protected function getAllItemSkus(Mage_Core_Model_Abstract $item)
+    {
         return array_merge(
-            $this->getAllChildProductsFromItem($item),
-            $this->getAllParentProductFromItem($item)
+            $this->getAllChildSkusFromItem($item),
+            $this->getAllParentSkuFromItem($item)
         );
     }
 
     /**
-     * Get all child products from the quote item.
+     * Get all child product SKUs from the quote item.
      *
      * @param  Mage_Core_Model_Abstract
-     * @return Mage_Catalog_Model_Product[]
+     * @return array
      */
-    protected function getAllChildProductsFromItem(Mage_Core_Model_Abstract $item)
+    protected function getAllChildSkusFromItem(Mage_Core_Model_Abstract $item)
     {
         /** @var array */
-        $products = [];
+        $skus = [];
         $children = $item->getChildren();
         if ($children) {
             foreach ($children as $childItem) {
                 /** @var Mage_Catalog_Model_Product */
                 $product = $childItem->getProduct();
                 if ($product instanceof Mage_Catalog_Model_Product) {
-                    $products[] = $product;
+                    $skus[] = $product->getSku();
                 }
             }
         }
-        return $products;
+        return $skus;
     }
 
     /**
-     * Get current and parent product from the quote item.
+     * Get current and parent product SKU from the quote item.
      *
      * @param  Mage_Core_Model_Abstract
-     * @return Mage_Catalog_Model_Product[]
+     * @return array
      */
-    protected function getAllParentProductFromItem(Mage_Core_Model_Abstract $item)
+    protected function getAllParentSkuFromItem(Mage_Core_Model_Abstract $item)
     {
         /** @var Mage_Catalog_Model_Product */
         $currentProduct = $item->getProduct();
         /** @var Mage_Catalog_Model_Product[] */
-        $products = [$currentProduct];
+        $skus = [$currentProduct->getSku()];
         /** @var Mage_Sales_Model_Quote_Item */
         $parentItem = $item->getParentItem();
         if ($parentItem) {
             /** @var Mage_Catalog_Model_Product */
             $parentProduct = $parentItem->getProduct();
             if ($currentProduct->getId() !== $parentProduct->getId()) {
-                $products[] = $parentProduct;
+                $skus[] = $parentProduct->getSku();
             }
         }
-        return $products;
+        return $skus;
     }
 }

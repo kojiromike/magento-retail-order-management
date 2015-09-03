@@ -23,25 +23,39 @@ class EbayEnterprise_Inventory_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
      */
     public function testGetAllProductsFromItem()
     {
-        /** @var Mage_Catalog_Model_Product */
-        $product = Mage::getModel('catalog/product');
+        /** @var array */
+        $skus = ['abc', '123'];
         /** @var Mage_Sales_Model_Quote_Item */
         $item = Mage::getModel('sales/quote_item');
 
         /** @var EbayEnterprise_Inventory_Helper_Data */
         $helper = $this->getHelperMock('ebayenterprise_inventory', [
-            'getAllChildProductsFromItem', 'getAllParentProductFromItem'
+            'getAllItemSkus'
         ]);
         $helper->expects($this->once())
-            ->method('getAllChildProductsFromItem')
+            ->method('getAllItemSkus')
             ->with($this->identicalTo($item))
-            ->will($this->returnValue([]));
-        $helper->expects($this->once())
-            ->method('getAllParentProductFromItem')
-            ->with($this->identicalTo($item))
-            ->will($this->returnValue([$product]));
+            ->will($this->returnValue($skus));
 
-        $this->assertSame([$product], EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'getAllProductsFromItem', [$item]));
+        /** @var Mage_Catalog_Model_Resource_Product_Collection */
+        $products = $this->getResourceModelMockBuilder('catalog/product_collection')
+            ->disableOriginalConstructor()
+            ->setMethods(['addAttributeToSelect', 'addAttributeToFilter', 'load'])
+            ->getMock();
+        $products->expects($this->once())
+            ->method('addAttributeToSelect')
+            ->with($this->identicalTo(['street_date']))
+            ->will($this->returnSelf());
+        $products->expects($this->once())
+            ->method('addAttributeToFilter')
+            ->with($this->identicalTo([['attribute' => 'sku', 'in' => $skus]]))
+            ->will($this->returnSelf());
+        $products->expects($this->once())
+            ->method('load')
+            ->will($this->returnSelf());
+        $this->replaceByMock('resource_model', 'catalog/product_collection', $products);
+
+        $this->assertSame($products, EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'getAllProductsFromItem', [$item]));
     }
 
     /**
@@ -50,10 +64,12 @@ class EbayEnterprise_Inventory_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
      * When getting all child products from a quote item with child item.
      * Then an array containing all child products is returned.
      */
-    public function testGetAllChildProductsFromItem()
+    public function testGetAllChildSkusFromItem()
     {
+        /** @var string */
+        $childSku = 'ABCD1234';
         /** @var Mage_Catalog_Model_Product */
-        $childProduct = Mage::getModel('catalog/product');
+        $childProduct = Mage::getModel('catalog/product', ['sku' => $childSku]);
         /** @var Mage_Sales_Model_Quote_Item */
         $children = Mage::getModel('sales/quote_item', ['product' => $childProduct]);
         /** @var Mage_Sales_Model_Quote_Item */
@@ -62,7 +78,7 @@ class EbayEnterprise_Inventory_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
         /** @var EbayEnterprise_Inventory_Helper_Data */
         $helper = Mage::helper('ebayenterprise_inventory');
 
-        $this->assertSame([$childProduct], EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'getAllChildProductsFromItem', [$item]));
+        $this->assertSame([$childSku], EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'getAllChildSkusFromItem', [$item]));
     }
 
     /**
@@ -71,12 +87,16 @@ class EbayEnterprise_Inventory_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
      * When getting both current and parent products from a quote item.
      * Then an array containing both current and parent products is returned.
      */
-    public function testGetAllParentProductFromItem()
+    public function testGetAllParentSkuFromItem()
     {
+        /** @var string */
+        $parentASku = 'ABCD1234';
+        /** @var string */
+        $parentBSku = '1234ABCD';
         /** @var Mage_Catalog_Model_Product */
-        $product = Mage::getModel('catalog/product', ['entity_id' => 34]);
+        $product = Mage::getModel('catalog/product', ['entity_id' => 34, 'sku' => $parentASku]);
         /** @var Mage_Catalog_Model_Product */
-        $parentProduct = Mage::getModel('catalog/product', ['entity_id' => 55]);
+        $parentProduct = Mage::getModel('catalog/product', ['entity_id' => 55, 'sku' => $parentBSku]);
         /** @var Mage_Sales_Model_Quote_Item */
         $parent = Mage::getModel('sales/quote_item', ['product' => $parentProduct]);
         /** @var Mage_Sales_Model_Quote_Item */
@@ -85,7 +105,7 @@ class EbayEnterprise_Inventory_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
         /** @var EbayEnterprise_Inventory_Helper_Data */
         $helper = Mage::helper('ebayenterprise_inventory');
 
-        $this->assertSame([$product, $parentProduct], EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'getAllParentProductFromItem', [$item]));
+        $this->assertSame([$parentASku, $parentBSku], EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'getAllParentSkuFromItem', [$item]));
     }
 
     /**
@@ -113,7 +133,7 @@ class EbayEnterprise_Inventory_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
      * @param  string
      * @return Mock_EbayEnterprise_Inventory_Helper_Data
      */
-    protected function getMockHelperClass($isUseStreetDateAsEddDate, $streetDate, $isDateInFuture, Mage_Sales_Model_Quote_Item $item, array $products, $result, array $data, $fromDate, $toDate)
+    protected function getMockHelperClass($isUseStreetDateAsEddDate, $streetDate, $isDateInFuture, Mage_Sales_Model_Quote_Item $item, Mage_Catalog_Model_Resource_Product_Collection $products, $result, array $data, $fromDate, $toDate)
     {
         /** @var array */
         $mockMethods = ['getAllProductsFromItem', 'getStreetDateFromProduct', 'isStreetDateInTheFuture', 'getNewVarienObject', 'getNewDateTime', 'getStreetToDate'];
@@ -181,8 +201,11 @@ class EbayEnterprise_Inventory_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
         $product = Mage::getModel('catalog/product', ['entity_id' => 34]);
         /** @var Mage_Catalog_Model_Product */
         $parentProduct = Mage::getModel('catalog/product', ['entity_id' => 55]);
-        /** @var Mage_Catalog_Model_Product[] */
-        $products = [$parentProduct, $product];
+        /** @var Mage_Catalog_Model_Resource_Product_Collection */
+        $products = Mage::getResourceModel('catalog/product_collection');
+        $products->addItem($product);
+        $products->addItem($parentProduct);
+
         /** @var Mage_Sales_Model_Quote_Item */
         $parent = Mage::getModel('sales/quote_item', ['product' => $parentProduct]);
         /** @var Mage_Sales_Model_Quote_Item */
@@ -194,36 +217,29 @@ class EbayEnterprise_Inventory_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
     }
 
     /**
-     * @return array
-     */
-    public function providerGetStreetDateFromProduct()
-    {
-        /** @var Mage_Catalog_Model_Product */
-        $product = Mage::getModel('catalog/product', ['street_date' => '2015-09-15']);
-        /** @var Mage_Catalog_Model_Product */
-        $parentProduct = Mage::getModel('catalog/product');
-        /** @var Mage_Catalog_Model_Product[] */
-        $products = [$parentProduct, $product];
-        return [
-            [$products, '2015-09-15'],
-            [[$parentProduct], null],
-        ];
-    }
-
-    /**
      * Scenario: Get street date an array of products
      * Given an array of products
      * When getting street date from products
      * Then return a street date or null
-     *
-     * @param Mage_Catalog_Model_Product[]
-     * @param string
-     * @dataProvider providerGetStreetDateFromProduct
      */
-    public function testGetStreetDateFromProduct(array $products, $result)
+    public function testGetStreetDateFromProduct()
     {
+        /** @var string */
+        $streetDate = '2015-09-15';
+        /** @var string */
+        $sku = 'ABC134';
+        /** @var Mage_Catalog_Model_Product */
+        $product = Mage::getModel('catalog/product', [
+            'street_date' => $streetDate,
+            'sku' => $sku,
+            'entity_id' => 6638,
+        ]);
+        /** @var Mage_Catalog_Model_Resource_Product_Collection */
+        $products = Mage::getResourceModel('catalog/product_collection');
+        $products->addItem($product);
         /** @var EbayEnterprise_Inventory_Helper_Data */
         $helper = Mage::helper('ebayenterprise_inventory/data');
-        $this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'getStreetDateFromProduct', [$products]));
+
+        $this->assertSame($streetDate, EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'getStreetDateFromProduct', [$products]));
     }
 }

@@ -127,8 +127,8 @@ class EbayEnterprise_Tax_Model_Order_Create_Orderitem
     /**
      * Fill in default values.
      *
-     * @param string
      * @param array
+     * @param string
      * @param mixed
      * @return mixed
      */
@@ -340,7 +340,7 @@ class EbayEnterprise_Tax_Model_Order_Create_Orderitem
             $taxPayload = $this->_payloadHelper->taxRecordToTaxPayload($taxRecord, $taxIterable->getEmptyTax());
             $taxIterable[$taxPayload] = null;
         }
-        $taxContainer->getTaxes($taxIterable);
+        $taxContainer->setTaxes($taxIterable);
         return $this;
     }
 

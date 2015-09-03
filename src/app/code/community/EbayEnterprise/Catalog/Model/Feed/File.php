@@ -28,6 +28,9 @@ class EbayEnterprise_Catalog_Model_Feed_File
     protected $_xsltHelper;
     /** @var EbayEnterprise_Catalog_Helper_Data       $_helper */
     protected $_helper;
+    /** @var EbayEnterprise_Catalog_Model_Indexer_Stub */
+    protected $_indexerStub;
+
     /**
      * Array of information about the feed file to be processed. Expected to be
      * passed to the constructor and *must* contain the following keys:
@@ -60,6 +63,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
         $this->_languageHelper = Mage::helper('eb2ccore/languages');
         $this->_xsltHelper = Mage::helper('ebayenterprise_catalog/xslt');
         $this->_helper = Mage::helper('ebayenterprise_catalog');
+        $this->_indexerStub = Mage::getModel('ebayenterprise_catalog/indexer_stub');
 
         $missingKeys = array_diff(array('doc', 'error_file'), array_keys($feedDetails));
         if ($missingKeys) {
@@ -324,7 +328,14 @@ class EbayEnterprise_Catalog_Model_Feed_File
             $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
             // keep track of skus we've processed for the website
             $this->_importedSkus = array_unique(array_merge($this->_importedSkus, $skusToUpdate));
+
+            // Stub the indexer so no indexing can take place during massive saves.
+            $indexerKey = '_singleton/index/indexer';
+            $realIndexer = Mage::getSingleton('index/indexer');
+            Mage::unregister($indexerKey);
+            Mage::register($indexerKey, $this->_indexerStub);
             $collection->save();
+            Mage::register($indexerKey, $realIndexer);
         }
         return $this;
     }

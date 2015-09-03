@@ -331,13 +331,29 @@ class EbayEnterprise_Catalog_Model_Feed_File
 
             // Stub the indexer so no indexing can take place during massive saves.
             $indexerKey = '_singleton/index/indexer';
-            $realIndexer = Mage::getSingleton('index/indexer');
-            Mage::unregister($indexerKey);
-            Mage::register($indexerKey, $this->_indexerStub);
+            $oldIndexer = $this->reregister($indexerKey, $this->_indexerStub);
             $collection->save();
-            Mage::register($indexerKey, $realIndexer);
+            $this->reregister($indexerKey, $oldIndexer);
         }
         return $this;
+    }
+
+    /**
+     * Replace a value in the Mage::_registry with a new value.
+     * If new value is not truthy, just deletes the registry entry.
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @return mixed
+     */
+    protected function reregister($key, $value=null)
+    {
+        $old = Mage::registry($key);
+        Mage::unregister($key);
+        if ($value) {
+            Mage::register($key, $value);
+        }
+        return $old;
     }
 
     /**

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-18] - 2015-09-04
+### Fixed
+- Updating Product Options with New Option Causes Color Swatches to Show as Text
+
 ## [1.6.0-beta-17] - 2015-09-04
 ### Fixed
 - Missing dashboard rep id in order create request for admin created orders
@@ -395,6 +399,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-18]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-17...1.6.0-beta-18
 [1.6.0-beta-17]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-16...1.6.0-beta-17
 [1.6.0-beta-16]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-15...1.6.0-beta-16
 [1.6.0-beta-15]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-14...1.6.0-beta-15

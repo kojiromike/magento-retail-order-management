@@ -193,14 +193,14 @@ http://opensource.org/licenses/osl-3.0.php
                         <standard>ROM</standard>
                         <header_version>MAGENTO</header_version>
                         <version_release_number>4.4</version_release_number>
-                        <destination_id>PHUB</destination_id>
-                        <destination_type>PHUB</destination_type>
-                        <source_type>Client</source_type>
-                        <source_id>
+                        <source_id>PHUB</source_id>
+                        <source_type>PHUB</source_type>
+                        <destination_type>Client</destination_type>
+                        <destination_id>
                             <type>helper</type>
                             <class>ebayenterprise_catalog/feed</class>
                             <method>getClientId</method>
-                        </source_id>
+                        </destination_id>
                         <message_id>
                             <type>helper</type>
                             <class>ebayenterprise_catalog/feed</class>

@@ -15,6 +15,40 @@
 
 class EbayEnterprise_Catalog_Model_Observers
 {
+    /** @var EbayEnterprise_Catalog_Model_Swatches */
+    protected $swatch;
+
+    public function __construct(array $initParams = [])
+    {
+        list($this->swatch) = $this->checkTypes(
+            $this->nullCoalesce($initParams, 'swatch', Mage::getModel('ebayenterprise_catalog/swatches'))
+        );
+    }
+
+    /**
+     * Type hinting for self::__construct $initParams
+     *
+     * @param  EbayEnterprise_Catalog_Model_Swatches
+     * @return array
+     */
+    protected function checkTypes(EbayEnterprise_Catalog_Model_Swatches $swatch)
+    {
+        return func_get_args();
+    }
+
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the default value.
+     *
+     * @param  array
+     * @param  string $field Valid array key
+     * @param  mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
+    }
+
     /**
      * This observer locks attributes we've configured as read-only
      *
@@ -32,6 +66,24 @@ class EbayEnterprise_Catalog_Model_Observers
             foreach ($readOnlyAttributes as $readOnlyAttribute) {
                 $product->lockAttribute($readOnlyAttribute);
             }
+        }
+    }
+
+    /**
+     * Observe the 'catalog_product_save_after' event
+     * in order to fix product swatches
+     *
+     * @param  Varien_Event_Observer
+     * @return null
+     */
+    public function handleCatalogProductSaveAfter(Varien_Event_Observer $observer)
+    {
+        /** @var Varien_Event */
+        $event = $observer->getEvent();
+        /** @var Mage_Catalog_Model_Product */
+        $product = $event->getProduct();
+        if ($product instanceof Mage_Catalog_Model_Product) {
+            $this->swatch->fixProductSwatches($product);
         }
     }
 }

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-16] - 2015-09-04
+### Fixed
+- Error Confirmation and Ack Feeds Reverse Source and Destination in Headers
+
 ## [1.6.0-beta-15] - 2015-09-03
 ### Changed
 - Ability to Stop Indexing During Feed Load
@@ -387,6 +391,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-16]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-15...1.6.0-beta-16
 [1.6.0-beta-15]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-14...1.6.0-beta-15
 [1.6.0-beta-14]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-13...1.6.0-beta-14
 [1.6.0-beta-13]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-12...1.6.0-beta-13

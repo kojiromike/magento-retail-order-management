@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 2015-09-04
+### Fixed
+- Missing dashboard rep id in order create request for admin created orders
+
 ## [1.6.0-beta-16] - 2015-09-04
 ### Fixed
 - Error Confirmation and Ack Feeds Reverse Source and Destination in Headers

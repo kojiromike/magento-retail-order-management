@@ -63,13 +63,10 @@ class EbayEnterprise_Eb2cCustomerService_Model_Observer
      */
     public function handleEbayEnterpriseOrderCreateBeforeAttach(Varien_Event_Observer $observer)
     {
-        /** @var Varien_Event */
-        $event = $observer->getEvent();
-        /** @var Mage_Sales_Model_Order */
-        $order = $event->getOrder();
         /** @var \eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateRequest */
-        $payload = $event->getPayload();
-        $store = $order->getStore();
+        $payload = $observer->getEvent()->getPayload();
+        // Need to use current store context to determine if admin placed order
+        $store = Mage::app()->getStore();
         $repId = $this->_helper->getDashboardRepId($store);
         $payload->setDashboardRepId($repId);
     }

@@ -61,9 +61,23 @@ class EbayEnterprise_Tax_Helper_Payload
         return $payload
             ->setLines($address->getStreetFull())
             ->setCity($address->getCity())
-            ->setMainDivision($address->getRegionId())
-            ->setCountryCode($address->getCountryId())
+            ->setMainDivision($this->getRegion($address))
+            ->setCountryCode($address->getCountry())
             ->setPostalCode($address->getPostcode());
+    }
+
+    /**
+     * If the country for the Address is US then get the 2 character ISO region code;
+     * otherwise, for any other country get the fully qualified region name.
+     *
+     * @param  Mage_Customer_Model_Address_Abstract
+     * @return string
+     */
+    protected function getRegion(Mage_Customer_Model_Address_Abstract $address)
+    {
+        return $address->getCountry() === 'US'
+            ? $address->getRegionCode()
+            : $address->getRegion();
     }
 
     /**

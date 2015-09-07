@@ -80,12 +80,8 @@ class EbayEnterprise_Tax_Model_Order_Create_Order
      */
     public function addTaxHeaderErrorFlag()
     {
-        // This may be made cleaner by just setting the flag to the result
-        // of this condition but it is unclear if not setting the flag is the
-        // same as setting the flag to false.
-        if ($this->_taxCollectorHasErrors() || $this->_itemsHaveErrors()) {
-            $this->_orderCreateRequest->setTaxHasErrors(true);
-        }
+        $hasErrors = ($this->_taxCollectorHasErrors() || $this->_itemsHaveErrors());
+        $this->_orderCreateRequest->setTaxHasErrors($hasErrors);
         return $this;
     }
 

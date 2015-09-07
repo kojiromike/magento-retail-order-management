@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-20] - 2015-09-07
+### Fixed
+- Avoid Re-auth Due to Tax Recalculation
+
 ## [1.6.0-beta-19] - 2015-09-06
 ### Fixed
 - Send Correct Region Information in Tax Requests
@@ -403,6 +407,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-20]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-19...1.6.0-beta-20
 [1.6.0-beta-19]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-18...1.6.0-beta-19
 [1.6.0-beta-18]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-17...1.6.0-beta-18
 [1.6.0-beta-17]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-16...1.6.0-beta-17

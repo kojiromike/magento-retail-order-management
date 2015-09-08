@@ -188,14 +188,18 @@ class EbayEnterprise_Swatch_Model_Swatches
     protected function getSwatchToBeUpdated(array $validSwatches, array $currentSwatches)
     {
         /** @var array */
-        $localValidSwatches = $validSwatches;
+        $localCurrentSwatches = $currentSwatches;
         /** @var array */
         $updated = [];
-        foreach ($currentSwatches as $current) {
-            if (!$this->isInValidSwatches($current, $localValidSwatches)) {
+        foreach ($validSwatches as $current) {
+            /** @var string */
+            $validSwatch = $current['swatch'];
+            if (!in_array($validSwatch, $localCurrentSwatches)) {
                 /** @var array */
-                $item = array_shift($localValidSwatches);
-                $updated[$current] = $item['swatch'];
+                $item = $this->getInvalidSwatch($localCurrentSwatches, $validSwatches);
+                if ($item) {
+                    $updated[$item] = $validSwatch;
+                }
             }
         }
         return $updated;
@@ -457,20 +461,22 @@ class EbayEnterprise_Swatch_Model_Swatches
     }
 
     /**
-     * Determine if the current swatch is in the valid swatch array
+     * Return the first current swatch that's not in the array of valid swatches,
+     * and remove that invalid swatch from the current swatches array.
      *
-     * @param  string
      * @param  array
-     * @return bool
+     * @return string | null
      */
-    protected function isInValidSwatches($current, array $localValidSwatches)
+    protected function getInvalidSwatch(array &$localCurrentSwatches, array $validSwatches)
     {
-        foreach ($localValidSwatches as $validSwatch) {
-            if ($validSwatch['swatch'] === $current) {
-                return true;
+        for ($i=0; $i < count($localCurrentSwatches); $i++) {
+            $swatch = $localCurrentSwatches[$i];
+            if (!in_array($swatch, $validSwatches)) {
+                unset($localCurrentSwatches[$i]);
+                return $swatch;
             }
         }
-        return false;
+        return null;
     }
 
     /**

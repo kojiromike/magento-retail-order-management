@@ -1,0 +1,64 @@
+<?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+?>
+<?
+/**
+ * This script occurs in the context of checkout.onepage.payment.methods.scripts
+ * Thus, it's already in <script> tags.
+ *
+ * @var $this EbayEnterprise_GiftCard_Block_Checkout_Onepage_Payment_Additional
+ */
+
+// Deliberate global ?>
+quoteBaseGrandTotal = <?php echo (float) $this->getBaseGrandTotal(); ?>;
+(function (epsilon, isGiftCardApplied) {
+    function enablePaymentMethods(free) {
+        Payment.prototype.init = function () {
+            var elements = Form.getElements(this.form);
+            var methodName = '';
+            for (var i=0; i < elements.length; i++) {
+                if (elements[i].name == 'payment[method]'
+                    || elements[i].name == 'payment[use_customer_balance]'
+                    || elements[i].name == 'payment[use_reward_points]'
+                ) {
+                    methodName = elements[i].value;
+                    if ((free && methodName == 'free') || (!free && methodName != 'free')) {
+                        $((elements[i]).parentNode).show();
+                        if ($('p_method_' + (methodName)) && $('p_method_' + (methodName)).checked) {
+                            payment.switchMethod(methodName);
+                        }
+                        if (free) {
+                            elements[i].checked = true;
+                            this.switchMethod('free');
+                        }
+                    } else {
+                        $((elements[i]).parentNode).hide();
+                    }
+                } else {
+                    if ($('p_method_' + methodName) && $('p_method_' + methodName).checked) {
+                        elements[i].disabled = false;
+                    } else {
+                        elements[i].disabled = true;
+                    }
+                }
+            }
+        };
+    }
+    if (quoteBaseGrandTotal >= epsilon) {
+        enablePaymentMethods(false);
+    } else if (isGiftCardApplied) {
+        enablePaymentMethods(true);
+    }
+}(0.0001, <?php echo $this->isFullyPaidAfterApplication() ? 'true' : 'false'; ?>));

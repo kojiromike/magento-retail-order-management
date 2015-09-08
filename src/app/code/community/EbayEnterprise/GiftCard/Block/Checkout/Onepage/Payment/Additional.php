@@ -96,4 +96,35 @@ class EbayEnterprise_GiftCard_Block_Checkout_Onepage_Payment_Additional extends 
     {
         return $this->__(self::APPLIED_TOTALS_MESSAGE, $this->_getAppliedGiftCardTotal());
     }
+
+    /**
+     * @return Mage_Sales_Model_Quote
+     */
+    protected function getQuote()
+    {
+        return Mage::getSingleton('checkout/session')->getQuote();
+    }
+
+    /**
+     * @return float
+     */
+    protected function getBaseGrandTotal()
+    {
+        return (float) $this->getQuote()->getBaseGrandTotal();
+    }
+
+    /**
+     * Determine if any non-free payment method is needed.
+     *
+     * @return bool
+     */
+    protected function isFullyPaidAfterApplication()
+    {
+        $quote = $this->getQuote();
+        return (
+            ($quote->getBaseGrandTotal() <= 0) &&
+            ($quote->getCustomerBalanceAmountUsed() <= 0) &&
+            ($quote->getRewardPointsBalance() <= 0)
+        );
+    }
 }

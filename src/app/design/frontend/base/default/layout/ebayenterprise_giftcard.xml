@@ -58,6 +58,9 @@ http://opensource.org/licenses/osl-3.0.php
         </reference>
     </customer_account>
     <checkout_onepage_paymentmethod>
+        <reference name="checkout.onepage.payment.methods.scripts">
+            <block name="ebayenterprise_giftcard_onepage_payment_scripts" template="ebayenterprise_giftcard/onepage/payment/scripts.phtml" type="ebayenterprise_giftcard/checkout_onepage_payment_additional" />
+        </reference>
         <reference name="checkout.onepage.payment.methods.additional">
             <block name="ebayenterprise_giftcard_onepage_payment_additional" template="ebayenterprise_giftcard/onepage/payment/additional.phtml" type="ebayenterprise_giftcard/checkout_onepage_payment_additional"/>
         </reference>

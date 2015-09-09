@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-24] - 2015-09-09
+### Fixed
+- Do not set stock levels on nonmanaged stock
+
 ## [1.6.0-beta-23] - 2015-09-09
 ### Fixed
 - Properly Handle Zero Subtotal Checkout with Stored Value Cards
@@ -419,6 +423,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-24]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-23...1.6.0-beta-24
 [1.6.0-beta-23]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-22...1.6.0-beta-23
 [1.6.0-beta-22]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-21...1.6.0-beta-22
 [1.6.0-beta-21]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-20...1.6.0-beta-21

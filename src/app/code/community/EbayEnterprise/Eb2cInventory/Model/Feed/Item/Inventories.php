@@ -69,12 +69,16 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories extends EbayEnter
      * Update the stock item "is_in_stock" status
      * @param Mage_CatalogInventory_Model_Stock_Item $stockItem Stock item for the product being updated
      * @param int $qty Inventory quantity stock item is being set to
-     * @return self
+     * @return bool if a change was made
      */
     protected function _updateItemIsInStock(Mage_CatalogInventory_Model_Stock_Item $stockItem, $qty)
     {
-        $stockItem->setIsInStock($qty > $stockItem->getMinQty() ? 1 : 0);
-        return $this;
+        $shouldSet = ($qty > $stockItem->getMinQty());
+        if ($shouldSet !== $stockItem->getIsInStock()) {
+            $stockItem->setIsInStock($shouldSet);
+            return true;
+        }
+        return false;
     }
     /**
      * Set the available quantity for a given item.
@@ -85,10 +89,21 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories extends EbayEnter
     protected function _setProdQty($id, $qty)
     {
         $stockItem = Mage::getModel('cataloginventory/stock_item')
-            ->loadByProduct($id)
-            ->setQty($qty);
-        $this->_updateItemIsInStock($stockItem, $qty, $id);
-        $stockItem->save();
+            ->loadByProduct($id);
+        if ($stockItem->getManageStock()) {
+            $oldQty = $stockItem->getQty();
+            $change = ($oldQty !== $qty);
+            if ($change) {
+                $stockItem->setQty($qty);
+            }
+            $change = $change || $this->_updateItemIsInStock($stockItem, $qty, $id);
+            if ($change) {
+                $stockItem->save();
+            }
+        } else {
+            $this->_logger->warning('Tried to set stock level for non-managed product id ({product_id}).', $this->_context->getMetaData(__CLASS__, ['product_id' => $id]));
+        }
+
         return $this;
     }
     /**

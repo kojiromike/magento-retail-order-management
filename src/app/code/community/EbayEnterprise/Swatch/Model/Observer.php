@@ -17,11 +17,14 @@ class EbayEnterprise_Swatch_Model_Observer
 {
     /** @var EbayEnterprise_Swatch_Model_Swatches */
     protected $swatch;
+    /** @var EbayEnterprise_Swatch_Helper_Data */
+    protected $helper;
 
     public function __construct(array $initParams = [])
     {
-        list($this->swatch) = $this->checkTypes(
-            $this->nullCoalesce($initParams, 'swatch', Mage::getModel('ebayenterprise_swatch/swatches'))
+        list($this->swatch, $this->helper) = $this->checkTypes(
+            $this->nullCoalesce($initParams, 'swatch', Mage::getModel('ebayenterprise_swatch/swatches')),
+            $this->nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_swatch'))
         );
     }
 
@@ -29,9 +32,13 @@ class EbayEnterprise_Swatch_Model_Observer
      * Type hinting for self::__construct $initParams
      *
      * @param  EbayEnterprise_Swatch_Model_Swatches
+     * @param  EbayEnterprise_Swatch_Helper_Data
      * @return array
      */
-    protected function checkTypes(EbayEnterprise_Swatch_Model_Swatches $swatch)
+    protected function checkTypes(
+        EbayEnterprise_Swatch_Model_Swatches $swatch,
+        EbayEnterprise_Swatch_Helper_Data $helper
+    )
     {
         return func_get_args();
     }
@@ -62,7 +69,7 @@ class EbayEnterprise_Swatch_Model_Observer
         $event = $observer->getEvent();
         /** @var Mage_Catalog_Model_Product */
         $product = $event->getProduct();
-        if ($product instanceof Mage_Catalog_Model_Product) {
+        if ($product instanceof Mage_Catalog_Model_Product && !$this->helper->isLocked($product)) {
             $this->swatch->fixProductSwatches($product);
         }
     }

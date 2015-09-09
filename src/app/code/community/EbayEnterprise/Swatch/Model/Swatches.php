@@ -32,8 +32,6 @@ class EbayEnterprise_Swatch_Model_Swatches
     protected $storeId;
     /** @var Mage_Catalog_Helper_Image */
     protected $imageHelper;
-    /** @var Mage_Catalog_Model_Product */
-    protected $product;
     /** @var string */
     protected $basePath;
     /** @var array */
@@ -46,11 +44,10 @@ class EbayEnterprise_Swatch_Model_Swatches
 
     public function __construct(array $initParams = [])
     {
-        list($this->mediaApi, $this->productType, $this->imageHelper, $this->product, $this->logger, $this->context, $this->config) = $this->checkTypes(
+        list($this->mediaApi, $this->productType, $this->imageHelper, $this->logger, $this->context, $this->config) = $this->checkTypes(
             $this->nullCoalesce($initParams, 'media_api', Mage::getModel('catalog/product_attribute_media_api')),
             $this->nullCoalesce($initParams, 'product_type', Mage::getResourceSingleton('catalog/product_type_configurable')),
             $this->nullCoalesce($initParams, 'image_helper', Mage::helper('catalog/image')),
-            $this->nullCoalesce($initParams, 'product', Mage::getModel('catalog/product')),
             $this->nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
             $this->nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context')),
             $this->nullCoalesce($initParams, 'config', Mage::helper('ebayenterprise_swatch')->getConfigModel())
@@ -65,7 +62,6 @@ class EbayEnterprise_Swatch_Model_Swatches
      * @param  Mage_Catalog_Model_Product_Attribute_Media_Api
      * @param  Mage_Catalog_Model_Resource_Product_Type_Configurable
      * @param  Mage_Catalog_Helper_Image
-     * @param  Mage_Catalog_Model_Product
      * @param  EbayEnterprise_MageLog_Helper_Data
      * @param  EbayEnterprise_MageLog_Helper_Context
      * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
@@ -75,7 +71,6 @@ class EbayEnterprise_Swatch_Model_Swatches
         Mage_Catalog_Model_Product_Attribute_Media_Api $mediaApi,
         Mage_Catalog_Model_Resource_Product_Type_Configurable $productType,
         Mage_Catalog_Helper_Image $imageHelper,
-        Mage_Catalog_Model_Product $product,
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_MageLog_Helper_Context $context,
         EbayEnterprise_Eb2cCore_Model_Config_Registry $config
@@ -143,6 +138,8 @@ class EbayEnterprise_Swatch_Model_Swatches
         foreach ($updateSwatches as $oldSwatch => $newSwatch) {
             $this->updateProductSwatch($parent, $images, $oldSwatch, $newSwatch);
         }
+        $message = sprintf('%d Swatches was updated for product: %s.', count($updateSwatches), $parent->getSku());
+        $this->logger->debug($message, $this->context->getMetaData(__CLASS__, []));
         return $this;
     }
 
@@ -160,6 +157,8 @@ class EbayEnterprise_Swatch_Model_Swatches
             $data = $this->getSwatchData($newSwatch['image'], $newSwatch['swatch']);
             $this->createProductSwatch($parent, $data);
         }
+        $message = sprintf('%d new swatches was added for product: %s.', count($newSwatches), $parent->getSku());
+        $this->logger->debug($message, $this->context->getMetaData(__CLASS__, []));
         return $this;
     }
 
@@ -175,6 +174,8 @@ class EbayEnterprise_Swatch_Model_Swatches
         foreach ($duplicateSwatches as $swatch) {
             $this->removeProductSwatch($parent, $swatch);
         }
+        $message = sprintf('%d duplicated swatches was removed for product: %s.', count($duplicateSwatches), $parent->getSku());
+        $this->logger->debug($message, $this->context->getMetaData(__CLASS__, []));
         return $this;
     }
 
@@ -279,7 +280,9 @@ class EbayEnterprise_Swatch_Model_Swatches
         $swatches = [];
         /** @var array $image */
         foreach ($images as $image) {
-           $swatches[] = $image['label'];
+            if (trim($image['label'])) {
+                $swatches[] = $image['label'];
+            }
         }
         return $swatches;
     }
@@ -375,15 +378,7 @@ class EbayEnterprise_Swatch_Model_Swatches
     protected function getImagePath(Mage_Catalog_Model_Product $product)
     {
         /** @var array */
-        $urlData = [];
-        try {
-            $urlData = parse_url((string) $this->imageHelper->init($product, 'small_image'));
-        } catch (Exception $e) {
-            // No image types were selected for the product.
-            // We must get the first image from the image
-            // gallery for this product
-            $urlData = $this->getImagePathByGallery($product);
-        }
+        $urlData = $this->getImagePathByGallery($product);
         /** @var string | null */
         return $this->nullCoalesce($urlData, 'path', null);
     }

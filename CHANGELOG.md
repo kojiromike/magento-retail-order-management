@@ -1,11 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-28] - 2015-09-11
+### Fixed
+- Fixed Typo Breaking Checkout
+
 ## [1.6.0-beta-27] - 2015-09-11
 ### Changed
 - Remove Swatch Module From ROM
 
-## [1.6.0-beta-26] - 2015-09-09
+## [1.6.0-beta-26] - 2015-09-11
 ### Changed
 - Enable toggling test mode for gift card and credit card payments
 
@@ -435,6 +439,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-28]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-27...1.6.0-beta-28
 [1.6.0-beta-27]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-26...1.6.0-beta-27
 [1.6.0-beta-26]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-25...1.6.0-beta-26
 [1.6.0-beta-25]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-24...1.6.0-beta-25

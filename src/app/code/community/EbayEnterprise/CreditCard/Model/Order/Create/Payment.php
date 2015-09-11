@@ -17,6 +17,43 @@ use \eBayEnterprise\RetailOrderManagement\Payload\Order\IPaymentContainer;
 
 class EbayEnterprise_CreditCard_Model_Order_Create_Payment
 {
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $config;
+
+    /**
+     * @param array $args may contains these keys:
+     * - 'config' => EbayEnterprise_Eb2cCore_Model_Config_Registry
+     */
+    public function __construct(array $args = [])
+    {
+        list($this->config) = $this->checkTypes(
+            $this->nullCoalesce($args, 'config', Mage::helper('ebayenterprise_creditcard')->getConfigModel())
+        );
+    }
+
+    /**
+     * Type checks for constructor args array.
+     *
+     * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
+     * @return array
+     */
+    protected function checkTypes(EbayEnterprise_Eb2cCore_Model_Config_Registry $config) {
+        return func_get_args();
+    }
+
+    /**
+     * Return the value at field in array if it exists. Otherwise, use the
+     * default value.
+     * @param array      $arr
+     * @param string|int $field Valid array key
+     * @param mixed      $default
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $field, $default)
+    {
+        return isset($arr[$field]) ? $arr[$field] : $default;
+    }
+
     /**
      * Make prepaid credit card payloads for any payments
      * remaining in the list
@@ -38,6 +75,7 @@ class EbayEnterprise_CreditCard_Model_Order_Create_Payment
             $additionalInfo = new Varien_Object($payment->getAdditionalInformation());
             $payload
                 // payment context
+                ->setIsMockPayment($this->config->testModeFlag)
                 ->setOrderId($order->getIncrementId())
                 ->setTenderType($additionalInfo->getTenderType())
                 ->setAccountUniqueId($this->_getAccountUniqueId($payment))

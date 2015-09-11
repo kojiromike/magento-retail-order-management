@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [1.6.0-beta-25] - 2015-09-09
+### Changed
+- Enable toggling test mode for gift card and credit card payments
+
+## [1.6.0-beta-25] - 2015-09-09
 ### Fixed
 - Add new locking algorithm to prevent infinite saving event from triggering when fixing product swatches
 
@@ -427,6 +431,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-26]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-25...1.6.0-beta-26
 [1.6.0-beta-25]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-24...1.6.0-beta-25
 [1.6.0-beta-24]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-23...1.6.0-beta-24
 [1.6.0-beta-23]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-22...1.6.0-beta-23

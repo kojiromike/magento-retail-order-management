@@ -34,6 +34,17 @@ http://opensource.org/licenses/osl-3.0.php
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </is_enabled>
+                        <test_mode>
+                            <label>Test Mode</label>
+                            <comment>Automatically cancels all orders placed with this payment method if enabled</comment>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>20</sort_order>
+                            <config_path>ebayenterprise_giftcard/general/test_mode</config_path>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </test_mode>
                     </fields>
                 </ebayenterprise_giftcard>
             </groups>

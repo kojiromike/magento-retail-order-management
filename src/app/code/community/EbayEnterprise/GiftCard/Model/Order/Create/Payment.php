@@ -18,24 +18,33 @@ use \eBayEnterprise\RetailOrderManagement\Payload\Order\IPaymentContainer;
 class EbayEnterprise_Giftcard_Model_Order_Create_Payment
 {
     /** @var EbayEnterprise_GiftCard_Model_IContainer */
-    protected $_giftcardContainer;
+    protected $giftcardContainer;
+    /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
+    protected $config;
+
     public function __construct(array $args = [])
     {
         list(
-            $this->_giftcardContainer
-        ) = $this->_enforceTypes(
-            $this->_nullCoalesce('giftcard_container', $args, Mage::getModel('ebayenterprise_giftcard/container'))
+            $this->giftcardContainer,
+            $this->config
+        ) = $this->checkTypes(
+            $this->nullCoalesce('giftcard_container', $args, Mage::getModel('ebayenterprise_giftcard/container')),
+            $this->nullCoalesce($args, 'config', Mage::helper('ebayenterprise_creditcard')->getConfigModel())
         );
     }
 
     /**
-     * ensure correct types
-     * @param  EbayEnterprise_GiftCard_Model_IContainer $container
+     * Type checks for constructor args array.
+     *
+     * @param  EbayEnterprise_GiftCard_Model_IContainer
+     * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
      * @return array
      */
-    protected function _enforceTypes(EbayEnterprise_GiftCard_Model_IContainer $container)
-    {
-        return [$container];
+    protected function checkTypes(
+        EbayEnterprise_GiftCard_Model_IContainer $container,
+        EbayEnterprise_Eb2cCore_Model_Config_Registry $config
+    ) {
+        return func_get_args();
     }
 
     /**
@@ -51,11 +60,12 @@ class EbayEnterprise_Giftcard_Model_Order_Create_Payment
         IPaymentContainer $paymentContainer,
         SplObjectStorage $processedPayments
     ) {
-        foreach ($this->_giftcardContainer->getRedeemedGiftcards() as $giftcard) {
+        foreach ($this->giftcardContainer->getRedeemedGiftcards() as $giftcard) {
             $iterable = $paymentContainer->getPayments();
             $payload = $iterable->getEmptyStoredValueCardPayment();
             $payload
                 // payment context
+                ->setIsMockPayment($this->config->testModeFlag)
                 ->setOrderId($order->getIncrementId())
                 ->setTenderType($giftcard->getTenderType())
                 ->setAccountUniqueId($giftcard->getCardNumber())

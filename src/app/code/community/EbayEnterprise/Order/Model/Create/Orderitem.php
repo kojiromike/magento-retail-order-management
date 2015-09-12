@@ -102,7 +102,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
             ->setSizeId($itemSizeId)
             ->setDepartment($item->getProduct()->getDepartment())
             ->setShippingMethod($romShippingMethod)
-            ->setShippingMethodDisplayText($this->shippingHelper->getMethodTitle($address->getShippingMethod()))
+            ->setShippingMethodDisplayText($address->getShippingDescription())
             ->setVendorId($item->getProduct()->getDropShipSupplierNumber())
             ->setVendorName($item->getProduct()->getDropShipSupplierName())
             // this is set here as a default; it is expected that the ISPU/STS module

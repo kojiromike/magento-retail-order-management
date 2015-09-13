@@ -104,7 +104,7 @@ class EbayEnterprise_Order_Model_Create_Orderitem
             ->setShippingMethod($romShippingMethod)
             ->setShippingMethodDisplayText($this->shippingHelper->getMethodTitle($address->getShippingMethod()))
             ->setVendorId($item->getProduct()->getDropShipSupplierNumber())
-            ->setVendorId($item->getProduct()->getDropShipSupplierName())
+            ->setVendorName($item->getProduct()->getDropShipSupplierName())
             // this is set here as a default; it is expected that the ISPU/STS module
             // will update this value through the order item event
             ->setFulfillmentChannel($payload::FULFILLMENT_CHANNEL_SHIP_TO_HOME);

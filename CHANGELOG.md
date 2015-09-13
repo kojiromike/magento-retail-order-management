@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [next] - tbd
+### Fixed
+- Put Drop Ship Supplier Name in Correct Field
+
 ## [1.6.0-beta-28] - 2015-09-11
 ### Fixed
 - Fixed Typo Breaking Checkout

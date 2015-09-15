@@ -1,7 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [next] - tbd
+## [1.6.0-beta-29] - 2015-09-15
+### Changed
+- Stub Indexer When Doing Large Collection Saves
+
 ### Fixed
 - Put Drop Ship Supplier Name in Correct Field
 

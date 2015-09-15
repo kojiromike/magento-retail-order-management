@@ -29,7 +29,7 @@ class EbayEnterprise_Giftcard_Model_Order_Create_Payment
             $this->config
         ) = $this->checkTypes(
             $this->nullCoalesce('giftcard_container', $args, Mage::getModel('ebayenterprise_giftcard/container')),
-            $this->nullCoalesce($args, 'config', Mage::helper('ebayenterprise_creditcard')->getConfigModel())
+            $this->nullCoalesce('config', $args, Mage::helper('ebayenterprise_creditcard')->getConfigModel())
         );
     }
 

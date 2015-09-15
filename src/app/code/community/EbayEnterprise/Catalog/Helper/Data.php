@@ -19,11 +19,55 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
     protected $_logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
     protected $_context;
+    /** @var Mage_Index_Model_Indexer */
+    protected $_indexerStub;
 
-    public function __construct()
+    /**
+     * @param array $args May contain key/value for:
+     * - logger => EbayEnterprise_MageLog_Helper_Data
+     * - log_context => EbayEnterprise_MageLog_Helper_Context
+     * - indexer_stub => Mage_Index_Model_Indexer
+     */
+    public function __construct(array $args = [])
     {
-        $this->_logger = Mage::helper('ebayenterprise_magelog');
-        $this->_context = Mage::helper('ebayenterprise_magelog/context');
+        list(
+            $this->_logger,
+            $this->_context,
+            $this->_indexerStub
+        ) = $this->_checkTypes(
+            $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
+            $this->_nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context')),
+            $this->_nullCoalesce($args, 'indexer_stub', Mage::getModel('ebayenterprise_catalog/indexer_stub'))
+        );
+    }
+
+    /**
+     * Enforce type checks on constructor init params.
+     *
+     * @param EbayEnterprise_MageLog_Helper_Data
+     * @param EbayEnterprise_MageLog_Helper_Context
+     * @param Mage_Index_Model_Indexer
+     * @return array
+     */
+    protected function _checkTypes(
+        EbayEnterprise_MageLog_Helper_Data $logger,
+        EbayEnterprise_MageLog_Helper_Context $logContext,
+        Mage_Index_Model_Indexer $indexer
+    ) {
+        return func_get_args();
+    }
+
+    /**
+     * Fill in default values.
+     *
+     * @param string
+     * @param array
+     * @param mixed
+     * @return mixed
+     */
+    protected function _nullCoalesce(array $arr, $key, $default)
+    {
+        return isset($arr[$key]) ? $arr[$key] : $default;
     }
 
     /**
@@ -620,5 +664,72 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
         }
 
         return null;
+    }
+
+    /**
+     * Save an EAV collection, disabling the indexer if the collection is
+     * larger than a configured size.
+     *
+     * @param Mage_Eav_Model_Entity_Collection_Abstract
+     * @return self
+     */
+    public function saveEavCollectionStubIndexer(Mage_Eav_Model_Entity_Collection_Abstract $collection)
+    {
+        return $this->saveCollectionStubIndexer($collection);
+    }
+
+    /**
+     * Save a resource collection, disabling the indexer if the collection is
+     * larger than a configured size.
+     *
+     * @param Mage_Core_Model_Resource_Db_Collection_Abstract
+     * @return self
+     */
+    public function saveResourceCollectionStubIndexer(Mage_Core_Model_Resource_Db_Collection_Abstract $collection)
+    {
+        return $this->saveCollectionStubIndexer($collection);
+    }
+
+    /**
+     * Magento uses divergent types for collections, so in order to allow for the possibility
+     * of type hinting, the logic here is put in a protected method and called from public
+     * methods that type hint one of the two possible correct types. The developer will have
+     * to name the most appropriate public method.
+     *
+     * @param mixed
+     * @return self
+     */
+    protected function saveCollectionStubIndexer($collection)
+    {
+        $config = $this->getConfigModel();
+        $stubIndexer = $config->maxPartialReindexSkus < $collection->getSize();
+        if ($stubIndexer) {
+            // Stub the indexer so no indexing can take place during massive saves.
+            $indexerKey = '_singleton/index/indexer';
+            $oldIndexer = $this->reregister($indexerKey, $this->_indexerStub);
+        }
+        $collection->save();
+        if ($stubIndexer) {
+            $this->reregister($indexerKey, $oldIndexer);
+        }
+        return $this;
+    }
+
+    /**
+     * Replace a value in the Mage::_registry with a new value.
+     * If new value is not truthy, just deletes the registry entry.
+     *
+     * @param string
+     * @param mixed
+     * @return mixed
+     */
+    protected function reregister($key, $value=null)
+    {
+        $old = Mage::registry($key);
+        Mage::unregister($key);
+        if ($value) {
+            Mage::register($key, $value);
+        }
+        return $old;
     }
 }

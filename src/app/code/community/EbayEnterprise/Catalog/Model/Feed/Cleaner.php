@@ -105,7 +105,7 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
             $this->cleanProduct($product);
         }
         // save all the products that may have been modified while cleaning products
-        $this->_products->save();
+        $this->_helper->saveEavCollectionStubIndexer($this->_products);
         return $this;
     }
     /**

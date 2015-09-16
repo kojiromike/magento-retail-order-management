@@ -108,7 +108,11 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
      */
     public function canSendInventoryDetail(Mage_Sales_Model_Quote_Item_Abstract $item)
     {
-        return $this->isRequestedItemAvailable($item);
+        // The session will have inventory details data stored only for managed stock items.
+        // We need to make sure this item is managed stock before attempting to retrieve its
+        // inventory details data from the session, or it will trigger a pointless call to ROM.
+        return $this->_inventoryItemSelection->isStockManaged($item)
+            && $this->isRequestedItemAvailable($item);
     }
 
     /**

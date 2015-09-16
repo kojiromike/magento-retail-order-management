@@ -42,7 +42,7 @@
 		<script type="text/javascript">decorateGeneric($('order-info-tabs').select('LI'),['first','last']);</script>
 	</dd>
 </dl>
-<p class="order-date"><?php echo $_helper->__('Order Date: ') . $this->formatDate($_order->getOrderDate(), 'long'); ?></p>
+<p class="order-date"><?php echo $_helper->__('Order Date: ') . $this->formatDate($_order->getCreatedAt(), 'long'); ?></p>
 <div class="col2-set order-info-box">
 	<div class="col-1">
 		<div class="box">

@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-31] - 2015-09-16
+### Fixed
+- Prevent Unnecessary Inventory Detail call to ROM because of not Manage stock Item
 
 ## [1.6.0-beta-30] - 2015-09-15
 ### Fixed
@@ -451,6 +454,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-31]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-30...1.6.0-beta-31
 [1.6.0-beta-30]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-29...1.6.0-beta-30
 [1.6.0-beta-29]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-28...1.6.0-beta-29
 [1.6.0-beta-28]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-27...1.6.0-beta-28

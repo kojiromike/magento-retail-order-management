@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-33] - 2015-09-17
+### Changed
+- Reverted Fixed Typo Breaking Checkout
+
 ## [1.6.0-beta-32] - 2015-09-16
 ### Fixed
 - Display Order Creation Date on Order Info
@@ -28,7 +32,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Remove Swatch Module From ROM
 
-## [1.6.0-beta-26] - 2015-09-11
+## [1.6.0-beta-26] - 2015-09-09
 ### Changed
 - Enable toggling test mode for gift card and credit card payments
 

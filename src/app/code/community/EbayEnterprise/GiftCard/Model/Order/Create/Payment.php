@@ -82,7 +82,7 @@ class EbayEnterprise_Giftcard_Model_Order_Create_Payment
         }
     }
 
-    protected function nullCoalesce($key, array $args, $default)
+    protected function _nullCoalesce($key, array $args, $default)
     {
         return isset($args[$key]) ? $args[$key] : $default;
     }

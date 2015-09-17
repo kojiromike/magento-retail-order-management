@@ -78,7 +78,7 @@ http://opensource.org/licenses/osl-3.0.php
                     <xslt_module>EbayEnterprise_Catalog</xslt_module>
                     <extractor_callback_path>ebayenterprise_catalog/feed_attribute_mappings</extractor_callback_path>
                     <extractor_sku_xpath>ItemId/ClientItemId|UniqueID|ClientItemId</extractor_sku_xpath>
-                    <allowable_event_type>ItemMaster,ContentMaster,iShip,Pricing</allowable_event_type>
+                    <allowable_event_type>ItemMaster,ContentMaster,ISHIPDuties,Pricing</allowable_event_type>
                 </import_configuration>
             </feed>
             <feed_attribute_mappings>

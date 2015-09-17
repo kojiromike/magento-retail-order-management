@@ -136,15 +136,15 @@ http://opensource.org/licenses/osl-3.0.php
                     -->
                     <i_ship>
                         <local_directory>ExchangePlatform/Feed/inbox/product</local_directory>
-                        <event_type>iShip</event_type>
+                        <event_type>ISHIPDuties</event_type>
                         <header_version>2.3.0</header_version>
                         <outbound>
                             <message_header>
-                                <event_type>iShip</event_type>
+                                <event_type>ISHIPDuties</event_type>
                             </message_header>
                         </outbound>
                         <remote_directory>/Inbox/Product</remote_directory>
-                        <file_pattern>*iShip_*.xml</file_pattern>
+                        <file_pattern>*iShip*.xml</file_pattern>
                     </i_ship>
                     <!-- ItemMaster, Content and Pricing are read by ProductImport module, written by ProductExport module -->
                     <item_master>

@@ -371,6 +371,7 @@ class EbayEnterprise_Order_Model_Create
             $this->_payload->setCreateTime($createdAt);
         }
         return $this
+            ->handleTestOrder()
             ->_setCustomerData($this->_order, $this->_payload)
             ->_setOrderContext($this->_order, $this->_payload)
             ->_setShipGroups($this->_order, $this->_payload)
@@ -813,5 +814,36 @@ class EbayEnterprise_Order_Model_Create
             ->getAttribute('gender')
             ->getSource()
             ->getAllOptions();
+    }
+
+    /**
+     * Detect an order as a test order when the second street line
+     * address of the order billing address matches the constant
+     * IOrderCreateRequest::TEST_TYPE_AUTOCANCEL. Flag the OCR
+     * payload as a test order.
+     *
+     * @return self
+     */
+    protected function handleTestOrder()
+    {
+        /** @var Mage_Customer_Model_Address_Abstract */
+        $billingAddress = $this->_order->getBillingAddress();
+        if ($this->isTestOrder($billingAddress)) {
+            $this->_payload->setTestType(IOrderCreateRequest::TEST_TYPE_AUTOCANCEL);
+        }
+        return $this;
+    }
+
+    /**
+     * Determine if an order should be sent to ROM as a test order by checking the second street
+     * address if it match the constant value IOrderCreateRequest::TEST_TYPE_AUTOCANCEL, then it is
+     * a test order, otherwise it is not a test order.
+     *
+     * @param  Mage_Customer_Model_Address_Abstract
+     * @return bool
+     */
+    protected function isTestOrder(Mage_Customer_Model_Address_Abstract $billingAddress)
+    {
+        return $billingAddress->getStreet(2) === IOrderCreateRequest::TEST_TYPE_AUTOCANCEL;
     }
 }

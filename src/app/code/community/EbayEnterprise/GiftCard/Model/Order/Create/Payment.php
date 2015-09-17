@@ -22,17 +22,9 @@ class EbayEnterprise_Giftcard_Model_Order_Create_Payment
     public function __construct(array $args = [])
     {
         list(
-<<<<<<< HEAD
-            $this->giftcardContainer,
-            $this->config
-        ) = $this->checkTypes(
-            $this->nullCoalesce('giftcard_container', $args, Mage::getModel('ebayenterprise_giftcard/container')),
-            $this->nullCoalesce('config', $args, Mage::helper('ebayenterprise_creditcard')->getConfigModel())
-=======
             $this->_giftcardContainer
         ) = $this->_enforceTypes(
             $this->_nullCoalesce('giftcard_container', $args, Mage::getModel('ebayenterprise_giftcard/container'))
->>>>>>> parent of edc21c1... ME-709 Enable Toggling Gift/Credit Card Test Mode
         );
     }
 

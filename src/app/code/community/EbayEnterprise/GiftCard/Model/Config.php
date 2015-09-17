@@ -15,13 +15,12 @@
 
 class EbayEnterprise_GiftCard_Model_Config extends EbayEnterprise_Eb2cCore_Model_Config_Abstract
 {
-    protected $_configPaths = [
+    protected $_configPaths = array(
         'api_operation_balance' => 'ebayenterprise_giftcard/api/operations/balance',
         'api_operation_redeem' => 'ebayenterprise_giftcard/api/operations/redeem',
-        'api_operation_tender_type_lookup' => 'ebayenterprise_giftcard/api/operations/tender_type_lookup',
         'api_operation_void' => 'ebayenterprise_giftcard/api/operations/void',
+        'api_operation_tender_type_lookup' => 'ebayenterprise_giftcard/api/operations/tender_type_lookup',
         'api_service' => 'ebayenterprise_giftcard/api/service',
         'is_enabled' => 'ebayenterprise_giftcard/general/is_enabled',
-        'test_mode' => 'ebayenterprise_giftcard/general/test_mode',
-    ];
+    );
 }

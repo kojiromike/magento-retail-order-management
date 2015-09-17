@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [1.6.0-beta-33] - 2015-09-17
 ### Changed
 - Reverted Fixed Typo Breaking Checkout
+- Reverted Enable toggling test mode for gift card and credit card payments
 
 ## [1.6.0-beta-32] - 2015-09-16
 ### Fixed

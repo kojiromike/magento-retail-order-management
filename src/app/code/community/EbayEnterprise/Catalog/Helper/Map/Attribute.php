@@ -16,7 +16,7 @@
 class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstract
 {
     const TURN_OFF_MANAGE_STOCK_XML = '<Item><SalesClass>advanceOrderOpen</SalesClass></Item>';
-    const STALES_CLASS_NODE = 'SalesClass';
+    const SALES_CLASS_NODE = 'SalesClass';
 
     /**
      * @var Mage_Eav_Model_Resource_Entity_Attribute_Collection
@@ -223,7 +223,7 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
         $doc->loadXML(static::TURN_OFF_MANAGE_STOCK_XML);
         $xpath = Mage::helper('eb2ccore')->getNewDomXPath($doc);
         Mage::helper('ebayenterprise_catalog/map_stock')->extractStockData(
-            $xpath->query(static::STALES_CLASS_NODE, $doc->documentElement),
+            $xpath->query(static::SALES_CLASS_NODE, $doc->documentElement),
             $product
         );
         return $this;

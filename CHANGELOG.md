@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-35] - 2015-09-17
+### Add
+- Automatically Detect Test Orders in Webstore
+
 ## [1.6.0-beta-34] - 2015-09-17
 ### Fixed
 - Typo Introduced by Conflict
@@ -469,6 +473,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-35]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-34...1.6.0-beta-35
 [1.6.0-beta-34]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-33...1.6.0-beta-34
 [1.6.0-beta-32]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-31...1.6.0-beta-32
 [1.6.0-beta-31]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-30...1.6.0-beta-31

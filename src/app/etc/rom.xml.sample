@@ -24,11 +24,11 @@ http://opensource.org/licenses/osl-3.0.php
 
             Suggested Schedule: Once every fifteen minutes
             -->
-            <eb2corder_order_create_retry>
+            <ebayenterprise_order_create_retry>
                 <schedule>
                     <cron_expr>*/15 * * * *</cron_expr>
                 </schedule>
-            </eb2corder_order_create_retry>
+            </ebayenterprise_order_create_retry>
             <!--
             Image Export: This job will export image meta data to the Product Hub.
 

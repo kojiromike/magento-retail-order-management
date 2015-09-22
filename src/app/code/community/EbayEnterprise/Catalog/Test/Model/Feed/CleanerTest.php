@@ -337,15 +337,12 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
     public function testCleanAllProducts()
     {
         $newCollection = $this->getResourceModelMockBuilder('catalog/product_collection')
-            ->setMethods(array('save', 'load'))
+            ->setMethods(array('load'))
             ->disableOriginalConstructor()
             ->getMock();
         // manually set the collection item class - normally done by constructor but
         // that has been disabled to prevent the DB connection
         $newCollection->setItemObjectClass('catalog/product');
-        $newCollection->expects($this->once())
-            ->method('save')
-            ->will($this->returnSelf());
         foreach (range(1, 5) as $id) {
             $newCollection->addItem(Mage::getModel('catalog/product')->addData(array('entity_id' => $id)));
         }
@@ -358,6 +355,12 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
             ->method('cleanProduct')
             ->with($this->isInstanceOf('Mage_Catalog_Model_Product'))
             ->will($this->returnSelf());
+
+        $helper = $this->getHelperMock('ebayenterprise_catalog/data', ['saveEavCollectionStubIndexer']);
+        $helper->expects($this->once())
+            ->method('saveEavCollectionStubIndexer')
+            ->will($this->returnSelf());
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($feedCleanerModelProductMock, '_helper', $helper);
 
         $this->assertInstanceOf(
             'EbayEnterprise_Catalog_Model_Feed_Cleaner',

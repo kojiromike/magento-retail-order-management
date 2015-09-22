@@ -32,19 +32,16 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     {
         $productHelperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/data')
             ->disableOriginalConstructor()
-            ->setMethods(array('generateMessageHeader'))
+            ->setMethods(['generateMessageHeader'])
             ->getMock();
         $productHelperMock->expects($this->once())
             ->method('generateMessageHeader')
             ->with($this->equalTo('ItemMaster'))
             ->will($this->returnValue($headerMessage));
 
-        $this->replaceByMock('helper', 'ebayenterprise_catalog', $productHelperMock);
-
-        $confirmationsModelMock = $this->getModelMockBuilder('ebayenterprise_catalog/error_confirmations')
-            ->disableOriginalConstructor()
-            ->setMethods(array('append'))
-            ->getMock();
+        $confirmationsModelMock = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['append'], false, [[
+            'helper' => $productHelperMock,
+        ]]);
         $confirmationsModelMock->expects($this->at(0))
             ->method('append')
             ->with($this->equalTo(EbayEnterprise_Catalog_Model_Error_Confirmations::XML_DIRECTIVE))
@@ -63,9 +60,9 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
 
     /**
      * Test append method with the following assumptions when call with given content as a parameter
-     * Expectation 1: the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_fileStream will be checked if
+     * Expectation 1: the class property EbayEnterprise_Catalog_Model_Error_Confirmations::fileStream will be checked if
      *                it is not is null it will throw EbayEnterprise_Catalog_Model_Error_Exception exception,
-     *                that is why in this set we are setting the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_fileStream
+     *                that is why in this set we are setting the class property EbayEnterprise_Catalog_Model_Error_Confirmations::fileStream
      *                to a know state of null so that will throw the EbayEnterprise_Catalog_Model_Error_Exception as annotated for this test
      * @param string $content the content to be appended to the file in error confirmation class stream
      * @dataProvider dataProvider
@@ -75,50 +72,46 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     {
         $confirmations = Mage::getModel('ebayenterprise_catalog/error_confirmations');
 
-        // set the class property '_fileStream' to a known state of null
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_fileStream', null);
+        // set the class property 'fileStream' to a known state of null
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'fileStream', null);
 
         $confirmations->append($content);
     }
     /**
      * Test addMessage method with the following assumptions when call with given message template ($msgTemplate) and message ($message) as parameters
-     * Expectation 1: the method EbayEnterprise_Catalog_Model_Error_Confirmations::_getLangCode will be called once and will return the language code (en-us)
+     * Expectation 1: the method EbayEnterprise_Catalog_Model_Error_Confirmations::getLangCode will be called once and will return the language code (en-us)
      *                to be set in the array key (language_code) and then the parameters ($msgTemplate, $message) will be passed to the built-in sprint method
      *                to be set in the array key (message_data).
      * Expectation 2: the array that was built in expectation one will then be passed as the first parameter to the class method
      *                EbayEnterprise_Catalog_Helper_Data::mapPattern, and the second parameter is class constant for the error message node with mapped
      *                place holder for the value in the first parameter
      * Expectation 3: the return value from the mock method EbayEnterprise_Catalog_Helper_Data::mapPattern will be set to the class property
-     *                EbayEnterprise_Catalog_Model_Error_Confirmations::_queueMessage as an array element, to prove this occurred the class property
+     *                EbayEnterprise_Catalog_Model_Error_Confirmations::queueMessage as an array element, to prove this occurred the class property
      *                is set to an empty array in the test, and is then proven to have an array element of the content the mapPattern return
      * Expectation 4: the method EbayEnterprise_Catalog_Model_Error_Confirmations::addMessage will return itself as asserted in the test
-     * @mock EbayEnterprise_Catalog_Model_Error_Confirmations::_getLangCode
+     * @mock EbayEnterprise_Catalog_Model_Error_Confirmations::getLangCode
      * @mock EbayEnterprise_Catalog_Helper_Data::mapPattern
      */
     public function testAddMessage()
     {
         $productHelperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/data')
             ->disableOriginalConstructor()
-            ->setMethods(array('mapPattern'))
+            ->setMethods(['mapPattern'])
             ->getMock();
         $productHelperMock->expects($this->once())
             ->method('mapPattern')
             ->with($this->isType('array'))
             ->will($this->returnValue('<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>'));
-        $this->replaceByMock('helper', 'ebayenterprise_catalog', $productHelperMock);
 
-        $confirmationsModelMock = $this->getModelMockBuilder('ebayenterprise_catalog/error_confirmations')
-            ->disableOriginalConstructor()
-            ->setMethods(array('_getLangCode'))
-            ->getMock();
-        $confirmationsModelMock->expects($this->once())
-            ->method('_getLangCode')
+        $confirmations = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['getLangCode'], false, [[
+            'helper' => $productHelperMock,
+        ]]);
+        $confirmations->expects($this->once())
+            ->method('getLangCode')
             ->will($this->returnValue('en-us'));
-        $this->replaceByMock('model', 'ebayenterprise_catalog/error_confirmations', $confirmationsModelMock);
 
-        $confirmations = Mage::getModel('ebayenterprise_catalog/error_confirmations');
-        // class property _queueMessage to a known state
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueMessage', array());
+        // class property queueMessage to a known state
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueMessage', []);
 
         $this->assertInstanceOf('EbayEnterprise_Catalog_Model_Error_Confirmations', $confirmations->addMessage(
             $confirmations::SKU_NOT_REMOVE,
@@ -126,71 +119,67 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
         ));
 
         $this->assertSame(
-            array('<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>'),
-            EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, '_queueMessage')
+            ['<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>'],
+            EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, 'queueMessage')
         );
     }
 
     /**
      * Test addError method with the following assumptions when call with given message template ($type) and message ($fileName) as parameters
-     * Expectation 1: the method EbayEnterprise_Catalog_Model_Error_Confirmations::_getErrorTemplate will be called once with
+     * Expectation 1: the method EbayEnterprise_Catalog_Model_Error_Confirmations::getErrorTemplate will be called once with
      *                for following parameter (ItemMaster, ItemMaster_TestSubset.xml), and it will return an array of keys and values
-     * Expectation 2: the value return from mock method EbayEnterprise_Catalog_Model_Error_Confirmations::_getErrorTemplate will then pass as the first
+     * Expectation 2: the value return from mock method EbayEnterprise_Catalog_Model_Error_Confirmations::getErrorTemplate will then pass as the first
      *                parameter to class method EbayEnterprise_Catalog_Helper_Data::mapPattern, and the second parameter is class constant for the error
      *                open node with mapped place holder for the values
      * Expectation 3: the return value from EbayEnterprise_Catalog_Helper_Data::mapPattern will be mapped as the first place holder string format for the
-     *                sprintf method, the second parameter implode the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueMessage, and
+     *                sprintf method, the second parameter implode the class property EbayEnterprise_Catalog_Model_Error_Confirmations::queueMessage, and
      *                the third parameter is a class constant for the error close node.
-     * Expectation 4: the test set the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueMessage to a know state with array with
-     *                element on it and after the addError run the _queueMessage class property is asserted to be empty as expected.
-     * Expectation 5: the test set the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueError of an empty array and when addError
+     * Expectation 4: the test set the class property EbayEnterprise_Catalog_Model_Error_Confirmations::queueMessage to a know state with array with
+     *                element on it and after the addError run the queueMessage class property is asserted to be empty as expected.
+     * Expectation 5: the test set the class property EbayEnterprise_Catalog_Model_Error_Confirmations::queueError of an empty array and when addError
      *                is run the property is asserted to have array elements as expected
-     * @mock EbayEnterprise_Catalog_Model_Error_Confirmations::_getErrorTemplate
+     * @mock EbayEnterprise_Catalog_Model_Error_Confirmations::getErrorTemplate
      * @mock EbayEnterprise_Catalog_Helper_Data::mapPattern
      */
     public function testAddError()
     {
         $productHelperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/data')
             ->disableOriginalConstructor()
-            ->setMethods(array('mapPattern'))
+            ->setMethods(['mapPattern'])
             ->getMock();
         $productHelperMock->expects($this->once())
             ->method('mapPattern')
             ->with($this->isType('array'))
             ->will($this->returnValue('<Error event_type="ItemMaster" file_name="ItemMaster_TestSubset.xml" reported_from="WMS">'));
-        $this->replaceByMock('helper', 'ebayenterprise_catalog', $productHelperMock);
 
-        $confirmationsModelMock = $this->getModelMockBuilder('ebayenterprise_catalog/error_confirmations')
-            ->disableOriginalConstructor()
-            ->setMethods(array('_getErrorTemplate'))
-            ->getMock();
-        $confirmationsModelMock->expects($this->once())
-            ->method('_getErrorTemplate')
+        $confirmations = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['getErrorTemplate'], false, [[
+            'helper' => $productHelperMock,
+        ]]);
+        $confirmations->expects($this->once())
+            ->method('getErrorTemplate')
             ->with($this->equalTo('ItemMaster'), $this->equalTo('ItemMaster_TestSubset.xml'))
-            ->will($this->returnValue(array(
+            ->will($this->returnValue([
                 'feed_type' => 'ItemMaster',
                 'feed_file_name' => 'ItemMaster_TestSubset.xml',
                 'from' => EbayEnterprise_Catalog_Helper_Feed::DEST_ID
-            )));
-        $this->replaceByMock('model', 'ebayenterprise_catalog/error_confirmations', $confirmationsModelMock);
+            ]));
 
-        $confirmations = Mage::getModel('ebayenterprise_catalog/error_confirmations');
-        // class property _queueMessage and _queueError to a known state
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueMessage', array(
+        // class property queueMessage and queueError to a known state
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueMessage', [
             '<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>'
-        ));
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueError', array());
+        ]);
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueError', []);
 
         $this->assertSame($confirmations, $confirmations->addError('ItemMaster', 'ItemMaster_TestSubset.xml'));
 
         $this->assertSame(
-            array('<Error event_type="ItemMaster" file_name="ItemMaster_TestSubset.xml" reported_from="WMS">
+            ['<Error event_type="ItemMaster" file_name="ItemMaster_TestSubset.xml" reported_from="WMS">
 <Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>
-</Error>'),
-            EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, '_queueError')
+</Error>'],
+            EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, 'queueError')
         );
 
-        $this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, '_queueMessage'));
+        $this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, 'queueMessage'));
     }
 
     /**
@@ -200,67 +189,65 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
      *                has value for the error confirmation node.
      * Expectation 2: the mocked method EbayEnterprise_Catalog_Helper_Data::mapPattern will return value that will be mapped to the first
      *                sprintf formatted string the second parameter to the sprintf method will be the implode result of the class property
-     *                EbayEnterprise_Catalog_Model_Error_Confirmations::_queueError the third parameter is the class constant for error
+     *                EbayEnterprise_Catalog_Model_Error_Confirmations::queueError the third parameter is the class constant for error
      *                confirmation close node.
-     * Expectation 3: the test set the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueError to a know state with
-     *                array with element and set the property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueConfirmation to a
+     * Expectation 3: the test set the class property EbayEnterprise_Catalog_Model_Error_Confirmations::queueError to a know state with
+     *                array with element and set the property EbayEnterprise_Catalog_Model_Error_Confirmations::queueConfirmation to a
      *                state of empty array, when the test run the method addErrorConfirmation we can properly asserted that the class
-     *                property _queueConfirmation was an empty array and now it has an array with elements and we can also assert that
-     *                the class property _queueError had an array of element but now empty
+     *                property queueConfirmation was an empty array and now it has an array with elements and we can also assert that
+     *                the class property queueError had an array of element but now empty
      * @mock EbayEnterprise_Catalog_Helper_Data::mapPattern
      */
     public function testAddErrorConfirmation()
     {
         $productHelperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/data')
             ->disableOriginalConstructor()
-            ->setMethods(array('mapPattern'))
+            ->setMethods(['mapPattern'])
             ->getMock();
         $productHelperMock->expects($this->once())
             ->method('mapPattern')
-            ->with($this->equalTo(array('sku' => 'SK-ABC-1334')))
+            ->with($this->equalTo(['sku' => 'SK-ABC-1334']))
             ->will($this->returnValue('<ErrorConfirmation unique_id="SK-ABC-1334">'));
-        $this->replaceByMock('helper', 'ebayenterprise_catalog', $productHelperMock);
 
-        $confirmations = Mage::getModel('ebayenterprise_catalog/error_confirmations');
-        // class property _queueConfirmation and _queueError to a known state
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueError', array(
+        $confirmations = Mage::getModel('ebayenterprise_catalog/error_confirmations', [
+            'helper' => $productHelperMock,
+        ]);
+        // class property queueConfirmation and queueError to a known state
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueError', [
             '<Error event_type="ItemMaster" file_name="ItemMaster_TestSubset.xml" reported_from="WMS">
 				<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>
 			</Error>'
-        ));
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueConfirmation', array());
+        ]);
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueConfirmation', []);
 
         $this->assertSame($confirmations, $confirmations->addErrorConfirmation('SK-ABC-1334'));
 
         $this->assertSame(
-            array('<ErrorConfirmation unique_id="SK-ABC-1334">
+            ['<ErrorConfirmation unique_id="SK-ABC-1334">
 <Error event_type="ItemMaster" file_name="ItemMaster_TestSubset.xml" reported_from="WMS">
 				<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>
 			</Error>
 </ErrorConfirmation>'
-            ),
-            EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, '_queueConfirmation')
+            ],
+            EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, 'queueConfirmation')
         );
 
-        $this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, '_queueError'));
+        $this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmations, 'queueError'));
     }
 
     /**
      * Test flush method with the following assumptions when called
      * Expectation 1: in order to fully test the EbayEnterprise_Catalog_Model_Error_Confirmations::flush method we need to set
-     *                the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueConfirmation to a known states with array with elements
-     * Expectation 2: since the test set the class property _queueConfirmation to an array with one element we expect that the class method
+     *                the class property EbayEnterprise_Catalog_Model_Error_Confirmations::queueConfirmation to a known states with array with elements
+     * Expectation 2: since the test set the class property queueConfirmation to an array with one element we expect that the class method
      *                EbayEnterprise_Catalog_Model_Error_Confirmations::append will be called once with the content of the first array element and return itself
      * Expectation 3: the method EbayEnterprise_Catalog_Model_Error_Confirmations::flush is expected to return itself as expected
-     * Expectation 4: the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueConfirmation is expected to be an empty array.
+     * Expectation 4: the class property EbayEnterprise_Catalog_Model_Error_Confirmations::queueConfirmation is expected to be an empty array.
      * @mock EbayEnterprise_Catalog_Model_Error_Confirmations::append
      */
     public function testFlush()
     {
-        $confirmationsModelMock = $this->getModelMockBuilder('ebayenterprise_catalog/error_confirmations')
-            ->disableOriginalConstructor()
-            ->setMethods(array('append'))
-            ->getMock();
+        $confirmationsModelMock = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['append']);
         $confirmationsModelMock->expects($this->once())
             ->method('append')
             ->with($this->equalTo('<ErrorConfirmation unique_id="SK-ABC-1334">
@@ -270,22 +257,22 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
 	</ErrorConfirmation>'))
             ->will($this->returnSelf());
 
-        // class property _queueConfirmation to a known state
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmationsModelMock, '_queueConfirmation', array('<ErrorConfirmation unique_id="SK-ABC-1334">
+        // class property queueConfirmation to a known state
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmationsModelMock, 'queueConfirmation', ['<ErrorConfirmation unique_id="SK-ABC-1334">
 <Error event_type="ItemMaster" file_name="ItemMaster_TestSubset.xml" reported_from="WMS">
 				<Message xml:lang="en-US" code="">Error exception occurred: UnitTest Simulate Throw Exception on Dom load</Message>
 			</Error>
 	</ErrorConfirmation>'
-        ));
+        ]);
 
         $this->assertSame($confirmationsModelMock, $confirmationsModelMock->flush());
 
-        $this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmationsModelMock, '_queueConfirmation'));
+        $this->assertEmpty(EcomDev_Utils_Reflection::getRestrictedPropertyValue($confirmationsModelMock, 'queueConfirmation'));
     }
 
     /**
-     * Test _getErrorTemplate method with the following assumptions when call with given message template ($type) and message ($fileName) as parameters
-     * Expectation 1: passing type and filename to the tested method EbayEnterprise_Catalog_Model_Error_Confirmations::_getErrorTemplate
+     * Test getErrorTemplate method with the following assumptions when call with given message template ($type) and message ($fileName) as parameters
+     * Expectation 1: passing type and filename to the tested method EbayEnterprise_Catalog_Model_Error_Confirmations::getErrorTemplate
      *                will return an array with key (feed_type) that hold the value of the parameter type, another array key (feed_file_name),
      *                with the value of filename parameter and one last array key (from) with the value of the eb2ccore helper class feed constant value
      */
@@ -293,26 +280,26 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     {
         $confirmations = Mage::getModel('ebayenterprise_catalog/error_confirmations');
 
-        $testData = array(
-            array(
-                'expect' => array('feed_type' => 'ItemMaster', 'feed_file_name' => 'ItemMaster_Test_Subset.xml', 'from' => EbayEnterprise_Catalog_Helper_Feed::DEST_ID),
+        $testData = [
+            [
+                'expect' => ['feed_type' => 'ItemMaster', 'feed_file_name' => 'ItemMaster_Test_Subset.xml', 'from' => EbayEnterprise_Catalog_Helper_Feed::DEST_ID],
                 'type' => 'ItemMaster',
                 'fileName' => 'ItemMaster_Test_Subset.xml'
-            ),
-        );
+            ],
+        ];
 
         foreach ($testData as $data) {
-            $this->assertSame($data['expect'], EcomDev_Utils_Reflection::invokeRestrictedMethod($confirmations, '_getErrorTemplate', array($data['type'], $data['fileName'])));
+            $this->assertSame($data['expect'], EcomDev_Utils_Reflection::invokeRestrictedMethod($confirmations, 'getErrorTemplate', [$data['type'], $data['fileName']]));
         }
     }
 
     /**
      * Test hasMessage method with the following assumptions when called
      * Expectation 1: the EbayEnterprise_Catalog_Model_Error_Confirmations::hasMessage revolved around the class
-     *                property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueMessage current state in the instantiated object
-     *                Therefore the test is testing two scenarios by setting the state of the class property _queueMessage to a known state
+     *                property EbayEnterprise_Catalog_Model_Error_Confirmations::queueMessage current state in the instantiated object
+     *                Therefore the test is testing two scenarios by setting the state of the class property queueMessage to a known state
      *                and then testing the return value of the hasMessage method
-     * Expectation 2: setting the state of the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueMessage to an empty array
+     * Expectation 2: setting the state of the class property EbayEnterprise_Catalog_Model_Error_Confirmations::queueMessage to an empty array
      *                the test assert that the method EbayEnterprise_Catalog_Model_Error_Confirmations::hasMessage will return false
      * Expectation 3: calling the EbayEnterprise_Catalog_Model_Error_Confirmations::addMessage with parameter one being the class constant for dom load err
      *                and the second parameter being a text string verbiage and the test can then make the assertion that
@@ -322,8 +309,8 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     {
         $confirmations = Mage::getModel('ebayenterprise_catalog/error_confirmations');
 
-        // set the class property '_queueMessage' to a known state
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueMessage', array());
+        // set the class property 'queueMessage' to a known state
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueMessage', []);
         $this->assertSame(false, $confirmations->hasMessage());
 
         $confirmations->addMessage($confirmations::SKU_NOT_REMOVE, 'UnitTest Simulate Throw Exception on Dom load');
@@ -333,10 +320,10 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     /**
      * Test hasError method with the following assumptions when called
      * Expectation 1: the EbayEnterprise_Catalog_Model_Error_Confirmations::hasError revolved around the class
-     *                property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueError current state in the instantiated object
-     *                Therefore the test is testing two scenarios by setting the state of the class property _queueError and _queueMessage to a known state
+     *                property EbayEnterprise_Catalog_Model_Error_Confirmations::queueError current state in the instantiated object
+     *                Therefore the test is testing two scenarios by setting the state of the class property queueError and queueMessage to a known state
      *                and then testing the return value of the hasError method
-     * Expectation 2: setting the state of the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueError and _queueMessage to an empty array
+     * Expectation 2: setting the state of the class property EbayEnterprise_Catalog_Model_Error_Confirmations::queueError and queueMessage to an empty array
      *                the test assert that the method EbayEnterprise_Catalog_Model_Error_Confirmations::hasError will return false
      * Expectation 3: calling the EbayEnterprise_Catalog_Model_Error_Confirmations::addMessage with parameter one being the class constant for dom load err
      *                and the second parameter being a text string verbiage and then calling the method
@@ -348,9 +335,9 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     {
         $confirmations = Mage::getModel('ebayenterprise_catalog/error_confirmations');
 
-        // set the class property '_queueMessage' and '_queueError' to a known state
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueMessage', array());
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueError', array());
+        // set the class property 'queueMessage' and 'queueError' to a known state
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueMessage', []);
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueError', []);
         $this->assertSame(false, $confirmations->hasError());
 
         $confirmations->addMessage($confirmations::SKU_NOT_REMOVE, 'UnitTest Simulate Throw Exception on Dom load')
@@ -361,11 +348,11 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     /**
      * Test hasErrorConfirmation method with the following assumptions when called
      * Expectation 1: the EbayEnterprise_Catalog_Model_Error_Confirmations::hasErrorConfirmation revolved around the class
-     *                property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueConfirmation current state in the instantiated object
-     *                Therefore the test is testing two scenarios by setting the state of the class property _queueConfirmation,
-     *                _queueError and _queueMessage to a known state and then testing the return value of the hasErrorConfirmation method
-     * Expectation 2: setting the state of the class property EbayEnterprise_Catalog_Model_Error_Confirmations::_queueConfirmation, _queueError
-     *                and _queueMessage to an empty array
+     *                property EbayEnterprise_Catalog_Model_Error_Confirmations::queueConfirmation current state in the instantiated object
+     *                Therefore the test is testing two scenarios by setting the state of the class property queueConfirmation,
+     *                queueError and queueMessage to a known state and then testing the return value of the hasErrorConfirmation method
+     * Expectation 2: setting the state of the class property EbayEnterprise_Catalog_Model_Error_Confirmations::queueConfirmation, queueError
+     *                and queueMessage to an empty array
      *                the test assert that the method EbayEnterprise_Catalog_Model_Error_Confirmations::hasErrorConfirmation will return false
      * Expectation 3: calling the EbayEnterprise_Catalog_Model_Error_Confirmations::addMessage with parameter one being the class constant
      *                for dom load err and the second parameter being a text string verbiage, then calling the method
@@ -377,10 +364,10 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     {
         $confirmations = Mage::getModel('ebayenterprise_catalog/error_confirmations');
 
-        // set the class property '_queueMessage', '_queueError' and '_queueConfirmation' to a known state
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueMessage', array());
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueError', array());
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, '_queueConfirmation', array());
+        // set the class property 'queueMessage', 'queueError' and 'queueConfirmation' to a known state
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueMessage', []);
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueError', []);
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmations, 'queueConfirmation', []);
         $this->assertSame(false, $confirmations->hasErrorConfirmation());
 
         $confirmations->addMessage($confirmations::SKU_NOT_REMOVE, 'UnitTest Simulate Throw Exception on Dom load')
@@ -415,52 +402,50 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
 
         $event = $this->getMockBuilder('Varien_Event')
             ->disableOriginalConstructor()
-            ->setMethods(array('getFeedDetails'))
+            ->setMethods(['getFeedDetails'])
             ->getMock();
         $event->expects($this->once())
             ->method('getFeedDetails')
-            ->will($this->returnValue(array(
-                array(
+            ->will($this->returnValue([
+                [
                     'local_file' => 'path/to/imported/product/file.xml',
                     'timestamp' => '1364823587',
                     'core_feed' => 'core feed model used for the feed',
                     'error_file' => $localFile,
-                )
-            )));
+                ]
+            ]));
 
         $observer = $this->getMockBuilder('Varien_Event_Observer')
             ->disableOriginalConstructor()
-            ->setMethods(array('getEvent'))
+            ->setMethods(['getEvent'])
             ->getMock();
         $observer->expects($this->once())
             ->method('getEvent')
             ->will($this->returnValue($event));
 
-        $cfg = $this->buildCoreConfigRegistry(array(
-            'errorFeed' => array('local_directory' => 'local/error'),
-        ));
-
-        $productHelper = $this->getHelperMockBuilder('eb2ccore/data')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getConfigModel'))
-            ->getMock();
-        $productHelper->expects($this->once())
-            ->method('getConfigModel')
-            ->will($this->returnValue($cfg));
-        $this->replaceByMock('helper', 'eb2ccore', $productHelper);
+        $cfg = $this->buildCoreConfigRegistry([
+            'errorFeed' => ['local_directory' => 'local/error'],
+        ]);
 
         $coreFeed = $this->getModelMockBuilder('ebayenterprise_catalog/feed_core')
             ->disableOriginalConstructor()
-            ->setMethods(array('mvToLocalDirectory'))
+            ->setMethods(['mvToLocalDirectory'])
             ->getMock();
+        $coreFeed->expects($this->once())
+            ->method('mvToLocalDirectory')
+            ->with($this->identicalTo($localFile))
+            ->will($this->returnValue($exportFile));
 
-        $confirmationsModelMock = $this->getModelMockBuilder('ebayenterprise_catalog/error_confirmations')
-            ->disableOriginalConstructor()
-            ->setMethods(array('loadFile', 'close'))
-            ->getMock();
+        $context = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $context->expects($this->once())
+            ->method('getMetaData')
+            ->will($this->returnValue([]));
 
-        $this->replaceByMock('model', 'ebayenterprise_catalog/feed_core', $coreFeed);
-
+        $confirmationsModelMock = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['loadFile', 'close', 'isFileEmpty', 'isValidPayload'], false, [[
+            'core_config' => $cfg,
+            'core_feed' => $coreFeed,
+            'context' => $context,
+        ]]);
         $confirmationsModelMock->expects($this->once())
             ->method('loadFile')
             ->with($this->equalTo($localFile))
@@ -468,10 +453,12 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
         $confirmationsModelMock->expects($this->once())
             ->method('close')
             ->will($this->returnSelf());
-        $coreFeed->expects($this->once())
-            ->method('mvToLocalDirectory')
-            ->with($this->identicalTo($localFile))
-            ->will($this->returnValue($exportFile));
+        $confirmationsModelMock->expects($this->once())
+            ->method('isFileEmpty')
+            ->will($this->returnValue(false));
+        $confirmationsModelMock->expects($this->once())
+            ->method('isValidPayload')
+            ->will($this->returnValue(true));
 
         $this->assertSame($confirmationsModelMock, $confirmationsModelMock->process($observer));
     }
@@ -487,21 +474,21 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     {
         $coreFeed = $this->getModelMockBuilder('ebayenterprise_catalog/feed_core')
             ->disableOriginalConstructor()
-            ->setMethods(array('getEventType'))
+            ->setMethods(['getEventType'])
             ->getMock();
-        $skus = array('58-HTC038', '58-JKT8844');
+        $skus = ['58-HTC038', '58-JKT8844'];
         $type = 'ItemMaster';
         $file = 'local/Feed/ItemMaster/inbox/ItemMaster_Subset-Sample.xml';
         $errorFile = 'local/Feed/ItemMaster/outbound/ItemMaster_20140115063947_ABCD_1234.xml';
         $operationType = 'delete';
-        $fileDetail = array('local_file' => $file, 'core_feed' => $coreFeed, 'error_file' => $errorFile, 'operation_type' => $operationType);
+        $fileDetail = ['local_file' => $file, 'core_feed' => $coreFeed, 'error_file' => $errorFile, 'operation_type' => $operationType];
 
         $coreFeed->expects($this->once())
             ->method('getEventType')
             ->will($this->returnValue($type));
         $eventMock = $this->getMockBuilder('Varien_Event')
             ->disableOriginalConstructor()
-            ->setMethods(array('getFeedDetail', 'getSkus', 'getOperationType'))
+            ->setMethods(['getFeedDetail', 'getSkus', 'getOperationType'])
             ->getMock();
         $eventMock->expects($this->once())
             ->method('getFeedDetail')
@@ -515,7 +502,7 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
 
         $observerMock = $this->getMockBuilder('Varien_Event_Observer')
             ->disableOriginalConstructor()
-            ->setMethods(array('getEvent'))
+            ->setMethods(['getEvent'])
             ->getMock();
         $observerMock->expects($this->once())
             ->method('getEvent')
@@ -523,19 +510,17 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
 
         $productCollection = Mage::getResourceModel('catalog/product_collection');
 
-        $errorConfirmationMock = $this->getModelMockBuilder('ebayenterprise_catalog/error_confirmations')
-            ->setMethods(array('loadFile', '_getProductCollectionBySkus', '_addDeleteErrors'))
-            ->getMock();
+        $errorConfirmationMock = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['loadFile', 'getProductCollectionBySkus', 'addDeleteErrors']);
         $errorConfirmationMock->expects($this->once())
             ->method('loadFile')
             ->with($this->identicalTo($errorFile))
             ->will($this->returnSelf());
         $errorConfirmationMock->expects($this->once())
-            ->method('_getProductCollectionBySkus')
+            ->method('getProductCollectionBySkus')
             ->with($this->identicalTo($skus))
             ->will($this->returnValue($productCollection));
         $errorConfirmationMock->expects($this->once())
-            ->method('_addDeleteErrors')
+            ->method('addDeleteErrors')
             ->with($this->identicalTo($productCollection), $this->identicalTo(basename($file)), $this->identicalTo($type))
             ->will($this->returnSelf());
 
@@ -543,30 +528,27 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     }
 
     /**
-     * Test _addDeleteErrors method for the following expectations
+     * Test addDeleteErrors method for the following expectations
      * Expectation 1: given a mock object of class Mage_Catalog_Model_Resource_Product_Collection, a feed file name
-     *                and an event type to the method EbayEnterprise_Catalog_Model_Error_Confirmations::_addDeleteErrors
+     *                and an event type to the method EbayEnterprise_Catalog_Model_Error_Confirmations::addDeleteErrors
      *                when invoked by this test will check the count on the collection loop through all the product
      *                on the collection call addMessage, addError, AddErrrorConfirmation and flush methods to error confirmation
      *                to the file
      */
     public function testAddDeleteErrors()
     {
-        $skus = array('58-HTC038', '58-JKT8844');
+        $skus = ['58-HTC038', '58-JKT8844'];
         $type = 'ItemMaster';
         $fileName = 'ItemMaster_Subset-Sample.xml';
 
         $productCollection = Mage::getResourceModel('catalog/product_collection');
         foreach ($skus as $sku) {
-            $productCollection->addItem(Mage::getModel('catalog/product')->addData(array('sku' => $sku)));
+            $productCollection->addItem(Mage::getModel('catalog/product')->addData(['sku' => $sku]));
         }
 
-        $errorConfirmationMock = $this->getModelMockBuilder('ebayenterprise_catalog/error_confirmations')
-            ->disableOriginalConstructor()
-            ->setMethods(array('_appendError'))
-            ->getMock();
+        $errorConfirmationMock = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['appendError']);
         $errorConfirmationMock->expects($this->at(0))
-            ->method('_appendError')
+            ->method('appendError')
             ->with(
                 $this->identicalTo(EbayEnterprise_Catalog_Model_Error_Confirmations::SKU_NOT_REMOVE),
                 $this->identicalTo(''),
@@ -576,7 +558,7 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
             )
             ->will($this->returnSelf());
         $errorConfirmationMock->expects($this->at(1))
-            ->method('_appendError')
+            ->method('appendError')
             ->with(
                 $this->identicalTo(EbayEnterprise_Catalog_Model_Error_Confirmations::SKU_NOT_REMOVE),
                 $this->identicalTo(''),
@@ -588,41 +570,38 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
 
         $this->assertSame($errorConfirmationMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
             $errorConfirmationMock,
-            '_addDeleteErrors',
-            array($productCollection, $fileName, $type)
+            'addDeleteErrors',
+            [$productCollection, $fileName, $type]
         ));
     }
 
     /**
-     * Test _addImportErrors method for the following expectations
+     * Test addImportErrors method for the following expectations
      * Expectation 1: given a mock object of class Mage_Catalog_Model_Resource_Product_Collection, a list of imported skus, a feed file name
-     *                and an event type to the method EbayEnterprise_Catalog_Model_Error_Confirmations::_addImportErrors
+     *                and an event type to the method EbayEnterprise_Catalog_Model_Error_Confirmations::addImportErrors
      *                when invoked by this test will loop through all the imported skus and check if the sku is in
      *                the collection if it is not it will add error confirmations
      */
     public function testAddImportErrors()
     {
-        $skus = array('58-HTC038', '58-JKT8844');
+        $skus = ['58-HTC038', '58-JKT8844'];
         $type = 'ItemMaster';
         $fileName = 'ItemMaster_Subset-Sample.xml';
 
         $collectionMock = $this->getResourceModelMockBuilder('catalog/product_collection')
             ->disableOriginalConstructor()
-            ->setMethods(array('getItemByColumnValue'))
+            ->setMethods(['getItemByColumnValue'])
             ->getMock();
         $collectionMock->expects($this->exactly(2))
             ->method('getItemByColumnValue')
-            ->will($this->returnValueMap(array(
-                array('sku', $skus[0], null),
-                array('sku', $skus[1], null)
-            )));
+            ->will($this->returnValueMap([
+                ['sku', $skus[0], null],
+                ['sku', $skus[1], null]
+            ]));
 
-        $errorConfirmationMock = $this->getModelMockBuilder('ebayenterprise_catalog/error_confirmations')
-            ->disableOriginalConstructor()
-            ->setMethods(array('_appendError'))
-            ->getMock();
+        $errorConfirmationMock = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['appendError']);
         $errorConfirmationMock->expects($this->at(0))
-            ->method('_appendError')
+            ->method('appendError')
             ->with(
                 $this->identicalTo(EbayEnterprise_Catalog_Model_Error_Confirmations::SKU_NOT_IMPORTED),
                 $this->identicalTo(''),
@@ -632,7 +611,7 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
             )
             ->will($this->returnSelf());
         $errorConfirmationMock->expects($this->at(1))
-            ->method('_appendError')
+            ->method('appendError')
             ->with(
                 $this->identicalTo(EbayEnterprise_Catalog_Model_Error_Confirmations::SKU_NOT_IMPORTED),
                 $this->identicalTo(''),
@@ -644,15 +623,15 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
 
         $this->assertSame($errorConfirmationMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
             $errorConfirmationMock,
-            '_addImportErrors',
-            array($collectionMock, $skus, $fileName, $type)
+            'addImportErrors',
+            [$collectionMock, $skus, $fileName, $type]
         ));
     }
 
     /**
-     * Test _appendError method for the following expectations
+     * Test appendError method for the following expectations
      * Expectation 1: given a mock object of class Mage_Catalog_Model_Resource_Product_Collection, a list of imported skus, a feed file name
-     *                and an event type to the method EbayEnterprise_Catalog_Model_Error_Confirmations::_appendError
+     *                and an event type to the method EbayEnterprise_Catalog_Model_Error_Confirmations::appendError
      *                when invoked by this test will loop through all the imported skus and check if the sku is in
      *                the collection if it is not it will add error confirmations
      */
@@ -662,10 +641,7 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
         $type = 'ItemMaster';
         $fileName = 'ItemMaster_Subset-Sample.xml';
 
-        $errorConfirmationMock = $this->getModelMockBuilder('ebayenterprise_catalog/error_confirmations')
-            ->disableOriginalConstructor()
-            ->setMethods(array('addMessage', 'addError', 'addErrorConfirmation', 'flush'))
-            ->getMock();
+        $errorConfirmationMock = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['addMessage', 'addError', 'addErrorConfirmation', 'flush']);
         $errorConfirmationMock->expects($this->once())
             ->method('addMessage')
             ->with($this->identicalTo(EbayEnterprise_Catalog_Model_Error_Confirmations::SKU_NOT_IMPORTED), $this->identicalTo(''))
@@ -684,25 +660,25 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
 
         $this->assertSame($errorConfirmationMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
             $errorConfirmationMock,
-            '_appendError',
-            array(EbayEnterprise_Catalog_Model_Error_Confirmations::SKU_NOT_IMPORTED, '', $type, $fileName, $sku)
+            'appendError',
+            [EbayEnterprise_Catalog_Model_Error_Confirmations::SKU_NOT_IMPORTED, '', $type, $fileName, $sku]
         ));
     }
 
     /**
-     * Test _getProductCollectionBySkus method for the following expectations
-     * Expectation 1: the method EbayEnterprise_Catalog_Model_Feed_File::_getProductCollectionBySkus when
+     * Test getProductCollectionBySkus method for the following expectations
+     * Expectation 1: the method EbayEnterprise_Catalog_Model_Feed_File::getProductCollectionBySkus when
      *                invoked by this test will be given an array of skus as parameter
      *                with that parameter it will query the Mage_Catalog_Model_Resource_Product_Collection by skus
      *                and return a collection of product
      */
     public function testGetProductCollectionBySkus()
     {
-        $skus = array('58-HTC038', '58-JKT8844');
+        $skus = ['58-HTC038', '58-JKT8844'];
 
         $collectionMock = $this->getResourceModelMockBuilder('catalog/product_collection')
             ->disableOriginalConstructor()
-            ->setMethods(array('addFieldToFilter', 'addAttributeToSelect', 'load'))
+            ->setMethods(['addFieldToFilter', 'addAttributeToSelect', 'load'])
             ->getMock();
         $collectionMock->expects($this->once())
             ->method('addFieldToFilter')
@@ -710,22 +686,19 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
             ->will($this->returnSelf());
         $collectionMock->expects($this->once())
             ->method('addAttributeToSelect')
-            ->with($this->identicalTo(array('sku')))
+            ->with($this->identicalTo(['sku']))
             ->will($this->returnSelf());
         $collectionMock->expects($this->once())
             ->method('load')
             ->will($this->returnSelf());
         $this->replaceByMock('resource_model', 'catalog/product_collection', $collectionMock);
 
-        $errorConfirmationMock = $this->getModelMockBuilder('ebayenterprise_catalog/error_confirmations')
-            ->disableOriginalConstructor()
-            ->setMethods(null)
-            ->getMock();
+        $errorConfirmationMock = Mage::getModel('ebayenterprise_catalog/error_confirmations');
 
         $this->assertSame($collectionMock, EcomDev_Utils_Reflection::invokeRestrictedMethod(
             $errorConfirmationMock,
-            '_getProductCollectionBySkus',
-            array($skus)
+            'getProductCollectionBySkus',
+            [$skus]
         ));
     }
 }

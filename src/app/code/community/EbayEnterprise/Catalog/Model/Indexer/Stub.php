@@ -61,11 +61,14 @@ class EbayEnterprise_Catalog_Model_Indexer_Stub extends Mage_Index_Model_Indexer
     }
 
     /**
+     * @see Mage_Index_Model_Indexer::processEntityAction()
      * Stub the processEntityAction method from Mage_Index_Model_Indexer
      * to prevent any lockage.
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function processEntityAction(Varien_Object $entity, $entityType, $eventType)
     {
         $this->_logger->debug("Stubbed Indexer Skipping Reindex of $entityType, $eventType", $this->_context->getMetaData(__CLASS__));
+        return $this;
     }
 }

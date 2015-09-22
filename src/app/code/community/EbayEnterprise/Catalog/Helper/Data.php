@@ -670,10 +670,10 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * Save an EAV collection, disabling the indexer if the collection is
      * larger than a configured size.
      *
-     * @param Mage_Eav_Model_Entity_Collection_Abstract
+     * @param Varien_Data_Collection_Db
      * @return self
      */
-    public function saveEavCollectionStubIndexer(Mage_Eav_Model_Entity_Collection_Abstract $collection)
+    public function saveEavCollectionStubIndexer(Varien_Data_Collection_Db $collection)
     {
         return $this->saveCollectionStubIndexer($collection);
     }
@@ -682,10 +682,10 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * Save a resource collection, disabling the indexer if the collection is
      * larger than a configured size.
      *
-     * @param Mage_Core_Model_Resource_Db_Collection_Abstract
+     * @param Varien_Data_Collection_Db
      * @return self
      */
-    public function saveResourceCollectionStubIndexer(Mage_Core_Model_Resource_Db_Collection_Abstract $collection)
+    public function saveResourceCollectionStubIndexer(Varien_Data_Collection_Db $collection)
     {
         return $this->saveCollectionStubIndexer($collection);
     }

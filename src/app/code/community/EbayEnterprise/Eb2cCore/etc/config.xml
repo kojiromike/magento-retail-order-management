@@ -277,6 +277,7 @@ http://opensource.org/licenses/osl-3.0.php
                         -->
                         <sent_directory>ExchangePlatform/Feed/archive/export/error</sent_directory>
                         <filename_format>{client_id}_{catalog_id}_{store_id}_errorconfirmation_{feed_type}_{time_stamp}.xml</filename_format>
+                        <xsd>ErrorConfirmationV11.xsd</xsd>
                     </error_confirmations>
                     <!--
                     This outbox can be used for any other files that need to be exported.

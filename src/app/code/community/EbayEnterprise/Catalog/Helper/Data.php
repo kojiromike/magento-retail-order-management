@@ -670,36 +670,10 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * Save an EAV collection, disabling the indexer if the collection is
      * larger than a configured size.
      *
-     * @param Varien_Data_Collection_Db
+     * @param Mage_Eav_Model_Entity_Collection_Abstract
      * @return self
      */
-    public function saveEavCollectionStubIndexer(Varien_Data_Collection_Db $collection)
-    {
-        return $this->saveCollectionStubIndexer($collection);
-    }
-
-    /**
-     * Save a resource collection, disabling the indexer if the collection is
-     * larger than a configured size.
-     *
-     * @param Varien_Data_Collection_Db
-     * @return self
-     */
-    public function saveResourceCollectionStubIndexer(Varien_Data_Collection_Db $collection)
-    {
-        return $this->saveCollectionStubIndexer($collection);
-    }
-
-    /**
-     * Magento uses divergent types for collections, so in order to allow for the possibility
-     * of type hinting, the logic here is put in a protected method and called from public
-     * methods that type hint one of the two possible correct types. The developer will have
-     * to name the most appropriate public method.
-     *
-     * @param mixed
-     * @return self
-     */
-    protected function saveCollectionStubIndexer($collection)
+    public function saveCollectionStubIndexer(Mage_Eav_Model_Entity_Collection_Abstract $collection)
     {
         $config = $this->getConfigModel();
         $stubIndexer = $config->maxPartialReindexSkus < $collection->getSize();
@@ -708,7 +682,28 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
             $indexerKey = '_singleton/index/indexer';
             $oldIndexer = $this->reregister($indexerKey, $this->_indexerStub);
         }
-        $collection->save();
+        $failureCount = 0;
+        $logData = ['product_count' => $collection->getSize()];
+        $logMessage = 'Saving {product_count} products with stubbed indexer.';
+        $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+        $failMessage = 'Failed to save product with sku {sku}.';
+        foreach ($collection as $item) {
+            try {
+                $item->getResource()->save($item);
+            } catch (Exception $e) {
+                $failureCount++;
+                $failLogData = [
+                    'sku' => $item->getSku(),
+                    'exception' => $e,
+                ];
+                $this->_logger
+                    ->logException($e, $this->_context->getMetaData(__CLASS__, $failLogData))
+                    ->error($failMessage, $this->_context->getMetaData(__CLASS__, $failLogData));
+            }
+        }
+        $logMessage = 'Finished saving {product_count} products with {failure_count} failures.';
+        $logData['failure_count'] = $failureCount;
+        $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
         if ($stubIndexer) {
             $this->reregister($indexerKey, $oldIndexer);
         }

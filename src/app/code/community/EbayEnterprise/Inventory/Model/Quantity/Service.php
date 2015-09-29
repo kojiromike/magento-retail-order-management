@@ -36,6 +36,10 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
     protected $_quantityHelper;
     /** @var EbayEnterprise_Eb2cCore_Model_Config_Registry */
     protected $_config;
+    /** @var EbayEnterprise_MageLog_Helper_Data */
+    protected $_logger;
+    /** @var EbayEnterprise_MageLog_Helper_Context */
+    protected $_logContext;
 
     /**
      * $param array $args May contain:
@@ -51,16 +55,18 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
             $this->_inventoryItemSelection,
             $this->_inventoryHelper,
             $this->_quantityHelper,
-            $this->_config
+            $this->_config,
+            $this->_logger,
+            $this->_logContext
         ) = $this->_checkTypes(
             $this->_nullCoalesce($args, 'quantity_collector', Mage::getModel('ebayenterprise_inventory/quantity_collector')),
             $this->_nullCoalesce($args, 'inventory_item_selection', Mage::helper('ebayenterprise_inventory/item_selection')),
             $this->_nullCoalesce($args, 'inventory_helper', Mage::helper('ebayenterprise_inventory')),
             $this->_nullCoalesce($args, 'quantity_helper', Mage::helper('ebayenterprise_inventory/quantity')),
-            $this->_nullCoalesce($args, 'config', Mage::helper('ebayenterprise_inventory')->getConfigModel())
+            $this->_nullCoalesce($args, 'config', Mage::helper('ebayenterprise_inventory')->getConfigModel()),
+            $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
+            $this->_nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
         );
-        $this->_logger = Mage::helper('ebayenterprise_magelog');
-        $this->_logContext = Mage::helper('ebayenterprise_magelog/context');
     }
 
     /**
@@ -71,6 +77,8 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
      * @param EbayEnterprise_Inventory_Helper_Data
      * @param EbayEnterprise_Inventory_Helper_Quantity
      * @param EbayEnterprise_Eb2cCore_Model_Config_Registry
+     * @param EbayEnterprise_MageLog_Helper_Data
+     * @param EbayEnterprise_MageLog_Helper_Context
      * @return array
      */
     protected function _checkTypes(
@@ -78,7 +86,9 @@ class EbayEnterprise_Inventory_Model_Quantity_Service implements EbayEnterprise_
         EbayEnterprise_Inventory_Helper_Item_Selection $inventoryItemSelection,
         EbayEnterprise_Inventory_Helper_Data $inventoryHelper,
         EbayEnterprise_Inventory_Helper_Quantity $quantityHelper,
-        EbayEnterprise_Eb2cCore_Model_Config_Registry $config
+        EbayEnterprise_Eb2cCore_Model_Config_Registry $config,
+        EbayEnterprise_MageLog_Helper_Data $logger,
+        EbayEnterprise_MageLog_Helper_Context $logContext
     ) {
         return func_get_args();
     }

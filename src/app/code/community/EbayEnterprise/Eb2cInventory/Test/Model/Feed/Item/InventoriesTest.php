@@ -159,7 +159,7 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest extends 
     {
         $id = 23;
         $qty = 42;
-        $stockItem = $this->getModelMock('cataloginventory/stock_item', array('loadByProduct', 'setQty', 'setIsInStock', 'save'));
+        $stockItem = $this->getModelMock('cataloginventory/stock_item', ['loadByProduct', 'setQty', 'getQty', 'setIsInStock', 'save', 'getManageStock']);
         $stockItem
             ->expects($this->once())
             ->method('loadByProduct')
@@ -167,35 +167,43 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest extends 
             ->will($this->returnSelf());
         $stockItem
             ->expects($this->once())
+            ->method('getManageStock')
+            ->will($this->returnValue(true));
+        $stockItem
+            ->expects($this->never())
             ->method('setQty')
             ->with($this->identicalTo($qty))
             ->will($this->returnSelf());
         $stockItem
             ->expects($this->once())
+            ->method('getQty')
+            ->will($this->returnValue($qty));
+        $stockItem
+            ->expects($this->once())
             ->method('save')
             ->will($this->returnSelf());
         $this->replaceByMock('model', 'cataloginventory/stock_item', $stockItem);
-        $fii = $this->getModelMock('eb2cinventory/feed_item_inventories', array('_updateItemIsInStock'));
+        $fii = $this->getModelMock('eb2cinventory/feed_item_inventories', ['_updateItemIsInStock']);
         $fii
             ->expects($this->once())
             ->method('_updateItemIsInStock')
             ->with($this->identicalTo($stockItem), $this->identicalTo($qty))
             ->will($this->returnSelf());
-        EcomDev_Utils_Reflection::invokeRestrictedMethod($fii, '_setProdQty', array($id, $qty)); // Just verify the right inner methods are called.
+        EcomDev_Utils_Reflection::invokeRestrictedMethod($fii, '_setProdQty', [$id, $qty]); // Just verify the right inner methods are called.
     }
     /**
      * Data provider for testUpdateItemIsInStock, gives quantities where update is greater than,
-     * less than and equal to the min qty to be instock. Also provides whether such quantities
-     * shoudl result in a product that is in or out of stock
+     * less than and equal to the min qty to be in-stock. Also provides whether such quantities
+     * should result in a product that is in or out of stock
      * @return array Arrays of arguments to be passed to testUpdateItemIsInStock
      */
     public function providerTestUpdateItemIsInStock()
     {
-        return array(
-            array(5, 10, 1),
-            array(0, 0, 0),
-            array(10, 5, 0)
-        );
+        return [
+            [5, 10, true, true],
+            [0, 0, false, false],
+            [10, 5, false, false],
+        ];
     }
     /**
      * When the update quantity is greater than the min quantity to be considered in stock,
@@ -203,30 +211,35 @@ class EbayEnterprise_Eb2cInventory_Test_Model_Feed_Item_InventoriesTest extends 
      * @param  int $minQty    Min qty to be in stock
      * @param  int $updateQty Qty item is being updated to
      * @param  int $isInStock Should be considered in stock
+     * @param  bool
      * @mock Mage_CatalogInventory_Model_Stock_Item::getMinQty return the expected min qty to be in stock
      * @mock Mage_CatalogInventory_Model_Stock_Item::setIsInStock ensure stock item properly set as in or out of stock
      * @mock EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories mocked to disable constructor, preventing unwanted side-effects & coverage
      * @dataProvider providerTestUpdateItemIsInStock
      */
-    public function testUpdateItemIsInStock($minQty, $updateQty, $isInStock)
+    public function testUpdateItemIsInStock($minQty, $updateQty, $isInStock, $result)
     {
         $stockItem = $this->getModelMock(
             'cataloginventory/stock_item',
-            array('getMinQty', 'setIsInStock')
+            array('getMinQty', 'setIsInStock', 'getIsInStock')
         );
         $stockItem
             ->expects($this->any())
             ->method('getMinQty')
             ->will($this->returnValue($minQty));
         $stockItem
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('setIsInStock')
             ->with($this->identicalTo($isInStock))
             ->will($this->returnSelf());
+        $stockItem
+            ->expects($this->once())
+            ->method('getIsInStock')
+            ->will($this->returnValue(false));
         $fii = $this->getModelMockBuilder('eb2cinventory/feed_item_inventories')
             ->setMethods(null)
             ->getMock();
-        $this->assertSame($fii, EcomDev_Utils_Reflection::invokeRestrictedMethod($fii, '_updateItemIsInStock', array($stockItem, $updateQty)));
+        $this->assertSame($result, EcomDev_Utils_Reflection::invokeRestrictedMethod($fii, '_updateItemIsInStock', [$stockItem, $updateQty]));
     }
     /**
      */

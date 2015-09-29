@@ -27,6 +27,8 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
     protected $_inventoryItemSelection;
     /** @var Mage_Catalog_Model_Product */
     protected $_product;
+    /** @var EbayEnterprise_MageLog_Helper_Context */
+    protected $_context;
 
     public function setUp()
     {
@@ -81,6 +83,12 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
             ['calculateTotalQuantityRequested']
         );
 
+        /** @var EbayEnterprise_MageLog_Helper_Context */
+        $this->_context = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $this->_context->expects($this->any())
+            ->method('getMetaData')
+            ->will($this->returnValue([]));
+
         // Instance of the model being tested, injected
         // with the mocked dependencies.
         $this->_quantityService = Mage::getModel(
@@ -90,6 +98,7 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
                 'inventory_item_selection' => $this->_inventoryItemSelection,
                 'inventory_helper' => $this->_inventoryHelper,
                 'quantity_helper' => $this->_quantityHelper,
+                'log_context' => $this->_context,
             ]
         );
         $this->_product = Mage::getModel('catalog/product', ['stock_item' => Mage::getModel('catalogInventory/stock_item', [

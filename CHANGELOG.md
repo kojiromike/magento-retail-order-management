@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-40] - 2015-09-29
+### Fixed
+- PHP short tags not being interpreted causes JS error in checkout
+
 ## [1.6.0-beta-39] - 2015-09-28
 ### Added
 - Support for hidden gifts

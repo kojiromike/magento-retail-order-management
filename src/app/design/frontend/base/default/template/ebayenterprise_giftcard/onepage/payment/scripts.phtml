@@ -13,15 +13,17 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 ?>
-<?
+
+<?php
 /**
  * This script occurs in the context of checkout.onepage.payment.methods.scripts
  * Thus, it's already in <script> tags.
  *
  * @var $this EbayEnterprise_GiftCard_Block_Checkout_Onepage_Payment_Additional
  */
+?>
 
-// Deliberate global ?>
+// Deliberate global
 quoteBaseGrandTotal = <?php echo (float) $this->getBaseGrandTotal(); ?>;
 (function (epsilon, isGiftCardApplied) {
     function enablePaymentMethods(free) {

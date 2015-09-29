@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-37] - 2015-09-28
+### Fixed
+- Avoid Model Encumbrances when Saving
+- Dispatch Event when Feed Processing Complete
+
 ## [1.6.0-beta-36] - 2015-09-22
 ### Fixed
 - Don't Send Empty Error Confirmation Feed to ROM
@@ -477,6 +482,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-37]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-36...1.6.0-beta-37
 [1.6.0-beta-36]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-35...1.6.0-beta-36
 [1.6.0-beta-35]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-34...1.6.0-beta-35
 [1.6.0-beta-34]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-33...1.6.0-beta-34

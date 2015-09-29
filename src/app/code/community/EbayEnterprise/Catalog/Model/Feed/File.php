@@ -128,16 +128,20 @@ class EbayEnterprise_Catalog_Model_Feed_File
             $skusToReport = array_unique(array_merge($skusToReport, $this->_importedSkus));
         }
 
+        $details = [
+            'feed_detail'    => $this->_feedDetails,
+            'skus'           => $skusToReport,
+            'operation_type' => 'import'
+        ];
+
         if (count($skusToReport) && $cfgData['feed_type'] === 'product') {
             Mage::dispatchEvent(
                 'product_feed_process_operation_type_error_confirmation',
-                array(
-                    'feed_detail'    => $this->_feedDetails,
-                    'skus'           => $skusToReport,
-                    'operation_type' => 'import'
-                )
+                $details
             );
         }
+        Mage::dispatchEvent('ebayenterprise_product_feed_process_complete', $details);
+
         return $this;
     }
     /**

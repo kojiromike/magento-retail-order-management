@@ -53,7 +53,7 @@ class EbayEnterprise_CreditCard_Model_Order_Create_Payment
                 ->setPhoneResponseCode($additionalInfo->getPhoneResponseCode())
                 ->setNameResponseCode($additionalInfo->getNameResponseCode())
                 ->setEmailResponseCode($additionalInfo->getEmailResponseCode())
-                ->setAmountAuthorized($additionalInfo->getAmountAuthorized())
+                ->setAmountAuthorized($payment->getAmountAuthorized())
                 ->setExpirationDate($this->_getExpirationDateTime($payment))
                 // extra fields for future implementation
                 ->setExtendedAuthDescription($additionalInfo->getExtendedAuthDescription())

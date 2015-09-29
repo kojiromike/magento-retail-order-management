@@ -329,7 +329,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
             $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
             // keep track of skus we've processed for the website
             $this->_importedSkus = array_unique(array_merge($this->_importedSkus, $skusToUpdate));
-            $this->_helper->saveEavCollectionStubIndexer($collection);
+            $this->_helper->saveCollectionStubIndexer($collection);
         }
         return $this;
     }

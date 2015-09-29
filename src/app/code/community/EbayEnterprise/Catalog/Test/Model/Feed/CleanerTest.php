@@ -356,9 +356,9 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
             ->with($this->isInstanceOf('Mage_Catalog_Model_Product'))
             ->will($this->returnSelf());
 
-        $helper = $this->getHelperMock('ebayenterprise_catalog/data', ['saveEavCollectionStubIndexer']);
+        $helper = $this->getHelperMock('ebayenterprise_catalog/data', ['saveCollectionStubIndexer']);
         $helper->expects($this->once())
-            ->method('saveEavCollectionStubIndexer')
+            ->method('saveCollectionStubIndexer')
             ->will($this->returnSelf());
         EcomDev_Utils_Reflection::setRestrictedPropertyValue($feedCleanerModelProductMock, '_helper', $helper);
 

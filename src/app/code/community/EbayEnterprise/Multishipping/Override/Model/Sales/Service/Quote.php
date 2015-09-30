@@ -205,7 +205,9 @@ class EbayEnterprise_Multishipping_Override_Model_Sales_Service_Quote extends Ma
     ) {
         foreach ($quoteItems as $quoteAddressItem) {
             $orderItem = $this->_convertor->itemToOrderItem($quoteAddressItem)
-                ->setOrderAddress($orderAddress)
+                // Always associate virtual items with the billing address, no matter what
+                // order/quote address it was associated with.
+                ->setOrderAddress($quoteAddressItem->getIsVirtual() ? $order->getBillingAddress() : $orderAddress)
                 ->setProductType($this->_getItemProductType($quoteAddressItem));
             $order->addItem($orderItem);
         }

@@ -83,8 +83,6 @@ class EbayEnterprise_Order_Model_Create_Orderitem
     ) {
         $merch = $payload->getMerchandisePricing();
         $this->prepareMerchandisePricing($item, $merch);
-        $mageShippingMethod = $address->getShippingMethod();
-        $romShippingMethod = $this->shippingHelper->getMethodSdkId($mageShippingMethod);
         if ($includeShipping) {
             $this->prepareShippingPriceGroup($address, $payload);
         }
@@ -101,8 +99,8 @@ class EbayEnterprise_Order_Model_Create_Orderitem
             ->setSize($itemSize)
             ->setSizeId($itemSizeId)
             ->setDepartment($item->getProduct()->getDepartment())
-            ->setShippingMethod($romShippingMethod)
-            ->setShippingMethodDisplayText($address->getShippingDescription())
+            ->setShippingMethod($this->getItemShippingMethod($item, $address))
+            ->setShippingMethodDisplayText($this->getItemShippingDescription($item, $address))
             ->setVendorId($item->getProduct()->getDropShipSupplierNumber())
             ->setVendorName($item->getProduct()->getDropShipSupplierName())
             // this is set here as a default; it is expected that the ISPU/STS module
@@ -219,5 +217,39 @@ class EbayEnterprise_Order_Model_Create_Orderitem
     protected function getItemSizeInfo(Mage_Sales_Model_Order_Item $item)
     {
         return $this->getOptionInfo('size', $item);
+    }
+
+    /**
+     * Get the shipping method id to use for an item. Takes into account if the
+     * item is a physical or virtual item.
+     *
+     * @param Mage_Sales_Model_Order_Item
+     * @param Mage_Sales_Model_Order_Address
+     * @return string
+     */
+    protected function getItemShippingMethod(
+        Mage_Sales_Model_Order_Item $item,
+        Mage_Sales_Model_Order_Address $address
+    ) {
+        return $item->getIsVirtual()
+            ? $this->shippingHelper->getVirtualMethodSdkId()
+            : $this->shippingHelper->getMethodSdkId($address->getShippingMethod());
+    }
+
+    /**
+     * Get the shipping description to use for an item. Takes into account if
+     * the item is a physical or virtual item.
+     *
+     * @param Mage_Sales_Model_Order_Item
+     * @param Mage_Sales_Model_Order_Address
+     * @return string
+     */
+    protected function getItemShippingDescription(
+        Mage_Sales_Model_Order_Item $item,
+        Mage_Sales_Model_Order_Address $address
+    ) {
+        return $item->getIsVirtual()
+            ? $this->shippingHelper->getVirtualMethodDescription()
+            : $address->getShippingDescription();
     }
 }

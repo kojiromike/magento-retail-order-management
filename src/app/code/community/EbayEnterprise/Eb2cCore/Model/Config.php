@@ -66,5 +66,7 @@ class EbayEnterprise_Eb2cCore_Model_Config extends EbayEnterprise_Eb2cCore_Model
         'store_id'                       => 'eb2ccore/general/store_id',
         'to_street_date_range'           => 'eb2ccore/service/inventory/to_street_date_range',
         'shipping_method_map'            => 'eb2ccore/shipmap',
+        'virtual_shipping_method_id'     => 'eb2ccore/shipping/virtual_shipping_method_id',
+        'virtual_shipping_method_description' => 'eb2ccore/shipping/virtual_shipping_method_description',
     ];
 }

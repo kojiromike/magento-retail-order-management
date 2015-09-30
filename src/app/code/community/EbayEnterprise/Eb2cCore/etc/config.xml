@@ -325,6 +325,10 @@ http://opensource.org/licenses/osl-3.0.php
                     <to_street_date_range>3</to_street_date_range>
                 </inventory>
             </service>
+            <shipping>
+                <virtual_shipping_method_id>ANY_EMAIL</virtual_shipping_method_id>
+                <virtual_shipping_method_description>E-mail Delivery</virtual_shipping_method_description>
+            </shipping>
         </eb2ccore>
         <filetransfer>
             <registry>

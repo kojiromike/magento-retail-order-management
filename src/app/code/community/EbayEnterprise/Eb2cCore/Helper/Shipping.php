@@ -96,6 +96,26 @@ class EbayEnterprise_Eb2cCore_Helper_Shipping
     }
 
     /**
+     * Get the code of the shipping method to use for virtual items.
+     *
+     * @return string
+     */
+    public function getVirtualMethodSdkId()
+    {
+        return $this->config->virtualShippingMethodId;
+    }
+
+    /**
+     * Get the description of the shipping method to use for virtual items.
+     *
+     * @return string
+     */
+    public function getVirtualMethodDescription()
+    {
+        return $this->config->virtualShippingMethodDescription;
+    }
+
+    /**
      * get a display string of the given shipping method
      * return null if $shippingMethod evaluates to false
      *

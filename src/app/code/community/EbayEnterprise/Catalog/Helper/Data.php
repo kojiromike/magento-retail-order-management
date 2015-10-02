@@ -688,13 +688,9 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
         $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
         $failMessage = 'Failed to save product with sku {sku}.';
         foreach ($collection as $item) {
-            $resource = $item->getResource();
             try {
-                $resource->beginTransaction();
-                $resource->save($item);
-                $resource->commit();
+                $item->save();
             } catch (Exception $e) {
-                $resource->rollBack();
                 $failureCount++;
                 $failLogData = [
                     'sku' => $item->getSku(),

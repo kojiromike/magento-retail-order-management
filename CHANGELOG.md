@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-43] - 2015-10-02
+### Fixed
+- Address validation suggestions missing in gift registry
+
 ## [1.6.0-beta-42] - 2015-10-01
 ### Fixed
 - Trigger model before and after save while saving large collections with index stubbing
@@ -502,6 +506,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-43]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-42...1.6.0-beta-43
 [1.6.0-beta-42]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-41...1.6.0-beta-42
 [1.6.0-beta-41]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-40...1.6.0-beta-41
 [1.6.0-beta-40]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-39...1.6.0-beta-40

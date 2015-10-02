@@ -144,6 +144,6 @@ class EbayEnterprise_Order_Overrides_Block_Order_Items extends EbayEnterprise_Or
     public function getOrderTotal()
     {
         $order = $this->getOrder();
-        return $order->getSubtotal() + $order->getShippingAmount() + $order->getDiscountAmount() + $order->getTaxAmount();
+        return ($order->getSubtotal() + $order->getShippingAmount() + $order->getTaxAmount()) - $order->getDiscountAmount();
     }
 }

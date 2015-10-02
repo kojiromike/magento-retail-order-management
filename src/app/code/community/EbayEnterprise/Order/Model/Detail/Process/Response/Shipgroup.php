@@ -215,6 +215,6 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Shipgroup extends Varie
      */
     public function getOrderTotal()
     {
-        return $this->getSubtotal() + $this->getShippingAmount() + $this->getDiscountAmount() + $this->getTaxAmount();
+        return ($this->getSubtotal() + $this->getShippingAmount() + $this->getTaxAmount()) - $this->getDiscountAmount();
     }
 }

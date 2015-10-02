@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.0-beta-44] - 2015-10-02
+### Changed
+- Implement Fulfilling Virtual Gift Cards
+
 ## [1.6.0-beta-43] - 2015-10-02
 ### Fixed
 - Address validation suggestions missing in gift registry
@@ -506,6 +510,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.0-beta-44]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-43...1.6.0-beta-44
 [1.6.0-beta-43]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-42...1.6.0-beta-43
 [1.6.0-beta-42]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-41...1.6.0-beta-42
 [1.6.0-beta-41]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-40...1.6.0-beta-41

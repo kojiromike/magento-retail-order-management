@@ -106,7 +106,47 @@ class EbayEnterprise_Order_Model_Create_Orderitem
             // this is set here as a default; it is expected that the ISPU/STS module
             // will update this value through the order item event
             ->setFulfillmentChannel($payload::FULFILLMENT_CHANNEL_SHIP_TO_HOME);
+        return $this->addGiftCardDataToPayload($payload, $item);
+    }
+
+    /**
+     * Supply gift card fields
+     *
+     * @param IOrderItem
+     * @param Mage_Sales_Model_Order_Item
+     * @return $payload
+     */
+    protected function addGiftCardDataToPayload(IOrderItem $payload, Mage_Sales_Model_Order_Item $item)
+    {
+        if ($item->getProductType() === 'giftcard') {
+            // Gift card fields are XML escaped by the SDK, so they do not need
+            // to be escaped here.
+            $buyRequest = $item->getBuyRequest();
+            $from = $this->formatGiftCardName($buyRequest->getGiftcardSenderName(), $buyRequest->getGiftcardSenderEmail());
+            $to = $this->formatGiftCardName($buyRequest->getGiftcardRecipientName(), $buyRequest->getGiftcardRecipientEmail());
+            $message = $buyRequest->getGiftcardMessage();
+            $payload
+                ->setGiftCardFrom($from)
+                ->setGiftCardTo($to)
+                ->setGiftCardMessage($message);
+        }
         return $payload;
+    }
+
+    /**
+     * Format the sender/receiver name and possibly email address.
+     *
+     * Email address may not be provided in the case of physical or combined
+     * gift cards. Formatting needs to handle cases where there is no email.
+     *
+     * @param string
+     * @param string|null
+     * @return string
+     */
+    protected function formatGiftCardName($name, $email = null)
+    {
+        $format = $email ? '"%s" <%s>' : '"%s"';
+        return sprintf($format, $name, $email);
     }
 
     /**

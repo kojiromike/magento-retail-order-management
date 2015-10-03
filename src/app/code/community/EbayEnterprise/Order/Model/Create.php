@@ -598,12 +598,18 @@ class EbayEnterprise_Order_Model_Create
         // non-flat-rate shipping.
         $includeShipping = true;
         foreach ($items as $item) {
+            $this->_nextLineNumber++;
+
+            // Set line number for the item on the item object, only guaranteed
+            // link between a specific Magento order item and ROM item payload.
+            $item->setLineNumber($this->_nextLineNumber);
+
             $itemPayload = $orderItems->getEmptyOrderItem();
             $this->_defaultItemHandler->buildOrderItem(
                 $itemPayload,
                 $item,
                 $address,
-                $this->_nextLineNumber += 1,
+                $this->_nextLineNumber,
                 $includeShipping
             );
             Mage::dispatchEvent($this->_orderItemEvent, [

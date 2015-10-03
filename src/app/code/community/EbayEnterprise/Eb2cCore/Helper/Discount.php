@@ -90,7 +90,7 @@ class EbayEnterprise_Eb2cCore_Helper_Discount
     protected function _fillOutDiscount(IDiscount $discountPayload, array $discountData)
     {
         return $discountPayload
-            ->setAmount($this->_nullCoalesce($discountData, 'amount', null))
+            ->setAmount($this->_nullCoalesce($discountData, 'amount', 0.00))
             ->setAppliedCount($this->_nullCoalesce($discountData, 'applied_count', null))
             ->setCode($this->_nullCoalesce($discountData, 'code', null))
             ->setDescription($this->_nullCoalesce($discountData, 'description', null))

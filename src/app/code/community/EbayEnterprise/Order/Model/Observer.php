@@ -36,6 +36,8 @@ class EbayEnterprise_Order_Model_Observer
     protected $orderCfg;
     /** @var EbayEnterprise_Eb2cCore_Helper_Data */
     protected $coreHelper;
+    /** @var EbayEnterprise_Order_Helper_Giftcard */
+    protected $giftCardHelper;
 
     /**
      * Initialize properties
@@ -49,6 +51,7 @@ class EbayEnterprise_Order_Model_Observer
             $this->orderCfg,
             $this->orderEventHelper,
             $this->shipmentEventHelper,
+            $this->giftCardHelper,
             $this->coreHelper,
             $this->logContext
         ) = $this->checkTypes(
@@ -58,6 +61,7 @@ class EbayEnterprise_Order_Model_Observer
             $this->nullCoalesce('config', $args, Mage::helper('ebayenterprise_order')->getConfigModel()),
             $this->nullCoalesce('event_helper', $args, Mage::helper('ebayenterprise_order/event')),
             $this->nullCoalesce('shipment_event_helper', $args, Mage::helper('ebayenterprise_order/event_shipment')),
+            $this->nullCoalesce('giftcard_helper', $args, Mage::helper('ebayenterprise_order/giftcard')),
             $this->nullCoalesce('core_helper', $args, Mage::helper('eb2ccore')),
             $this->nullCoalesce('log_context', $args, Mage::helper('ebayenterprise_magelog/context'))
         );
@@ -71,6 +75,7 @@ class EbayEnterprise_Order_Model_Observer
      * @param EbayEnterprise_Eb2cCore_Model_Config_Registry
      * @param EbayEnterprise_Order_Helper_Event
      * @param EbayEnterprise_Order_Helper_Event_Shipment
+     * @param EbayEnterprise_Order_Helper_Giftcard
      * @param EbayEnterprise_Eb2cCore_Helper_Data
      * @param EbayEnterprise_MageLog_Helper_Context
      * @return array
@@ -82,6 +87,7 @@ class EbayEnterprise_Order_Model_Observer
         EbayEnterprise_Eb2cCore_Model_Config_Registry $orderCfg,
         EbayEnterprise_Order_Helper_Event $orderEventHelper,
         EbayEnterprise_Order_Helper_Event_Shipment $shipmentEventHelper,
+        EbayEnterprise_Order_Helper_Giftcard $giftCardHelper,
         EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
         EbayEnterprise_MageLog_Helper_Context $logContext
     ) {
@@ -322,5 +328,17 @@ class EbayEnterprise_Order_Model_Observer
         $event = $observer->getEvent();
         $this->factory->getNewRelationshipsModel($event->getItem(), $event->getItemPayload())
             ->injectItemRelationship();
+    }
+
+    /**
+     * Correct the shipping destinations for any virtual gift cards in the order.
+     *
+     * @param Varien_Event_Observer
+     * @return null
+     */
+    public function handleEbayEnterpriseOrderCreateBeforeAttach(Varien_Event_Observer $observer)
+    {
+        $event = $observer->getEvent();
+        $this->giftCardHelper->fixOrderCreateVirtualGiftCards($event->getOrder(), $event->getPayload());
     }
 }

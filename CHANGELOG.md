@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.6.0-beta-45] - 2015-10-03
+## [1.6.0] - 2015-10-03
 ### Changed
 - Virtual Gift Cards use gift card recipient data for fulfillment
 
@@ -517,7 +517,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
-[1.6.0-beta-45]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-44...1.6.0-beta-45
+[1.6.0]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-44...1.6.0
 [1.6.0-beta-44]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-43...1.6.0-beta-44
 [1.6.0-beta-43]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-42...1.6.0-beta-43
 [1.6.0-beta-42]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-41...1.6.0-beta-42

@@ -42,7 +42,7 @@ class EbayEnterprise_PayPal_Model_Void
     {
         if ($this->_canVoid($order)) {
             try {
-                $this->_getVoidApi()->doVoid($order);
+                $this->_getVoidApi()->doVoidOrder($order);
             } catch (EbayEnterprise_PayPal_Exception $e) {
                 $logMessage = 'Void request failed. See exception log for details.';
                 $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));

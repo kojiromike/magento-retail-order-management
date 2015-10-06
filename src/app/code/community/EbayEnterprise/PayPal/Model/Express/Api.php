@@ -139,10 +139,8 @@ class EbayEnterprise_Paypal_Model_Express_Api
         $this->addLineItems($quote, $payload);
         Mage::dispatchEvent('ebayenterprise_paypal_set_express_checkout_before_send', ['payload' => $payload, 'quote' => $quote]);
         $sdk->setRequestBody($payload);
-        $this->logApiCall('set express', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
         Mage::dispatchEvent('ebayenterprise_paypal_set_express_checkout_after_send', ['payload' => $reply, 'quote' => $quote]);
-        $this->logApiCall('set express', $reply->serialize(), 'response');
         if (!$reply->isSuccess() || is_null($reply->getToken())) {
             // Only set and do express have the error message in the reply.
             $logMessage =
@@ -159,24 +157,6 @@ class EbayEnterprise_Paypal_Model_Express_Api
             'method' => EbayEnterprise_PayPal_Model_Method_Express::CODE,
             'token'  => $reply->getToken()
         ];
-    }
-
-    /**
-     * Log the different requests consistently.
-     *
-     * @param string $type 'do authorization', 'do express', 'do void', 'get express', 'set express'
-     * @param string $body the serialized xml body
-     * @param string $direction 'request' or 'response'
-     */
-    protected function logApiCall($type, $body, $direction)
-    {
-        $logData = ['type' => $type, 'direction' => $direction];
-        $logMessage = 'Processing PayPal {type} {direction}';
-        $this->logger->info($logMessage, $this->logContext->getMetaData(__CLASS__, $logData));
-
-        $logData = ['rom_request_body' => $body];
-        $logMessage = 'Request Data';
-        $this->logger->debug($logMessage, $this->logContext->getMetaData(__CLASS__, $logData));
     }
 
     /**
@@ -198,12 +178,10 @@ class EbayEnterprise_Paypal_Model_Express_Api
         $payload->setOrderId($orderId)
             ->setToken($token)
             ->setCurrencyCode($currencyCode);
-        Mage::dispatchEvent('ebayenterprise_paypal_get_express_checkout_before_send', ['payload' => $payload, 'quote' => $quote]);
+        Mage::dispatchEvent('ebayenterprise_paypal_get_express_checkout_before_send', ['payload' => $payload]);
         $sdk->setRequestBody($payload);
-        $this->logApiCall('get express', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
-        Mage::dispatchEvent('ebayenterprise_paypal_get_express_checkout_after_send', ['payload' => $reply, 'quote' => $quote]);
-        $this->logApiCall('get express', $reply->serialize(), 'response');
+        Mage::dispatchEvent('ebayenterprise_paypal_get_express_checkout_after_send', ['payload' => $reply]);
         if (!$reply->isSuccess()) {
             $logMessage = 'PayPal request failed. See exception log for details.';
             $this->logger->warning($logMessage, $this->logContext->getMetaData(__CLASS__));
@@ -279,10 +257,8 @@ class EbayEnterprise_Paypal_Model_Express_Api
         $this->addLineItems($quote, $payload);
         Mage::dispatchEvent('ebayenterprise_paypal_do_express_checkout_before_send', ['payload' => $payload, 'quote' => $quote]);
         $sdk->setRequestBody($payload);
-        $this->logApiCall('do express', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
         Mage::dispatchEvent('ebayenterprise_paypal_do_express_checkout_after_send', ['payload' => $reply, 'quote' => $quote]);
-        $this->logApiCall('do express', $reply->serialize(), 'response');
         if (!$reply->isSuccess()) {
             $logData = ['error_message' => $reply->getErrorMessage()];
             $logMessage = 'PayPal request failed with message "{error_message}". See exception log for details.';
@@ -324,11 +300,9 @@ class EbayEnterprise_Paypal_Model_Express_Api
             ->setAmount($this->getTotal('grand_total', $quote));
         Mage::dispatchEvent('ebayenterprise_paypal_do_authorization_before_send', ['payload' => $payload, 'quote' => $quote]);
         $sdk->setRequestBody($payload);
-        $this->logApiCall('do authorization', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
         Mage::dispatchEvent('ebayenterprise_paypal_do_authorization_after_send', ['payload' => $reply, 'quote' => $quote]);
         $isSuccess = $reply->isSuccess();
-        $this->logApiCall('do authorization', $reply->serialize(), 'response');
         if (!$isSuccess) {
             $logMessage = 'PayPal request failed.';
             $this->logger->warning($logMessage, $this->logContext->getMetaData(__CLASS__));
@@ -347,29 +321,51 @@ class EbayEnterprise_Paypal_Model_Express_Api
     }
 
     /**
+     * Void the payment auth made for a quote.
+     *
+     * @param Mage_Sales_Model_Quote
+     * @return array
+     * @throws EbayEnterprise_PayPal_Exception when the operation cannot be completed or fails.
+     */
+    public function doVoidQuote(Mage_Sales_Model_Quote $quote)
+    {
+        return $this->doVoid($quote->reserveOrderId()->getReservedOrderId(), $quote->getQuoteCurrencyCode());
+    }
+
+    /**
      * Do Void Request/Response
      *
      * @param  Mage_Sales_Model_Order
      * @return array
-     *
      * @throws EbayEnterprise_PayPal_Exception when the operation cannot be completed or fails.
      */
-    public function doVoid(Mage_Sales_Model_Order $order)
+    public function doVoidOrder(Mage_Sales_Model_Order $order)
+    {
+        return $this->doVoid($order->getIncrementId(), $order->getOrderCurrencyCode());
+    }
+
+    /**
+     * Make a PayPal void request for the order identified by the order id.
+     *
+     * @param string
+     * @param string
+     * @return array
+     * @throws EbayEnterprise_PayPal_Exception when the operation cannot be completed or fails.
+     */
+    protected function doVoid($orderId, $currencyCode)
     {
         $sdk = $this->getSdk(
             $this->config->apiOperationDoVoid
         );
         $payload = $sdk->getRequestBody();
-        $payload->setOrderId($order->getIncrementId())
+        $payload->setOrderId($orderId)
             ->setRequestId($this->coreHelper->generateRequestId(self::PAYPAL_DOVOID_REQUEST_ID_PREFIX))
-            ->setCurrencyCode($order->getOrderCurrencyCode());
-        Mage::dispatchEvent('ebayenterprise_paypal_do_void_before_send', ['payload' => $payload, 'order' => $order]);
+            ->setCurrencyCode($currencyCode);
+        Mage::dispatchEvent('ebayenterprise_paypal_do_void_before_send', ['payload' => $payload]);
         $sdk->setRequestBody($payload);
-        $this->logApiCall('do void', $sdk->getRequestBody()->serialize(), 'request');
         $reply = $this->sendRequest($sdk);
-        Mage::dispatchEvent('ebayenterprise_paypal_do_void_after_send', ['payload' => $reply, 'order' => $order]);
+        Mage::dispatchEvent('ebayenterprise_paypal_do_void_after_send', ['payload' => $reply]);
         $isVoided = $reply->isSuccess();
-        $this->logApiCall('do void', $reply->serialize(), 'response');
         if (!$reply->isSuccess()) {
             $logMessage = 'PayPal DoVoid failed. See exception log for details.';
             $this->logger->warning($logMessage, $this->logContext->getMetaData(__CLASS__));

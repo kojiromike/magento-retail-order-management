@@ -27,6 +27,8 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
     protected $_config = null;
     /** @var Mage_Sales_Model_Quote */
     protected $_quote = false;
+    /** @var Mage_Checkout_Helper_Data */
+    protected $_checkoutHelper;
     /** @var EbayEnterprise_MageLog_Helper_Data */
     protected $_logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
@@ -42,6 +44,7 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
         $this->_config = $this->_helper->getConfigModel();
         $this->_logger = Mage::helper('ebayenterprise_magelog');
         $this->_context = Mage::helper('ebayenterprise_magelog/context');
+        $this->_checkoutHelper = Mage::helper('checkout');
     }
 
     /**
@@ -69,7 +72,7 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
     protected function _isGuestAllowedWithoutRegistering($quoteCheckoutMethod, Mage_Sales_Model_Quote $quote)
     {
         return (!$quoteCheckoutMethod || $quoteCheckoutMethod != Mage_Checkout_Model_Type_Onepage::METHOD_REGISTER) &&
-            !Mage::helper('checkout')->isAllowedGuestCheckout($quote, $quote->getStoreId());
+            !$this->_checkoutHelper->isAllowedGuestCheckout($quote, $quote->getStoreId());
     }
 
     /**
@@ -111,7 +114,7 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
                 $this->_initToken($startReply['token']);
                 $this->_redirectToPayPalSite($startReply);
                 return;
-            } catch (EbayEnterprise_Paypal_Exception $e) {
+            } catch (EbayEnterprise_PayPal_Exception $e) {
                 $this->_getCheckoutSession()->addError($e->getMessage());
                 $this->_redirect('checkout/cart');
             }
@@ -323,7 +326,7 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
     public function placeOrderAction()
     {
         try {
-            $requiredAgreements = Mage::helper('checkout')
+            $requiredAgreements = $this->_checkoutHelper
                 ->getRequiredAgreementIds();
             if ($requiredAgreements) {
                 $postedAgreements = array_keys(
@@ -358,15 +361,28 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
             $this->_initToken(false); // no need in token anymore
             $this->_redirect('checkout/onepage/success');
             return;
+        } catch (EbayEnterprise_PayPal_Exception $e) {
+            $this->_checkoutHelper->sendPaymentFailedEmail(
+                $this->_getQuote(),
+                $e->getMessage()
+            );
+            $this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
+            // If a PayPal exception is thrown while trying to place the order,
+            // the PayPal transaction failed or was voided and customer needs to
+            // begin PayPal flow again. Place error message in checkout session
+            // so it will be displayed in the cart and redirect back to the cart
+            // for the checkout flow to begin again.
+            $this->_getCheckoutSession()->addError($e->getMessage());
+            $this->_redirect('checkout/cart');
         } catch (Mage_Core_Exception $e) {
-            Mage::helper('checkout')->sendPaymentFailedEmail(
+            $this->_checkoutHelper->sendPaymentFailedEmail(
                 $this->_getQuote(),
                 $e->getMessage()
             );
             $this->_getSession()->addError($e->getMessage());
             $this->_redirect('*/*/review');
         } catch (Exception $e) {
-            Mage::helper('checkout')->sendPaymentFailedEmail(
+            $this->_checkoutHelper->sendPaymentFailedEmail(
                 $this->_getQuote(),
                 $this->__('Unable to place the order.')
             );

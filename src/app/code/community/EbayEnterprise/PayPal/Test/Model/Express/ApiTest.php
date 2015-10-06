@@ -679,7 +679,7 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest extends EbayEnterprise_Eb
                 = EbayEnterprise_PayPal_Model_Express_Api::EBAYENTERPRISE_PAYPAL_API_FAILED;
             $this->setExpectedException('EbayEnterprise_PayPal_Exception', $message);
         }
-        $result = $api->doVoid($order);
+        $result = $api->doVoidOrder($order);
         $expectation = 'void/' . ($isSuccessful ? 'success' : 'failure');
         $this->assertEquals($this->expected($expectation)->getData(), $result);
     }

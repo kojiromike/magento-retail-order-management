@@ -394,7 +394,17 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
         $this->_quote->getPayment()
             ->importData(array_merge($doExpressReply, $doAuthorizationReply));
         $service = Mage::getModel('sales/service_quote', $this->_quote);
-        $service->submitAll();
+        try {
+            $service->submitAll();
+        // Any exceptions thrown from submitAll indicate an order that failed
+        // to be created. In any such cases, the payment auth needs to be voided.
+        } catch (Exception $e) {
+            $this->_api->doVoidQuote($this->_quote);
+            // Throw an exception for the controller to handle. Needs to indicate
+            // the failure to complete the PayPal payment as the PayPal process
+            // needs to be restarted once the auth was performed.
+            throw Mage::exception('EbayEnterprise_PayPal', $this->_helper->__(EbayEnterprise_Paypal_Model_Express_Api::EBAYENTERPRISE_PAYPAL_API_FAILED));
+        }
         $this->_quote->save();
 
         if ($isNewCustomer) {

@@ -35,14 +35,6 @@ http://opensource.org/licenses/osl-3.0.php
             </ebayenterprise_paypal>
         </helpers>
         <events>
-            <eb2c_order_creation_failure>
-                <observers>
-                    <ebayenterprise_paypal_express_rollback>
-                        <class>ebayenterprise_paypal/observer</class>
-                        <method>rollbackExpressPayment</method>
-                    </ebayenterprise_paypal_express_rollback>
-                </observers>
-            </eb2c_order_creation_failure>
             <ebayenterprise_order_create_payment>
                 <observers>
                     <ebayenterprise_paypal_order_create_payment_observer>

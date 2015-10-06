@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.1] - 2015-10-06
+### Fixed
+- PayPal does not void auths when quote validation prevents an order from being created
+
 ## [1.6.0] - 2015-10-03
 ### Changed
 - Virtual Gift Cards use gift card recipient data for fulfillment
@@ -517,6 +521,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-44...1.6.0
 [1.6.0-beta-44]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-43...1.6.0-beta-44
 [1.6.0-beta-43]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0-beta-42...1.6.0-beta-43

@@ -15,17 +15,6 @@
 
 class EbayEnterprise_Paypal_Test_Model_ObserverTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-    public function testIsConfigured()
-    {
-        EcomDev_PHPUnit_Test_Case_Config::assertEventObserverDefined(
-            'global',
-            'eb2c_order_creation_failure',
-            'ebayenterprise_paypal/observer',
-            'rollbackExpressPayment',
-            'ebayenterprise_paypal_express_rollback'
-        );
-    }
-
     public function testRollbackExpressPayment()
     {
         $quote = $this->getModelMock('sales/quote');

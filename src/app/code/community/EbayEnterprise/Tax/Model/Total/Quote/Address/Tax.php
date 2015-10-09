@@ -153,7 +153,7 @@ class EbayEnterprise_Tax_Model_Total_Quote_Address_Tax extends Mage_Sales_Model_
     /**
      * Get the total of all duties for an address.
      *
-     * @param EnayEnterprise_Tax_Model_Duty[]
+     * @param EbayEnterprise_Tax_Model_Duty[]
      * @return float
      */
     protected function _totalDuties(array $duties)
@@ -170,7 +170,7 @@ class EbayEnterprise_Tax_Model_Total_Quote_Address_Tax extends Mage_Sales_Model_
     /**
      * Get the total of all fees for an address.
      *
-     * @param EnayEnterprise_Tax_Model_Fee[]
+     * @param EbayEnterprise_Tax_Model_Fee[]
      * @return float
      */
     protected function _totalFees(array $fees)

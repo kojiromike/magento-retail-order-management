@@ -192,11 +192,13 @@ class EbayEnterprise_Eb2cCore_Model_Observer
         $store = $quote->getStore();
         /** @var Mage_Sales_Model_Quote_Item $item */
         $item = $event->getItem();
+        /** @var Varien_Object */
+        $result = $event->getResult();
         $data = (array) $item->getEbayEnterpriseOrderDiscountData();
         $ruleId = $rule->getId();
         // Use the rule id to prevent duplicates.
         $data[$ruleId] = [
-            'amount' => $event->getResult()->getBaseDiscountAmount(),
+            'amount' => $this->calculateDiscountAmount($item, $result, $data),
             'applied_count' => $event->getQty(),
             'code' => $this->helper->getQuoteCouponCode($quote, $rule),
             'description' => $rule->getStoreLabel($store) ?: $rule->getName(),
@@ -204,5 +206,37 @@ class EbayEnterprise_Eb2cCore_Model_Observer
             'id' => $ruleId,
         ];
         $item->setEbayEnterpriseOrderDiscountData($data);
+    }
+
+    /**
+     * When the previously applied discount amount on the item row total
+     * is less than the current applied discount recalculate the current discount
+     * to account for previously applied discount. Otherwise, don't recalculate
+     * the current discount.
+     *
+     * @param  Mage_Sales_Model_Quote_Item
+     * @param  Varien_Object
+     * @param  array
+     * @return float
+     */
+    protected function calculateDiscountAmount(Mage_Sales_Model_Quote_Item $item, Varien_Object $result, array $data)
+    {
+        /** @var float */
+        $itemRowTotal = $item->getBaseRowTotal();
+        /** @var float */
+        $currentDiscountAmount = $result->getBaseDiscountAmount();
+        /** @var float */
+        $previousAppliedDiscountAmount = 0.00;
+        foreach ($data as $discount) {
+            $previousAppliedDiscountAmount += $discount['amount'];
+        }
+        /** @var float */
+        $itemRowTotalWithAppliedPreviousDiscount = $itemRowTotal - $previousAppliedDiscountAmount;
+        if ($itemRowTotalWithAppliedPreviousDiscount < 0) {
+            $itemRowTotalWithAppliedPreviousDiscount = 0;
+        }
+        return $itemRowTotalWithAppliedPreviousDiscount < $currentDiscountAmount
+            ? $itemRowTotalWithAppliedPreviousDiscount
+            : $currentDiscountAmount;
     }
 }

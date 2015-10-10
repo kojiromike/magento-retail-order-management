@@ -13,10 +13,20 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation;
+use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
+use eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
+
 class EbayEnterprise_Tax_Helper_Data extends Mage_Core_Helper_Abstract implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
-    /** @var EbayEnterprise_Tax_Model_Collector */
-    protected $taxCollector;
+    const TAX_FAILED_MESSAGE = 'EbayEnterprise_Tax_Request_Failed';
+
+    /** @var EbayEnterprise_Eb2cCore_Helper_Data */
+    protected $coreHelper;
+    /** @var EbayEnterprise_Tax_Helper_Factory */
+    protected $taxFactory;
     /** @var EbayEnterprise_MageLog_Helper_Data */
     protected $logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
@@ -24,18 +34,21 @@ class EbayEnterprise_Tax_Helper_Data extends Mage_Core_Helper_Abstract implement
 
     /**
      * @param array $args May contain key/value for:
-     * - tax_collector => EbayEnterprise_Tax_Model_Collector
-     * - logger => EbayEnterprise_MageLog_Helper_Data
-     * - log_context => EbayEnterprise_MageLog_Helper_Context
+     * - core_helper    => EbayEnterprise_Eb2cCore_Helper_Data
+     * - tax_factory    => EbayEnterprise_Tax_Helper_Factory
+     * - logger         => EbayEnterprise_MageLog_Helper_Data
+     * - log_context    => EbayEnterprise_MageLog_Helper_Context
      */
     public function __construct(array $args = [])
     {
         list(
-            $this->taxCollector,
+            $this->coreHelper,
+            $this->taxFactory,
             $this->logger,
             $this->logContext
         ) = $this->checkTypes(
-            $this->nullCoalesce($args, 'tax_collector', Mage::getModel('ebayenterprise_tax/collector')),
+            $this->nullCoalesce($args, 'core_helper', Mage::helper('eb2ccore')),
+            $this->nullCoalesce($args, 'tax_factory', Mage::helper('ebayenterprise_tax/factory')),
             $this->nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
             $this->nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
         );
@@ -44,14 +57,15 @@ class EbayEnterprise_Tax_Helper_Data extends Mage_Core_Helper_Abstract implement
     /**
      * Enforce type checks on constructor init params.
      *
-     * @param EbayEnterprise_Tax_Helper_Data
-     * @param EbayEnterprise_Tax_Model_Collector
+     * @param EbayEnterprise_Eb2cCore_Helper_Data
+     * @param EbayEnterprise_Tax_Helper_Factory
      * @param EbayEnterprise_MageLog_Helper_Data
      * @param EbayEnterprise_MageLog_Helper_Context
      * @return array
      */
     protected function checkTypes(
-        EbayEnterprise_Tax_Model_Collector $taxCollector,
+        EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
+        EbayEnterprise_Tax_Helper_Factory $taxFactory,
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_MageLog_Helper_Context $logContext
     ) {
@@ -61,7 +75,6 @@ class EbayEnterprise_Tax_Helper_Data extends Mage_Core_Helper_Abstract implement
     /**
      * Fill in default values.
      *
-     * @param string
      * @param array
      * @param mixed
      * @return mixed
@@ -105,26 +118,157 @@ class EbayEnterprise_Tax_Helper_Data extends Mage_Core_Helper_Abstract implement
     }
 
     /**
-     * Return a triple of tax, duty and fee totals for one or all addresses.
+     * Make an API request to the TDF service for the quote and return any
+     * tax records in the response.
      *
-     * @param int|null $addressId If set, return the sum just for this address. Otherwise sum for all addresses in order.
-     * @return float[] of size three
+     * @param Mage_Sales_Model_Order_Quote
+     * @return EbayEnterprise_Tax_Model_Result
+     * @throws EbayEnterprise_Tax_Exception_Collector_Exception If tax records could not be collected.
      */
-    public function getTaxDutyFeeTotals($addressId = null)
+    public function requestTaxesForQuote(Mage_Sales_Model_Quote $quote)
     {
-        $collector = $this->taxCollector;
-        if (is_null($addressId)) {
-            $taxRecords = $collector->getTaxRecords();
-            $dutyRecords = $collector->getTaxDuties();
-            $feeRecords = $collector->getTaxFees();
-        } else {
-            $taxRecords = $collector->getTaxRecordsByAddressId($addressId);
-            $dutyRecords = $collector->getTaxDutiesByAddressId($addressId);
-            $feeRecords = $collector->getTaxFeesByAddressId($addressId);
+        $api = $this->_getSdkApi();
+        return $this->_prepareRequest($api, $quote)
+            ->_sendApiRequest($api)
+            ->_extractResponseResults($api, $quote);
+    }
+
+    /**
+     * Get an API object for the SDK to make the TDF request.
+     *
+     * @return IBidirectionalApi
+     */
+    protected function _getSdkApi()
+    {
+        $taxConfig = $this->getConfigModel();
+
+        return $this->coreHelper->getSdkApi(
+            $taxConfig->apiService,
+            $taxConfig->apiOperation
+        );
+    }
+
+    /**
+     * Prepare the API request with data from the quote - fill out and set
+     * the request payload.
+     *
+     * @param IBidirectionalApi
+     * @param Mage_Sales_Model_Order_Quote
+     * @return self
+     */
+    protected function _prepareRequest(IBidirectionalApi $api, Mage_Sales_Model_Quote $quote)
+    {
+        try {
+            $requestBody = $api->getRequestBody();
+        } catch (UnsupportedOperation $e) {
+            // If the SDK cannot handle sending requests to the tax/quote
+            // service operation but is expected to, the SDK is likely broken.
+            // As this would fall into the "human intervention required"
+            // category of errors, log crit the exception.
+            $this->logger->critical(
+                'Tax quote service request unsupported by SDK.',
+                $this->logContext->getMetaData(__CLASS__, [], $e)
+            );
+            // Throw a more generic, expected exception to prevent
+            // this from being a blocking failure.
+            throw $this->_failTaxCollection();
         }
-        $taxes = array_sum(array_map(function ($record) { return $record->getCalculatedTax(); }, $taxRecords));
-        $duties = array_sum(array_map(function ($record) { return $record->getAmount(); }, $dutyRecords));
-        $fees = array_sum(array_map(function ($record) { return $record->getAmount(); }, $feeRecords));
-        return [$taxes, $duties, $fees];
+        $taxRequest = $this->taxFactory
+            ->createRequestBuilderQuote($requestBody, $quote)
+            ->getTaxRequest();
+        $api->setRequestBody($taxRequest);
+        return $this;
+    }
+
+    /**
+     * Send the request for the TDF service and handle any responses or exceptions.
+     *
+     * @param IBidirectionalApi
+     * @return self
+     */
+    protected function _sendApiRequest(IBidirectionalApi $api)
+    {
+        try {
+            $api->send();
+            // Generally, these catch statements will all add a log message for the
+            // exception and throw a more generic exception that can be handled
+            // (by Magento or the Tax module) in such a way as to not block checkout.
+        } catch (NetworkError $e) {
+            $this->logger->warning(
+                'Caught network error getting taxes, duties and fees. Will retry during next total collection.',
+                $this->logContext->getMetaData(__CLASS__, [], $e)
+            );
+            throw $this->_failTaxCollection();
+        } catch (InvalidPayload $e) {
+            $this->logger->warning(
+                'Tax request payload is invalid.',
+                $this->logContext->getMetaData(__CLASS__, [], $e)
+            );
+            throw $this->_failTaxCollection();
+        } catch (UnsupportedOperation $e) {
+            $this->logger->critical(
+                'Tax quote service response unsupported by SDK.',
+                $this->logContext->getMetaData(__CLASS__, [], $e)
+            );
+            throw $this->_failTaxCollection();
+        } catch (UnsupportedHttpAction $e) {
+            $this->logger->critical(
+                'Tax quote operation failed due to unsupported HTTP action in the SDK.',
+                $this->logContext->getMetaData(__CLASS__, [], $e)
+            );
+            throw $this->_failTaxCollection();
+        } catch (Exception $e) {
+            $this->logger->warning(
+                'Encountered unexepcted error attempting to request tax data. See the exception log.',
+                $this->logContext->getMetaData(__CLASS__, [], $e)
+            );
+            throw $this->_failTaxCollection();
+        }
+        return $this;
+    }
+
+    /**
+     * Extract tax records from the API response body for the quote.
+     *
+     * @param IBidirectionalApi
+     * @param Mage_Sales_Model_Order_Quote
+     * @return EbayEnterprise_Tax_Model_Result
+     */
+    protected function _extractResponseResults(IBidirectionalApi $api, Mage_Sales_Model_Quote $quote)
+    {
+        try {
+            $responseBody = $api->getResponseBody();
+        } catch (UnsupportedOperation $e) {
+            // This exception handling is probably not necessary but
+            // is technically possible. If the sdk flow of
+            // getRequest->setRequest->send->getResponse is followed,
+            // which is is by the one public method of this class, this
+            // exception should never be thrown in this instance. If it
+            // were to be thrown at all by the SDK, it would have already
+            // happened during the "send" step.
+            $this->logger->critical(
+                'Tax quote service response unsupported by SDK.',
+                $this->logContext->getMetaData(__CLASS__, [], $e)
+            );
+            throw $this->_failTaxCollection();
+        }
+        $responseParser = $this->taxFactory
+            ->createResponseQuoteParser($responseBody, $quote);
+        return $this->taxFactory->createTaxResults(
+            $responseParser->getTaxRecords(),
+            $responseParser->getTaxDuties(),
+            $responseParser->getTaxFees()
+        );
+    }
+
+    /**
+     * Create a fairly generic exception for the tax module indicating
+     * that tax collection via the SDK has failed.
+     *
+     * @return EbayEnterprise_Tax_Exception_Collector_Exception
+     */
+    protected function _failTaxCollection()
+    {
+        return Mage::exception('EbayEnterprise_Tax_Exception_Collector', $this->__(self::TAX_FAILED_MESSAGE));
     }
 }

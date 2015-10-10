@@ -18,8 +18,8 @@
  */
 class EbayEnterprise_Tax_Model_Collector
 {
-    /** @var EbayEnterprise_Tax_Helper_Sdk */
-    protected $_sdkHelper;
+    /** @var EbayEnterprise_Tax_Helper_Data */
+    protected $_taxHelper;
     /** @var EbayEnterprise_MageLog_Helper_Data */
     protected $_logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
@@ -29,7 +29,7 @@ class EbayEnterprise_Tax_Model_Collector
 
     /**
      * @param array May include keys/value pairs:
-     *                  - sdk_helper => EbayEnterprise_Tax_Helper_Sdk
+     *                  - tax_helper => EbayEnterprise_Tax_Helper_Data
      *                  - logger => EbayEnterprise_MageLog_Helper_Data
      *                  - log_context => EbayEnterprise_MageLog_Helper_Context
      *                  - tax_session => EbayEnterprise_Tax_Model_Session
@@ -37,12 +37,12 @@ class EbayEnterprise_Tax_Model_Collector
     public function __construct(array $args = [])
     {
         list(
-            $this->_sdkHelper,
+            $this->_taxHelper,
             $this->_logger,
             $this->_logContext,
             $this->_taxSession
-        ) = $this->_checkTypes(
-            $this->_nullCoalesce($args, 'sdk_helper', Mage::helper('ebayenterprise_tax/sdk')),
+            ) = $this->_checkTypes(
+            $this->_nullCoalesce($args, 'tax_helper', Mage::helper('ebayenterprise_tax')),
             $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
             $this->_nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context')),
             $this->_nullCoalesce($args, 'tax_session', null)
@@ -52,26 +52,26 @@ class EbayEnterprise_Tax_Model_Collector
     /**
      * Enforce type checks on construct args array.
      *
-     * @param EbayEnterprise_Tax_Helper_Sdk
+     * @param EbayEnterprise_Tax_Helper_Data
      * @param EbayEnterprise_MageLog_Helper_Data
      * @param EbayEnterprise_MageLog_Helper_Context
      * @param EbayEnterprise_Tax_Model_Session
      * @return array
      */
     protected function _checkTypes(
-        EbayEnterprise_Tax_Helper_Sdk $sdkHelper,
+        EbayEnterprise_Tax_Helper_Data $taxHelper,
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_MageLog_Helper_Context $logContext,
         EbayEnterprise_Tax_Model_Session $taxSession = null
     ) {
-        return [$sdkHelper, $logger, $logContext, $taxSession];
+        return func_get_args();
     }
 
     /**
      * Fill in default values.
      *
-     * @param string
      * @param array
+     * @param string
      * @param mixed
      * @return mixed
      */
@@ -294,7 +294,7 @@ class EbayEnterprise_Tax_Model_Collector
         $this->_logger->debug('Collecting new tax data.', $this->_logContext->getMetaData(__CLASS__));
         try {
             $this->_validateQuote($quote);
-            $taxResults = $this->_sdkHelper->requestTaxesForQuote($quote);
+            $taxResults = $this->_taxHelper->requestTaxesForQuote($quote);
         } catch (EbayEnterprise_Tax_Exception_Collector_Exception $e) {
             // If tax records needed to be updated but could be collected,
             // any previously collected taxes need to be cleared out to
@@ -323,7 +323,7 @@ class EbayEnterprise_Tax_Model_Collector
      *
      * @param Mage_Sales_Model_Quote
      * @return self
-     * @throws EbayEnterprise_Tax_Exception_Collector_InvalidQuote If the quote is not valid for makign a tax request.
+     * @throws EbayEnterprise_Tax_Exception_Collector_InvalidQuote_Exception If the quote is not valid for making a tax request.
      */
     protected function _validateQuote(Mage_Sales_Model_Quote $quote)
     {
@@ -362,9 +362,9 @@ class EbayEnterprise_Tax_Model_Collector
      * Validate each item in the given array of items to be
      * valid for making a tax request.
      *
-     * @param Mage_Sales_Model_Quote_Item_Abstract[] $items
+     * @param Mage_Sales_Model_Quote_Item_Abstract[]
      * @return self
-     * @throws EbayEnterprise_Tax_Exception_Collector_InvalidQuote If any item is invalid.
+     * @throws EbayEnterprise_Tax_Exception_Collector_InvalidQuote_Exception
      */
     protected function _validateItems(array $items)
     {

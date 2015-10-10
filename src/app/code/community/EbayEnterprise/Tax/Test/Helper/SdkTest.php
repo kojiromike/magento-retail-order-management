@@ -20,8 +20,6 @@ use eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
 
 class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
-    /** @var EbayEnterprise_Tax_Helper_Sdk */
-    protected $_sdkHelper;
     /** @var eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi */
     protected $_api;
     /** @var eBayEnterprise\RetailOrderManagement\Payload\TaxDutyFee\ITaxDutyFeeQuoteRequest */
@@ -105,11 +103,11 @@ class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Tes
 
         $this->_quote = $this->getModelMock('sales/quote');
 
-        $this->_sdkHelper = Mage::helper('ebayenterprise_tax/sdk');
+        $this->_taxHelper = Mage::helper('ebayenterprise_tax');
         // As helpers do not support constructor injection, inject
         // dependencies by directly setting the class properties.
         EcomDev_Utils_Reflection::setRestrictedPropertyValues(
-            $this->_sdkHelper,
+            $this->_taxHelper,
             [
                 '_coreHelper' => $this->_coreHelper,
                 '_taxHelper' => $this->_taxHelper,
@@ -136,7 +134,7 @@ class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Tes
 
         $this->assertSame(
             $this->_api,
-            EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_sdkHelper, '_getSdkApi')
+            EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_taxHelper, '_getSdkApi')
         );
     }
 
@@ -173,9 +171,9 @@ class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Tes
         // enough to prove just be looking at the method) but easy enough
         // to test the it provides the apporpriate return value to test it anyway.
         $this->assertSame(
-            $this->_sdkHelper,
+            $this->_taxHelper,
             EcomDev_Utils_Reflection::invokeRestrictedMethod(
-                $this->_sdkHelper,
+                $this->_taxHelper,
                 '_prepareRequest',
                 [$this->_api, $this->_quote]
             )
@@ -194,7 +192,7 @@ class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Tes
             ->will($this->throwException(new UnsupportedOperation));
         $this->setExpectedException($this->_taxCollectorException);
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
-            $this->_sdkHelper,
+            $this->_taxHelper,
             '_prepareRequest',
             [$this->_api, $this->_quote]
         );
@@ -224,9 +222,9 @@ class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Tes
             ->will($this->returnSelf());
 
         $this->assertSame(
-            $this->_sdkHelper,
+            $this->_taxHelper,
             EcomDev_Utils_Reflection::invokeRestrictedMethod(
-                $this->_sdkHelper,
+                $this->_taxHelper,
                 '_sendApiRequest',
                 [$this->_api]
             )
@@ -274,7 +272,7 @@ class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Tes
 
         $this->setExpectedException($this->_taxCollectorException);
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
-            $this->_sdkHelper,
+            $this->_taxHelper,
             '_sendApiRequest',
             [$this->_api]
         );
@@ -336,7 +334,7 @@ class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Tes
         $this->assertSame(
             $sdkResult,
             EcomDev_Utils_Reflection::invokeRestrictedMethod(
-                $this->_sdkHelper,
+                $this->_taxHelper,
                 '_extractResponseResults',
                 [$this->_api, $this->_quote]
             )
@@ -357,7 +355,7 @@ class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Tes
 
         $this->setExpectedException($this->_taxCollectorException);
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
-            $this->_sdkHelper,
+            $this->_taxHelper,
             '_extractResponseResults',
             [$this->_api, $this->_quote]
         );

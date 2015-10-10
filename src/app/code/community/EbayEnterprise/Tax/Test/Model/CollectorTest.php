@@ -15,8 +15,8 @@
 
 class EbayEnterprise_Tax_Test_Model_CollectorTest extends EcomDev_PHPUnit_Test_Case
 {
-    /** @var EbayEnterprise_Tax_Helper_Sdk */
-    protected $_sdkHelper;
+    /** @var EbayEnterprise_Tax_Helper_Data */
+    protected $_taxHelper;
     /** @var EbayEnterprise_Tax_Model_Session */
     protected $_taxSession;
     /** @var EbayEnterprise_Tax_Model_Record[] */
@@ -58,7 +58,7 @@ class EbayEnterprise_Tax_Test_Model_CollectorTest extends EcomDev_PHPUnit_Test_C
 
         // Mock out a tax SDK helper - responsible for making the SDK request
         // for tax data.
-        $this->_sdkHelper = $this->getHelperMock('ebayenterprise_tax/sdk', ['requestTaxesForQuote']);
+        $this->_taxHelper = $this->getHelperMock('ebayenterprise_tax', ['requestTaxesForQuote']);
 
         // Mock out session storage - constructor disabled to prevent actually
         // a session and trying to write cookies.
@@ -111,7 +111,7 @@ class EbayEnterprise_Tax_Test_Model_CollectorTest extends EcomDev_PHPUnit_Test_C
             'ebayenterprise_tax/collector',
             [
                 'tax_session' => $this->_taxSession,
-                'sdk_helper' => $this->_sdkHelper,
+                'sdk_helper' => $this->_taxHelper,
                 'log_context' => $logContext,
             ]
         );
@@ -249,7 +249,7 @@ class EbayEnterprise_Tax_Test_Model_CollectorTest extends EcomDev_PHPUnit_Test_C
     {
         $this->_makeQuoteValid();
         // Simulate the TDK request returning a set of tax records.
-        $this->_sdkHelper->expects($this->once())
+        $this->_taxHelper->expects($this->once())
             ->method('requestTaxesForQuote')
             ->with($this->identicalTo($this->_quote))
             ->will($this->returnValue($this->_taxResult));
@@ -298,7 +298,7 @@ class EbayEnterprise_Tax_Test_Model_CollectorTest extends EcomDev_PHPUnit_Test_C
     {
         $this->_makeQuoteValid();
         // Simulate the TDK request returning a set of tax records.
-        $this->_sdkHelper->expects($this->once())
+        $this->_taxHelper->expects($this->once())
             ->method('requestTaxesForQuote')
             ->with($this->identicalTo($this->_quote))
             ->will($this->throwException(new EbayEnterprise_Tax_Exception_Collector_Exception));
@@ -338,7 +338,7 @@ class EbayEnterprise_Tax_Test_Model_CollectorTest extends EcomDev_PHPUnit_Test_C
     public function testCollectTaxesFailedInvalidQuote()
     {
         // Simulate the TDK request returning a set of tax records.
-        $this->_sdkHelper->expects($this->never())
+        $this->_taxHelper->expects($this->never())
             ->method('requestTaxesForQuote');
         // Side-effect test - ensure all tax records in the session storage are
         // emptied of existing tax records when a tax request fails to be made.

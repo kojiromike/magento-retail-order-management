@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.4] - 2015-10-10
+### Fixed
+- Remove SDK helper to prevent circular DI
+
 ## [1.6.3] - 2015-10-09
 ### Changed
 - Provide Means to Get All Taxes, Duties and Fees
@@ -257,6 +261,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.3...1.6.4
 [1.6.3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.0...1.6.1

@@ -140,7 +140,7 @@ class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Tes
 
         $this->assertSame(
             $this->_api,
-            EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_taxHelper, '_getSdkApi')
+            EcomDev_Utils_Reflection::invokeRestrictedMethod($this->_taxHelper, 'getSdkApi')
         );
     }
 

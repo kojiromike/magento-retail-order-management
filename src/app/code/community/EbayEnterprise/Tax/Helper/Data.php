@@ -76,6 +76,7 @@ class EbayEnterprise_Tax_Helper_Data extends Mage_Core_Helper_Abstract implement
      * Fill in default values.
      *
      * @param array
+     * @param string
      * @param mixed
      * @return mixed
      */
@@ -127,7 +128,7 @@ class EbayEnterprise_Tax_Helper_Data extends Mage_Core_Helper_Abstract implement
      */
     public function requestTaxesForQuote(Mage_Sales_Model_Quote $quote)
     {
-        $api = $this->_getSdkApi();
+        $api = $this->getSdkApi();
         return $this->_prepareRequest($api, $quote)
             ->_sendApiRequest($api)
             ->_extractResponseResults($api, $quote);
@@ -138,7 +139,7 @@ class EbayEnterprise_Tax_Helper_Data extends Mage_Core_Helper_Abstract implement
      *
      * @return IBidirectionalApi
      */
-    protected function _getSdkApi()
+    protected function getSdkApi()
     {
         $taxConfig = $this->getConfigModel();
 

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.5] - 2015-10-12
+### Fixed
+- OCR Promotion Discount Amount Calculation Error for Order with multiple discounts
+
 ## [1.6.4] - 2015-10-10
 ### Fixed
 - Remove SDK helper to prevent circular DI
@@ -261,6 +265,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.5]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.4...1.6.5
 [1.6.4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.3...1.6.4
 [1.6.3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.1...1.6.2

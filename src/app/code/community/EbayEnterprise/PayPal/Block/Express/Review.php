@@ -45,20 +45,8 @@ class EbayEnterprise_PayPal_Block_Express_Review extends Mage_Core_Block_Templat
     protected function _construct()
     {
         parent::_construct();
+        $this->_quote = Mage::helper('ebayenterprise_paypal')->getQuote();
         $this->_taxHelper = Mage::helper('tax');
-    }
-
-    /**
-     * Quote object setter
-     *
-     * @param Mage_Sales_Model_Quote $quote
-     *
-     * @return Mage_Paypal_Block_Express_Review
-     */
-    public function setQuote(Mage_Sales_Model_Quote $quote)
-    {
-        $this->_quote = $quote;
-        return $this;
     }
 
     /**

@@ -48,6 +48,16 @@ class EbayEnterprise_PayPal_Helper_Data extends Mage_Core_Helper_Abstract implem
     }
 
     /**
+     * Return checkout quote object
+     *
+     * @return Mage_Sales_Model_Quote
+     */
+    public function getQuote()
+    {
+        return Mage::getSingleton('checkout/session')->getQuote();
+    }
+
+    /**
      * Get the current store currency code.
      *
      * @see Mage_Core_Model_Store::getCurrentCurrencyCode

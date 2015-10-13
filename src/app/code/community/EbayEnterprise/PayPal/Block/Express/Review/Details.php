@@ -17,6 +17,12 @@ class EbayEnterprise_Paypal_Block_Express_Review_Details extends Mage_Checkout_B
 {
     protected $_address;
 
+    protected function _construct()
+    {
+        parent::_construct();
+        $this->setQuote(Mage::helper('ebayenterprise_paypal')->getQuote());
+    }
+
     /**
      * Return review shipping address
      *

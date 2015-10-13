@@ -241,16 +241,6 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
             $this->_checkout->prepareOrderReview($this->_initToken());
             $this->loadLayout();
             $this->_initLayoutMessages('ebayenterprise_paypal/session');
-            $reviewBlock = $this->getLayout()->getBlock(
-                'ebayenterprise_paypal.express.review'
-            );
-            $reviewBlock->setQuote($this->_getQuote());
-            $reviewBlock->getChild('details')->setQuote($this->_getQuote());
-            if ($reviewBlock->getChild('shipping_method')) {
-                $reviewBlock->getChild('shipping_method')->setQuote(
-                    $this->_getQuote()
-                );
-            }
             $this->renderLayout();
             return;
         } catch (Mage_Core_Exception $e) {
@@ -514,7 +504,7 @@ class EbayEnterprise_PayPal_CheckoutController extends Mage_Core_Controller_Fron
     private function _getQuote()
     {
         if (!$this->_quote) {
-            $this->_quote = $this->_getCheckoutSession()->getQuote();
+            return Mage::helper('ebayenterprise_paypal')->getQuote();
         }
         return $this->_quote;
     }

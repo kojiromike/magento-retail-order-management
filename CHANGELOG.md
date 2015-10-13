@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.6] - 2015-10-13
+### Changed
+- Allow easier customization of the PayPal order review page
+
+### Fixed
+- OCR Promotion Discount Amount Calculation Error for Order with multiple discounts
+
 ## [1.6.5] - 2015-10-12
 ### Fixed
 - OCR Promotion Discount Amount Calculation Error for Order with multiple discounts

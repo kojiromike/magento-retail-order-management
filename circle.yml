@@ -5,7 +5,7 @@ dependencies:
     cache_directories:
         - ../.composer
     pre:
-        - echo "memory_limit = 256M" > ~/.phpenv/versions/$(phpenv global)/etc/conf.d/memory.ini
+        - echo "memory_limit = 512M" > ~/.phpenv/versions/$(phpenv global)/etc/conf.d/memory.ini
         - circle-ci/magento-install
         - mkdir ../build && rsync -a ../magento/ ../build
     override:

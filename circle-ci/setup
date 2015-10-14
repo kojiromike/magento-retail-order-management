@@ -34,6 +34,7 @@ composer --no-interaction config repositories.this vcs "${PWD%/*}"
 composer --no-interaction config repositories.firegento composer http://packages.firegento.com
 composer --no-interaction --no-update require \
         "ebayenterprise/magento-retail-order-management:dev-$(git rev-parse --abbrev-ref HEAD)"
+composer --no-interaction --prefer-source update
 
 echo 'Removing base url from database'
 mysql --user ubuntu -e 'DELETE FROM core_config_data WHERE path LIKE "web/%secure/base_url"\g' circle_test

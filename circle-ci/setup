@@ -36,7 +36,7 @@ composer --no-interaction --no-update require \
         "ebayenterprise/magento-retail-order-management:dev-$(git rev-parse --abbrev-ref HEAD)"
 
 echo 'Removing base url from database'
-mysql -e 'DELETE FROM core_config_data WHERE path LIKE "web/%secure/base_url"\g'
+mysql --user ubuntu -e 'DELETE FROM core_config_data WHERE path LIKE "web/%secure/base_url"\g' circle_test
 
 echo 'Configuring Magento for testing'
 cp ../tests/composer.xml app/etc/

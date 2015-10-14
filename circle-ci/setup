@@ -5,7 +5,7 @@ echo 'Setting up Magento for Testing in Circle CI'
 mkdir -p build
 cd build
 echo 'Unpacking Magento into Build Directory'
-curl -Ss 'https://github.com/OpenMage/magento-mirror/archive/1.9.2.1.tar.gz' | tar -xzf-
+curl -LSs 'https://github.com/OpenMage/magento-mirror/archive/1.9.2.1.tar.gz' | tar -xzf-
 php install.php \
     --admin_email admin@example.com \
     --admin_firstname ad \
@@ -28,7 +28,7 @@ php install.php \
     --use_secure_admin no
 
 echo 'Setting up composer'
-cp ../circleci/composer.json .
+cp ../circle-ci/composer.json .
 composer --no-interaction config repositories.this vcs "${PWD%/*}"
 # Firegento has to come last
 composer --no-interaction config repositories.firegento composer http://packages.firegento.com

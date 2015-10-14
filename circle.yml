@@ -8,7 +8,7 @@ dependencies:
     pre:
         - echo "memory_limit = 256M" > ~/.phpenv/versions/$(phpenv global)/etc/conf.d/memory.ini
         - circle-ci/magento-install
-        - mkdir ../build && rsync -a ../magento ../build
+        - mkdir ../build && rsync -a ../magento/ ../build
     override:
         - circle-ci/setup
 test:

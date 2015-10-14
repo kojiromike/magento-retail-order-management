@@ -4,7 +4,6 @@ machine:
 dependencies:
     cache_directories:
         - ../.composer
-        - ../magento
     pre:
         - echo "memory_limit = 256M" > ~/.phpenv/versions/$(phpenv global)/etc/conf.d/memory.ini
         - circle-ci/magento-install

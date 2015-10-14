@@ -4,6 +4,7 @@ machine:
 dependencies:
     pre:
         - echo "memory_limit = 256M" > ~/.phpenv/versions/$(phpenv global)/etc/conf.d/memory.ini
+    override:
         - circle-ci/setup
 test:
     override:

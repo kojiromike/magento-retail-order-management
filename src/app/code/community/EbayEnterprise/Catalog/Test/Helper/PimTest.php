@@ -895,6 +895,9 @@ class EbayEnterprise_Catalog_Test_Helper_PimTest extends EbayEnterprise_Eb2cCore
     }
     public function provideGiftCardFlags()
     {
+        if (!class_exists('Enterprise_GiftCard_Model_Giftcard')) {
+            $this->markTestSkipped('Test Requires Enterprise_GiftCard_Model_Giftcard');
+        }
         return array(
             array('0', '1', '0', Enterprise_GiftCard_Model_Giftcard::TYPE_VIRTUAL, true),
             array('1', '0', '1', Enterprise_GiftCard_Model_Giftcard::TYPE_PHYSICAL, true),
@@ -908,9 +911,6 @@ class EbayEnterprise_Catalog_Test_Helper_PimTest extends EbayEnterprise_Eb2cCore
      */
     public function testPassGiftCard($useConfig, $prodAllowMessage, $configAllowMessage, $isVirtual, $allowMessage)
     {
-        if (!class_exists('Enterprise_GiftCard_Model_Giftcard')) {
-            $this->markTestSkipped('Test Requires Enterprise_GiftCard_Model_Giftcard');
-        }
         $doc = Mage::helper('eb2ccore')->getNewDomDocument();
         $doc->loadXML('<root/>');
         $name = 'the giftcard name';

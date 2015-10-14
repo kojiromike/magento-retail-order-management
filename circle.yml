@@ -2,10 +2,11 @@ machine:
     php:
         version: 5.4.37
 checkout:
-    override:
+    pre:
         - echo 'Deferring Checkout for Composer to do'
         - env
-        - exit 1
+        - git remote -v
+        - git status
 dependencies:
     pre:
         - mkdir -p ../build

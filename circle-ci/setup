@@ -5,7 +5,7 @@ echo 'Setting up Magento for Testing in Circle CI'
 mkdir -p build
 cd build
 echo 'Unpacking Magento into Build Directory'
-curl -LSs 'https://github.com/OpenMage/magento-mirror/archive/1.9.2.1.tar.gz' | tar -xzf-
+curl -LSs 'https://github.com/OpenMage/magento-mirror/archive/1.9.2.1.tar.gz' | tar --strip-components=1 -xzf-
 php install.php \
     --admin_email admin@example.com \
     --admin_firstname ad \
@@ -33,7 +33,7 @@ composer --no-interaction config repositories.this vcs "${PWD%/*}"
 # Firegento has to come last
 composer --no-interaction config repositories.firegento composer http://packages.firegento.com
 composer --no-interaction --no-update require \
-        "ebayenterprise/magento-retail-order-management:dev-$(git rev-parse HEAD)"
+        "ebayenterprise/magento-retail-order-management:dev-$(git rev-parse --abbrev-ref HEAD)"
 composer --no-interaction update
 
 echo 'Removing base url from database'

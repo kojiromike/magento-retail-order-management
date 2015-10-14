@@ -1,15 +1,8 @@
 machine:
     php:
         version: 5.4.37
-checkout:
-    pre:
-        - echo 'Deferring Checkout for Composer to do'
-        - env
-        - git remote -v
-        - git status
 dependencies:
     pre:
-        - mkdir -p ../build
         - echo "memory_limit = 256M" > ~/.phpenv/versions/$(phpenv global)/etc/conf.d/memory.ini
         - circle-ci/setup
 test:

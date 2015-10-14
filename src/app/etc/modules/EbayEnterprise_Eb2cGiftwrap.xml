@@ -18,7 +18,6 @@ http://opensource.org/licenses/osl-3.0.php
             <active>true</active>
             <codePool>community</codePool>
             <depends>
-                <Enterprise_GiftWrapping/>
                 <EbayEnterprise_Eb2cCore/>
             </depends>
         </EbayEnterprise_Eb2cGiftwrap>

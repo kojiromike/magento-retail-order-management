@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+echo 'Setting up Magento for Testing in Circle CI'
+
+mkdir -p build
+cd build
+echo 'Unpacking Magento into Build Directory'
+curl -Ss 'https://github.com/OpenMage/magento-mirror/archive/1.9.2.1.tar.gz' | tar -xzf-
+php install.php \
+    --admin_email admin@example.com \
+    --admin_firstname ad \
+    --admin_lastname min \
+    --admin_password testing123 \
+    --admin_username admin \
+    --db_host 127.0.0.1 \
+    --db_name circle_test \
+    --db_pass '' \
+    --db_user ubuntu \
+    --default_currency USD \
+    --license_agreement_accepted yes \
+    --locale en_US \
+    --secure_base_url 'http://example.com/' \
+    --skip_url_validation yes \
+    --timezone America/New_York \
+    --url 'http://example.com/' \
+    --use_rewrites yes \
+    --use_secure no \
+    --use_secure_admin no
+
+echo 'Setting up composer'
+cp ../circleci/composer.json .
+composer --no-interaction config repositories.this vcs "${PWD%/*}"
+# Firegento has to come last
+composer --no-interaction config repositories.firegento composer http://packages.firegento.com
+composer --no-interaction require \
+        "ebayenterprise/magento-retail-order-management:dev-$(git rev-parse HEAD)"
+
+echo 'Removing base url from database'
+mysql -e 'DELETE FROM core_config_data WHERE path LIKE "web/%secure/base_url"\g'
+
+echo 'Configuring Magento for testing'
+cp ../tests/composer.xml app/etc/
+cp ../tests/local.xml.phpunit.docker app/etc/local.xml.phpunit
+cp ../tests/phpunit.xml.dist .

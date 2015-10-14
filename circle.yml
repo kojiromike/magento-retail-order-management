@@ -13,4 +13,4 @@ dependencies:
         - circle-ci/setup
 test:
     override:
-        - cd ../build && phpunit
+        - cd ../build && ls -al && phpunit

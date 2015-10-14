@@ -18,13 +18,12 @@ http://opensource.org/licenses/osl-3.0.php
             <active>true</active>
             <codePool>community</codePool>
             <depends>
-                <Enterprise_GiftRegistry/>
+                <EbayEnterprise_Eb2cCore/>
+                <EbayEnterprise_MageLog/>
                 <Mage_Checkout/>
                 <Mage_Core/>
                 <Mage_Customer/>
                 <Mage_Directory/>
-                <EbayEnterprise_Eb2cCore/>
-                <EbayEnterprise_MageLog/>
             </depends>
         </EbayEnterprise_Address>
     </modules>

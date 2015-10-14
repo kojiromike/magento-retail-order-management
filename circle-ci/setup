@@ -3,6 +3,7 @@
 repo="$PWD"
 
 echo 'Setting up composer'
+cd ../build
 cp "$repo/circle-ci/composer.json" .
 composer --global --no-interaction config repositories.this path "$repo"
 # Firegento has to come last

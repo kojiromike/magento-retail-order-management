@@ -5,8 +5,9 @@ php:
     - 5.6
     - hhvm
 before_install:
-  - mysql -e 'create database IF NOT EXISTS circle_test;' -uroot
-  - mysql -e 'grant all on circle_test.* to ubuntu;' -uroot
+    - composer self-update
+    - mysql -e 'create database IF NOT EXISTS circle_test;' -uroot
+    - mysql -e 'grant all on circle_test.* to ubuntu;' -uroot
 install:
     - circle-ci/magento-install
     - mkdir ../build && rsync -a ../magento/ ../build

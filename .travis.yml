@@ -1,0 +1,30 @@
+language: php
+php:
+    - 5.4
+    - 5.5
+    - 5.6
+    - hhvm
+before_install:
+  - mysql -e 'create database IF NOT EXISTS circle_test;' -uroot
+
+install:
+    - circle-ci/magento-install
+    - mkdir ../build && rsync -a ../magento/ ../build
+    - circle-ci/setup
+
+
+machine:
+    php:
+        version: 5.4.37
+dependencies:
+    cache_directories:
+        - ../.composer
+    pre:
+        - echo "memory_limit = 512M" > ~/.phpenv/versions/$(phpenv global)/etc/conf.d/memory.ini
+        - circle-ci/magento-install
+        - mkdir ../build && rsync -a ../magento/ ../build
+    override:
+        - circle-ci/setup
+test:
+    override:
+        - cd ../build && phpunit

@@ -13,3 +13,7 @@ dependencies:
 test:
     override:
         - cd ../build && phpunit
+general:
+    branches:
+        ignore:
+            - travis

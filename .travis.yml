@@ -13,5 +13,5 @@ install:
     - mkdir ../build && rsync -a ../magento/ ../build
     - circle-ci/setup
 dependencies:
-script: cd ../build && phpunit
+script: cd ../build && phpunit --debug
 sudo: false # Containerize build

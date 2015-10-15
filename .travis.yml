@@ -13,3 +13,4 @@ install:
     - circle-ci/setup
 dependencies:
 script: cd ../build && phpunit
+sudo: false # Containerize build

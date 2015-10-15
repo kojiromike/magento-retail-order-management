@@ -24,6 +24,7 @@ class EbayEnterprise_Order_Test_Model_Overrides_Enterprise_RmaTest extends EbayE
 
     public function testRmaRewrite()
     {
+        $this->requireModule('Enterprise_Rma');
         $this->assertInstanceOf(
             'EbayEnterprise_Order_Overrides_Model_Enterprise_Rma',
             Mage::getModel('enterprise_rma/rma')
@@ -35,6 +36,7 @@ class EbayEnterprise_Order_Test_Model_Overrides_Enterprise_RmaTest extends EbayE
      */
     public function testRmaEmailSuppressionOn($testMethod)
     {
+        $this->requireModule('Enterprise_Rma');
         $this->replaceCoreConfigRegistry([
             'transactionalEmailer' => 'eb2c'
         ]);
@@ -53,6 +55,7 @@ class EbayEnterprise_Order_Test_Model_Overrides_Enterprise_RmaTest extends EbayE
      */
     public function testRmaEmailSuppressionOff($testMethod)
     {
+        $this->requireModule('Enterprise_Rma');
         $this->replaceCoreConfigRegistry([
             'transactionalEmailer' => 'mage'
         ]);

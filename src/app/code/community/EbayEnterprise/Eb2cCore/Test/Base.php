@@ -220,4 +220,17 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base extends EcomDev_PHPUnit_Test_Ca
             "Expected method '$observerClassName::$observerMethod' is not defined."
         );
     }
+
+    /**
+     * Skip a test if the given module is not enabled/installed.
+     *
+     * @param string
+     * @return null
+     */
+    protected function requireModule($module)
+    {
+        if (!Mage::helper('core')->isModuleEnabled($module)) {
+            $this->markTestSkipped("Skipping test requiring {$module}.");
+        }
+    }
 }

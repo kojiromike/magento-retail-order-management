@@ -129,6 +129,7 @@ class EbayEnterprise_Catalog_Test_Helper_ItemmasterTest extends EbayEnterprise_E
             ->method('getConfigModel')
             ->will($this->returnValue($this->coreConfig));
 
+        $this->requireModule('Enterprise_GiftCard');
         $this->itemmasterHelper = $this->getHelperMock('ebayenterprise_catalog/itemmaster', array('_getColorAttributeOptionsCollection'));
         $this->itemmasterHelper->expects($this->any())
             ->method('_getColorAttributeOptionsCollection')
@@ -306,10 +307,12 @@ class EbayEnterprise_Catalog_Test_Helper_ItemmasterTest extends EbayEnterprise_E
      */
     public function testPassGiftCardWithGiftCardProduct()
     {
+        $this->requireModule('Enterprise_GiftCard');
+        $giftCardTypeClass = Mage::getConfig()->getModelClassName('enterprise_giftcard/catalog_product_type_giftcard');
         $product = Mage::getModel(
             'catalog/product',
             [
-                'type_id' => Enterprise_GiftCard_Model_Catalog_Product_Type_Giftcard::TYPE_GIFTCARD,
+                'type_id' => $giftCardTypeClass::TYPE_GIFTCARD,
                 'name' => 'Gift Card Name',
                 'gift_card_tender_code' => 'GCTC',
                 'open_amount_max' => 499.99,

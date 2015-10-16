@@ -13,8 +13,12 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-use eBayEnterprise\RetailOrderManagement\Api;
+use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation;
 use eBayEnterprise\RetailOrderManagement\Payload;
+use eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -419,7 +423,7 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
     /**
      * Get a new SDK Api instance for an API call.
      * @param  string $operation
-     * @return Api\IBidirectionalApi
+     * @return IBidirectionalApi
      */
     protected function getApi($operation)
     {
@@ -436,10 +440,10 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
     /**
      * Prepare an API instance for a balance request - fill out and set the
      * request payload with gift card data.
-     * @param  Api\IBidirectionalApi $api
+     * @param  IBidirectionalApi $api
      * @return self
      */
-    protected function prepareApiForBalanceCheck(Api\IBidirectionalApi $api)
+    protected function prepareApiForBalanceCheck(IBidirectionalApi $api)
     {
         $this->setBalanceRequestId($this->coreHelper->generateRequestId(self::BALANCE_REQUST_ID_PREFIX));
         $payload = $api->getRequestBody();
@@ -455,10 +459,10 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
     /**
      * Prepare an API instance for a balance request - fill out and set the
      * request payload with gift card data.
-     * @param  Api\IBidirectionalApi $api
+     * @param  IBidirectionalApi $api
      * @return self
      */
-    protected function prepareApiForRedeem(Api\IBidirectionalApi $api)
+    protected function prepareApiForRedeem(IBidirectionalApi $api)
     {
         $this->setRedeemRequestId($this->coreHelper->generateRequestId(self::REDEEM_REQUST_ID_PREFIX));
         $payload = $api->getRequestBody();
@@ -475,10 +479,10 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
     /**
      * Prepare an API instance for a balance request - fill out and set the
      * request payload with gift card data.
-     * @param  Api\IBidirectionalApi $api
+     * @param  IBidirectionalApi $api
      * @return self
      */
-    protected function prepareApiForVoid(Api\IBidirectionalApi $api)
+    protected function prepareApiForVoid(IBidirectionalApi $api)
     {
         $this->setRedeemVoidRequestId($this->coreHelper->generateRequestId(self::VOID_REQUST_ID_PREFIX));
         $payload = $api->getRequestBody();
@@ -521,24 +525,41 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
 
     /**
      * Send the request via the SDK
-     * @param  Api\IBidirectionalApi $api
+     * @param  IBidirectionalApi $api
      * @return self
      * @throws EbayEnterprise_GiftCard_Exception If request cannot be made successfully
      */
-    protected function sendRequest(Api\IBidirectionalApi $api)
+    protected function sendRequest(IBidirectionalApi $api)
     {
+        $logger = $this->logger;
+        $logContext = $this->context;
         try {
             $api->send();
-        } catch (Api\Exception\NetworkError $e) {
-            $logMessage = 'Stored value request failed. See exception log for details.';
-            $this->logger->warning($logMessage, $this->context->getMetaData(__CLASS__));
-            $this->logger->logException($e, $this->context->getMetaData(__CLASS__, [], $e));
-            throw Mage::exception('EbayEnterprise_GiftCard_Exception_Network', $this->helper->__(self::REQUEST_FAILED_MESSAGE));
-        } catch (Payload\Exception\InvalidPayload $e) {
-            $logMessage = 'Invalid payload for stored value response. See exception log for details.';
-            $this->logger->warning($logMessage, $this->context->getMetaData(__CLASS__));
-            $this->logger->logException($e, $this->context->getMetaData(__CLASS__, [], $e));
+        } catch (InvalidPayload $e) {
+            $logMessage = 'Invalid payload for stored value request. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             throw Mage::exception('EbayEnterprise_GiftCard', $this->helper->__(self::REQUEST_FAILED_MESSAGE));
+        } catch (NetworkError $e) {
+            $logMessage = 'Caught a network error sending stored value request. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw Mage::exception('EbayEnterprise_GiftCard_Exception_Network', $this->helper->__(self::REQUEST_FAILED_MESSAGE));
+        } catch (UnsupportedOperation $e) {
+            $logMessage = 'The stored value card operation is unsupported in the current configuration. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
+        } catch (UnsupportedHttpAction $e) {
+            $logMessage = 'The stored value card operation is configured with an unsupported HTTP action. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
+        } catch (Exception $e) {
+            $logMessage = 'Encountered unexpected exception from stored value card operation. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
         }
         return $this;
     }
@@ -547,11 +568,11 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
      * Check for the balance response to be successful. If it was, update the
      * gift card with response data. If not, thrown an exception, indicating the
      * request failed.
-     * @param  Api\IBidirectionalApi $api
+     * @param  IBidirectionalApi $api
      * @return self
      * @throws EbayEnterprise_GiftCard_Exception If the reply is not successful.
      */
-    protected function handleBalanceResponse(Api\IBidirectionalApi $api)
+    protected function handleBalanceResponse(IBidirectionalApi $api)
     {
         $response = $api->getResponseBody();
         if (!$response->isSuccessful()) {
@@ -566,11 +587,11 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
      * Check for the gift card to have been redeemed. If it was, update the
      * gift card with response data. If not, thrown an exception, indicating the
      * request failed.
-     * @param  Api\IBidirectionalApi $api
+     * @param  IBidirectionalApi $api
      * @return self
      * @throws EbayEnterprise_GiftCard_Exception If the card was not redeemed
      */
-    protected function handleRedeemResponse(Api\IBidirectionalApi $api)
+    protected function handleRedeemResponse(IBidirectionalApi $api)
     {
         $response = $api->getResponseBody();
         if (!$response->wasRedeemed()) {
@@ -591,11 +612,11 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
      * Check for the gift card redeem to have been voided. If it was, update the
      * gift card with response data. If not, thrown an exception, indicating the
      * request failed.
-     * @param  Api\IBidirectionalApi $api
+     * @param  IBidirectionalApi $api
      * @return self
      * @throws EbayEnterprise_GiftCard_Exception If the redeem was not voided
      */
-    protected function handleVoidResponse(Api\IBidirectionalApi $api)
+    protected function handleVoidResponse(IBidirectionalApi $api)
     {
         $response = $api->getResponseBody();
         if (!$response->wasVoided()) {
@@ -641,11 +662,11 @@ class EbayEnterprise_GiftCard_Model_Giftcard implements EbayEnterprise_GiftCard_
     /**
      * Log request and response of stored value various service API calls.
      *
-     * @param Api\IBidirectionalApi
+     * @param IBidirectionalApi
      * @param bool
      * @param string
      */
-    protected function logStoredValuePayload(Api\IBidirectionalApi $api, $isRequest, $logMessage)
+    protected function logStoredValuePayload(IBidirectionalApi $api, $isRequest, $logMessage)
     {
         /** @var string */
         $method = 'getRequestBody';

@@ -13,8 +13,9 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-use \eBayEnterprise\RetailOrderManagement\Api;
-use \eBayEnterprise\RetailOrderManagement\Payload;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
+use eBayEnterprise\RetailOrderManagement\Payload;
+use eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
 
 class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
@@ -91,7 +92,7 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest extends EbayEnte
         $api = $this->getMock('\eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi');
         $api->expects($this->any())
             ->method('send')
-            ->will($this->throwException(new Payload\Exception\InvalidPayload));
+            ->will($this->throwException(new InvalidPayload));
         $api->expects($this->any())
             ->method('getRequestBody')
             ->will($this->returnValue($request));
@@ -134,7 +135,7 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest extends EbayEnte
         $api = $this->getMock('\eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi');
         $api->expects($this->any())
             ->method('send')
-            ->will($this->throwException(new Api\Exception\NetworkError));
+            ->will($this->throwException(new NetworkError));
         $api->expects($this->any())
             ->method('getRequestBody')
             ->will($this->returnValue($request));
@@ -493,5 +494,60 @@ class EbayEnterprise_CreditCard_Test_Model_Method_CcpaymentTest extends EbayEnte
         $payment = Mage::getModel('ebayenterprise_creditcard/method_ccpayment');
 
         $this->assertSame($payment, EcomDev_Utils_Reflection::invokeRestrictedMethod($payment, '_prepareApiRequest', [$api, $orderPayment]));
+    }
+
+    /**
+     * Provide exceptions that can be thrown from the SDK and the exception
+     * expected to be thrown after handling the SDK exception.
+     *
+     * @return array
+     */
+    public function provideSdkExceptions()
+    {
+        $invalidPayload = '\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload';
+        $networkError = '\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError';
+        $unsupportedOperation = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation';
+        $unsupportedHttpAction = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction';
+        $baseException = 'Exception';
+        $creditCardException = 'EbayEnterprise_CreditCard_Exception';
+        return [
+            [$invalidPayload, $creditCardException],
+            [$networkError, $creditCardException],
+            [$unsupportedOperation, $unsupportedOperation],
+            [$unsupportedHttpAction, $unsupportedHttpAction],
+            [$baseException, $baseException],
+        ];
+    }
+
+    /**
+     * GIVEN An <api> that will thrown an <exception> of <exceptionType> when making a request.
+     * WHEN A request is made.
+     * THEN The <exception> will be caught.
+     * AND An exception of <expectedExceptionType> will be thrown.
+     *
+     * @param string
+     * @param string
+     * @dataProvider provideSdkExceptions
+     */
+    public function testSdkExceptionHandling($exceptionType, $expectedExceptionType)
+    {
+        // Prevent session errors while handling some types of exceptions.
+        $this->_replaceCheckoutSession();
+
+        $exception = new $exceptionType(__METHOD__ . ': Test Exception');
+        $api = $this->getMock('\eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi');
+        $api->method('send')
+            ->will($this->throwException($exception));
+
+        $this->setExpectedException($expectedExceptionType);
+
+        /** @var EbayEnterprise_CreditCard_Model_Method_Ccpayment $payment */
+        $payment = Mage::getModel('ebayenterprise_creditcard/method_ccpayment');
+
+        EcomDev_Utils_Reflection::invokeRestrictedMethod(
+            $payment,
+            '_sendAuthRequest',
+            [$api]
+        );
     }
 }

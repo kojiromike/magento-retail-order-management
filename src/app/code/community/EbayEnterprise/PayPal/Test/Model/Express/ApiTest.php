@@ -192,18 +192,6 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest extends EbayEnterprise_Eb
     }
 
     /**
-     * provide sdk exceptions to throw
-     * @return string[]
-     */
-    public function provideSdkExceptions()
-    {
-        return [
-            ['\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError'],
-            ['\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload'],
-        ];
-    }
-
-    /**
      * inject the given config into the core helper
      * @param  array  $config
      */
@@ -379,24 +367,53 @@ class EbayEnterprise_PayPal_Test_Model_Express_ApiTest extends EbayEnterprise_Eb
     }
 
     /**
-     * verify
-     * - a single exception is thrown for any sdk exception
-     * @dataProvider provideSdkExceptions
-     * @expectedException EbayEnterprise_PayPal_Exception
+     * provide sdk exceptions to throw
+     * @return array
      */
-    public function testSendRequestWithSdkException($sdkException)
+    public function provideSdkExceptions()
     {
-        $requestPayload = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\IPayload');
-        $requestPayload->expects($this->any())
-            ->method('serialize')
-            ->will($this->returnValue('serialized request'));
-        $this->sdk->expects($this->any())
-            ->method('getRequestBody')
-            ->will($this->returnValue($requestPayload));
+        $invalidPayload = '\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload';
+        $networkError = '\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError';
+        $unsupportedOperation = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation';
+        $unsupportedHttpAction = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction';
+        $baseException = 'Exception';
+        $paypalException = 'EbayEnterprise_PayPal_Exception';
+        return [
+            [$invalidPayload, $paypalException],
+            [$networkError, $paypalException],
+            [$unsupportedOperation, $unsupportedOperation],
+            [$unsupportedHttpAction, $unsupportedHttpAction],
+            [$baseException, $baseException],
+        ];
+    }
+
+    /**
+     * GIVEN An <sdk> that will thrown an <exception> of <exceptionType> when making a request.
+     * WHEN A request is made.
+     * THEN The <exception> will be caught.
+     * AND An exception of <expectedExceptionType> will be thrown.
+     *
+     * @param string
+     * @param string
+     * @dataProvider provideSdkExceptions
+     */
+    public function testSendRequestWithSdkException($exceptionType, $expectedExceptionType)
+    {
+        // Mock log context to prevent session interactions while getting log meta data.
+        $logContext = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $logContext->method('getMetaData')->will($this->returnValue([]));
+
+        $exception = new $exceptionType(__METHOD__ . ': Test Exception');
+
+        // Set the SDK API up to throw an exception.
         $this->sdk->expects($this->any())
             ->method('send')
-            ->will($this->throwException(new $sdkException));
-        $api = Mage::getModel('ebayenterprise_paypal/express_api');
+            ->will($this->throwException($exception));
+
+        $api = Mage::getModel('ebayenterprise_paypal/express_api', ['log_context' => $logContext]);
+
+        $this->setExpectedException($expectedExceptionType);
+
         EcomDev_Utils_Reflection::invokeRestrictedMethod($api, 'sendRequest', [$this->sdk]);
     }
 

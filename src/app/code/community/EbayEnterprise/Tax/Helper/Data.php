@@ -188,40 +188,47 @@ class EbayEnterprise_Tax_Helper_Data extends Mage_Core_Helper_Abstract implement
      */
     protected function _sendApiRequest(IBidirectionalApi $api)
     {
+        $logger = $this->logger;
+        $logContext = $this->logContext;
         try {
             $api->send();
             // Generally, these catch statements will all add a log message for the
             // exception and throw a more generic exception that can be handled
             // (by Magento or the Tax module) in such a way as to not block checkout.
-        } catch (NetworkError $e) {
-            $this->logger->warning(
-                'Caught network error getting taxes, duties and fees. Will retry during next total collection.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
-            );
-            throw $this->_failTaxCollection();
         } catch (InvalidPayload $e) {
-            $this->logger->warning(
-                'Tax request payload is invalid.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->warning(
+                'Invalid payload for tax quote. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $this->_failTaxCollection();
+        } catch (NetworkError $e) {
+            $logger->warning(
+                'Caught network error sending tax quote request. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             throw $this->_failTaxCollection();
         } catch (UnsupportedOperation $e) {
-            $this->logger->critical(
-                'Tax quote service response unsupported by SDK.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->critical(
+                'The tax quote service operation is unsupported in the current configuration. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             throw $this->_failTaxCollection();
         } catch (UnsupportedHttpAction $e) {
-            $this->logger->critical(
-                'Tax quote operation failed due to unsupported HTTP action in the SDK.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->critical(
+                'The tax quote operation is configured with an unsupported HTTP action. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             throw $this->_failTaxCollection();
         } catch (Exception $e) {
-            $this->logger->warning(
-                'Encountered unexepcted error attempting to request tax data. See the exception log.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->warning(
+                'Encountered unexpected exception from tax quote operation. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             throw $this->_failTaxCollection();
         }
         return $this;

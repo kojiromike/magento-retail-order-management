@@ -14,7 +14,11 @@
  */
 
 use eBayEnterprise\RetailOrderManagement\Api;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation;
 use eBayEnterprise\RetailOrderManagement\Payload;
+use eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -488,23 +492,38 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
      */
     protected function _sendAuthRequest(Api\IBidirectionalApi $api)
     {
+        $logger = $this->_logger;
+        $logContext = $this->_context;
         try {
             $api->send();
-        } catch (Payload\Exception\InvalidPayload $e) {
+        } catch (InvalidPayload $e) {
             // Invalid payloads cannot be valid - log the error and fail the auth
-            $logData = ['error_message' => $e->getMessage()];
-            $logMessage = 'Credit card auth payload invalid: {error_message}';
-            $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
-            $this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
+            $logMessage = 'Invalid payload for credit card auth. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             $this->_failPaymentAuth(self::CREDITCARD_AUTH_FAILED_MESSAGE);
-        } catch (Api\Exception\NetworkError $e) {
+        } catch (NetworkError $e) {
             // Can't accept an auth request that could not be made successfully - log
             // the error and fail the auth.
-            $logData = ['error_message' => $e->getMessage()];
-            $logMessage = 'Credit card auth request failed: {error_message}';
-            $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
-            $this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
+            $logMessage = 'Caught a network error sending credit card auth. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             $this->_failPaymentAuth(self::CREDITCARD_AUTH_FAILED_MESSAGE);
+        } catch (UnsupportedOperation $e) {
+            $logMessage = 'The credit card auth operation is unsupported in the current configuration. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
+        } catch (UnsupportedHttpAction $e) {
+            $logMessage = 'The credit card auth operation is configured with an unsupported HTTP action. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
+        } catch (Exception $e) {
+            $logMessage = 'Encountered unexpected exception from the credit card auth operation. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
         }
         return $this;
     }

@@ -61,23 +61,31 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
         );
     }
     /**
-     * Provide errors that may be thrown by the SDK when makeing the API request.
+     * Provide errors that may be thrown by the SDK when making the API request
+     * and the exception that is expected to be thrown, if any, in response to
+     * the SDK exception.
+     *
      * @return array
      */
     public function provideApiExceptions()
     {
         return [
-            ['\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError'],
-            ['\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload'],
-        ];
+            ['\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError', 'EbayEnterprise_GiftCard_Exception'],
+            ['\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload', 'EbayEnterprise_GiftCard_Exception'],
+            ['\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation', '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation'],
+            ['\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction', '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction'],
+            ['\Exception', '\Exception'],
+       ];
     }
     /**
      * Any exceptions thrown by the SDK should be caught and converted to gift card
      * exceptions.
-     * @param string $exceptionType Type of exception for the SDK to throw
+     *
+     * @param string
+     * @param string
      * @dataProvider provideApiExceptions
      */
-    public function testSendingApiRequestErrorHandling($exceptionType)
+    public function testSendingApiRequestErrorHandling($exceptionType, $expectedExceptionType)
     {
         $api = $this->getMockBuilder('\eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi')
             ->disableOriginalConstructor()
@@ -86,7 +94,7 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
             ->method('send')
             ->will($this->throwException(new $exceptionType(__METHOD__ . ': test exception')));
 
-        $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
+        $this->setExpectedException($expectedExceptionType);
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
             $this->giftCard,
             'sendRequest',

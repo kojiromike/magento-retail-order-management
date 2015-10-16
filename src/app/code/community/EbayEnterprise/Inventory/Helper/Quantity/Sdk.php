@@ -113,34 +113,47 @@ class EbayEnterprise_Inventory_Helper_Quantity_Sdk
      */
     protected function _sendApiRequest(IBidirectionalApi $api)
     {
+        $logger = $this->_logger;
+        $logContext = $this->_logContext;
         try {
             $api->send();
         // Generally, these catch statements will all add a log message for the
         // exception and throw a more generic exception that can be handled
         // (by Magento or the Inventory module) in such a way as to not block checkout.
-        } catch (NetworkError $e) {
-            $this->_logger->warning(
-                'Caught network error getting inventory quantity. Will retry on next opportunity.',
-                $this->_logContext->getMetaData(__CLASS__, [], $e)
+        } catch (InvalidPayload $e) {
+            $logger->warning(
+                'Invalid payload for inventory quantity. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $this->_failQuantityCollection();
+        } catch (NetworkError $e) {
+            $logger->warning(
+                'Caught network error getting inventory quantity. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             throw $this->_failQuantityCollection();
         } catch (UnsupportedOperation $e) {
-            $this->_logger->critical(
-                'Inventory quantity service response unsupported by SDK.',
-                $this->_logContext->getMetaData(__CLASS__, [], $e)
+            $logger->critical(
+                'The inventory quantity operation is unsupported in the current configuration. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             throw $this->_failQuantityCollection();
         } catch (UnsupportedHttpAction $e) {
-            $this->_logger->critical(
-                'Inventory quantity operation failed due to unsupported HTTP action in the SDK.',
-                $this->_logContext->getMetaData(__CLASS__, [], $e)
+            $logger->critical(
+                'Inventory quantity operation is configured with an unsupported HTTP action. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             throw $this->_failQuantityCollection();
         } catch (Exception $e) {
-            $this->_logger->warning(
-                'Encountered unexpected error attempting to request inventory quantities. See the exception log.',
-                $this->_logContext->getMetaData(__CLASS__, [], $e)
+            $logger->warning(
+                'Inventory quantity operation failed with unexpected exception. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             throw $this->_failQuantityCollection();
         }
         return $this;

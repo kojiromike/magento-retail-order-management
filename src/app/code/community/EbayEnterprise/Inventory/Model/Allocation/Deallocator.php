@@ -78,31 +78,37 @@ class EbayEnterprise_Inventory_Model_Allocation_Deallocator
      */
     public function rollback(EbayEnterprise_Inventory_Model_Allocation_Reservation $reservation)
     {
+        $logger = $this->logger;
+        $logContext = $this->logContext;
+
         $api = $this->prepareApi();
         try {
             $this->prepareRequest($api, $reservation);
             $api->send();
-            return;
         } catch (InvalidPayload $e) {
-            $this->logger->warning(
-                'The allocation rollback response payload is invalid.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->warning(
+                'Invalid payload for inventory allocation rollback. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (NetworkError $e) {
-            $this->logger->warning(
-                'Failed sending the allocation rollback request.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->warning(
+                'Caught a network error sending the inventory allocation rollback request. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (UnsupportedOperation $e) {
-            $this->logger->critical(
-                'Allocation rollback is unsupported in the currently configured SDK.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->critical(
+                'The allocation rollback operation is unsupported in the current SDK configuration. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (UnsupportedHttpAction $e) {
-            $this->logger->critical(
-                'Allocation rollback configured to use unsupported HTTP action.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->critical(
+                'Allocation rollback configured to use unsupported HTTP action. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         }
     }
 

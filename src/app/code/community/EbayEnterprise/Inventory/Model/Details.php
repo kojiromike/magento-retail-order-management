@@ -35,6 +35,10 @@ class EbayEnterprise_Inventory_Model_Details
     protected $responseHelper;
     /** @var EbayEnterprise_Inventory_Helper_Details_Factory */
     protected $factory;
+    /** @var EbayEnterprise_MageLog_Helper_Data */
+    protected $logger;
+    /** @var EbayEnterprise_MageLog_Helper_Context */
+    protected $logContext;
 
     public function __construct(array $init = [])
     {
@@ -150,6 +154,9 @@ class EbayEnterprise_Inventory_Model_Details
      */
     protected function tryOperation(Mage_Sales_Model_Quote $quote)
     {
+        $logger = $this->logger;
+        $logContext = $this->logContext;
+
         try {
             $api = $this->prepareApi();
             $request = $this->prepareRequest($api, $quote);
@@ -162,28 +169,29 @@ class EbayEnterprise_Inventory_Model_Details
             }
             return $this->prepareResult($api);
         } catch (InvalidPayload $e) {
-            $this->logger->warning(
-                'Unable to perform inventory details operation due to an invalid payload.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->warning(
+                'Invalid payload for inventory details. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (NetworkError $e) {
-            $this->logger
-                ->warning(
-                    'Unable to perform inventory details operation due to a network error.',
-                    $this->logContext->getMetaData(__CLASS__, [], $e)
-                );
+            $logger->warning(
+                'Caught a network error sending the inventory details request. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (UnsupportedOperation $e) {
-            $this->logger
-                ->critical(
-                    'Inventory details operation is unsupported in current configuration.',
-                    $this->logContext->getMetaData(__CLASS__, [], $e)
-                );
+            $logger->critical(
+                'The inventory details operation is unsupported in current configuration. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (UnsupportedHttpAction $e) {
-            $this->logger
-                ->critical(
-                    'Unable to perform inventory details operation due to protocol error.',
-                    $this->logContext->getMetaData(__CLASS__, [], $e)
-                );
+            $logger->critical(
+                'The inventory details operation is configured with an unsupported HTTP action. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         }
         // if we got here there was a problem
         throw Mage::exception(

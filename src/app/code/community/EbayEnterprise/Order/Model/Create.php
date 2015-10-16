@@ -14,12 +14,12 @@
  */
 
 use \eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
-use \eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkException;
+use \eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
 use \eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
+use \eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation;
 use \eBayEnterprise\RetailOrderManagement\Payload\Checkout\IPersonName;
 use \eBayEnterprise\RetailOrderManagement\Payload\Checkout\IPhysicalAddress;
 use \eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
-use \eBayEnterprise\RetailOrderManagement\Payload\Exception\UnsupportedOperation;
 use \eBayEnterprise\RetailOrderManagement\Payload\Order\IDestination;
 use \eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderContext;
 use \eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateRequest;
@@ -269,35 +269,40 @@ class EbayEnterprise_Order_Model_Create
             'order' => $this->_order,
             'payload' => $this->_payload,
         ]);
+
+        $logger = $this->_logger;
+        $logContext = $this->_logContext;
+
         try {
             $reply = $this->_api
                 ->setRequestBody($this->_payload)
                 ->send()
                 ->getResponseBody();
-        } catch (NetworkException $e) {
-            $this->_logger
-                ->warning(
-                    'Caught a network error sending order create. Will retry later.',
-                    $this->_logContext->getMetaData(__CLASS__, [], $e)
-                );
+        } catch (NetworkError $e) {
+            $logger->warning(
+                'Caught a network error sending order create. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             return $this;
         } catch (UnsupportedOperation $e) {
-            $this->_logger
-                ->critical(
-                    '[%s] Order create request saved, but not sent. See exception log.',
-                    $this->_logContext->getMetaData(__CLASS__, [], $e)
-                );
+            $logger->critical(
+                'The order create operation is unsupported in the current configuration. Order saved, but not sent. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             return $this;
         } catch (UnsupportedHttpAction $e) {
-            $this->_logger
-                ->critical(
-                    '[%s] Order create request saved, but not sent. See exception log.',
-                    $this->_logContext->getMetaData(__CLASS__, [], $e)
-                );
+            $logger->critical(
+                'The order create operation is configured with an unsupported HTTP action. Order saved, but not sent. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             return $this;
         } catch (Exception $e) {
             throw $this->_logUnhandledException($e);
         }
+
         if ($reply->isSuccessful()) {
             $this->_order->setStatus(self::STATUS_SENT);
             Mage::dispatchEvent($this->_successfulOrderCreateEvent, [
@@ -325,11 +330,11 @@ class EbayEnterprise_Order_Model_Create
             $exceptionClassName = Mage::getConfig()->getModelClassName('ebayenterprise_order/create');
             $e = Mage::exception($exceptionClassName, $errorMessage);
         }
-        $this->_logger
-            ->warning(
-                'Encountered a fatal error attempting to send order create. See the exception log.',
-                $this->_logContext->getMetaData(__CLASS__, [], $e)
-            );
+        $this->_logger->warning(
+            'Encountered unexpected exception attempting to send order create. See exception log for more details.',
+            $this->_logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+        );
+        $this->_logger->logException($e, $this->_logContext->getMetaData(__CLASS__, [], $e));
         return $e;
     }
 

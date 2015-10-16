@@ -1,4 +1,17 @@
 <?php
+/**
+ * Copyright (c) 2013-2014 eBay Enterprise, Inc.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @copyright   Copyright (c) 2013-2014 eBay Enterprise, Inc. (http://www.ebayenterprise.com/)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 
 use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
 use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
@@ -84,6 +97,9 @@ class EbayEnterprise_GiftCard_Model_Tendertype_Lookup
      */
     public function getTenderType()
     {
+        $logger = $this->logger;
+        $logContext = $this->logContext;
+
         try {
             $this->prepareApiForSend();
             $this->api->send();
@@ -91,30 +107,35 @@ class EbayEnterprise_GiftCard_Model_Tendertype_Lookup
                 $this->api->getResponseBody()
             );
         } catch (EbayEnterprise_GiftCard_Exception_TenderTypeLookupFailed_Exception $e) {
-            $this->logger->error(
-                'The service reported the tender type lookup as unsuccessful.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->error(
+                'The service reported the tender type lookup as unsuccessful. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (InvalidPayload $e) {
-            $this->logger->warning(
-                'Either the request or the response for the tender type lookup contains invalid data.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->warning(
+                'Invalid payload for tender type lookup. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (NetworkError $e) {
-            $this->logger->warning(
-                'There was a network error when attempting to fetch the tender type',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->warning(
+                'Caught a network error sending the tender type lookup. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (UnsupportedOperation $e) {
-            $this->logger->critical(
-                'The tender type lookup operation is unsupported in the current configuration.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->critical(
+                'The tender type lookup operation is unsupported in the current configuration. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (UnsupportedHttpAction $e) {
-            $this->logger->critical(
-                'The tender type lookup is configured with an unsupported HTTP action',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->critical(
+                'The tender type lookup is configured with an unsupported HTTP action. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         }
         // we only care if we were able to get the tender type or not, so
         // boil all errors down to a single exception

@@ -80,7 +80,8 @@ class EbayEnterprise_Inventory_Model_Allocation_Allocator
      * in the quote
      *
      * @param Mage_Sales_Model_Quote
-     * @return EbayEnterprise_Inventory_Model_Allocation_Result
+     * @return EbayEnterprise_Inventory_Model_Allocation_Result|null Null if there are no items to allocate.
+     * @throws EbayEnterprise_Inventory_Exception_Allocation_Failure_Exception If the allocation fails.
      */
     public function reserveItemsForQuote(Mage_Sales_Model_Quote $quote)
     {
@@ -123,8 +124,6 @@ class EbayEnterprise_Inventory_Model_Allocation_Allocator
         return $this->invSession;
     }
 
-
-
     /**
      * attempt to do an inventory allocation operation
      *
@@ -134,35 +133,59 @@ class EbayEnterprise_Inventory_Model_Allocation_Allocator
     protected function doOperation(EbayEnterprise_Inventory_Model_Allocation_Item_Selector $selector)
     {
         $api = $this->prepareApi();
-        $this->prepareRequest($api, $selector);
+        return $this->prepareRequest($api, $selector)
+            ->makeRequest($api)
+            ->prepareResult($api);
+    }
+
+    /**
+     * Make the API request, handling exceptions if they arise.
+     *
+     * @param IBidirectionalApi
+     * @return self
+     * @throws EbayEnterprise_Inventory_Exception_Allocation_Failure_Exception If request fails.
+     */
+    protected function makeRequest(IBidirectionalApi $api)
+    {
+        $logger = $this->logger;
+        $logContext = $this->logContext;
+
         try {
             $api->send();
-            return $this->prepareResult($api);
-        } catch (NetworkError $e) {
-            $this->logger->warning(
-                'Unable to send allocation the request.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
-            );
-        } catch (UnsupportedHttpAction $e) {
-            $this->logger->critical(
-                'Create inventory allocation failed due to protocol error',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
-            );
-        } catch (UnsupportedOperation $e) {
-            $this->logger->critical(
-                'The allocation operation is unsupported by the currently configured SDK',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
-            );
+            return $this;
         } catch (InvalidPayload $e) {
-            $this->logger->warning(
-                'The allocation response was invalid.',
-                $this->logContext->getMetaData(__CLASS__, [], $e)
+            $logger->warning(
+                'Invalid payload for inventory allocation. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
             );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+        } catch (NetworkError $e) {
+            $logger->warning(
+                'Caught a network error sending the inventory allocation request. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+        } catch (UnsupportedOperation $e) {
+            $logger->critical(
+                'The inventory allocation operation is unsupported in the current configuration. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+        } catch (UnsupportedHttpAction $e) {
+            $logger->critical(
+                'The inventory allocation operation is configured with an unsupported HTTP action. See exception log for more details.',
+                $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         }
         $this->handleAllocationFailure();
     }
 
-
+    /**
+     * Throw an exception when an allocation fails.
+     *
+     * @throws EbayEnterprise_Inventory_Exception_Allocation_Failure_Exception
+     */
     protected function handleAllocationFailure()
     {
         throw Mage::exception(
@@ -206,21 +229,14 @@ class EbayEnterprise_Inventory_Model_Allocation_Allocator
             $request = $api->getRequestBody();
             $builder = $this->createRequestBuilder($request, $selector, $this->reservation);
             $builder->buildOutRequest();
-            // rule out the possibility of exceptions from the request
-            // being thrown during the send.
-            $request->serialize();
             $api->setRequestBody($request);
             return $request;
         } catch (UnsupportedOperation $e) {
             $this->logger->critical(
-                    'The allocation operation is unsupported by the currently configured SDK',
-                    $this->logContext->getMetaData(__CLASS__, [], $e)
-                );
-        } catch (InvalidPayload $e) {
-            $this->logger->error(
-                    'The allocation request is invalid',
-                    $this->logContext->getMetaData(__CLASS__, [], $e)
-                );
+                'The inventory allocation operation is unsupported in the current configuration. See exception log for more details.',
+                $this->logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()])
+            );
+            $this->logger->logException($e, $this->logContext->getMetaData(__CLASS__, [], $e));
         }
         $this->handleAllocationFailure();
     }

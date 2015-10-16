@@ -16,11 +16,28 @@
 class EbayEnterprise_Tax_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
 {
     /** @var EbayEnterprise_Tax_Helper_Data */
-    protected $_helper;
+    protected $helper;
+    /** @var EbayEnterprise_MageLog_Helper_Context */
+    protected $origLogContext;
 
     public function setUp()
     {
-        $this->_helper = Mage::helper('ebayenterprise_tax');
+        $this->helper = Mage::helper('ebayenterprise_tax');
+
+        // Mock log context to prevent session interactions while getting log meta data.
+        $logContext = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $logContext->method('getMetaData')->will($this->returnValue([]));
+
+        // Swap out the log context used by the tax helper being tested, grabbing
+        // a reference to the original value so it can be restored later.
+        $this->origLogContext = EcomDev_Utils_Reflection::getRestrictedPropertyValue($this->helper, 'logContext');
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->helper, 'logContext', $logContext);
+    }
+
+    protected function tearDown()
+    {
+        // Restore the original log context instance.
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->helper, 'logContext', $this->origLogContext);
     }
 
     /**
@@ -33,7 +50,7 @@ class EbayEnterprise_Tax_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
             ['destination_country' => 'CA', 'hts_code' => 'CA-HTS-Code'],
         ])]);
         $this->assertSame(
-            $this->_helper->getProductHtsCodeByCountry($product, 'CA'),
+            $this->helper->getProductHtsCodeByCountry($product, 'CA'),
             'CA-HTS-Code'
         );
     }
@@ -45,7 +62,7 @@ class EbayEnterprise_Tax_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
     public function testGetProductHtsCodeByCountryNoHtsCodes()
     {
         $product = Mage::getModel('catalog/product');
-        $this->assertNull($this->_helper->getProductHtsCodeByCountry($product, 'US'));
+        $this->assertNull($this->helper->getProductHtsCodeByCountry($product, 'US'));
     }
 
     /**
@@ -58,6 +75,55 @@ class EbayEnterprise_Tax_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_Case
             'catalog/product',
             ['hts_codes' => serialize([['destination_country' => 'US', 'hst_code' => 'US-HTS-Code']])]
         );
-        $this->assertNull($this->_helper->getProductHtsCodeByCountry($product, 'CA'));
+        $this->assertNull($this->helper->getProductHtsCodeByCountry($product, 'CA'));
+    }
+
+    /**
+     * Provide exceptions that can be thrown from the SDK and the exception
+     * expected to be thrown after handling the SDK exception.
+     *
+     * @return array
+     */
+    public function provideSdkExceptions()
+    {
+        $invalidPayload = '\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload';
+        $networkError = '\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError';
+        $unsupportedOperation = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation';
+        $unsupportedHttpAction = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction';
+        $baseException = 'Exception';
+        $taxCollectionException = 'EbayEnterprise_Tax_Exception_Collector_Exception';
+        return [
+            [$invalidPayload, $taxCollectionException],
+            [$networkError, $taxCollectionException],
+            [$unsupportedOperation, $taxCollectionException],
+            [$unsupportedHttpAction, $taxCollectionException],
+            [$baseException, $taxCollectionException],
+        ];
+    }
+
+    /**
+     * GIVEN An <api> that will thrown an <exception> of <exceptionType> when making a request.
+     * WHEN A request is made.
+     * THEN The <exception> will be caught.
+     * AND An exception of <expectedExceptionType> will be thrown.
+     *
+     * @param string
+     * @param string
+     * @dataProvider provideSdkExceptions
+     */
+    public function testSdkExceptionHandling($exceptionType, $expectedExceptionType)
+    {
+        $exception = new $exceptionType(__METHOD__ . ': Test Exception');
+        $api = $this->getMock('\eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi');
+        $api->method('send')
+            ->will($this->throwException($exception));
+
+        $this->setExpectedException($expectedExceptionType);
+
+        EcomDev_Utils_Reflection::invokeRestrictedMethod(
+            $this->helper,
+            '_sendApiRequest',
+            [$api]
+        );
     }
 }

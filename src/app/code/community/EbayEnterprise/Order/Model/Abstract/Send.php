@@ -13,11 +13,12 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-use eBayEnterprise\RetailOrderManagement\Payload\IPayload;
-use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
 use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
 use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
 use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation;
+use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
+use eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
+use eBayEnterprise\RetailOrderManagement\Payload\IPayload;
 
 abstract class EbayEnterprise_Order_Model_Abstract_Send implements EbayEnterprise_Order_Model_Abstract_ISend
 {
@@ -117,48 +118,36 @@ abstract class EbayEnterprise_Order_Model_Abstract_Send implements EbayEnterpris
      */
     protected function _sendRequest()
     {
+        $logger = $this->_logger;
+        $logContext = $this->_logContext;
+
         $response = null;
         try {
             $response = $this->_api
                 ->setRequestBody($this->_request)
                 ->send()
                 ->getResponseBody();
+        } catch (InvalidPayload $e) {
+            $logMessage = "Invalid payload for {$this->_getPayloadName()}. See exception log for more details.";
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+        } catch (NetworkError $e) {
+            $logMessage = "Caught a network error sending {$this->_getPayloadName()}. See exception log for more details.";
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+        } catch (UnsupportedOperation $e) {
+            $logMessage = "{$this->_getPayloadName()} operation is unsupported in the current configuration. See exception log for more details.";
+            $logger->critical($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+        } catch (UnsupportedHttpAction $e) {
+            $logMessage = "{$this->_getPayloadName()} request is configured with an unsupported HTTP action. See exception log for more details.";
+            $logger->critical($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (Exception $e) {
-            $this->_processException($e);
+            $logMessage = "Encountered unexpected exception sending {$this->_getPayloadName()}. See exception log for more details.";
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         }
         return $response;
-    }
-
-    /**
-     * Determine the type of exception and logged it accordingly.
-     *
-     * @param  Exception
-     * @return self
-     */
-    protected function _processException(Exception $e)
-    {
-        if ($e instanceof NetworkError) {
-            $logMessage = "Caught a network error sending {$this->_getPayloadName()}. Please check the ROM API Configuration.";
-            $this->_logger->warning($logMessage, $this->_getLogContext($e));
-        } elseif ($e instanceof UnsupportedOperation || $e instanceof UnsupportedHttpAction) {
-            $logMessage = "{$this->_getPayloadName()} request could not be sent. Please check your configuration.";
-            $this->_logger->critical($logMessage, $this->_getLogContext($e));
-        } else {
-            $logMessage = "Encountered a fatal error attempting to send {$this->_getPayloadName()} request.";
-            $this->_logger->warning($logMessage, $this->_getLogContext($e));
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get the log meta data.
-     *
-     * @param  Exception
-     * @return array
-     */
-    protected function _getLogContext(Exception $e)
-    {
-        return $this->_logContext->getMetaData(__CLASS__, [], $e);
     }
 }

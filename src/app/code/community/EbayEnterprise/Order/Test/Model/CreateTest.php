@@ -51,6 +51,9 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
     protected $_shipAddress;
     /** @var int */
     protected $_shipAddressId = 2;
+    /** @var EbayEnterprise_MageLog_Helper_Context */
+    protected $_logContext;
+
     /** @var string */
     protected $_expectedLevelOfService =
         EbayEnterprise_Order_Model_Create::LEVEL_OF_SERVICE_REGULAR;
@@ -127,6 +130,10 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
         $this->_item2 = $this->getModelMock('sales/order_item', []);
         $this->_billAddress = Mage::getModel('sales/order_address', ['address_type' => Mage_Customer_Model_Address_Abstract::TYPE_BILLING, 'entity_id' => $this->_billAddressId]);
         $this->_shipAddress = Mage::getModel('sales/order_address', ['address_type' => Mage_Customer_Model_Address_Abstract::TYPE_SHIPPING, 'entity_id' => $this->_shipAddressId]);
+        // Mock log context to prevent session interactions while building out log data.
+        $this->_logContext = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $this->_logContext->method('getMetaData')->will($this->returnValue([]));
+
         // prevent magento events from actually triggering
         Mage::app()->disableEvents();
     }
@@ -451,5 +458,74 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
             sprintf('%s%s', $this->_clientCustomerIdPrefix, ($isGuest ? $guestCustomerId : '123456789')),
             $result
         );
+    }
+
+    /**
+     * Provide exceptions that can be thrown from the SDK and the exception
+     * expected to be thrown after handling the SDK exception.
+     *
+     * @return array
+     */
+    public function provideSdkExceptions()
+    {
+        $invalidPayload = '\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload';
+        $networkError = '\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError';
+        $unsupportedOperation = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation';
+        $unsupportedHttpAction = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction';
+        $baseException = 'Exception';
+        return [
+            [$invalidPayload, $invalidPayload],
+            [$networkError, null],
+            [$unsupportedOperation, null],
+            [$unsupportedHttpAction, null],
+            [$baseException, $baseException],
+        ];
+    }
+
+    /**
+     * GIVEN An <sdkApi> that will thrown an <exception> of <exceptionType> when making a request.
+     * WHEN A request is made.
+     * THEN The <exception> will be caught.
+     * AND An exception of <expectedExceptionType> will be thrown or the order create model will be returned.
+     *
+     * @param string
+     * @param string|null
+     * @dataProvider provideSdkExceptions
+     */
+    public function testSdkExceptionHandling($exceptionType, $expectedExceptionType = null)
+    {
+        $exception = new $exceptionType(__METHOD__ . ': Test Exception');
+
+        $this->_httpApi->method('setRequestBody')
+            ->will($this->returnSelf());
+
+        // Mock the http api to throw an exception upon sending the request.
+        $this->_httpApi->method('send')
+            ->will($this->throwException($exception));
+
+        if ($expectedExceptionType) {
+            $this->setExpectedException($expectedExceptionType);
+        }
+
+        $create = Mage::getModel(
+            'ebayenterprise_order/create',
+            [
+                'log_context' => $this->_logContext,
+                'api' => $this->_httpApi,
+                'order' => $this->_order,
+                'config' => $this->_config,
+                'payload' => $this->_request,
+            ]
+        );
+
+        $result = EcomDev_Utils_Reflection::invokeRestrictedMethod(
+            $create,
+            '_send'
+        );
+
+        // If no exception is expected, method should return the create model.
+        if (!$expectedExceptionType) {
+            $this->assertSame($create, $result);
+        }
     }
 }

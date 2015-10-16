@@ -136,24 +136,49 @@ class EbayEnterprise_Order_Test_Model_Abstract_SendTest extends EbayEnterprise_E
     }
 
     /**
+     * Provide exceptions that can be thrown from the SDK and the exception
+     * expected to be thrown after handling the SDK exception.
+     *
+     * @return array
+     */
+    public function provideSdkExceptions()
+    {
+        $invalidPayload = '\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload';
+        $networkError = '\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError';
+        $unsupportedOperation = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation';
+        $unsupportedHttpAction = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction';
+        $baseException = 'Exception';
+        return [
+            [$invalidPayload],
+            [$networkError],
+            [$unsupportedOperation],
+            [$unsupportedHttpAction],
+            [$baseException],
+        ];
+    }
+
+    /**
      * @see self::testSendRequestForOrderCancelRequestPayload()
      * Test that when the method IBidirectionalApi::send() throw an exception.
      * The method IBidirectionalApi::getResponseBody() will never be called and
-     * the method ebayenterprise_order/abstract_send::_processException()
-     * will be called, passing in as parameter the Exception object.
-     * Finally, the method ebayenterprise_order/abstract_send::_sendRequest() will return null.
+     * The thrown exception is caught and null is returned.
+     *
+     * @param string
+     * @dataProvider provideSdkExceptions
      */
-    public function testSendRequestForOrderCancelRequestPayloadThrowException()
+    public function testSendRequestForOrderCancelRequestPayloadThrowException($exceptionType)
     {
-        $exception = Mage::exception('Mage_Core', 'Simulating order cancel api exception');
+        $exception = new $exceptionType(__METHOD__ . ': Test Exception');
         /** @var Mock_IOrderCancelRequest */
         $request = $this->getMockBuilder(EbayEnterprise_Order_Model_Cancel_Build_IRequest::PAYLOAD_CLASS)
             // Disabling the constructor because it requires the following parameters: IValidatorIterator
             // ISchemaValidator, IPayloadMap, LoggerInterface
             ->disableOriginalConstructor()
             ->getMock();
-        /** @var null */
-        $response = null;
+
+        // Mock out the logger context to prevent session hits while collection log data.
+        $logContext = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $logContext->method('getMetaData')->will($this->returnValue([]));
 
         $api = $this->getMockBuilder(static::API_CLASS)
             // Disabling the constructor because it requires the IHttpConfig parameter to be passed in.
@@ -173,130 +198,14 @@ class EbayEnterprise_Order_Test_Model_Abstract_SendTest extends EbayEnterprise_E
             ->method('getResponseBody');
 
         /** @var Mock_EbayEnterprise_Order_Model_Abstract_Send */
-        $cancelSendRequest = $this->getModelMock('ebayenterprise_order/abstract_send', ['_processException'], true, [[
+        $cancelSendRequest = $this->getModelMock('ebayenterprise_order/abstract_send', [], true, [[
             // This key is required
             'api' => $api,
             // This key is required
             'request' => $request,
-        ]]);
-        $cancelSendRequest->expects($this->once())
-            // This method will finally be called because of the exception
-            // thrown in the IBidirectionalApi::send() method.
-            ->method('_processException')
-            ->with($this->identicalTo($exception))
-            ->will($this->returnSelf());
-        $this->assertSame($response, EcomDev_Utils_Reflection::invokeRestrictedMethod($cancelSendRequest, '_sendRequest', []));
-    }
-
-    /**
-     * @return array
-     */
-    public function providerProcessExceptionForOrderCancelRequestPayload()
-    {
-        return [
-            [new NetworkError()],
-            [new UnsupportedOperation()],
-            [new UnsupportedHttpAction()],
-            [Mage::exception('Mage_Core', '')],
-        ];
-    }
-
-    /**
-     * Test that the method ebayenterprise_order/abstract_send::_processException()
-     * is invoked, and it will be passed an instance that inherit from the Exception class.
-     * When the parameter passed to the method ebayenterprise_order/abstract_send::_processException()
-     * is of type UnsupportedOperation or UnsupportedHttpAction we expect the helper class method
-     * ebayenterprise_magelog/data::critical() to be called a passed in as first parameter a string
-     * and passed in as second parameter an array. However, the passed in parameter to the method
-     * ebayenterprise_order/abstract_send::_processException() is not of type UnsupportedOperation
-     * or UnsupportedHttpAction, then the method ebayenterprise_magelog/data::warning() will be called
-     * passing as first parameter a string value and as second parameter an array. Finally, the method
-     * ebayenterprise_order/abstract_send::_processException() will return itself.
-     *
-     * @param Exception
-     * @dataProvider providerProcessExceptionForOrderCancelRequestPayload
-     */
-    public function testProcessExceptionForOrderCancelRequestPayload(Exception $e)
-    {
-        /** @var array */
-        $context = [];
-        /** @var bool */
-        $isCritcal = ($e instanceof UnsupportedOperation || $e instanceof UnsupportedHttpAction);
-        /** @var EbayEnterprise_MageLog_Helper_Data */
-        $logger = $this->getHelperMock('ebayenterprise_magelog', ['warning', 'critical']);
-        $logger->expects($isCritcal ? $this->never() : $this->once())
-            ->method('warning')
-            ->with($this->isType('string'), $this->identicalTo($context))
-            ->will($this->returnValue(null));
-        $logger->expects($isCritcal ? $this->once() : $this->never())
-            ->method('critical')
-            ->with($this->isType('string'), $this->identicalTo($context))
-            ->will($this->returnValue(null));
-
-        /** @var Mock_IOrderCancelRequest */
-        $request = $this->getMockBuilder(EbayEnterprise_Order_Model_Cancel_Build_IRequest::PAYLOAD_CLASS)
-            // Disabling the constructor because it requires the following parameters: IValidatorIterator
-            // ISchemaValidator, IPayloadMap, LoggerInterface
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        /** @var Mock_EbayEnterprise_Order_Model_Abstract_Send */
-        $cancelSendRequest = $this->getModelMock('ebayenterprise_order/abstract_send', ['_getLogContext'], true, [[
-            // This key is required
-            'api' => $this->_api,
-            // This key is required
-            'request' => $request,
-            // This key is optional
-            'logger' => $logger,
-        ]]);
-        $cancelSendRequest->expects($this->once())
-            ->method('_getLogContext')
-            ->with($this->identicalTo($e))
-            ->will($this->returnValue($context));
-        $this->assertSame($cancelSendRequest, EcomDev_Utils_Reflection::invokeRestrictedMethod($cancelSendRequest, '_processException', [$e]));
-    }
-
-    /**
-     * Test that the method ebayenterprise_order/abstract_send::_getLogContext()
-     * is invoked, and it will be passed an instance of Mage_Core_Exception. It will
-     * then invoke the method ebayenterprise_magelog/context::getMetaData(), passing in
-     * as first parameter a string of its class name, as second parameter it will passed,
-     * an empty array, and as its third parameter it will passed in an instance of
-     * Mage_Core_Exception. The method ebayenterprise_magelog/context::getMetaData() will
-     * return an array. Finally, the method ebayenterprise_order/abstract_send::_getLogContext()
-     * will return that array.
-     */
-    public function testGetLogContextForOrderCancelRequestPayload()
-    {
-        /** @var Mage_Core_Exception */
-        $exception = Mage::exception('Mage_Core', '');
-        /* @var array */
-        $context = [];
-        /* @var string */
-        $class = 'EbayEnterprise_Order_Model_Abstract_Send';
-        /** @var EbayEnterprise_MageLog_Helper_Context */
-        $logContext = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
-        $logContext->expects($this->once())
-            ->method('getMetaData')
-            ->with($this->identicalTo($class), $this->identicalTo([]), $this->identicalTo($exception))
-            ->will($this->returnValue($context));
-
-        /** @var Mock_IOrderCancelRequest */
-        $request = $this->getMockBuilder(EbayEnterprise_Order_Model_Cancel_Build_IRequest::PAYLOAD_CLASS)
-            // Disabling the constructor because it requires the following parameters: IValidatorIterator
-            // ISchemaValidator, IPayloadMap, LoggerInterface
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        /** @var Mock_EbayEnterprise_Order_Model_Abstract_Send */
-        $cancelSendRequest = $this->getModelMock('ebayenterprise_order/abstract_send', ['foo'], true, [[
-            // This key is required
-            'api' => $this->_api,
-            // This key is required
-            'request' => $request,
-            // This key is optional
             'log_context' => $logContext,
         ]]);
-        $this->assertSame($context, EcomDev_Utils_Reflection::invokeRestrictedMethod($cancelSendRequest, '_getLogContext', [$exception]));
+
+        $this->assertNull(EcomDev_Utils_Reflection::invokeRestrictedMethod($cancelSendRequest, '_sendRequest', []));
     }
 }

@@ -14,7 +14,10 @@
  */
 
 use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation;
 use eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi;
+use eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
 
 /**
  * Handles validating address via the address validation service,
@@ -324,17 +327,36 @@ class EbayEnterprise_Address_Model_Validator
     {
         $config = $this->_helper->getConfigModel();
         $api = $this->_coreHelper->getSdkApi($config->apiService, $config->apiOperation);
+        $logger = $this->_logger;
+        $logContext = $this->_context;
         try {
             $this->_prepareApiForAddressRequest($address, $api);
             $api->send();
             return $this->_getValidationResponse($api);
+        } catch (InvalidPayload $e) {
+            $logMessage = 'Invalid payload for address validate operation. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
         } catch (NetworkError $e) {
-            $logMessage = 'Address validation service returned empty response.';
-            $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
+            $logMessage = 'Caught network error sending the address validation. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            // Allow network errors to be bypassed, exception is caught and not re-thrown.
+        } catch (UnsupportedOperation $e) {
+            $logMessage = 'The address validate operation is unsupported in the current configuration. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
+        } catch (UnsupportedHttpAction $e) {
+            $logMessage = 'The address validate operation is configured with an unsupported HTTP action. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
         } catch (Exception $e) {
-            $logMessage = 'Unexpected exception from SDK.';
-            $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__));
-            $this->_logger->logException($e, $this->_context->getMetaData(__CLASS__, [], $e));
+            $logMessage = 'Encountered unexpected exception from address validate operation. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
             throw $e;
         }
         return null;

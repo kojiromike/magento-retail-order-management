@@ -404,25 +404,44 @@ class EbayEnterprise_Paypal_Model_Express_Api
      * @return Payload
      *
      * @throws EbayEnterprise_PayPal_Exception
-     * @throws EbayEnterprise_PayPal_Exception_Network
+     * @throws UnsupportedOperation
+     * @throws UnsupportedHttpAction
+     * @throws Exception
      */
     protected function sendRequest(IBidirectionalApi $sdk)
     {
+        $logger = $this->logger;
+        $logContext = $this->logContext;
         try {
             $sdk->send();
             $reply = $sdk->getResponseBody();
             return $reply;
         } catch (InvalidPayload $e) {
-            $logMessage = 'PayPal payload invalid. See exception log for details.';
-            $this->logger->warning($logMessage, $this->logContext->getMetaData(__CLASS__));
-            $this->logger->logException($e, $this->logContext->getMetaData(__CLASS__, [], $e));
+            $logMessage = 'Invalid payload for PayPal request. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         } catch (NetworkError $e) {
-            $logMessage = 'PayPal request encountered a network error. See exception log for details.';
-            $this->logger->warning($logMessage, $this->logContext->getMetaData(__CLASS__));
-            $this->logger->logException($e, $this->logContext->getMetaData(__CLASS__, [], $e));
+            $logMessage = 'Caught network error sending the PayPal request. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+        } catch (UnsupportedOperation $e) {
+            $logMessage = 'The PayPal operation is unsupported in the current configuration. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
+        } catch (UnsupportedHttpAction $e) {
+            $logMessage = 'The PayPal operation is configured with an unsupported HTTP action. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
+        } catch (Exception $e) {
+            $logMessage = 'Encountered unexpected exception from PayPal operation. See exception log for more details.';
+            $logger->warning($logMessage, $logContext->getMetaData(__CLASS__, ['exception_message' => $e->getMessage()]));
+            $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
+            throw $e;
         }
         $e = Mage::exception('EbayEnterprise_PayPal', $this->helper->__(static::EBAYENTERPRISE_PAYPAL_API_FAILED));
-        $this->logger->logException($e, $this->logContext->getMetaData(__CLASS__, [], $e));
+        $logger->logException($e, $logContext->getMetaData(__CLASS__, [], $e));
         throw $e;
     }
 

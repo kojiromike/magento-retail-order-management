@@ -13,6 +13,11 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
+use eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
+use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation;
+use eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
+
 class EbayEnterprise_Address_Test_Model_ValidatorTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
     /** @var eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi (mock) */
@@ -1266,5 +1271,58 @@ class EbayEnterprise_Address_Test_Model_ValidatorTest extends EbayEnterprise_Eb2
                 ->will($this->returnValue(true));
         }
         $this->assertSame($result, $validator->shouldValidateAddress($address));
+    }
+
+    /**
+     * Provide exceptions that can be thrown from the SDK and the exception
+     * expected to be thrown after handling the SDK exception.
+     *
+     * @return array
+     */
+    public function provideSdkExceptions()
+    {
+        $invalidPayload = '\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload';
+        $networkError = '\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError';
+        $unsupportedOperation = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation';
+        $unsupportedHttpAction = '\eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction';
+        $baseException = 'Exception';
+        return [
+            [$invalidPayload, $invalidPayload],
+            [$networkError, null],
+            [$unsupportedOperation, $unsupportedOperation],
+            [$unsupportedHttpAction, $unsupportedHttpAction],
+            [$baseException, $baseException],
+        ];
+    }
+
+    /**
+     * GIVEN An <sdkApi> that will thrown an <exception> of <exceptionType> when making a request.
+     * WHEN A request is made.
+     * THEN The <exception> will be caught.
+     * AND An exception of <expectedExceptionType> will be thrown or null will be returned.
+     *
+     * @param string
+     * @param string|null
+     * @dataProvider provideSdkExceptions
+     */
+    public function testSdkExceptionHandling($exceptionType, $expectedExceptionType = null)
+    {
+        $exception = new $exceptionType(__METHOD__ . ': Test Exception');
+        $this->_sdkApi->method('send')
+            ->will($this->throwException($exception));
+
+        if ($expectedExceptionType) {
+            $this->setExpectedException($expectedExceptionType);
+        }
+
+        $result = EcomDev_Utils_Reflection::invokeRestrictedMethod(
+            $this->_validator,
+            '_makeRequestForAddress',
+            [$this->_createAddress()]
+        );
+
+        if (!$expectedExceptionType) {
+            $this->assertNull($result);
+        }
     }
 }

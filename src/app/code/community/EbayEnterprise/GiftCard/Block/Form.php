@@ -18,24 +18,30 @@ class EbayEnterprise_GiftCard_Block_Form extends EbayEnterprise_GiftCard_Block_T
     const DEFAULT_BALANCE_ACTION = 'ebayenterprise_giftcard/cart/balance';
     const DEFAULT_ADD_ACTION = 'ebayenterprise_giftcard/cart/add';
     /** @var bool */
-    protected $_allowAdd = true;
+    protected $allowAdd = true;
     /** @var bool */
-    protected $_allowBalance = true;
+    protected $allowBalance = true;
     /** @var string */
-    protected $_addAction;
+    protected $addAction;
     /** @var string */
-    protected $_balanceAction;
+    protected $balanceAction;
     /** @var EbayEnterprise_GiftCard_Model_IGiftcard */
-    protected $_giftCard;
+    protected $giftCard;
+    /** @var EbayEnterprise_GiftCard_Model_Session */
+    protected $giftCardSession;
 
     /**
      * Get the checkout session.
      * @return Mage_Checkout_Model_Session
      */
-    protected function _getCheckoutSession()
+    protected function getGiftCardSession()
     {
-        return Mage::getSingleton('checkout/session');
+        if (!$this->giftCardSession) {
+            $this->giftCardSession = Mage::getSingleton('ebayenterprise_giftcard/session');
+        }
+        return $this->giftCardSession;
     }
+
     /**
      * Get the current gift card, may be empty gift card instance if no gift card in session.
      * Not set in self::_construct to prevent accessing the session too early.
@@ -43,13 +49,13 @@ class EbayEnterprise_GiftCard_Block_Form extends EbayEnterprise_GiftCard_Block_T
      */
     public function getGiftCard()
     {
-        if (is_null($this->_giftCard)) {
+        if (is_null($this->giftCard)) {
             // Look for a current gift card in the session to repopulate the form with,
             // otherwise use an empty instance. Do not clear the gift card from the
             // session. The balance block will be responsible for that.
-            $this->_giftCard = $this->_getCheckoutSession()->getEbayEnterpriseCurrentGiftCard() ?: Mage::getModel('ebayenterprise_giftcard/giftcard');
+            $this->giftCard = $this->getGiftCardSession()->getEbayEnterpriseCurrentGiftCard() ?: Mage::getModel('ebayenterprise_giftcard/giftcard');
         }
-        return $this->_giftCard;
+        return $this->giftCard;
     }
     /**
      * Set if the form allows adding gift cards to the order.
@@ -58,7 +64,7 @@ class EbayEnterprise_GiftCard_Block_Form extends EbayEnterprise_GiftCard_Block_T
      */
     public function allowAdd($allow)
     {
-        $this->_allowAdd = $allow;
+        $this->allowAdd = $allow;
         return $this;
     }
     /**
@@ -67,7 +73,7 @@ class EbayEnterprise_GiftCard_Block_Form extends EbayEnterprise_GiftCard_Block_T
      */
     public function isAddAllowed()
     {
-        return $this->_allowAdd;
+        return $this->allowAdd;
     }
     /**
      * Set if the form allows checking a gift card balance
@@ -76,7 +82,7 @@ class EbayEnterprise_GiftCard_Block_Form extends EbayEnterprise_GiftCard_Block_T
      */
     public function allowBalance($allow)
     {
-        $this->_allowBalance = $allow;
+        $this->allowBalance = $allow;
         return $this;
     }
     /**
@@ -85,7 +91,7 @@ class EbayEnterprise_GiftCard_Block_Form extends EbayEnterprise_GiftCard_Block_T
      */
     public function isBalanceAllowed()
     {
-        return $this->_allowBalance;
+        return $this->allowBalance;
     }
     /**
      * Get the default action for the form to post to. If add is allowed from the
@@ -103,7 +109,7 @@ class EbayEnterprise_GiftCard_Block_Form extends EbayEnterprise_GiftCard_Block_T
      */
     public function setBalanceAction($action)
     {
-        $this->_balanceAction = $action;
+        $this->balanceAction = $action;
         return $this;
     }
     /**
@@ -112,7 +118,7 @@ class EbayEnterprise_GiftCard_Block_Form extends EbayEnterprise_GiftCard_Block_T
      */
     public function getBalanceAction()
     {
-        return $this->_balanceAction ?: static::DEFAULT_BALANCE_ACTION;
+        return $this->balanceAction ?: static::DEFAULT_BALANCE_ACTION;
     }
     /**
      * Set the add action path
@@ -121,7 +127,7 @@ class EbayEnterprise_GiftCard_Block_Form extends EbayEnterprise_GiftCard_Block_T
      */
     public function setAddAction($action)
     {
-        $this->_addAction = $action;
+        $this->addAction = $action;
         return $this;
     }
     /**
@@ -130,7 +136,7 @@ class EbayEnterprise_GiftCard_Block_Form extends EbayEnterprise_GiftCard_Block_T
      */
     public function getAddAction()
     {
-        return $this->_addAction ?: static::DEFAULT_ADD_ACTION;
+        return $this->addAction ?: static::DEFAULT_ADD_ACTION;
     }
     /**
      * Get the URL for the controller action to add a gift card to the cart

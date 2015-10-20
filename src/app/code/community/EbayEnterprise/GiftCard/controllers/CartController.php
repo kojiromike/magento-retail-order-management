@@ -29,6 +29,7 @@ class EbayEnterprise_GiftCard_CartController extends EbayEnterprise_GiftCard_Con
             // try a balance request.
             $giftcard = $this->_getContainer()->getGiftCard($cardNumber)->setPin($pin);
             $this->_helper->addGiftCardToOrder($giftcard);
+            $this->_getCheckoutSession()->addSuccess($this->_helper->__(self::GIFT_CARD_ADD_SUCCESS, $giftcard->getCardNumber()));
         }
         $this->_redirect(static::REDIRECT_PATH);
     }
@@ -40,7 +41,7 @@ class EbayEnterprise_GiftCard_CartController extends EbayEnterprise_GiftCard_Con
         list($cardNumber) = $this->_getCardInfoFromRequest();
         $giftcard = $this->_getContainer()->getGiftCard($cardNumber);
         $this->_getContainer()->removeGiftCard($giftcard);
-        Mage::getSingleton('checkout/session')->addSuccess($this->_helper->__(self::GIFT_CARD_REMOVE_SUCCESS, $giftcard->getCardNumber()));
+        $this->_getCheckoutSession()->addSuccess($this->_helper->__(self::GIFT_CARD_REMOVE_SUCCESS, $giftcard->getCardNumber()));
         $this->_redirect(static::REDIRECT_PATH);
     }
 }

@@ -27,7 +27,7 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
     public function setUp()
     {
         $this->_event = Mage::getModel('Varien_Event');
-        $this->_eventObserver = Mage::getModel('Varien_Event_Observer', array('event' => $this->_event));
+        $this->_eventObserver = Mage::getModel('Varien_Event_Observer', ['event' => $this->_event]);
 
         // suppressing the real session from starting
         $session = $this->getModelMockBuilder('core/session')
@@ -42,24 +42,31 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
      */
     public function testRedeemCard()
     {
-        // need to replace the checkout session to prevent errors when instantiating the gift card container
-        $this->_replaceSession('checkout/session');
+        $session = $this->getModelMockBuilder('core/session_abstract')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
 
-        $orderId = '5555555555';
-        $container = Mage::getModel('ebayenterprise_giftcard/container');
         // set up a mock, unredeemed gift card - just want to ensure it is redeemed
-        $cardToRedeem = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('redeem'))
-            ->setCardNumber('1234')
-            ->setIsRedeemed(false)
+        $cardToRedeem = $this->getModelMock('ebayenterprise_giftcard/giftcard', ['redeem'])
             ->setAmountRedeemed(5.00)
             ->setAmountToRedeem(5.00);
         $cardToRedeem->expects($this->once())->method('redeem')->will($this->returnSelf());
-        $container->updateGiftCard($cardToRedeem);
 
-        $order = Mage::getModel('sales/order', array('increment_id' => $orderId));
+        // Set up an object storage of unredeemed cards, will include the card
+        // that is expected to be redeemed.
+        $unredeemedCards = new SplObjectStorage;
+        $unredeemedCards->attach($cardToRedeem);
+
+        $orderId = '5555555555';
+        $container = $this->getModelMock('ebayenterprise_giftcard/container', ['getUnredeemedGiftCards']);
+        $container->method('getUnredeemedGiftCards')
+            ->will($this->returnValue($unredeemedCards));
+
+        $order = Mage::getModel('sales/order', ['increment_id' => $orderId]);
 
         $this->_event->setOrder($order);
-        Mage::getModel('ebayenterprise_giftcard/observer')->redeemGiftCards($this->_eventObserver);
+        Mage::getModel('ebayenterprise_giftcard/observer', ['gift_card_container' => $container])->redeemGiftCards($this->_eventObserver);
         $this->assertSame($orderId, $cardToRedeem->getOrderId());
     }
     /**
@@ -73,12 +80,12 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
         $this->_replaceSession('checkout/session');
 
         $redeemAmount = 5.00;
-        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('redeem'));
+        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', ['redeem']);
         $card->setAmountRedeemed($redeemAmount)
             ->setAmountToRedeem($redeemAmount);
 
         $observer = Mage::getModel('ebayenterprise_giftcard/observer');
-        $this->assertSame(5.00, EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_redeemCard', array($card)));
+        $this->assertSame(5.00, EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_redeemCard', [$card]));
     }
     /**
      * Network errors should result in an exception but no change to gift cards.
@@ -86,8 +93,8 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
     public function testRedeemCardFailNetwork()
     {
         // need to replace the checkout session to prevent errors when instantiating the gift card container
-        $session = $this->_replaceSession('checkout/session', array('getQuote'));
-        $quote = $this->getModelMock('sales/quote', array('collectTotals', 'setTotalsCollectedFlag'));
+        $session = $this->_replaceSession('checkout/session', ['getQuote']);
+        $quote = $this->getModelMock('sales/quote', ['collectTotals', 'setTotalsCollectedFlag']);
         $quote->expects($this->once())
             ->method('setTotalsCollectedFlag')
             ->with($this->isFalse())
@@ -100,7 +107,7 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
             ->will($this->returnValue($quote));
 
         $redeemAmount = 5.00;
-        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('redeem'));
+        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', ['redeem']);
         $card->setAmountRedeemed($redeemAmount)
             ->setAmountToRedeem($redeemAmount);
         $card->expects($this->any())
@@ -109,7 +116,7 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
 
         $observer = Mage::getModel('ebayenterprise_giftcard/observer');
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
-        EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_redeemCard', array($card));
+        EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_redeemCard', [$card]);
     }
     /**
      * When the redeem fails with an EbayEnterprise_GiftCard_Exception, the card
@@ -118,8 +125,8 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
     public function testRedeemCardFailUnredeemableCard()
     {
         // need to replace the checkout session to prevent errors when instantiating the gift card container
-        $session = $this->_replaceSession('checkout/session', array('getQuote'));
-        $quote = $this->getModelMock('sales/quote', array('collectTotals', 'setTotalsCollectedFlag'));
+        $session = $this->_replaceSession('checkout/session', ['getQuote']);
+        $quote = $this->getModelMock('sales/quote', ['collectTotals', 'setTotalsCollectedFlag']);
         $quote->expects($this->once())
             ->method('setTotalsCollectedFlag')
             ->with($this->isFalse())
@@ -132,20 +139,20 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
             ->will($this->returnValue($quote));
 
         $redeemAmount = 5.00;
-        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('redeem'));
+        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', ['redeem']);
         $card->setAmountRedeemed($redeemAmount)
             ->setAmountToRedeem($redeemAmount);
         $card->expects($this->any())
             ->method('redeem')
             ->will($this->throwException(new EbayEnterprise_GiftCard_Exception));
 
-        $container = $this->getModelMock('ebayenterprise_giftcard/container', array('removeGiftCard'));
+        $container = $this->getModelMock('ebayenterprise_giftcard/container', ['removeGiftCard']);
         // ensure the card gets removed from the container
         $container->expects($this->once())->method('removeGiftCard')->with($this->identicalTo($card))->will($this->returnSelf());
 
-        $observer = Mage::getModel('ebayenterprise_giftcard/observer', array('gift_card_container' => $container));
+        $observer = Mage::getModel('ebayenterprise_giftcard/observer', ['gift_card_container' => $container]);
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
-        EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_redeemCard', array($card));
+        EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_redeemCard', [$card]);
     }
     /**
      * If a card is successfully redeemed but the amount redeemed does not match
@@ -154,8 +161,8 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
     public function testRedeemCardFailIncorrectAmountRedeemed()
     {
         // need to replace the checkout session to prevent errors when instantiating the gift card container
-        $session = $this->_replaceSession('checkout/session', array('getQuote'));
-        $quote = $this->getModelMock('sales/quote', array('collectTotals', 'setTotalsCollectedFlag'));
+        $session = $this->_replaceSession('checkout/session', ['getQuote']);
+        $quote = $this->getModelMock('sales/quote', ['collectTotals', 'setTotalsCollectedFlag']);
         $quote->expects($this->once())
             ->method('setTotalsCollectedFlag')
             ->with($this->isFalse())
@@ -168,14 +175,14 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
             ->will($this->returnValue($quote));
 
         $redeemAmount = 5.00;
-        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('redeem'));
+        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', ['redeem']);
         $card->setAmountRedeemed($redeemAmount)
             ->setAmountToRedeem(10.00)
             ->setBalanceAmount(0.00);
 
         $observer = Mage::getModel('ebayenterprise_giftcard/observer');
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
-        EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_redeemCard', array($card));
+        EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_redeemCard', [$card]);
     }
     /**
      * If a card was successfully redeemed - request was a success - but the card
@@ -185,8 +192,8 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
     public function testRedeemCardFailEmptyGiftCard()
     {
         // need to replace the checkout session to prevent errors when instantiating the gift card container
-        $session = $this->_replaceSession('checkout/session', array('getQuote'));
-        $quote = $this->getModelMock('sales/quote', array('collectTotals', 'setTotalsCollectedFlag'));
+        $session = $this->_replaceSession('checkout/session', ['getQuote']);
+        $quote = $this->getModelMock('sales/quote', ['collectTotals', 'setTotalsCollectedFlag']);
         $quote->expects($this->once())
             ->method('setTotalsCollectedFlag')
             ->with($this->isFalse())
@@ -199,18 +206,18 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
             ->will($this->returnValue($quote));
 
         $redeemAmount = 0.00;
-        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('redeem'));
+        $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', ['redeem']);
         $card->setAmountRedeemed($redeemAmount)
             ->setAmountToRedeem(10.00)
             ->setBalanceAmount(0.00);
 
-        $container = $this->getModelMock('ebayenterprise_giftcard/container', array('removeGiftCard'));
+        $container = $this->getModelMock('ebayenterprise_giftcard/container', ['removeGiftCard']);
         // ensure the card gets removed from the container
         $container->expects($this->once())->method('removeGiftCard')->with($this->identicalTo($card))->will($this->returnSelf());
 
-        $observer = Mage::getModel('ebayenterprise_giftcard/observer', array('gift_card_container' => $container));
+        $observer = Mage::getModel('ebayenterprise_giftcard/observer', ['gift_card_container' => $container]);
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
-        EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_redeemCard', array($card));
+        EcomDev_Utils_Reflection::invokeRestrictedMethod($observer, '_redeemCard', [$card]);
     }
     /**
      * Test voiding the redeemed gift cards.
@@ -220,36 +227,33 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
         // need to replace the checkout session to prevent errors when instantiating the gift card container
         $this->_replaceSession('checkout/session');
 
-        $container = Mage::getModel('ebayenterprise_giftcard/container');
-
-        $exceptionGiftCard = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('void'));
+        $exceptionGiftCard = $this->getModelMock('ebayenterprise_giftcard/giftcard', ['void']);
         $exceptionGiftCard->setIsRedeemed(true)->setCardNumber('2222222222222222');
         // the void request may fail but processing should continue
         $exceptionGiftCard->expects($this->once())
             ->method('void')
-            ->will($this->throwException(new EbayEnterprise_GiftCard_Exception));
-        $container->updateGiftCard($exceptionGiftCard);
+            ->will($this->throwException(new EbayEnterprise_GiftCard_Exception(__METHOD__ . ': test exception')));
 
-        $giftCard = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('void'));
+        $giftCard = $this->getModelMock('ebayenterprise_giftcard/giftcard', ['void']);
         $giftCard->setIsRedeemed(true)->setCardNumber('1111111111111111');
         // make sure the card redeem is voided
         $giftCard->expects($this->once())
             ->method('void')
             ->will($this->returnSelf());
-        $container->updateGiftCard($giftCard);
 
-        $unredeemedGiftCard = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('void'));
-        $unredeemedGiftCard->setIsRedeemed(false)->setCardNumber('2222222222222222');
-        // cards that were not redeemed (getIsRedeemed === false) should not be voided
-        $unredeemedGiftCard->expects($this->never())
-            ->method('void')
-            ->will($this->throwException(new EbayEnterprise_GiftCard_Exception));
-        $container->updateGiftCard($unredeemedGiftCard);
+        // The set of gift cards in the container that have been redeemed and
+        // need to be voided.
+        $redeemedGiftCards = new SplObjectStorage;
+        $redeemedGiftCards->attach($giftCard);
+        $redeemedGiftCards->attach($exceptionGiftCard);
+
+        $container = $this->getModelMock('ebayenterprise_giftcard/container', ['getRedeemedGiftCards']);
+        $container->method('getRedeemedGiftCards')->will($this->returnValue($redeemedGiftCards));
 
         $quote = Mage::getModel('sales/quote');
         $order = Mage::getModel('sales/order');
         $this->_event->setQuote($quote)->setOrder($order);
-        $observer = Mage::getModel('ebayenterprise_giftcard/observer', array('gift_card_container' => $container));
+        $observer = Mage::getModel('ebayenterprise_giftcard/observer', ['gift_card_container' => $container]);
 
         // invoke the method, should void any redeemed card in the container
         $observer->redeemVoidGiftCards($this->_eventObserver);

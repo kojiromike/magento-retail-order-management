@@ -25,6 +25,7 @@ class EbayEnterprise_GiftCard_Helper_Data extends Mage_Core_Helper_Abstract impl
             $this->_nullCoalesce($initParams, 'gift_card_container', Mage::getModel('ebayenterprise_giftcard/container'))
         );
     }
+
     /**
      * Type checks for self::__construct $initParams
      * @param  EbayEnterprise_GiftCard_Model_IContainer $checkoutSession
@@ -36,6 +37,7 @@ class EbayEnterprise_GiftCard_Helper_Data extends Mage_Core_Helper_Abstract impl
     ) {
         return array($container);
     }
+
     /**
      * Return the value at field in array if it exists. Otherwise, use the
      * default value.
@@ -48,6 +50,7 @@ class EbayEnterprise_GiftCard_Helper_Data extends Mage_Core_Helper_Abstract impl
     {
         return isset($arr[$field]) ? $arr[$field] : $default;
     }
+
     /**
      * @see EbayEnterprise_Eb2cCore_Helper_Interface::getConfigModel
      * @param mixed $store
@@ -59,6 +62,7 @@ class EbayEnterprise_GiftCard_Helper_Data extends Mage_Core_Helper_Abstract impl
             ->setStore($store)
             ->addConfigModel(Mage::getSingleton('ebayenterprise_giftcard/config'));
     }
+
     /**
      * Add a gift card to the container. Will make the gift card balance check
      * and make sure card can be applied to the order.

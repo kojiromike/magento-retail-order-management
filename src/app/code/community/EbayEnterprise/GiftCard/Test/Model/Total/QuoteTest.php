@@ -29,14 +29,12 @@ class EbayEnterprise_GiftCard_Test_Model_Total_QuoteTest extends EbayEnterprise_
      */
     public function testCollect($addressTotal, $giftCardAmounts, $remainingTotal, $redeemTotal)
     {
-        // replace checkout session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
         // float cast on yaml provided value to ensure it is actually a float
         $addressTotal = (float) $addressTotal;
         $remainingTotal = (float) $remainingTotal;
         $redeemTotal = (float) $redeemTotal;
 
-        // set of gift cards that have been applied to the order
+        // set of gift cards that have been applied to the order and not redeemed
         $giftCards = new SplObjectStorage;
         foreach ($giftCardAmounts as $cardNumber => $amts) {
             $gc = Mage::getModel('ebayenterprise_giftcard/giftcard')
@@ -46,7 +44,8 @@ class EbayEnterprise_GiftCard_Test_Model_Total_QuoteTest extends EbayEnterprise_
                 ->setIsRedeemed(false);
             $giftCards->attach($gc);
         }
-        $container = Mage::getModel('ebayenterprise_giftcard/container', array('gift_card_storage' => $giftCards));
+        $container = $this->getModelMock('ebayenterprise_giftcard/container', ['getUnredeemedGiftCards']);
+        $container->method('getUnredeemedGiftCards')->willReturn($giftCards);
 
         $address = Mage::getModel('sales/quote_address', array('base_grand_total' => $addressTotal, 'grand_total' => $addressTotal));
 

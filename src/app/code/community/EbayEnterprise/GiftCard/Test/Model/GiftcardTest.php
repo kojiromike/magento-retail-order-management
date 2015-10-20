@@ -56,8 +56,8 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
 
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
             $giftCard,
-            '_setPayloadAccountUniqueId',
-            array($payload)
+            'setPayloadAccountUniqueId',
+            [$payload]
         );
     }
     /**
@@ -66,10 +66,10 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
      */
     public function provideApiExceptions()
     {
-        return array(
-            array('\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError'),
-            array('\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload'),
-        );
+        return [
+            ['\eBayEnterprise\RetailOrderManagement\Api\Exception\NetworkError'],
+            ['\eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload'],
+        ];
     }
     /**
      * Any exceptions thrown by the SDK should be caught and converted to gift card
@@ -84,13 +84,13 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
             ->getMock();
         $api->expects($this->any())
             ->method('send')
-            ->will($this->throwException(new $exceptionType));
+            ->will($this->throwException(new $exceptionType(__METHOD__ . ': test exception')));
 
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
             $this->giftCard,
-            '_sendRequest',
-            array($api)
+            'sendRequest',
+            [$api]
         );
     }
     /**
@@ -129,8 +129,8 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
             $this->giftCard,
-            '_handleBalanceResponse',
-            array($api)
+            'handleBalanceResponse',
+            [$api]
         );
     }
     /**
@@ -150,8 +150,8 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
             $this->giftCard,
-            '_handleRedeemResponse',
-            array($api)
+            'handleRedeemResponse',
+            [$api]
         );
     }
     /**
@@ -171,8 +171,8 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
         EcomDev_Utils_Reflection::invokeRestrictedMethod(
             $this->giftCard,
-            '_handleVoidResponse',
-            array($api)
+            'handleVoidResponse',
+            [$api]
         );
     }
 
@@ -260,7 +260,7 @@ class EbayEnterprise_GiftCard_Test_Model_GiftcardTest extends EbayEnterprise_Eb2
         ]);
 
         $this->assertSame($giftCard, EcomDev_Utils_Reflection::invokeRestrictedMethod(
-            $giftCard, '_logStoredValuePayload', [$api, $isRequest, $message]
+            $giftCard, 'logStoredValuePayload', [$api, $isRequest, $message]
         ));
     }
 }

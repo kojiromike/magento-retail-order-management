@@ -31,6 +31,7 @@ class EbayEnterprise_GiftCard_Test_Model_Controller_AbstractTest extends EbayEnt
     protected $_giftCardNumber = 'somecardnumber';
     protected $_giftCardPin = '12345678';
     protected $_checkoutSession;
+    protected $_giftCardSession;
 
     // prepare mocks
     public function setUp()
@@ -40,7 +41,10 @@ class EbayEnterprise_GiftCard_Test_Model_Controller_AbstractTest extends EbayEnt
             ->method('__')->with($this->isType('string'))->will($this->returnArgument(0));
         // disable constructor to prevent having to mock dependencies
         $this->_checkoutSession = $this->getModelMockBuilder('checkout/session')->disableOriginalConstructor()
-            ->setMethods(array('addError', 'setEbayEnterpriseCurrentGiftCard'))->getMock();
+            ->setMethods(array('addError'))->getMock();
+        // disable constructor to prevent having to mock dependencies
+        $this->_giftCardSession = $this->getModelMockBuilder('ebayenterprise_giftcard/session')->disableOriginalConstructor()
+            ->setMethods(array('setEbayEnterpriseCurrentGiftCard'))->getMock();
         // disable constructor to avoid mocking dependencies
         $this->_request = $this->getMockBuilder('Mage_Core_Controller_Request_Http')->disableOriginalConstructor()->getMock();
         $this->_request->expects($this->any())
@@ -83,7 +87,7 @@ class EbayEnterprise_GiftCard_Test_Model_Controller_AbstractTest extends EbayEnt
         $this->_request->expects($this->any())->method('isAjax')->will($this->returnValue(true));
         $this->_giftCard->expects($this->once())
             ->method('checkBalance')->will($this->throwException(Mage::exception('EbayEnterprise_GiftCard')));
-        $this->_checkoutSession->expects($this->never())->method('setEbayEnterpriseCurrentGiftCard');
+        $this->_giftCardSession->expects($this->never())->method('setEbayEnterpriseCurrentGiftCard');
         $this->_checkoutSession->expects($this->once())
             ->method('addError')->with($this->isType('string'))->will($this->returnSelf());
         $this->_controller->expects($this->once())
@@ -93,6 +97,7 @@ class EbayEnterprise_GiftCard_Test_Model_Controller_AbstractTest extends EbayEnt
 
         // inject the session mock
         $this->replaceByMock('singleton', 'checkout/session', $this->_checkoutSession);
+        $this->replaceByMock('singleton', 'ebayenterprise_giftcard/session', $this->_giftCardSession);
         $this->_controller->balanceAction();
     }
 
@@ -108,7 +113,7 @@ class EbayEnterprise_GiftCard_Test_Model_Controller_AbstractTest extends EbayEnt
         $this->_request->expects($this->any())->method('isAjax')->will($this->returnValue(true));
         $this->_giftCard->expects($this->once())
             ->method('checkBalance')->will($this->returnSelf());
-        $this->_checkoutSession->expects($this->once())
+        $this->_giftCardSession->expects($this->once())
             ->method('setEbayEnterpriseCurrentGiftCard')->with($this->isInstanceOf('EbayEnterprise_GiftCard_Model_IGiftcard'))
             ->will($this->returnSelf());
         $this->_controller->expects($this->once())
@@ -118,6 +123,7 @@ class EbayEnterprise_GiftCard_Test_Model_Controller_AbstractTest extends EbayEnt
 
         // inject the session mock
         $this->replaceByMock('singleton', 'checkout/session', $this->_checkoutSession);
+        $this->replaceByMock('singleton', 'ebayenterprise_giftcard/session', $this->_giftCardSession);
         $this->_controller->balanceAction();
     }
     /**
@@ -135,6 +141,7 @@ class EbayEnterprise_GiftCard_Test_Model_Controller_AbstractTest extends EbayEnt
         $this->_controller->expects($this->once())->method('_redirect')->will($this->returnSelf());
         // inject the session mock
         $this->replaceByMock('singleton', 'checkout/session', $this->_checkoutSession);
+        $this->replaceByMock('singleton', 'ebayenterprise_giftcard/session', $this->_giftCardSession);
         $this->_controller->balanceAction();
     }
 }

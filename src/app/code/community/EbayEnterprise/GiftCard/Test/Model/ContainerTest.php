@@ -15,92 +15,102 @@
 
 class EbayEnterprise_GiftCard_Test_Model_ContainerTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
+    /** @var Mage_Core_Model_Session_Abstract */
+    protected $session;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->session = $this->getModelMockBuilder('ebayenterprise_giftcard/session')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+    }
+
     /**
      * Get getting a new gift card when one is requested with a card number and
      * pin that are not already included in the storage
      */
     public function testGetNewGiftCard()
     {
-        // replace session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
-
         $number = '1234123412341234';
         $storage = new SplObjectStorage();
-        $container = Mage::getModel('ebayenterprise_giftcard/container', array('gift_card_storage' => $storage));
+        $container = Mage::getModel('ebayenterprise_giftcard/container', ['gift_card_storage' => $storage, 'session' => $this->session]);
 
         $giftCard = $container->getGiftCard($number);
         $this->assertInstanceOf('EbayEnterprise_GiftCard_Model_IGiftcard', $giftCard);
         $this->assertSame($number, $giftCard->getCardNumber());
     }
+
     /**
      * If a gift card already exists in the container, requesting a gift card with
      * the same card number and pin should return the object in storage.
      */
     public function testGetExistingGiftCard()
     {
-        // replace session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
-
         $number = '1234123412341234';
 
-        $giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($number);
+        $giftCardMemo = Mage::getModel('ebayenterprise_giftcard/giftcard_memo')->setCardNumber($number);
         $storage = new SplObjectStorage();
-        $storage->attach($giftCard);
+        $storage->attach($giftCardMemo);
 
-        $container = Mage::getModel('ebayenterprise_giftcard/container', array('gift_card_storage' => $storage));
+        $container = Mage::getModel('ebayenterprise_giftcard/container', ['gift_card_storage' => $storage, 'session' => $this->session]);
 
-        $returned = $container->getGiftCard($number);
-        // should return same instance of object in storage
-        $this->assertSame($giftCard, $returned);
+        $giftCard = $container->getGiftCard($number);
+        // Container should return gift card based on the memo in storage.
+        $this->assertInstanceOf('EbayEnterprise_GiftCard_Model_IGiftcard', $giftCard);
+        $this->assertSame($number, $giftCard->getCardNumber());
     }
+
     /**
      * Test for a gift card to be added to the container.
      */
     public function testAddGiftCard()
     {
-        // replace session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
-
         $number = '1234123412341234';
         $pin = '1234';
 
         $storage = new SplObjectStorage();
-        $container = Mage::getModel('ebayenterprise_giftcard/container', array('gift_card_storage' => $storage));
+        $container = Mage::getModel('ebayenterprise_giftcard/container', ['gift_card_storage' => $storage, 'session' => $this->session]);
 
         $giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($number)->setPin($pin);
         $container->updateGiftCard($giftCard);
-        $this->assertTrue($storage->contains($giftCard));
-        $this->assertSame($giftCard, $container->getGiftCard($number));
+        // Storage should have the gift card memo in storage.
+        $this->assertTrue($storage->contains($giftCard->getMemo()));
+
+        // Should be able to get gift card with same data, but not same instance
+        // from the container using the number of the card just added.
+        $giftCardFromContainer = $container->getGiftCard($number);
+        $this->assertSame($giftCard->getCardNumber(), $giftCardFromContainer->getCardNumber());
+        $this->assertSame($giftCard->getPin(), $giftCardFromContainer->getPin());
     }
+
     /**
      * Can only add gift cards that have at least a card number and PIN. Attempting
      * to add one without either of these will result in an exception.
      */
     public function testAddInvalidGiftCard()
     {
-        // replace session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
-
         $giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard');
-        $container = Mage::getModel('ebayenterprise_giftcard/container');
+        $container = Mage::getModel('ebayenterprise_giftcard/container', ['session' => $this->session]);
 
         $this->setExpectedException('EbayEnterprise_GiftCard_Exception');
+
         $container->updateGiftCard($giftCard);
     }
+
     /**
      * If a card already in the container is re-added, the card in the store
      * should be replaced by the given card.
      */
     public function testUpdateExistingCardInStorage()
     {
-        // replace session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
-
         $cardNumber = '123412341234';
         $newNumber = '0987098709870987';
         $pin = '1234';
 
-        $container = Mage::getModel('ebayenterprise_giftcard/container');
+        $container = Mage::getModel('ebayenterprise_giftcard/container', ['session' => $this->session]);
 
         $giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber)->setPin($pin);
         // add the gift card initially
@@ -110,25 +120,26 @@ class EbayEnterprise_GiftCard_Test_Model_ContainerTest extends EbayEnterprise_Eb
         // re-add the card to update the card in the storage
         $container->updateGiftCard($giftCard);
         // should now be able to get the card by the new card number
-        $this->assertSame($giftCard, $container->getGiftCard($newNumber));
+        $this->assertSame($newNumber, $container->getGiftCard($newNumber)->getCardNumber());
         // using the old number should no longer return the gift card
-        $this->assertNotSame($giftCard, $container->getGiftCard($cardNumber));
+        $this->assertNotSame($newNumber, $container->getGiftCard($cardNumber)->getCardNumber());
     }
+
     /**
      * Test getting all cards in storage that have not been redeemed
      */
     public function testGetUnredeemedGiftCards()
     {
-        // replace session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
+        $redeemedCardNumbers = ['1234', '2345'];
+        $unredeemedCardNumbers = ['3456', '4567'];
 
-        $giftCards = array(
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(true)->setCardNumber('1234')->setPin('1234'),
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(true)->setCardNumber('2345')->setPin('2345'),
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(false)->setCardNumber('3456')->setPin('3456'),
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(false)->setCardNumber('4567')->setPin('4567'),
-        );
-        $container = Mage::getModel('ebayenterprise_giftcard/container');
+        $giftCards = [
+            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(true)->setCardNumber($redeemedCardNumbers[0])->setPin('1234'),
+            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(true)->setCardNumber($redeemedCardNumbers[1])->setPin('2345'),
+            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(false)->setCardNumber($unredeemedCardNumbers[0])->setPin('3456'),
+            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(false)->setCardNumber($unredeemedCardNumbers[1])->setPin('4567'),
+        ];
+        $container = Mage::getModel('ebayenterprise_giftcard/container', ['session' => $this->session]);
         // add the gift cards to the container
         foreach ($giftCards as $card) {
             $container->updateGiftCard($card);
@@ -137,28 +148,28 @@ class EbayEnterprise_GiftCard_Test_Model_ContainerTest extends EbayEnterprise_Eb
         $unredeemed = $container->getUnredeemedGiftCards();
         // should only contain the two unredeemed gift cards
         $this->assertSame(2, $unredeemed->count());
-        // should not contain redeemed gift cards
-        $this->assertFalse($unredeemed->contains($giftCards[0]));
-        $this->assertFalse($unredeemed->contains($giftCards[1]));
-        // should contain unredeemed gift cards
-        $this->assertTrue($unredeemed->contains($giftCards[2]));
-        $this->assertTrue($unredeemed->contains($giftCards[3]));
+        foreach ($unredeemed as $giftCard) {
+            // Any cards returned should have a card number in the set of
+            // unredeemed card numbers.
+            $this->assertContains($giftCard->getCardNumber(), $unredeemedCardNumbers);
+        }
     }
+
     /**
      * Test getting all cards in storage that have been redeemed
      */
     public function testGetRedeemedGiftCards()
     {
-        // replace session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
+        $redeemedCardNumbers = ['1234', '2345'];
+        $unredeemedCardNumbers = ['3456', '4567'];
 
-        $giftCards = array(
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(true)->setCardNumber('1234')->setPin('1234'),
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(true)->setCardNumber('2345')->setPin('2345'),
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(false)->setCardNumber('3456')->setPin('3456'),
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(false)->setCardNumber('4567')->setPin('4567'),
-        );
-        $container = Mage::getModel('ebayenterprise_giftcard/container');
+        $giftCards = [
+            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(true)->setCardNumber($redeemedCardNumbers[0])->setPin('1234'),
+            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(true)->setCardNumber($redeemedCardNumbers[1])->setPin('2345'),
+            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(false)->setCardNumber($unredeemedCardNumbers[0])->setPin('3456'),
+            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(false)->setCardNumber($unredeemedCardNumbers[1])->setPin('4567'),
+        ];
+        $container = Mage::getModel('ebayenterprise_giftcard/container', ['session' => $this->session]);
         // add the gift cards to the container
         foreach ($giftCards as $card) {
             $container->updateGiftCard($card);
@@ -167,65 +178,64 @@ class EbayEnterprise_GiftCard_Test_Model_ContainerTest extends EbayEnterprise_Eb
         $redeemed = $container->getRedeemedGiftCards();
         // should only contain the two redeemed gift cards
         $this->assertSame(2, $redeemed->count());
-        // should contain redeemed gift cards
-        $this->assertTrue($redeemed->contains($giftCards[0]));
-        $this->assertTrue($redeemed->contains($giftCards[1]));
-        // should not contain unredeemed gift cards
-        $this->assertFalse($redeemed->contains($giftCards[2]));
-        $this->assertFalse($redeemed->contains($giftCards[3]));
+        foreach ($redeemed as $giftCard) {
+            // Any cards returned should have a card number in the set of
+            // redeemed card numbers.
+            $this->assertContains($giftCard->getCardNumber(), $redeemedCardNumbers);
+        }
     }
+
     /**
      * Test getting all cards in the container
      */
     public function testGetAllGiftCards()
     {
-        // replace session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
+        $cardNumbers = ['1234', '2345', '3456', '4567'];
 
-        $storage = new SplObjectStorage();
-        $giftCards = array(
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(true)->setCardNumber('1234')->setPin('1234'),
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(true)->setCardNumber('2345')->setPin('2345'),
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(false)->setCardNumber('3456')->setPin('3456'),
-            Mage::getModel('ebayenterprise_giftcard/giftcard')->setIsRedeemed(false)->setCardNumber('4567')->setPin('4567'),
+        $giftCards = array_map(
+            function ($cardNumber) {
+                return Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber)->setPin('1234');
+            },
+            $cardNumbers
         );
-        $container = Mage::getModel('ebayenterprise_giftcard/container', array('gift_card_storage' => $storage));
+
+        $container = Mage::getModel('ebayenterprise_giftcard/container', ['session' => $this->session]);
+
         // add the gift cards to the container
         foreach ($giftCards as $card) {
             $container->updateGiftCard($card);
         }
 
         $cards = $container->getAllGiftCards();
-        // add cards added should be returned
+        // All cards added should be returned
         $this->assertSame(4, $cards->count());
-        // should *not* be the same SplObjectStorage used by the container internally
-        $this->assertNotSame($storage, $cards);
+        // Every card returned should have a card number in the expected set
+        // of card numbers.
         foreach ($giftCards as $card) {
-            $this->assertTrue($cards->contains($card));
+            $this->assertContains($card->getCardNumber(), $cardNumbers);
         }
     }
+
     public function provideCardToRemove()
     {
-        return array(
-            array('nonexistent', 2),
-            array('3456', 1),
-        );
+        return [
+            ['nonexistent', 2],
+            ['3456', 1],
+        ];
     }
+
     /**
      * Test removing a giftcard from the container
      * @dataProvider provideCardToRemove
      */
     public function testRemoveGiftCard($cardNumber, $expectedCount)
     {
-        // replace session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
-
         $storage = new SplObjectStorage();
-        $giftCards = array(
+        $giftCards = [
             Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber('3456')->setPin('3456'),
             Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber('4567')->setPin('4567'),
-        );
-        $container = Mage::getModel('ebayenterprise_giftcard/container', array('gift_card_storage' => $storage));
+        ];
+        $container = Mage::getModel('ebayenterprise_giftcard/container', ['gift_card_storage' => $storage, 'session' => $this->session]);
         // add the gift cards to the container
         foreach ($giftCards as $card) {
             $container->updateGiftCard($card);
@@ -235,21 +245,28 @@ class EbayEnterprise_GiftCard_Test_Model_ContainerTest extends EbayEnterprise_Eb
         $container->removeGiftCard($card);
         $this->assertCount($expectedCount, $container->getAllGiftCards());
     }
+
+    /**
+     * GIVEN A <giftCard> with <testCardNumber>
+     * AND That <giftCard> is in the gift card <container>
+     * WHEN removeAllGiftCards is called on the <container>
+     * THEN No gift cards should be left in the <container>
+     */
     public function testRemoveAllGiftCards()
     {
-        // replace session to prevent headers already sent error
-        $this->_replaceSession('checkout/session');
-
         $testCardNumber = '123412341234';
-        $gc = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($testCardNumber);
+        $giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($testCardNumber);
 
-        $container = Mage::getModel('ebayenterprise_giftcard/container');
-        $container->updateGiftCard($gc);
-        // test card should be in the container
-        $this->assertSame($gc, $container->getGiftCard($testCardNumber));
-        // empty all cards from the container
+        // Create the gift card container and add the gift card to it.
+        $container = Mage::getModel('ebayenterprise_giftcard/container', ['session' => $this->session]);
+        $container->updateGiftCard($giftCard);
+        // Ensure the gift card was added.
+        $this->assertSame($giftCard->getCardNumber(), $container->getGiftCard($testCardNumber)->getCardNumber());
+
+        // Empty all cards from the container
         $container->removeAllGiftCards();
-        // test card should no longer be in the container
-        $this->assertNotSame($gc, $container->getGiftCard($testCardNumber));
+
+        // Should be no gift cards left in the container.
+        $this->assertEmpty($container->getAllGiftCards());
     }
 }

@@ -181,6 +181,18 @@ interface EbayEnterprise_GiftCard_Model_IGiftcard
      */
     public function getIsRedeemed();
     /**
+     * Restore gift card data from an external memento of gift card data.
+     * @param EbayEnterprise_GiftCard_Model_Giftcard_Memo
+     * @return self
+     */
+    public function restoreFromMemo(EbayEnterprise_GiftCard_Model_Giftcard_Memo $memo);
+    /**
+     * Retrieve the memo object of the gift card's data for storage and persistence
+     * external to the gift card model.
+     * @return EbayEnterprise_GiftCard_Model_Giftcard_Memo
+     */
+    public function getMemo();
+    /**
      * Make a request to the ROM API to check the balance of the gift card and
      * update the card information based on the response.
      * @return self

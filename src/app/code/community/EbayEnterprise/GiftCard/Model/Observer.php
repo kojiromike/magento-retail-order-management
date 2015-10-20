@@ -24,6 +24,8 @@ class EbayEnterprise_GiftCard_Model_Observer
     protected $_logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
     protected $_context;
+    /** @var Mage_Checkout_Model_Session */
+    protected $_checkoutSession;
 
     /**
      * @param array $initParams May contain:
@@ -31,31 +33,42 @@ class EbayEnterprise_GiftCard_Model_Observer
      *                          - 'gift_card_container' => EbayEnterprise_GiftCard_Model_IContainer
      *                          - 'logger' => EbayEnterprise_MageLog_Helper_Data
      *                          - 'context' => EbayEnterprise_MageLog_Helper_Context
+     *                          - 'checkout_session' => Mage_Checkout_Model_Session
      */
-    public function __construct(array $initParams = array())
+    public function __construct(array $initParams = [])
     {
-        list($this->_helper, $this->_giftCardContainer, $this->_logger, $this->_context) = $this->_checkTypes(
+        list(
+            $this->_helper,
+            $this->_giftCardContainer,
+            $this->_logger,
+            $this->_context,
+            // Allows injection but does not instantiate a default - prevents early session instantiation
+            $this->_checkoutSession
+        ) = $this->_checkTypes(
             $this->_nullCoalesce($initParams, 'helper', Mage::helper('ebayenterprise_giftcard')),
             $this->_nullCoalesce($initParams, 'gift_card_container', Mage::getModel('ebayenterprise_giftcard/container')),
             $this->_nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
-            $this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
+            $this->_nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context')),
+            $this->_nullCoalesce($initParams, 'checkout_session', null)
         );
     }
     /**
      * Type checks for self::__construct $initParams
-     * @param  EbayEnterprise_GiftCard_Helper_Data $helper
-     * @param  EbayEnterprise_GiftCard_Model_IContainer $container
-     * @param  EbayEnterprise_MageLog_Helper_Data $logger
-     * @param  EbayEnterprise_MageLog_Helper_Context $context
+     * @param  EbayEnterprise_GiftCard_Helper_Data
+     * @param  EbayEnterprise_GiftCard_Model_IContainer
+     * @param  EbayEnterprise_MageLog_Helper_Data
+     * @param  EbayEnterprise_MageLog_Helper_Context
+     * @param  Mage_Checkout_Model_Session
      * @return mixed[]
      */
     protected function _checkTypes(
         EbayEnterprise_GiftCard_Helper_Data $helper,
         EbayEnterprise_GiftCard_Model_IContainer $giftCardContainer,
         EbayEnterprise_MageLog_Helper_Data $logger,
-        EbayEnterprise_MageLog_Helper_Context $context
+        EbayEnterprise_MageLog_Helper_Context $context,
+        Mage_Checkout_Model_Session $checkoutSession = null
     ) {
-        return array($helper, $giftCardContainer, $logger, $context);
+        return func_get_args();
     }
     /**
      * Return the value at field in array if it exists. Otherwise, use the

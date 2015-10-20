@@ -33,7 +33,7 @@ class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
     public function testAddGiftCardToOrder()
     {
         // replace session used by the gift card container - prevents headers already sent error from session
-        $this->_replaceSession('checkout/session');
+        $this->_replaceSession('ebayenterprise_giftcard/session');
 
         $cardNumber = '1111222233334444';
         $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('checkBalance'));
@@ -45,10 +45,10 @@ class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
         // attempt to add the gift card to the order
         $this->giftCardHelper->addGiftCardToOrder($card);
 
-        // card should be in the container
+        // matching card (has same data) should be returned from the container
         $this->assertSame(
-            $card,
-            Mage::getModel('ebayenterprise_giftcard/container')->getGiftCard($cardNumber)
+            $cardNumber,
+            Mage::getModel('ebayenterprise_giftcard/container')->getGiftCard($cardNumber)->getCardNumber()
         );
     }
     /**
@@ -57,7 +57,8 @@ class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
     public function testAddGiftCardToOrderZeroBalance()
     {
         // replace session used by the gift card container - prevents headers already sent error from session
-        $session = $this->_replaceSession('checkout/session');
+        $this->_replaceSession('ebayenterprise_giftcard/session');
+        $checkoutSession = $this->_replaceSession('checkout/session');
 
         $cardNumber = '1111222233334444';
         $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('checkBalance'));
@@ -70,7 +71,7 @@ class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
         $this->giftCardHelper->addGiftCardToOrder($card);
 
         // zero balance gift card should result in new error message in the checkout session
-        $this->assertCount(1, $session->getMessages()->getErrors());
+        $this->assertCount(1, $checkoutSession->getMessages()->getErrors());
         // card should not have been added to the container - get gift card with same number will return new gift card instance
         $this->assertNotSame(
             $card,
@@ -83,7 +84,8 @@ class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
     public function testAddGiftCardToOrderBalanceCheckFails()
     {
         // replace session used by the gift card container - prevents headers already sent error from session
-        $session = $this->_replaceSession('checkout/session');
+        $this->_replaceSession('ebayenterprise_giftcard/session');
+        $checkoutSession = $this->_replaceSession('checkout/session');
 
         $cardNumber = '1111222233334444';
         $card = $this->getModelMock('ebayenterprise_giftcard/giftcard', array('checkBalance'));
@@ -96,7 +98,7 @@ class EbayEnterprise_GiftCard_Test_Helper_DataTest extends EbayEnterprise_Eb2cCo
         $this->giftCardHelper->addGiftCardToOrder($card);
 
         // gift card balance check failures should result in new error message
-        $this->assertCount(1, $session->getMessages()->getErrors());
+        $this->assertCount(1, $checkoutSession->getMessages()->getErrors());
         // card should not have been added to the container - get gift card with same number will return new gift card instance
         $this->assertNotSame(
             $card,

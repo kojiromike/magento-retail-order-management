@@ -15,34 +15,45 @@
 
 class EbayEnterprise_GiftCard_Model_Container implements EbayEnterprise_GiftCard_Model_IContainer
 {
-    const SESSION_STORAGE_KEY = 'ebay_enterprise_gift_card_container_storage';
     /** @var SplObjectStorage */
-    protected $_giftCardStorage;
-    /** @var Mage_Core_Model_Session_Abstract checkout/session */
-    protected $_session;
+    protected $defaultGiftCardStorage;
+    /** @var EbayEnterprise_GiftCard_Model_Session */
+    protected $session;
+
     /**
-     * Depends on the checkout/session but is not injected via the constructor as
-     * the constructor may be called prior to the session being initialized.
-     * @param array $initParams May contain:
-     *                          - 'gift_card_storage' => SplObjectStorage
+     * Depends on a session instance but a default instance is not created in
+     * the constructor in case this model is instantiated before sessions are
+     * started.
+     *
+     * @param array $init May contain:
+     *                    - 'gift_card_storage' => SplObjectStorage
+     *                    - 'session' => EbayEnterprise_GiftCard_Model_Session
      */
-    public function __construct(array $initParams = array())
+    public function __construct(array $init = array())
     {
-        list($this->_giftCardStorage) = $this->_checkTypes(
-            $this->_nullCoalesce($initParams, 'gift_card_storage', new SplObjectStorage())
+        list(
+            $this->defaultGiftCardStorage,
+            // Allows injection but does not instantiate a default - prevents early session instantiation
+            $this->session
+        ) = $this->checkTypes(
+            $this->nullCoalesce($init, 'gift_card_storage', new SplObjectStorage()),
+            $this->nullCoalesce($init, 'session', null)
         );
     }
+
     /**
-     * Type checks for self::__construct $initParams
-     * @param  Mage_Core_Model_Session_Abstract $checkoutSession
-     * @param  SplObjectStorage            $giftCardStorage
+     * Type checks for self::__construct $init
+     * @param  SplObjectStorage
+     * @param  EbayEnterprise_GiftCard_Model_Session|null
      * @return mixed[]
      */
-    protected function _checkTypes(
-        SplObjectStorage $giftCardStorage
+    protected function checkTypes(
+        SplObjectStorage $defaultGiftCardStorage,
+        EbayEnterprise_GiftCard_Model_Session $session = null
     ) {
-        return array($giftCardStorage);
+        return func_get_args();
     }
+
     /**
      * Return the value at field in array if it exists. Otherwise, use the
      * default value.
@@ -51,82 +62,127 @@ class EbayEnterprise_GiftCard_Model_Container implements EbayEnterprise_GiftCard
      * @param  mixed $default
      * @return mixed
      */
-    protected function _nullCoalesce(array $arr, $field, $default)
+    protected function nullCoalesce(array $arr, $field, $default)
     {
         return isset($arr[$field]) ? $arr[$field] : $default;
     }
+
     /**
-     * Get the gift card object storage. Includes logic to load the object storage
-     * from the session the first time.
+     * Get the gift card object storage.
+     *
+     * Will inject the existing gift card storage into the session if the
+     * session does not already have one.
+     *
      * @return SplObjectStorage
      */
-    protected function _getGiftCardStorage()
+    protected function getGiftCardStorage()
     {
-        // Session will be null prior to checking for existing gift card object storage.
-        if (is_null($this->_session)) {
-            $this->_session = Mage::getSingleton('checkout/session');
-            // If the session has gift card data, it should always replace any data
-            // that may have been injected. If the session does not have data, make
-            // sure it gets an object storage set to hold the gift cards.
-            $this->_giftCardStorage = $this->_session->getDataSetDefault(self::SESSION_STORAGE_KEY, $this->_giftCardStorage);
-        }
-        return $this->_giftCardStorage;
+        // When the session does not have a storage object already, use the
+        // storage object in this instance as a starting point. If the session
+        // does have a storage object already, ignore whatever this instance
+        // was given and use what the session has.
+        return $this->getSession()->getContainerStorageSetDefault($this->defaultGiftCardStorage);
     }
+
     public function updateGiftCard(EbayEnterprise_GiftCard_Model_IGiftcard $card)
     {
-        $this->_validateGiftCardForStorate($card);
-        $this->_getGiftCardStorage()->attach($card);
+        $this->validateGiftCardForStorage($card);
+        $this->getGiftCardStorage()->attach($card->getMemo());
         return $this;
     }
-    protected function _validateGiftCardForStorate(EbayEnterprise_GiftCard_Model_IGiftcard $card)
+
+    /**
+     * Validate a gift card, ensuring that it has at least the bare minimum
+     * of data to be useful.
+     *
+     * @param EbayEnterprise_GiftCard_Model_IGiftcard
+     * @return self
+     * @throws EbayEnterprise_GiftCard_Exception If the gift card is invalid.
+     */
+    protected function validateGiftCardForStorage(EbayEnterprise_GiftCard_Model_IGiftcard $card)
     {
         if ($card->getCardNumber()) {
             return $this;
         }
         throw Mage::exception('EbayEnterprise_GiftCard', 'Invalid gift card.');
     }
+
     public function getUnredeemedGiftCards()
     {
         $cards = new SplObjectStorage();
-        foreach ($this->_getGiftCardStorage() as $card) {
-            if (!$card->getIsRedeemed()) {
-                $cards->attach($card);
+        foreach ($this->getGiftCardStorage() as $cardMemo) {
+            if (!$cardMemo->getIsRedeemed()) {
+                $cards->attach($this->createGiftCardFromMemo($cardMemo));
             }
         }
         $cards->rewind();
         return $cards;
     }
+
     public function getRedeemedGiftCards()
     {
         $cards = new SplObjectStorage();
-        foreach ($this->_getGiftCardStorage() as $card) {
-            if ($card->getIsRedeemed()) {
-                $cards->attach($card);
+        foreach ($this->getGiftCardStorage() as $cardMemo) {
+            if ($cardMemo->getIsRedeemed()) {
+                $cards->attach($this->createGiftCardFromMemo($cardMemo));
             }
         }
         $cards->rewind();
         return $cards;
     }
+
     public function getAllGiftCards()
     {
-        return clone $this->_getGiftCardStorage();
+        $cards = new SplObjectStorage();
+        foreach ($this->getGiftCardStorage() as $cardMemo) {
+            $cards->attach($this->createGiftCardFromMemo($cardMemo));
+        }
+        return $cards;
     }
+
     public function getGiftCard($cardNumber)
     {
-        foreach ($this->_getGiftCardStorage() as $card) {
-            if ($card->getCardNumber() === $cardNumber) {
-                return $card;
+        foreach ($this->getGiftCardStorage() as $cardMemo) {
+            if ($cardMemo->getCardNumber() === $cardNumber) {
+                return $this->createGiftCardFromMemo($cardMemo);
             }
         }
         return Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber);
     }
+
     public function removeGiftCard(EbayEnterprise_GiftCard_Model_IGiftcard $giftcard)
     {
-        $this->_getGiftCardStorage()->detach($giftcard);
+        $this->getGiftCardStorage()->detach($giftcard->getMemo());
         return $this;
     }
+
     public function removeAllGiftCards()
     {
-        $this->_getGiftCardStorage()->removeAll($this->_getGiftCardStorage());
+        $this->getGiftCardStorage()->removeAll($this->getGiftCardStorage());
+    }
+
+    /**
+     * Create a gift card model, restoring it from the externalized memo data
+     * from the session.
+     *
+     * @param EbayEnterprise_GiftCard_Model_Giftcard_Memo
+     * @return EbayEnterprise_GiftCard_Model_Giftcard
+     */
+    protected function createGiftCardFromMemo(EbayEnterprise_GiftCard_Model_Giftcard_Memo $cardMemo)
+    {
+        return Mage::getModel('ebayenterprise_giftcard/giftcard')->restoreFromMemo($cardMemo);
+    }
+
+    /**
+     * Get the session object used to persist gift card data.
+     *
+     * @return EbayEnterprise_GiftCard_Model_Session
+     */
+    protected function getSession()
+    {
+        if (!$this->session) {
+            $this->session = Mage::getSingleton('ebayenterprise_giftcard/session');
+        }
+        return $this->session;
     }
 }

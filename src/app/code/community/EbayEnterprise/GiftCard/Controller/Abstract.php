@@ -27,6 +27,10 @@ class EbayEnterprise_GiftCard_Controller_Abstract extends Mage_Core_Controller_F
     protected $_config;
     /** @var EbayEnterprise_GiftCard_Model_IContainer */
     protected $_container;
+    /** @var Mage_Checkout_Model_Session */
+    protected $_checkoutSession;
+    /** @var EbayEnterprise_GiftCard_Model_Session */
+    protected $_giftCardSession;
 
     protected function _construct()
     {
@@ -48,12 +52,30 @@ class EbayEnterprise_GiftCard_Controller_Abstract extends Mage_Core_Controller_F
         return $this->_container;
     }
     /**
-     * Get the checkout session
+     * Get the checkout session - not set in constructor to help prevent any
+     * potential issues with instiating the session prior to the session being set
+     * up by Magento.
+     *
      * @return Mage_Checkout_Model_Session
      */
     protected function _getCheckoutSession()
     {
-        return Mage::getSingleton('checkout/session');
+        if (!$this->_checkoutSession) {
+            $this->_checkoutSession = Mage::getSingleton('checkout/session');
+        }
+        return $this->_checkoutSession;
+    }
+    /**
+     * Get the gift card session.
+     *
+     * @return Mage_Checkout_Model_Session
+     */
+    protected function _getGiftCardSession()
+    {
+        if (!$this->_giftCardSession) {
+            $this->_giftCardSession = Mage::getSingleton('ebayenterprise_giftcard/session');
+        }
+        return $this->_giftCardSession;
     }
     /**
      * Disable controller actions when gift cards are disabled.
@@ -74,12 +96,13 @@ class EbayEnterprise_GiftCard_Controller_Abstract extends Mage_Core_Controller_F
     public function balanceAction()
     {
         $checkoutSession = $this->_getCheckoutSession();
+        $giftcardSession = $this->_getGiftCardSession();
         list($cardNumber, $pin) = $this->_getCardInfoFromRequest();
         // try a balance request.
         $giftcard = $this->_getContainer()->getGiftCard($cardNumber)->setPin($pin);
         try {
             $giftcard->checkBalance();
-            $checkoutSession->setEbayEnterpriseCurrentGiftCard($giftcard);
+            $giftcardSession->setEbayEnterpriseCurrentGiftCard($giftcard);
         } catch (EbayEnterprise_GiftCard_Exception $e) {
             $checkoutSession->addError($this->_helper->__($e->getMessage()));
         }

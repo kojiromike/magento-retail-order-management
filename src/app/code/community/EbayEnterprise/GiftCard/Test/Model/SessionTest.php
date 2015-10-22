@@ -37,7 +37,7 @@ class EbayEnterprise_GiftCard_Test_Model_SessionTest extends EbayEnterprise_Eb2c
     public function testCurrentGiftCard()
     {
         $cardNumber = '1234123412341234';
-        $giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($number);
+        $giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber);
         $this->session->setEbayEnterpriseCurrentGiftCard($giftCard);
 
         $sessionGiftCard = $this->session->getEbayEnterpriseCurrentGiftCard();

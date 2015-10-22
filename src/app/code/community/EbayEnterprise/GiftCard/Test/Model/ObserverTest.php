@@ -42,7 +42,7 @@ class EbayEnterprise_GiftCard_Test_Model_ObserverTest extends EbayEnterprise_Eb2
      */
     public function testRedeemCard()
     {
-        $session = $this->getModelMockBuilder('core/session_abstract')
+        $this->getModelMockBuilder('core/session_abstract')
             ->disableOriginalConstructor()
             ->setMethods(null)
             ->getMock();

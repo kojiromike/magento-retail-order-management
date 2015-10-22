@@ -16,11 +16,41 @@
 class EbayEnterprise_Inventory_Test_Helper_Quantity_PayloadTest extends EcomDev_PHPUnit_Test_Case
 {
     /** @var EbayEnterprise_Inventory_Helper_Quantity_Payload */
-    protected $_payloadHelper;
+    protected $payloadHelper;
+    /**
+     * Mock instance of the inventory helper to ensure consistent behavior
+     * of the dependency during test.
+     *
+     * @var EbayEnterprise_Inventory_Helper_Data
+     */
+    protected $inventoryHelper;
+    /**
+     * Inventory helper instance referenced by the payload helper before being
+     * swapped out for a mock.
+     *
+     * @var EbayEnterprise_Inventory_Helper_Data
+     */
+    protected $origInventoryHelper;
 
     protected function setUp()
     {
-        $this->_payloadHelper = Mage::helper('ebayenterprise_inventory/quantity_payload');
+        $this->payloadHelper = Mage::helper('ebayenterprise_inventory/quantity_payload');
+        $this->inventoryHelper = $this->getHelperMock('ebayenterprise_inventory', ['getRomSku']);
+        $this->inventoryHelper->method('getRomSku')->will($this->returnArgument(0));
+
+        // Swap out the inventory helper instance referenced by the payload helper
+        // with the mock for consistent behavior during tests.
+        $this->origInventoryHelper = EcomDev_Utils_Reflection::getRestrictedPropertyValue($this->payloadHelper, 'inventoryHelper');
+
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->payloadHelper, 'inventoryHelper', $this->inventoryHelper);
+    }
+
+    protected function tearDown()
+    {
+        // Restore the original inventory helper instance to the payload helper
+        // to prevent the mock form potentially polluting other tests with
+        // unexpected mock behavior.
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->payloadHelper, 'inventoryHelper', $this->origInventoryHelper);
     }
 
     /**
@@ -31,7 +61,7 @@ class EbayEnterprise_Inventory_Test_Helper_Quantity_PayloadTest extends EcomDev_
      * @param string
      * @param string
      */
-    protected function _mockQuoteItem($sku, $id, $fulfillmentId, $fulfillmentType)
+    protected function mockQuoteItem($sku, $id, $fulfillmentId, $fulfillmentType)
     {
         $item = $this->getModelMock(
             'sales/quote_item_abstract',
@@ -65,7 +95,7 @@ class EbayEnterprise_Inventory_Test_Helper_Quantity_PayloadTest extends EcomDev_
         $locationId = 'location-id';
         $locationType = 'ISPU';
 
-        $item = $this->_mockQuoteItem($sku, $id, $locationId, $locationType);
+        $item = $this->mockQuoteItem($sku, $id, $locationId, $locationType);
 
         $itemPayload = $this->getMockForAbstractClass(
             'eBayEnterprise\RetailOrderManagement\Payload\Inventory\IRequestQuantityItem',
@@ -90,7 +120,7 @@ class EbayEnterprise_Inventory_Test_Helper_Quantity_PayloadTest extends EcomDev_
 
         $this->assertSame(
             $itemPayload,
-            $this->_payloadHelper->itemToRequestQuantityItem($item, $itemPayload)
+            $this->payloadHelper->itemToRequestQuantityItem($item, $itemPayload)
         );
     }
 
@@ -105,7 +135,7 @@ class EbayEnterprise_Inventory_Test_Helper_Quantity_PayloadTest extends EcomDev_
         $locationId = null;
         $locationType = null;
 
-        $item = $this->_mockQuoteItem($sku, $id, $locationId, $locationType);
+        $item = $this->mockQuoteItem($sku, $id, $locationId, $locationType);
 
         $itemPayload = $this->getMockForAbstractClass(
             'eBayEnterprise\RetailOrderManagement\Payload\Inventory\IQuantityItem',
@@ -122,7 +152,7 @@ class EbayEnterprise_Inventory_Test_Helper_Quantity_PayloadTest extends EcomDev_
 
         $this->assertSame(
             $itemPayload,
-            $this->_payloadHelper->itemToQuantityItem($item, $itemPayload)
+            $this->payloadHelper->itemToQuantityItem($item, $itemPayload)
         );
     }
 
@@ -138,7 +168,7 @@ class EbayEnterprise_Inventory_Test_Helper_Quantity_PayloadTest extends EcomDev_
         $locationId = null;
         $locationType = null;
 
-        $item = $this->_mockQuoteItem($sku, $id, $locationId, $locationType);
+        $item = $this->mockQuoteItem($sku, $id, $locationId, $locationType);
 
         $itemPayload = $this->getMockForAbstractClass(
             'eBayEnterprise\RetailOrderManagement\Payload\Inventory\IQuantityItem',
@@ -157,7 +187,7 @@ class EbayEnterprise_Inventory_Test_Helper_Quantity_PayloadTest extends EcomDev_
 
         $this->assertSame(
             $itemPayload,
-            $this->_payloadHelper->itemToQuantityItem($item, $itemPayload)
+            $this->payloadHelper->itemToQuantityItem($item, $itemPayload)
         );
     }
 }

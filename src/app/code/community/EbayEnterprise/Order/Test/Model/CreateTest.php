@@ -29,6 +29,8 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
     protected $_replyStub;
     /** @var EbayEnterprise_Eb2cCore_Helper_Data */
     protected $_coreHelperStub;
+    /** @var EbayEnterprise_Order_Helper_Data */
+    protected $_StuborderHelper;
     /** @var EbayEnterprise_Order_Model_Observer */
     protected $_observerStub;
     /** @var Mage_Customer_Model_Customer */
@@ -59,6 +61,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
 
     /** @var string */
     protected $_expectedRequestIdPrefix = 'OCR-';
+    protected $_clientCustomerIdPrefix = '12345';
 
     /**
      * prepare stubs
@@ -66,6 +69,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
     public function setUp()
     {
         parent::setUp();
+
         $this->_httpApi = $this->getMockBuilder('\eBayEnterprise\RetailOrderManagement\Api\HttpApi')
             ->disableOriginalConstructor() // prevent need to mock IHttpConfig
             ->getMock();
@@ -76,7 +80,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
         $this->_requestStub = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateRequest');
         $this->_replyStub = $this->getMock('\eBayEnterprise\RetailOrderManagement\Payload\Order\IOrderCreateReply');
         $this->_coreHelperStub = $this->getHelperMock('eb2ccore/data', ['generateRequestId', 'getConfigModel']);
-        $coreConfig = $this->buildCoreConfigRegistry(['clientCustomerIdPrefix' => '12345', 'language_code' => 'en-us', 'clientCustomerIdLength' => 0,]);
+        $coreConfig = $this->buildCoreConfigRegistry(['clientCustomerIdPrefix' => $this->_clientCustomerIdPrefix, 'language_code' => 'en-us', 'clientCustomerIdLength' => 0,]);
         $this->_coreHelperStub->expects($this->any())
             ->method('getConfigModel')
             ->will($this->returnValue($coreConfig));
@@ -92,6 +96,19 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
                 'SomeOtherGender' => 'Invalid'
             ],
         ]);
+
+        $this->_orderHelperStub = $this->getHelperMock('ebayenterprise_order', ['prefixCustomerId']);
+        // Mock the customer id prefixing method to return the customer id
+        // prefixed with the constant client customer id prefix.
+        $clientCustomerIdPrefix = $this->_clientCustomerIdPrefix;
+        $this->_orderHelperStub
+            ->method('prefixCustomerId')
+            ->will($this->returnCallback(
+                function ($id) use ($clientCustomerIdPrefix) {
+                    return $clientCustomerIdPrefix . $id;
+                }
+            ));
+
         $this->_customer = Mage::getModel('customer/customer', ['increment_id' => '12345123456789']);
         $this->_order = Mage::getModel('sales/order', [
             'created_at' => '2014-07-28 16:22:46',
@@ -413,6 +430,7 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
             'config' => $this->_config,
             'order' => $this->_order,
             'payload' => $this->_requestStub,
+            'helper' => $this->_orderHelperStub,
         ];
         $create = $this->getModelMock('ebayenterprise_order/create', ['_getCustomerSession'], false, [$constructorArgs]);
         $create->expects($this->any())
@@ -421,9 +439,17 @@ class EbayEnterprise_Order_Test_Model_CreateTest extends EbayEnterprise_Eb2cCore
         $session->expects($this->any())
             ->method('getEncryptedSessionId')
             ->will($this->returnValue('sessid'));
+
         $result = EcomDev_Utils_Reflection::invokeRestrictedMethod($create, '_getCustomerId');
-        $hashedSessionId = hash('sha256', 'sessid');
+
+        // Recreate the guest customer id - hash of the encrypted session id
+        // for the user with max length set at 35 characters.
+        $guestCustomerId = substr(hash('sha256', 'sessid'), 0, 35);
+
         $this->assertLessThan(41, strlen($result));
-        $this->assertSame($isGuest ? substr($hashedSessionId, 0, 35) : '123456789', substr($result, 5));
+        $this->assertSame(
+            sprintf('%s%s', $this->_clientCustomerIdPrefix, ($isGuest ? $guestCustomerId : '123456789')),
+            $result
+        );
     }
 }

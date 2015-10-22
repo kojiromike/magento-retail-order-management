@@ -131,7 +131,7 @@ class EbayEnterprise_Order_Helper_Data extends Mage_Core_Helper_Abstract impleme
         return sprintf(
             '%s%s',
             $prefix,
-            !$isGuest ? str_pad($customerId, $length, '0', STR_PAD_LEFT) : $customerId
+            $isGuest ? $customerId : str_pad($customerId, $length, '0', STR_PAD_LEFT)
         );
     }
 

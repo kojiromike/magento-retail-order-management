@@ -18,6 +18,12 @@ use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedHttpAction;
 use eBayEnterprise\RetailOrderManagement\Api\Exception\UnsupportedOperation;
 use eBayEnterprise\RetailOrderManagement\Payload\Exception\InvalidPayload;
 
+/**
+ * The class this test originally tested has been refactored into a different
+ * class. This test no longer tests EbayEnterprise_Tax_Helper_Sdk, which no
+ * longer exists, but instead test SDK related method on
+ * EbayEnterprise_Tax_Helper_Data
+ */
 class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
     /** @var eBayEnterprise\RetailOrderManagement\Api\IBidirectionalApi */
@@ -103,17 +109,17 @@ class EbayEnterprise_Tax_Test_Helper_SdkTest extends EbayEnterprise_Eb2cCore_Tes
 
         $this->_quote = $this->getModelMock('sales/quote');
 
-        $this->_taxHelper = Mage::helper('ebayenterprise_tax');
+        $this->_taxHelper = $this->getHelperMock('ebayenterprise_tax', ['getConfigModel']);
+        $this->_taxHelper->method('getConfigModel')->willReturn($this->_taxConfig);
+
         // As helpers do not support constructor injection, inject
         // dependencies by directly setting the class properties.
         EcomDev_Utils_Reflection::setRestrictedPropertyValues(
             $this->_taxHelper,
             [
-                '_coreHelper' => $this->_coreHelper,
-                '_taxHelper' => $this->_taxHelper,
-                '_taxConfig' => $this->_taxConfig,
-                '_logContext' => $logContext,
-                '_taxFactory' => $this->_taxFactory,
+                'coreHelper' => $this->_coreHelper,
+                'taxFactory' => $this->_taxFactory,
+                'logContext' => $logContext,
             ]
         );
     }

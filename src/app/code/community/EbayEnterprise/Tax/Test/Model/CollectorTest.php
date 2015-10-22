@@ -111,7 +111,7 @@ class EbayEnterprise_Tax_Test_Model_CollectorTest extends EcomDev_PHPUnit_Test_C
             'ebayenterprise_tax/collector',
             [
                 'tax_session' => $this->_taxSession,
-                'sdk_helper' => $this->_taxHelper,
+                'tax_helper' => $this->_taxHelper,
                 'log_context' => $logContext,
             ]
         );

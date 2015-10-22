@@ -74,10 +74,10 @@ class EbayEnterprise_Tax_Test_Model_Order_Create_OrderTest extends EcomDev_PHPUn
 
     /**
      * When there are no errors in the collector or in any of the collected tax
-     * records, the "tax has errors" flag should not be set on the order create
-     * request.
+     * records, the "tax has errors" flag should be set to false on the order
+     * create request.
      */
-    public function testTaxHeaderNotSetWhenNoErrors()
+    public function testTaxHeaderWhenNoErrors()
     {
         // Mock the tax collector to return an array of tax all valid tax records.
         $this->_taxRecords = [$this->_validTaxRecord];
@@ -89,8 +89,11 @@ class EbayEnterprise_Tax_Test_Model_Order_Create_OrderTest extends EcomDev_PHPUn
             ->method('getTaxRequestSuccess')
             ->will($this->returnValue(true));
 
-        $this->_orderCreateRequest->expects($this->never())
-            ->method('setTaxHasErrors');
+        $this->_orderCreateRequest->expects($this->once())
+            ->method('setTaxHasErrors')
+            ->with($this->identicalTo(false))
+            ->will($this->returnSelf());
+
         $this->_orderCreateHandler->addTaxHeaderErrorFlag();
     }
 

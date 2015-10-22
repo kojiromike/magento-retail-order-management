@@ -68,13 +68,19 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
         // expected results from translations doing translations.
         $this->_inventoryHelper = $this->getHelperMock(
             'ebayenterprise_inventory/data',
-            ['__']
+            ['__', 'getRomSku']
         );
         // Mock out the translate method, while it would be nice to ensure
         // strings are getting translated through this method, the complexity
         // of doing so is not currently worth the effort.
         $this->_inventoryHelper->expects($this->any())
             ->method('__')
+            ->will($this->returnArgument(0));
+        // Mock the SKU normalization method to just always return the given
+        // SKU. Prevents the need for ensuring configuration is set up just so
+        // for given SKUs to match the "normalized" SKU.
+        $this->_inventoryHelper->expects($this->any())
+            ->method('getRomSku')
             ->will($this->returnArgument(0));
 
         // Mock calculations of total item quantity.

@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased] - 2015-10-20
 ### Fixed
 - Gift card module stores excessive data in the session
+- Fix broken unit tests
 
 ## [1.6.6] - 2015-10-13
 ### Changed

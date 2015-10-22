@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - 2015-10-20
+## [1.6.7] - 2015-10-22
 ### Fixed
 - Gift card module stores excessive data in the session
 - Fix broken unit tests
@@ -277,6 +277,8 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.7]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.6...1.6.7
+[1.6.6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.5...1.6.6
 [1.6.5]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.4...1.6.5
 [1.6.4]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.3...1.6.4
 [1.6.3]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.2...1.6.3

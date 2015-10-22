@@ -50,9 +50,9 @@ class EbayEnterprise_GiftCard_Model_Session extends Mage_Core_Model_Session_Abst
      *
      * @return EbayEnterprise_GiftCard_Model_IGiftcard|null
      */
-    public function getEbayEnterpriseCurrentGiftCard()
+    public function getEbayEnterpriseCurrentGiftCard($clear = false)
     {
-        $memo = $this->getData(self::CURRENT_GIFT_CARD_MEMO_KEY);
+        $memo = $this->getData(self::CURRENT_GIFT_CARD_MEMO_KEY, $clear);
         return $memo ? $this->createGiftCardFromMemo($memo) : null;
     }
 

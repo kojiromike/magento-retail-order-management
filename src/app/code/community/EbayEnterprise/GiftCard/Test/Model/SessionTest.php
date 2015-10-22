@@ -40,10 +40,13 @@ class EbayEnterprise_GiftCard_Test_Model_SessionTest extends EbayEnterprise_Eb2c
         $giftCard = Mage::getModel('ebayenterprise_giftcard/giftcard')->setCardNumber($cardNumber);
         $this->session->setEbayEnterpriseCurrentGiftCard($giftCard);
 
-        $sessionGiftCard = $this->session->getEbayEnterpriseCurrentGiftCard();
+        $sessionGiftCard = $this->session->getEbayEnterpriseCurrentGiftCard(true);
 
         // Gift card and returned card should have same data
         $this->assertSame($giftCard->getMemo(), $sessionGiftCard->getMemo());
+        // Trying to get gift card again (retrieved with clear = true) should
+        // return null, value was cleared.
+        $this->assertNull($this->session->getEbayEnterpriseCurrentGiftCard());
     }
 
     /**

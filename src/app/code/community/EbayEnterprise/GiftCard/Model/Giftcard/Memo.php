@@ -51,6 +51,8 @@ class EbayEnterprise_GiftCard_Model_Giftcard_Memo implements EbayEnterprise_Eb2c
     protected $balanceCurrencyCode;
     /** @var bool **/
     protected $isRedeemed;
+    /** @var string **/
+    protected $tenderType;
 
     /**
      * Id of the order the gift card is applied to.

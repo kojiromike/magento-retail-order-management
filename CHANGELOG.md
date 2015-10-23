@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Fixed
+- Added Missing Property Declaration to Giftcard Memo
+
 ## [1.6.8] - 2015-10-22
 ### Fixed
 - Remove current gift card from session when displayed

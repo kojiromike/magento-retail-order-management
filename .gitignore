@@ -1,5 +1,6 @@
+.composer/
 .DS_Store
-*.swp
+*.sw[op]
 nbproject
 /build/
 .idea

@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 ### Fixed
 - Added Missing Property Declaration to Giftcard Memo
+- Handle Order Info without Billing Address
 
 ## [1.6.8] - 2015-10-22
 ### Fixed

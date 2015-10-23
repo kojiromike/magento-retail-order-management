@@ -306,6 +306,7 @@ class EbayEnterprise_Catalog_Test_Helper_ItemmasterTest extends EbayEnterprise_E
      */
     public function testPassGiftCardWithGiftCardProduct()
     {
+        $this->requireModule('Enterprise_GiftCard');
         $product = Mage::getModel(
             'catalog/product',
             [
@@ -331,6 +332,7 @@ class EbayEnterprise_Catalog_Test_Helper_ItemmasterTest extends EbayEnterprise_E
      */
     public function testPassGiftCardWithNonGiftCardProduct()
     {
+        $this->requireModule('Enterprise_GiftCard');
         $giftCardFragment = $this->itemmasterHelper->passGiftCard(null, '_giftcard', $this->simpleProduct, $this->doc);
         $this->assertNotNull($giftCardFragment);
         $element = $giftCardFragment->firstChild;

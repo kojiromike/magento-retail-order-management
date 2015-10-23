@@ -641,7 +641,7 @@ class EbayEnterprise_Order_Test_Model_Detail_Process_Response_RelationshipTest e
         /** @var array */
         $data = [
             'sku1' => null,
-            'sku2' => nul,
+            'sku2' => null,
         ];
 
         /** @var EbayEnterprise_Order_Model_Detail_Process_Response_Item */

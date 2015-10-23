@@ -220,4 +220,58 @@ abstract class EbayEnterprise_Eb2cCore_Test_Base extends EcomDev_PHPUnit_Test_Ca
             "Expected method '$observerClassName::$observerMethod' is not defined."
         );
     }
+
+    /**
+     * Mark test skipped if module not installed
+     *
+     * @param string $module The name of a module to check
+     * @return self
+     */
+    protected function requireModule($module)
+    {
+        if (!Mage::helper('core')->isModuleEnabled($module)) {
+            $message = sprintf('Test Requires Module "%s".', $module);
+            $this->markTestSkipped($message);
+        }
+        return $this;
+    }
+
+    /**
+     * Mark test skipped if class does not exist.
+     *
+     * @param string $class the raw name of the class to check
+     * @return self
+     */
+    protected function requireClass($class)
+    {
+        if (!class_exists($class)) {
+            $message = sprintf('Test Requires Class "%s".', $class);
+            $this->markTestSkipped($message);
+        }
+        return $this;
+    }
+
+    /**
+     * Mark test skipped if helper does not exist.
+     *
+     * @param string $helper the Magento name of the helper to check
+     * @return self
+     */
+    protected function requireHelper($helper)
+    {
+        $className = Mage::getConfig()->getHelperClassName($helper);
+        return $this->requireClass($className);
+    }
+
+    /**
+     * Mark test skipped if model does not exist.
+     *
+     * @param string $model the Magento name of the model to check
+     * @return self
+     */
+    protected function requireModel($model)
+    {
+        $className = Mage::getConfig()->getModelClassName($model);
+        return $this->requireClass($className);
+    }
 }

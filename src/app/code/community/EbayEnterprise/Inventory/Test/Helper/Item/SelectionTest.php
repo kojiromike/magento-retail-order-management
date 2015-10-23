@@ -137,9 +137,7 @@ class EbayEnterprise_Inventory_Test_Helper_Item_SelectionTest extends EbayEnterp
      */
     public function testAddGiftcard()
     {
-        if (!class_exists('Enterprise_GiftCard_Model_Catalog_Product_Type_Giftcard')) {
-            $this->markTestSkipped('Giftcard Product Type not installed/found');
-        }
+        $this->requireModel('enterprise_giftcard/catalog_product_type_giftcard');
         $single = Mage::getModel('sales/quote_item', [
             'product' => Mage::getModel('catalog/product', [
                 'stock_item' => $this->_getStockItemStub(true),

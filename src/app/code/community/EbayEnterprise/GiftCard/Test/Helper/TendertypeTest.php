@@ -74,11 +74,8 @@ class EbayEnterprise_GiftCard_Test_Helper_TendertypeTest extends EbayEnterprise_
             ->will($this->returnValue($lookup));
         $lookup->expects($this->once())
             ->method('getTenderType')
-            ->will($this->returnValue($tenderType));
-        $this->assertSame(
-            $tenderType,
-            $tenderTypeHelper->lookupTenderType($cardNumber, $currencyCode, $panIsToken)
-        );
+            ->will($this->returnValue('monkeys'));
+        $tenderTypeHelper->lookupTenderType($cardNumber, $currencyCode, $panIsToken);
     }
 
     /**

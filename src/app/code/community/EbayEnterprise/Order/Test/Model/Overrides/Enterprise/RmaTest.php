@@ -15,6 +15,12 @@
 
 class EbayEnterprise_Order_Test_Model_Overrides_Enterprise_RmaTest extends EbayEnterprise_Eb2cCore_Test_Base
 {
+    public function setUp()
+    {
+        $this->requireModule('Enterprise_Rma');
+        parent::setUp();
+    }
+
     public function tearDown()
     {
         parent::tearDown();

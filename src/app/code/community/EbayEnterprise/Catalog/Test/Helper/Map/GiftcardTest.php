@@ -56,6 +56,7 @@ class EbayEnterprise_Catalog_Test_Helper_Map_GiftcardTest extends EbayEnterprise
      */
     public function testGetGiftCardType()
     {
+        $this->requireModule('Enterprise_GiftCard');
         $testData = array(
             array(
                 'expect' => Enterprise_GiftCard_Model_Giftcard::TYPE_VIRTUAL,
@@ -91,6 +92,7 @@ class EbayEnterprise_Catalog_Test_Helper_Map_GiftcardTest extends EbayEnterprise
      */
     public function testExtractGiftcardTenderValue()
     {
+        $this->requireModule('Enterprise_GiftCard');
         $value = 'SV';
         $mapValue = 'virtual';
         $mapData = array('SV' => $mapValue);
@@ -191,6 +193,7 @@ class EbayEnterprise_Catalog_Test_Helper_Map_GiftcardTest extends EbayEnterprise
      */
     public function testExtractIsRedeemable()
     {
+        $this->requireModule('Enterprise_GiftCard');
         $nodes = new DOMNodeList();
         $value = 2;
         $storeId = 5;
@@ -271,6 +274,7 @@ class EbayEnterprise_Catalog_Test_Helper_Map_GiftcardTest extends EbayEnterprise
      */
     public function testExtractLifetime()
     {
+        $this->requireModule('Enterprise_GiftCard');
         $nodes = new DOMNodeList();
         $value = 2;
         $storeId = 7;
@@ -353,6 +357,7 @@ class EbayEnterprise_Catalog_Test_Helper_Map_GiftcardTest extends EbayEnterprise
      */
     public function testExtractEmailTemplate()
     {
+        $this->requireModule('Enterprise_GiftCard');
         $nodes = new DOMNodeList();
         $value = 2;
         $returnValue = '3';

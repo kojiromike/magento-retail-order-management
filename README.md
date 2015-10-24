@@ -2,6 +2,8 @@
 
 # Magento Retail Order Management Extension
 
+[![unit test status](https://circleci.com/gh/eBayEnterprise/magento-retail-order-management/tree/master.svg?style=shield&circle-token=c57f1fcd91b2b6527b683ccc267029b6e8d9e6f5)](https://circleci.com/gh/eBayEnterprise/magento-retail-order-management)
+
 The Magento Retail Order Management Extension is designed as a framework that streamlines data transmission and allows for fast track integration of Magento Enterprise Edition with eBay Enterprise's [Retail Order Management](http://ebayenterprise.com/commerce_technologies/retail_order_management.php) Solution.
 
 ## Contents

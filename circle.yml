@@ -1,0 +1,15 @@
+machine:
+    php:
+        version: 5.4.37
+dependencies:
+    cache_directories:
+        - ../.composer
+    pre:
+        - echo "memory_limit = 1G" > ~/.phpenv/versions/$(phpenv global)/etc/conf.d/memory.ini
+        - circle-ci/magento-install
+        - mkdir ../build && rsync -a ../magento/ ../build
+    override:
+        - circle-ci/setup
+test:
+    override:
+        - cd ../build && phpunit --debug

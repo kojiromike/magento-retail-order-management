@@ -20,3 +20,7 @@ cp "$repo"/tests/composer.xml app/etc/
 cp "$repo"/circle-ci/local.xml.phpunit app/etc/
 cp "$repo"/circle-ci/Z_EbayEnterprise_Enabler.xml app/etc/modules/
 cp "$repo"/tests/phpunit.xml.dist .
+
+echo 'Removing dependent modules for a hack'
+rm app/etc/modules/EbayEnterprise_Address.xml \
+   app/etc/modules/EbayEnterprise_Eb2cGiftwrap.xml

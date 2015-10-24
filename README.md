@@ -1,4 +1,4 @@
-![ebay logo](docs/static/logo-vert.png)
+[![ebay logo](docs/static/logo-vert.png)](http://www.ebayenterprise.com/)
 
 # Magento Retail Order Management Extension
 

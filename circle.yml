@@ -12,4 +12,4 @@ dependencies:
         - circle-ci/setup
 test:
     override:
-        - cd ../build && phpunit --debug
+        - cd ../build && phpunit --debug --log-junit $CIRCLE_TEST_REPORTS/phpunit/magento-retail-order-management.xml

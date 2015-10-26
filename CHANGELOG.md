@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.6.10]
 ### Fixed
 - 404 when trying to change config scope
 
@@ -291,6 +291,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.10]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.9...1.6.10
 [1.6.9]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.8...1.6.9
 [1.6.8]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.7...1.6.8
 [1.6.7]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.6...1.6.7

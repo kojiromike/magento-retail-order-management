@@ -230,7 +230,7 @@ class EbayEnterprise_Inventory_Model_Allocation_Allocator
             $builder = $this->createRequestBuilder($request, $selector, $this->reservation);
             $builder->buildOutRequest();
             $api->setRequestBody($request);
-            return $request;
+            return $this;
         } catch (UnsupportedOperation $e) {
             $this->logger->critical(
                 'The inventory allocation operation is unsupported in the current configuration. See exception log for more details.',

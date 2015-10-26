@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.6.9] - 2015-10-26
 ### Fixed
 - Added Missing Property Declaration to Giftcard Memo
 - Handle Order Info without Billing Address
@@ -287,6 +287,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.9]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.8...1.6.9
 [1.6.8]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.7...1.6.8
 [1.6.7]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.6...1.6.7
 [1.6.6]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.5...1.6.6

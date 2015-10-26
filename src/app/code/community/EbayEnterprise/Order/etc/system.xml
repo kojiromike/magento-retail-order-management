@@ -14,10 +14,6 @@ http://opensource.org/licenses/osl-3.0.php
 -->
 <config>
     <sections>
-        <ebayenterprise_order>
-            <groups>
-            </groups>
-        </ebayenterprise_order>
         <eb2ccore>
             <groups>
                 <email translate="label">

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Fixed
+- 404 when trying to change config scope
+
 ## [1.6.9] - 2015-10-26
 ### Fixed
 - Added Missing Property Declaration to Giftcard Memo

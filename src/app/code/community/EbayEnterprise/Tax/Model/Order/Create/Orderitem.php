@@ -42,7 +42,8 @@ class EbayEnterprise_Tax_Model_Order_Create_Orderitem
     protected $_logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
     protected $_logContext;
-
+    /** @var array */
+    protected $_taxRecordsBySource = [];
     /**
      * @param array $args Must contain key/values for:
      *                         - item => Mage_Sales_Model_Order_Item
@@ -80,10 +81,8 @@ class EbayEnterprise_Tax_Model_Order_Create_Orderitem
             $this->_nullCoalesce($args, 'duty', null)
         );
         $this->_indexTaxRecords();
-        // The order item *should* already have the associated product entity
-        // loaded but if it doesn't, load the product using the product id of the item.
-        $this->_itemProduct = $this->_item->getProduct()
-            ?: Mage::getModel('catalog/product')->load($this->_item->getProductId());
+
+        $this->_itemProduct = $this->getItemProduct($this->_item);
     }
 
     /**
@@ -408,5 +407,34 @@ class EbayEnterprise_Tax_Model_Order_Create_Orderitem
             $this->_taxRecordsBySource[$recordSource][] = $taxRecord;
         }
         return $this;
+    }
+
+    /**
+     * Get the product the item represents.
+     *
+     * @param Mage_Sales_Model_Order_Item
+     * @return Mage_Catalog_Model_Product
+     */
+    protected function getItemProduct(Mage_Sales_Model_Order_Item $item)
+    {
+        // When dealing with configurable items, need to get tax data from
+        // the child product and not the parent.
+        if ($item->getProductType() === Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+            $sku = $item->getSku();
+            $children = $item->getChildrenItems();
+            if ($children) {
+                /** @var Mage_Sales_Model_Order_Item $childItem */
+                foreach ($children as $childItem) {
+                    $childProduct = $childItem->getProduct();
+                    // If the SKU of the child product matches the SKU of the
+                    // item, the simple product being ordered was found and should
+                    // be used.
+                    if ($childProduct->getSku() === $sku) {
+                        return $childProduct;
+                    }
+                }
+            }
+        }
+        return $item->getProduct() ?: Mage::getModel('catalog/product')->load($item->getProductId());
     }
 }

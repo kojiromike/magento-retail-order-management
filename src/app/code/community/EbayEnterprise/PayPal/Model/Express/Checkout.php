@@ -236,6 +236,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
         $paypalShippingAddress = $getExpressCheckoutReply['shipping_address'];
         if (!$quote->getIsVirtual()) {
             $shippingAddress = $quote->getShippingAddress();
+            $shippingAddress->setTelephone($getExpressCheckoutReply['phone']);
             $shippingAddress->setStreet($paypalShippingAddress['street']);
             $shippingAddress->setCity($paypalShippingAddress['city']);
             $shippingAddress->setRegion($paypalShippingAddress['region_code']);
@@ -256,6 +257,8 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
             $shippingAddress->setCollectShippingRates(true);
             $shippingAddress->setSameAsBilling(0);
             $quote->setShippingAddress($shippingAddress);
+            $quote->setCustomerFirstname($getExpressCheckoutReply['firstname']);
+            $quote->setCustomerLastname($getExpressCheckoutReply['lastname']);
         }
 
         // Import billing address if we are here via Button - which is to say we didn't have a billing address yet:
@@ -280,9 +283,7 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
         $billingAddress->setRegion($paypalBillingAddress['region_code']);
         $billingAddress->setPostcode($paypalBillingAddress['postcode']);
         $billingAddress->setCountryId($paypalBillingAddress['country_id']);
-        if ($quote->getIsVirtual() && !$billingAddress->getEmail()) {
-            $billingAddress->setEmail($getExpressCheckoutReply['email']);
-        }
+        $billingAddress->setEmail($getExpressCheckoutReply['email']);
         $quote->setBillingAddress($billingAddress);
 
         // import payment info

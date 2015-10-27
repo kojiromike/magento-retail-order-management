@@ -291,6 +291,10 @@ class EbayEnterprise_CreditCard_Model_Method_Ccpayment extends Mage_Payment_Mode
     {
         $api = $this->_getApi($payment);
         $this->_prepareApiRequest($api, $payment);
+        Mage::dispatchEvent('ebayenterprise_creditcard_auth_request_send_before', [
+            'payload' => $api->getRequestBody(),
+            'payment' => $payment,
+        ]);
         // Log the request instead of expecting the SDK to have logged it.
         // Allows the data to be properly scrubbed of any PII or other sensitive
         // data prior to writing the log files.

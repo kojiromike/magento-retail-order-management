@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 2015-10-29
+### Fixed
+- Prevent empty shipping method nodes form being added to OCR
+
 ## [1.6.11] - 2015-10-27
 ### Added
 - Add before send request payload event for ROM Credit Card Auth

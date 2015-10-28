@@ -77,13 +77,18 @@ class EbayEnterprise_Eb2cCore_Helper_Shipping
      * return null if $shippingMethod evaluates to false
      *
      * @param string
-     * @return string|null
+     * @return string
+     * @throws EbayEnterprise_Eb2cCore_Exception If an id for the shipping method cannot be found.
      */
     public function getMethodSdkId($shippingMethod)
     {
         $this->fetchAvailableShippingMethods();
         if (!$shippingMethod) {
-            return '';
+            $this->logger->error(
+                'SDK shipping method id for empty shipping method requested.',
+                $this->logContext->getMetaData(__CLASS__)
+            );
+            throw Mage::exception('EbayEnterprise_Eb2cCore', 'Unable to find a valid shipping method');
         }
         if (!isset($this->methods[$shippingMethod]['sdk_id'])) {
             $this->logger->error(
@@ -186,6 +191,10 @@ class EbayEnterprise_Eb2cCore_Helper_Shipping
     {
         $sdkId = $this->lookupShipMethod($shippingMethod);
         if (!$sdkId) {
+            $this->logger->warning(
+                'Encountered active shipping method with no ROM mapping.',
+                $this->logContext->getMetaData(__CLASS__, ['shipping_method' => $shippingMethod, 'display_string' => $displayString])
+            );
             return;
         }
         $this->methods[$shippingMethod] = [

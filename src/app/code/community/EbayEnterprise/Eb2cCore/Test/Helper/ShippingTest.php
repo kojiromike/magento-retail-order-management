@@ -20,6 +20,9 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ShippingTest extends EbayEnterprise_Eb
 
     public function setUp()
     {
+        $logContext = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $logContext->method('getMetaData')->will($this->returnValue([]));
+
         $config = $this->buildCoreConfigRegistry([
             'shippingMethodMap' => [
                 'carrier1_methodA' => 'SDK_METHODA',
@@ -39,7 +42,7 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ShippingTest extends EbayEnterprise_Eb
             ->will($this->returnValue($carriers));
         $this->shippingHelper = $this->getHelperMockBuilder('eb2ccore/shipping')
             ->setMethods(['getShippingConfig'])
-            ->setConstructorArgs([['config' => $config]])
+            ->setConstructorArgs([['config' => $config, 'log_context' => $logContext]])
             ->getMock();
         $this->shippingHelper->expects($this->once())
             ->method('getShippingConfig')
@@ -82,6 +85,35 @@ class EbayEnterprise_Eb2cCore_Test_Helper_ShippingTest extends EbayEnterprise_Eb
             'SpaceFallOne - ludicrously speedy',
             $this->shippingHelper->getMethodTitle('carrier2_methodB')
         );
+    }
+
+    /**
+     * verify if the shipping method has a mapping, the mapped ROM method id is returned
+     */
+    public function testGetMethodSdkIdMethodExists()
+    {
+        $this->assertSame(
+            'SDK_METHODA',
+            $this->shippingHelper->getMethodSdkId('carrier1_methodA')
+        );
+    }
+
+    /**
+     * verify if the shipping method does not have a mapping, an exception is thrown
+     */
+    public function testGetMethodSdkIdMethodNotExists()
+    {
+        $this->setExpectedException('EbayEnterprise_Eb2cCore_Exception');
+        $this->shippingHelper->getMethodSdkId('no_such_shipping_method');
+    }
+
+    /**
+     * verify if the shipping method does not have a mapping, an exception is thrown
+     */
+    public function testGetMethodSdkIdEmptyMethod()
+    {
+        $this->setExpectedException('EbayEnterprise_Eb2cCore_Exception');
+        $this->shippingHelper->getMethodSdkId('');
     }
 
     /**

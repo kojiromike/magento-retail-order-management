@@ -46,9 +46,9 @@ http://opensource.org/licenses/osl-3.0.php
                 'stock_map' maps SalesClass possible values to a known Magento value for product stock item backorder attribute.
                 This determines whether or not a ROM Inventory Call is made for an item.
                 Valid Values are found in Mage_CatalogInventory_Model_Stock:
-                    BACKORDERS_NO                       = 0; // Send to ROM Inventory API. This is the default if not mapped. Notably, 'stock' is not mapped and therefore is always set to 0.
+                    BACKORDERS_NO           = 0; // Send to ROM Inventory API. This is the default if not mapped. Notably, 'stock' is not mapped and therefore is always set to 0.
                     BACKORDERS_YES_NONOTIFY = 1; // Do not send to ROM Inventory API.
-                    BACKORDERS_YES_NOTIFY       = 2; // Do not send to ROM Inventory API.
+                    BACKORDERS_YES_NOTIFY   = 2; // Do not send to ROM Inventory API.
                 -->
                 <stock_map>
                     <advanceOrderOpen>2</advanceOrderOpen>
@@ -73,12 +73,6 @@ http://opensource.org/licenses/osl-3.0.php
                     <method>extractStringValue</method>
                     <xpath/>
                 </client_alt_item_id>
-                <manufacturer_item_id>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </manufacturer_item_id>
                 <brand_name>
                     <class>ebayenterprise_catalog/map</class>
                     <type>disabled</type>
@@ -121,36 +115,6 @@ http://opensource.org/licenses/osl-3.0.php
                     <method/>
                     <xpath/>
                 </is_hidden_product>
-                <item_dimension_shipping_mass_unit_of_measure>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </item_dimension_shipping_mass_unit_of_measure>
-                <item_dimension_shipping_mass_weight>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </item_dimension_shipping_mass_weight>
-                <item_dimension_display_mass_unit_of_measure>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </item_dimension_display_mass_unit_of_measure>
-                <item_dimension_display_mass_weight>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </item_dimension_display_mass_weight>
-                <item_dimension_display_packaging_unit_of_measure>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </item_dimension_display_packaging_unit_of_measure>
                 <item_dimension_display_packaging_width>
                     <class>ebayenterprise_catalog/map</class>
                     <type>disabled</type>
@@ -169,12 +133,6 @@ http://opensource.org/licenses/osl-3.0.php
                     <method/>
                     <xpath/>
                 </item_dimension_display_packaging_height>
-                <item_dimension_shipping_packaging_unit_of_measure>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </item_dimension_shipping_packaging_unit_of_measure>
                 <item_dimension_shipping_packaging_width>
                     <class>ebayenterprise_catalog/map</class>
                     <type>disabled</type>
@@ -193,24 +151,6 @@ http://opensource.org/licenses/osl-3.0.php
                     <method/>
                     <xpath/>
                 </item_dimension_shipping_packaging_height>
-                <item_dimension_carton_mass_unit_of_measure>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </item_dimension_carton_mass_unit_of_measure>
-                <item_dimension_carton_mass_weight>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </item_dimension_carton_mass_weight>
-                <item_dimension_carton_packaging_unit_of_measure>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </item_dimension_carton_packaging_unit_of_measure>
                 <item_dimension_carton_packaging_width>
                     <class>ebayenterprise_catalog/map</class>
                     <type>disabled</type>
@@ -253,18 +193,6 @@ http://opensource.org/licenses/osl-3.0.php
                     <method/>
                     <xpath/>
                 </manufacturing_date>
-                <manufacturer_name>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </manufacturer_name>
-                <manufacturer_manufacturer_id>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </manufacturer_manufacturer_id>
                 <may_ship_expedite>
                     <class>ebayenterprise_catalog/map</class>
                     <type>disabled</type>
@@ -283,18 +211,6 @@ http://opensource.org/licenses/osl-3.0.php
                     <method/>
                     <xpath/>
                 </may_ship_usps>
-                <safety_stock>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </safety_stock>
-                <sales_class>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </sales_class>
                 <serial_number_type>
                     <class>ebayenterprise_catalog/map</class>
                     <type>disabled</type>
@@ -325,18 +241,6 @@ http://opensource.org/licenses/osl-3.0.php
                     <method/>
                     <xpath/>
                 </ship_window_max_hour>
-                <street_date>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </street_date>
-                <style_description>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </style_description>
                 <supplier_name>
                     <class>ebayenterprise_catalog/map</class>
                     <type>disabled</type>
@@ -349,18 +253,6 @@ http://opensource.org/licenses/osl-3.0.php
                     <method/>
                     <xpath/>
                 </supplier_supplier_id>
-                <mass>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </mass>
-                <msrp>
-                    <class>ebayenterprise_catalog/map</class>
-                    <type>disabled</type>
-                    <method/>
-                    <xpath/>
-                </msrp>
                 <!---
                     This map allow you to import all custom attributes from ItemMaster and ContentMaster
                     into Magento Products, given that the product attributes are already created.

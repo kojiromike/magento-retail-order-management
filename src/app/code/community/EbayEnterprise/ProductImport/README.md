@@ -388,22 +388,27 @@ Please see the [Product Image Export](/src/app/code/community/EbayEnterprise/Pro
 The product import process uses attributes maps defined in configuration XML in a manner similar to how Magento defines event observers:
 
 ```xml
-<ebayenterprise_catalog_feed_attribute_mappings>
-    <mage_attribute_code> <!-- The attribute code for this attribute in Magento -->
-        <class>ebayenterprise_catalog/map</class> <!-- Magento object factory string -->
-        <type>(disabled|model|helper|singleton)</type> <!-- Type of object factory to use -->
-        <method>takeAction</method> <!-- Any public method -->
-        <xpath>Relative/Path/To/Node</xpath> <!-- Relative to the current item or content node -->
-    </mage_attribute_code>
-    ...
-</ebayenterprise_catalog_feed_attribute_mappings>
+<config>
+  <default>
+    <ebayenterprise_catalog>
+      <feed_attribute_mappings>
+        <magento_product_attribute_code> <!-- Replace with the attribute code of the product attribute data from this mapping will be set to -->
+          <class>ebayenterprise_catalog/map</class> <!-- Magento object factory string -->
+          <type>(disabled|model|helper|singleton)</type> <!-- Type of object factory to use -->
+          <method>takeAction</method> <!-- Any public method on the specified class -->
+          <xpath>Relative/Path/To/Node</xpath> <!-- Relative to the current item or content node -->
+        </magento_product_attribute_code>
+      </feed_attribute_mapping>
+    </ebayenterprise_catalog>
+  </default>
+</config>
 ```
 
 The method mapped by the configuration will be invoked when the XML node list matched by the XPath for an instance of the imported product. The methods should return the value to be set to the product attribute matching the attribute code the mapping is for.
 
 The XPath expressions are evaluated relative the the XML node representing a single product in the feed. For example, the `/ItemMaster/Item` node or `/ContentMaster/Content` node.
 
-Predefined maps that were [described above](#product-hub-feed-processing) can be found in [`app/code/community/EbayEnterprise/ProductImport/etc/config.xml`](/src/app/code/community/EbayEnterprise/ProductImport/etc/config.xml). There are some additional example maps in [`app/etc/local/productimport.xml.sample`](/src/app/etc/productimport.xml.sample) at `config/default/ebayenterprise_catalog/feed_attribute_mappings`.
+Predefined maps that were [described above](#product-hub-feed-processing) can be found in [`app/code/community/EbayEnterprise/ProductImport/etc/config.xml`](/src/app/code/community/EbayEnterprise/ProductImport/etc/config.xml). There are some additional example maps in [`app/etc/local/productimport.xml.sample`](/src/app/etc/productimport.xml.sample) at `config/default/ebayenterprise_catalog/feed_attribute_mappings`. Mappings configured in `app/etc/*.xml` files cannot be used to override the [predefined mappings](#product-hub-feed-processing) in the [EbayEnterprise_ProductImport module's `config.xml`](/src/app/code/community/EbayEnterprise/ProductImport/etc/config.xml) file.
 
 | Important |
 |:----------|

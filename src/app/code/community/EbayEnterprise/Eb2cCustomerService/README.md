@@ -5,11 +5,6 @@
 
 The intended audience for this guide is Magento merchants, business users and system integrators.
 
-## Contents
-
-- [Introduction](#introduction)
-- [Dependencies](#dependencies)
-
 ## Introduction
 
 The Magento Retail Order Management Extension's Customer Service Tools enables simple and direct order service capabilities to be carried out by customer service representatives for phone-in customers.
@@ -21,21 +16,6 @@ The extension is pre-integrated with the Retail Order Management Customer Servic
 | Important |
 |:----------|
 | While customer service representatives may place orders using the Magento Admin, they should not use the Magento Admin to cancel or edit orders as those changes will not reflect on the Retail Order Management OMS. |
-
-## Dependencies
-
-### Magento Modules
-
-- EbayEnterprise_Eb2cCore
-- TBD
-
-### Other Dependencies
-
-- TBD
-
-### Test Dependencies
-
-- EcomDev_PHPUnit
 
 - - -
 Copyright © 2014 eBay Enterprise, Inc.

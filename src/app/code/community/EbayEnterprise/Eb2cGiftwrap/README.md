@@ -12,7 +12,6 @@ The intended audience for this guide is Magento merchants, business users and sy
 - [Gift Wrapping](#gift-wrapping)
 - [Exporting Gift Wrapping](#exporting-gift-wrapping)
 - [Importing Gift Wrapping](#importing-gift-wrapping)
-- [Dependencies](#dependencies)
 
 ## Introduction
 
@@ -76,21 +75,6 @@ You can indicate that a product is gift wrapping in the Item Master feed by spec
 *All XPath expressions are relative to `/ItemMaster/Item[]/` in the Item Master.*
 
 All other XML nodes will be ignored, unless custom mapped, when importing gift wrapping items into Magento.
-
-## Dependencies
-
-### Magento Modules
-
-- Enterprise_GiftWrapping
-- EbayEnterprise_Eb2cCore
-
-### Other Dependencies
-
-- TBD
-
-### Test Dependencies
-
-- EcomDev_PHPUnit
 
 - - -
 Copyright © 2014 eBay Enterprise, Inc.

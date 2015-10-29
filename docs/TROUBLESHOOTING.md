@@ -5,8 +5,6 @@
 
 The intended audience for this guide is Magento system integrators. You should review the [Magento Retail Order Management Extension Overview](OVERVIEW.md) and [Installation and Configuration Guide](INSTALL.md) before proceeding.
 
-Knowledge of [TBD], is assumed in this document.
-
 ## Contents
 
 - [Common Configuration Problems](#common-configuration-problems)

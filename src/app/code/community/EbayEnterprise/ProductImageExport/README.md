@@ -5,11 +5,6 @@
 
 The intended audience for this guide is Magento merchants, business users and system integrators.
 
-## Contents
-
-- [Introduction](#introduction)
-- [Dependencies](#dependencies)
-
 ## Introduction
 
 Image Feed Files will be generated per store configured in Magento in the `/ExchangePlatform/Feed/out-box/` folder having the following file pattern `{client_id}_{store_id}_{feed_type}_{time_stamp}_{current_store_id}.xml`
@@ -55,20 +50,6 @@ Image Feed Files will be generated per store configured in Magento in the `/Exch
 | `/ItemImages/Item/Images/Image[@imageheight]` | Product image height | `getimagesize(path|url) (getimagesize($product->getMediaGalleryImages()[Varien_Data_Collection][Varien_Object]->getPath()|getUrl()))` |
 
 *NOTE: if the products in Magento have no image data then the image export will not generate any feed files.*
-
-## Dependencies
-
-### Magento Modules
-
-- TBD
-
-### Other Dependencies
-
-- TBD
-
-### Test Dependencies
-
-- EcomDev_PHPUnit
 
 - - -
 Copyright © 2014 eBay Enterprise, Inc.

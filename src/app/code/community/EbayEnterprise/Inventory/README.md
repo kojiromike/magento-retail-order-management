@@ -10,7 +10,6 @@ The intended audience for this guide is Magento merchants, business users and sy
 - [Introduction](#introduction)
 - [ATP Inventory Feed](#atp-inventory-feed)
 - [Inventory Service](#inventory-service)
-- [Dependencies](#dependencies)
 
 ## Introduction
 
@@ -62,21 +61,6 @@ The amount of time to cache the validated inventory quantity of a cart session i
 If the Magento mini-cart is in use, Magento will check internal inventory of all products in that cart with every page refresh. The Magento Retail Order Management Extension observes the Magento inventory events that are dispatched at this time for each product in cart. Corresponding quantity requests to the Retail Order Management inventory service could potentially number dozens per minute per customer depending on how many products a customer has in their cart, and how quickly they navigate through the catalog.
 
 To prevent heavy traffic to the Retail Order Management inventory service as well as a performance impact to Magento, the extension caches the inventory quantity while no changes are made to the cart. A cart update will always trigger new inventory quantity requests. Thus, this configuration settings provides an expiration for this cache so that when a customer returns to their persistent cart, potentially hours later, a fresh inventory quantity request is triggered even though the cart was not updated.
-
-## Dependencies
-
-### Magento Modules
-
-- EbayEnterprise_Eb2cCore
-- TBD
-
-### Other Dependencies
-
-- TBD
-
-### Test Dependencies
-
-- EcomDev_PHPUnit
 
 - - -
 Copyright © 2014 eBay Enterprise, Inc.

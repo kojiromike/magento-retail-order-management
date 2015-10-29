@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 2015-10-29
+### Fixed
+- PayPal Orders do not collect Fraud data
+
 ## [1.6.13] - 2015-10-29
 ### Fixed
 - Phone number and email missing in the OCR for PayPal orders

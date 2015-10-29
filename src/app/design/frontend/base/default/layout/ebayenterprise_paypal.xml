@@ -71,6 +71,12 @@ http://opensource.org/licenses/osl-3.0.php
             </action>
         </reference>
         <block type="core/text_list" name="additional.product.info"/>
+        <update handle="eb2cfraud_javascript_collector"/>
+        <reference name="eb2cfraud_javascript_collector">
+            <action method="setTemplate">
+                <template>eb2cfraud/ppe_checkout_jsc.phtml</template>
+            </action>
+        </reference>
     </ebayenterprise_paypal_express_checkout_review>
     <ebayenterprise_paypal_express_checkout_review_details>
         <block type="ebayenterprise_paypal/express_review_details" name="root" output="toHtml" template="ebayenterprise_paypal/express/review/details.phtml">

@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [1.6.12] - 2015-10-29
 ### Fixed
 - Prevent empty shipping method nodes form being added to OCR
+- Tax Class is not displayed in the OCR for Configurable Products
 
 ## [1.6.11] - 2015-10-27
 ### Added

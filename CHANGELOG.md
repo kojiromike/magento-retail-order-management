@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - 2015-10-29
+## [1.6.14] - 2015-10-29
 ### Fixed
 - PayPal Orders do not collect Fraud data
 
@@ -308,6 +308,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.14]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.13...1.6.14
 [1.6.13]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.12...1.6.13
 [1.6.12]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.11...1.6.12
 [1.6.11]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.10...1.6.11

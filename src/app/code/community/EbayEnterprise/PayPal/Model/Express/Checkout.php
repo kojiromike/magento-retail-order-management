@@ -335,7 +335,10 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
                 $this->_ignoreAddressValidation();
                 $shippingAddress->setShippingMethod($methodCode)
                     ->setCollectShippingRates(true);
-                $this->_quote->collectTotals()->save();
+                // Know shipping method has changed which will likely trigger
+                // total changes. Ensure that totals are collected again by
+                // setting the flag to false before triggering the collect.
+                $this->_quote->setTotalsCollectedFlag(false)->collectTotals()->save();
             }
         }
     }

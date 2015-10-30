@@ -1,11 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.6.16]
+## [1.6.16] - 2015-10-30
 ### Fixed
 - Gift card PHP Floating Point Error causes card redeem to fail in checkout
 
-## [1.6.15]
+## [1.6.15] - 2015-10-30
 ### Fixed
 - PayPal order review step does not refresh totals when shipping is updated
 
@@ -26,7 +26,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Add before send request payload event for ROM Credit Card Auth
 
-## [1.6.10]
+## [1.6.10] - 2015-10-26
 ### Fixed
 - 404 when trying to change config scope
 

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.16]
+### Fixed
+- Gift card PHP Floating Point Error causes card redeem to fail in checkout
+
 ## [1.6.15]
 ### Fixed
 - PayPal order review step does not refresh totals when shipping is updated
@@ -312,6 +316,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.16]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.15...1.6.16
 [1.6.15]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.14...1.6.15
 [1.6.14]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.13...1.6.14
 [1.6.13]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.12...1.6.13

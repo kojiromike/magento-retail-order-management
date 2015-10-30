@@ -12,6 +12,8 @@
     ],
     "type": "magento-module",
     "require": {
+        "php": "^5.4.0",
+        "ext-bcmath": "*",
         "ebayenterprise/magento-file-transfer": "~1.0",
         "ebayenterprise/magento-log": ">=2.0.2,<3.0",
         "ebayenterprise/php-dom": "~1.0",

@@ -178,7 +178,12 @@ class EbayEnterprise_GiftCard_Model_Observer
      */
     protected function _validateCardRedeemed(EbayEnterprise_GiftCard_Model_IGiftcard $card)
     {
-        if ($card->getAmountRedeemed() !== $card->getAmountToRedeem()) {
+        /**
+         * Using bcmath bccomp function in order to resolve PHP float comparison issue due to precision errors.
+         * @link http://www.php.net/manual/en/language.types.float.php
+         * @var float
+         */
+        if (bccomp($card->getAmountRedeemed(), $card->getAmountToRedeem(), 2) !== 0) {
             // Card could not be redeemed for full expected amount but may still
             // be valid.
             if (($card->getBalanceAmount() + $card->getAmountRedeemed()) === 0.00) {

@@ -68,6 +68,7 @@ class EbayEnterprise_Address_Test_Helper_DataTest extends EcomDev_PHPUnit_Test_C
      */
     protected function generatePayloadObject($empty = false, $streetLines = 4)
     {
+        /** @var IPhysicalAddress */
         $payload = $this->sdkPayloadFactory->buildPayload('\eBayEnterprise\RetailOrderManagement\Payload\Address\SuggestedAddress');
         if ($empty) {
             return $payload;

@@ -37,18 +37,25 @@ class EbayEnterprise_Catalog_Model_Error_Confirmations implements EbayEnterprise
     protected $coreFeed;
     /** @var EbayEnterprise_Eb2cCore_Model_Api */
     protected $coreApi;
-    /** @var EbayEnterprise_Dom_Document */
-    protected $doc;
+    /** @var EbayEnterprise_Eb2cCore_Helper_Data */
+    protected $coreHelper;
 
     public function __construct(array $arguments = [])
     {
-        list($this->logger, $this->context, $this->helper, $this->coreConfig, $this->coreApi, $this->doc) = $this->checkTypes(
+        list(
+            $this->logger,
+            $this->context,
+            $this->helper,
+            $this->coreConfig,
+            $this->coreApi,
+            $this->coreHelper
+        ) = $this->checkTypes(
             $this->nullCoalesce($arguments, 'logger', Mage::helper('ebayenterprise_magelog')),
             $this->nullCoalesce($arguments, 'context', Mage::helper('ebayenterprise_magelog/context')),
             $this->nullCoalesce($arguments, 'helper', Mage::helper('ebayenterprise_catalog')),
             $this->nullCoalesce($arguments, 'core_config', Mage::helper('eb2ccore')->getConfigModel()),
             $this->nullCoalesce($arguments, 'core_api', Mage::getModel('eb2ccore/api')),
-            $this->nullCoalesce($arguments, 'doc', Mage::helper('eb2ccore')->getNewDomDocument())
+            $this->nullCoalesce($arguments, 'core_helper', Mage::helper('eb2ccore'))
         );
         $data = ['feed_config' => $this->coreConfig->errorFeed];
         list($this->coreFeed) = $this->checkFeedType(
@@ -64,7 +71,7 @@ class EbayEnterprise_Catalog_Model_Error_Confirmations implements EbayEnterprise
      * @param  EbayEnterprise_Catalog_Helper_Data
      * @param  EbayEnterprise_Eb2cCore_Model_Config_Registry
      * @param  EbayEnterprise_Eb2cCore_Model_Api
-     * @param  EbayEnterprise_Dom_Document
+     * @param  EbayEnterprise_Eb2cCore_Helper_Data
      * @return array
      */
     protected function checkTypes(
@@ -73,9 +80,8 @@ class EbayEnterprise_Catalog_Model_Error_Confirmations implements EbayEnterprise
         EbayEnterprise_Catalog_Helper_Data $helper,
         EbayEnterprise_Eb2cCore_Model_Config_Registry $coreConfig,
         EbayEnterprise_Eb2cCore_Model_Api $coreApi,
-        EbayEnterprise_Dom_Document $doc
-    )
-    {
+        EbayEnterprise_Eb2cCore_Helper_Data $coreHelper
+    ) {
         return func_get_args();
     }
 
@@ -287,26 +293,47 @@ class EbayEnterprise_Catalog_Model_Error_Confirmations implements EbayEnterprise
         $event = $observer->getEvent();
         /** @var array */
         $feedDetails = (array) $event->getFeedDetails();
+
         foreach ($feedDetails as $detail) {
             /** @var string */
             $fileName = $detail['error_file'];
+
             $this->loadFile($fileName);
-            /** @var string */
-            $baseFile = basename($fileName);
-            if ($this->isFileEmpty()) {
-                $this->removeFile($fileName);
-                $this->logger->debug("Error confirmation file is empty: {$baseFile}", $this->context->getMetaData(__CLASS__, []));
+
+            // If no in-progress error file exists for the feed detail, it was
+            // either never created and nothing was written to it, or it was
+            // already processed. Don't attempt to process it again, move on.
+            if (!$this->fileStream->isFile()) {
+                $this->logger->debug('Error confirmation file does not exist: {file_name}', $this->context->getMetaData(__CLASS__, ['file_name' => $fileName]));
                 continue;
             }
+
+            // If the file exists but nothing was ever written to it, was not
+            // initialized and no errors written to it, no need to send the empty
+            // error file so simply remove it and move on.
+            if ($this->fileStream->getSize() === 0) {
+                $this->removeFile($fileName);
+                $this->logger->debug('Error confirmation file is empty: {file_name}', $this->context->getMetaData(__CLASS__, ['file_name' => $fileName]));
+                continue;
+            }
+
+            // If the error file exists and has had data written to it, close
+            // the file - append closing XML tag.
             $this->close();
+
+            // Ensure that only valid files are sent - may have had bad data
+            // written to the file or in some other way be invalid. ProductHub
+            // will be unable to do anything with invalid files and may cause
+            // issues for the system if it receives any.
             if ($this->isValidPayload($fileName)) {
                 $this->coreFeed->mvToLocalDirectory($fileName);
-                $this->logger->debug("Sending Error confirmation File: {$baseFile}", $this->context->getMetaData(__CLASS__, []));
+                $this->logger->debug('Sending Error confirmation File: {file_name}', $this->context->getMetaData(__CLASS__, ['file_name' => $fileName]));
             } else {
                 $this->removeFile($fileName);
-                $this->logger->debug("Error confirmation File: {$baseFile} has invalid XML", $this->context->getMetaData(__CLASS__, []));
+                $this->logger->debug('Error confirmation File: {file_name} has invalid XML', $this->context->getMetaData(__CLASS__, ['file_name' => $fileName]));
             }
         }
+
         return $this;
     }
 
@@ -345,8 +372,7 @@ class EbayEnterprise_Catalog_Model_Error_Confirmations implements EbayEnterprise
         Mage_Catalog_Model_Resource_Product_Collection $collection,
         $fileName,
         $type
-    )
-    {
+    ) {
         if ($collection->count()) {
             foreach ($collection as $product) {
                 $this->appendError(self::SKU_NOT_REMOVE, '', $type, $fileName, $product->getSku());
@@ -370,8 +396,7 @@ class EbayEnterprise_Catalog_Model_Error_Confirmations implements EbayEnterprise
         array $skus,
         $fileName,
         $type
-    )
-    {
+    ) {
         foreach ($skus as $sku) {
             $product = $collection->getItemByColumnValue('sku', $sku);
             if (is_null($product)) {
@@ -414,18 +439,6 @@ class EbayEnterprise_Catalog_Model_Error_Confirmations implements EbayEnterprise
     }
 
     /**
-     * Determine if the file in the SplFileInfo stream is empty.
-     *
-     * @return bool
-     */
-    protected function isFileEmpty()
-    {
-        return $this->fileStream
-            && $this->fileStream->isFile()
-            && !$this->fileStream->getSize();
-    }
-
-    /**
      * Remove an error confirmation file because it is empty.
      *
      * @param  string
@@ -451,12 +464,29 @@ class EbayEnterprise_Catalog_Model_Error_Confirmations implements EbayEnterprise
     {
         /** @var array */
         $data = $this->coreConfig->errorFeed;
-        $this->doc->load($fileName);
         try {
-            $this->coreApi->schemaValidate($this->doc, $data['xsd']);
+            $doc = $this->loadDoc($fileName);
+            $this->coreApi->schemaValidate($doc, $data['xsd']);
         } catch (EbayEnterprise_Eb2cCore_Exception_InvalidXml $e) {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Load the XML file into a new DOMDocument.
+     *
+     * @param string
+     * @return DOMDocument
+     * @throws EbayEnterprise_Eb2cCore_Exception_InvalidXml If file files to be loaded into a DOMDocument.
+     */
+    protected function loadDoc($fileName)
+    {
+        $doc = $this->coreHelper->getNewDomDocument();
+        if ($doc->load($fileName)) {
+            return $doc;
+        }
+        // If file could not be loaded into a DOMDocument, treat the XML as invalid.
+        throw Mage::exception('EbayEnterprise_Eb2cCore_Exception_InvalidXml', "Could not load $fileName in DOMDocument.");
     }
 }

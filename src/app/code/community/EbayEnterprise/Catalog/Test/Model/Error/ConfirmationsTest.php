@@ -377,6 +377,41 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     }
 
     /**
+     * Mock an SplFileInfo representing a given file. Mock will report
+     * if a given file exists and the size of that file.
+     *
+     * @param string
+     * @param bool
+     * @param int
+     * @return SplFileInfo Mock
+     */
+    protected function mockFileInfo($fileName, $fileExists, $fileSize)
+    {
+        // Stub file info mock for proper behavior.
+        // Cannot disable constructor due to shortcoming in PHPUnit mock objects,
+        // SplFileInfo cannot be serialized so cannot have it's constructor disabled.
+        $fileInfoMock = $this->getMockBuilder('SplFileInfo')
+            ->setMethods(['isFile', 'getSize'])
+            ->setConstructorArgs([$fileName])
+            ->getMock();
+
+        $fileInfoMock->method('isFile')
+            ->will($this->returnValue($fileExists));
+
+        if ($fileExists) {
+            $fileInfoMock->method('getSize')
+                ->will($this->returnValue($fileSize));
+        } else {
+            // If a file doesn't exist, getting the size will throw
+            // a runtime exception.
+            $fileInfoMock->method('getSize')
+                ->will($this->throwException(new RuntimeException(__METHOD__ . ': Test exception.')));
+        }
+
+        return $fileInfoMock;
+    }
+
+    /**
      * Test process method with the following assumptions when call with given Varien_Event_Observer object as a parameter
      * Expectation 1: the EbayEnterprise_Catalog_Model_Error_Confirmations::process is expected to be called with a mock
      *                Varien_Event_Observer object in which the mocked object method Varien_Event_Observer::getEvent will be called once
@@ -441,7 +476,11 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
             ->method('getMetaData')
             ->will($this->returnValue([]));
 
-        $confirmationsModelMock = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['loadFile', 'close', 'isFileEmpty', 'isValidPayload'], false, [[
+        // Mock file info for the local error file, file expected to
+        // exist and not be empty.
+        $fileInfoMock = $this->mockFileInfo($localFile, true, 1);
+
+        $confirmationsModelMock = $this->getModelMock('ebayenterprise_catalog/error_confirmations', ['loadFile', 'close', 'isValidPayload'], false, [[
             'core_config' => $cfg,
             'core_feed' => $coreFeed,
             'context' => $context,
@@ -454,11 +493,141 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
             ->method('close')
             ->will($this->returnSelf());
         $confirmationsModelMock->expects($this->once())
-            ->method('isFileEmpty')
-            ->will($this->returnValue(false));
-        $confirmationsModelMock->expects($this->once())
             ->method('isValidPayload')
             ->will($this->returnValue(true));
+
+        // Inject the mock SplFileInfo for stubbed tests of error file existence and size
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmationsModelMock, 'fileStream', $fileInfoMock);
+
+        $this->assertSame($confirmationsModelMock, $confirmationsModelMock->process($observer));
+    }
+
+    /**
+     * GIVEN A local error confirmation file that does not exist
+     * WHEN Error confirmations are processed
+     * THEN The non-existent error confirmation file should be be checked for size
+     * AND The non-existent error confirmation file should not be "closed"
+     * AND The non-existent error confirmation file should not be moved to the local outbox
+     */
+    public function testProcessErrorFileDoesNotExist()
+    {
+        $localFile = 'error_file_path.xml';
+        // Stub file info mock for proper behavior for a non-existent file.
+        $fileInfoMock = $this->mockFileInfo($localFile, false, null);
+
+        // Setup event observer objects to inject data into the method
+        $eventData = ['feed_details' => [['error_file' => $localFile]]];
+        $event = new Varien_Event($eventData);
+        $observer = new Varien_Event_Observer(['event' => $event]);
+
+        $cfg = $this->buildCoreConfigRegistry([
+            'errorFeed' => ['local_directory' => 'local/error'],
+        ]);
+
+        $coreFeed = $this->getModelMockBuilder('ebayenterprise_catalog/feed_core')
+            ->disableOriginalConstructor()
+            ->setMethods(['mvToLocalDirectory'])
+            ->getMock();
+
+        // Make sure the non-existent error file isn't sent to the outbox.
+        $coreFeed->expects($this->never())
+            ->method('mvToLocalDirectory');
+
+        $context = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $context->method('getMetaData')
+            ->will($this->returnValue([]));
+
+        // Setup the error confirmations model. Mocking out methods that would
+        // introduce unnecessary side-effects to the test.
+        $confirmationsModelMock = $this->getModelMock(
+            'ebayenterprise_catalog/error_confirmations',
+            ['loadFile', 'close', 'isValidPayload'],
+            false,
+            [[
+                'core_config' => $cfg,
+                'core_feed' => $coreFeed,
+                'context' => $context,
+            ]]
+        );
+
+        $confirmationsModelMock->method('loadFile')
+            ->with($this->equalTo($localFile))
+            ->will($this->returnSelf());
+        // Make sure the non-existent file isn't "closed" which would actually
+        // end up creating the file with just a closing XML tag.
+        $confirmationsModelMock->expects($this->never())
+            ->method('close');
+
+        // Inject the mock SplFileInfo for stubbed tests of error file existence and size
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmationsModelMock, 'fileStream', $fileInfoMock);
+
+        $this->assertSame($confirmationsModelMock, $confirmationsModelMock->process($observer));
+    }
+
+    /**
+     * GIVEN A local error confirmation file that is empty
+     * WHEN Error confirmations are processed
+     * THEN The error confirmation file should be removed
+     * AND The error confirmation file should not be "closed"
+     * AND The error confirmation file should not be moved to the local outbox
+     */
+    public function testProcessErrorFileEmpty()
+    {
+        $localFile = 'error_file_path.xml';
+
+        // Stub file info mock for proper behavior for an empty file.
+        $fileInfoMock = $this->mockFileInfo($localFile, true, 0);
+
+        // Setup event observer objects to inject data into the method
+        $eventData = ['feed_details' => [['error_file' => $localFile]]];
+        $event = new Varien_Event($eventData);
+        $observer = new Varien_Event_Observer(['event' => $event]);
+
+        $cfg = $this->buildCoreConfigRegistry([
+            'errorFeed' => ['local_directory' => 'local/error'],
+        ]);
+
+        $coreFeed = $this->getModelMockBuilder('ebayenterprise_catalog/feed_core')
+            ->disableOriginalConstructor()
+            ->setMethods(['mvToLocalDirectory'])
+            ->getMock();
+
+        // Make sure the non-existent error file isn't sent to the outbox.
+        $coreFeed->expects($this->never())
+            ->method('mvToLocalDirectory');
+
+        $context = $this->getHelperMock('ebayenterprise_magelog/context', ['getMetaData']);
+        $context->method('getMetaData')
+            ->will($this->returnValue([]));
+
+        // Setup the error confirmations model. Mocking out methods that would
+        // introduce unnecessary side-effects to the test.
+        $confirmationsModelMock = $this->getModelMock(
+            'ebayenterprise_catalog/error_confirmations',
+            ['loadFile', 'close', 'isValidPayload', 'removeFile'],
+            false,
+            [[
+                'core_config' => $cfg,
+                'core_feed' => $coreFeed,
+                'context' => $context,
+            ]]
+        );
+
+        $confirmationsModelMock->method('loadFile')
+            ->with($this->equalTo($localFile))
+            ->will($this->returnSelf());
+        // Ensure that the empty error file is deleted.
+        $confirmationsModelMock->expects($this->once())
+            ->method('removeFile')
+            ->with($this->identicalTo($localFile))
+            ->will($this->returnSelf());
+        // Make sure the non-existent file isn't "closed" which would actually
+        // end up creating the file with just a closing XML tag.
+        $confirmationsModelMock->expects($this->never())
+            ->method('close');
+
+        // Inject the mock SplFileInfo for stubbed tests of error file existence and size
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($confirmationsModelMock, 'fileStream', $fileInfoMock);
 
         $this->assertSame($confirmationsModelMock, $confirmationsModelMock->process($observer));
     }
@@ -466,7 +635,7 @@ class EbayEnterprise_Catalog_Test_Model_Error_ConfirmationsTest extends EbayEnte
     /**
      * Test processByOperationType method for the following expectations
      * Expectation 1: the method EbayEnterprise_Catalog_Model_Error_Confirmations::_processByOperationType will be
-     *                invoked and given an object of Varient_Event_Observer contain methods to get all skues that were deleted
+     *                invoked and given an object of Varien_Event_Observer contain methods to get all skues that were deleted
      *                and another method got get feed file detail. It will query the magento database for these
      *                deleted skus and report any product that still exist in magento.
      */

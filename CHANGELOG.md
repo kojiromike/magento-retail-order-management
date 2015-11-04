@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.19] - 2015-11-03
+### Fixed
+- Exception during order lookup test
+
 ## [1.6.18] - 2015-11-03
 ### Fixed
 - Exception during order lookup does not display error message for the customer
@@ -324,6 +328,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.19]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.18...1.6.19
 [1.6.18]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.17...1.6.18
 [1.6.17]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.16...1.6.17
 [1.6.16]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.15...1.6.16

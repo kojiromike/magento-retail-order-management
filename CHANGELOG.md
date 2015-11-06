@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.22] - 2015-11-16
+### Fixed
+- Subtract backorder demand from available-to-promise inventory on import
+
 ## [1.6.21] - 2015-11-09
 ### Added/Removed
 - Test address validation module in circle-ci
@@ -337,6 +341,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.22]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.21...1.6.22
 [1.6.21]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.20...1.6.21
 [1.6.20]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.19...1.6.20
 [1.6.19]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.18...1.6.19

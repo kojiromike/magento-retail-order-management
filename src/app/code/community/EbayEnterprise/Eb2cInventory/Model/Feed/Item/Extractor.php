@@ -16,59 +16,56 @@
 class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Extractor
 {
     /**
-     * extract item id data into a varien object
+     * Extract item id
      *
-     * @param DOMXPath $feedXPath , the xpath object
-     * @param $itemIndex
-     * @param $gsiClientId
-     * @return Varien_Object
+     * @param DOMXPath $feed document to query
+     * @param DOMNode $itemContext the context node to query within
+     * @return string|null the client item id if it can be found in the document, null otherwise
      */
-    protected function _extractItemId($feedXPath, $itemIndex, $gsiClientId)
+    protected function extractItemId(DOMXPath $feed, DOMNode $itemContext)
     {
-        // SKU used to identify this item from the client system.
-        $clientItemId = $feedXPath->query("//Inventory[$itemIndex][@gsi_client_id='$gsiClientId']/ItemId/ClientItemId");
-        return new Varien_Object(array('client_item_id' => $clientItemId->length ? (string) $clientItemId->item(0)->nodeValue : null));
-    }
-
-    /**
-     * extract Measurements data into a varien object
-     * @param DOMXPath $feedXPath , the xpath object
-     * @param $itemIndex
-     * @param $gsiClientId
-     * @return Varien_Object
-     */
-    protected function _extractMeasurements($feedXPath, $itemIndex, $gsiClientId)
-    {
-        $qty = $feedXPath->query("//Inventory[$itemIndex][@gsi_client_id='$gsiClientId']/Measurements/AvailableQuantity");
-        return new Varien_Object(array('available_quantity' => $qty->length ? (int) $qty->item(0)->nodeValue : 0));
-    }
-
-    /**
-     * extract feed data into a collection of varien objects
-     * @param DOMDocument $doc, the dom document with the loaded feed data
-     * @return array, an collection of varien objects
-     */
-    public function extractInventoryFeed($doc)
-    {
-        $collectionOfItems = array();
-        $feedXPath = new DOMXPath($doc);
-
-        $inventory = $feedXPath->query('//Inventory');
-        $itemIndex = 1; // start index
-        foreach ($inventory as $item) {
-            $gsiClientId = $item->getAttribute('gsi_client_id');
-            $catalogId = $item->getAttribute('catalog_id');
-            // setting item object into the collection of item objects.
-            $collectionOfItems[] = new Varien_Object(array(
-                'catalog_id'    => $catalogId,
-                'gsi_client_id' => $gsiClientId, // setting gsi_client_id id
-                'item_id'       => $this->_extractItemId($feedXPath, $itemIndex, $gsiClientId), // get varien object of item id node
-                'measurements'  => $this->_extractMeasurements($feedXPath, $itemIndex, $gsiClientId), // get varien object of Measurements node
-            ));
-            // increment item index
-            $itemIndex++;
+        $clientItemIdNodes = $feed->query('ItemId/ClientItemId', $itemContext);
+        if ($clientItemIdNodes->length) {
+            return (string) $clientItemIdNodes->item(0)->nodeValue;
         }
+        return null;
+    }
 
+    /**
+     * Extract the quantity available to sell minus the already-backordered quantity
+     *
+     * @param DOMXPath $feed document to query
+     * @param DOMNode $itemContext the context node to query within
+     * @return int the net quantity available to promise
+     */
+    protected function extractMeasurements(DOMXPath $feed, DOMNode $itemContext)
+    {
+        $availableNodes = $feed->query('Measurements/AvailableQuantity', $itemContext);
+        $backorderNodes = $feed->query('Measurements/BackorderQuantity', $itemContext);
+        $availableQty = $availableNodes->length ? (int) $availableNodes->item(0)->nodeValue : 0;
+        $backorderQty = $backorderNodes->length ? (int) $backorderNodes->item(0)->nodeValue : 0;
+        return max($availableQty - $backorderQty, 0);
+    }
+
+    /**
+     * Extract feed data into Varien Objects array.
+     *
+     * @param DOMDocument $doc the dom document with the loaded feed data
+     * @return Varien_Object[]
+     */
+    public function extractInventoryFeed(DOMDocument $doc)
+    {
+        $collectionOfItems = [];
+        $feed = new DOMXPath($doc);
+        $inventory = $feed->query('//Inventory');
+        foreach ($inventory as $item) {
+            $collectionOfItems[] = new Varien_Object([
+                'catalog_id'    => $item->getAttribute('catalog_id'),
+                'gsi_client_id' => $item->getAttribute('gsi_client_id'),
+                'item_id'       => new Varien_Object(['client_item_id' => $this->extractItemId($feed, $item)]),
+                'measurements'  => new Varien_Object(['available_quantity' => $this->extractMeasurements($feed, $item)]),
+            ]);
+        }
         return $collectionOfItems;
     }
 }

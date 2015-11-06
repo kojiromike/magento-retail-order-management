@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 2015-11-09
+### Added/Removed
+- Test address validation module in circle-ci
+- Remove gift registry from address validation 
+
 ## [1.6.20] - 2015-11-09
 ### Fixed
 - Error confirmations may be malformed

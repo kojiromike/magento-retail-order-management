@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - 2015-11-09
+## [1.6.21] - 2015-11-09
 ### Added/Removed
 - Test address validation module in circle-ci
 - Remove gift registry from address validation 
@@ -337,6 +337,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.21]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.20...1.6.21
 [1.6.20]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.19...1.6.20
 [1.6.19]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.18...1.6.19
 [1.6.18]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.17...1.6.18

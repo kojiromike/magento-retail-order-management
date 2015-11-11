@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.24] - 2015-11-17
+### Fixed
+- Credit card expiration data unavailable from order details
+
 ## [1.6.23] - 2015-11-17
 ### Fixed
 - Out of stock product added to the Admin order is causing error
@@ -345,6 +349,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.24]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.23...1.6.24
 [1.6.23]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.22...1.6.23
 [1.6.22]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.21...1.6.22
 [1.6.21]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.20...1.6.21

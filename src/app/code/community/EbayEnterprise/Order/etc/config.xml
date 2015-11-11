@@ -667,6 +667,12 @@ http://opensource.org/licenses/osl-3.0.php
                             <method>getFloatValue</method>
                             <getter>getAmountAuthorized</getter>
                         </authorized_amount>
+                        <expiration_date>
+                            <class>ebayenterprise_order/detail_map</class>
+                            <type>helper</type>
+                            <method>getExpirationDateValue</method>
+                            <getter>getExpirationDate</getter>
+                        </expiration_date>
                     </payment_data>
                     <rom_storevalue_data>
                         <tender_type>

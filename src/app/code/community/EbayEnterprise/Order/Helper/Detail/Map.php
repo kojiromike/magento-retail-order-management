@@ -386,4 +386,17 @@ class EbayEnterprise_Order_Helper_Detail_Map extends EbayEnterprise_Order_Helper
         return isset($romToMageTenderTypeMap[$tenderType])
             ? $romToMageTenderTypeMap[$tenderType] : $tenderType;
     }
+
+    /**
+     * Get the expiration date as a DateTime object.
+     *
+     * @param IPayload
+     * @param string
+     * @return DateTime|null
+     */
+    public function getExpirationDateValue(IPayload $payload, $getter)
+    {
+        $value = $this->_getValue($payload, $getter);
+        return $value instanceof DateTime ? $value : null;
+    }
 }

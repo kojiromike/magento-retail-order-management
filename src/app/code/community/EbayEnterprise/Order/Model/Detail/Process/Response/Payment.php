@@ -118,10 +118,19 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Payment extends Mage_Sa
         $this->setMethod($this->_getPaymentMethod($this->getPaymentTypeName()));
         switch ($this->getPaymentTypeName()) {
             case 'CreditCard':
-                $this->addData([
+                $ccData = [
                     'cc_last4' => substr($this->getAccountUniqueId(), -4),
                     'cc_type' => $this->getTenderType(),
-                ]);
+                ];
+                // Expiration date from SDK is a single DateTime. Magento cc payment
+                // expects separate month and year. When provided from the SDK,
+                // map the DateTime to the expected month and year data properties.
+                $expirationDate = $this->getExpirationDate();
+                if ($expirationDate instanceof DateTime) {
+                    $ccData['cc_exp_month'] = $expirationDate->format('m');
+                    $ccData['cc_exp_year'] = $expirationDate->format('Y');
+                }
+                $this->addData($ccData);
                 break;
             case 'StoredValueCard':
                 $cards[] = [
@@ -140,5 +149,4 @@ class EbayEnterprise_Order_Model_Detail_Process_Response_Payment extends Mage_Sa
         $serializedValue = serialize($value);
         $to->setGiftCards($serializedValue);
     }
-
 }

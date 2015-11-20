@@ -168,44 +168,46 @@ class EbayEnterprise_Order_Model_Observer
      */
     public function handleEbayEnterpriseOrderCreateRetryJob()
     {
+        $logMeta = $this->logContext->getMetaData(__CLASS__);
+        $this->logger->debug('Order retry start.', $logMeta);
         $orders = $this->getUnsubmittedOrders();
-        $this->logger->debug(
-            'Found {order_retry_count} order(s) to be resubmitted.',
-            $this->logContext->getMetaData(__CLASS__, ['order_retry_count' => $orders->getSize()])
-        );
-        $api = $this->coreHelper->getSdkApi(
-            $this->orderCfg->apiService,
-            $this->orderCfg->apiCreateOperation
-        );
-        $createArgs = [
-            'api' => $api,
-            'config' => $this->orderCfg,
-            'payload' => $api->getRequestBody(),
-            'is_payload_prebuilt' => true
-        ];
-        foreach ($orders as $order) {
-            $this->resubmit($order, $createArgs);
+        $numOrders = $orders->getSize();
+        if ($numOrders > 0) {
+            $this->logger->warning(
+                'Found {order_retry_count} order(s) to be resubmitted.',
+                $this->logContext->getMetaData(__CLASS__, ['order_retry_count' => $numOrders])
+            );
         }
-        $this->logger->debug('Order retry complete.', $this->logContext->getMetaData(__CLASS__));
+        foreach ($orders as $order) {
+            $this->resubmit($order);
+        }
+        $this->logger->debug('Order retry complete.', $logMeta);
     }
 
     /**
-     * resubmit the order
-     * @param  Mage_Sales_Model_Order
-     * @param  array
+     * Resubmit an order.
+     *
+     * @param Mage_Sales_Model_Order
+     * @return void
      */
-    protected function resubmit(Mage_Sales_Model_Order $order, array $createArgs)
+    protected function resubmit(Mage_Sales_Model_Order $order)
     {
-        $raw = $order->getEb2cOrderCreateRequest();
-        if ($raw) {
-            $createArgs['order'] = $order;
-            $this->getOrderCreateModel($createArgs)->send();
-        } else {
+        if (!$order->hasEb2cOrderCreateRequest()) {
             $this->logger->warning(
                 'Unable to resubmit "{order_id}". Please see documentation for possible solutions.',
                 $this->logContext->getMetaData(['order_id' => $order->getIncrementId()])
             );
+            return;
         }
+        $api = $this->coreHelper->getSdkApi($this->orderCfg->apiService, $this->orderCfg->apiCreateOperation);
+        $createArgs = [
+            'api' => $api,
+            'config' => $this->orderCfg,
+            'is_payload_prebuilt' => true,
+            'order' => $order,
+            'payload' => $api->getRequestBody(),
+        ];
+        $this->getOrderCreateModel($createArgs)->send();
     }
 
     /**

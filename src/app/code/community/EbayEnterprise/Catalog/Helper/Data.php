@@ -480,10 +480,11 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
     {
         if (is_null($this->_defaultParentCategoryId)) {
             $this->_defaultParentCategoryId = Mage::getResourceModel('catalog/category_collection')
-            ->addAttributeToSelect('entity_id')
-            ->addAttributeToFilter('parent_id', array('eq' => 0))
-            ->getFirstItem()
-            ->getId();
+                ->addAttributeToSelect('entity_id')
+                ->addAttributeToFilter('parent_id', array('eq' => 0))
+                ->setPageSize(1)
+                ->getFirstItem()
+                ->getId();
         }
         return $this->_defaultParentCategoryId;
     }

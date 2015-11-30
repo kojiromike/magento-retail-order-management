@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.27] - 2015-12-01
+### Fixed
+- Properly update in-stock status in inventory feed processing
+
 ## [1.6.26] - 2015-11-24
 ### Fixed
 - Region code used in order create may be full state name
@@ -357,6 +361,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.27]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.26...1.6.27
 [1.6.26]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.25...1.6.26
 [1.6.25]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.24...1.6.25
 [1.6.24]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.23...1.6.24

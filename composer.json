@@ -29,6 +29,7 @@
         "phpmd/phpmd": ">=1.5",
         "phpunit/dbunit": ">=1",
         "phpunit/php-invoker": ">=1.1",
+        "phpunit/phpunit": "^4.0",
         "phpunit/phpunit-selenium": ">=1",
         "phpunit/phpunit-story": ">=1",
         "sebastian/phpcpd": ">=2.0",

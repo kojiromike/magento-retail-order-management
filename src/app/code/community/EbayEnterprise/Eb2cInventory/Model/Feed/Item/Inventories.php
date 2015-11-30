@@ -26,11 +26,11 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories extends EbayEnter
      */
     protected function _construct()
     {
-        $this->addData(array(
+        $this->addData([
             'extractor' => Mage::getModel('eb2cinventory/feed_item_extractor'),
             'stock_item' => Mage::getModel('cataloginventory/stock_item'),
             'stock_status' => Mage::getSingleton('cataloginventory/stock_status'),
-        ));
+        ]);
 
         // get feed config from config registry if it wasn't set through the
         // constructor params
@@ -61,76 +61,129 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories extends EbayEnter
         $res = parent::processFeeds();
         // Only trigger reindexing if at least one feed was processed.
         if ($res) {
-            Mage::dispatchEvent('inventory_feed_processing_complete', array());
+            Mage::dispatchEvent('inventory_feed_processing_complete', []);
         }
         return $res;
     }
     /**
      * Update the stock item "is_in_stock" status
+     *
      * @param Mage_CatalogInventory_Model_Stock_Item $stockItem Stock item for the product being updated
-     * @param int $qty Inventory quantity stock item is being set to
+     * @param int $quantity Inventory quantity stock item is being set to
      * @return bool if a change was made
      */
-    protected function _updateItemIsInStock(Mage_CatalogInventory_Model_Stock_Item $stockItem, $qty)
+    protected function updateProductInStockStatus(Mage_CatalogInventory_Model_Stock_Item $stockItem, $quantity)
     {
-        $shouldSet = ($qty > $stockItem->getMinQty());
-        if ($shouldSet !== $stockItem->getIsInStock()) {
+        $shouldSet = ($quantity > $stockItem->getMinQty());
+        $change = ($shouldSet !== $stockItem->getIsInStock());
+        if ($change) {
             $stockItem->setIsInStock($shouldSet);
-            return true;
         }
-        return false;
+        return $change;
     }
+
     /**
      * Set the available quantity for a given item.
-     * @param int $id the product id to update
-     * @param int $qty the amount to set
-     * @return self
+     *
+     * @param Mage_CatalogInventory_Model_Stock_Item
+     * @param int $quantity the amount to set
+     * @return bool true if the quantity has changed for this product
      */
-    protected function _setProdQty($id, $qty)
+    protected function updateProductQuantity(Mage_CatalogInventory_Model_Stock_Item $stockItem, $quantity)
     {
-        $stockItem = Mage::getModel('cataloginventory/stock_item')
-            ->loadByProduct($id);
-        if ($stockItem->getManageStock()) {
-            $oldQty = $stockItem->getQty();
-            $change = ($oldQty !== $qty);
-            if ($change) {
-                $stockItem->setQty($qty);
-            }
-            $change = $this->_updateItemIsInStock($stockItem, $qty) || $change;
-            if ($change) {
-                $stockItem->save();
-            }
-        } else {
-            $this->_logger->warning('Tried to set stock level for non-managed product id ({product_id}).', $this->_context->getMetaData(__CLASS__, ['product_id' => $id]));
+        $oldQty = $stockItem->getQty();
+        $change = ($oldQty !== $quantity);
+        if ($change) {
+            $stockItem->setQty($quantity);
         }
-
-        return $this;
+        return $change;
     }
+
     /**
      * Update the inventory level for a given sku.
+     *
      * @param string $sku the stock-keeping unit.
-     * @param int $qty the new quantity available to promise.
-     * @return self
+     * @param int $quantity the new quantity available to promise.
+     * @return bool true if the inventory was updated
      */
-    protected function _updateInventory($sku, $qty)
+    protected function updateInventory($sku, $quantity)
     {
         // Get product id from sku.
         $id = Mage::getModel('catalog/product')->getIdBySku($sku);
         if ($id) {
-            $this->_setProdQty($id, $qty);
-        } else {
-            $logData = ['sku' => $sku];
-            $logMessage = 'SKU ({sku}) not found for inventory update.';
-            $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+            return $this->updateProductInventory($id, $quantity);
+        }
+        return $this->handleSkuNotFound($sku);
+    }
+
+    /**
+     * Update the inventory level for a known product.
+     *
+     * @param string
+     * @param int
+     * @return self
+     */
+    protected function updateProductInventory($id, $quantity)
+    {
+        $stockItem = Mage::getModel('cataloginventory/stock_item')
+            ->loadByProduct($id);
+        if ($stockItem->getManageStock()) {
+            return $this->updateManagedStockInventory($stockItem, $quantity);
+        }
+        return $this->handleNotManagedStock($id);
+    }
+
+    /**
+     * Update the inventory level for a known managed-stock product.
+     *
+     * @param Mage_CatalogInventory_Model_Stock_Item
+     * @param int
+     * @return self
+     */
+    protected function updateManagedStockInventory(Mage_CatalogInventory_Model_Stock_Item $stockItem, $quantity)
+    {
+        $change = $this->updateProductQuantity($stockItem, $quantity);
+        $change = ($this->updateProductInStockStatus($stockItem, $quantity) || $change);
+        if ($change) {
+            $stockItem->save();
         }
         return $this;
     }
+
+    /**
+     * Log a warning if the requested sku cannot be found.
+     *
+     * @param string
+     * @return self
+     */
+    protected function handleSkuNotFound($sku)
+    {
+        $logData = ['sku' => $sku];
+        $logMessage = 'SKU ({sku}) not found for inventory update.';
+        $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+        return $this;
+    }
+
+    /**
+     * Log a warning if the product to be updated is not managed stock
+     *
+     * @param string
+     * @return self
+     */
+    protected function handleNotManagedStock($id)
+    {
+        $logData = ['product_id' => $id];
+        $logMessage = 'Tried to set stock level for non-managed product id ({product_id}).';
+        $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+        return $this;
+    }
+
     /**
      * Get the sku from the feedItem object
      * @param Varien_Object $feedItem a nested object of item info
      * @return string the sku
      */
-    protected function _extractSku(Varien_Object $feedItem)
+    protected function extractSku(Varien_Object $feedItem)
     {
         return Mage::helper('ebayenterprise_catalog')->normalizeSku(
             $feedItem->getItemId()->getClientItemId(),
@@ -148,9 +201,9 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories extends EbayEnter
         $logMessage = 'Updating inventory for {total_items} items';
         $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
         foreach ($feedItems as $feedItem) {
-            $sku = $this->_extractSku($feedItem);
-            $qty = $feedItem->getMeasurements()->getAvailableQuantity();
-            $this->_updateInventory($sku, $qty);
+            $sku = $this->extractSku($feedItem);
+            $quantity = $feedItem->getMeasurements()->getAvailableQuantity();
+            $this->updateInventory($sku, $quantity);
         }
         return $this;
     }

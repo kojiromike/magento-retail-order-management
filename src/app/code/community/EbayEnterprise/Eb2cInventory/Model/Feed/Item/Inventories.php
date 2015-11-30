@@ -96,7 +96,7 @@ class EbayEnterprise_Eb2cInventory_Model_Feed_Item_Inventories extends EbayEnter
             if ($change) {
                 $stockItem->setQty($qty);
             }
-            $change = $change || $this->_updateItemIsInStock($stockItem, $qty, $id);
+            $change = $this->_updateItemIsInStock($stockItem, $qty) || $change;
             if ($change) {
                 $stockItem->save();
             }

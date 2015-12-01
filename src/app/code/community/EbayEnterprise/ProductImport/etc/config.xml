@@ -164,7 +164,7 @@ http://opensource.org/licenses/osl-3.0.php
                     <class>ebayenterprise_catalog/map</class>
                     <type>helper</type>
                     <method>extractStringValue</method>
-                    <xpath>ExtendedAttributes/ShortDescription</xpath>
+                    <xpath>BaseAttributes/ItemDescription</xpath>
                 </short_description>
                 <price>
                     <class>ebayenterprise_catalog/map_price</class>

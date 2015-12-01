@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.29] - 2015-12-01
+### Reverted 1.6.28 incorrect change
+
 ## [1.6.28] - 2015-12-01
 ### Changed
 - Map BaseAttributes/ItemDescription in feeds to product short_description attribute
@@ -365,6 +368,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.29]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.28...1.6.29
 [1.6.28]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.27...1.6.28
 [1.6.27]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.26...1.6.27
 [1.6.26]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.25...1.6.26

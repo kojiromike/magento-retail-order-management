@@ -199,11 +199,12 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
         // so that we don't try to create the same super attribute relationship which will
         // cause unique key duplication SQL constraint to be thrown
         $existedData = $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product);
-        foreach (explode(',', strtolower(Mage::helper('eb2ccore')->extractNodeVal($nodes))) as $attributeCode) {
+        $attributeCodes = explode(',', strtolower(Mage::helper('eb2ccore')->extractNodeVal($nodes)));
+        foreach ($attributeCodes as $position => $attributeCode) {
             // if we don't currently have a super attribute relationship then get the
             // configurable attribute data
             if (!$this->_isSuperAttributeExists($existedData, $attributeCode) && $this->_isAttributeInSet($attributeCode, $product)) {
-                $data[] = $this->_getConfiguredAttributeData($attributeCode);
+                $data[] = $this->_getConfiguredAttributeData($attributeCode, $position);
             }
         }
         // At this point we know we are dealing with a configurable product; therefore,
@@ -271,17 +272,17 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
 
     /**
      * given an attribute code get the configurable data
-     * @param string $attributeCode
+     * @param string $attributeCode, int $position
      * @return array configured attribute data
      */
-    protected function _getConfiguredAttributeData($attributeCode)
+    protected function _getConfiguredAttributeData($attributeCode, $position)
     {
         $superAttribute = $this->_getAttributeInstanceByName($attributeCode);
         $configurableAtt = $this->_getConfigurableAttributeModel($superAttribute);
         return array(
             'id' => $configurableAtt->getId(),
             'label' => $configurableAtt->getLabel(),
-            'position' => (int) $configurableAtt->getPosition(),
+            'position' => (int) $position,
             'values' => array(),
             'attribute_id' => $superAttribute->getId(),
             'attribute_code' => $superAttribute->getAttributeCode(),

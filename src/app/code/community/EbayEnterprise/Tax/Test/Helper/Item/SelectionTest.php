@@ -17,12 +17,28 @@ class EbayEnterprise_Tax_Test_Helper_Item_SelectionTest extends EcomDev_PHPUnit_
 {
     public function provideItems()
     {
+        $parents = [];
         $items = [];
         foreach(range(0, 1) as $i) {
-            $item = $this->getModelMock('sales/quote_item_abstract', ['itemIsConfigurableChild'], true);
+            $productType = ($i ?
+                Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE :
+                Mage_Catalog_Model_Product_Type::TYPE_BUNDLE);
+            $parent = $this->getModelMock('sales/quote_item_abstract', ['getProductType'], true);
+            $parent
+                ->method('getProductType')
+                ->willReturn($productType);
+            $parents[] = $parent;
+            $item = $this->getModelMock('sales/quote_item_abstract', ['getParentItem'], true);
             $item
-                ->method('itemIsConfigurableChild')
-                ->willReturn((bool) $i);
+                ->method('getParentItem')
+                ->willReturn(null);
+            $items[] = $item;
+        }
+        foreach($parents as $parent) {
+            $item = $this->getModelMock('sales/quote_item_abstract', ['getParentItem'], true);
+            $item
+                ->method('getParentItem')
+                ->willReturn($parent);
             $items[] = $item;
         }
         return [[$items]];
@@ -37,8 +53,8 @@ class EbayEnterprise_Tax_Test_Helper_Item_SelectionTest extends EcomDev_PHPUnit_
     {
         $helper = Mage::helper('ebayenterprise_tax/item_selection');
         $selected = $helper->selectFrom($items);
-        $this->assertCount(2, $items);
-        $this->assertCount(1, $selected);
+        $this->assertCount(4, $items);
+        $this->assertCount(2, $selected);
         $this->assertContainsOnlyInstancesOf('Mage_Sales_Model_Quote_Item_Abstract', $items);
         $this->assertContainsOnlyInstancesOf('Mage_Sales_Model_Quote_Item_Abstract', $selected);
     }

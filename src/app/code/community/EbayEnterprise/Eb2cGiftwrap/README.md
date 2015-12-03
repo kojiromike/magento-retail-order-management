@@ -23,6 +23,10 @@ The Magento Retail Order Management Extension includes support for gift messages
 
 When available, gift messages may be added for individual items or for all items shipping to a single address. The "Add Printed Card" option is used to determine if the gift messages are to be included on the pack slip or as separate cards.
 
+| Important |
+|:----------|
+| The Retail Order Management Extension does not currently support including a price for adding a printed card. To avoid issues, Magento should not be configured with a price for printed cards. |
+
 ## Gift Wrapping
 
 The Magento Retail Order Management Extension includes limited support for gift wrapping. The availability of gift wrapping is dependent upon specific agreements between the merchant and eBay Enterprise.

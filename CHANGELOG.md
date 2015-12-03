@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.30] - 2015-12-03
+### Fixed
+- Order level gift messages should be applicable to ShipGroups
+
 ## [1.6.29] - 2015-12-01
 ### Reverted 1.6.28 incorrect change
 
@@ -368,6 +372,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.30]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.29...1.6.30
 [1.6.29]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.28...1.6.29
 [1.6.28]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.27...1.6.28
 [1.6.27]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.26...1.6.27

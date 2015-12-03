@@ -15,6 +15,42 @@
 
 class EbayEnterprise_Eb2cGiftwrap_Model_Observers
 {
+    /** @var EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting */
+    protected $orderGifting;
+
+    /**
+     * @param array
+     */
+    public function __construct($args = [])
+    {
+        list(
+            $this->orderGifting
+        ) = $this->checkTypes(
+            $this->nullCoalesce($args, 'order_gifting', Mage::getModel('eb2cgiftwrap/order_create_gifting'))
+        );
+    }
+
+    /**
+     * @param EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting
+     * @return array
+     */
+    protected function checkTypes(
+        EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting $orderGifting
+    ) {
+        return func_get_args();
+    }
+
+    /**
+     * @param array
+     * @param string|int
+     * @param mixed
+     * @return mixed
+     */
+    protected function nullCoalesce(array $arr, $key, $default)
+    {
+        return isset($arr[$key]) ? $arr[$key] : $default;
+    }
+
     /**
      * Listen to the 'ebayenterprise_feed_dom_loaded' event
      * @see EbayEnterprise_Catalog_Model_Feed_Abstract::processFile
@@ -51,10 +87,24 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Observers
     public function handleEbayEnterpriseOrderCreateShipGroup(Varien_Event_Observer $observer)
     {
         $event = $observer->getEvent();
-        Mage::getModel('eb2cgiftwrap/order_create_gifting')->injectGifting(
-            $event->getAddress(),
-            $event->getShipGroupPayload()
-        );
+        $address = $event->getAddress();
+        $order = $event->getOrder();
+
+        // Gift message id is inconsistent between OPC and multiship checkout.
+        // In OPC, gift message id will *only* be on the order. In multiship,
+        // gift message id will *only* be on the address the message applies to.
+        // This ensures that if the order has a gift message, it gets copied down
+        // to the primary address.
+        if ($order->hasGiftMessageId() && $address->isPrimaryShippingAddress()) {
+            // Technically, this could override a gift message already assigned
+            // to the address but that should never happen (in Vanilla Magento).
+            // If the order has a gift message, the address will not (OPC). If the
+            // address has a gift message, the order will not (multiship checkout).
+            $address->setGiftMessageId($order->getGiftMessageId());
+        }
+
+        $this->orderGifting->injectGifting($address, $event->getShipGroupPayload());
+
         return $this;
     }
 
@@ -66,10 +116,9 @@ class EbayEnterprise_Eb2cGiftwrap_Model_Observers
     public function handleEbayEnterpriseOrderCreateItem(Varien_Event_Observer $observer)
     {
         $event = $observer->getEvent();
-        Mage::getModel('eb2cgiftwrap/order_create_gifting')->injectGifting(
-            $event->getItem(),
-            $event->getItemPayload()
-        );
+
+        $this->orderGifting->injectGifting($event->getItem(), $event->getItemPayload());
+
         return $this;
     }
 }

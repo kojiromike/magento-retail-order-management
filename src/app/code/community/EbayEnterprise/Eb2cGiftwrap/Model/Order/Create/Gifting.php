@@ -17,36 +17,36 @@ use eBayEnterprise\RetailOrderManagement\Payload\Order\IGifting;
 
 class EbayEnterprise_Eb2cGiftwrap_Model_Order_Create_Gifting
 {
-    /** @var EbayEnterprise_MageLog_Helper_Data */
-    protected $_logger;
     /** @var EbayEnterprise_Eb2cGiftwrap_Helper_Data */
     protected $_helper;
 
     public function __construct($args = array())
     {
         list(
-            $this->_logger,
-            $this->_helper,
+            $this->_helper
         ) = $this->_checkTypes(
-            $this->_nullCoalesce('logger', $args, Mage::helper('ebayenterprise_magelog')),
-            $this->_nullCoalesce('helper', $args, Mage::helper('eb2cgiftwrap'))
+            $this->_nullCoalesce($args, 'helper', Mage::helper('eb2cgiftwrap'))
         );
     }
 
     /**
      * enforce injected types
-     * @param  EbayEnterprise_MageLog_Helper_Data
      * @param  EbayEnterprise_Eb2cGiftwrap_Helper_Data
      * @return array
      */
     protected function _checkTypes(
-        EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_Eb2cGiftwrap_Helper_Data $helper
     ) {
-        return array($logger, $helper);
+        return func_get_args();
     }
 
-    protected function _nullCoalesce($key, array $arr, $default = null)
+    /**
+     * @param array
+     * @param string|int
+     * @param mixed
+     * @return mixed
+     */
+    protected function _nullCoalesce(array $arr, $key, $default = null)
     {
         return isset($arr[$key]) ? $arr[$key] : $default;
     }

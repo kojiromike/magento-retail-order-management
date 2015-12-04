@@ -17,31 +17,49 @@ class EbayEnterprise_GiftCard_CartController extends EbayEnterprise_GiftCard_Con
 {
     //** @see EbayEnterprise_GiftCard_Controller_Abstract */
     const REDIRECT_PATH = 'checkout/cart/';
-    const GIFT_CARD_ADD_SUCCESS = 'EbayEnterprise_GiftCard_Cart_Add_Success';
-    const GIFT_CARD_REMOVE_SUCCESS = 'EbayEnterprise_GiftCard_Cart_Remove_Success';
+
     /**
      * add a giftcard to the cart.
      */
     public function addAction()
     {
         list($cardNumber, $pin) = $this->_getCardInfoFromRequest();
+
         if ($cardNumber) {
+
+            $container = $this->_getContainer();
             // try a balance request.
-            $giftcard = $this->_getContainer()->getGiftCard($cardNumber)->setPin($pin);
-            $this->_helper->addGiftCardToOrder($giftcard);
-            $this->_getCheckoutSession()->addSuccess($this->_helper->__(self::GIFT_CARD_ADD_SUCCESS, $giftcard->getCardNumber()));
+            $giftcard = $container->getGiftCard($cardNumber)->setPin($pin);
+
+            try {
+
+                $this->_helper->addGiftCardToOrder($giftcard, $container);
+                $this->_getCheckoutSession()
+                    ->addSuccess($this->_helper->__(EbayEnterprise_GiftCard_Helper_Data::GIFT_CARD_ADD_SUCCESS, $giftcard->getCardNumber()));
+
+            } catch (EbayEnterprise_GiftCard_Exception $e) {
+
+                $this->_getCheckoutSession()->addError($this->_helper->__($e->getMessage()));
+
+            }
         }
         $this->_redirect(static::REDIRECT_PATH);
     }
+
     /**
      * remove a giftcard from the cart.
      */
     public function removeAction()
     {
         list($cardNumber) = $this->_getCardInfoFromRequest();
+
         $giftcard = $this->_getContainer()->getGiftCard($cardNumber);
+
         $this->_getContainer()->removeGiftCard($giftcard);
-        $this->_getCheckoutSession()->addSuccess($this->_helper->__(self::GIFT_CARD_REMOVE_SUCCESS, $giftcard->getCardNumber()));
+
+        $this->_getCheckoutSession()
+            ->addSuccess($this->_helper->__(EbayEnterprise_GiftCard_Helper_Data::GIFT_CARD_REMOVE_SUCCESS, $giftcard->getCardNumber()));
+
         $this->_redirect(static::REDIRECT_PATH);
     }
 }

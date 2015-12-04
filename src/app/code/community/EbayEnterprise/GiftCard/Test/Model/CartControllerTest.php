@@ -19,40 +19,41 @@ class EbayEnterprise_GiftCard_Test_Model_CartControllerTest extends EbayEnterpri
 {
     const REDIRECT_PATH = EbayEnterprise_GiftCard_CartController::REDIRECT_PATH;
 
-    protected $_container;
-    protected $_giftCard;
-    protected $_helper;
-    protected $_controller;
-    protected $_giftCardNumber = 'somecardnumber';
-    protected $_giftCardPin = '12345678';
-    protected $_checkoutSession;
+    protected $container;
+    protected $giftCard;
+    protected $helper;
+    protected $controller;
+    protected $giftCardNumber = 'somecardnumber';
+    protected $giftCardPin = '12345678';
+    protected $checkoutSession;
 
     // prepare mocks
     public function setUp()
     {
-        $this->_helper = $this->getHelperMock('ebayenterprise_giftcard/data');
-        $this->_helper->expects($this->any())
+        $this->helper = $this->getHelperMock('ebayenterprise_giftcard/data');
+        $this->helper->expects($this->any())
             ->method('__')->with($this->isType('string'))->will($this->returnArgument(0));
         // disable constructor to prevent having to mock dependencies
-        $this->_checkoutSession = $this->getModelMockBuilder('checkout/session')->disableOriginalConstructor()
-            ->setMethods(array('addError', 'setEbayEnterpriseCurrentGiftCard'))->getMock();
-        $this->_giftCard = $this->getMock('EbayEnterprise_GiftCard_Model_IGiftcard');
-        $this->_giftCard->expects($this->any())
+        $this->checkoutSession = $this->getModelMockBuilder('checkout/session')->disableOriginalConstructor()
+            ->setMethods(null)->getMock();
+        $this->giftCard = $this->getMock('EbayEnterprise_GiftCard_Model_IGiftcard');
+        $this->giftCard->expects($this->any())
             ->method('setPin')->with($this->isType('string'))->will($this->returnSelf());
         // disable constructor to avoid mocking dependencies
-        $this->_container = $this->getMockBuilder('EbayEnterprise_GiftCard_Model_IContainer')->disableOriginalConstructor()
+        $this->container = $this->getMockBuilder('EbayEnterprise_GiftCard_Model_IContainer')->disableOriginalConstructor()
             ->getMock();
-        $this->_container->expects($this->any())
-            ->method('getGiftCard')->will($this->returnValue($this->_giftCard));
+        $this->container->expects($this->any())
+            ->method('getGiftCard')->will($this->returnValue($this->giftCard));
         // disable constructor to avoid mocking dependencies
-        $this->_controller = $this->getMockBuilder('EbayEnterprise_GiftCard_CartController')->disableOriginalConstructor()
-            ->setMethods(array('_redirect', '_rewrite', 'setFlag', '_getCardInfoFromRequest'))->getMock();
-        $this->_controller->expects($this->once())
-            ->method('_getCardInfoFromRequest')->will($this->returnValue(array($this->_giftCardNumber, $this->_giftCardPin)));
+        $this->controller = $this->getMockBuilder('EbayEnterprise_GiftCard_CartController')->disableOriginalConstructor()
+            ->setMethods(['_redirect', '_rewrite', 'setFlag', '_getCardInfoFromRequest'])->getMock();
+        $this->controller->expects($this->once())
+            ->method('_getCardInfoFromRequest')->will($this->returnValue([$this->giftCardNumber, $this->giftCardPin]));
         // inject mocked dependencies
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_controller, '_container', $this->_container);
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->_controller, '_helper', $this->_helper);
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->controller, '_container', $this->container);
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($this->controller, '_helper', $this->helper);
     }
+
     /**
      * verify:
      *   - controller uses account number and pin to get a giftcard instance to work with.
@@ -63,16 +64,59 @@ class EbayEnterprise_GiftCard_Test_Model_CartControllerTest extends EbayEnterpri
      */
     public function testAddAction()
     {
-        $this->_giftCard->expects($this->once())
-            ->method('setPin')->with($this->identicalTo($this->_giftCardPin))->will($this->returnSelf());
-        $this->_helper->expects($this->once())
-            ->method('addGiftCardToOrder')->with($this->identicalTo($this->_giftCard))->will($this->returnSelf());
-        $this->_controller->expects($this->once())
-            ->method('_redirect')->with($this->identicalTo(self::REDIRECT_PATH))->will($this->returnSelf());
+        $this->giftCard->expects($this->once())
+            ->method('setPin')
+            ->with($this->identicalTo($this->giftCardPin))
+            ->will($this->returnSelf());
+        $this->helper
+            ->expects($this->once())
+            ->method('addGiftCardToOrder')
+            ->with($this->identicalTo($this->giftCard), $this->identicalTo($this->container))
+            ->will($this->returnSelf());
+        $this->controller
+            ->expects($this->once())
+            ->method('_redirect')
+            ->with($this->identicalTo(self::REDIRECT_PATH))
+            ->willReturnSelf();
 
         // inject the session mock
-        $this->replaceByMock('singleton', 'checkout/session', $this->_checkoutSession);
-        $this->_controller->addAction();
+        $this->replaceByMock('singleton', 'checkout/session', $this->checkoutSession);
+        $this->controller->addAction();
+
+        // Successfully adding gift card to order should result in success message
+        // being added to checkout session.
+        $this->assertCount(1, $this->checkoutSession->getMessages()->getItemsByType(Mage_Core_Model_Message::SUCCESS));
+    }
+
+    /**
+     * verify:
+     * - when gift card cannot be added to the order, an error message is added
+     *   to the checkout session
+     */
+    public function testAddFail()
+    {
+        $this->giftCard->expects($this->once())
+            ->method('setPin')
+            ->with($this->identicalTo($this->giftCardPin))
+            ->will($this->returnSelf());
+        $this->helper
+            ->expects($this->once())
+            ->method('addGiftCardToOrder')
+            ->with($this->identicalTo($this->giftCard), $this->identicalTo($this->container))
+            ->willThrowException(new EbayEnterprise_GiftCard_Exception('TEST EXCEPTION: ' . __METHOD__));
+        $this->controller
+            ->expects($this->once())
+            ->method('_redirect')
+            ->with($this->identicalTo(self::REDIRECT_PATH))
+            ->will($this->returnSelf());
+
+        // inject the session mock
+        $this->replaceByMock('singleton', 'checkout/session', $this->checkoutSession);
+        $this->controller->addAction();
+
+        // Failure to add gift card to the order should result in an error message
+        // being added to the checkout session.
+        $this->assertCount(1, $this->checkoutSession->getMessages()->getErrors());
     }
 
     /**
@@ -83,14 +127,14 @@ class EbayEnterprise_GiftCard_Test_Model_CartControllerTest extends EbayEnterpri
      */
     public function testRemoveAction()
     {
-        $this->_container->expects($this->once())
+        $this->container->expects($this->once())
             ->method('removeGiftCard')->with($this->isInstanceOf('EbayEnterprise_GiftCard_Model_IGiftcard'))
             ->will($this->returnSelf());
-        $this->_controller->expects($this->once())
+        $this->controller->expects($this->once())
             ->method('_redirect')->with($this->identicalTo(self::REDIRECT_PATH))->will($this->returnSelf());
 
         // inject the session mock
-        $this->replaceByMock('singleton', 'checkout/session', $this->_checkoutSession);
-        $this->_controller->removeAction();
+        $this->replaceByMock('singleton', 'checkout/session', $this->checkoutSession);
+        $this->controller->removeAction();
     }
 }

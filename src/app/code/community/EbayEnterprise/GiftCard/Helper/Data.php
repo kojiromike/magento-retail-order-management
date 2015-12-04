@@ -16,15 +16,8 @@
 class EbayEnterprise_GiftCard_Helper_Data extends Mage_Core_Helper_Abstract implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
     const ZERO_BALANCE_CARD_MESSAGE = 'EbayEnterprise_GiftCard_Zero_Balance_Card';
-    /** @var EbayEnterprise_GiftCard_Model_IContainer */
-    protected $_giftCardContainer;
-
-    public function __construct(array $initParams = array())
-    {
-        list($this->_giftCardContainer) = $this->_checkTypes(
-            $this->_nullCoalesce($initParams, 'gift_card_container', Mage::getModel('ebayenterprise_giftcard/container'))
-        );
-    }
+    const GIFT_CARD_ADD_SUCCESS = 'EbayEnterprise_GiftCard_Cart_Add_Success';
+    const GIFT_CARD_REMOVE_SUCCESS = 'EbayEnterprise_GiftCard_Cart_Remove_Success';
 
     /**
      * Type checks for self::__construct $initParams
@@ -68,22 +61,18 @@ class EbayEnterprise_GiftCard_Helper_Data extends Mage_Core_Helper_Abstract impl
      * and make sure card can be applied to the order.
      * @param EbayEnterprise_GiftCard_Model_IGiftcard $card
      * @return self
+     * @throws EbayEnterprise_GiftCard_Exception If gift card could not be added to the order.
      */
-    public function addGiftCardToOrder(EbayEnterprise_GiftCard_Model_IGiftcard $card)
-    {
-        try {
-            $card->checkBalance();
-            // only add cards with an available balance
-            if ($card->getBalanceAmount() > 0) {
-                $this->_giftCardContainer->updateGiftCard($card);
-            } else {
-                // throw exception to trigger error handling below, let 0 balance card
-                // get handled like any other balance check failure
-                throw Mage::exception('EbayEnterprise_GiftCard', $this->__(self::ZERO_BALANCE_CARD_MESSAGE, $card->getCardNumber()));
-            }
-        } catch (EbayEnterprise_GiftCard_Exception $e) {
-            Mage::getSingleton('checkout/session')->addError($this->__($e->getMessage()));
+    public function addGiftCardToOrder(
+        EbayEnterprise_GiftCard_Model_IGiftcard $card,
+        EbayEnterprise_GiftCard_Model_IContainer $giftCardContainer
+    ) {
+        $card->checkBalance();
+        // Treat 0 balance gift cards as invalid.
+        if ($card->getBalanceAmount() <= 0) {
+            throw Mage::exception('EbayEnterprise_GiftCard', $this->__(self::ZERO_BALANCE_CARD_MESSAGE, $card->getCardNumber()));
         }
+        $giftCardContainer->updateGiftCard($card);
         return $this;
     }
 }

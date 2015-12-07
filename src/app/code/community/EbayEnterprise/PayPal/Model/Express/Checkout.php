@@ -248,11 +248,10 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
             $shippingAddress->setTelephone($getExpressCheckoutReply['phone']);
             $shippingAddress->setStreet($paypalShippingAddress['street']);
             $shippingAddress->setCity($paypalShippingAddress['city']);
-            $this->regionHelper->setQuoteAddressRegion($shippingAddress, $paypalShippingAddress['region_code']);
             $shippingAddress->setPostcode($paypalShippingAddress['postcode']);
-            $shippingAddress->setCountryId(
-                $paypalShippingAddress['country_id']
-            );
+            $shippingAddress->setCountryId($paypalShippingAddress['country_id']);
+            // Region must be processed after country id is set for the lookup to work.
+            $this->regionHelper->setQuoteAddressRegion($shippingAddress, $paypalShippingAddress['region_code']);
             $shippingAddress->setPrefix(null);
 
             $shippingAddress->setMiddlename(
@@ -289,10 +288,11 @@ class EbayEnterprise_PayPal_Model_Express_Checkout
         $paypalBillingAddress = $getExpressCheckoutReply['billing_address'];
         $billingAddress->setStreet($paypalBillingAddress['street']);
         $billingAddress->setCity($paypalBillingAddress['city']);
-        $this->regionHelper->setQuoteAddressRegion($billingAddress, $paypalBillingAddress['region_code']);
         $billingAddress->setPostcode($paypalBillingAddress['postcode']);
         $billingAddress->setCountryId($paypalBillingAddress['country_id']);
         $billingAddress->setEmail($getExpressCheckoutReply['email']);
+        // Region must be processed after country id is set for the lookup to work.
+        $this->regionHelper->setQuoteAddressRegion($billingAddress, $paypalBillingAddress['region_code']);
         $quote->setBillingAddress($billingAddress);
 
         // import payment info

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.32] - 2015-12-07
+### Fixed
+- Full region name from PayPal not mapped properly for shipping address
+
 ## [1.6.31] - 2015-12-04
 ### Fixed
 - Duplicate gift card messages in cart
@@ -376,6 +380,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.32]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.31...1.6.32
 [1.6.31]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.30...1.6.31
 [1.6.30]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.29...1.6.30
 [1.6.29]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.28...1.6.29

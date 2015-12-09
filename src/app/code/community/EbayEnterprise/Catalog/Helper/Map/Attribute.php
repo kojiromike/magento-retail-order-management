@@ -51,7 +51,7 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
         if (is_null($this->_attributeCollection)) {
             $this->_attributeCollection = Mage::getResourceModel('eav/entity_attribute_collection')
                 ->addFieldToFilter('entity_type_id', $this->_getEntityTypeId())
-                ->addExpressionFieldToSelect('lcase_attr_code', 'LCASE({{attrcode}})', array('attrcode' => 'attribute_code'));
+                ->addExpressionFieldToSelect('lcase_attr_code', 'LCASE({{attrcode}})', ['attrcode' => 'attribute_code']);
         }
 
         return $this->_attributeCollection;
@@ -272,22 +272,23 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
 
     /**
      * given an attribute code get the configurable data
-     * @param string $attributeCode, int $position
+     * @param string
+     * @param int
      * @return array configured attribute data
      */
     protected function _getConfiguredAttributeData($attributeCode, $position)
     {
         $superAttribute = $this->_getAttributeInstanceByName($attributeCode);
         $configurableAtt = $this->_getConfigurableAttributeModel($superAttribute);
-        return array(
+        return [
             'id' => $configurableAtt->getId(),
             'label' => $configurableAtt->getLabel(),
             'position' => (int) $position,
-            'values' => array(),
+            'values' => [],
             'attribute_id' => $superAttribute->getId(),
             'attribute_code' => $superAttribute->getAttributeCode(),
             'frontend_label' => $superAttribute->getFrontEnd()->getLabel(),
-        );
+        ];
     }
 
     /**
@@ -316,7 +317,7 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
         $xpath            = new DOMXPath($nodeList->item(0)->ownerDocument);
         $valueCode        = $xpath->query("./$mapCodeNodeName", $nodeList->item(0))->item(0)->nodeValue;
         $translationNodes = $xpath->query("./$descriptionNodeName", $nodeList->item(0));
-        $translations     = array();
+        $translations     = [];
         foreach ($translationNodes as $node) {
             $translations[$node->getAttribute('xml:lang')] = $node->nodeValue;
         }
@@ -401,7 +402,7 @@ class EbayEnterprise_Catalog_Helper_Map_Attribute extends Mage_Core_Helper_Abstr
      */
     protected function _getAllOptionValues($attribute, $attributeOptionId)
     {
-        $allOptionValues = array();
+        $allOptionValues = [];
         if ($attributeOptionId) {
             $defaultOptionValueText = $this->_getOptionValueText($attribute, $attributeOptionId);
             $stores = Mage::helper('eb2ccore/languages')->getStores();

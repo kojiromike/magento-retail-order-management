@@ -39,6 +39,9 @@ class EbayEnterprise_Catalog_Helper_Map
     protected $context;
     /** @var EbayEnterprise_Eb2cCore_Helper_Data */
     protected $coreHelper;
+    /** @var EbayEnterprise_Catalog_Helper_Data */
+    protected $catalogHelper;
+
     /**
      * Map ownerDocuments to DomXPath objects to avoid recreating them.
      *
@@ -54,8 +57,14 @@ class EbayEnterprise_Catalog_Helper_Map
 
     public function __construct(array $initParams = [])
     {
-        list($this->coreHelper, $this->logger, $this->context) = $this->checkTypes(
+        list(
+            $this->coreHelper,
+            $this->catalogHelper,
+            $this->logger,
+            $this->context
+        ) = $this->checkTypes(
             $this->nullCoalesce($initParams, 'core_helper', Mage::helper('eb2ccore')),
+            $this->nullCoalesce($initParams, 'catalog_helper', Mage::helper('ebayenterprise_catalog')),
             $this->nullCoalesce($initParams, 'logger', Mage::helper('ebayenterprise_magelog')),
             $this->nullCoalesce($initParams, 'context', Mage::helper('ebayenterprise_magelog/context'))
         );
@@ -65,12 +74,14 @@ class EbayEnterprise_Catalog_Helper_Map
      * Type hinting for self::__construct $initParams
      *
      * @param  EbayEnterprise_Eb2cCore_Helper_Data
+     * @param  EbayEnterprise_Catalog_Helper_Data
      * @param  EbayEnterprise_MageLog_Helper_Data
      * @param  EbayEnterprise_MageLog_Helper_Context
      * @return array
      */
     protected function checkTypes(
         EbayEnterprise_Eb2cCore_Helper_Data $coreHelper,
+        EbayEnterprise_Catalog_Helper_Data $catalogHelper,
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_MageLog_Helper_Context $context
     )
@@ -428,5 +439,50 @@ class EbayEnterprise_Catalog_Helper_Map
             return (int) $this->coreHelper->parseBool(($nodes->length)? $nodes->item(0)->nodeValue : null);
         }
         return null;
+    }
+
+    /**
+     * Map an array of website ids the product should be linked to, based upon
+     * the item's client id, catalog id and/or store id.
+     *
+     * @param DOMNodeList
+     * @param Mage_Catalog_Model_Product
+     * @return array
+     */
+    public function extractWebsiteIds(DOMNodeList $nodes, Mage_Catalog_Model_Product $product)
+    {
+        $websiteIds = $product->getWebsiteIds();
+
+        $itemNode = $nodes->item(0);
+
+        // If there's no node to get data from, just let website ids remain
+        // what it is.
+        if (!$itemNode) {
+            return $websiteIds;
+        }
+
+        $clientId = $itemNode->getAttribute('gsi_client_id');
+        $catalogId = $itemNode->getAttribute('catalog_id');
+        $storeId = $itemNode->getAttribute('gsi_store_id');
+
+        $websites = $this->catalogHelper->loadWebsiteFilters();
+
+        foreach ($websites as $websiteFilter) {
+
+            $websiteId = $websiteFilter['mage_website_id'];
+            // Assume no value in feed is a wildcard.
+            $matches = !$catalogId || $catalogId === $websiteFilter['catalog_id'];
+            $matches = $matches && (!$clientId || $clientId === $websiteFilter['client_id']);
+            $matches = $matches && (!$storeId || $storeId === $websiteFilter['store_id']);
+
+            // Just add any matched websites to the list, ignoring that this
+            // might end up with dupes, list will be made unique when returned.
+            if ($matches) {
+                $websiteIds[] = $websiteId;
+            }
+
+        }
+
+        return array_unique($websiteIds);
     }
 }

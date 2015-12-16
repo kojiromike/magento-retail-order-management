@@ -115,9 +115,10 @@ class EbayEnterprise_Catalog_Model_Feed_File
         $skusToReport = array();
         $this->_removeItemsFromWebsites($cfgData, $items);
 
-        $siteFilters = $this->_helper->loadWebsiteFilters();
+        $siteFilters = $this->_helper->loadStoreviewFilters();
         $processedWebsites = array();
         foreach ($siteFilters as $siteFilter) {
+            $this->_logger->debug('Importing products into storeview: {mage_store_id}', $this->_context->getMetaData(__CLASS__, $siteFilter));
             $this->_importedSkus = array();
             if (!in_array($siteFilter['mage_website_id'], $processedWebsites)) {
                 // prevent treating each store view as a website
@@ -153,6 +154,7 @@ class EbayEnterprise_Catalog_Model_Feed_File
      */
     protected function _removeItemsFromWebsites(array $cfgData, EbayEnterprise_Catalog_Interface_Import_Items $items)
     {
+        // array of sku => [client_id, catalog_id]
         $dData = $this->_getSkusToRemoveFromWebsites($cfgData);
         $logData = ['total_skus' => count($dData)];
         $logMessage = 'deleting {total_skus} skus';
@@ -176,11 +178,13 @@ class EbayEnterprise_Catalog_Model_Feed_File
      * given a collection of products and a collection deleted sku data remove
      * each product that matches in catalog id and client id in a specific website
      * @param Mage_Catalog_Model_Resource_Product_Collection $collection
-     * @param array $dData
+     * @param array $dData array of [sku => [catalog_id, client_id]]
      * @return self
      */
     protected function _removeFromWebsites(Mage_Catalog_Model_Resource_Product_Collection $collection, array $dData)
     {
+        // @TODO loadWebsiteFilters is more loadAllStoreviewFilters...
+        // does this need to be corrected?
         foreach ($this->_helper->loadWebsiteFilters() as $siteFilter) {
             foreach ($this->_getSkusInWebsite($dData, $siteFilter) as $dSku) {
                 $product = $collection->getItemById($dSku);
@@ -213,6 +217,9 @@ class EbayEnterprise_Catalog_Model_Feed_File
             $catalogId = $item->getAttribute('catalog_id');
             $sku = $this->_helper->normalizeSku($item->nodeValue, $catalogId);
 
+            // @FIXME think there's a bug here. if sku shows up more than once
+            // (e.g. to be removed from more than one website by the feed),
+            // items encountered later will overwrite earlier entries.
             $result[$sku] = array(
                 'gsi_client_id' => $item->getAttribute('gsi_client_id'),
                 'catalog_id' => $catalogId,

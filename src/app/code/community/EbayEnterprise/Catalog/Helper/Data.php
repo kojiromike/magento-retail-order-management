@@ -16,11 +16,11 @@
 class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract implements EbayEnterprise_Eb2cCore_Helper_Interface
 {
     /** @var EbayEnterprise_MageLog_Helper_Data */
-    protected $_logger;
+    protected $logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
-    protected $_context;
+    protected $context;
     /** @var Mage_Index_Model_Indexer */
-    protected $_indexerStub;
+    protected $indexerStub;
 
     /**
      * @param array $args May contain key/value for:
@@ -31,13 +31,13 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
     public function __construct(array $args = [])
     {
         list(
-            $this->_logger,
-            $this->_context,
-            $this->_indexerStub
-        ) = $this->_checkTypes(
-            $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
-            $this->_nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context')),
-            $this->_nullCoalesce($args, 'indexer_stub', Mage::getModel('ebayenterprise_catalog/indexer_stub'))
+            $this->logger,
+            $this->context,
+            $this->indexerStub
+        ) = $this->checkTypes(
+            $this->nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
+            $this->nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context')),
+            $this->nullCoalesce($args, 'indexer_stub', Mage::getModel('ebayenterprise_catalog/indexer_stub'))
         );
     }
 
@@ -49,7 +49,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * @param Mage_Index_Model_Indexer
      * @return array
      */
-    protected function _checkTypes(
+    protected function checkTypes(
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_MageLog_Helper_Context $logContext,
         Mage_Index_Model_Indexer $indexer
@@ -65,7 +65,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * @param mixed
      * @return mixed
      */
-    protected function _nullCoalesce(array $arr, $key, $default)
+    protected function nullCoalesce(array $arr, $key, $default)
     {
         return isset($arr[$key]) ? $arr[$key] : $default;
     }
@@ -73,76 +73,76 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
     /**
      * @var int, the default category id
      */
-    protected $_defaultParentCategoryId = null;
+    protected $defaultParentCategoryId = null;
 
     /**
      * @see self::getCustomAttributeCodeSet - method
      */
-    protected $_customAttributeCodeSets = array();
+    protected $customAttributeCodeSets = [];
     /**
      * @var array boilerplate for initializing a new product with limited information.
      */
-    protected $_prodTplt;
+    protected $prodTplt;
 
     /**
      * @throws EbayEnterprise_Catalog_Model_Config_Exception
      * @return array the static defaults for a new product
      */
-    protected function _getProdTplt()
+    protected function getProdTplt()
     {
-        if (!$this->_prodTplt) {
+        if (!$this->prodTplt) {
             $cfg = $this->getConfigModel();
             if (!$this->hasProdType($cfg->dummyTypeId)) {
                 throw new EbayEnterprise_Catalog_Model_Config_Exception('Config Error: dummy type id is invalid.');
             }
-            $defStockData = array(
+            $defStockData = [
                 'is_in_stock' => $cfg->dummyInStockFlag,
                 'manage_stock' => $cfg->dummyManageStockFlag,
                 'qty' => (int) $cfg->dummyStockQuantity,
-            );
-            $this->_prodTplt = array(
-                'attribute_set_id' => (int) $this->_getDefProdAttSetId(),
-                'category_ids' => array($this->_getDefStoreRootCatId()),
+            ];
+            $this->prodTplt = [
+                'attribute_set_id' => (int) $this->getDefProdAttSetId(),
+                'category_ids' => [$this->getDefStoreRootCatId()],
                 'description' => $cfg->dummyDescription,
                 'price' => (float) $cfg->dummyPrice,
                 'short_description' => $cfg->dummyShortDescription,
                 'status' => Mage_Catalog_Model_Product_Status::STATUS_DISABLED,
                 'stock_data' => $defStockData,
-                'store_ids' => array($this->_getDefStoreId()),
+                'store_ids' => [$this->getDefStoreId()],
                 'type_id' => $cfg->dummyTypeId,
                 'visibility' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE,
-                'website_ids' => $this->_getAllWebsiteIds(),
+                'website_ids' => $this->getAllWebsiteIds(),
                 'weight' => (int) $cfg->dummyWeight,
-            );
+            ];
         }
-        return $this->_prodTplt;
+        return $this->prodTplt;
     }
 
     /**
      * @return array all website ids
      */
-    protected function _getAllWebsiteIds()
+    protected function getAllWebsiteIds()
     {
         return (array) Mage::getModel('core/website')->getCollection()->getAllIds();
     }
     /**
      * @return int the default store id
      */
-    protected function _getDefStoreId()
+    protected function getDefStoreId()
     {
         return (int) Mage::app()->getWebsite()->getDefaultGroup()->getDefaultStoreId();
     }
     /**
      * @return int the root category id for the default store
      */
-    protected function _getDefStoreRootCatId()
+    protected function getDefStoreRootCatId()
     {
         return (int) Mage::app()->getStore()->getRootCategoryId();
     }
     /**
      * @return int the default attribute set id for all products.
      */
-    protected function _getDefProdAttSetId()
+    protected function getDefProdAttSetId()
     {
         return (int) Mage::getModel('eav/entity_type')->loadByCode('catalog_product')->getDefaultAttributeSetId();
     }
@@ -151,7 +151,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * @return string, the locale code
      * @codeCoverageIgnore
      */
-    protected function _getLocaleCode()
+    protected function getLocaleCode()
     {
         return Mage::app()->getLocale()->getLocaleCode();
     }
@@ -182,7 +182,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      */
     public function getDefaultLanguageCode()
     {
-        return Mage::helper('eb2ccore')->mageToXmlLangFrmt($this->_getLocaleCode());
+        return Mage::helper('eb2ccore')->mageToXmlLangFrmt($this->getLocaleCode());
     }
 
     /**
@@ -260,7 +260,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
     {
         $product = $this->loadProductBySku($sku);
         if (!$product->getId()) {
-            $this->_applyDummyData($product, $sku, $name);
+            $this->applyDummyData($product, $sku, $name);
         }
         return $product;
     }
@@ -271,11 +271,11 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * @param array $additionalData optional
      * @return Mage_Catalog_Model_Product
      */
-    public function createNewProduct($sku, array $additionalData = array())
+    public function createNewProduct($sku, array $additionalData = [])
     {
         /** @var Mage_Catalog_Model_Product $product */
         $product = Mage::getModel('catalog/product');
-        return $this->_applyDummyData($product, $sku, $additionalData);
+        return $this->applyDummyData($product, $sku, $additionalData);
     }
 
     /**
@@ -286,9 +286,9 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * @param  array $additionalData optional
      * @return Mage_Catalog_Model_Product
      */
-    protected function _applyDummyData(Mage_Catalog_Model_Product $prod, $sku, array $additionalData = array())
+    protected function applyDummyData(Mage_Catalog_Model_Product $prod, $sku, array $additionalData = [])
     {
-        $prodData = array_merge($this->_getProdTplt(), $additionalData);
+        $prodData = array_merge($this->getProdTplt(), $additionalData);
         $name = isset($prodData['name']) ? $prodData['name'] : null;
         $prodData['name'] = $name ?: "Incomplete Product: $sku";
         $prodData['sku'] = $prodData['url_key'] = $sku;
@@ -315,15 +315,15 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      */
     public function getCustomAttributeCodeSet($attributeSetId)
     {
-        if (empty($this->_customAttributeCodeSets[$attributeSetId])) {
-            $codeSet = array();
+        if (empty($this->customAttributeCodeSets[$attributeSetId])) {
+            $codeSet = [];
             $attributeSet = Mage::getModel('catalog/product_attribute_api')->items($attributeSetId);
             foreach ($attributeSet as $attribute) {
                 $codeSet[] = $attribute['code'];
             }
-            $this->_customAttributeCodeSets[$attributeSetId] = $codeSet;
+            $this->customAttributeCodeSets[$attributeSetId] = $codeSet;
         }
-        return $this->_customAttributeCodeSets[$attributeSetId];
+        return $this->customAttributeCodeSets[$attributeSetId];
     }
     /**
      * Flattens translations into arrays keyed by language
@@ -332,7 +332,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      */
     public function parseTranslations(array $languageSet = null)
     {
-        $parsedLanguages = array();
+        $parsedLanguages = [];
         if (!empty($languageSet)) {
             foreach ($languageSet as $language) {
                 $parsedLanguages[$language['lang']] = $language['description'];
@@ -355,7 +355,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
                 && $product->getTypeInstance(true)->getConfigurableAttributesAsArray($product)) {
             $logData = ['sku' => $product->getSku()];
             $logMessage = 'Cannot change existing configurable attributes; update discarded for SKU "{sku}"';
-            $this->_logger->warning($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+            $this->logger->warning($logMessage, $this->context->getMetaData(__CLASS__, $logData));
             return null;
         }
         return $source->getData('configurable_attributes_data');
@@ -383,7 +383,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * @param array  $overrides use an array to specify the values for the filename.
      * @return string the errorconfirmations file name
      */
-    public function generateFileName($feedType, $format, array $overrides = array())
+    public function generateFileName($feedType, $format, array $overrides = [])
     {
         return $this->mapPattern(
             array_replace(Mage::helper('ebayenterprise_catalog/feed')->getFileNameConfig($feedType), $overrides),
@@ -478,15 +478,15 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      */
     public function getDefaultParentCategoryId()
     {
-        if (is_null($this->_defaultParentCategoryId)) {
-            $this->_defaultParentCategoryId = Mage::getResourceModel('catalog/category_collection')
+        if (is_null($this->defaultParentCategoryId)) {
+            $this->defaultParentCategoryId = Mage::getResourceModel('catalog/category_collection')
                 ->addAttributeToSelect('entity_id')
-                ->addAttributeToFilter('parent_id', array('eq' => 0))
+                ->addAttributeToFilter('parent_id', ['eq' => 0])
                 ->setPageSize(1)
                 ->getFirstItem()
                 ->getId();
         }
-        return $this->_defaultParentCategoryId;
+        return $this->defaultParentCategoryId;
     }
 
     /**
@@ -499,7 +499,7 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * @param array $websiteFilter
      * @return EbayEnterprise_Dom_Document
      */
-    public function splitDomByXslt(EbayEnterprise_Dom_Document $doc, $xsltFilePath, array $params = array(), $postXsltLoadCall = null, $websiteFilter = array())
+    public function splitDomByXslt(EbayEnterprise_Dom_Document $doc, $xsltFilePath, array $params = [], $postXsltLoadCall = null, $websiteFilter = [])
     {
         $helper = Mage::helper('eb2ccore');
         // create a DOMDocument for the xsl
@@ -544,42 +544,105 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
      * @param $mageStoreId
      * @return array of key/value pairs mapping an inbound feed to the given Magento Web Store.
      */
-    protected function _loadWebsiteFilter($mageStoreId)
+    protected function loadStoreviewConfig($mageStoreId)
     {
         $config = Mage::helper('eb2ccore')->getConfigModel($mageStoreId);
-        return array (
+        return [
             'catalog_id'      => $config->catalogId,
             'client_id'       => $config->clientId,
             'store_id'        => $config->storeId,
             'lang_code'       => $config->languageCode,
             'mage_store_id'   => $mageStoreId,
             'mage_website_id' => Mage::getModel('core/store')->load($mageStoreId)->getWebsiteId(),
-        );
+        ];
     }
 
     /**
      * Loads the relevant config fields of each Magento Web Site that allows us
      * to match an incoming feed to the appropriate destination.
      *
+     * @TODO Should this actually return filters for every storeview or should
+     * it just be websites?
+     *
      * @return array of unique key/value pairs mapping an inbound feed to a Magento Web Site.
      */
     public function loadWebsiteFilters()
     {
-        $allWebsites = array();
+        $allWebsites = [];
         // Default Store it has its own special configuration.
-        $allWebsites[Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID] = $this->_loadWebSiteFilter(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID);
+        $allWebsites[Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID] = $this->loadStoreviewConfig(Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID);
         foreach (Mage::app()->getWebsites() as $website) {
             foreach ($website->getGroups() as $group) {
                 foreach ($group->getStores() as $store) {
-                    $allWebsites[$store->getId()] = $this->_loadWebsiteFilter($store->getId());
+
+                    $filter = $this->loadStoreviewConfig($store->getId());
+                    $this->logger->debug('Adding filter for storeview.', $this->context->getMetaData(__CLASS__, $filter));
+                    $allWebsites[$store->getId()] = $filter;
+
                 }
             }
         }
-        // We're keyed by Mage Store Id. But some Store Ids could point to the same incoming feed. We de-dupe to avoid processing twice.
-        // Similarly, if every website uses the default store configuration, we have but one incoming-website-match to worry about.
-        $uniqueSites = array_map("unserialize", array_unique(array_map("serialize", $allWebsites)));
+        return $allWebsites;
+    }
+
+    /**
+     * Loads the relevant config fields of each Magento Web Site that allows us
+     * to match an incoming feed to the appropriate destination. Should only
+     * return store views that have configuration that is different than the
+     * configuration of the default store view.
+     *
+     * @TODO This method is currently just loadWebsiteFilters with stores containing
+     * the default configuration for feeds removed. I am suspicious of the degree
+     * of correctness of loadWebsiteFilters, so this method may not always be definable
+     * as is.
+     *
+     * @return array of unique key/value pairs mapping an inbound feed to a Magento Web Site.
+     */
+    public function loadStoreviewFilters()
+    {
+        return $this->uniqueSiteFilters($this->loadWebsiteFilters());
+    }
+
+    /**
+     * Given a collection of site filters, return only those that represent
+     * a unique feed configuration, at the lowest level at which that filter
+     * might apply.
+     *
+     * @param array Store view data, keyed by store id, built by loadWebsiteFilters
+     * @return array
+     */
+    protected function uniqueSiteFilters($siteFilters)
+    {
+        // Function to create hash of elements of a site filter that we care
+        // about being unique.
+        $hashSite = function ($site) {
+            return sprintf(
+                '%s|%s|%s|%s',
+                $site['catalog_id'], $site['client_id'], $site['store_id'], $site['lang_code']
+            );
+        };
+
+        // If there is no default store, no other store can have the same configuration
+        // as it, so return all site filters.
+        if (!isset($siteFilters[Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID])) {
+            return $siteFilters;
+        }
+
+        $defaultSite = $siteFilters[Mage_Catalog_Model_Abstract::DEFAULT_STORE_ID];
+        $defaultSiteHash = $hashSite($defaultSite);
+        // Always include the default site, which will be filtered out in the
+        // loop when adding non-default configured sites.
+        $uniqueSites = [$defaultSite];
+
+        foreach ($siteFilters as $storeId => $siteFilter) {
+            if ($hashSite($siteFilter) !== $defaultSiteHash) {
+                $uniqueSites[$storeId] = $siteFilter;
+            }
+        }
+
         return $uniqueSites;
     }
+
     /**
      * get attribute set id by attribute set name
      * @param string $name the attribute set name
@@ -681,12 +744,12 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
         if ($stubIndexer) {
             // Stub the indexer so no indexing can take place during massive saves.
             $indexerKey = '_singleton/index/indexer';
-            $oldIndexer = $this->reregister($indexerKey, $this->_indexerStub);
+            $oldIndexer = $this->reregister($indexerKey, $this->indexerStub);
         }
         $failureCount = 0;
         $logData = ['product_count' => $collection->getSize()];
         $logMessage = 'Saving {product_count} products with stubbed indexer.';
-        $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+        $this->logger->info($logMessage, $this->context->getMetaData(__CLASS__, $logData));
         $failMessage = 'Failed to save product with sku {sku}.';
         foreach ($collection as $item) {
             try {
@@ -697,14 +760,14 @@ class EbayEnterprise_Catalog_Helper_Data extends Mage_Core_Helper_Abstract imple
                     'sku' => $item->getSku(),
                     'exception' => $e,
                 ];
-                $this->_logger
-                    ->logException($e, $this->_context->getMetaData(__CLASS__, $failLogData))
-                    ->error($failMessage, $this->_context->getMetaData(__CLASS__, $failLogData));
+                $this->logger
+                    ->logException($e, $this->context->getMetaData(__CLASS__, $failLogData))
+                    ->error($failMessage, $this->context->getMetaData(__CLASS__, $failLogData));
             }
         }
         $logMessage = 'Finished saving {product_count} products with {failure_count} failures.';
         $logData['failure_count'] = $failureCount;
-        $this->_logger->info($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
+        $this->logger->info($logMessage, $this->context->getMetaData(__CLASS__, $logData));
         if ($stubIndexer) {
             $this->reregister($indexerKey, $oldIndexer);
         }

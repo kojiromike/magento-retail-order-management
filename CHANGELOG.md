@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.34] - 2015-12-17
+### Fixed
+- Product feeds imported for every store view
+- Product website id not set when importing into a multi-website Magento instance
+
 ## [1.6.33] - 2015-12-09
 ### Fixed
 - Maintain Order of Attributes in Feed Import

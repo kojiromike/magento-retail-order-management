@@ -156,7 +156,7 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
         $hlpr->expects($this->once())
             ->method('getConfigModel')
             ->will($this->returnValue($fakeCfg));
-        EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getProdTplt');
+        EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, 'getProdTplt');
     }
     /**
      * Test the various dummy defaults.
@@ -164,10 +164,10 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
     public function testGetDefaults()
     {
         $hlpr = Mage::helper('ebayenterprise_catalog');
-        $this->assertInternalType('array', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getAllWebsiteIds'));
-        $this->assertInternalType('integer', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getDefProdAttSetId'));
-        $this->assertInternalType('integer', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getDefStoreId'));
-        $this->assertInternalType('integer', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getDefStoreRootCatId'));
+        $this->assertInternalType('array', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, 'getAllWebsiteIds'));
+        $this->assertInternalType('integer', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, 'getDefProdAttSetId'));
+        $this->assertInternalType('integer', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, 'getDefStoreId'));
+        $this->assertInternalType('integer', EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, 'getDefStoreRootCatId'));
     }
     public function testBuildDummyBoilerplate()
     {
@@ -181,23 +181,23 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
         $fakeCfg->dummyTypeId = 'simple';
         $fakeCfg->dummyWeight = 79;
         $hlpr = $this->getHelperMock('ebayenterprise_catalog/data', array(
-            '_getAllWebsiteIds',
-            '_getDefProdAttSetId',
-            '_getDefStoreId',
-            '_getDefStoreRootCatId',
+            'getAllWebsiteIds',
+            'getDefProdAttSetId',
+            'getDefStoreId',
+            'getDefStoreRootCatId',
             'getConfigModel',
         ));
         $hlpr->expects($this->once())
-            ->method('_getAllWebsiteIds')
+            ->method('getAllWebsiteIds')
             ->will($this->returnValue(array(980)));
         $hlpr->expects($this->once())
-            ->method('_getDefProdAttSetId')
+            ->method('getDefProdAttSetId')
             ->will($this->returnValue(132));
         $hlpr->expects($this->once())
-            ->method('_getDefStoreId')
+            ->method('getDefStoreId')
             ->will($this->returnValue(531));
         $hlpr->expects($this->once())
-            ->method('_getDefStoreRootCatId')
+            ->method('getDefStoreRootCatId')
             ->will($this->returnValue(771));
         $hlpr->expects($this->once())
             ->method('getConfigModel')
@@ -220,7 +220,7 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
             'website_ids' => array(980),
             'weight' => 79,
         );
-        $this->assertSame($expected, EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_getProdTplt'));
+        $this->assertSame($expected, EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, 'getProdTplt'));
     }
     /**
      * @dataProvider dataProvider
@@ -228,11 +228,11 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
     public function testApplyDummyData($sku, $additionalData = array())
     {
         $name = isset($additionalData['name']) ? $additionalData['name'] : null;
-        $hlpr = $this->getHelperMock('ebayenterprise_catalog/data', array('_getProdTplt'));
+        $hlpr = $this->getHelperMock('ebayenterprise_catalog/data', array('getProdTplt'));
         $hlpr->expects($this->once())
-            ->method('_getProdTplt')
+            ->method('getProdTplt')
             ->will($this->returnValue(array()));
-        $prod = EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, '_applyDummyData', array(Mage::getModel('catalog/product'), $sku, $additionalData));
+        $prod = EcomDev_Utils_Reflection::invokeRestrictedMethod($hlpr, 'applyDummyData', array(Mage::getModel('catalog/product'), $sku, $additionalData));
         $this->assertSame($sku, $prod->getSku());
         $this->assertSame($name ?: "Incomplete Product: $sku", $prod->getName());
         $this->assertSame($sku, $prod->getUrlKey());
@@ -275,10 +275,10 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
     {
         $productHelperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/data')
             ->disableOriginalConstructor()
-            ->setMethods(array('_getLocaleCode'))
+            ->setMethods(array('getLocaleCode'))
             ->getMock();
         $productHelperMock->expects($this->once())
-            ->method('_getLocaleCode')
+            ->method('getLocaleCode')
             ->will($this->returnValue('en_US'));
         $this->replaceByMock('helper', 'ebayenterprise_catalog', $productHelperMock);
         $this->assertSame('en-US', Mage::helper('ebayenterprise_catalog')->getDefaultLanguageCode());
@@ -337,14 +337,14 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
             ->will($this->returnValue(0));
         $productHelperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/data')
             ->disableOriginalConstructor()
-            ->setMethods(array('loadProductBySku', '_applyDummyData'))
+            ->setMethods(array('loadProductBySku', 'applyDummyData'))
             ->getMock();
         $productHelperMock->expects($this->once())
             ->method('loadProductBySku')
             ->with($this->equalTo('TST-1234'))
             ->will($this->returnValue($productModelMock));
         $productHelperMock->expects($this->once())
-            ->method('_applyDummyData')
+            ->method('applyDummyData')
             ->with(
                 $this->isInstanceOf('Mage_Catalog_Model_Product'),
                 $this->equalTo('TST-1234'),
@@ -378,17 +378,17 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
         $this->replaceByMock('model', 'catalog/product_attribute_api', $apiModelMock);
         $helper = Mage::helper('ebayenterprise_catalog');
         // setting _customAttributeCodeSets property back to an empty array
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($helper, '_customAttributeCodeSets', array());
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($helper, 'customAttributeCodeSets', array());
         $this->assertSame(
             array('brand_name', 'brand_description', 'is_drop_shipped', 'drop_ship_supplier_name'),
             Mage::helper('ebayenterprise_catalog')->getCustomAttributeCodeSet(172)
         );
         $this->assertSame(
             array(172 => array('brand_name', 'brand_description', 'is_drop_shipped', 'drop_ship_supplier_name')),
-            EcomDev_Utils_Reflection::getRestrictedPropertyValue($helper, '_customAttributeCodeSets')
+            EcomDev_Utils_Reflection::getRestrictedPropertyValue($helper, 'customAttributeCodeSets')
         );
         // resetting _customAttributeCodeSets property back to an empty array
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($helper, '_customAttributeCodeSets', array());
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($helper, 'customAttributeCodeSets', array());
     }
     /**
      * Data provider for testGetConfigAttributesData
@@ -814,7 +814,7 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
         $this->replaceByMock('resource_model', 'catalog/category_collection', $catogyCollectionModelMock);
 
         $helper = Mage::helper('ebayenterprise_catalog');
-        EcomDev_Utils_Reflection::setRestrictedPropertyValue($helper, '_defaultParentCategoryId', null);
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($helper, 'defaultParentCategoryId', null);
 
         $this->assertSame(1, $helper->getDefaultParentCategoryId());
     }
@@ -830,10 +830,10 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
 
         $productHelperMock = $this->getHelperMockBuilder('ebayenterprise_catalog/data')
             ->disableOriginalConstructor()
-            ->setMethods(array('_applyDummyData'))
+            ->setMethods(array('applyDummyData'))
             ->getMock();
         $productHelperMock->expects($this->once())
-            ->method('_applyDummyData')
+            ->method('applyDummyData')
             ->with($this->equalTo($productMock), $this->equalTo('1234'), $this->identicalTo($additionalData))
             ->will($this->returnValue($productMock));
         $this->replaceByMock('helper', 'ebayenterprise_catalog', $productHelperMock);
@@ -944,5 +944,111 @@ class EbayEnterprise_Catalog_Test_Helper_DataTest extends EbayEnterprise_Eb2cCor
             $productMock,
             $countryCode
         ));
+    }
+
+
+    /**
+     * Provide sets of site filters for feeds processing. One should be a set
+     * of filters for all Magento stores, the second should be only the filters
+     * that match stores that need to be processed.
+     *
+     * @return array
+     */
+    public function provideSiteFilters()
+    {
+        $clientId = 'CID';
+        $storeId = 'SID';
+        $catalogId = '11';
+        $enLangCode = 'en-us';
+
+        $defaultStore = [
+            'catalog_id' => $catalogId,
+            'client_id' => $clientId,
+            'store_id' => $storeId,
+            'lang_code' => $enLangCode,
+            'mage_store_id' => 0,
+            'mage_website_id' => 0
+        ];
+
+        $jpStore = [
+            'catalog_id' => $catalogId,
+            'client_id' => $clientId,
+            'store_id' => $storeId,
+            'lang_code' => 'ja-jp',
+            'mage_store_id' => 1,
+            'mage_website_id' => 1
+        ];
+
+        $enStore = [
+            'catalog_id' => $catalogId,
+            'client_id' => $clientId,
+            'store_id' => $storeId,
+            'lang_code' => $enLangCode,
+            'mage_store_id' => 2,
+            'mage_website_id' => 1
+        ];
+
+        $catalogBStore = [
+            'catalog_id' => '22',
+            'client_id' => $clientId,
+            'store_id' => $storeId,
+            'lang_code' => $enLangCode,
+            'mage_store_id' => 3,
+            'mage_website_id' => 1
+        ];
+
+        $clientBStore = [
+            'catalog_id' => $catalogId,
+            'client_id' => 'CLIENT_ID_B',
+            'store_id' => $storeId,
+            'lang_code' => $enLangCode,
+            'mage_store_id' => 4,
+            'mage_website_id' => 6
+        ];
+
+        $storeBStore = [
+            'catalog_id' => $catalogId,
+            'client_id' => $clientId,
+            'store_id' => 'STORE_ID_B',
+            'lang_code' => $enLangCode,
+            'mage_store_id' => 5,
+            'mage_website_id' => 2
+        ];
+
+        return [
+            [
+                ['0' => $defaultStore],
+                ['0' => $defaultStore]
+            ],
+            [
+                ['0' => $defaultStore, '1' => $enStore],
+                ['0' => $defaultStore]
+            ],
+            [
+                ['1' => $enStore],
+                ['1' => $enStore]
+            ],
+            [
+                ['0' => $defaultStore, '1' => $enStore, '2' => $jpStore, '3' => $catalogBStore, '4' => $clientBStore, '5' => $storeBStore],
+                ['0' => $defaultStore, '2' => $jpStore, '3' => $catalogBStore, '4' => $clientBStore, '5' => $storeBStore],
+            ],
+        ];
+    }
+
+    /**
+     * Test that given a set of feed filters for all stores, only the filters
+     * that match store views that need to be imported are returned.
+     *
+     * @param array
+     * @param array
+     * @dataProvider provideSiteFilters
+     */
+    public function testUniqueSiteFilters($filters, $uniqueFilters)
+    {
+        $helper = Mage::helper('ebayenterprise_catalog');
+        $this->assertSame(
+            EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'uniqueSiteFilters', [$filters]),
+            $uniqueFilters
+        );
     }
 }

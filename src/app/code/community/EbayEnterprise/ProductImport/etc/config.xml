@@ -94,6 +94,12 @@ http://opensource.org/licenses/osl-3.0.php
                     <method>extractCategoryIds</method>
                     <xpath>CategoryLinks/CategoryLink[@import_mode!="Delete"]/Name</xpath>
                 </category_ids>
+                <website_ids>
+                    <class>ebayenterprise_catalog/map</class>
+                    <type>helper</type>
+                    <method>extractWebsiteIds</method>
+                    <xpath>.</xpath>
+                </website_ids>
                 <country_of_manufacture>
                     <class>ebayenterprise_catalog/map</class>
                     <type>helper</type>

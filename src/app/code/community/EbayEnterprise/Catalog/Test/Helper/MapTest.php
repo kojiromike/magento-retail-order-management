@@ -742,4 +742,96 @@ class EbayEnterprise_Catalog_Test_Helper_MapTest extends EbayEnterprise_Eb2cCore
 
         $this->assertSame($result, $this->mapHelper->extractAllowGiftMessage($nodeList, $product));
     }
+
+    /**
+     * Provide data for matching feed data to websites.
+     *
+     * @return array
+     */
+    public function provideFeedWebsiteData()
+    {
+        // Values to be used as website configurations and feed data.
+        $clientId = 'CID';
+        $catalogId = '55';
+        $storeId = 'SID';
+        $altClientId = 'CID-ALT';
+        $altCatalogId = '66';
+        $altStoreId = 'SID-ALT';
+
+        $websiteFilters = [
+            0 => ['client_id' => $clientId, 'catalog_id' => $catalogId, 'store_id' => $storeId, 'mage_website_id' => 0],
+            1 => ['client_id' => $clientId, 'catalog_id' => $catalogId, 'store_id' => $storeId, 'mage_website_id' => 1],
+            2 => ['client_id' => $clientId, 'catalog_id' => $catalogId, 'store_id' => $storeId, 'mage_website_id' => 2],
+            3 => ['client_id' => $clientId, 'catalog_id' => $catalogId, 'store_id' => $storeId, 'mage_website_id' => 2],
+            4 => ['client_id' => $clientId, 'catalog_id' => $altCatalogId, 'store_id' => $storeId, 'mage_website_id' => 3],
+            5 => ['client_id' => $altClientId, 'catalog_id' => $catalogId, 'store_id' => $storeId, 'mage_website_id' => 3],
+            6 => ['client_id' => $clientId, 'catalog_id' => $catalogId, 'store_id' => $altStoreId, 'mage_website_id' => 3],
+        ];
+
+        return [
+            // All fields provided, will only match websites w/ exact matches
+            [$websiteFilters, $clientId, $catalogId, $storeId, [0], [0,1,2]],
+            [$websiteFilters, $altClientId, $catalogId, $storeId, [0], [0,3]],
+            [$websiteFilters, $clientId, $altCatalogId, $storeId, [0], [0,3]],
+            [$websiteFilters, $clientId, $catalogId, $altStoreId, [0], [0,3]],
+            // Any value excluded will act as wildcard, matching anything,
+            // each of these cases will match at least on of the website with
+            // non-default configured stores
+            [$websiteFilters, '', $catalogId, $storeId, [0], [0,1,2,3]],
+            [$websiteFilters, $clientId, '', $storeId, [0], [0,1,2,3]],
+            [$websiteFilters, $clientId, $catalogId, '', [0], [0,1,2,3]],
+            // All values empty will match everything
+            [$websiteFilters, '', '', '', [0], [0,1,2,3]],
+            // Nothing matches, expect existing values to remain the same
+            [$websiteFilters, $altClientId, $altCatalogId, $altStoreId, [0,5,7], [0,5,7]],
+        ];
+    }
+
+    /**
+     * Given an XML Element with a given $clientId, $catalogId, $storeId
+     * When website data is extracted for the item
+     * Then websites with matching configuration should be mapped to the product
+     *
+     * @param array
+     * @param string
+     * @param string
+     * @param string
+     * @param array
+     * @param array
+     * @dataProvider provideFeedWebsiteData
+     */
+    public function testExtractWebsiteIds(
+        array $websiteFilters,
+        $feedClientId,
+        $feedCatalogId,
+        $feedStoreId,
+        array $initialWebsites,
+        array $expectedWebsites
+    ) {
+        $doc = new DOMDocument();
+        $doc->loadXML('<root><item/></root>');
+        $itemNode = $doc->documentElement->firstChild;
+
+        // Not having an attribute and having the attribute be empty behave
+        // the same, so can always set the attribute, and if attribute value
+        // is empty, it will behave the same as if the attribute were not set
+        // at all - as will be the case in some feeds.
+        $itemNode->setAttribute('gsi_client_id', $feedClientId);
+        $itemNode->setAttribute('catalog_id', $feedCatalogId);
+        $itemNode->setAttribute('gsi_store_id', $feedStoreId);
+
+        $product = Mage::getModel('catalog/product', ['website_ids' => $initialWebsites]);
+        $catalogHelper = $this->getHelperMock('ebayenterprise_catalog', ['loadWebsiteFilters']);
+        $catalogHelper->method('loadWebsiteFilters')->willReturn($websiteFilters);
+
+        $helper = Mage::helper('ebayenterprise_catalog/map');
+
+        EcomDev_Utils_Reflection::setRestrictedPropertyValue($helper, 'catalogHelper', $catalogHelper);
+
+        $this->assertSame(
+            // only care about values, don't let key mismatches cause failures
+            array_values($helper->extractWebsiteIds($doc->documentElement->childNodes, $product)),
+            array_values($expectedWebsites)
+        );
+    }
 }

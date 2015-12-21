@@ -74,24 +74,31 @@ class EbayEnterprise_Inventory_Model_Details
     }
 
     /**
-     * attempt to fetch fulfillment availaibility of the items
-     * in the quote
+     * Attempt to fetch fulfillment availability of the items in the quote.
      *
      * @param Mage_Sales_Model_Quote
      * @return EbayEnterprise_Inventory_Model_Details_Result
      */
     public function fetch(Mage_Sales_Model_Quote $quote)
     {
+        $logContext = $this->logContext->getMetaData(__CLASS__);
         $coreSession = $this->getCoreSession();
         $invSession = $this->getInventorySession();
         $result = $invSession->getInventoryDetailsResult();
+        $coreSession->setDetailsUpdateRequired(!$result);
         $isDetailsRequired = $coreSession->isDetailsUpdateRequired();
-        if ($isDetailsRequired && $this->canFetchDetails($quote)) {
-            $result = $this->tryOperation($quote);
-            $invSession->setInventoryDetailsResult($result);
-            // reset the flag to prevent running the request unnecessarily
-            $coreSession->resetDetailsUpdateRequired();
+        if (!$isDetailsRequired) {
+            $this->logger->debug('Skipping Inventory Details Call: Details are up-to-date', $logContext);
+            return $result;
         }
+        if (!$this->canFetchDetails($quote)) {
+            $this->logger->debug('Skipping Inventory Details Call: Quote is not ready', $logContext);
+            return $result;
+        }
+        $result = $this->tryOperation($quote);
+        $invSession->setInventoryDetailsResult($result);
+        // reset the flag to prevent running the request unnecessarily
+        $coreSession->resetDetailsUpdateRequired();
         return $result;
     }
 

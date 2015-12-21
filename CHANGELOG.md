@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.35] - 2015-12-21
+### Added
+- Debug logging to inform when to make/not make inventory details calls
+
 ## [1.6.34] - 2015-12-17
 ### Fixed
 - Product feeds imported for every store view
@@ -389,6 +393,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.35]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.34...1.6.35
 [1.6.34]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.33...1.6.34
 [1.6.33]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.32...1.6.33
 [1.6.32]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.31...1.6.32

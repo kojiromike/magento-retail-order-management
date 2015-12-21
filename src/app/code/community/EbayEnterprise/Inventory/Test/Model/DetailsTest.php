@@ -47,32 +47,31 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
     public function setUp()
     {
         parent::setUp();
-        $this->logger= $this->getHelperMockBuilder('ebayenterprise_magelog/data')
+        $this->logger = $this->getHelperMockBuilder('ebayenterprise_magelog/data')
             ->disableOriginalConstructor()
             ->getMock();
         $this->logContext = $this->getHelperMockBuilder('ebayenterprise_magelog/context')
             ->disableOriginalConstructor()
             ->getMock();
-        $this->logContext->expects($this->any())
+        $this->logContext
             ->method('getMetaData')
-            ->will($this->returnValue([]));
-
+            ->willReturn([]);
         $this->request = $this->getMockForAbstractClass(self::INVENTORY_DETAIL_REQUEST_INTERFACE);
         $this->reply = $this->getMockForAbstractClass(self::INVENTORY_DETAIL_REPLY_INTERFACE);
         $this->httpApi = $this->getMockBuilder(self::HTTP_API)
             ->disableOriginalConstructor()
             ->setMethods(['send', 'getRequestBody', 'getResponseBody', 'setRequestBody'])
             ->getMock();
-        $this->httpApi->expects($this->any())
+        $this->httpApi
             ->method('setRequestBody')
             ->with($this->isInstanceOf(self::INVENTORY_DETAIL_REQUEST_INTERFACE))
-            ->will($this->returnSelf());
-        $this->httpApi->expects($this->any())
+            ->willReturnSelf();
+        $this->httpApi
             ->method('getRequestBody')
-            ->will($this->returnValue($this->request));
-        $this->httpApi->expects($this->any())
+            ->willReturn($this->request);
+        $this->httpApi
             ->method('getResponseBody')
-            ->will($this->returnValue($this->reply));
+            ->willReturn($this->reply);
         $this->quote = Mage::getModel('sales/quote');
     }
 
@@ -111,24 +110,21 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
             ->disableOriginalConstructor()
             ->setMethods(['getShippingAddress', 'getItemsCount', 'getCustomer'])
             ->getMock();
-
-        $quote->expects($this->any())
+        $quote
             ->method('getShippingAddress')
-            ->will($this->returnValue($hasQuoteAddress ? $this->stubAddress() : Mage::getModel('sales/quote_address')));
-
+            ->willReturn($hasQuoteAddress ? $this->stubAddress() : Mage::getModel('sales/quote_address'));
         // try the customer default shipping address if theres
         // no shipping address on the quote
-        $quote->expects($this->any())
+        $quote
             ->method('getCustomer')
-            ->will($this->returnValue($customer));
-        $customer->expects($this->any())
+            ->willReturn($customer);
+        $customer
             ->method('getDefaultShippingAddress')
-            ->will($this->returnValue($hasCustomerAddress ? $this->stubAddress() : null));
-
+            ->willReturn($hasCustomerAddress ? $this->stubAddress() : null);
         // no need to run for an empty cart
-        $quote->expects($this->any())
+        $quote
             ->method('getItemsCount')
-            ->will($this->returnValue($itemCount));
+            ->willReturn($itemCount);
         $details = Mage::getModel('ebayenterprise_inventory/details');
         $result = EcomDev_Utils_Reflection::invokeRestrictedMethod($details, 'canFetchDetails', [$quote]);
         $this->assertSame($expected, $result);
@@ -139,7 +135,7 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
         $quote = $this->getModelMock('sales/quote');
         $coreSession = $this->getModelMockBuilder('eb2ccore/session')
             ->disableOriginalConstructor()
-            ->setMethods(['isDetailsUpdateRequired', 'resetDetailsUpdateRequired'])
+            ->setMethods(['setDetailsUpdateRequired', 'isDetailsUpdateRequired', 'resetDetailsUpdateRequired'])
             ->getMock();
         $invSession = $this->getModelMockBuilder('ebayenterprise_inventory/session')
             ->disableOriginalConstructor()
@@ -151,46 +147,44 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
         $detailsModel = $this->getModelMockBuilder('ebayenterprise_inventory/details')
             ->setConstructorArgs([[
                 'logger' => $this->logger,
-                'log_context' => $this->logContext,
+                'logger_context' => $this->logContext,
             ]])
             ->setMethods(['getInventorySession', 'getCoreSession', 'tryOperation', 'canFetchDetails'])
             ->getMock();
-
-        $detailsModel->expects($this->any())
+        $detailsModel
             ->method('getCoreSession')
-            ->will($this->returnValue($coreSession));
-        $detailsModel->expects($this->any())
+            ->willReturn($coreSession);
+        $detailsModel
             ->method('getInventorySession')
-            ->will($this->returnValue($invSession));
-
+            ->willReturn($invSession);
         $isRequestRequired = true;
         $canFetchDetails = true;
-
         $invSession->expects($this->once())
             ->method('getInventoryDetailsResult')
-            ->will($this->returnValue($result));
-
+            ->willReturn($result);
+        $coreSession->expects($this->once())
+            ->method('setDetailsUpdateRequired')
+            ->with($this->identicalTo(!$result))
+            ->willReturnSelf();
         $coreSession->expects($this->once())
             ->method('isDetailsUpdateRequired')
-            ->will($this->returnValue($isRequestRequired));
+            ->willReturn($isRequestRequired);
+        $coreSession->expects($this->once())
+            ->method('resetDetailsUpdateRequired')
+            ->willReturnSelf();
         $detailsModel->expects($this->once())
             ->method('canFetchDetails')
-            ->will($this->returnValue($canFetchDetails));
+            ->willReturn($canFetchDetails);
         $detailsModel->expects($this->once())
             ->method('tryOperation')
             ->with($this->isInstanceOf('Mage_Sales_Model_Quote'))
-            ->will($this->returnValue($result));
+            ->willReturn($result);
         $invSession->expects($this->once())
             ->method('setInventoryDetailsResult')
             ->with(
                 $this->isInstanceOf('EbayEnterprise_Inventory_Model_Details_Result')
             )
-            ->will($this->returnSelf());
-
-        $coreSession->expects($this->once())
-            ->method('resetDetailsUpdateRequired')
-            ->will($this->returnSelf());
-
+            ->willReturnSelf();
         $output = $detailsModel->fetch($quote);
         $this->assertSame($result, $output);
     }
@@ -213,10 +207,10 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
                 $this->identicalTo('inventory'),
                 $this->identicalTo('details/get')
             )
-            ->will($this->returnValue($this->httpApi));
-        $invHelper->expects($this->any())
+            ->willReturn($this->httpApi);
+        $invHelper
             ->method('getConfigModel')
-            ->will($this->returnValue($config));
+            ->willReturn($config);
         $details = Mage::getModel(
             'ebayenterprise_inventory/details',
             ['helper' => $invHelper, 'core_helper' => $coreHelper, 'quote' => $this->quote]
@@ -268,19 +262,15 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
             ->setConstructorArgs([[
                 'factory' => $factory,
                 'selection' => $selector,
-                'logger' => $this->logger,
-                'log_context' => $this->logContext,
             ]])
             ->setMethods(['selectAddresses', 'getAlternateAddress'])
             ->getMock();
-
         $factory->expects($this->once())
             ->method('createRequestBuilder')
             ->with($this->isInstanceOf(
                 '\eBayEnterprise\RetailOrderManagement\Payload\Inventory\IInventoryDetailsRequest'
             ))
-            ->will($this->returnValue($builder));
-
+            ->willReturn($builder);
         // if the customer hasn't entered an address in checkout
         // the addresses returned by the quote are empty
         $quoteAddress = $hasQuoteAddress
@@ -289,18 +279,18 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
         $details->expects($this->once())
             ->method('selectAddresses')
             ->with($this->isInstanceOf('Mage_Sales_Model_Quote'))
-            ->will($this->returnValue([$quoteAddress]));
+            ->willReturn([$quoteAddress]);
         // we need to get an alternate address in case there the addresses
         // we get from the quote do not have enough data
         $alternateAddress = $hasAlternateAddress ? $this->stubAddress() : null;
         $details->expects($this->once())
             ->method('getAlternateAddress')
             ->with($this->isInstanceOf('Mage_Sales_Model_Quote'))
-            ->will($this->returnValue($alternateAddress));
-        $selector->expects($this->any())
+            ->willReturn($alternateAddress);
+        $selector
             ->method('selectFrom')
             ->with($this->isType('array'))
-            ->will($this->returnArgument(0));
+            ->willReturnArgument(0);
         // if neither the quote address nor the alternate address
         // have enough information to build the request, then no items
         // should be added to the payload.
@@ -317,7 +307,7 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
                     $this->isType('array'),
                     $this->identicalTo($hasQuoteAddress ? $quoteAddress : $alternateAddress)
                 )
-                ->will($this->returnSelf());
+                ->willReturnSelf();
         }
         EcomDev_Utils_Reflection::invokeRestrictedMethod($details, 'prepareRequest', [$this->httpApi, $this->quote]);
     }
@@ -334,20 +324,19 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
     protected function stubItem($id = 1, $sku = 'sku_1', $qty = 1, Mage_Catalog_Model_Product $product = null)
     {
         $stub = $this->getModelMock('sales/quote_item_abstract', ['getId', 'getQty', 'getSku', 'getProduct'], true);
-
-        $stub->expects($this->any())
+        $stub
             ->method('getId')
-            ->will($this->returnValue($id));
-        $stub->expects($this->any())
+            ->willReturn($id);
+        $stub
             ->method('getQty')
-            ->will($this->returnValue($qty));
-        $stub->expects($this->any())
+            ->willReturn($qty);
+        $stub
             ->method('getSku')
-            ->will($this->returnValue($sku));
-        $product = $product ?: Mage::getModel('catalog/product', ['type_id'=>'simple', ]);
-        $stub->expects($this->any())
+            ->willReturn($sku);
+        $product = $product ?: Mage::getModel('catalog/product', ['type_id' => 'simple', ]);
+        $stub
             ->method('getProduct')
-            ->will($this->returnValue($product));
+            ->willReturn($product);
         return $stub;
     }
 
@@ -360,19 +349,19 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
     protected function stubAddress(array $items = [])
     {
         $stub = $this->getModelMock('sales/quote_address', ['__call', 'getAllItems', 'getStreet']);
-        $stub->expects($this->any())
+        $stub
             ->method('getAllItems')
-            ->will($this->returnValue($items));
-        $stub->expects($this->any())
+            ->willReturn($items);
+        $stub
             ->method('getStreet')
-            ->will($this->returnValue('street lines'));
-        $stub->expects($this->any())
+            ->willReturn('street lines');
+        $stub
             ->method('__call')
-            ->will($this->returnValueMap([
+            ->willReturnMap([
                 ['getCity', [], 'a city'],
                 ['getCountryId', [], 'US'],
                 ['getShippingMethod', [], 'shipping_method'],
-            ]));
+            ]);
         return $stub;
     }
 
@@ -406,24 +395,21 @@ class EbayEnterprise_Inventory_Test_Model_DetailsTest extends EbayEnterprise_Eb2
             ->setConstructorArgs([['logger' => $this->logger, 'logger_context' => $this->logContext]])
             ->setMethods(['prepareApi', 'prepareRequest', 'prepareResult'])
             ->getMock();
-
         $detail->expects($this->once())
             ->method('prepareApi')
-            ->will($this->returnValue($this->httpApi));
+            ->willReturn($this->httpApi);
         $detail->expects($this->once())
             ->method('prepareRequest')
-            ->will($this->returnValue($this->request));
+            ->willReturn($this->request);
         $this->request->expects($this->once())
             ->method('getItems')
-            ->will($this->returnValue(['notempty']));
+            ->willReturn(['notempty']);
         $this->httpApi->expects($this->once())
             ->method('send')
-            ->will($this->throwException(new $exception));
-        // dont really care much about the prepare results call
-        $detail->expects($this->any())
+            ->willThrowException(new $exception);
+        $detail
             ->method('prepareResult')
-            ->will($this->returnValue($result));
-
+            ->willReturn($result);
         $this->setExpectedException('EbayEnterprise_Inventory_Exception_Details_Operation_Exception');
         EcomDev_Utils_Reflection::invokeRestrictedMethod($detail, 'tryOperation', [$quote]);
     }

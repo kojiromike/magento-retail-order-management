@@ -26,7 +26,7 @@ class EbayEnterprise_Inventory_Model_Details_Service
     protected $resultRecords;
     /** @var EbayEnterprise_Inventory_Model_Session */
     protected $inventorySession;
-    /** @var EbayEnterprise_Eb2cCore_Model_Session */
+    /** @var EbayEnterprise_Inventory_Helper_Details_Factory */
     protected $factory;
     /** @var EbayEnterprise_Inventory_Helper_Data */
     protected $invHelper;

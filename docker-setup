@@ -32,7 +32,8 @@ composer_install() {
         echo json_encode($lock);
     ' > build/magento/composer.lock
     cp tests/composer.docker.json build/magento/composer.json
-    composer install --no-interaction \
+    composer install --prefer-dist \
+                     --no-interaction \
                      --optimize-autoloader \
                      --working-dir build/magento
     cp tests/composer.docker.lock build/magento/composer.lock

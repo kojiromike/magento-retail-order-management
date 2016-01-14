@@ -65,4 +65,10 @@ http://opensource.org/licenses/osl-3.0.php
             <block name="ebayenterprise_giftcard_onepage_payment_additional" template="ebayenterprise_giftcard/onepage/payment/additional.phtml" type="ebayenterprise_giftcard/checkout_onepage_payment_additional"/>
         </reference>
     </checkout_onepage_paymentmethod>
+    <!-- New order email totals -->
+    <sales_email_order_items>
+        <reference name="order_totals">
+            <block type="ebayenterprise_giftcard/sales_order_total" name="ebayenterprise_giftcard_total" template="ebayenterprise_giftcard/order/total.phtml" />
+        </reference>
+    </sales_email_order_items>
 </layout>

@@ -19,6 +19,11 @@ http://opensource.org/licenses/osl-3.0.php
         </EbayEnterprise_Tax>
     </modules>
     <global>
+        <blocks>
+            <ebayenterprise_tax>
+                <class>EbayEnterprise_Tax_Block</class>
+            </ebayenterprise_tax>
+        </blocks>
         <models>
             <ebayenterprise_tax>
                 <class>EbayEnterprise_Tax_Model</class>
@@ -105,6 +110,13 @@ http://opensource.org/licenses/osl-3.0.php
                 </EbayEnterprise_Tax>
             </modules>
         </translate>
+        <layout>
+            <updates>
+                <ebayenterprise_tax>
+                    <file>ebayenterprise_tax.xml</file>
+                </ebayenterprise_tax>
+            </updates>
+        </layout>
     </frontend>
     <adminhtml>
         <translate>

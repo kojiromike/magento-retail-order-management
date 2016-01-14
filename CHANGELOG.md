@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.37] - 2016-01-??
+### Fixed
+- Order totals missing from new order email from Magento
+
 ## [1.6.36] - 2016-01-14
 ### Fixed
 - Persist Credit Card in Backend Order Create with CSE Enabled
@@ -397,7 +401,8 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
-[1.6.35]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.35...1.6.36
+[1.6.37]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.36...1.6.37
+[1.6.36]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.35...1.6.36
 [1.6.35]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.34...1.6.35
 [1.6.34]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.33...1.6.34
 [1.6.33]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.32...1.6.33

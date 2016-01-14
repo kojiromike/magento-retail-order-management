@@ -18,3 +18,4 @@
 "EbayEnterprise_GiftCard_Form_Check_Balance_Button_Label", "Check Gift Card status and balance"
 "EbayEnterprise_GiftCard_%s", "eBay Enterprise Gift Cards"
 "EbayEnterprise_GiftCard_Zero_Balance_Card", "Gift card (%s) has no available balance."
+"EbayEnterprise_GiftCard_Order_Total_Label", "Gift Card (%s)"

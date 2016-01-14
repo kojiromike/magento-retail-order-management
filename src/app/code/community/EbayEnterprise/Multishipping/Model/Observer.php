@@ -27,4 +27,42 @@ class EbayEnterprise_Multishipping_Model_Observer
         $observer->getEvent()->getOrder()->collectShipmentAmounts();
         return $this;
     }
+
+    /**
+     * Collect discount amounts from quote addresses and apply them to the
+     * newly created order.
+     *
+     * @param Varien_Event_Observer
+     * @return self
+     */
+    public function handleSalesConvertQuoteToOrder(Varien_Event_Observer $observer)
+    {
+        $event = $observer->getEvent();
+        $order = $event->getOrder();
+        $quote = $event->getQuote();
+
+        $discountAmount = 0.00;
+        $baseDiscountAmount = 0.00;
+        foreach ($quote->getAllAddresses() as $address) {
+            $discountAmount += $address->getDiscountAmount();
+            $baseDiscountAmount += $address->getBaseDiscountAmount();
+
+            // Each address *may* have a discount description but the order
+            // can only have one. The discount description appears to only apply
+            // to discounts added with a coupon. OOTB Magento only supports a
+            // single coupon per order. So, while each address may have a discount
+            // description, any address that has one will have the same one -
+            // the one coupon discount that can be applied. As the description
+            // can be on any, all or none of the addresses, check each address
+            // for one and take the description from the first address that has one.
+            if (!$order->hasDiscountDescription() && $address->hasDiscountDescription()) {
+                $order->setDiscountDescription($address->getDiscountDescription());
+            }
+        }
+
+        $order->setDiscountAmount($discountAmount)
+            ->setBaseDiscountAmount($baseDiscountAmount);
+
+        return $this;
+    }
 }

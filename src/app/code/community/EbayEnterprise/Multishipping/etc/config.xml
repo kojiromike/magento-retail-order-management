@@ -314,6 +314,14 @@ http://opensource.org/licenses/osl-3.0.php
                     </collect_address_shipment_totals>
                 </observers>
             </sales_order_save_before>
+            <sales_convert_quote_to_order>
+                <observers>
+                    <collect_order_discount_amounts>
+                        <class>ebayenterprise_multishipping/observer</class>
+                        <method>handleSalesConvertQuoteToOrder</method>
+                    </collect_order_discount_amounts>
+                </observers>
+            </sales_convert_quote_to_order>
         </events>
     </global>
     <default>

@@ -1,9 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.6.37] - 2016-01-??
+## [1.6.37] - 2016-01-15
 ### Fixed
 - Order totals missing from new order email from Magento
+- Discount totals not transferred to new orders
 
 ## [1.6.36] - 2016-01-14
 ### Fixed

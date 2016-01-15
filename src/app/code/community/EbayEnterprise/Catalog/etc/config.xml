@@ -114,6 +114,15 @@ http://opensource.org/licenses/osl-3.0.php
                     </ebayenterprise_product_export_collector_combined>
                 </observers>
             </ebayenterprise_product_export_content_map>
+            <catalog_product_save_after>
+                <observers>
+                    <ebayenterprise_catalog_save_new_stock_item>
+                        <class>ebayenterprise_catalog/observers</class>
+                        <method>handleCatalogProductSaveAfter</method>
+                        <type>model</type>
+                    </ebayenterprise_catalog_save_new_stock_item>
+                </observers>
+            </catalog_product_save_after>
         </events>
     </global>
     <default>

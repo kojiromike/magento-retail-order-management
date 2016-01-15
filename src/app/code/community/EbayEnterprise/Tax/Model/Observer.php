@@ -15,14 +15,16 @@
 
 class EbayEnterprise_Tax_Model_Observer
 {
+    /** @var bool Lock to guard against too much recursion in quote collect totals */
+    protected static $lockRecollectTotals = false;
     /** @var EbayEnterprise_Tax_Model_Collector */
-    protected $_taxCollector;
+    protected $taxCollector;
     /** @var EbayEnterprise_Eb2cCore_Model_Session */
-    protected $_coreSession;
+    protected $coreSession;
     /** @var EbayEnterprise_MageLog_Helper_Data */
-    protected $_logger;
+    protected $logger;
     /** @var EbayEnterprise_MageLog_Helper_Context */
-    protected $_logContext;
+    protected $logContext;
 
     /**
      * @param array
@@ -30,15 +32,15 @@ class EbayEnterprise_Tax_Model_Observer
     public function __construct(array $args = [])
     {
         list(
-            $this->_taxCollector,
-            $this->_coreSession,
-            $this->_logger,
-            $this->_logContext
-        ) = $this->_checkTypes(
-            $this->_nullCoalesce($args, 'tax_collector', Mage::getModel('ebayenterprise_tax/collector')),
-            $this->_nullCoalesce($args, 'core_session', null),
-            $this->_nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
-            $this->_nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
+            $this->taxCollector,
+            $this->coreSession,
+            $this->logger,
+            $this->logContext
+        ) = $this->checkTypes(
+            $this->nullCoalesce($args, 'tax_collector', Mage::getModel('ebayenterprise_tax/collector')),
+            $this->nullCoalesce($args, 'core_session', null),
+            $this->nullCoalesce($args, 'logger', Mage::helper('ebayenterprise_magelog')),
+            $this->nullCoalesce($args, 'log_context', Mage::helper('ebayenterprise_magelog/context'))
         );
     }
 
@@ -51,13 +53,13 @@ class EbayEnterprise_Tax_Model_Observer
      * @param EbayEnterprise_MageLog_Helper_Context
      * @return array
      */
-    protected function _checkTypes(
+    protected function checkTypes(
         EbayEnterprise_Tax_Model_Collector $taxCollector,
         EbayEnterprise_Eb2cCore_Model_Session $coreSession = null,
         EbayEnterprise_MageLog_Helper_Data $logger,
         EbayEnterprise_MageLog_Helper_Context $logContext
     ) {
-        return [$taxCollector, $coreSession, $logger, $logContext];
+        return func_get_args();
     }
 
     /**
@@ -68,7 +70,7 @@ class EbayEnterprise_Tax_Model_Observer
      * @param mixed
      * @return mixed
      */
-    protected function _nullCoalesce(array $arr, $key, $default)
+    protected function nullCoalesce(array $arr, $key, $default)
     {
         return isset($arr[$key]) ? $arr[$key] : $default;
     }
@@ -81,12 +83,12 @@ class EbayEnterprise_Tax_Model_Observer
      *
      * @return EbayEnterprise_Eb2cCore_Model_Session
      */
-    protected function _getCoreSession()
+    protected function getCoreSession()
     {
-        if (!$this->_coreSession) {
-            $this->_coreSession = Mage::getSingleton('eb2ccore/session');
+        if (!$this->coreSession) {
+            $this->coreSession = Mage::getSingleton('eb2ccore/session');
         }
-        return $this->_coreSession;
+        return $this->coreSession;
     }
 
     /**
@@ -102,18 +104,18 @@ class EbayEnterprise_Tax_Model_Observer
      */
     public function handleSalesQuoteCollectTotalsAfter(Varien_Event_Observer $observer)
     {
-        $coreSession = $this->_getCoreSession();
+        $coreSession = $this->getCoreSession();
         if ($coreSession->isTaxUpdateRequired()) {
             /** @var Mage_Sales_Model_Quote */
             $quote = $observer->getEvent()->getQuote();
             try {
-                $this->_taxCollector->collectTaxes($quote);
+                $this->taxCollector->collectTaxes($quote);
             } catch (EbayEnterprise_Tax_Exception_Collector_InvalidQuote_Exception $e) {
                 // Exception for when a quote is not yet ready for making
                 // a tax request. Not an entirely uncommon situation and
                 // does not necessarily indicate anything is actually wrong
                 // unless the quote is expected to be valid but isn't.
-                $this->_logger->debug('Quote not valid for tax request.', $this->_logContext->getMetaData(__CLASS__));
+                $this->logger->debug('Quote not valid for tax request.', $this->logContext->getMetaData(__CLASS__));
                 return $this;
             } catch (EbayEnterprise_Tax_Exception_Collector_Exception $e) {
                 // Want TDF to be non-blocking so exceptions from making the
@@ -122,20 +124,21 @@ class EbayEnterprise_Tax_Model_Observer
                 // (don't reset update required flag) and prevent totals from being
                 // recollected (nothing to update and, more imporantly, would
                 // continue to loop until PHP crashes or a TDF request succeeds).
-                $this->_logger->warning('Tax request failed.', $this->_logContext->getMetaData(__CLASS__, [], $e));
+                $this->logger->warning('Tax request failed.', $this->logContext->getMetaData(__CLASS__, [], $e));
                 return $this;
             }
             // After retrieving new tax records, update the session with data
             // from the quote used to make the request and reset the tax
             // update required flag as another update should not be required
             // until some other change has been detected.
+            $this->logger->debug('Update session flags after tax collection.', $this->logContext->getMetaData(__CLASS__));
             $coreSession->updateWithQuote($quote)->resetTaxUpdateRequired();
             // Need to trigger a re-collection of quote totals now that taxes
             // for the quote have been retrieved. On the second pass, tax totals
             // just collected should be applied to the quote and any totals
             // dependent upon tax totals - like grand total - should update
             // to include the tax totals.
-            $quote->setTriggerRecollect(true);
+            $this->recollectTotals($quote);
         }
         return $this;
     }
@@ -187,12 +190,43 @@ class EbayEnterprise_Tax_Model_Observer
             'ebayenterprise_tax/order_create_orderitem',
             [
                 'item' => $event->getItem(),
-                'tax_records' => $this->_taxCollector->getTaxRecordsByItemId($quoteItemId),
-                'duty' => $this->_taxCollector->getTaxDutyByItemId($quoteItemId),
-                'fees' => $this->_taxCollector->getTaxFeesByItemId($quoteItemId),
+                'tax_records' => $this->taxCollector->getTaxRecordsByItemId($quoteItemId),
+                'duty' => $this->taxCollector->getTaxDutyByItemId($quoteItemId),
+                'fees' => $this->taxCollector->getTaxFeesByItemId($quoteItemId),
                 'order_item_payload' => $event->getItemPayload(),
             ]
         )->addTaxesToPayload();
         return $this;
+    }
+
+    /**
+     * Recollect quote totals to update amounts based on newly received tax
+     * data. This collect totals call is expected to happen recursively within
+     * collect totals. The flags in eb2ccore/session are expected to prevent
+     * going beyond a single recursive call to collect totals. As an additional
+     * precaution, a lock is also used to prevent unexpected recursion.
+     *
+     * @param Mage_Sales_Model_Quote
+     * @return Mage_Sales_Model_Quote
+     */
+    protected function recollectTotals(Mage_Sales_Model_Quote $quote)
+    {
+        // Guard against unexpected recursion. Session flags should prevent
+        // this but need to be sure this can't trigger infinite recursion.
+        // If the lock is free (set to false), expect to not be within a recursive
+        // collectTotals triggered by taxes.
+        if (!self::$lockRecollectTotals) {
+            // Acquire the lock prior to triggering the recursion. Prevents taxes
+            // from being able to trigger further recursion.
+            self::$lockRecollectTotals = true;
+            $quote->collectTotals();
+            // Free the lock once we're clear of the recursive collectTotals.
+            self::$lockRecollectTotals = false;
+        } else {
+            // Do not expect further recursive attempts to occur. Something
+            // would be potentially wrong with the session flags if it does.
+            $this->logger->warning('Attempted to recollect totals for taxes during a recursive collection. Additional collection averted to prevent further recursion.', $this->logContext->getMetaData(__CLASS__));
+        }
+        return $quote;
     }
 }

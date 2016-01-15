@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.39] - 2016-01-19
+### Fixed
+- Admin order create totals not updating properly
+- Shipping methods not always returned in admin order create
+
 ## [1.6.38] - 2016-01-19
 ### Fixed
 - SalesClass not importing product stock for new products
@@ -406,6 +411,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.39]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.38...1.6.39
 [1.6.38]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.37...1.6.38
 [1.6.37]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.36...1.6.37
 [1.6.36]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.35...1.6.36

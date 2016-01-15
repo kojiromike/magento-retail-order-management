@@ -41,7 +41,7 @@ class EbayEnterprise_Tax_Test_Model_ObserverTest extends EcomDev_PHPUnit_Test_Ca
             ->setMethods(['isTaxUpdateRequired', 'updateWithQuote', 'resetTaxUpdateRequired'])
             ->getMock();
         $this->taxCollector = $this->getModelMock('ebayenterprise_tax/collector', ['collectTaxes']);
-        $this->quote = $this->getModelMock('sales/quote', ['setTriggerRecollect']);
+        $this->quote = $this->getModelMock('sales/quote', ['collectTotals']);
 
         $this->event = new Varien_Event(['quote' => $this->quote]);
         $this->eventObserver = new Varien_Event_Observer(['event' => $this->event]);
@@ -87,8 +87,7 @@ class EbayEnterprise_Tax_Test_Model_ObserverTest extends EcomDev_PHPUnit_Test_Ca
         // Expect that when tax records have been collected, quote totals should
         // be recollected.
         $this->quote->expects($this->once())
-            ->method('setTriggerRecollect')
-            ->with($this->identicalTo(true))
+            ->method('collectTotals')
             ->will($this->returnSelf());
 
         $this->taxObserver->handleSalesQuoteCollectTotalsAfter($this->eventObserver);

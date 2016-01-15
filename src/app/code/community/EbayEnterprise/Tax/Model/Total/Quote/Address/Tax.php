@@ -125,7 +125,7 @@ class EbayEnterprise_Tax_Model_Total_Quote_Address_Tax extends Mage_Sales_Model_
         $dutyTotal = $this->_totalDuties($this->_taxCollector->getTaxDutiesByAddressId($addressId));
         $feeTotal = $this->_totalFees($this->_taxCollector->getTaxFeesByAddressId($addressId));
         $total = $taxTotal + $dutyTotal + $feeTotal;
-        $this->_logger->debug("Collected tax totals of: tax - $taxTotal, duty - $dutyTotal, fee - $feeTotal, total - $total.", $this->_logContext->getMetaData(__CLASS__));
+        $this->_logger->debug("Collected tax totals of: tax - $taxTotal, duty - $dutyTotal, fee - $feeTotal, total - $total.", $this->_logContext->getMetaData(__CLASS__, ['address_type' => $address->getAddressType()]));
         // Always overwrite amounts for this total. The total calculated from
         // the collector's tax records will be the complete tax amount for
         // the address.

@@ -423,12 +423,19 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
         // persist the timestamp from one set of data to the next preventing
         // the new data from auto expiring.
         $newData['last_updated'] = $oldData['last_updated'];
+        $this->_logger->debug(
+            'Comparing quote data',
+            $this->_context->getMetaData(__CLASS__, [
+                'old' => json_encode($oldData),
+                'new' => json_encode($newData),
+            ])
+        );
         $quoteDiff = $this->_diffQuoteData($oldData, $newData);
         // if nothing has changed in the quote, no need to update flags, or
         // quote data as none of them will change
         if (!empty($quoteDiff)) {
             $changes = implode(', ', array_keys($quoteDiff));
-            $logData = ['changes' => $changes];
+            $logData = ['changes' => $changes, 'diff' => json_encode($quoteDiff)];
             $logMessage = 'Changes found in quote for: {changes}';
             $this->_logger->debug($logMessage, $this->_context->getMetaData(__CLASS__, $logData));
             $this
@@ -437,6 +444,8 @@ class EbayEnterprise_Eb2cCore_Model_Session extends Mage_Core_Model_Session_Abst
                 ->setTaxUpdateRequiredFlag($this->_changeRequiresTaxUpdate($newData, $quoteDiff))
                 ->setDetailsUpdateRequiredFlag($this->_changeRequiresDetailsUpdate($newData, $quoteDiff))
                 ->setCurrentQuoteData($newData);
+        } else {
+            $this->_logger->debug('No changes in quote.', $this->_context->getMetaData(__CLASS__));
         }
         // always update the changes - could go from having changes to no changes
         $this->setQuoteChanges($quoteDiff);

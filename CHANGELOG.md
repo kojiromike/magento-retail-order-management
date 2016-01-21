@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [1.6.40] - 2016-01-21
 ### Fixed
 - Send the tokenized giftcard pan in order create request payload
+- Applied gift cards carry over from cancelled order create to next order in admin
 
 ## [1.6.39] - 2016-01-19
 ### Fixed

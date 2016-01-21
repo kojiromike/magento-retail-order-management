@@ -162,6 +162,24 @@ http://opensource.org/licenses/osl-3.0.php
                     </ebayenterprise_giftcard_process_order_create_data>
                 </observers>
             </adminhtml_sales_order_create_process_data>
+            <controller_action_postdispatch_adminhtml_sales_order_create_cancel>
+                <observers>
+                    <ebayenterprise_giftcard_empty_container_cancel_order_create>
+                        <type>model</type>
+                        <class>ebayenterprise_giftcard/container</class>
+                        <method>removeAllGiftCards</method>
+                    </ebayenterprise_giftcard_empty_container_cancel_order_create>
+                </observers>
+            </controller_action_postdispatch_adminhtml_sales_order_create_cancel>
+            <controller_action_postdispatch_adminhtml_sales_order_create_start>
+                <observers>
+                    <ebayenterprise_giftcard_empty_container_cancel_order_create>
+                        <type>model</type>
+                        <class>ebayenterprise_giftcard/container</class>
+                        <method>removeAllGiftCards</method>
+                    </ebayenterprise_giftcard_empty_container_cancel_order_create>
+                </observers>
+            </controller_action_postdispatch_adminhtml_sales_order_create_start>
         </events>
     </adminhtml>
     <default>

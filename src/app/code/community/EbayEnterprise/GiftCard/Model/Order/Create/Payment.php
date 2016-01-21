@@ -58,8 +58,8 @@ class EbayEnterprise_Giftcard_Model_Order_Create_Payment
                 // payment context
                 ->setOrderId($order->getIncrementId())
                 ->setTenderType($giftcard->getTenderType())
-                ->setAccountUniqueId($giftcard->getCardNumber())
-                ->setPanIsToken((bool) $giftcard->getPanIsToken())
+                ->setAccountUniqueId($this->getGcPan($giftcard))
+                ->setPanIsToken($this->isPanTokenize($giftcard))
                 // payment data
                 ->setCreateTimestamp($giftcard->getRedeemedAt())
                 ->setAmount($giftcard->getAmountRedeemed())
@@ -75,5 +75,28 @@ class EbayEnterprise_Giftcard_Model_Order_Create_Payment
     protected function _nullCoalesce($key, array $args, $default)
     {
         return isset($args[$key]) ? $args[$key] : $default;
+    }
+
+    /**
+     * Determine if the PAN in the giftcard is tokenized.
+     *
+     * @param EbayEnterprise_GiftCard_Model_IGiftcard
+     * @return bool
+     */
+    protected function isPanTokenize(EbayEnterprise_GiftCard_Model_IGiftcard $giftcard)
+    {
+        return !is_null($giftcard->getTokenizedCardNumber());
+    }
+
+    /**
+     * Get the Giftcard PAN. Return the tokenized pan if it is tokenized otherwise
+     * return the raw PAN.
+     *
+     * @param EbayEnterprise_GiftCard_Model_IGiftcard
+     * @return bool
+     */
+    protected function getGcPan(EbayEnterprise_GiftCard_Model_IGiftcard $giftcard)
+    {
+        return $this->isPanTokenize($giftcard) ? $giftcard->getTokenizedCardNumber() : $giftcard->getCardNumber();
     }
 }

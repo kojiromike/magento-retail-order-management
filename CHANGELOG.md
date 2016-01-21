@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.40] - 2016-01-21
+### Fixed
+- Send the tokenized giftcard pan in order create request payload
+
 ## [1.6.39] - 2016-01-19
 ### Fixed
 - Admin order create totals not updating properly
@@ -411,6 +415,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.40]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.39...1.6.40
 [1.6.39]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.38...1.6.39
 [1.6.38]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.37...1.6.38
 [1.6.37]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.36...1.6.37

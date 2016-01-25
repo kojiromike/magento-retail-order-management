@@ -17,6 +17,8 @@ http://opensource.org/licenses/osl-3.0.php
     <sales_email_order_items>
         <reference name="order_totals">
             <block type="ebayenterprise_tax/sales_order_tax" name="ebayenterprise_tax_total" />
+            <!-- Remove Vanilla Magento Tax, it will be replaced with ROM Tax -->
+            <remove name="tax"/>
         </reference>
     </sales_email_order_items>
 </layout>

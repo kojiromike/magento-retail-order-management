@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.42] - 2016-02-01
+### Fixed
+- EstimatedDeliveryDate and ReservationId not showing in OCR for configurable products
+
 ## [1.6.41] - 2016-01-25
 ### Fixed
 - Tax displayed twice in Order Confirmation Email
@@ -420,6 +424,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.42]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.41...1.6.42
 [1.6.41]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.40...1.6.41
 [1.6.40]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.39...1.6.40
 [1.6.39]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.38...1.6.39

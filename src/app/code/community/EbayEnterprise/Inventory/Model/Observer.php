@@ -179,12 +179,25 @@ class EbayEnterprise_Inventory_Model_Observer
     {
         $event = $observer->getEvent();
         $itemPayload = $event->getItemPayload();
-        $item = $event->getItem();
+        $item = $this->getItemForLookup($event->getItem());
         Mage::getModel('ebayenterprise_inventory/order_create_item_details')
             ->injectShippingEstimates($itemPayload, $item);
         Mage::getModel('ebayenterprise_inventory/order_create_item_allocation')
             ->injectReservationInfo($itemPayload, $item);
         return $this;
+    }
+
+    /**
+     * get the correct order item
+     * @param Mage_Sales_Model_Order_Item
+     * @return Mage_Sales_Model_Order_Item
+     */
+    protected function getItemForLookup(Mage_Sales_Model_Order_Item $item)
+    {
+        if ($item->getProductType() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
+            $item = reset($item->getChildrenItems());
+        }
+        return $item;
     }
 
     /**

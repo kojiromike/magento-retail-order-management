@@ -213,6 +213,7 @@ class EbayEnterprise_Catalog_Model_Feed_Cleaner
         return Mage::getModel('catalog/product')->getCollection()
             ->addAttributeToFilter('style_id', array('in' => $configSkus))
             ->addAttributeToFilter('type_id', Mage_Catalog_Model_Product_Type::TYPE_SIMPLE)
+            ->addAttributeToSelect('sku')
             ->getColumnValues('sku');
     }
     /**

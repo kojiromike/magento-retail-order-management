@@ -223,7 +223,7 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
         )));
 
         $collectionMock = $this->getResourceModelMockBuilder('catalog/product_collection')
-            ->setMethods(array('addAttributeToFilter', 'getColumnValues'))
+            ->setMethods(array('addAttributeToSelect', 'addAttributeToFilter', 'getColumnValues'))
             ->disableOriginalConstructor()
             ->getMock();
         // This is far more brittle than I'd like but in order to ensure that both
@@ -244,6 +244,10 @@ class EbayEnterprise_Catalog_Test_Model_Feed_CleanerTest extends EbayEnterprise_
                 $this->identicalTo('type_id'),
                 $this->identicalTo(Mage_Catalog_Model_Product_Type::TYPE_SIMPLE)
             )
+            ->will($this->returnSelf());
+        $collectionMock->expects($this->once())
+            ->method('addAttributeToSelect')
+            ->with($this->identicalTo('sku'))
             ->will($this->returnSelf());
         $collectionMock->expects($this->once())
             ->method('getColumnValues')

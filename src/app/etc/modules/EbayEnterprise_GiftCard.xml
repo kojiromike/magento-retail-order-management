@@ -23,6 +23,7 @@ http://opensource.org/licenses/osl-3.0.php
                 <Mage_Sales/>
                 <EbayEnterprise_Eb2cCore/>
                 <EbayEnterprise_MageLog/>
+                <Enterprise_CustomerBalance/>
             </depends>
         </EbayEnterprise_GiftCard>
     </modules>

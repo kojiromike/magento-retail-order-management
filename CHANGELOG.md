@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.48] - 2016-03-02
+### Fixed
+- Giftcard not showing in totals
+
 ## [1.6.47] - 2016-02-24
 ### Fixed
 - Check available inventory after quantity is set instead of before totals are collected
@@ -432,6 +436,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.48]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.47...1.6.48
 [1.6.47]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.43...1.6.47
 [1.6.43]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.42...1.6.43
 [1.6.42]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.41...1.6.42

@@ -131,11 +131,12 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
         $qty,
         $id = null,
         $name = 'Item Name',
-        Mage_Sales_Model_Quote_Item $parentItem = null
+        Mage_Sales_Model_Quote_Item $parentItem = null,
+        array $methods = []
     ) {
         $quoteItem = $this->getModelMock(
             'sales/quote_item',
-            [
+            array_merge([
                 'addErrorInfo',
                 'getQty',
                 'getParentItem',
@@ -144,7 +145,7 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
                 'getName',
                 'getQuote',
                 'getProduct'
-            ]
+            ], $methods)
         );
         $quoteItem->expects($this->any())
             ->method('getQty')
@@ -248,7 +249,7 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
             ->method('getAllItems')
             ->will($this->returnValue($quoteItems));
         $this->_inventoryItemSelection->expects($this->any())
-            ->method('isExcludedParent')
+            ->method('isExcludedItem')
             ->with($invokeArgument)
             ->willReturn(false);
         $this->_inventoryItemSelection->expects($this->any())
@@ -669,16 +670,22 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
         // Create a parent item and a child item. Child item will be handled by
         // the service but when errors are present, they need to also be added
         // to the parent.
-        $parentQuoteItem = $this->_mockQuoteItem($itemSku, 1, 38, $itemName);
-        $quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName, $parentQuoteItem);
-        $quoteItems = [$quoteItem];
-        $this->_mockQuoteItemSelection($quoteItem);
+        $parentQuoteItem = $this->_mockQuoteItem($itemSku, $itemQty, $itemId, $itemName, null, ['getChildren']);
+        $quoteItem = $this->_mockQuoteItem($itemSku, $itemQty, 38, $itemName, $parentQuoteItem);
+        $quoteItems = [$parentQuoteItem];
+
+        // The qty is checked on the parent item but we expect errors to be
+        // added to the child item as well.
+        $this->_mockQuoteItemSelection($parentQuoteItem);
+        $parentQuoteItem->expects($this->any())
+            ->method('getChildren')
+            ->will($this->returnValue([$quoteItem]));
 
         // Mock the mechanism used to determine total quantity of an item,
         // can return the expected quantity of the item requested.
         $this->_quantityHelper->expects($this->any())
             ->method('calculateTotalQuantityRequested')
-            ->with($this->identicalTo($quoteItem), $this->identicalTo($quoteItems))
+            ->with($this->identicalTo($parentQuoteItem), $this->identicalTo($quoteItems))
             ->will($this->returnValue($itemQty));
 
         // item which will be returned from the quantity results
@@ -720,7 +727,7 @@ class EbayEnterprise_Inventory_Test_Model_Quantity_ServiceTest extends EcomDev_P
 
         $this->assertSame(
             $this->_quantityService,
-            $this->_quantityService->checkQuoteItemInventory($quoteItem)
+            $this->_quantityService->checkQuoteItemInventory($parentQuoteItem)
         );
     }
 

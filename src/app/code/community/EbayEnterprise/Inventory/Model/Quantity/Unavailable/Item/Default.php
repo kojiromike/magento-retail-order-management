@@ -151,9 +151,8 @@ class EbayEnterprise_Inventory_Model_Quantity_Unavailable_Item_Default
             $errorCode,
             $itemMessage
         );
-        $parentItem = $item->getParentItem();
-        if ($parentItem) {
-            $parentItem->addErrorInfo(
+        foreach ($item->getChildren() as $child) {
+            $child->addErrorInfo(
                 EbayEnterprise_Inventory_Model_Quantity_Service::ERROR_INFO_SOURCE,
                 $errorCode,
                 $itemMessage

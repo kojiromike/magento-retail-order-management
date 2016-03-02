@@ -20,6 +20,7 @@ class EbayEnterprise_Inventory_Test_Helper_Item_SelectionTest extends EbayEnterp
      */
     public function testAddConfigurable()
     {
+        /** @var Mage_Sales_Model_Quote_Item $parent */
         $parent = Mage::getModel('sales/quote_item', [
             'product' => Mage::getModel('catalog/product', [
                 'stock_item' => $this->_getStockItemStub(true),
@@ -27,18 +28,18 @@ class EbayEnterprise_Inventory_Test_Helper_Item_SelectionTest extends EbayEnterp
                 'id' => 1
             ])
         ]);
+        /** @var Mage_Sales_Model_Quote_Item $single */
         $single = Mage::getModel('sales/quote_item', [
             'product' => Mage::getModel('catalog/product', [
                 'stock_item' => $this->_getStockItemStub(true),
-                'type_id' => 'simple',
-                'parent_item_id' => $parent->getId(),
-                'parent_item' => $parent
+                'type_id' => 'simple'
             ])
         ]);
+        $single->setParentItem($parent);
 
         $selection = Mage::helper('ebayenterprise_inventory/item_selection');
         $chosenItems = $selection->selectFrom([$single, $parent]);
-        $this->assertTrue(in_array($single, $chosenItems));
+        $this->assertTrue(in_array($parent, $chosenItems));
         $this->assertCount(1, $chosenItems);
     }
 
@@ -85,15 +86,14 @@ class EbayEnterprise_Inventory_Test_Helper_Item_SelectionTest extends EbayEnterp
         $single = Mage::getModel('sales/quote_item', [
             'product' => Mage::getModel('catalog/product', [
                 'stock_item' => $this->_getStockItemStub(true),
-                'type_id' => 'simple',
-                'parent_item_id' => $parent->getId(),
-                'parent_item' => $parent
+                'type_id' => 'simple'
             ])
         ]);
+        $single->setParentItem($parent);
 
         $selection = Mage::helper('ebayenterprise_inventory/item_selection');
         $chosenItems = $selection->selectFrom([$single, $parent]);
-        $this->assertTrue(in_array($single, $chosenItems));
+        $this->assertTrue(in_array($parent, $chosenItems));
         $this->assertCount(1, $chosenItems);
     }
 

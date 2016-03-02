@@ -68,10 +68,8 @@ class EbayEnterprise_Inventory_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
     {
         /** @var string */
         $childSku = 'ABCD1234';
-        /** @var Mage_Catalog_Model_Product */
-        $childProduct = Mage::getModel('catalog/product', ['sku' => $childSku]);
         /** @var Mage_Sales_Model_Quote_Item */
-        $children = Mage::getModel('sales/quote_item', ['product' => $childProduct]);
+        $children = Mage::getModel('sales/quote_item', ['sku' => $childSku]);
         /** @var Mage_Sales_Model_Quote_Item */
         $item = Mage::getModel('sales/quote_item');
         $item->addChild($children);
@@ -90,22 +88,18 @@ class EbayEnterprise_Inventory_Test_Helper_DataTest extends EbayEnterprise_Eb2cC
     public function testGetAllParentSkuFromItem()
     {
         /** @var string */
-        $parentASku = 'ABCD1234';
+        $childSku = 'ABCD1234';
         /** @var string */
-        $parentBSku = '1234ABCD';
-        /** @var Mage_Catalog_Model_Product */
-        $product = Mage::getModel('catalog/product', ['entity_id' => 34, 'sku' => $parentASku]);
-        /** @var Mage_Catalog_Model_Product */
-        $parentProduct = Mage::getModel('catalog/product', ['entity_id' => 55, 'sku' => $parentBSku]);
+        $parentSku = '1234ABCD';
         /** @var Mage_Sales_Model_Quote_Item */
-        $parent = Mage::getModel('sales/quote_item', ['product' => $parentProduct]);
+        $parent = Mage::getModel('sales/quote_item', ['product_id' => 34, 'sku' => $parentSku]);
         /** @var Mage_Sales_Model_Quote_Item */
-        $item = Mage::getModel('sales/quote_item', ['product' => $product]);
+        $item = Mage::getModel('sales/quote_item', ['product_id' => 55, 'sku' => $childSku]);
         $item->setParentItem($parent);
         /** @var EbayEnterprise_Inventory_Helper_Data */
         $helper = Mage::helper('ebayenterprise_inventory');
 
-        $this->assertSame([$parentASku, $parentBSku], EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'getAllParentSkuFromItem', [$item]));
+        $this->assertSame([$childSku, $parentSku], EcomDev_Utils_Reflection::invokeRestrictedMethod($helper, 'getAllParentSkuFromItem', [$item]));
     }
 
     /**

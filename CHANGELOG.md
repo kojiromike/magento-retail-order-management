@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.51] - 2016-03-17
+### Fixed
+- Remove Enterprise dependency
+
 ## [1.6.50] - 2016-03-07
 ### Fixed
 - Customer not notified when an unavailable quantity is added to the cart from configurable product page
@@ -444,6 +448,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.51]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.50...1.6.51
 [1.6.50]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.49...1.6.50
 [1.6.49]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.48...1.6.49
 [1.6.48]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.47...1.6.48

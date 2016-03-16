@@ -39,7 +39,7 @@ http://opensource.org/licenses/osl-3.0.php
                 <totals>
                     <ebayenterprise_giftcard>
                         <class>ebayenterprise_giftcard/total_quote</class>
-                        <after>weee,discount,tax,tax_subtotal,grand_total,reward</after>
+                        <after>weee,discount,tax,tax_subtotal,grand_total,reward,giftwrapping</after>
                         <before>customerbalance</before>
                         <renderer>ebayenterprise_giftcard/checkout_cart_total</renderer>
                     </ebayenterprise_giftcard>

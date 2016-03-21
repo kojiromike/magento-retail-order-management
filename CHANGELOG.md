@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6.52] - 2016-03-21
+### Fixed
+- Color and Size missing from OrderCreateRequest
+
 ## [1.6.51] - 2016-03-17
 ### Fixed
 - Remove Enterprise dependency
@@ -448,6 +452,7 @@ All notable changes to this project will be documented in this file.
 - Gift card PIN is not submitted with the order
 - Product import not importing color descriptions
 
+[1.6.52]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.51...1.6.52
 [1.6.51]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.50...1.6.51
 [1.6.50]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.49...1.6.50
 [1.6.49]: https://github.com/eBayEnterprise/magento-retail-order-management/compare/1.6.48...1.6.49
